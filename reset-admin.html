@@ -3,40 +3,77 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Reset Admin — Prodsys</title>
+<title>สร้าง User — Prodsys</title>
 <style>
-  body{background:#07090f;color:#dde3f0;font-family:'Sarabun',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}
-  .box{background:#0e1118;border:1px solid #1e2535;border-radius:16px;padding:36px 32px;width:320px}
-  h2{font-size:16px;margin-bottom:4px;color:#60a5fa;font-weight:700}
-  p{color:#7a8499;font-size:12px;margin-bottom:20px;line-height:1.6}
-  label{display:block;font-size:10px;color:#3d4560;margin-bottom:4px;text-transform:uppercase;letter-spacing:.1em}
-  input{width:100%;background:#141820;border:1px solid #1e2535;border-radius:8px;color:#dde3f0;font-size:13px;padding:9px 12px;outline:none;box-sizing:border-box;margin-bottom:14px}
+  @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=DM+Mono:wght@400;600&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#07090f;color:#dde3f0;font-family:'Sarabun',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+  .box{background:#0e1118;border:1px solid #1e2535;border-radius:16px;padding:28px 24px;width:340px;max-width:100%}
+  h2{font-size:16px;color:#60a5fa;font-weight:700;margin-bottom:4px}
+  .sub{color:#7a8499;font-size:12px;margin-bottom:20px;line-height:1.6}
+  .user-card{background:#141820;border:1px solid #1e2535;border-radius:10px;padding:16px;margin-bottom:12px}
+  .user-title{font-family:'DM Mono',monospace;font-size:12px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+  label{display:block;font-size:10px;color:#3d4560;margin-bottom:4px;text-transform:uppercase;letter-spacing:.1em;margin-top:10px}
+  input{width:100%;background:#0e1118;border:1px solid #1e2535;border-radius:7px;color:#dde3f0;font-family:'DM Mono',monospace;font-size:12px;padding:8px 10px;outline:none}
   input:focus{border-color:#3b82f6}
-  button{width:100%;background:#3b82f6;color:#fff;border:none;border-radius:8px;padding:11px;font-size:14px;font-weight:700;cursor:pointer;margin-top:4px}
-  button:disabled{opacity:.5;cursor:not-allowed}
-  #msg{margin-top:14px;font-size:13px;min-height:18px;text-align:center;line-height:1.8;white-space:pre-line}
-  .ok{color:#22c55e} .err{color:#ef4444}
-  .warn{background:rgba(234,179,8,.1);border:1px solid rgba(234,179,8,.3);border-radius:8px;padding:10px 12px;color:#eab308;font-size:12px;margin-bottom:20px;line-height:1.6}
+  .email-disp{font-family:'DM Mono',monospace;font-size:11px;color:#7a8499;padding:7px 10px;background:#07090f;border:1px solid #1e2535;border-radius:7px;margin-top:4px}
+  .btn-main{width:100%;background:#3b82f6;color:#fff;border:none;border-radius:9px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;margin-top:16px;font-family:'Sarabun',sans-serif}
+  .btn-main:disabled{opacity:.4;cursor:not-allowed}
+  .result{margin-top:6px;font-size:12px;min-height:16px;font-family:'DM Mono',monospace}
+  .ok{color:#22c55e}.err{color:#ef4444}.info{color:#eab308}
+  .divider{height:1px;background:#1e2535;margin:16px 0}
+  .role-badge{font-size:10px;padding:2px 8px;border-radius:4px;font-family:'DM Mono',monospace}
+  .role-leadman{background:rgba(234,179,8,.15);color:#eab308;border:1px solid rgba(234,179,8,.3)}
+  .role-op{background:rgba(59,130,246,.15);color:#60a5fa;border:1px solid rgba(59,130,246,.3)}
+  .summary{background:#0d1f0d;border:1px solid rgba(34,197,94,.2);border-radius:10px;padding:14px;margin-top:16px;display:none}
+  .summary.show{display:block}
+  .sum-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12px}
 </style>
 </head>
 <body>
 <div class="box">
-  <h2>🔑 Reset Admin — Prodsys</h2>
-  <p>สร้าง admin ใหม่เข้า Firebase โดยตรง ไม่ต้อง login</p>
+  <h2>🔑 สร้าง User — PROD.SYS</h2>
+  <p class="sub">สร้าง user ทั้ง 2 คนพร้อมกันได้เลยครับ</p>
 
-  <div class="warn">⚠️ ต้องลบ <b>admin@filling.local</b> ออกจาก Firebase Authentication ก่อนครับ ไม่งั้นจะขึ้น error</div>
+  <!-- LEADMAN -->
+  <div class="user-card">
+    <div class="user-title">
+      <span>👷</span>
+      <span style="color:#eab308">Leadman</span>
+      <span class="role-badge role-leadman">leadman</span>
+    </div>
+    <div class="email-disp">leadman@filling.local</div>
+    <label>Password (อย่างน้อย 6 ตัว)</label>
+    <input id="lm-pass" type="password" placeholder="กรอก password">
+    <label>ยืนยัน Password</label>
+    <input id="lm-pass2" type="password" placeholder="กรอกซ้ำ">
+    <div class="result" id="lm-result"></div>
+  </div>
 
-  <label>Username</label>
-  <input id="uname" type="text" value="admin">
+  <!-- OPERATION -->
+  <div class="user-card">
+    <div class="user-title">
+      <span>🏭</span>
+      <span style="color:#60a5fa">Operation</span>
+      <span class="role-badge role-op">operator</span>
+    </div>
+    <div class="email-disp">operation@filling.local</div>
+    <label>Password (อย่างน้อย 6 ตัว)</label>
+    <input id="op-pass" type="password" placeholder="กรอก password">
+    <label>ยืนยัน Password</label>
+    <input id="op-pass2" type="password" placeholder="กรอกซ้ำ">
+    <div class="result" id="op-result"></div>
+  </div>
 
-  <label>Password ใหม่ (อย่างน้อย 6 ตัว)</label>
-  <input id="newpass" type="password" placeholder="กรอก password ใหม่">
+  <button class="btn-main" id="btn" onclick="createAll()">✅ สร้าง User ทั้ง 2 คน</button>
 
-  <label>ยืนยัน Password</label>
-  <input id="confpass" type="password" placeholder="กรอกซ้ำอีกครั้ง">
-
-  <button id="btn" onclick="doCreate()">สร้าง Admin ใหม่</button>
-  <div id="msg"></div>
+  <!-- SUMMARY -->
+  <div class="summary" id="summary">
+    <div style="font-size:12px;color:#22c55e;font-weight:700;margin-bottom:10px">✅ สร้างสำเร็จทั้งหมด!</div>
+    <div class="sum-row"><span>👷</span><span style="font-family:monospace">leadman@filling.local</span></div>
+    <div class="sum-row"><span>🏭</span><span style="font-family:monospace">operation@filling.local</span></div>
+    <div style="margin-top:10px;font-size:12px;color:#7a8499">กลับไปเปิด <b style="color:#60a5fa">index.html</b> แล้ว login ได้เลยครับ</div>
+  </div>
 </div>
 
 <script type="module">
@@ -45,52 +82,75 @@ import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com
 import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const app = initializeApp({
-  apiKey: "AIzaSyC3f6jMuhugE6BNfRfkpOA9BMrIKWR9YgQ",
-  authDomain: "production-filling.firebaseapp.com",
-  projectId: "production-filling",
-  storageBucket: "production-filling.firebasestorage.app",
-  messagingSenderId: "89098393458",
-  appId: "1:89098393458:web:b723f2886e8a341935afeb"
+  apiKey:"AIzaSyC3f6jMuhugE6BNfRfkpOA9BMrIKWR9YgQ",
+  authDomain:"production-filling.firebaseapp.com",
+  projectId:"production-filling",
+  storageBucket:"production-filling.firebasestorage.app",
+  messagingSenderId:"89098393458",
+  appId:"1:89098393458:web:b723f2886e8a341935afeb"
 });
-const auth = getAuth(app);
-const db   = getFirestore(app);
+const auth=getAuth(app);
+const db=getFirestore(app);
 
-window.doCreate = async () => {
-  const msg     = document.getElementById('msg');
-  const btn     = document.getElementById('btn');
-  const uname   = document.getElementById('uname').value.trim().toLowerCase();
-  const newpass = document.getElementById('newpass').value;
-  const confpass= document.getElementById('confpass').value;
+async function createUser(email,password,role,username){
+  const cred=await createUserWithEmailAndPassword(auth,email,password);
+  await setDoc(doc(db,"users",cred.user.uid),{
+    uid:cred.user.uid,
+    username,email,role,
+    createdAt:new Date().toISOString()
+  });
+  return cred.user.uid;
+}
 
-  msg.textContent = '';
-  if (!uname)              { msg.className='err'; msg.textContent='กรุณากรอก Username'; return; }
-  if (newpass.length < 6)  { msg.className='err'; msg.textContent='Password ต้องมีอย่างน้อย 6 ตัว'; return; }
-  if (newpass !== confpass) { msg.className='err'; msg.textContent='Password ไม่ตรงกัน'; return; }
+window.createAll=async()=>{
+  const btn=document.getElementById('btn');
+  const lmPass=document.getElementById('lm-pass').value;
+  const lmPass2=document.getElementById('lm-pass2').value;
+  const opPass=document.getElementById('op-pass').value;
+  const opPass2=document.getElementById('op-pass2').value;
+  const lmRes=document.getElementById('lm-result');
+  const opRes=document.getElementById('op-result');
 
-  const email = `${uname}@filling.local`;
-  btn.disabled = true;
-  msg.className=''; msg.textContent='⏳ กำลังสร้าง...';
+  // Validate
+  let ok=true;
+  lmRes.textContent='';opRes.textContent='';
+  if(lmPass.length<6){lmRes.className='result err';lmRes.textContent='❌ Password ต้องมีอย่างน้อย 6 ตัว';ok=false;}
+  else if(lmPass!==lmPass2){lmRes.className='result err';lmRes.textContent='❌ Password ไม่ตรงกัน';ok=false;}
+  if(opPass.length<6){opRes.className='result err';opRes.textContent='❌ Password ต้องมีอย่างน้อย 6 ตัว';ok=false;}
+  else if(opPass!==opPass2){opRes.className='result err';opRes.textContent='❌ Password ไม่ตรงกัน';ok=false;}
+  if(!ok)return;
 
-  try {
-    const cred = await createUserWithEmailAndPassword(auth, email, newpass);
-    await setDoc(doc(db, "users", cred.user.uid), {
-      uid: cred.user.uid,
-      username: uname,
-      email,
-      role: "admin",
-      createdAt: new Date().toISOString()
-    });
-    msg.className='ok';
-    msg.textContent='✅ สร้าง admin สำเร็จ!\nกลับไปเปิด prodsys.html\nแล้ว login ได้เลยครับ';
-  } catch(e) {
-    btn.disabled = false;
-    if (e.code === 'auth/email-already-in-use') {
-      msg.className='err';
-      msg.textContent='❌ Username นี้มีอยู่แล้ว\nกรุณาลบออกจาก Firebase Authentication ก่อน';
-    } else {
-      msg.className='err';
-      msg.textContent='❌ ' + e.message;
-    }
+  btn.disabled=true;
+  btn.textContent='⏳ กำลังสร้าง...';
+
+  // Create Leadman
+  try{
+    lmRes.className='result info';lmRes.textContent='⏳ กำลังสร้าง...';
+    await createUser('leadman@filling.local',lmPass,'leadman','leadman');
+    lmRes.className='result ok';lmRes.textContent='✅ สร้างสำเร็จ!';
+  }catch(e){
+    lmRes.className='result err';
+    lmRes.textContent=e.code==='auth/email-already-in-use'?'⚠️ มีอยู่แล้ว (ข้ามได้)':'❌ '+e.message;
+  }
+
+  // Create Operation
+  try{
+    opRes.className='result info';opRes.textContent='⏳ กำลังสร้าง...';
+    await createUser('operation@filling.local',opPass,'operator','operation');
+    opRes.className='result ok';opRes.textContent='✅ สร้างสำเร็จ!';
+  }catch(e){
+    opRes.className='result err';
+    opRes.textContent=e.code==='auth/email-already-in-use'?'⚠️ มีอยู่แล้ว (ข้ามได้)':'❌ '+e.message;
+  }
+
+  btn.disabled=false;
+  btn.textContent='✅ สร้าง User ทั้ง 2 คน';
+
+  // Show summary if both ok
+  const lmOk=lmRes.textContent.includes('✅')||lmRes.textContent.includes('⚠️');
+  const opOk=opRes.textContent.includes('✅')||opRes.textContent.includes('⚠️');
+  if(lmOk&&opOk){
+    document.getElementById('summary').classList.add('show');
   }
 };
 </script>
