@@ -19,6 +19,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 ::-webkit-scrollbar{width:6px;height:6px}
 ::-webkit-scrollbar-track{background:var(--bg)}
 ::-webkit-scrollbar-thumb{background:var(--b2);border-radius:3px}
+input[type="number"]{-moz-appearance:textfield}
+input[type="number"]::-webkit-inner-spin-button,input[type="number"]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
 
 /* NAV */
 nav{display:flex;align-items:center;height:52px;background:var(--s1);border-bottom:1px solid var(--b1);position:sticky;top:0;z-index:200;padding:0 16px;gap:8px}
@@ -46,10 +48,10 @@ nav{display:flex;align-items:center;height:52px;background:var(--s1);border-bott
 /* TABLE */
 .tw{overflow-x:auto;border-radius:10px;border:1px solid var(--b1)}
 table{width:100%;border-collapse:collapse;font-size:12px}
-thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1px solid var(--b1);position:sticky;top:0;z-index:10}
+thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1px solid var(--b1);position:sticky;top:52px;z-index:10;box-shadow:0 1px 0 var(--b1)}
 tbody tr{border-bottom:1px solid var(--b1)}
 tbody tr:hover td{background:rgba(255,255,255,.02)}
-tbody td{padding:5px 6px;vertical-align:middle}
+tbody td{padding:5px 6px;vertical-align:middle;font-weight:600}
 .row-mixing td{background:rgba(234,179,8,.08)!important}
 .row-mixing td:first-child{border-left:3px solid var(--yellow)!important}
 .row-past td{background:rgba(234,179,8,.08)!important}
@@ -119,11 +121,14 @@ tbody td{padding:5px 6px;vertical-align:middle}
     <div class="toolbar-left">
       <span style="font-family:var(--mono);font-size:10px;color:var(--t3)">DATE</span>
       <input type="date" id="date-m1" class="ci" style="width:140px" onchange="loadPlan('m1')">
+      <button class="btn btn-s" onclick="changeDate('m1',-1)" style="padding:5px 10px">◀</button>
+      <button class="btn btn-s" onclick="changeDate('m1',1)" style="padding:5px 10px">▶</button>
+      <button class="btn btn-s" onclick="goToday('m1')" style="font-size:10px">วันนี้</button>
 
     </div>
     <div class="toolbar-right">
       <button class="btn btn-g btn-s" onclick="exportCSV('m1')">⬇ Export</button>
-      <button class="btn btn-b btn-s" onclick="addRow('m1')">+ Add Row</button>
+      <button class="btn btn-b btn-s" onclick="addRow('m1');addRow('m1')">+ Add Row</button>
     </div>
   </div>
   <div class="kpi-row">
@@ -168,7 +173,7 @@ tbody td{padding:5px 6px;vertical-align:middle}
       </thead>
       <tbody id="tbody-m1"></tbody>
     </table>
-    <div style="padding:8px 12px"><button class="btn btn-g btn-s" onclick="addRow('m1')">+ Add Row</button></div>
+    <div style="padding:8px 12px"><button class="btn btn-g btn-s" onclick="addRow('m1');addRow('m1')">+ Add Row</button></div>
   </div>
 </div>
 
@@ -178,11 +183,14 @@ tbody td{padding:5px 6px;vertical-align:middle}
     <div class="toolbar-left">
       <span style="font-family:var(--mono);font-size:10px;color:var(--t3)">DATE</span>
       <input type="date" id="date-m2" class="ci" style="width:140px" onchange="loadPlan('m2')">
+      <button class="btn btn-s" onclick="changeDate('m2',-1)" style="padding:5px 10px">◀</button>
+      <button class="btn btn-s" onclick="changeDate('m2',1)" style="padding:5px 10px">▶</button>
+      <button class="btn btn-s" onclick="goToday('m2')" style="font-size:10px">วันนี้</button>
 
     </div>
     <div class="toolbar-right">
       <button class="btn btn-g btn-s" onclick="exportCSV('m2')">⬇ Export</button>
-      <button class="btn btn-b btn-s" onclick="addRow('m2')">+ Add Row</button>
+      <button class="btn btn-b btn-s" onclick="addRow('m2');addRow('m2')">+ Add Row</button>
     </div>
   </div>
   <div class="kpi-row">
@@ -227,7 +235,7 @@ tbody td{padding:5px 6px;vertical-align:middle}
       </thead>
       <tbody id="tbody-m2"></tbody>
     </table>
-    <div style="padding:8px 12px"><button class="btn btn-g btn-s" onclick="addRow('m2')">+ Add Row</button></div>
+    <div style="padding:8px 12px"><button class="btn btn-g btn-s" onclick="addRow('m2');addRow('m2')">+ Add Row</button></div>
   </div>
 </div>
 
@@ -365,6 +373,19 @@ window.loadPlan = (m) => {
   });
 };
 
+window.changeDate=(m,delta)=>{
+  const inp=$(m==="m1"?"date-m1":"date-m2");
+  const d=new Date(inp.value||today());
+  d.setDate(d.getDate()+delta);
+  inp.value=d.toISOString().slice(0,10);
+  loadPlan(m);
+};
+window.goToday=(m)=>{
+  const inp=$(m==="m1"?"date-m1":"date-m2");
+  inp.value=today();
+  loadPlan(m);
+};
+
 window.addRow = async(m) => {
   if(!ME){toast("กรุณา login ใหม่","red");return;}
   const d = $(m==="m1"?"date-m1":"date-m2").value || today();
@@ -418,7 +439,12 @@ function renderPlan(m){
   rows[m].forEach((row,i)=>{
     const ef = calcEst(row.start_time||row._auto||"", row.mix_code, row.volume_liter);
     const opts = products.map(p=>`<option value="${p.mix_code}" ${row.mix_code===p.mix_code?"selected":""}>${p.mix_code}</option>`).join("");
-    const lineOpts = lines.filter(l=>l.type==="Filling").map(l=>`<option value="${l.name}" ${row.filling_line===l.name?"selected":""}>${l.name}</option>`).join("");
+    const uniqueLines = [];
+    const seenNames = new Set();
+    lines.filter(l=>l.type==="Filling").forEach(l=>{
+      if(!seenNames.has(l.name)){seenNames.add(l.name);uniqueLines.push(l);}
+    });
+    const lineOpts = uniqueLines.map(l=>`<option value="${l.name}" ${row.filling_line===l.name?"selected":""}>${l.name}</option>`).join("");
 
     // Leadman-only fields (set values)
     const setInput = (col,id,field,bg,bc,val) =>
