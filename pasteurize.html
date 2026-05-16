@@ -122,10 +122,36 @@ thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap
     </div>
   </div>
   <div class="kpi-row">
-    <div class="kpi"><div class="kpi-label">Batches</div><div class="kpi-val" id="p1-total" style="color:var(--blue2)">0</div></div>
-    <div class="kpi"><div class="kpi-label">รอ Past.</div><div class="kpi-val" id="p1-wait" style="color:var(--yellow)">0</div></div>
-    <div class="kpi"><div class="kpi-label">กำลัง Past.</div><div class="kpi-val" id="p1-running" style="color:var(--orange)">0</div></div>
-    <div class="kpi"><div class="kpi-label">เสร็จแล้ว</div><div class="kpi-val" id="p1-done" style="color:var(--green)">0</div></div>
+    <div class="kpi" style="position:relative;overflow:hidden">
+      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#1e5f7a,#67e8f9)"></div>
+      <div class="kpi-label" style="color:#67e8f9">🌡️ Volume Past. (kg)</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:6px">
+        <div><div style="font-size:9px;color:#fff;font-family:var(--mono);font-weight:700">กะเช้า</div><div class="kpi-val" id="p1-vol-morning" style="font-size:16px;color:#67e8f9">—</div></div>
+        <div><div style="font-size:9px;color:#fff;font-family:var(--mono);font-weight:700">กะบ่าย</div><div class="kpi-val" id="p1-vol-afternoon" style="font-size:16px;color:#67e8f9">—</div></div>
+        <div><div style="font-size:9px;color:#fff;font-family:var(--mono);font-weight:700">กะดึก</div><div class="kpi-val" id="p1-vol-night" style="font-size:16px;color:#67e8f9">—</div></div>
+        <div><div style="font-size:9px;color:#fff;font-family:var(--mono);font-weight:700">Total</div><div class="kpi-val" id="p1-vol-total" style="font-size:16px;color:var(--cyan)">—</div></div>
+      </div>
+    </div>
+    <div class="kpi" style="position:relative;overflow:hidden">
+      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--blue),var(--cyan))"></div>
+      <div class="kpi-label" style="color:var(--blue2)">📊 Batches</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:6px">
+        <div><div style="font-size:9px;color:#fff;font-family:var(--mono);font-weight:700">กะเช้า</div><div class="kpi-val" id="p1-bat-morning" style="font-size:16px;color:var(--blue2)">0</div></div>
+        <div><div style="font-size:9px;color:#fff;font-family:var(--mono);font-weight:700">กะบ่าย</div><div class="kpi-val" id="p1-bat-afternoon" style="font-size:16px;color:var(--blue2)">0</div></div>
+        <div><div style="font-size:9px;color:#fff;font-family:var(--mono);font-weight:700">กะดึก</div><div class="kpi-val" id="p1-bat-night" style="font-size:16px;color:var(--blue2)">0</div></div>
+        <div><div style="font-size:9px;color:#fff;font-family:var(--mono);font-weight:700">Total</div><div class="kpi-val" id="p1-total" style="font-size:16px;color:var(--blue2)">0</div></div>
+      </div>
+    </div>
+    <div class="kpi" style="position:relative;overflow:hidden">
+      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--yellow),var(--orange))"></div>
+      <div class="kpi-label" style="color:var(--yellow)">⏳ สถานะ</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:6px">
+        <div><div style="font-size:9px;color:#fff;font-family:var(--mono);font-weight:700">รอ Past.</div><div class="kpi-val" id="p1-wait" style="font-size:16px;color:var(--yellow)">0</div></div>
+        <div><div style="font-size:9px;color:#fff;font-family:var(--mono);font-weight:700">กำลัง Past.</div><div class="kpi-val" id="p1-running" style="font-size:16px;color:var(--orange)">0</div></div>
+        <div><div style="font-size:9px;color:#fff;font-family:var(--mono);font-weight:700">เสร็จแล้ว</div><div class="kpi-val" id="p1-done" style="font-size:16px;color:var(--green)">0</div></div>
+        <div><div style="font-size:9px;color:#fff;font-family:var(--mono);font-weight:700">Batches</div><div class="kpi-val" id="p1-bat-all" style="font-size:16px;color:var(--blue2)">0</div></div>
+      </div>
+    </div>
   </div>
   <div class="tw"><table>
     <thead><tr>
@@ -161,10 +187,36 @@ thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap
     </div>
   </div>
   <div class="kpi-row">
-    <div class="kpi"><div class="kpi-label">Batches</div><div class="kpi-val" id="p2-total" style="color:var(--blue2)">0</div></div>
-    <div class="kpi"><div class="kpi-label">รอ Past.</div><div class="kpi-val" id="p2-wait" style="color:var(--yellow)">0</div></div>
-    <div class="kpi"><div class="kpi-label">กำลัง Past.</div><div class="kpi-val" id="p2-running" style="color:var(--orange)">0</div></div>
-    <div class="kpi"><div class="kpi-label">เสร็จแล้ว</div><div class="kpi-val" id="p2-done" style="color:var(--green)">0</div></div>
+    <div class="kpi" style="position:relative;overflow:hidden">
+      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#1e5f7a,#67e8f9)"></div>
+      <div class="kpi-label" style="color:#67e8f9">🌡️ Volume Past. (kg)</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:6px">
+        <div><div style="font-size:9px;color:#fff;font-family:var(--mono);font-weight:700">กะเช้า</div><div class="kpi-val" id="p2-vol-morning" style="font-size:16px;color:#67e8f9">—</div></div>
+        <div><div style="font-size:9px;color:#fff;font-family:var(--mono);font-weight:700">กะบ่าย</div><div class="kpi-val" id="p2-vol-afternoon" style="font-size:16px;color:#67e8f9">—</div></div>
+        <div><div style="font-size:9px;color:#fff;font-family:var(--mono);font-weight:700">กะดึก</div><div class="kpi-val" id="p2-vol-night" style="font-size:16px;color:#67e8f9">—</div></div>
+        <div><div style="font-size:9px;color:#fff;font-family:var(--mono);font-weight:700">Total</div><div class="kpi-val" id="p2-vol-total" style="font-size:16px;color:var(--cyan)">—</div></div>
+      </div>
+    </div>
+    <div class="kpi" style="position:relative;overflow:hidden">
+      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--blue),var(--cyan))"></div>
+      <div class="kpi-label" style="color:var(--blue2)">📊 Batches</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:6px">
+        <div><div style="font-size:9px;color:#fff;font-family:var(--mono);font-weight:700">กะเช้า</div><div class="kpi-val" id="p2-bat-morning" style="font-size:16px;color:var(--blue2)">0</div></div>
+        <div><div style="font-size:9px;color:#fff;font-family:var(--mono);font-weight:700">กะบ่าย</div><div class="kpi-val" id="p2-bat-afternoon" style="font-size:16px;color:var(--blue2)">0</div></div>
+        <div><div style="font-size:9px;color:#fff;font-family:var(--mono);font-weight:700">กะดึก</div><div class="kpi-val" id="p2-bat-night" style="font-size:16px;color:var(--blue2)">0</div></div>
+        <div><div style="font-size:9px;color:#fff;font-family:var(--mono);font-weight:700">Total</div><div class="kpi-val" id="p2-total" style="font-size:16px;color:var(--blue2)">0</div></div>
+      </div>
+    </div>
+    <div class="kpi" style="position:relative;overflow:hidden">
+      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--yellow),var(--orange))"></div>
+      <div class="kpi-label" style="color:var(--yellow)">⏳ สถานะ</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:6px">
+        <div><div style="font-size:9px;color:#fff;font-family:var(--mono);font-weight:700">รอ Past.</div><div class="kpi-val" id="p2-wait" style="font-size:16px;color:var(--yellow)">0</div></div>
+        <div><div style="font-size:9px;color:#fff;font-family:var(--mono);font-weight:700">กำลัง Past.</div><div class="kpi-val" id="p2-running" style="font-size:16px;color:var(--orange)">0</div></div>
+        <div><div style="font-size:9px;color:#fff;font-family:var(--mono);font-weight:700">เสร็จแล้ว</div><div class="kpi-val" id="p2-done" style="font-size:16px;color:var(--green)">0</div></div>
+        <div><div style="font-size:9px;color:#fff;font-family:var(--mono);font-weight:700">Batches</div><div class="kpi-val" id="p2-bat-all" style="font-size:16px;color:var(--blue2)">0</div></div>
+      </div>
+    </div>
   </div>
   <div class="tw"><table>
     <thead><tr>
@@ -492,9 +544,98 @@ function renderPlan(p){
   });
 
   $(`${p}-total`).textContent=rows[p].length;
+  $(`${p}-bat-all`).textContent=rows[p].length;
   $(`${p}-wait`).textContent=rows[p].filter(r=>r.status==="pasteurising"&&!r.past_start_time).length;
   $(`${p}-running`).textContent=rows[p].filter(r=>r.status==="pasteurising"&&!!r.past_start_time).length;
   $(`${p}-done`).textContent=rows[p].filter(r=>r.status==="past_done"||r.status==="ready").length;
+
+  // ── Volume by Shift ──────────────────────────────────────────────────
+  // กะ: เช้า 06:00-14:00 บ่าย 14:00-22:00 ดึก 22:00-06:00(+1)
+  const SHIFTS={
+    morning:{start:6*60,end:14*60},
+    afternoon:{start:14*60,end:22*60},
+    night:{start:22*60,end:30*60}, // 22:00-06:00 = 22*60 ถึง 30*60
+  };
+  function toMin(t){
+    if(!t)return null;
+    const[h,m]=t.split(':').map(Number);
+    return h*60+m;
+  }
+  function fmtKg(v){
+    if(v===0||isNaN(v))return'0';
+    return v>=1000?(v/1000).toFixed(1)+'t':Math.round(v)+'';
+  }
+
+  const vol={morning:0,afternoon:0,night:0};
+  const bat={morning:0,afternoon:0,night:0};
+
+  rows[p].forEach(r=>{
+    // เฉพาะ pasteurising หรือ past_done
+    if(r.status!=='pasteurising'&&r.status!=='past_done'&&r.status!=='ready')return;
+    if(!r.past_start_time)return;
+
+    const prod=productMap[r.mix_code]||{};
+    const density=+(prod.density||1);
+    const volKg=+(r.volume_liter||0)*density;
+    if(volKg<=0)return;
+
+    const startMin=toMin(r.past_start_time);
+    let endMin=r.past_end_time?toMin(r.past_end_time):null;
+
+    // ถ้ายังไม่เสร็จ ใช้เวลาปัจจุบัน
+    if(!endMin){
+      const now=new Date();
+      endMin=now.getHours()*60+now.getMinutes();
+    }
+
+    // ปรับกะดึกที่ข้ามวัน
+    let s=startMin,e=endMin;
+    if(e<s)e+=1440; // ข้ามเที่ยงคืน
+
+    const totalMin=e-s;
+    if(totalMin<=0)return;
+
+    // แบ่งสัดส่วนตามกะ
+    Object.entries(SHIFTS).forEach(([sh,{start,end}])=>{
+      // ปรับกะดึกให้ครอบคลุม
+      let sS=start,sE=end;
+      if(sh==='night'){
+        // กะดึก 22:00-30:00 (06:00 วันถัดไป)
+        // ตรวจว่า batch คาบเข้ากะดึกไหม
+        const overlap1=Math.max(0,Math.min(e,sE)-Math.max(s,sS));
+        // กรณี batch เริ่มก่อนเที่ยงคืน แล้วจบหลัง
+        const overlap2=Math.max(0,Math.min(e,6*60+1440)-Math.max(s,22*60));
+        const ov=Math.max(overlap1,overlap2);
+        if(ov>0){
+          const ratio=ov/totalMin;
+          vol[sh]+=volKg*ratio;
+          bat[sh]+=ratio>0.5?1:0;
+        }
+        return;
+      }
+      const ov=Math.max(0,Math.min(e,sE)-Math.max(s,sS));
+      if(ov>0){
+        const ratio=ov/totalMin;
+        vol[sh]+=volKg*ratio;
+        if(bat[sh]===0||ratio>0.3)bat[sh]+=ratio>0.5?1:0.5;
+      }
+    });
+  });
+
+  const totVol=vol.morning+vol.afternoon+vol.night;
+  const totBat=rows[p].filter(r=>r.status==='pasteurising'||r.status==='past_done'||r.status==='ready').length;
+
+  ['morning','afternoon','night'].forEach(sh=>{
+    const shKey={'morning':'morning','afternoon':'afternoon','night':'night'}[sh];
+    const ve=$(`${p}-vol-${shKey}`);
+    const be=$(`${p}-bat-${shKey}`);
+    if(ve){ve.textContent=fmtKg(vol[sh])+' kg';}
+    if(be){be.textContent=Math.round(bat[sh]);}
+  });
+  const vt=$(`${p}-vol-total`);
+  const bt=$(`${p}-bat-all`);
+  if(vt)vt.textContent=fmtKg(totVol)+' kg';
+  if(bt)bt.textContent=totBat;
 
   // ถ้าเกิน 10 แถว ให้ archive อัตโนมัติ
   if(rows[p].length>10) checkAndArchive(p);
