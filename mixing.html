@@ -136,10 +136,46 @@ thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap
     </div>
   </div>
   <div class="kpi-row">
-    <div class="kpi"><div class="kpi-label">Batches</div><div class="kpi-val" id="m1-total" style="color:var(--blue2)">0</div></div>
-    <div class="kpi"><div class="kpi-label">กำลังผสม</div><div class="kpi-val" id="m1-mixing" style="color:var(--yellow)">0</div></div>
-    <div class="kpi"><div class="kpi-label">รอ Past.</div><div class="kpi-val" id="m1-wait" style="color:var(--cyan)">0</div></div>
-    <div class="kpi"><div class="kpi-label">เสร็จแล้ว</div><div class="kpi-val" id="m1-done" style="color:var(--green)">0</div></div>
+    <div class="kpi" style="position:relative;overflow:hidden">
+      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#6b8c3a,#86efac)"></div>
+      <div class="kpi-label" style="color:#86efac">🍬 Glucose Diff (kg)</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:6px">
+        <div><div style="font-size:9px;color:var(--t3);font-family:var(--mono)">กะเช้า</div><div class="kpi-val" id="m1-glc-morning" style="font-size:16px;color:#86efac">—</div></div>
+        <div><div style="font-size:9px;color:var(--t3);font-family:var(--mono)">กะบ่าย</div><div class="kpi-val" id="m1-glc-afternoon" style="font-size:16px;color:#86efac">—</div></div>
+        <div><div style="font-size:9px;color:var(--t3);font-family:var(--mono)">กะดึก</div><div class="kpi-val" id="m1-glc-night" style="font-size:16px;color:#86efac">—</div></div>
+        <div><div style="font-size:9px;color:var(--t3);font-family:var(--mono)">ทั้งวัน</div><div class="kpi-val" id="m1-glc-total" style="font-size:16px;color:#86efac">—</div></div>
+      </div>
+    </div>
+    <div class="kpi" style="position:relative;overflow:hidden">
+      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#1e5f7a,#67e8f9)"></div>
+      <div class="kpi-label" style="color:#67e8f9">🧂 Sugar Diff (kg)</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:6px">
+        <div><div style="font-size:9px;color:var(--t3);font-family:var(--mono)">กะเช้า</div><div class="kpi-val" id="m1-sgr-morning" style="font-size:16px;color:#67e8f9">—</div></div>
+        <div><div style="font-size:9px;color:var(--t3);font-family:var(--mono)">กะบ่าย</div><div class="kpi-val" id="m1-sgr-afternoon" style="font-size:16px;color:#67e8f9">—</div></div>
+        <div><div style="font-size:9px;color:var(--t3);font-family:var(--mono)">กะดึก</div><div class="kpi-val" id="m1-sgr-night" style="font-size:16px;color:#67e8f9">—</div></div>
+        <div><div style="font-size:9px;color:var(--t3);font-family:var(--mono)">ทั้งวัน</div><div class="kpi-val" id="m1-sgr-total" style="font-size:16px;color:#67e8f9">—</div></div>
+      </div>
+    </div>
+    <div class="kpi" style="position:relative;overflow:hidden">
+      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#6b5530,#fdba74)"></div>
+      <div class="kpi-label" style="color:#fdba74">🌴 Palm Oil Diff (kg)</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:6px">
+        <div><div style="font-size:9px;color:var(--t3);font-family:var(--mono)">กะเช้า</div><div class="kpi-val" id="m1-plm-morning" style="font-size:16px;color:#fdba74">—</div></div>
+        <div><div style="font-size:9px;color:var(--t3);font-family:var(--mono)">กะบ่าย</div><div class="kpi-val" id="m1-plm-afternoon" style="font-size:16px;color:#fdba74">—</div></div>
+        <div><div style="font-size:9px;color:var(--t3);font-family:var(--mono)">กะดึก</div><div class="kpi-val" id="m1-plm-night" style="font-size:16px;color:#fdba74">—</div></div>
+        <div><div style="font-size:9px;color:var(--t3);font-family:var(--mono)">ทั้งวัน</div><div class="kpi-val" id="m1-plm-total" style="font-size:16px;color:#fdba74">—</div></div>
+      </div>
+    </div>
+    <div class="kpi" style="position:relative;overflow:hidden">
+      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--blue),var(--cyan))"></div>
+      <div class="kpi-label" style="color:var(--blue2)">📊 Diff รวมทั้งวัน (kg)</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:6px">
+        <div><div style="font-size:9px;color:var(--t3);font-family:var(--mono)">🍬 Glc</div><div class="kpi-val" id="m1-glc-all" style="font-size:16px;color:#86efac">—</div></div>
+        <div><div style="font-size:9px;color:var(--t3);font-family:var(--mono)">🧂 Sgr</div><div class="kpi-val" id="m1-sgr-all" style="font-size:16px;color:#67e8f9">—</div></div>
+        <div><div style="font-size:9px;color:var(--t3);font-family:var(--mono)">🌴 Plm</div><div class="kpi-val" id="m1-plm-all" style="font-size:16px;color:#fdba74">—</div></div>
+        <div><div style="font-size:9px;color:var(--t3);font-family:var(--mono)">Batches</div><div class="kpi-val" id="m1-total" style="font-size:16px;color:var(--blue2)">0</div></div>
+      </div>
+    </div>
   </div>
   <div class="tw"><table>
     <thead>
@@ -175,10 +211,46 @@ thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap
     </div>
   </div>
   <div class="kpi-row">
-    <div class="kpi"><div class="kpi-label">Batches</div><div class="kpi-val" id="m2-total" style="color:var(--blue2)">0</div></div>
-    <div class="kpi"><div class="kpi-label">กำลังผสม</div><div class="kpi-val" id="m2-mixing" style="color:var(--yellow)">0</div></div>
-    <div class="kpi"><div class="kpi-label">รอ Past.</div><div class="kpi-val" id="m2-wait" style="color:var(--cyan)">0</div></div>
-    <div class="kpi"><div class="kpi-label">เสร็จแล้ว</div><div class="kpi-val" id="m2-done" style="color:var(--green)">0</div></div>
+    <div class="kpi" style="position:relative;overflow:hidden">
+      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#6b8c3a,#86efac)"></div>
+      <div class="kpi-label" style="color:#86efac">🍬 Glucose Diff (kg)</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:6px">
+        <div><div style="font-size:9px;color:var(--t3);font-family:var(--mono)">กะเช้า</div><div class="kpi-val" id="m2-glc-morning" style="font-size:16px;color:#86efac">—</div></div>
+        <div><div style="font-size:9px;color:var(--t3);font-family:var(--mono)">กะบ่าย</div><div class="kpi-val" id="m2-glc-afternoon" style="font-size:16px;color:#86efac">—</div></div>
+        <div><div style="font-size:9px;color:var(--t3);font-family:var(--mono)">กะดึก</div><div class="kpi-val" id="m2-glc-night" style="font-size:16px;color:#86efac">—</div></div>
+        <div><div style="font-size:9px;color:var(--t3);font-family:var(--mono)">ทั้งวัน</div><div class="kpi-val" id="m2-glc-total" style="font-size:16px;color:#86efac">—</div></div>
+      </div>
+    </div>
+    <div class="kpi" style="position:relative;overflow:hidden">
+      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#1e5f7a,#67e8f9)"></div>
+      <div class="kpi-label" style="color:#67e8f9">🧂 Sugar Diff (kg)</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:6px">
+        <div><div style="font-size:9px;color:var(--t3);font-family:var(--mono)">กะเช้า</div><div class="kpi-val" id="m2-sgr-morning" style="font-size:16px;color:#67e8f9">—</div></div>
+        <div><div style="font-size:9px;color:var(--t3);font-family:var(--mono)">กะบ่าย</div><div class="kpi-val" id="m2-sgr-afternoon" style="font-size:16px;color:#67e8f9">—</div></div>
+        <div><div style="font-size:9px;color:var(--t3);font-family:var(--mono)">กะดึก</div><div class="kpi-val" id="m2-sgr-night" style="font-size:16px;color:#67e8f9">—</div></div>
+        <div><div style="font-size:9px;color:var(--t3);font-family:var(--mono)">ทั้งวัน</div><div class="kpi-val" id="m2-sgr-total" style="font-size:16px;color:#67e8f9">—</div></div>
+      </div>
+    </div>
+    <div class="kpi" style="position:relative;overflow:hidden">
+      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#6b5530,#fdba74)"></div>
+      <div class="kpi-label" style="color:#fdba74">🌴 Palm Oil Diff (kg)</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:6px">
+        <div><div style="font-size:9px;color:var(--t3);font-family:var(--mono)">กะเช้า</div><div class="kpi-val" id="m2-plm-morning" style="font-size:16px;color:#fdba74">—</div></div>
+        <div><div style="font-size:9px;color:var(--t3);font-family:var(--mono)">กะบ่าย</div><div class="kpi-val" id="m2-plm-afternoon" style="font-size:16px;color:#fdba74">—</div></div>
+        <div><div style="font-size:9px;color:var(--t3);font-family:var(--mono)">กะดึก</div><div class="kpi-val" id="m2-plm-night" style="font-size:16px;color:#fdba74">—</div></div>
+        <div><div style="font-size:9px;color:var(--t3);font-family:var(--mono)">ทั้งวัน</div><div class="kpi-val" id="m2-plm-total" style="font-size:16px;color:#fdba74">—</div></div>
+      </div>
+    </div>
+    <div class="kpi" style="position:relative;overflow:hidden">
+      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--blue),var(--cyan))"></div>
+      <div class="kpi-label" style="color:var(--blue2)">📊 Diff รวมทั้งวัน (kg)</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:6px">
+        <div><div style="font-size:9px;color:var(--t3);font-family:var(--mono)">🍬 Glc</div><div class="kpi-val" id="m2-glc-all" style="font-size:16px;color:#86efac">—</div></div>
+        <div><div style="font-size:9px;color:var(--t3);font-family:var(--mono)">🧂 Sgr</div><div class="kpi-val" id="m2-sgr-all" style="font-size:16px;color:#67e8f9">—</div></div>
+        <div><div style="font-size:9px;color:var(--t3);font-family:var(--mono)">🌴 Plm</div><div class="kpi-val" id="m2-plm-all" style="font-size:16px;color:#fdba74">—</div></div>
+        <div><div style="font-size:9px;color:var(--t3);font-family:var(--mono)">Batches</div><div class="kpi-val" id="m2-total" style="font-size:16px;color:var(--blue2)">0</div></div>
+      </div>
+    </div>
   </div>
   <div class="tw"><table>
     <thead>
@@ -449,11 +521,51 @@ function renderPlan(m){
     tbody.appendChild(tr);
   });
 
-  // KPI
+  // KPI — Diff by shift
   $(`${m}-total`).textContent=rows[m].length;
-  $(`${m}-mixing`).textContent=rows[m].filter(r=>r.status==="mixing").length;
-  $(`${m}-wait`).textContent=rows[m].filter(r=>r.status==="pasteurising").length;
-  $(`${m}-done`).textContent=rows[m].filter(r=>r.status==="past_done"||r.status==="ready").length;
+
+  // กะ: เช้า 06:00-14:00, บ่าย 14:00-22:00, ดึก 22:00-06:00(+1)
+  function getShift(timeStr){
+    if(!timeStr)return null;
+    const[h,mi]=timeStr.split(':').map(Number);
+    const t=h*60+(mi||0);
+    if(t>=6*60&&t<14*60)return'morning';
+    if(t>=14*60&&t<22*60)return'afternoon';
+    return'night';
+  }
+  function fmtDiff(v){
+    if(v===0)return'0';
+    return(v>0?'+':'')+v.toFixed(1);
+  }
+  function diffColor(v){return v===0?'var(--t2)':Math.abs(v)>5?'var(--red)':'var(--green)';}
+
+  const shifts={morning:{glc:0,sgr:0,plm:0},afternoon:{glc:0,sgr:0,plm:0},night:{glc:0,sgr:0,plm:0}};
+  let totGlc=0,totSgr=0,totPlm=0;
+
+  rows[m].forEach(r=>{
+    const sh=getShift(r.mix_start_time);
+    if(!sh)return;
+    const gd=(+r.glc_actual||0)-(+r.glc_set||0);
+    const sd=(+r.sgr_actual||0)-(+r.sgr_set||0);
+    const pd=(+r.plm_actual||0)-(+r.plm_set||0);
+    if(r.glc_actual){shifts[sh].glc+=gd;totGlc+=gd;}
+    if(r.sgr_actual){shifts[sh].sgr+=sd;totSgr+=sd;}
+    if(r.plm_actual){shifts[sh].plm+=pd;totPlm+=pd;}
+  });
+
+  ['glc','sgr','plm'].forEach(f=>{
+    ['morning','afternoon','night'].forEach(sh=>{
+      const shKey={'morning':'morning','afternoon':'afternoon','night':'night'}[sh];
+      const v=shifts[sh][f];
+      const el=$(`${m}-${f}-${shKey}`);
+      if(el){el.textContent=fmtDiff(v);el.style.color=diffColor(v);}
+    });
+    const totEl=$(`${m}-${f}-total`);
+    const allEl=$(`${m}-${f}-all`);
+    const tot=f==='glc'?totGlc:f==='sgr'?totSgr:totPlm;
+    if(totEl){totEl.textContent=fmtDiff(tot);totEl.style.color=diffColor(tot);}
+    if(allEl){allEl.textContent=fmtDiff(tot);allEl.style.color=diffColor(tot);}
+  });
 }
 
 window.editTimePrompt=async(col,id,field,current)=>{
@@ -474,8 +586,8 @@ window.editTimePrompt=async(col,id,field,current)=>{
     // ลบเวลา + reset status
     if(!confirm("ยืนยันลบเวลานี้ออก?"))return;
     const upd={[field]:null};
-    if(field==="mix_start_time") upd.status="pending";
-    if(field==="mix_end_time")   upd.status="mixing";
+    if(field==="mix_start_time"){upd.status="pending";upd.mix_end_time=null;}
+    if(field==="mix_end_time") upd.status="mixing";
     await updateDoc(doc(db,col,id),upd);
     toast("ลบเวลาแล้ว","green");
   }
