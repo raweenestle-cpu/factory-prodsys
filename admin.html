@@ -228,7 +228,7 @@ tbody td{padding:7px 10px;vertical-align:middle}
     <div class="tw">
       <table>
         <thead><tr>
-          <th>Seq</th><th>ชื่อ LINE</th><th>รหัสสินค้า</th><th>ผลิตภัณฑ์</th><th>Mix Codes</th><th>Flow Rate</th><th>กลุ่ม</th><th>จัดการ</th>
+          <th>Seq</th><th>ชื่อ LINE</th><th>รหัสสินค้า</th><th>ผลิตภัณฑ์</th><th>Mix Code</th><th>Mix Name</th><th>Flow Rate</th><th>กลุ่ม</th><th>จัดการ</th>
         </tr></thead>
         <tbody id="lines-bangchan"></tbody>
       </table>
@@ -241,7 +241,7 @@ tbody td{padding:7px 10px;vertical-align:middle}
     <div class="tw">
       <table>
         <thead><tr>
-          <th>Seq</th><th>ชื่อ LINE</th><th>รหัสสินค้า</th><th>ผลิตภัณฑ์</th><th>Mix Codes</th><th>Flow Rate</th><th>กลุ่ม</th><th>จัดการ</th>
+          <th>Seq</th><th>ชื่อ LINE</th><th>รหัสสินค้า</th><th>ผลิตภัณฑ์</th><th>Mix Code</th><th>Mix Name</th><th>Flow Rate</th><th>กลุ่ม</th><th>จัดการ</th>
         </tr></thead>
         <tbody id="lines-twin"></tbody>
       </table>
@@ -531,7 +531,7 @@ function renderLines(){
     tbody.innerHTML="";
     const group=lines.filter(l=>l.group===g||(g==="bangchan"&&!l.group));
     if(!group.length){
-      tbody.innerHTML=`<tr><td colspan="8" style="text-align:center;color:var(--t3);padding:20px">ยังไม่มี LINE</td></tr>`;
+      tbody.innerHTML=`<tr><td colspan="9" style="text-align:center;color:var(--t3);padding:20px">ยังไม่มี LINE</td></tr>`;
       return;
     }
     group.sort((a,b)=>(a.seq||0)-(b.seq||0)).forEach(l=>{
@@ -539,16 +539,20 @@ function renderLines(){
       const prodNamesHTML=products_list.length
         ?products_list.map(p=>`<div style="font-family:var(--sans);font-size:12px;margin-bottom:3px">${p.name}</div>`).join('')
         :`<span style="color:var(--t3);font-size:11px">—</span>`;
-      const mixCodesHTML=products_list.length
-        ?products_list.map(p=>`<div style="font-family:var(--mono);font-size:10px;color:var(--cyan);margin-bottom:3px">${(p.mix_codes||[]).length?(p.mix_codes.map(m=>m.code).join(', ')):'<span style="color:var(--t3)">—</span>'}</div>`).join('')
+      const mixCodeHTML=products_list.length
+        ?products_list.map(p=>`<div style="font-family:var(--mono);font-size:10px;color:var(--cyan);margin-bottom:3px">${(p.mix_codes||[]).map(m=>m.code).join('<br>')||'—'}</div>`).join('')
+        :`<span style="color:var(--t3);font-size:11px">—</span>`;
+      const mixNameHTML=products_list.length
+        ?products_list.map(p=>`<div style="font-size:11px;color:var(--t2);margin-bottom:3px">${(p.mix_codes||[]).map(m=>m.name||'—').join('<br>')||'—'}</div>`).join('')
         :`<span style="color:var(--t3);font-size:11px">—</span>`;
       const tr=document.createElement("tr");
       tr.innerHTML=`
         <td style="font-family:var(--mono);color:var(--t3)">${l.seq||"—"}</td>
         <td style="font-family:var(--mono);font-weight:700;color:var(--cyan)">${l.name||"—"}</td>
         <td style="font-family:var(--mono);font-size:11px;color:var(--yellow)">${l.sku||"—"}</td>
-        <td style="max-width:160px">${prodNamesHTML}</td>
-        <td style="max-width:160px">${mixCodesHTML}</td>
+        <td style="max-width:140px">${prodNamesHTML}</td>
+        <td style="max-width:120px">${mixCodeHTML}</td>
+        <td style="max-width:140px">${mixNameHTML}</td>
         <td style="font-family:var(--mono)">${l.flow_rate||300} L/hr</td>
         <td><span style="font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:4px;background:${g==="bangchan"?"rgba(59,130,246,.1)":"rgba(168,85,247,.1)"};color:${g==="bangchan"?"var(--blue2)":"var(--purple)"}">${g==="bangchan"?"Bangchan":"Twin"}</span></td>
         <td>
