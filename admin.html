@@ -820,11 +820,11 @@ window.addProduct=async()=>{
   if(!name){err.textContent="กรุณากรอก Mix Name";return;}
   // Check duplicate
   if(productsAll.find(p=>p.mix_code===code)){err.textContent="Mix Code นี้มีอยู่แล้ว";return;}
-  await addDoc(collection(db,"products"),{
-    mix_code:code,mix_name:name,density,aging_time:aging,
-    const homo1=+$("np-homo1").value||0;
+  const homo1=+$("np-homo1").value||0;
   const homo2=+$("np-homo2").value||0;
   const ptype=$("np-type").value.trim();
+  await addDoc(collection(db,"products"),{
+    mix_code:code,mix_name:name,density,aging_time:aging,
     speed_m1:spd1,speed_m2:spd2,speed:spd1,color,homo_stage1:homo1,homo_stage2:homo2,product_type:ptype,
     createdAt:new Date().toISOString()
   });
