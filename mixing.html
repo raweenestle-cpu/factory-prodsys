@@ -279,9 +279,11 @@ const planCol=(m)=>m==="m1"?"production_plans":"production_plans_m2";
 window.loadPlan=(m)=>{
   const d=$(m==="m1"?"date-m1":"date-m2").value||today();
   if(unsub[m])unsub[m]();
-  const q=query(collection(db,planCol(m)),where("date","==",d),orderBy("seq","asc"));
+  const q=query(collection(db,planCol(m)),where("date","==",d));
   unsub[m]=onSnapshot(q,snap=>{
-    rows[m]=snap.docs.map(d=>({id:d.id,...d.data()}));
+    rows[m]=snap.docs.map(d=>({id:d.id,...d.data()}))
+      .filter(r=>r.mix_code&&r.mix_code!=="")
+      .sort((a,b)=>(a.seq||0)-(b.seq||0));
     renderPlan(m);
   });
 };
@@ -353,7 +355,7 @@ function renderPlan(m){
             onclick="stampTime('${col}','${row.id}','${field}','${m}')">
             ⏱ ${hasTime?time:label}
           </button>
-          ${hasTime?`<span style="font-size:10px;color:var(--t3);cursor:pointer;padding-left:4px" onclick="editTimePrompt('${col}','${row.id}','${field}','${time}')">✏️ แก้ไข</span>`:""}
+          ${hasTime?`<button style="font-size:9px;padding:1px 6px;border-radius:4px;border:1px solid var(--b2);background:none;color:var(--t2);cursor:pointer;margin-top:2px" onclick="editTimePrompt('${col}','${row.id}','${field}','${time}')">✏️ แก้ไข</button>`:""}
         </div>
       </td>`;
     };

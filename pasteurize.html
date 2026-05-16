@@ -127,9 +127,10 @@ thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap
       <th>Batch</th>
       <th>Vol (L)</th>
       <th>Tank Mix</th>
-      <th style="color:var(--yellow)">Mix เสร็จ</th>
       <th style="color:var(--orange)">♨️ เริ่ม Past.</th>
+      <th style="color:var(--cyan)">🕐 คาดเสร็จ</th>
       <th style="color:var(--green)">✅ Past. เสร็จ</th>
+      <th style="color:var(--green)">Eff%</th>
       <th style="color:var(--purple)">รหัสผลิต</th>
       <th>Status</th>
     </tr></thead>
@@ -159,9 +160,10 @@ thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap
       <th>Batch</th>
       <th>Vol (L)</th>
       <th>Tank Mix</th>
-      <th style="color:var(--yellow)">Mix เสร็จ</th>
       <th style="color:var(--orange)">♨️ เริ่ม Past.</th>
+      <th style="color:var(--cyan)">🕐 คาดเสร็จ</th>
       <th style="color:var(--green)">✅ Past. เสร็จ</th>
+      <th style="color:var(--green)">Eff%</th>
       <th style="color:var(--purple)">รหัสผลิต</th>
       <th>Status</th>
     </tr></thead>
@@ -268,9 +270,11 @@ window.doLogout=async()=>{
 window.loadPlan=(p)=>{
   const d=$(p==="p1"?"date-p1":"date-p2").value||today();
   if(unsub[p])unsub[p]();
-  const q=query(collection(db,planCol(p)),where("date","==",d),orderBy("seq","asc"));
+  const q=query(collection(db,planCol(p)),where("date","==",d));
   unsub[p]=onSnapshot(q,snap=>{
-    rows[p]=snap.docs.map(d=>({id:d.id,...d.data()}));
+    rows[p]=snap.docs.map(d=>({id:d.id,...d.data()}))
+      .filter(r=>r.mix_code&&r.mix_code!=="") // เฉพาะ row ที่ leadman กรอกข้อมูลแล้ว
+      .sort((a,b)=>(a.seq||0)-(b.seq||0));
     renderPlan(p);
   });
 };
@@ -322,14 +326,36 @@ function renderPlan(p){
       :row.status==="mixing"?"🔄 กำลังผสม"
       :"⏸ Pending";
 
+    // คำนวณ est. finish และ efficiency
+    const prod=productMap[row.mix_code]||{};
+    const speed=p==="p1"?+(prod.speed_m1||prod.speed||1000):+(prod.speed_m2||prod.speed||1000);
+    const density=+(prod.density||1);
+    const vol=+(row.volume_liter||0);
+    // เวลาที่ต้องใช้ Past. (นาที)
+    const reqMin=vol>0&&speed>0?Math.round(vol*density*60/speed):0;
+    // คาดเสร็จ
+    function addMin(t,m){if(!t||!m)return"—";const[h,mn]=t.split(":").map(Number);const tot=h*60+mn+m;return String(Math.floor(tot/60)%24).padStart(2,"0")+":"+String(tot%60).padStart(2,"0");}
+    const estFinish=row.past_start_time?addMin(row.past_start_time,reqMin):"—";
+    // Efficiency
+    let effHTML="—";
+    if(row.past_start_time&&row.past_end_time&&reqMin>0){
+      const[sh,sm]=row.past_start_time.split(":").map(Number);
+      const[eh,em]=row.past_end_time.split(":").map(Number);
+      let actualMin=(eh*60+em)-(sh*60+sm);
+      if(actualMin<0)actualMin+=1440;
+      const eff=actualMin>0?(reqMin/actualMin*100):0;
+      const effColor=(eff>=97&&eff<100)?"#22c55e":"#ef4444";
+      effHTML=`<span style="font-family:var(--mono);font-size:12px;font-weight:700;color:${effColor}">${eff.toFixed(1)}%</span>`;
+    }
+
     const stampCell=(field,time,label,isPulse=false)=>`
-      <td>
-        <div class="stamp-wrap">
+      <td style="white-space:nowrap">
+        <div style="display:flex;flex-direction:column;align-items:flex-start;gap:3px">
           <button class="stamp-btn ${time?"stamped":""} ${isPulse&&!time?"past-pulse active":""}"
             onclick="stampTime('${col}','${row.id}','${field}','${p}')">
             ⏱ ${time||label}
           </button>
-          ${time?`<span class="edit-link" onclick="editTimePrompt('${col}','${row.id}','${field}','${time}')">✏️ แก้ไข</span>`:""}
+          ${time?`<button style="font-size:9px;padding:1px 6px;border-radius:4px;border:1px solid var(--b2);background:none;color:var(--t2);cursor:pointer" onclick="editTimePrompt('${col}','${row.id}','${field}','${time}')">✏️ แก้ไข</button>`:""}
         </div>
       </td>`;
 
@@ -345,9 +371,10 @@ function renderPlan(p){
       <td><span class="cr">${row.batch_no||"—"}</span></td>
       <td><span style="font-family:var(--mono);color:var(--cyan)">${row.volume_liter||"—"}</span></td>
       <td><span style="font-family:var(--mono);font-size:12px;padding:2px 8px;border-radius:5px;background:rgba(6,182,212,.1);color:var(--cyan)">${row.mixing_tank||"—"}</span></td>
-      <td><span style="font-family:var(--mono);font-size:12px;color:${row.mix_end_time?"var(--yellow)":"var(--t3)"}">${row.mix_end_time||"—"}</span></td>
       ${stampCell("past_start_time",row.past_start_time,"Stamp เริ่ม",row.status==="pasteurising"&&!row.past_start_time)}
+      <td><span style="font-family:var(--mono);font-size:12px;color:var(--cyan)">${estFinish}</span></td>
       ${stampCell("past_end_time",row.past_end_time,"Stamp เสร็จ")}
+      <td>${effHTML}</td>
       <td style="padding:4px 6px">
         <div style="display:flex;align-items:center;gap:2px">
           <span style="font-family:var(--mono);font-size:11px;font-weight:700;color:#a855f7;background:rgba(168,85,247,.1);padding:3px 6px;border-radius:4px 0 0 4px;white-space:nowrap;border:1px solid rgba(168,85,247,.3);letter-spacing:.06em">${getProdPrefix(p)}</span>
