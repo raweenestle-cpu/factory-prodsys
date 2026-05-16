@@ -320,15 +320,13 @@ tbody td{padding:7px 10px;vertical-align:middle}
     <div class="modal-field"><div class="modal-label">ผลิตภัณฑ์หลัก</div><input id="el-product" class="ci"></div>
     <div class="modal-field"><div class="modal-label">Flow Rate (L/hr)</div><input id="el-flow" class="ci" type="number"></div>
     <div class="modal-field"><div class="modal-label">ลำดับ (Seq)</div><input id="el-seq" class="ci" type="number"></div>
-    <!-- Multi Mix Codes -->
+    <!-- Multi Products with Mix Codes -->
     <div class="modal-field" style="margin-top:10px">
-      <div class="modal-label" style="margin-bottom:8px">🧪 Mix Codes (เพิ่มได้ไม่จำกัด)</div>
-      <div id="el-mix-list" style="display:flex;flex-direction:column;gap:5px;margin-bottom:8px"></div>
-      <div style="display:flex;gap:6px">
-        <select id="el-mix-sel" class="ci" style="flex:1">
-          <option value="">— เลือก Mix Code —</option>
-        </select>
-        <button class="btn btn-b" style="padding:6px 12px;white-space:nowrap" onclick="addMixToLine()">+ เพิ่ม</button>
+      <div class="modal-label" style="margin-bottom:8px">🏷️ ผลิตภัณฑ์ใน LINE นี้ (เพิ่มได้ไม่จำกัด)</div>
+      <div id="el-prod-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px"></div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <input id="el-prod-name" class="ci" placeholder="ชื่อผลิตภัณฑ์ เช่น Eskimo Swirl" style="flex:1">
+        <button class="btn btn-b" style="padding:6px 12px;white-space:nowrap" onclick="addProductToLine()">+ เพิ่ม</button>
       </div>
     </div>
     <div class="modal-actions">
@@ -528,9 +526,12 @@ function renderLines(){
       return;
     }
     group.sort((a,b)=>(a.seq||0)-(b.seq||0)).forEach(l=>{
-      const mixCodes=(l.mix_codes||[]);
-      const mixHTML=mixCodes.length
-        ?mixCodes.map(m=>`<span style="font-family:var(--mono);font-size:10px;padding:1px 7px;border-radius:4px;background:rgba(6,182,212,.1);color:var(--cyan);border:1px solid rgba(6,182,212,.2);margin:1px;display:inline-block">${m.code}</span>`).join('')
+      const products_list=(l.products||[]);
+      const prodHTML=products_list.length
+        ?products_list.map(p=>`<div style="font-family:var(--mono);font-size:10px;margin-bottom:2px">
+            <span style="color:var(--cyan)">${p.name}</span>
+            <span style="color:var(--t3);margin-left:4px">(${(p.mix_codes||[]).map(m=>m.code).join(", ")||"ยังไม่มี Mix"})</span>
+          </div>`).join('')
         :`<span style="color:var(--t3);font-size:11px">—</span>`;
       const tr=document.createElement("tr");
       tr.innerHTML=`
@@ -538,7 +539,7 @@ function renderLines(){
         <td style="font-family:var(--mono);font-weight:700;color:var(--cyan)">${l.name||"—"}</td>
         <td style="font-family:var(--mono);font-size:11px;color:var(--yellow)">${l.sku||"—"}</td>
         <td style="color:var(--t2)">${l.product||"—"}</td>
-        <td style="max-width:200px;flex-wrap:wrap">${mixHTML}</td>
+        <td style="max-width:220px">${prodHTML}</td>
         <td style="font-family:var(--mono)">${l.flow_rate||300} L/hr</td>
         <td><span style="font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:4px;background:${g==="bangchan"?"rgba(59,130,246,.1)":"rgba(168,85,247,.1)"};color:${g==="bangchan"?"var(--blue2)":"var(--purple)"}">${g==="bangchan"?"Bangchan":"Twin"}</span></td>
         <td>
@@ -568,7 +569,7 @@ window.addLine=async()=>{
 };
 
 // temp mix codes state
-let editMixCodes=[];
+let editLineProducts=[];
 
 window.openEditLine=(id)=>{
   const l=lines.find(x=>x.id===id); if(!l)return;
@@ -579,55 +580,88 @@ window.openEditLine=(id)=>{
   $("el-product").value=l.product||"";
   $("el-flow").value=l.flow_rate||300;
   $("el-seq").value=l.seq||1;
-  editMixCodes=[...(l.mix_codes||[])];
-  // Populate mix dropdown
-  const sel=$("el-mix-sel");
-  sel.innerHTML=`<option value="">— เลือก Mix Code —</option>`+
-    productsAll.map(p=>`<option value="${p.mix_code}|${p.mix_name}">${p.mix_code} — ${p.mix_name}</option>`).join('');
-  renderEditMixList();
+  editLineProducts=JSON.parse(JSON.stringify(l.products||[]));
+  renderEditProdList();
   $("modal-line").classList.add("show");
 };
 
-function renderEditMixList(){
-  const list=$("el-mix-list"); if(!list)return;
-  list.innerHTML=editMixCodes.length
-    ?editMixCodes.map((m,i)=>`
-      <div style="display:flex;align-items:center;gap:6px;background:var(--s2);border-radius:6px;padding:6px 10px;border:1px solid var(--b1)">
-        <span style="font-family:var(--mono);font-size:11px;color:var(--cyan);font-weight:700">${m.code}</span>
-        <span style="font-size:11px;color:var(--t2);flex:1">${m.name}</span>
-        <button style="background:none;border:none;color:var(--t3);cursor:pointer;font-size:13px" onclick="removeMixFromLine(${i})">✕</button>
-      </div>`).join('')
-    :`<div style="color:var(--t3);font-size:11px;padding:6px">ยังไม่มี Mix Code</div>`;
+function renderEditProdList(){
+  const list=$("el-prod-list"); if(!list)return;
+  if(!editLineProducts.length){
+    list.innerHTML=`<div style="color:var(--t3);font-size:11px;padding:4px">ยังไม่มีผลิตภัณฑ์ กด "+ เพิ่ม" ด้านล่าง</div>`;
+    return;
+  }
+  list.innerHTML=editLineProducts.map((prod,pi)=>`
+    <div style="background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:10px 12px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <span style="font-family:var(--mono);font-size:12px;font-weight:700;color:var(--cyan)">${prod.name}</span>
+        <button style="background:none;border:none;color:var(--t3);cursor:pointer;font-size:13px" onclick="removeProductFromLine(${pi})">✕ ลบ</button>
+      </div>
+      <div style="font-size:10px;color:var(--t3);margin-bottom:5px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em">Mix Codes ที่ใช้</div>
+      <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:7px">
+        ${(prod.mix_codes||[]).map((m,mi)=>`
+          <span style="display:inline-flex;align-items:center;gap:4px;font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:4px;background:rgba(6,182,212,.1);color:var(--cyan);border:1px solid rgba(6,182,212,.2)">
+            ${m.code} — ${m.name}
+            <button style="background:none;border:none;color:var(--t3);cursor:pointer;font-size:11px;padding:0 0 0 3px" onclick="removeMixFromProduct(${pi},${mi})">✕</button>
+          </span>`).join("")}
+        ${!(prod.mix_codes||[]).length?`<span style="color:var(--t3);font-size:10px;font-style:italic">ยังไม่มี Mix Code</span>`:""}
+      </div>
+      <div style="display:flex;gap:5px">
+        <select style="flex:1;background:var(--s3);border:1px solid var(--b2);border-radius:5px;color:var(--text);font-family:var(--mono);font-size:10px;padding:5px 6px;outline:none" id="mix-sel-${pi}">
+          <option value="">— เลือก Mix Code —</option>
+          ${productsAll.map(p=>`<option value="${p.mix_code}|${p.mix_name}">${p.mix_code} — ${p.mix_name}</option>`).join("")}
+        </select>
+        <button class="btn btn-b" style="padding:5px 10px;font-size:11px;white-space:nowrap" onclick="addMixToProduct(${pi})">+ เพิ่ม Mix</button>
+      </div>
+    </div>`).join("");
 }
 
-window.addMixToLine=()=>{
-  const sel=$("el-mix-sel");
-  if(!sel.value)return;
-  const[code,name]=sel.value.split("|");
-  if(editMixCodes.find(m=>m.code===code)){toast("มี Mix Code นี้แล้ว","red");return;}
-  editMixCodes.push({code,name});
-  sel.value="";
-  renderEditMixList();
+window.addProductToLine=()=>{
+  const name=$("el-prod-name").value.trim();
+  if(!name){toast("กรุณากรอกชื่อผลิตภัณฑ์","red");return;}
+  if(editLineProducts.find(p=>p.name===name)){toast("มีอยู่แล้ว","red");return;}
+  editLineProducts.push({name,mix_codes:[]});
+  $("el-prod-name").value="";
+  renderEditProdList();
 };
 
-window.removeMixFromLine=(i)=>{
-  editMixCodes.splice(i,1);
-  renderEditMixList();
+window.removeProductFromLine=(pi)=>{
+  if(!confirm(`ลบ "${editLineProducts[pi].name}"?`))return;
+  editLineProducts.splice(pi,1);
+  renderEditProdList();
+};
+
+window.addMixToProduct=(pi)=>{
+  const sel=$(`mix-sel-${pi}`); if(!sel||!sel.value)return;
+  const[code,name]=sel.value.split("|");
+  if(!editLineProducts[pi].mix_codes) editLineProducts[pi].mix_codes=[];
+  if(editLineProducts[pi].mix_codes.find(m=>m.code===code)){toast("มี Mix Code นี้แล้ว","red");return;}
+  editLineProducts[pi].mix_codes.push({code,name});
+  sel.value="";
+  renderEditProdList();
+};
+
+window.removeMixFromProduct=(pi,mi)=>{
+  editLineProducts[pi].mix_codes.splice(mi,1);
+  renderEditProdList();
 };
 
 window.saveEditLine=async()=>{
   const id=$("el-id").value;
-  await updateDoc(doc(db,"lines",id),{
-    name:$("el-name").value.trim(),
-    group:$("el-group").value,
-    sku:$("el-sku").value.trim(),
-    product:$("el-product").value.trim(),
-    flow_rate:+$("el-flow").value||300,
-    seq:+$("el-seq").value||1,
-    mix_codes:editMixCodes,
-  });
-  closeModal("modal-line");
-  toast("แก้ไข LINE แล้ว","green");
+  if(!id){toast("ไม่พบ LINE ID","red");return;}
+  try{
+    await updateDoc(doc(db,"lines",id),{
+      name:$("el-name").value.trim(),
+      group:$("el-group").value,
+      sku:$("el-sku").value.trim(),
+      product:$("el-product").value.trim(),
+      flow_rate:+$("el-flow").value||300,
+      seq:+$("el-seq").value||1,
+      products:editLineProducts,
+    });
+    closeModal("modal-line");
+    toast("แก้ไข LINE แล้ว","green");
+  }catch(e){toast("เกิดข้อผิดพลาด: "+e.message,"red");}
 };
 
 window.deleteLine=async(id,name)=>{
