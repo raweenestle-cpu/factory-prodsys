@@ -40,12 +40,15 @@ nav{display:flex;align-items:center;height:52px;background:var(--s1);border-bott
 table{width:100%;border-collapse:collapse;font-size:12px}
 thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1px solid var(--b1);vertical-align:middle}
 
-.row-past td{background:rgba(249,115,22,.08)!important}
+.row-past td{background:rgba(249,115,22,.06)!important;color:var(--orange)!important}
 .row-past td:first-child{border-left:3px solid var(--orange)!important}
-.row-done td{background:rgba(34,197,94,.08)!important}
+.row-past .ca,.row-past span{color:var(--orange)!important}
+.row-done td{background:rgba(34,197,94,.12)!important;color:#4ade80!important}
 .row-done td:first-child{border-left:3px solid var(--green)!important}
-.row-wait td{background:rgba(234,179,8,.08)!important}
+.row-done .ca,.row-done span{color:#4ade80!important}
+.row-wait td{background:rgba(234,179,8,.06)!important;color:var(--yellow)!important}
 .row-wait td:first-child{border-left:3px solid var(--yellow)!important}
+.row-wait .ca,.row-wait span{color:var(--yellow)!important}
 
 .ci{background:var(--s2);border:1px solid var(--b1);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:12px;padding:5px 7px;outline:none}
 .ci:focus{border-color:var(--blue)}
@@ -131,6 +134,7 @@ thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap
       <th style="color:var(--cyan)">🕐 คาดเสร็จ</th>
       <th style="color:var(--green)">✅ Past. เสร็จ</th>
       <th style="color:var(--green)">Eff%</th>
+      <th style="color:var(--cyan)">🪣 Aging Tank</th>
       <th style="color:var(--purple)">รหัสผลิต</th>
       <th>Status</th>
     </tr></thead>
@@ -164,6 +168,7 @@ thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap
       <th style="color:var(--cyan)">🕐 คาดเสร็จ</th>
       <th style="color:var(--green)">✅ Past. เสร็จ</th>
       <th style="color:var(--green)">Eff%</th>
+      <th style="color:var(--cyan)">🪣 Aging Tank</th>
       <th style="color:var(--purple)">รหัสผลิต</th>
       <th>Status</th>
     </tr></thead>
@@ -366,18 +371,28 @@ function renderPlan(p){
 
     tr.innerHTML=`
       <td><span class="cr">${i+1}</span></td>
-      <td><span style="font-family:var(--mono);font-weight:700;color:var(--orange)">${row.mix_code||"—"}</span></td>
+      <td><span style="font-family:var(--mono);font-weight:700">${row.mix_code||"—"}</span></td>
       <td><span class="ca">${row.mix_name||"—"}</span></td>
       <td><span class="cr">${row.batch_no||"—"}</span></td>
-      <td><span style="font-family:var(--mono);color:var(--cyan)">${row.volume_liter||"—"}</span></td>
-      <td><span style="font-family:var(--mono);font-size:12px;padding:2px 8px;border-radius:5px;background:rgba(6,182,212,.1);color:var(--cyan)">${row.mixing_tank||"—"}</span></td>
+      <td><span style="font-family:var(--mono)">${row.volume_liter||"—"}</span></td>
+      <td>
+        <div style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:6px;background:rgba(6,182,212,.12);border:1px solid rgba(6,182,212,.25)">
+          <span style="font-size:10px">🪣</span>
+          <span style="font-family:var(--mono);font-size:12px;font-weight:700">${row.mixing_tank||"—"}</span>
+        </div>
+      </td>
       ${stampCell("past_start_time",row.past_start_time,"Stamp เริ่ม",row.status==="pasteurising"&&!row.past_start_time)}
-      <td><span style="font-family:var(--mono);font-size:12px;color:var(--cyan)">${estFinish}</span></td>
+      <td><span style="font-family:var(--mono);font-size:12px">${estFinish}</span></td>
       ${stampCell("past_end_time",row.past_end_time,"Stamp เสร็จ")}
       <td>${effHTML}</td>
       <td style="padding:4px 6px">
+        <input class="ci" style="width:80px;font-family:var(--mono);font-size:11px;padding:4px 7px" 
+          value="${row.aging_tank||''}" placeholder="เช่น T-01" 
+          onchange="_up('${col}','${row.id}','aging_tank',this.value)">
+      </td>
+      <td style="padding:4px 6px">
         <div style="display:flex;align-items:center;gap:2px">
-          <span style="font-family:var(--mono);font-size:11px;font-weight:700;color:#a855f7;background:rgba(168,85,247,.1);padding:3px 6px;border-radius:4px 0 0 4px;white-space:nowrap;border:1px solid rgba(168,85,247,.3);letter-spacing:.06em">${getProdPrefix(p)}</span>
+          <span style="font-family:var(--mono);font-size:11px;font-weight:700;color:#a855f7;background:rgba(168,85,247,.1);padding:3px 6px;border-radius:4px 0 0 4px;white-space:nowrap;border:1px solid rgba(168,85,247,.3)">${getProdPrefix(p)}</span>
           <input class="ci" style="width:58px;letter-spacing:.1em;font-family:var(--mono);font-size:12px;text-transform:uppercase;border-radius:0 4px 4px 0;border-left:none;padding:3px 6px" maxlength="4" value="${row.prod_suffix||''}" placeholder="0001" onchange="_up('${col}','${row.id}','prod_suffix',this.value.toUpperCase())">
         </div>
       </td>
