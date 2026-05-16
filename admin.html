@@ -175,7 +175,6 @@ tbody td{padding:7px 10px;vertical-align:middle}
      PAGE: LINE MASTER
 ══════════════════════════════════════════════════════ -->
 <div class="page" id="page-lines">
-
   <!-- Add Line -->
   <div class="sec">
     <div class="sec-title">➕ เพิ่ม Filling LINE</div>
@@ -192,8 +191,12 @@ tbody td{padding:7px 10px;vertical-align:middle}
         </select>
       </div>
       <div class="form-group">
+        <div class="form-label">รหัสสินค้า</div>
+        <input id="nl-sku" class="ci" placeholder="เช่น SKU-001">
+      </div>
+      <div class="form-group">
         <div class="form-label">ผลิตภัณฑ์หลัก</div>
-        <input id="nl-product" class="ci" placeholder="เช่น Eskimo Van">
+        <input id="nl-product" class="ci" placeholder="เช่น Eskimo">
       </div>
       <div class="form-group">
         <div class="form-label">Flow Rate (L/hr)</div>
@@ -216,7 +219,7 @@ tbody td{padding:7px 10px;vertical-align:middle}
     <div class="tw">
       <table>
         <thead><tr>
-          <th>Seq</th><th>ชื่อ LINE</th><th>ผลิตภัณฑ์</th><th>Flow Rate</th><th>กลุ่ม</th><th>จัดการ</th>
+          <th>Seq</th><th>ชื่อ LINE</th><th>รหัสสินค้า</th><th>ผลิตภัณฑ์</th><th>Mix Codes</th><th>Flow Rate</th><th>กลุ่ม</th><th>จัดการ</th>
         </tr></thead>
         <tbody id="lines-bangchan"></tbody>
       </table>
@@ -229,7 +232,7 @@ tbody td{padding:7px 10px;vertical-align:middle}
     <div class="tw">
       <table>
         <thead><tr>
-          <th>Seq</th><th>ชื่อ LINE</th><th>ผลิตภัณฑ์</th><th>Flow Rate</th><th>กลุ่ม</th><th>จัดการ</th>
+          <th>Seq</th><th>ชื่อ LINE</th><th>รหัสสินค้า</th><th>ผลิตภัณฑ์</th><th>Mix Codes</th><th>Flow Rate</th><th>กลุ่ม</th><th>จัดการ</th>
         </tr></thead>
         <tbody id="lines-twin"></tbody>
       </table>
@@ -303,7 +306,7 @@ tbody td{padding:7px 10px;vertical-align:middle}
 
 <!-- EDIT LINE MODAL -->
 <div class="modal-bg" id="modal-line">
-  <div class="modal">
+  <div class="modal" style="max-height:85vh;overflow-y:auto;width:420px;max-width:95vw">
     <div class="modal-title">✏️ แก้ไข LINE</div>
     <input type="hidden" id="el-id">
     <div class="modal-field"><div class="modal-label">ชื่อ LINE</div><input id="el-name" class="ci"></div>
@@ -313,9 +316,21 @@ tbody td{padding:7px 10px;vertical-align:middle}
         <option value="twin">Twin</option>
       </select>
     </div>
+    <div class="modal-field"><div class="modal-label">รหัสสินค้า</div><input id="el-sku" class="ci" placeholder="เช่น SKU-001"></div>
     <div class="modal-field"><div class="modal-label">ผลิตภัณฑ์หลัก</div><input id="el-product" class="ci"></div>
     <div class="modal-field"><div class="modal-label">Flow Rate (L/hr)</div><input id="el-flow" class="ci" type="number"></div>
     <div class="modal-field"><div class="modal-label">ลำดับ (Seq)</div><input id="el-seq" class="ci" type="number"></div>
+    <!-- Multi Mix Codes -->
+    <div class="modal-field" style="margin-top:10px">
+      <div class="modal-label" style="margin-bottom:8px">🧪 Mix Codes (เพิ่มได้ไม่จำกัด)</div>
+      <div id="el-mix-list" style="display:flex;flex-direction:column;gap:5px;margin-bottom:8px"></div>
+      <div style="display:flex;gap:6px">
+        <select id="el-mix-sel" class="ci" style="flex:1">
+          <option value="">— เลือก Mix Code —</option>
+        </select>
+        <button class="btn btn-b" style="padding:6px 12px;white-space:nowrap" onclick="addMixToLine()">+ เพิ่ม</button>
+      </div>
+    </div>
     <div class="modal-actions">
       <button class="btn btn-b" style="flex:1" onclick="saveEditLine()">บันทึก</button>
       <button class="btn" style="flex:1" onclick="closeModal('modal-line')">ยกเลิก</button>
@@ -509,15 +524,21 @@ function renderLines(){
     tbody.innerHTML="";
     const group=lines.filter(l=>l.group===g||(g==="bangchan"&&!l.group));
     if(!group.length){
-      tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;color:var(--t3);padding:20px">ยังไม่มี LINE</td></tr>`;
+      tbody.innerHTML=`<tr><td colspan="8" style="text-align:center;color:var(--t3);padding:20px">ยังไม่มี LINE</td></tr>`;
       return;
     }
-    group.forEach(l=>{
+    group.sort((a,b)=>(a.seq||0)-(b.seq||0)).forEach(l=>{
+      const mixCodes=(l.mix_codes||[]);
+      const mixHTML=mixCodes.length
+        ?mixCodes.map(m=>`<span style="font-family:var(--mono);font-size:10px;padding:1px 7px;border-radius:4px;background:rgba(6,182,212,.1);color:var(--cyan);border:1px solid rgba(6,182,212,.2);margin:1px;display:inline-block">${m.code}</span>`).join('')
+        :`<span style="color:var(--t3);font-size:11px">—</span>`;
       const tr=document.createElement("tr");
       tr.innerHTML=`
         <td style="font-family:var(--mono);color:var(--t3)">${l.seq||"—"}</td>
         <td style="font-family:var(--mono);font-weight:700;color:var(--cyan)">${l.name||"—"}</td>
+        <td style="font-family:var(--mono);font-size:11px;color:var(--yellow)">${l.sku||"—"}</td>
         <td style="color:var(--t2)">${l.product||"—"}</td>
+        <td style="max-width:200px;flex-wrap:wrap">${mixHTML}</td>
         <td style="font-family:var(--mono)">${l.flow_rate||300} L/hr</td>
         <td><span style="font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:4px;background:${g==="bangchan"?"rgba(59,130,246,.1)":"rgba(168,85,247,.1)"};color:${g==="bangchan"?"var(--blue2)":"var(--purple)"}">${g==="bangchan"?"Bangchan":"Twin"}</span></td>
         <td>
@@ -532,28 +553,66 @@ function renderLines(){
 window.addLine=async()=>{
   const name=$("nl-name").value.trim();
   const group=$("nl-group").value;
+  const sku=$("nl-sku").value.trim();
   const product=$("nl-product").value.trim();
   const flow=+$("nl-flow").value||300;
   const seq=+$("nl-seq").value||1;
   const err=$("l-err"); err.textContent="";
   if(!name){err.textContent="กรุณากรอกชื่อ LINE";return;}
   await addDoc(collection(db,"lines"),{
-    name,group,product,flow_rate:flow,seq,type:"Filling",
+    name,group,sku,product,flow_rate:flow,seq,mix_codes:[],type:"Filling",
     createdAt:new Date().toISOString()
   });
-  $("nl-name").value="";$("nl-product").value="";
+  $("nl-name").value="";$("nl-product").value="";$("nl-sku").value="";
   toast(`เพิ่ม LINE ${name} แล้ว`,"green");
 };
+
+// temp mix codes state
+let editMixCodes=[];
 
 window.openEditLine=(id)=>{
   const l=lines.find(x=>x.id===id); if(!l)return;
   $("el-id").value=id;
   $("el-name").value=l.name||"";
   $("el-group").value=l.group||"bangchan";
+  $("el-sku").value=l.sku||"";
   $("el-product").value=l.product||"";
   $("el-flow").value=l.flow_rate||300;
   $("el-seq").value=l.seq||1;
+  editMixCodes=[...(l.mix_codes||[])];
+  // Populate mix dropdown
+  const sel=$("el-mix-sel");
+  sel.innerHTML=`<option value="">— เลือก Mix Code —</option>`+
+    productsAll.map(p=>`<option value="${p.mix_code}|${p.mix_name}">${p.mix_code} — ${p.mix_name}</option>`).join('');
+  renderEditMixList();
   $("modal-line").classList.add("show");
+};
+
+function renderEditMixList(){
+  const list=$("el-mix-list"); if(!list)return;
+  list.innerHTML=editMixCodes.length
+    ?editMixCodes.map((m,i)=>`
+      <div style="display:flex;align-items:center;gap:6px;background:var(--s2);border-radius:6px;padding:6px 10px;border:1px solid var(--b1)">
+        <span style="font-family:var(--mono);font-size:11px;color:var(--cyan);font-weight:700">${m.code}</span>
+        <span style="font-size:11px;color:var(--t2);flex:1">${m.name}</span>
+        <button style="background:none;border:none;color:var(--t3);cursor:pointer;font-size:13px" onclick="removeMixFromLine(${i})">✕</button>
+      </div>`).join('')
+    :`<div style="color:var(--t3);font-size:11px;padding:6px">ยังไม่มี Mix Code</div>`;
+}
+
+window.addMixToLine=()=>{
+  const sel=$("el-mix-sel");
+  if(!sel.value)return;
+  const[code,name]=sel.value.split("|");
+  if(editMixCodes.find(m=>m.code===code)){toast("มี Mix Code นี้แล้ว","red");return;}
+  editMixCodes.push({code,name});
+  sel.value="";
+  renderEditMixList();
+};
+
+window.removeMixFromLine=(i)=>{
+  editMixCodes.splice(i,1);
+  renderEditMixList();
 };
 
 window.saveEditLine=async()=>{
@@ -561,9 +620,11 @@ window.saveEditLine=async()=>{
   await updateDoc(doc(db,"lines",id),{
     name:$("el-name").value.trim(),
     group:$("el-group").value,
+    sku:$("el-sku").value.trim(),
     product:$("el-product").value.trim(),
     flow_rate:+$("el-flow").value||300,
     seq:+$("el-seq").value||1,
+    mix_codes:editMixCodes,
   });
   closeModal("modal-line");
   toast("แก้ไข LINE แล้ว","green");
