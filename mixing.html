@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mixing — PROD.SYS</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;600&family=Sarabun:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07090f;--s1:#0e1118;--s2:#141820;--s3:#1a2030;
+  --b1:#1e2535;--b2:#2a3348;
+  --text:#dde3f0;--t2:#7a8499;--t3:#3d4560;
+  --blue:#3b82f6;--blue2:#60a5fa;
+  --green:#22c55e;--yellow:#eab308;--red:#ef4444;--cyan:#06b6d4;--purple:#a855f7;
+  --mono:'DM Mono',monospace;--sans:'Sarabun',sans-serif;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13px;min-height:100vh}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--b2);border-radius:3px}
+
+/* NAV */
+nav{display:flex;align-items:center;height:52px;background:var(--s1);border-bottom:1px solid var(--b1);position:sticky;top:0;z-index:200;padding:0 16px;gap:8px}
+.nav-logo{font-family:var(--mono);font-size:14px;font-weight:600;letter-spacing:.06em;margin-right:8px}
+.nav-logo b{color:var(--blue)}
+.nav-tab{font-size:12px;font-weight:600;padding:6px 12px;border-radius:7px;border:none;background:none;color:var(--t2);cursor:pointer;white-space:nowrap}
+.nav-tab:hover{color:var(--text);background:var(--s3)}
+.nav-tab.on{color:var(--blue);background:rgba(59,130,246,.12)}
+.nav-right{display:flex;align-items:center;gap:8px;margin-left:auto}
+.nav-user{font-family:var(--mono);font-size:11px;color:var(--t2)}
+.nav-role{font-size:10px;font-family:var(--mono);padding:2px 8px;border-radius:4px;background:rgba(6,182,212,.15);color:var(--cyan);border:1px solid rgba(6,182,212,.3)}
+.btn-logout{font-size:11px;padding:5px 10px;border-radius:6px;border:1px solid var(--b2);background:none;color:var(--t2);cursor:pointer}
+.btn-logout:hover{color:var(--red);border-color:var(--red)}
+
+/* PAGE */
+.page{display:none;padding:14px 16px}
+.page.on{display:block}
+
+/* TABLE */
+.tw{overflow-x:auto;border-radius:10px;border:1px solid var(--b1);margin-bottom:14px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1px solid var(--b1);position:sticky;top:52px;z-index:9}
+tbody tr{border-bottom:1px solid var(--b1)}
+tbody tr:hover td{background:rgba(255,255,255,.02)}
+tbody td{padding:6px 8px;vertical-align:middle}
+
+/* STATUS ROW COLORS */
+.row-mixing td{background:rgba(234,179,8,.08)!important}
+.row-mixing td:first-child{border-left:3px solid var(--yellow)!important}
+.row-past td{background:rgba(234,179,8,.08)!important}
+.row-past td:first-child{border-left:3px solid var(--yellow)!important}
+.row-done td{background:rgba(34,197,94,.08)!important}
+.row-done td:first-child{border-left:3px solid var(--green)!important}
+
+/* INPUTS */
+.ci{background:var(--s2);border:1px solid var(--b1);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:12px;padding:5px 7px;outline:none}
+.ci:focus{border-color:var(--blue)}
+.ca{font-family:var(--mono);font-size:12px;color:var(--t2);white-space:nowrap}
+.cr{font-family:var(--mono);font-size:11px;color:var(--t3)}
+
+/* STAMP BUTTON */
+.stamp-btn{display:flex;align-items:center;gap:4px;background:var(--s3);border:1px solid var(--b2);border-radius:6px;color:var(--t2);font-size:11px;font-family:var(--mono);padding:4px 8px;cursor:pointer;white-space:nowrap}
+.stamp-btn:hover{border-color:var(--blue);color:var(--blue2)}
+.stamp-btn.stamped{background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.4);color:var(--green)}
+.stamp-time{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--text)}
+.stamp-wrap{display:flex;flex-direction:column;gap:3px;min-width:110px}
+
+/* ACTUAL INPUT */
+.act-input{background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.3);border-radius:6px;color:var(--green);font-family:var(--mono);font-size:12px;padding:5px 7px;outline:none;width:72px;text-align:right}
+.act-input:focus{border-color:var(--green)}
+
+/* STATUS BADGE */
+.stat-badge{font-family:var(--mono);font-size:11px;font-weight:700;padding:4px 10px;border-radius:99px;white-space:nowrap}
+
+/* BUTTONS */
+.btn{font-size:12px;padding:6px 12px;border-radius:7px;border:1px solid var(--b2);background:var(--s3);color:var(--text);cursor:pointer;font-family:var(--sans);white-space:nowrap}
+.btn:hover{background:var(--b2)}
+.btn-b{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn-b:hover{background:#2563eb}
+.btn-s{font-size:11px;padding:5px 10px}
+
+/* KPI */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+@media(max-width:600px){.kpi-row{grid-template-columns:repeat(2,1fr)}}
+.kpi{background:var(--s1);border:1px solid var(--b1);border-radius:10px;padding:12px 14px}
+.kpi-label{font-size:10px;color:var(--t3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
+.kpi-val{font-size:22px;font-weight:700;font-family:var(--mono)}
+
+/* CHART CARD */
+.chart-card{background:var(--s1);border:1px solid var(--b1);border-radius:12px;padding:16px;margin-bottom:14px}
+.chart-title{font-family:var(--mono);font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px}
+.chart-wrap{height:220px;position:relative}
+
+/* PERIOD BTNS */
+.period-row{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.period-btn{font-size:11px;padding:4px 12px;border-radius:6px;border:1px solid var(--b2);background:none;color:var(--t2);cursor:pointer;font-family:var(--mono)}
+.period-btn.on{background:rgba(59,130,246,.15);border-color:var(--blue);color:var(--blue2)}
+
+/* TOOLBAR */
+.toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px;flex-wrap:wrap;gap:8px}
+
+/* TOAST */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#1d4ed8;color:#fff;padding:10px 20px;border-radius:10px;font-size:13px;opacity:0;transition:all .3s;z-index:9999;white-space:nowrap;pointer-events:none}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@keyframes blink{0%,100%{opacity:1}40%{opacity:.15}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(234,179,8,.4)}70%{box-shadow:0 0 0 6px rgba(234,179,8,0)}}
+.mixing-pulse{animation:pulse 1.5s infinite}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">PROD<b>.</b>SYS</div>
+  <button class="nav-tab on" onclick="showPage('plan','m1',this)">🔵 Mixing 1</button>
+  <button class="nav-tab" onclick="showPage('plan','m2',this)">🟢 Mixing 2</button>
+  <button class="nav-tab" onclick="showPage('chart','m1',this)">📊 กราฟ M1</button>
+  <button class="nav-tab" onclick="showPage('chart','m2',this)">📊 กราฟ M2</button>
+  <div class="nav-right">
+    <span class="nav-role">MIXING</span>
+    <span class="nav-user" id="nav-user"></span>
+    <button class="btn-logout" onclick="doLogout()">Logout</button>
+  </div>
+</nav>
+
+<!-- PLAN M1 -->
+<div class="page on" id="page-plan-m1">
+  <div class="toolbar">
+    <div style="display:flex;align-items:center;gap:8px">
+      <span style="font-family:var(--mono);font-size:10px;color:var(--t3)">DATE</span>
+      <input type="date" id="date-m1" class="ci" style="width:140px" onchange="loadPlan('m1')">
+    </div>
+  </div>
+  <div class="kpi-row">
+    <div class="kpi"><div class="kpi-label">Batches</div><div class="kpi-val" id="m1-total" style="color:var(--blue2)">0</div></div>
+    <div class="kpi"><div class="kpi-label">กำลังผสม</div><div class="kpi-val" id="m1-mixing" style="color:var(--yellow)">0</div></div>
+    <div class="kpi"><div class="kpi-label">รอ Past.</div><div class="kpi-val" id="m1-wait" style="color:var(--cyan)">0</div></div>
+    <div class="kpi"><div class="kpi-label">เสร็จแล้ว</div><div class="kpi-val" id="m1-done" style="color:var(--green)">0</div></div>
+  </div>
+  <div class="tw"><table>
+    <thead><tr>
+      <th>#</th><th>Mix Code</th><th>Mix Name</th><th>Batch</th><th>Vol (L)</th><th>Tank</th>
+      <th style="color:var(--yellow)">⏱ เริ่มผสม</th>
+      <th style="color:var(--green)">✅ ผสมเสร็จ</th>
+      <th style="background:#141a0c;color:#86efac">🍬 Glc Actual</th>
+      <th style="background:#120f08;color:#fdba74">🌴 Plm Actual</th>
+      <th style="background:#081014;color:#67e8f9">🧂 Sgr Actual</th>
+      <th>Status</th>
+    </tr></thead>
+    <tbody id="tbody-m1"></tbody>
+  </table></div>
+</div>
+
+<!-- PLAN M2 -->
+<div class="page" id="page-plan-m2">
+  <div class="toolbar">
+    <div style="display:flex;align-items:center;gap:8px">
+      <span style="font-family:var(--mono);font-size:10px;color:var(--t3)">DATE</span>
+      <input type="date" id="date-m2" class="ci" style="width:140px" onchange="loadPlan('m2')">
+    </div>
+  </div>
+  <div class="kpi-row">
+    <div class="kpi"><div class="kpi-label">Batches</div><div class="kpi-val" id="m2-total" style="color:var(--blue2)">0</div></div>
+    <div class="kpi"><div class="kpi-label">กำลังผสม</div><div class="kpi-val" id="m2-mixing" style="color:var(--yellow)">0</div></div>
+    <div class="kpi"><div class="kpi-label">รอ Past.</div><div class="kpi-val" id="m2-wait" style="color:var(--cyan)">0</div></div>
+    <div class="kpi"><div class="kpi-label">เสร็จแล้ว</div><div class="kpi-val" id="m2-done" style="color:var(--green)">0</div></div>
+  </div>
+  <div class="tw"><table>
+    <thead><tr>
+      <th>#</th><th>Mix Code</th><th>Mix Name</th><th>Batch</th><th>Vol (L)</th><th>Tank</th>
+      <th style="color:var(--yellow)">⏱ เริ่มผสม</th>
+      <th style="color:var(--green)">✅ ผสมเสร็จ</th>
+      <th style="background:#141a0c;color:#86efac">🍬 Glc Actual</th>
+      <th style="background:#120f08;color:#fdba74">🌴 Plm Actual</th>
+      <th style="background:#081014;color:#67e8f9">🧂 Sgr Actual</th>
+      <th>Status</th>
+    </tr></thead>
+    <tbody id="tbody-m2"></tbody>
+  </table></div>
+</div>
+
+<!-- CHART M1 -->
+<div class="page" id="page-chart-m1">
+  <div class="chart-card">
+    <div class="chart-title">📊 Mixing 1 — ผลผลิตต่อกะ (kg)</div>
+    <div class="period-row">
+      <button class="period-btn on" onclick="setPeriod('m1','day',this)">วันนี้</button>
+      <button class="period-btn" onclick="setPeriod('m1','week',this)">สัปดาห์</button>
+      <button class="period-btn" onclick="setPeriod('m1','month',this)">เดือน</button>
+      <button class="period-btn" onclick="setPeriod('m1','year',this)">ปี</button>
+    </div>
+    <div class="chart-wrap"><canvas id="chart-m1"></canvas></div>
+  </div>
+</div>
+
+<!-- CHART M2 -->
+<div class="page" id="page-chart-m2">
+  <div class="chart-card">
+    <div class="chart-title">📊 Mixing 2 — ผลผลิตต่อกะ (kg)</div>
+    <div class="period-row">
+      <button class="period-btn on" onclick="setPeriod('m2','day',this)">วันนี้</button>
+      <button class="period-btn" onclick="setPeriod('m2','week',this)">สัปดาห์</button>
+      <button class="period-btn" onclick="setPeriod('m2','month',this)">เดือน</button>
+      <button class="period-btn" onclick="setPeriod('m2','year',this)">ปี</button>
+    </div>
+    <div class="chart-wrap"><canvas id="chart-m2"></canvas></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script type="module">
+import { initializeApp }     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, collection, query, where, orderBy, onSnapshot,
+         updateDoc, doc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const app  = initializeApp({
+  apiKey:"AIzaSyC3f6jMuhugE6BNfRfkpOA9BMrIKWR9YgQ",
+  authDomain:"production-filling.firebaseapp.com",
+  projectId:"production-filling",
+  storageBucket:"production-filling.firebasestorage.app",
+  messagingSenderId:"89098393458",
+  appId:"1:89098393458:web:b723f2886e8a341935afeb"
+});
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+let ME=null, productMap={};
+let rows={m1:[],m2:[]};
+let unsub={m1:null,m2:null};
+let charts={};
+let period={m1:"day",m2:"day"};
+
+const today  = () => new Date().toISOString().slice(0,10);
+const $      = id => document.getElementById(id);
+const fmt    = n  => Math.round(n||0).toLocaleString();
+const nowHHMM= () => { const d=new Date(); return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0"); };
+
+function toast(msg,t="blue"){
+  const el=$("toast"); el.textContent=msg;
+  el.style.background=t==="green"?"#15803d":t==="red"?"#991b1b":"#1d4ed8";
+  el.classList.add("show"); setTimeout(()=>el.classList.remove("show"),2500);
+}
+
+// ── AUTH ──────────────────────────────────────────────────────────────
+onAuthStateChanged(auth, async user=>{
+  if(!user){window.location.href="index.html";return;}
+  ME=user;
+  try{
+    const snap=await getDocs(query(collection(db,"users"),where("uid","==",user.uid)));
+    const role=snap.empty?"mixing":(snap.docs[0].data().role||"mixing");
+    if(role!=="mixing"&&role!=="admin"){window.location.href="index.html";return;}
+  }catch{}
+
+  // load productMap
+  try{
+    const ps=await getDocs(collection(db,"products"));
+    ps.docs.forEach(d=>{const p={id:d.id,...d.data()};productMap[p.mix_code]=p;});
+  }catch{}
+
+  $("nav-user").textContent=user.email.replace("@filling.local","");
+  $("date-m1").value=today();
+  $("date-m2").value=today();
+  loadPlan("m1");
+  loadPlan("m2");
+});
+
+window.doLogout=async()=>{
+  if(unsub.m1)unsub.m1();
+  if(unsub.m2)unsub.m2();
+  await signOut(auth);
+  window.location.href="index.html";
+};
+
+// ── LOAD PLAN ─────────────────────────────────────────────────────────
+const planCol=(m)=>m==="m1"?"production_plans":"production_plans_m2";
+
+window.loadPlan=(m)=>{
+  const d=$(m==="m1"?"date-m1":"date-m2").value||today();
+  if(unsub[m])unsub[m]();
+  const q=query(collection(db,planCol(m)),where("date","==",d),orderBy("seq","asc"));
+  unsub[m]=onSnapshot(q,snap=>{
+    rows[m]=snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderPlan(m);
+  });
+};
+
+// ── STAMP TIME ────────────────────────────────────────────────────────
+window.stampTime=async(col,id,field,m)=>{
+  const now=nowHHMM();
+  const upd={[field]:now};
+  // อัปเดต status ตาม field
+  if(field==="mix_start_time") upd.status="mixing";
+  if(field==="mix_end_time")   upd.status="pasteurising";
+  await updateDoc(doc(db,col,id),upd);
+  toast(`Stamp ${now} แล้ว`,"green");
+};
+
+window.editTime=async(col,id,field,current)=>{
+  const val=prompt(`แก้ไขเวลา (HH:MM) :`,current||"");
+  if(val===null)return;
+  const clean=val.replace(/[^0-9:]/g,"");
+  if(!/^\d{2}:\d{2}$/.test(clean)){toast("รูปแบบ HH:MM เท่านั้น","red");return;}
+  const upd={[field]:clean};
+  if(field==="mix_start_time"&&clean) upd.status="mixing";
+  if(field==="mix_end_time"&&clean)   upd.status="pasteurising";
+  await updateDoc(doc(db,planCol(field.includes("m2")?"m2":"m1"),id),upd);
+  // ใช้ col ที่ส่งมา
+  await updateDoc(doc(db,col,id),upd);
+  toast("แก้ไขเวลาแล้ว","green");
+};
+
+window.saveActual=async(col,id,field,val,m)=>{
+  const upd={[field]:+val};
+  // เช็คว่ากรอก actual ครบหรือยัง
+  const row=rows[m].find(r=>r.id===id);
+  if(row){
+    const merged={...row,...upd};
+    const anyActual=(+merged.glc_actual||0)>0||(+merged.plm_actual||0)>0||(+merged.sgr_actual||0)>0;
+    if(anyActual&&(merged.status==="pending"||merged.status==="mixing")){
+      upd.status="mixing";
+    }
+  }
+  await updateDoc(doc(db,col,id),upd);
+};
+
+// ── RENDER PLAN ───────────────────────────────────────────────────────
+function renderPlan(m){
+  const col=planCol(m);
+  const tbody=$(`tbody-${m}`);
+  if(!tbody)return;
+  tbody.innerHTML="";
+
+  rows[m].forEach((row,i)=>{
+    const isMixing=row.status==="mixing";
+    const isPast=row.status==="pasteurising";
+    const isDone=row.status==="past_done"||row.status==="ready";
+
+    const statStyle=isMixing
+      ?`background:rgba(234,179,8,.15);color:#fde047;animation:blink 0.7s infinite`
+      :isPast?`background:rgba(234,179,8,.15);color:#fde047`
+      :isDone?`background:rgba(34,197,94,.15);color:#4ade80`
+      :`background:var(--s3);color:var(--t2)`;
+    const statText=isMixing?"🔄 กำลังผสม":isPast?"⏳ รอ Pasteurize":isDone?"✅ เสร็จแล้ว":"⏸ Pending";
+
+    // Stamp cell builder
+    const stampCell=(field,time,label,color)=>{
+      const hasTime=!!time;
+      return `<td>
+        <div class="stamp-wrap">
+          <button class="stamp-btn ${hasTime?"stamped":""} ${isMixing&&field==="mix_start_time"?"mixing-pulse":""}"
+            onclick="stampTime('${col}','${row.id}','${field}','${m}')">
+            ⏱ ${hasTime?time:label}
+          </button>
+          ${hasTime?`<span style="font-size:10px;color:var(--t3);cursor:pointer;padding-left:4px" onclick="editTimePrompt('${col}','${row.id}','${field}','${time}')">✏️ แก้ไข</span>`:""}
+        </div>
+      </td>`;
+    };
+
+    const tr=document.createElement("tr");
+    if(isMixing) tr.classList.add("row-mixing");
+    else if(isPast) tr.classList.add("row-past");
+    else if(isDone) tr.classList.add("row-done");
+
+    tr.innerHTML=`
+      <td><span class="cr">${i+1}</span></td>
+      <td><span style="font-family:var(--mono);font-weight:700;color:var(--blue2)">${row.mix_code||"—"}</span></td>
+      <td><span class="ca">${row.mix_name||"—"}</span></td>
+      <td><span class="cr">${row.batch_no||"—"}</span></td>
+      <td><span style="font-family:var(--mono);color:var(--cyan)">${row.volume_liter||"—"}</span></td>
+      <td><span style="font-family:var(--mono);font-size:12px;padding:2px 8px;border-radius:5px;background:rgba(6,182,212,.1);color:var(--cyan)">${row.mixing_tank||"—"}</span></td>
+      ${stampCell("mix_start_time",row.mix_start_time,"Stamp เริ่ม","yellow")}
+      ${stampCell("mix_end_time",row.mix_end_time,"Stamp เสร็จ","green")}
+      <td style="background:#0d1108">
+        <input class="act-input" style="border-color:rgba(166,200,90,.4)" type="number" step="0.1" value="${row.glc_actual||""}" placeholder="0"
+          onchange="saveActual('${col}','${row.id}','glc_actual',this.value,'${m}')">
+      </td>
+      <td style="background:#110c06">
+        <input class="act-input" style="background:rgba(249,115,22,.06);border-color:rgba(249,115,22,.3);color:#fdba74" type="number" step="0.1" value="${row.plm_actual||""}" placeholder="0"
+          onchange="saveActual('${col}','${row.id}','plm_actual',this.value,'${m}')">
+      </td>
+      <td style="background:#060f12">
+        <input class="act-input" style="background:rgba(6,182,212,.06);border-color:rgba(6,182,212,.3);color:#67e8f9" type="number" step="0.1" value="${row.sgr_actual||""}" placeholder="0"
+          onchange="saveActual('${col}','${row.id}','sgr_actual',this.value,'${m}')">
+      </td>
+      <td><span class="stat-badge" style="${statStyle}">${statText}</span></td>`;
+    tbody.appendChild(tr);
+  });
+
+  // KPI
+  $(`${m}-total`).textContent=rows[m].length;
+  $(`${m}-mixing`).textContent=rows[m].filter(r=>r.status==="mixing").length;
+  $(`${m}-wait`).textContent=rows[m].filter(r=>r.status==="pasteurising").length;
+  $(`${m}-done`).textContent=rows[m].filter(r=>r.status==="past_done"||r.status==="ready").length;
+}
+
+window.editTimePrompt=async(col,id,field,current)=>{
+  const val=prompt(`แก้ไขเวลา (HH:MM) :`,current||"");
+  if(val===null)return;
+  const clean=val.trim();
+  if(!/^\d{2}:\d{2}$/.test(clean)){toast("รูปแบบ HH:MM เท่านั้น","red");return;}
+  const upd={[field]:clean};
+  if(field==="mix_start_time"&&clean) upd.status="mixing";
+  if(field==="mix_end_time"&&clean)   upd.status="pasteurising";
+  await updateDoc(doc(db,col,id),upd);
+  toast("แก้ไขเวลาแล้ว","green");
+};
+
+// ── CHART ─────────────────────────────────────────────────────────────
+const SHIFTS=[
+  {label:"กะเช้า",  color:"rgba(59,130,246,.8)",  start:6*60,  end:14*60},
+  {label:"กะบ่าย", color:"rgba(234,179,8,.8)",   start:14*60, end:22*60},
+  {label:"กะดึก",  color:"rgba(168,85,247,.8)",  start:22*60, end:30*60},
+];
+
+function toMin(t){if(!t)return null;const[h,m]=t.split(":").map(Number);return h*60+m;}
+function overlap(bS,bE,sS,sE){
+  if(bE<=bS)bE+=1440;
+  const o1=Math.max(0,Math.min(bE,sE)-Math.max(bS,sS));
+  const o2=Math.max(0,Math.min(bE+1440,sE)-Math.max(bS+1440,sS));
+  const o3=Math.max(0,Math.min(bE,sE+1440)-Math.max(bS,sS+1440));
+  return Math.max(o1,o2,o3);
+}
+
+window.setPeriod=async(m,p,btn)=>{
+  period[m]=p;
+  document.querySelectorAll(`#page-chart-${m} .period-btn`).forEach(b=>b.classList.remove("on"));
+  btn.classList.add("on");
+  await renderChart(m);
+};
+
+async function renderChart(m){
+  const col=planCol(m);
+  const now=new Date();
+  let dates=[];
+
+  if(period[m]==="day"){
+    dates=[today()];
+  } else if(period[m]==="week"){
+    for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);dates.push(d.toISOString().slice(0,10));}
+  } else if(period[m]==="month"){
+    for(let i=29;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);dates.push(d.toISOString().slice(0,10));}
+  } else {
+    for(let i=11;i>=0;i--){const d=new Date();d.setMonth(d.getMonth()-i);dates.push(d.toISOString().slice(0,7));}
+  }
+
+  // Load data
+  let allRows=[];
+  try{
+    const startDate=period[m]==="year"?dates[0]+"-01":dates[0];
+    const endDate=period[m]==="year"?dates[dates.length-1]+"-31":dates[dates.length-1];
+    const snap=await getDocs(query(collection(db,col),where("date",">=",startDate),where("date","<=",endDate)));
+    allRows=snap.docs.map(d=>({...d.data()}));
+  }catch{}
+
+  // Group by date/month
+  const labels=dates;
+  const shiftData=SHIFTS.map(()=>new Array(dates.length).fill(0));
+
+  allRows.forEach(r=>{
+    const vol=+r.volume_liter||0;
+    if(!vol||!r.mix_start_time||!r.mix_end_time)return;
+    const p=productMap[r.mix_code];
+    const kg=vol*(p?.density||1);
+    const bS=toMin(r.mix_start_time);
+    const bE=toMin(r.mix_end_time);
+    if(bS===null||bE===null)return;
+    const dur=bE>=bS?bE-bS:(1440-bS)+bE;
+    if(!dur)return;
+
+    const key=period[m]==="year"?r.date?.slice(0,7):r.date;
+    const idx=dates.indexOf(key);
+    if(idx===-1)return;
+
+    SHIFTS.forEach((sh,si)=>{
+      shiftData[si][idx]+=kg*(overlap(bS,bE,sh.start,sh.end)/dur);
+    });
+  });
+
+  // Render chart
+  const canvasId=`chart-${m}`;
+  if(charts[m]){charts[m].destroy();}
+  const ctx=$(canvasId).getContext("2d");
+  charts[m]=new Chart(ctx,{
+    type:"bar",
+    data:{
+      labels:period[m]==="year"?dates.map(d=>{const[y,mo]=d.split("-");return ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."][+mo-1]})
+        :dates.map(d=>{const p=d.split("-");return `${p[2]}/${p[1]}`}),
+      datasets:SHIFTS.map((sh,si)=>({
+        label:sh.label,
+        data:shiftData[si].map(v=>Math.round(v)),
+        backgroundColor:sh.color,
+        borderRadius:4,
+      }))
+    },
+    options:{
+      plugins:{legend:{labels:{color:"#7a8499",font:{family:"DM Mono",size:11}}}},
+      scales:{
+        x:{stacked:true,ticks:{color:"#3d4560",font:{size:10}},grid:{color:"#1e2535"}},
+        y:{stacked:true,ticks:{color:"#3d4560",font:{size:10}},grid:{color:"#1e2535"},title:{display:true,text:"kg",color:"#3d4560"}}
+      },
+      responsive:true,maintainAspectRatio:false
+    }
+  });
+}
+
+// ── PAGE SWITCH ────────────────────────────────────────────────────────
+window.showPage=(type,m,btn)=>{
+  document.querySelectorAll('.page').forEach(el=>el.classList.remove('on'));
+  document.querySelectorAll('.nav-tab').forEach(el=>el.classList.remove('on'));
+  $(`page-${type}-${m}`).classList.add('on');
+  btn.classList.add('on');
+  if(type==="chart") renderChart(m);
+};
+</script>
+</body>
+</html>

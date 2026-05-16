@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flavor — PROD.SYS</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;600&family=Sarabun:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07090f;--s1:#0e1118;--s2:#141820;--s3:#1a2030;
+  --b1:#1e2535;--b2:#2a3348;
+  --text:#dde3f0;--t2:#7a8499;--t3:#3d4560;
+  --blue:#3b82f6;--blue2:#60a5fa;
+  --green:#22c55e;--yellow:#eab308;--red:#ef4444;--cyan:#06b6d4;--pink:#ec4899;
+  --mono:'DM Mono',monospace;--sans:'Sarabun',sans-serif;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13px;min-height:100vh}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--b2);border-radius:3px}
+
+nav{display:flex;align-items:center;height:52px;background:var(--s1);border-bottom:1px solid var(--b1);position:sticky;top:0;z-index:200;padding:0 16px;gap:8px}
+.nav-logo{font-family:var(--mono);font-size:14px;font-weight:600;letter-spacing:.06em;margin-right:8px}
+.nav-logo b{color:var(--blue)}
+.nav-tab{font-size:12px;font-weight:600;padding:6px 12px;border-radius:7px;border:none;background:none;color:var(--t2);cursor:pointer;white-space:nowrap}
+.nav-tab:hover{color:var(--text);background:var(--s3)}
+.nav-tab.on{color:var(--pink);background:rgba(236,72,153,.12)}
+.nav-right{display:flex;align-items:center;gap:8px;margin-left:auto}
+.nav-user{font-family:var(--mono);font-size:11px;color:var(--t2)}
+.nav-role{font-size:10px;font-family:var(--mono);padding:2px 8px;border-radius:4px;background:rgba(236,72,153,.15);color:var(--pink);border:1px solid rgba(236,72,153,.3)}
+.btn-logout{font-size:11px;padding:5px 10px;border-radius:6px;border:1px solid var(--b2);background:none;color:var(--t2);cursor:pointer}
+.btn-logout:hover{color:var(--red);border-color:var(--red)}
+
+.page{display:none;padding:14px 16px}
+.page.on{display:block}
+
+/* QUEUE LAYOUT */
+.queue-wrap{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:700px){.queue-wrap{grid-template-columns:1fr}}
+
+/* ACTIVE CARD */
+.active-card{background:var(--s1);border:1px solid rgba(236,72,153,.3);border-radius:14px;padding:18px;position:relative;overflow:hidden}
+.active-card::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--pink),var(--purple,#a855f7))}
+.active-title{font-family:var(--mono);font-size:10px;color:var(--pink);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.active-title .dot{width:6px;height:6px;border-radius:50%;background:var(--pink);animation:blink .8s infinite}
+
+/* QUEUE CARD */
+.queue-card{background:var(--s1);border:1px solid var(--b1);border-radius:14px;padding:18px}
+.queue-title{font-family:var(--mono);font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px}
+
+/* BATCH INFO */
+.batch-info{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.info-item{background:var(--s2);border-radius:8px;padding:8px 10px}
+.info-label{font-size:10px;color:var(--t3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px}
+.info-val{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--text)}
+
+/* STATUS FROM MIXING */
+.mix-status{display:flex;align-items:center;gap:8px;background:var(--s2);border-radius:8px;padding:8px 12px;margin-bottom:14px}
+.mix-status-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.mix-status-text{font-family:var(--mono);font-size:12px}
+
+/* STAMP */
+.stamp-wrap{display:flex;flex-direction:column;gap:3px;margin-bottom:10px}
+.stamp-label{font-size:10px;color:var(--t3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
+.stamp-btn{display:flex;align-items:center;justify-content:center;gap:6px;background:var(--s3);border:1px solid var(--b2);border-radius:8px;color:var(--t2);font-size:12px;font-family:var(--mono);padding:9px 14px;cursor:pointer;transition:all .2s;width:100%}
+.stamp-btn:hover{border-color:var(--pink);color:var(--pink)}
+.stamp-btn.stamped{background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.4);color:var(--green)}
+.edit-link{font-size:10px;color:var(--t3);cursor:pointer;text-align:right}
+.edit-link:hover{color:var(--blue2)}
+
+/* INPUT ROW */
+.input-row{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.input-item{display:flex;align-items:center;gap:8px}
+.input-item label{font-size:12px;color:var(--t2);min-width:100px}
+.flavor-input{background:rgba(236,72,153,.06);border:1px solid rgba(236,72,153,.3);border-radius:6px;color:var(--pink);font-family:var(--mono);font-size:12px;padding:6px 10px;outline:none;width:100px;text-align:right}
+.flavor-input:focus{border-color:var(--pink)}
+.unit-label{font-size:11px;color:var(--t3);font-family:var(--mono)}
+
+/* CHECKLIST */
+.checklist{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.check-item{display:flex;align-items:center;gap:8px;background:var(--s2);border-radius:8px;padding:8px 12px;cursor:pointer;transition:background .2s}
+.check-item:hover{background:var(--s3)}
+.check-item.checked{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2)}
+.check-item input[type=checkbox]{width:16px;height:16px;accent-color:var(--green);cursor:pointer;flex-shrink:0}
+.check-item span{font-size:12px;color:var(--t2)}
+.check-item.checked span{color:var(--green)}
+
+/* COMPLETE BTN */
+.complete-btn{width:100%;background:linear-gradient(135deg,var(--pink),#a855f7);color:#fff;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--sans);transition:opacity .2s}
+.complete-btn:hover{opacity:.85}
+.complete-btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* HISTORY */
+.history-item{background:var(--s1);border:1px solid var(--b1);border-radius:10px;padding:14px;margin-bottom:8px;opacity:.7}
+.history-item:hover{opacity:1}
+.history-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.history-code{font-family:var(--mono);font-weight:700;color:var(--pink)}
+.history-time{font-family:var(--mono);font-size:11px;color:var(--t3)}
+.history-detail{display:flex;gap:12px;flex-wrap:wrap}
+.history-tag{font-size:11px;font-family:var(--mono);padding:2px 8px;border-radius:4px;background:var(--s2);color:var(--t2)}
+
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:40px 20px;color:var(--t3)}
+.empty-icon{font-size:40px;margin-bottom:8px}
+.empty-text{font-size:13px;font-family:var(--mono)}
+
+/* SECTION DIVIDER */
+.section-label{font-family:var(--mono);font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;margin-top:14px}
+.divider{border:none;border-top:1px solid var(--b1);margin:14px 0}
+
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#1d4ed8;color:#fff;padding:10px 20px;border-radius:10px;font-size:13px;opacity:0;transition:all .3s;z-index:9999;white-space:nowrap;pointer-events:none}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@keyframes blink{0%,100%{opacity:1}40%{opacity:.2}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">PROD<b>.</b>SYS</div>
+  <button class="nav-tab on" id="tab-active" onclick="showTab('active',this)">🎨 งานปัจจุบัน</button>
+  <button class="nav-tab" id="tab-history" onclick="showTab('history',this)">📋 ประวัติ</button>
+  <div class="nav-right">
+    <span class="nav-role">FLAVOR</span>
+    <span class="nav-user" id="nav-user"></span>
+    <button class="btn-logout" onclick="doLogout()">Logout</button>
+  </div>
+</nav>
+
+<!-- ACTIVE PAGE -->
+<div class="page on" id="page-active">
+  <div class="queue-wrap">
+
+    <!-- Mixing 1 Queue -->
+    <div>
+      <div style="font-family:var(--mono);font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">🔵 Mixing 1</div>
+      <div id="flavor-m1"></div>
+    </div>
+
+    <!-- Mixing 2 Queue -->
+    <div>
+      <div style="font-family:var(--mono);font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">🟢 Mixing 2</div>
+      <div id="flavor-m2"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- HISTORY PAGE -->
+<div class="page" id="page-history">
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+    <span style="font-family:var(--mono);font-size:10px;color:var(--t3)">DATE</span>
+    <input type="date" id="hist-date" class="nav-tab" style="background:var(--s2);border:1px solid var(--b1);border-radius:8px;color:var(--text);font-family:var(--mono);font-size:12px;padding:5px 10px;outline:none;cursor:pointer" onchange="loadHistory()">
+  </div>
+  <div id="history-list"></div>
+</div>
+
+<div id="toast"></div>
+
+<script type="module">
+import { initializeApp }     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, collection, query, where, orderBy, onSnapshot,
+         updateDoc, addDoc, getDocs, doc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const app = initializeApp({
+  apiKey:"AIzaSyC3f6jMuhugE6BNfRfkpOA9BMrIKWR9YgQ",
+  authDomain:"production-filling.firebaseapp.com",
+  projectId:"production-filling",
+  storageBucket:"production-filling.firebasestorage.app",
+  messagingSenderId:"89098393458",
+  appId:"1:89098393458:web:b723f2886e8a341935afeb"
+});
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+let ME=null;
+let unsub={m1:null,m2:null};
+let rows={m1:[],m2:[]};
+
+const today  = ()=>new Date().toISOString().slice(0,10);
+const $      = id=>document.getElementById(id);
+const nowHHMM= ()=>{const d=new Date();return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");};
+
+function toast(msg,t="blue"){
+  const el=$("toast");el.textContent=msg;
+  el.style.background=t==="green"?"#15803d":t==="red"?"#991b1b":"#1d4ed8";
+  el.classList.add("show");setTimeout(()=>el.classList.remove("show"),2500);
+}
+
+// ── AUTH ──────────────────────────────────────────────────────────────
+onAuthStateChanged(auth,async user=>{
+  if(!user){window.location.href="index.html";return;}
+  ME=user;
+  try{
+    const snap=await getDocs(query(collection(db,"users"),where("uid","==",user.uid)));
+    const role=snap.empty?"flavor":(snap.docs[0].data().role||"flavor");
+    if(role!=="flavor"&&role!=="admin"){window.location.href="index.html";return;}
+  }catch{}
+  $("nav-user").textContent=user.email.replace("@filling.local","");
+  $("hist-date").value=today();
+  loadActive();
+});
+
+window.doLogout=async()=>{
+  if(unsub.m1)unsub.m1();
+  if(unsub.m2)unsub.m2();
+  await signOut(auth);
+  window.location.href="index.html";
+};
+
+// ── LOAD ACTIVE ───────────────────────────────────────────────────────
+function loadActive(){
+  const d=today();
+  ["m1","m2"].forEach(m=>{
+    if(unsub[m])unsub[m]();
+    const col=m==="m1"?"production_plans":"production_plans_m2";
+    const q=query(collection(db,col),where("date","==",d),orderBy("seq","asc"));
+    unsub[m]=onSnapshot(q,snap=>{
+      // แสดงเฉพาะ batch ที่ยังไม่ได้ทำ flavor หรือกำลังทำ
+      rows[m]=snap.docs.map(d=>({id:d.id,...d.data()}))
+        .filter(r=>r.status==="past_done"||r.status==="mixing"||r.status==="pasteurising"||r.status==="pending"||r.status==="ready");
+      renderActive(m);
+    });
+  });
+}
+
+// ── RENDER ACTIVE ─────────────────────────────────────────────────────
+function renderActive(m){
+  const container=$(`flavor-${m}`);
+  if(!container)return;
+  container.innerHTML="";
+
+  if(!rows[m].length){
+    container.innerHTML=`<div class="empty-state"><div class="empty-icon">✨</div><div class="empty-text">ไม่มีงานที่รอ Flavor</div></div>`;
+    return;
+  }
+
+  rows[m].forEach((row,i)=>{
+    const isFirst=i===0;
+    const col=m==="m1"?"production_plans":"production_plans_m2";
+
+    // mix status indicator
+    const mixStat=row.status==="mixing"?"🔄 กำลังผสม"
+      :row.status==="pasteurising"?"♨️ กำลัง Past."
+      :row.status==="past_done"?"✅ Past. เสร็จ — พร้อม Flavor"
+      :"⏸ Pending";
+    const mixColor=row.status==="past_done"?"var(--green)"
+      :row.status==="pasteurising"?"var(--orange,#f97316)"
+      :row.status==="mixing"?"var(--yellow)"
+      :"var(--t3)";
+    const dotColor=row.status==="past_done"?"var(--green)"
+      :row.status==="pasteurising"?"#f97316"
+      :row.status==="mixing"?"var(--yellow)"
+      :"var(--t3)";
+
+    // flavor data
+    const fv=row.flavor_data||{};
+    const checks=fv.checks||{};
+    const CHECKLIST=["เติมสี","เติมกลิ่น","ตรวจสอบความหนืด","บันทึก Logbook"];
+
+    const cardClass=isFirst?"active-card":"queue-card";
+    const card=document.createElement("div");
+    card.className=cardClass;
+    card.style.marginBottom="10px";
+
+    card.innerHTML=`
+      ${isFirst
+        ?`<div class="active-title"><div class="dot"></div>งานปัจจุบัน</div>`
+        :`<div class="queue-title">คิวที่ ${i+1}</div>`
+      }
+
+      <!-- Batch Info -->
+      <div class="batch-info">
+        <div class="info-item">
+          <div class="info-label">Mix Code</div>
+          <div class="info-val" style="color:var(--pink)">${row.mix_code||"—"}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Mix Name</div>
+          <div class="info-val" style="font-size:11px">${row.mix_name||"—"}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Batch</div>
+          <div class="info-val">${row.batch_no||"—"}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Volume</div>
+          <div class="info-val" style="color:var(--cyan)">${row.volume_liter||"—"} L</div>
+        </div>
+      </div>
+
+      <!-- Mix Status -->
+      <div class="mix-status">
+        <div class="mix-status-dot" style="background:${dotColor}"></div>
+        <span class="mix-status-text" style="color:${mixColor}">${mixStat}</span>
+      </div>
+
+      ${isFirst?`
+      <hr class="divider">
+
+      <!-- Stamp เวลาเท -->
+      <div class="stamp-wrap">
+        <div class="stamp-label">⏱ เวลาเท</div>
+        <button class="stamp-btn ${fv.pour_time?"stamped":""}"
+          onclick="stampPour('${col}','${row.id}','${m}')">
+          ⏱ ${fv.pour_time||"Stamp เวลาเท"}
+        </button>
+        ${fv.pour_time?`<span class="edit-link" onclick="editPour('${col}','${row.id}','${m}','${fv.pour_time}')">✏️ แก้ไขเวลา</span>`:""}
+      </div>
+
+      <!-- จำนวนสีและกลิ่น -->
+      <div class="section-label">ปริมาณที่เติม</div>
+      <div class="input-row">
+        <div class="input-item">
+          <label>🎨 สี (kg)</label>
+          <input class="flavor-input" type="number" step="0.01" value="${fv.color_amount||""}" placeholder="0.00"
+            onchange="saveFlavor('${col}','${row.id}','color_amount',+this.value,'${m}')">
+          <span class="unit-label">kg</span>
+        </div>
+        <div class="input-item">
+          <label>🌸 กลิ่น (kg)</label>
+          <input class="flavor-input" type="number" step="0.01" value="${fv.flavor_amount||""}" placeholder="0.00"
+            onchange="saveFlavor('${col}','${row.id}','flavor_amount',+this.value,'${m}')">
+          <span class="unit-label">kg</span>
+        </div>
+      </div>
+
+      <!-- Checklist -->
+      <div class="section-label">✅ Checklist วัตถุดิบ</div>
+      <div class="checklist">
+        ${CHECKLIST.map(item=>`
+          <label class="check-item ${checks[item]?"checked":""}">
+            <input type="checkbox" ${checks[item]?"checked":""}
+              onchange="saveCheck('${col}','${row.id}','${item}',this.checked,'${m}')">
+            <span>${item}</span>
+          </label>
+        `).join("")}
+      </div>
+
+      <!-- Complete Button -->
+      <button class="complete-btn"
+        ${!fv.pour_time?"disabled title='กรุณา Stamp เวลาเทก่อน'":""}
+        onclick="completeFlavor('${col}','${row.id}','${m}')">
+        ✅ ทำ Flavor เสร็จแล้ว — ถัดไป
+      </button>
+      `:""}
+    `;
+    container.appendChild(card);
+  });
+}
+
+// ── STAMP เวลาเท ──────────────────────────────────────────────────────
+window.stampPour=async(col,id,m)=>{
+  const now=nowHHMM();
+  const row=rows[m].find(r=>r.id===id);
+  if(!row)return;
+  const fv={...(row.flavor_data||{}),pour_time:now};
+  await updateDoc(doc(db,col,id),{flavor_data:fv});
+  toast(`Stamp เวลาเท ${now} แล้ว`,"green");
+};
+
+window.editPour=async(col,id,m,current)=>{
+  const val=prompt("แก้ไขเวลาเท (HH:MM) :",current||"");
+  if(val===null)return;
+  const clean=val.trim();
+  if(!/^\d{2}:\d{2}$/.test(clean)){toast("รูปแบบ HH:MM เท่านั้น","red");return;}
+  const row=rows[m].find(r=>r.id===id);
+  if(!row)return;
+  const fv={...(row.flavor_data||{}),pour_time:clean};
+  await updateDoc(doc(db,col,id),{flavor_data:fv});
+  toast("แก้ไขเวลาแล้ว","green");
+};
+
+// ── SAVE FLAVOR DATA ──────────────────────────────────────────────────
+window.saveFlavor=async(col,id,field,val,m)=>{
+  const row=rows[m].find(r=>r.id===id);
+  if(!row)return;
+  const fv={...(row.flavor_data||{}),[field]:val};
+  await updateDoc(doc(db,col,id),{flavor_data:fv});
+};
+
+// ── SAVE CHECKLIST ────────────────────────────────────────────────────
+window.saveCheck=async(col,id,item,checked,m)=>{
+  const row=rows[m].find(r=>r.id===id);
+  if(!row)return;
+  const fv=row.flavor_data||{};
+  const checks={...(fv.checks||{}),[item]:checked};
+  await updateDoc(doc(db,col,id),{flavor_data:{...fv,checks}});
+};
+
+// ── COMPLETE FLAVOR ───────────────────────────────────────────────────
+window.completeFlavor=async(col,id,m)=>{
+  if(!confirm("ยืนยันว่าทำ Flavor เสร็จแล้ว?"))return;
+  const row=rows[m].find(r=>r.id===id);
+  if(!row)return;
+
+  // บันทึกลง flavor_history
+  await addDoc(collection(db,"flavor_history"),{
+    date:today(),
+    mix_code:row.mix_code,
+    mix_name:row.mix_name,
+    batch_no:row.batch_no,
+    volume_liter:row.volume_liter,
+    mixing_unit:m,
+    flavor_data:row.flavor_data||{},
+    completed_at:nowHHMM(),
+    completed_by:ME.email,
+    plan_id:id,
+  });
+
+  // อัปเดต status เป็น ready
+  await updateDoc(doc(db,col,id),{
+    flavor_done:true,
+    flavor_done_at:nowHHMM(),
+    status:"ready"
+  });
+
+  toast("บันทึก Flavor เสร็จแล้ว ✅","green");
+};
+
+// ── HISTORY ───────────────────────────────────────────────────────────
+window.loadHistory=async()=>{
+  const d=$("hist-date").value||today();
+  const list=$("history-list");
+  list.innerHTML=`<div style="color:var(--t3);font-family:var(--mono);font-size:12px;padding:20px">กำลังโหลด...</div>`;
+  try{
+    const snap=await getDocs(query(collection(db,"flavor_history"),where("date","==",d),orderBy("completed_at","asc")));
+    if(snap.empty){
+      list.innerHTML=`<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">ไม่มีประวัติวันนี้</div></div>`;
+      return;
+    }
+    list.innerHTML="";
+    snap.docs.forEach((d,i)=>{
+      const r=d.data();
+      const fv=r.flavor_data||{};
+      const checks=fv.checks||{};
+      const checkDone=Object.values(checks).filter(Boolean).length;
+      const checkTotal=Object.keys(checks).length||4;
+      const item=document.createElement("div");
+      item.className="history-item";
+      item.innerHTML=`
+        <div class="history-header">
+          <div>
+            <span class="history-code">${r.mix_code||"—"}</span>
+            <span style="font-size:12px;color:var(--t2);margin-left:8px">${r.mix_name||""}</span>
+            <span style="font-family:var(--mono);font-size:11px;color:var(--t3);margin-left:6px">Batch ${r.batch_no||"—"}</span>
+          </div>
+          <span class="history-time">เสร็จ ${r.completed_at||"—"}</span>
+        </div>
+        <div class="history-detail">
+          <span class="history-tag">🔵 ${r.mixing_unit==="m1"?"Mixing 1":"Mixing 2"}</span>
+          <span class="history-tag">💧 ${r.volume_liter||"—"} L</span>
+          <span class="history-tag">🎨 สี ${fv.color_amount||0} kg</span>
+          <span class="history-tag">🌸 กลิ่น ${fv.flavor_amount||0} kg</span>
+          <span class="history-tag">⏱ เท ${fv.pour_time||"—"}</span>
+          <span class="history-tag" style="color:${checkDone>=checkTotal?"var(--green)":"var(--yellow)"}">✅ Check ${checkDone}/${checkTotal}</span>
+        </div>`;
+      list.appendChild(item);
+    });
+  }catch(e){
+    list.innerHTML=`<div style="color:var(--red);padding:20px;font-family:var(--mono)">Error: ${e.message}</div>`;
+  }
+};
+
+// ── TAB SWITCH ────────────────────────────────────────────────────────
+window.showTab=(tab,btn)=>{
+  document.querySelectorAll('.page').forEach(el=>el.classList.remove('on'));
+  document.querySelectorAll('.nav-tab').forEach(el=>el.classList.remove('on'));
+  $(`page-${tab}`).classList.add('on');
+  btn.classList.add('on');
+  if(tab==="history")loadHistory();
+};
+</script>
+</body>
+</html>

@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — PROD.SYS</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;600&family=Sarabun:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07090f;--s1:#0e1118;--s2:#141820;--s3:#1a2030;
+  --b1:#1e2535;--b2:#2a3348;
+  --text:#dde3f0;--t2:#7a8499;--t3:#3d4560;
+  --blue:#3b82f6;--blue2:#60a5fa;
+  --green:#22c55e;--yellow:#eab308;--red:#ef4444;--cyan:#06b6d4;--purple:#a855f7;
+  --mono:'DM Mono',monospace;--sans:'Sarabun',sans-serif;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13px;min-height:100vh}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--b2);border-radius:3px}
+
+/* NAV */
+nav{display:flex;align-items:center;height:52px;background:var(--s1);border-bottom:1px solid var(--b1);position:sticky;top:0;z-index:200;padding:0 16px;gap:8px}
+.nav-logo{font-family:var(--mono);font-size:14px;font-weight:600;letter-spacing:.06em;margin-right:8px}
+.nav-logo b{color:var(--blue)}
+.nav-tab{font-size:12px;font-weight:600;padding:6px 12px;border-radius:7px;border:none;background:none;color:var(--t2);cursor:pointer;white-space:nowrap}
+.nav-tab:hover{color:var(--text);background:var(--s3)}
+.nav-tab.on{color:var(--purple);background:rgba(168,85,247,.12)}
+.nav-right{display:flex;align-items:center;gap:8px;margin-left:auto}
+.nav-role{font-size:10px;font-family:var(--mono);padding:2px 8px;border-radius:4px;background:rgba(168,85,247,.15);color:var(--purple);border:1px solid rgba(168,85,247,.3)}
+.nav-user{font-family:var(--mono);font-size:11px;color:var(--t2)}
+.btn-logout{font-size:11px;padding:5px 10px;border-radius:6px;border:1px solid var(--b2);background:none;color:var(--t2);cursor:pointer}
+.btn-logout:hover{color:var(--red);border-color:var(--red)}
+
+/* PAGE */
+.page{display:none;padding:16px}
+.page.on{display:block}
+
+/* SECTION */
+.sec{background:var(--s1);border:1px solid var(--b1);border-radius:12px;padding:18px;margin-bottom:16px}
+.sec-title{font-family:var(--mono);font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.sec-title::after{content:"";flex:1;height:1px;background:var(--b1)}
+
+/* FORM GRID */
+.form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin-bottom:10px}
+.form-group{display:flex;flex-direction:column;gap:4px}
+.form-label{font-size:10px;color:var(--t3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em}
+.ci{background:var(--s2);border:1px solid var(--b1);border-radius:7px;color:var(--text);font-family:var(--mono);font-size:12px;padding:7px 10px;outline:none;width:100%}
+.ci:focus{border-color:var(--blue)}
+select.ci{cursor:pointer}
+
+/* BUTTONS */
+.btn{font-size:12px;padding:7px 14px;border-radius:7px;border:1px solid var(--b2);background:var(--s3);color:var(--text);cursor:pointer;font-family:var(--sans);white-space:nowrap}
+.btn:hover{background:var(--b2)}
+.btn-b{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn-b:hover{background:#2563eb}
+.btn-g{background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.3);color:var(--green)}
+.btn-r{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.3);color:var(--red)}
+.btn-s{font-size:11px;padding:5px 10px}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+/* TABLE */
+.tw{overflow-x:auto;border-radius:10px;border:1px solid var(--b1)}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead th{background:var(--s2);padding:7px 10px;text-align:left;white-space:nowrap;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1px solid var(--b1)}
+tbody tr{border-bottom:1px solid var(--b1)}
+tbody tr:hover td{background:rgba(255,255,255,.02)}
+tbody td{padding:7px 10px;vertical-align:middle}
+.db{background:none;border:none;color:var(--t3);cursor:pointer;font-size:13px;padding:2px 6px;border-radius:4px}
+.db:hover{color:var(--red);background:rgba(239,68,68,.1)}
+.edit-btn{background:none;border:none;color:var(--t3);cursor:pointer;font-size:13px;padding:2px 6px;border-radius:4px}
+.edit-btn:hover{color:var(--blue2);background:rgba(59,130,246,.1)}
+
+/* ROLE BADGE */
+.role-badge{font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:4px;font-weight:700}
+
+/* ERROR */
+.err-text{color:var(--red);font-size:11px;min-height:14px;margin-top:4px}
+
+/* KPI */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+@media(max-width:600px){.kpi-row{grid-template-columns:repeat(2,1fr)}}
+.kpi{background:var(--s1);border:1px solid var(--b1);border-radius:10px;padding:12px 14px}
+.kpi-label{font-size:10px;color:var(--t3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
+.kpi-val{font-size:20px;font-weight:700;font-family:var(--mono)}
+
+/* TOAST */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#1d4ed8;color:#fff;padding:10px 20px;border-radius:10px;font-size:13px;opacity:0;transition:all .3s;z-index:9999;pointer-events:none}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:999;align-items:center;justify-content:center}
+.modal-bg.show{display:flex}
+.modal{background:var(--s1);border:1px solid var(--b1);border-radius:14px;padding:24px;width:340px;max-width:90vw}
+.modal-title{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--purple);margin-bottom:16px}
+.modal-field{margin-bottom:12px}
+.modal-label{font-size:10px;color:var(--t3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
+.modal-actions{display:flex;gap:8px;margin-top:16px}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">PROD<b>.</b>SYS</div>
+  <button class="nav-tab on" onclick="showPage('users',this)">👥 Users</button>
+  <button class="nav-tab" onclick="showPage('lines',this)">🏭 LINE Master</button>
+  <button class="nav-tab" onclick="showPage('products',this)">🧪 Product Master</button>
+  <div class="nav-right">
+    <span class="nav-role">ADMIN</span>
+    <span class="nav-user" id="nav-user"></span>
+    <button class="btn-logout" onclick="doLogout()">Logout</button>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════════════════
+     PAGE: USERS
+══════════════════════════════════════════════════════ -->
+<div class="page on" id="page-users">
+  <div class="kpi-row">
+    <div class="kpi"><div class="kpi-label">ทั้งหมด</div><div class="kpi-val" id="u-total" style="color:var(--blue2)">0</div></div>
+    <div class="kpi"><div class="kpi-label">Admin</div><div class="kpi-val" id="u-admin" style="color:var(--purple)">0</div></div>
+    <div class="kpi"><div class="kpi-label">Operator</div><div class="kpi-val" id="u-op" style="color:var(--cyan)">0</div></div>
+    <div class="kpi"><div class="kpi-label">Role อื่น</div><div class="kpi-val" id="u-other" style="color:var(--t2)">0</div></div>
+  </div>
+
+  <!-- Add User -->
+  <div class="sec">
+    <div class="sec-title">➕ เพิ่มผู้ใช้ใหม่</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <div class="form-label">Username</div>
+        <input id="nu-name" class="ci" placeholder="เช่น mixing01" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9_]/g,'')">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Password (6+ ตัว)</div>
+        <input id="nu-pass" class="ci" type="password" placeholder="••••••••">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Role</div>
+        <select id="nu-role" class="ci">
+          <option value="admin">Admin</option>
+          <option value="leadman">Leadman</option>
+          <option value="mixing" selected>Mixing</option>
+          <option value="pasteurize">Pasteurize</option>
+          <option value="flavor">Flavor</option>
+          <option value="cipman">CIP Man</option>
+          <option value="filling">Filling</option>
+          <option value="operator">Operator</option>
+        </select>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-b" onclick="addUser()">+ เพิ่มผู้ใช้</button>
+      <span class="err-text" id="u-err"></span>
+    </div>
+  </div>
+
+  <!-- User List -->
+  <div class="sec">
+    <div class="sec-title">📋 รายชื่อผู้ใช้ทั้งหมด</div>
+    <div class="tw">
+      <table>
+        <thead><tr>
+          <th>#</th><th>Username</th><th>Email</th><th>Role</th><th>สร้างโดย</th><th>วันที่สร้าง</th><th style="width:80px">จัดการ</th>
+        </tr></thead>
+        <tbody id="user-list"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     PAGE: LINE MASTER
+══════════════════════════════════════════════════════ -->
+<div class="page" id="page-lines">
+
+  <!-- Add Line -->
+  <div class="sec">
+    <div class="sec-title">➕ เพิ่ม Filling LINE</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <div class="form-label">ชื่อ LINE</div>
+        <input id="nl-name" class="ci" placeholder="เช่น Polo 12A">
+      </div>
+      <div class="form-group">
+        <div class="form-label">กลุ่ม</div>
+        <select id="nl-group" class="ci">
+          <option value="bangchan">Bangchan</option>
+          <option value="twin">Twin</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <div class="form-label">ผลิตภัณฑ์หลัก</div>
+        <input id="nl-product" class="ci" placeholder="เช่น Eskimo Van">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Flow Rate (L/hr)</div>
+        <input id="nl-flow" class="ci" type="number" value="300" placeholder="300">
+      </div>
+      <div class="form-group">
+        <div class="form-label">ลำดับ (Seq)</div>
+        <input id="nl-seq" class="ci" type="number" value="1" placeholder="1">
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-b" onclick="addLine()">+ เพิ่ม LINE</button>
+      <span class="err-text" id="l-err"></span>
+    </div>
+  </div>
+
+  <!-- Bangchan -->
+  <div class="sec">
+    <div class="sec-title">🏭 Bangchan Lines</div>
+    <div class="tw">
+      <table>
+        <thead><tr>
+          <th>Seq</th><th>ชื่อ LINE</th><th>ผลิตภัณฑ์</th><th>Flow Rate</th><th>กลุ่ม</th><th>จัดการ</th>
+        </tr></thead>
+        <tbody id="lines-bangchan"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Twin -->
+  <div class="sec">
+    <div class="sec-title">🏭 Twin Lines</div>
+    <div class="tw">
+      <table>
+        <thead><tr>
+          <th>Seq</th><th>ชื่อ LINE</th><th>ผลิตภัณฑ์</th><th>Flow Rate</th><th>กลุ่ม</th><th>จัดการ</th>
+        </tr></thead>
+        <tbody id="lines-twin"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     PAGE: PRODUCT MASTER
+══════════════════════════════════════════════════════ -->
+<div class="page" id="page-products">
+
+  <!-- Add Product -->
+  <div class="sec">
+    <div class="sec-title">➕ เพิ่มผลิตภัณฑ์</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <div class="form-label">Mix Code</div>
+        <input id="np-code" class="ci" placeholder="เช่น 1234567" oninput="this.value=this.value.toUpperCase()">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Mix Name</div>
+        <input id="np-name" class="ci" placeholder="เช่น 7% Milo">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Density (kg/L)</div>
+        <input id="np-density" class="ci" type="number" step="0.001" value="1.050" placeholder="1.050">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Aging Time (hr)</div>
+        <input id="np-aging" class="ci" type="number" step="0.5" value="4" placeholder="4">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Speed M1 (L/hr)</div>
+        <input id="np-spd1" class="ci" type="number" value="1000" placeholder="1000">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Speed M2 (L/hr)</div>
+        <input id="np-spd2" class="ci" type="number" value="1000" placeholder="1000">
+      </div>
+      <div class="form-group">
+        <div class="form-label">สีถัง</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <input id="np-color" type="color" value="#60a5fa" style="width:44px;height:36px;border-radius:6px;border:1px solid var(--b1);background:var(--s2);cursor:pointer;padding:2px">
+          <span id="np-color-val" style="font-family:var(--mono);font-size:11px;color:var(--t2)">#60a5fa</span>
+        </div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-b" onclick="addProduct()">+ เพิ่มผลิตภัณฑ์</button>
+      <span class="err-text" id="p-err"></span>
+    </div>
+  </div>
+
+  <!-- Product List -->
+  <div class="sec">
+    <div class="sec-title">🧪 รายการผลิตภัณฑ์ทั้งหมด</div>
+    <div style="margin-bottom:8px">
+      <input id="p-search" class="ci" style="max-width:260px" placeholder="🔍 ค้นหา Mix Code / ชื่อ..." oninput="filterProducts()">
+    </div>
+    <div class="tw">
+      <table>
+        <thead><tr>
+          <th>Mix Code</th><th>Mix Name</th><th>Density</th><th>Aging (hr)</th><th>Speed M1</th><th>Speed M2</th><th>สีถัง</th><th>จัดการ</th>
+        </tr></thead>
+        <tbody id="product-list"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT LINE MODAL -->
+<div class="modal-bg" id="modal-line">
+  <div class="modal">
+    <div class="modal-title">✏️ แก้ไข LINE</div>
+    <input type="hidden" id="el-id">
+    <div class="modal-field"><div class="modal-label">ชื่อ LINE</div><input id="el-name" class="ci"></div>
+    <div class="modal-field"><div class="modal-label">กลุ่ม</div>
+      <select id="el-group" class="ci">
+        <option value="bangchan">Bangchan</option>
+        <option value="twin">Twin</option>
+      </select>
+    </div>
+    <div class="modal-field"><div class="modal-label">ผลิตภัณฑ์หลัก</div><input id="el-product" class="ci"></div>
+    <div class="modal-field"><div class="modal-label">Flow Rate (L/hr)</div><input id="el-flow" class="ci" type="number"></div>
+    <div class="modal-field"><div class="modal-label">ลำดับ (Seq)</div><input id="el-seq" class="ci" type="number"></div>
+    <div class="modal-actions">
+      <button class="btn btn-b" style="flex:1" onclick="saveEditLine()">บันทึก</button>
+      <button class="btn" style="flex:1" onclick="closeModal('modal-line')">ยกเลิก</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT PRODUCT MODAL -->
+<div class="modal-bg" id="modal-product">
+  <div class="modal">
+    <div class="modal-title">✏️ แก้ไขผลิตภัณฑ์</div>
+    <input type="hidden" id="ep-id">
+    <div class="modal-field"><div class="modal-label">Mix Code</div><input id="ep-code" class="ci"></div>
+    <div class="modal-field"><div class="modal-label">Mix Name</div><input id="ep-name" class="ci"></div>
+    <div class="modal-field"><div class="modal-label">Density (kg/L)</div><input id="ep-density" class="ci" type="number" step="0.001"></div>
+    <div class="modal-field"><div class="modal-label">Aging Time (hr)</div><input id="ep-aging" class="ci" type="number" step="0.5"></div>
+    <div class="modal-field"><div class="modal-label">Speed M1 (L/hr)</div><input id="ep-spd1" class="ci" type="number"></div>
+    <div class="modal-field"><div class="modal-label">Speed M2 (L/hr)</div><input id="ep-spd2" class="ci" type="number"></div>
+    <div class="modal-field">
+      <div class="modal-label">สีถัง</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <input id="ep-color" type="color" value="#60a5fa" style="width:44px;height:36px;border-radius:6px;border:1px solid var(--b1);background:var(--s2);cursor:pointer;padding:2px">
+        <span id="ep-color-val" style="font-family:var(--mono);font-size:11px;color:var(--t2)">#60a5fa</span>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-b" style="flex:1" onclick="saveEditProduct()">บันทึก</button>
+      <button class="btn" style="flex:1" onclick="closeModal('modal-product')">ยกเลิก</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, signOut, onAuthStateChanged,
+         createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, collection, query, where, orderBy, onSnapshot,
+         addDoc, updateDoc, deleteDoc, getDocs, doc, setDoc }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const app = initializeApp({
+  apiKey:"AIzaSyC3f6jMuhugE6BNfRfkpOA9BMrIKWR9YgQ",
+  authDomain:"production-filling.firebaseapp.com",
+  projectId:"production-filling",
+  storageBucket:"production-filling.firebasestorage.app",
+  messagingSenderId:"89098393458",
+  appId:"1:89098393458:web:b723f2886e8a341935afeb"
+});
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+let ME=null;
+let users=[], lines=[], products=[], productsAll=[];
+let unsubUsers=null, unsubLines=null, unsubProducts=null;
+
+const $=id=>document.getElementById(id);
+function toast(msg,t="blue"){
+  const el=$("toast");el.textContent=msg;
+  el.style.background=t==="green"?"#15803d":t==="red"?"#991b1b":"#1d4ed8";
+  el.classList.add("show");setTimeout(()=>el.classList.remove("show"),3000);
+}
+
+// ── ROLE STYLES ───────────────────────────────────────────────────────
+const ROLE_STYLE={
+  admin:   "background:rgba(168,85,247,.15);color:#c084fc",
+  leadman: "background:rgba(234,179,8,.15);color:#fde047",
+  mixing:  "background:rgba(6,182,212,.15);color:#67e8f9",
+  pasteurize:"background:rgba(249,115,22,.15);color:#fdba74",
+  flavor:  "background:rgba(236,72,153,.15);color:#f9a8d4",
+  cipman:  "background:rgba(34,197,94,.15);color:#86efac",
+  filling: "background:rgba(59,130,246,.15);color:#93c5fd",
+  operator:"background:rgba(100,116,139,.15);color:#94a3b8",
+};
+
+// ── AUTH ──────────────────────────────────────────────────────────────
+onAuthStateChanged(auth,async user=>{
+  if(!user){window.location.href="index.html";return;}
+  ME=user;
+  try{
+    const snap=await getDocs(query(collection(db,"users"),where("uid","==",user.uid)));
+    const role=snap.empty?"operator":(snap.docs[0].data().role||"operator");
+    if(role!=="admin"){window.location.href="index.html";return;}
+  }catch{}
+  $("nav-user").textContent=user.email.replace("@filling.local","");
+  initListeners();
+});
+
+window.doLogout=async()=>{
+  [unsubUsers,unsubLines,unsubProducts].forEach(u=>u&&u());
+  await signOut(auth);
+  window.location.href="index.html";
+};
+
+// ── LISTENERS ─────────────────────────────────────────────────────────
+function initListeners(){
+  // Users
+  unsubUsers=onSnapshot(collection(db,"users"),snap=>{
+    users=snap.docs.map(d=>({id:d.id,...d.data()}))
+      .sort((a,b)=>(a.username||"").localeCompare(b.username||""));
+    renderUsers();
+  });
+  // Lines
+  unsubLines=onSnapshot(collection(db,"lines"),snap=>{
+    lines=snap.docs.map(d=>({id:d.id,...d.data()}))
+      .sort((a,b)=>(a.seq||0)-(b.seq||0));
+    renderLines();
+  });
+  // Products
+  unsubProducts=onSnapshot(collection(db,"products"),snap=>{
+    productsAll=snap.docs.map(d=>({id:d.id,...d.data()}))
+      .sort((a,b)=>(a.mix_code||"").localeCompare(b.mix_code||""));
+    products=[...productsAll];
+    renderProducts();
+  });
+}
+
+// ══════════════════════════════════════════════════════
+// USERS
+// ══════════════════════════════════════════════════════
+function renderUsers(){
+  const tbody=$("user-list"); if(!tbody)return;
+  tbody.innerHTML="";
+  users.forEach((u,i)=>{
+    const style=ROLE_STYLE[u.role]||ROLE_STYLE.operator;
+    const createdAt=u.createdAt?u.createdAt.slice(0,10):"—";
+    const tr=document.createElement("tr");
+    tr.innerHTML=`
+      <td style="color:var(--t3);font-family:var(--mono)">${i+1}</td>
+      <td style="font-family:var(--mono);font-weight:700">${u.username||"—"}</td>
+      <td style="color:var(--t2);font-family:var(--mono);font-size:11px">${u.email||"—"}</td>
+      <td><span class="role-badge" style="${style}">${u.role||"—"}</span></td>
+      <td style="color:var(--t3);font-size:11px">${u.createdBy||"—"}</td>
+      <td style="color:var(--t3);font-family:var(--mono);font-size:11px">${createdAt}</td>
+      <td>
+        <select class="ci" style="width:100px;font-size:11px;padding:3px 6px" onchange="changeRole('${u.id}',this.value)">
+          ${["admin","leadman","mixing","pasteurize","flavor","cipman","filling","operator"].map(r=>`<option value="${r}" ${u.role===r?"selected":""}>${r}</option>`).join("")}
+        </select>
+        ${u.uid!==ME?.uid?`<button class="db" onclick="deleteUser('${u.id}','${u.uid}')">✕</button>`:""}
+      </td>`;
+    tbody.appendChild(tr);
+  });
+
+  // KPI
+  $("u-total").textContent=users.length;
+  $("u-admin").textContent=users.filter(u=>u.role==="admin").length;
+  $("u-op").textContent=users.filter(u=>u.role==="operator"||u.role==="mixing"||u.role==="pasteurize"||u.role==="flavor"||u.role==="cipman"||u.role==="filling"||u.role==="leadman").length;
+  $("u-other").textContent=users.filter(u=>!["admin","leadman","mixing","pasteurize","flavor","cipman","filling","operator"].includes(u.role)).length;
+}
+
+window.addUser=async()=>{
+  const uname=$("nu-name").value.trim().toLowerCase();
+  const pass=$("nu-pass").value;
+  const role=$("nu-role").value;
+  const err=$("u-err"); err.textContent="";
+  if(!uname){err.textContent="กรุณากรอก Username";return;}
+  if(pass.length<6){err.textContent="Password ต้องมีอย่างน้อย 6 ตัว";return;}
+  if(!/^[a-z0-9_]+$/.test(uname)){err.textContent="ใช้ได้แค่ a-z 0-9 _";return;}
+  const email=`${uname}@filling.local`;
+  try{
+    const cred=await createUserWithEmailAndPassword(auth,email,pass);
+    await setDoc(doc(db,"users",cred.user.uid),{
+      uid:cred.user.uid,username:uname,email,role,
+      createdBy:ME.email,createdAt:new Date().toISOString()
+    });
+    $("nu-name").value="";$("nu-pass").value="";
+    toast(`เพิ่ม ${uname} (${role}) แล้ว`,"green");
+  }catch(e){
+    err.textContent=e.code==="auth/email-already-in-use"?"Username นี้มีอยู่แล้ว":e.message;
+  }
+};
+
+window.changeRole=async(docId,newRole)=>{
+  await updateDoc(doc(db,"users",docId),{role:newRole});
+  toast("เปลี่ยน Role แล้ว","green");
+};
+
+window.deleteUser=async(docId,uid)=>{
+  if(!confirm("ลบ user นี้?"))return;
+  await deleteDoc(doc(db,"users",docId));
+  toast("ลบ user แล้ว","green");
+};
+
+// ══════════════════════════════════════════════════════
+// LINES
+// ══════════════════════════════════════════════════════
+function renderLines(){
+  ["bangchan","twin"].forEach(g=>{
+    const tbody=$(`lines-${g}`); if(!tbody)return;
+    tbody.innerHTML="";
+    const group=lines.filter(l=>l.group===g||(g==="bangchan"&&!l.group));
+    if(!group.length){
+      tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;color:var(--t3);padding:20px">ยังไม่มี LINE</td></tr>`;
+      return;
+    }
+    group.forEach(l=>{
+      const tr=document.createElement("tr");
+      tr.innerHTML=`
+        <td style="font-family:var(--mono);color:var(--t3)">${l.seq||"—"}</td>
+        <td style="font-family:var(--mono);font-weight:700;color:var(--cyan)">${l.name||"—"}</td>
+        <td style="color:var(--t2)">${l.product||"—"}</td>
+        <td style="font-family:var(--mono)">${l.flow_rate||300} L/hr</td>
+        <td><span style="font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:4px;background:${g==="bangchan"?"rgba(59,130,246,.1)":"rgba(168,85,247,.1)"};color:${g==="bangchan"?"var(--blue2)":"var(--purple)"}">${g==="bangchan"?"Bangchan":"Twin"}</span></td>
+        <td>
+          <button class="edit-btn" onclick="openEditLine('${l.id}')">✏️</button>
+          <button class="db" onclick="deleteLine('${l.id}','${l.name}')">✕</button>
+        </td>`;
+      tbody.appendChild(tr);
+    });
+  });
+}
+
+window.addLine=async()=>{
+  const name=$("nl-name").value.trim();
+  const group=$("nl-group").value;
+  const product=$("nl-product").value.trim();
+  const flow=+$("nl-flow").value||300;
+  const seq=+$("nl-seq").value||1;
+  const err=$("l-err"); err.textContent="";
+  if(!name){err.textContent="กรุณากรอกชื่อ LINE";return;}
+  await addDoc(collection(db,"lines"),{
+    name,group,product,flow_rate:flow,seq,type:"Filling",
+    createdAt:new Date().toISOString()
+  });
+  $("nl-name").value="";$("nl-product").value="";
+  toast(`เพิ่ม LINE ${name} แล้ว`,"green");
+};
+
+window.openEditLine=(id)=>{
+  const l=lines.find(x=>x.id===id); if(!l)return;
+  $("el-id").value=id;
+  $("el-name").value=l.name||"";
+  $("el-group").value=l.group||"bangchan";
+  $("el-product").value=l.product||"";
+  $("el-flow").value=l.flow_rate||300;
+  $("el-seq").value=l.seq||1;
+  $("modal-line").classList.add("show");
+};
+
+window.saveEditLine=async()=>{
+  const id=$("el-id").value;
+  await updateDoc(doc(db,"lines",id),{
+    name:$("el-name").value.trim(),
+    group:$("el-group").value,
+    product:$("el-product").value.trim(),
+    flow_rate:+$("el-flow").value||300,
+    seq:+$("el-seq").value||1,
+  });
+  closeModal("modal-line");
+  toast("แก้ไข LINE แล้ว","green");
+};
+
+window.deleteLine=async(id,name)=>{
+  if(!confirm(`ลบ LINE "${name}"?`))return;
+  await deleteDoc(doc(db,"lines",id));
+  toast(`ลบ LINE ${name} แล้ว`,"green");
+};
+
+// ══════════════════════════════════════════════════════
+// PRODUCTS
+// ══════════════════════════════════════════════════════
+function renderProducts(){
+  const tbody=$("product-list"); if(!tbody)return;
+  tbody.innerHTML="";
+  products.forEach(p=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`
+      <td style="font-family:var(--mono);font-weight:700;color:var(--blue2)">${p.mix_code||"—"}</td>
+      <td>${p.mix_name||"—"}</td>
+      <td style="font-family:var(--mono)">${p.density||1}</td>
+      <td style="font-family:var(--mono)">${p.aging_time||4} hr</td>
+      <td style="font-family:var(--mono)">${p.speed_m1||p.speed||1000}</td>
+      <td style="font-family:var(--mono)">${p.speed_m2||p.speed||1000}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="width:20px;height:20px;border-radius:5px;background:${p.color||'#60a5fa'};display:inline-block;border:1px solid rgba(255,255,255,.15)"></span>
+          <span style="font-family:var(--mono);font-size:10px;color:var(--t2)">${p.color||'—'}</span>
+        </div>
+      </td>
+      <td>
+        <button class="edit-btn" onclick="openEditProduct('${p.id}')">✏️</button>
+        <button class="db" onclick="deleteProduct('${p.id}','${p.mix_code}')">✕</button>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+window.filterProducts=()=>{
+  const q=$("p-search").value.toLowerCase();
+  products=productsAll.filter(p=>
+    (p.mix_code||"").toLowerCase().includes(q)||
+    (p.mix_name||"").toLowerCase().includes(q)
+  );
+  renderProducts();
+};
+
+window.addProduct=async()=>{
+  const code=$("np-code").value.trim().toUpperCase();
+  const name=$("np-name").value.trim();
+  const density=+$("np-density").value||1.05;
+  const aging=+$("np-aging").value||4;
+  const spd1=+$("np-spd1").value||1000;
+  const spd2=+$("np-spd2").value||1000;
+  const color=$("np-color").value||"#60a5fa";
+  const err=$("p-err"); err.textContent="";
+  if(!code){err.textContent="กรุณากรอก Mix Code";return;}
+  if(!name){err.textContent="กรุณากรอก Mix Name";return;}
+  // Check duplicate
+  if(productsAll.find(p=>p.mix_code===code)){err.textContent="Mix Code นี้มีอยู่แล้ว";return;}
+  await addDoc(collection(db,"products"),{
+    mix_code:code,mix_name:name,density,aging_time:aging,
+    speed_m1:spd1,speed_m2:spd2,speed:spd1,color,
+    createdAt:new Date().toISOString()
+  });
+  $("np-code").value="";$("np-name").value="";
+  toast(`เพิ่ม ${code} ${name} แล้ว`,"green");
+};
+
+window.openEditProduct=(id)=>{
+  const p=productsAll.find(x=>x.id===id); if(!p)return;
+  $("ep-id").value=id;
+  $("ep-code").value=p.mix_code||"";
+  $("ep-name").value=p.mix_name||"";
+  $("ep-density").value=p.density||1.05;
+  $("ep-aging").value=p.aging_time||4;
+  $("ep-spd1").value=p.speed_m1||p.speed||1000;
+  $("ep-spd2").value=p.speed_m2||p.speed||1000;
+  $("ep-color").value=p.color||"#60a5fa";
+  $("ep-color-val").textContent=p.color||"#60a5fa";
+  $("modal-product").classList.add("show");
+};
+
+window.saveEditProduct=async()=>{
+  const id=$("ep-id").value;
+  const code=$("ep-code").value.trim().toUpperCase();
+  await updateDoc(doc(db,"products",id),{
+    mix_code:code,
+    mix_name:$("ep-name").value.trim(),
+    density:+$("ep-density").value||1.05,
+    aging_time:+$("ep-aging").value||4,
+    speed_m1:+$("ep-spd1").value||1000,
+    speed_m2:+$("ep-spd2").value||1000,
+    speed:+$("ep-spd1").value||1000,
+    color:$("ep-color").value||"#60a5fa",
+  });
+  closeModal("modal-product");
+  toast("แก้ไขผลิตภัณฑ์แล้ว","green");
+};
+
+window.deleteProduct=async(id,code)=>{
+  if(!confirm(`ลบผลิตภัณฑ์ "${code}"?`))return;
+  await deleteDoc(doc(db,"products",id));
+
+// Color picker live preview
+document.getElementById("np-color").addEventListener("input",e=>{document.getElementById("np-color-val").textContent=e.target.value;});
+document.getElementById("ep-color").addEventListener("input",e=>{document.getElementById("ep-color-val").textContent=e.target.value;});
+  toast(`ลบ ${code} แล้ว`,"green");
+};
+
+// ── PAGE / MODAL ──────────────────────────────────────────────────────
+window.showPage=(p,btn)=>{
+  document.querySelectorAll('.page').forEach(el=>el.classList.remove('on'));
+  document.querySelectorAll('.nav-tab').forEach(el=>el.classList.remove('on'));
+  $(`page-${p}`).classList.add('on');
+  btn.classList.add('on');
+};
+
+window.closeModal=(id)=>$(id).classList.remove("show");
+// Click outside modal to close
+document.querySelectorAll('.modal-bg').forEach(bg=>{
+  bg.addEventListener('click',e=>{if(e.target===bg)bg.classList.remove("show");});
+});
+</script>
+</body>
+</html>

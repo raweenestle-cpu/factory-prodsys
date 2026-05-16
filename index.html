@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PROD.SYS — เข้าสู่ระบบ</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;600&family=Sarabun:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07090f;--s1:#0e1118;--s2:#141820;--s3:#1a2030;
+  --b1:#1e2535;--b2:#2a3348;
+  --text:#dde3f0;--t2:#7a8499;--t3:#3d4560;
+  --blue:#3b82f6;--blue2:#60a5fa;
+  --green:#22c55e;--yellow:#eab308;--red:#ef4444;
+  --mono:'DM Mono',monospace;--sans:'Sarabun',sans-serif;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;display:flex;align-items:center;justify-content:center}
+
+/* LOGIN BOX */
+.wrap{width:100%;max-width:380px;padding:20px}
+.logo{text-align:center;margin-bottom:32px}
+.logo-text{font-family:var(--mono);font-size:28px;font-weight:600;letter-spacing:.05em}
+.logo-text b{color:var(--blue)}
+.logo-sub{color:var(--t2);font-size:12px;margin-top:4px;letter-spacing:.08em;text-transform:uppercase}
+
+.card{background:var(--s1);border:1px solid var(--b1);border-radius:16px;padding:28px 24px}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:10px;color:var(--t3);margin-bottom:5px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.1em}
+.field input{width:100%;background:var(--s2);border:1px solid var(--b1);border-radius:8px;color:var(--text);font-family:var(--mono);font-size:14px;padding:10px 14px;outline:none;transition:border-color .2s}
+.field input:focus{border-color:var(--blue)}
+.field input::placeholder{color:var(--t3)}
+
+.btn-login{width:100%;background:var(--blue);color:#fff;border:none;border-radius:8px;padding:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:var(--sans);margin-top:4px;transition:background .2s}
+.btn-login:hover{background:#2563eb}
+.btn-login:disabled{opacity:.5;cursor:not-allowed}
+
+#err{color:var(--red);font-size:12px;margin-top:10px;min-height:16px;text-align:center}
+
+/* LOADING OVERLAY */
+#overlay{display:none;position:fixed;inset:0;background:rgba(7,9,15,.85);z-index:999;align-items:center;justify-content:center;flex-direction:column;gap:12px}
+#overlay.show{display:flex}
+.spin{width:36px;height:36px;border:3px solid var(--b2);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.load-text{color:var(--t2);font-size:13px;font-family:var(--mono)}
+
+/* ROLE BADGES (decorative) */
+.roles{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:20px}
+.role-badge{font-size:10px;font-family:var(--mono);padding:3px 10px;border-radius:20px;border:1px solid var(--b2);color:var(--t3)}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="logo">
+    <div class="logo-text">PROD<b>.</b>SYS</div>
+    <div class="logo-sub">Production Flow System</div>
+  </div>
+
+  <div class="card">
+    <div class="field">
+      <label>Username</label>
+      <input id="u" type="text" placeholder="เช่น mixing01, leadman" autocomplete="username" onkeydown="if(event.key==='Enter')document.getElementById('p').focus()">
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input id="p" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="btn-login" id="btn" onclick="doLogin()">เข้าสู่ระบบ</button>
+    <div id="err"></div>
+  </div>
+
+  <div class="roles">
+    <span class="role-badge">Leadman</span>
+    <span class="role-badge">Mixing</span>
+    <span class="role-badge">Pasteurize</span>
+    <span class="role-badge">Flavor</span>
+    <span class="role-badge">CIP Man</span>
+    <span class="role-badge">Filling</span>
+    <span class="role-badge">Admin</span>
+  </div>
+</div>
+
+<!-- Loading overlay -->
+<div id="overlay">
+  <div class="spin"></div>
+  <div class="load-text">กำลังเข้าสู่ระบบ...</div>
+</div>
+
+<script type="module">
+import { initializeApp }                          from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword }    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const app  = initializeApp({
+  apiKey:            "AIzaSyC3f6jMuhugE6BNfRfkpOA9BMrIKWR9YgQ",
+  authDomain:        "production-filling.firebaseapp.com",
+  projectId:         "production-filling",
+  storageBucket:     "production-filling.firebasestorage.app",
+  messagingSenderId: "89098393458",
+  appId:             "1:89098393458:web:b723f2886e8a341935afeb"
+});
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+// Role → หน้าที่จะ redirect ไป
+const ROLE_PAGE = {
+  admin:      "admin.html",
+  leadman:    "leadman.html",
+  mixing:     "mixing.html",
+  pasteurize: "pasteurize.html",
+  flavor:     "flavor.html",
+  cipman:     "cipman.html",
+  filling:    "filling.html",
+  // fallback สำหรับ role เดิมใน Prodsys
+  operator:   "prodsys.html",
+};
+
+window.doLogin = async () => {
+  const uname = document.getElementById('u').value.trim().toLowerCase();
+  const pass  = document.getElementById('p').value;
+  const err   = document.getElementById('err');
+  const btn   = document.getElementById('btn');
+  err.textContent = '';
+
+  if (!uname || !pass) { err.textContent = 'กรุณากรอก Username และ Password'; return; }
+
+  const email = uname.includes('@') ? uname : `${uname}@filling.local`;
+
+  btn.disabled = true;
+  document.getElementById('overlay').classList.add('show');
+
+  try {
+    const cred = await signInWithEmailAndPassword(auth, email, pass);
+
+    // ดึง role จาก Firestore
+    let role = 'operator';
+    try {
+      const snap = await getDocs(query(collection(db,'users'), where('uid','==',cred.user.uid)));
+      if (!snap.empty) role = snap.docs[0].data().role || 'operator';
+    } catch { role = 'operator'; }
+
+    // redirect ไปหน้าของ role นั้น
+    const page = ROLE_PAGE[role] || 'prodsys.html';
+    window.location.href = page;
+
+  } catch(e) {
+    document.getElementById('overlay').classList.remove('show');
+    btn.disabled = false;
+    if (e.code === 'auth/invalid-credential' || e.code === 'auth/wrong-password') {
+      err.textContent = 'Username หรือ Password ไม่ถูกต้อง';
+    } else if (e.code === 'auth/too-many-requests') {
+      err.textContent = 'ลองผิดหลายครั้งเกินไป กรุณารอสักครู่';
+    } else {
+      err.textContent = 'เกิดข้อผิดพลาด: ' + e.message;
+    }
+  }
+};
+</script>
+</body>
+</html>
