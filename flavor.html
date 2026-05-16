@@ -196,7 +196,7 @@ onAuthStateChanged(auth,async user=>{
   try{
     const snap=await getDocs(query(collection(db,"users"),where("uid","==",user.uid)));
     const role=snap.empty?"flavor":(snap.docs[0].data().role||"flavor");
-    if(role!=="flavor"&&role!=="admin"){window.location.href="index.html";return;}
+    if(role!=="flavor"&&role!=="admin"&&role!=="leadman"&&role!=="operator"){window.location.href="index.html";return;}
   }catch{}
   $("nav-user").textContent=user.email.replace("@filling.local","");
   $("hist-date").value=today();

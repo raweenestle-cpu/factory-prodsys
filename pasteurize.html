@@ -242,7 +242,7 @@ onAuthStateChanged(auth,async user=>{
   try{
     const snap=await getDocs(query(collection(db,"users"),where("uid","==",user.uid)));
     const role=snap.empty?"pasteurize":(snap.docs[0].data().role||"pasteurize");
-    if(role!=="pasteurize"&&role!=="admin"){window.location.href="index.html";return;}
+    if(role!=="pasteurize"&&role!=="admin"&&role!=="leadman"&&role!=="operator"){window.location.href="index.html";return;}
   }catch{}
 
   try{

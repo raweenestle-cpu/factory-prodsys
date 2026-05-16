@@ -440,7 +440,7 @@ onAuthStateChanged(auth,async user=>{
   try{
     const snap=await getDocs(query(collection(db,"users"),where("uid","==",user.uid)));
     ROLE=snap.empty?"cipman":(snap.docs[0].data().role||"cipman");
-    if(ROLE!=="cipman"&&ROLE!=="admin"){window.location.href="index.html";return;}
+    if(ROLE!=="cipman"&&ROLE!=="admin"&&ROLE!=="leadman"&&ROLE!=="operator"){window.location.href="index.html";return;}
   }catch{ROLE="cipman";}
   const nu=$("nav-user");if(nu)nu.textContent=user.email.replace("@filling.local","");
   const mb=$("btn-manage");if(mb&&ROLE==="admin")mb.classList.add("show");

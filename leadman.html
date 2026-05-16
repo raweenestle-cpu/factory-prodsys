@@ -294,8 +294,8 @@ onAuthStateChanged(auth, async user => {
     ROLE = snap.empty ? "leadman" : (snap.docs[0].data().role||"leadman");
   }catch{ ROLE="leadman"; }
 
-  // ถ้าไม่ใช่ leadman หรือ admin ให้ redirect กลับ
-  if(ROLE !== "leadman" && ROLE !== "admin"){
+  // ถ้าไม่ใช่ leadman หรือ admin หรือ operator ให้ redirect กลับ
+  if(ROLE !== "leadman" && ROLE !== "admin" && ROLE !== "operator"){
     window.location.href="index.html"; return;
   }
 
