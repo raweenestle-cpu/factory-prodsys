@@ -290,6 +290,10 @@ function renderActive(m){
           <div class="info-label">Volume</div>
           <div class="info-val" style="color:var(--cyan)">${row.volume_liter||"—"} L</div>
         </div>
+        <div class="info-item" style="grid-column:1/-1">
+          <div class="info-label">🪣 Aging Tank</div>
+          <div class="info-val" style="color:var(--cyan);font-size:16px;font-weight:700">${row.aging_tank||"—"}</div>
+        </div>
       </div>
 
       <!-- Mix Status -->

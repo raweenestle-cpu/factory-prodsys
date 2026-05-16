@@ -40,15 +40,16 @@ nav{display:flex;align-items:center;height:52px;background:var(--s1);border-bott
 table{width:100%;border-collapse:collapse;font-size:12px}
 thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1px solid var(--b1);vertical-align:middle}
 
-.row-past td{background:rgba(249,115,22,.06)!important;color:var(--orange)!important}
-.row-past td:first-child{border-left:3px solid var(--orange)!important}
-.row-past .ca,.row-past span{color:var(--orange)!important}
-.row-done td{background:rgba(34,197,94,.12)!important;color:#4ade80!important}
-.row-done td:first-child{border-left:3px solid var(--green)!important}
-.row-done .ca,.row-done span{color:#4ade80!important}
-.row-wait td{background:rgba(234,179,8,.06)!important;color:var(--yellow)!important}
-.row-wait td:first-child{border-left:3px solid var(--yellow)!important}
-.row-wait .ca,.row-wait span{color:var(--yellow)!important}
+/* ROW HIGHLIGHT — ทั้งแถวสีเดียวกัน */
+.row-past{background:rgba(249,115,22,.08)!important;border-left:3px solid var(--orange)}
+.row-past td{background:rgba(249,115,22,.08)!important}
+.row-past td *:not(.stamp-btn):not(.stat-badge):not(.ci){color:var(--orange)!important}
+.row-done{background:rgba(34,197,94,.13)!important;border-left:3px solid #22c55e}
+.row-done td{background:rgba(34,197,94,.13)!important}
+.row-done td *:not(.stamp-btn):not(.stat-badge):not(.ci){color:#4ade80!important}
+.row-wait{background:rgba(234,179,8,.07)!important;border-left:3px solid var(--yellow)}
+.row-wait td{background:rgba(234,179,8,.07)!important}
+.row-wait td *:not(.stamp-btn):not(.stat-badge):not(.ci){color:var(--yellow)!important}
 
 .ci{background:var(--s2);border:1px solid var(--b1);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:12px;padding:5px 7px;outline:none}
 .ci:focus{border-color:var(--blue)}
@@ -354,13 +355,14 @@ function renderPlan(p){
     }
 
     const stampCell=(field,time,label,isPulse=false)=>`
-      <td style="white-space:nowrap">
-        <div style="display:flex;flex-direction:column;align-items:flex-start;gap:3px">
+      <td style="min-width:130px;padding:5px 7px">
+        <div style="display:flex;align-items:center;gap:5px;flex-wrap:nowrap">
           <button class="stamp-btn ${time?"stamped":""} ${isPulse&&!time?"past-pulse active":""}"
+            style="flex:1;min-width:90px"
             onclick="stampTime('${col}','${row.id}','${field}','${p}')">
             ⏱ ${time||label}
           </button>
-          ${time?`<button style="font-size:9px;padding:1px 6px;border-radius:4px;border:1px solid var(--b2);background:none;color:var(--t2);cursor:pointer" onclick="editTimePrompt('${col}','${row.id}','${field}','${time}')">✏️ แก้ไข</button>`:""}
+          ${time?`<button style="flex-shrink:0;font-size:10px;padding:4px 7px;border-radius:5px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:var(--t2);cursor:pointer;white-space:nowrap" onclick="editTimePrompt('${col}','${row.id}','${field}','${time}')">✏️</button>`:""}
         </div>
       </td>`;
 
@@ -376,10 +378,7 @@ function renderPlan(p){
       <td><span class="cr">${row.batch_no||"—"}</span></td>
       <td><span style="font-family:var(--mono)">${row.volume_liter||"—"}</span></td>
       <td>
-        <div style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:6px;background:rgba(6,182,212,.12);border:1px solid rgba(6,182,212,.25)">
-          <span style="font-size:10px">🪣</span>
-          <span style="font-family:var(--mono);font-size:12px;font-weight:700">${row.mixing_tank||"—"}</span>
-        </div>
+        <span style="font-family:var(--mono);font-size:12px;font-weight:700;padding:3px 10px;border-radius:6px;background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.2);white-space:nowrap">${row.mixing_tank||"—"}</span>
       </td>
       ${stampCell("past_start_time",row.past_start_time,"Stamp เริ่ม",row.status==="pasteurising"&&!row.past_start_time)}
       <td><span style="font-family:var(--mono);font-size:12px">${estFinish}</span></td>
