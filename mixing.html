@@ -371,13 +371,14 @@ function renderPlan(m){
     // Stamp cell builder
     const stampCell=(field,time,label,color)=>{
       const hasTime=!!time;
-      return `<td>
-        <div class="stamp-wrap">
+      return `<td style="min-width:130px;padding:5px 7px;white-space:nowrap">
+        <div style="display:flex;align-items:center;gap:4px">
           <button class="stamp-btn ${hasTime?"stamped":""} ${isMixing&&field==="mix_start_time"?"mixing-pulse":""}"
+            style="flex:1;min-width:88px;font-size:11px"
             onclick="stampTime('${col}','${row.id}','${field}','${m}')">
             ⏱ ${hasTime?time:label}
           </button>
-          ${hasTime?`<button style="font-size:9px;padding:1px 6px;border-radius:4px;border:1px solid var(--b2);background:none;color:var(--t2);cursor:pointer;margin-top:2px" onclick="editTimePrompt('${col}','${row.id}','${field}','${time}')">✏️ แก้ไข</button>`:""}
+          ${hasTime?`<button style="flex-shrink:0;font-size:10px;padding:4px 6px;border-radius:5px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:var(--t2);cursor:pointer" onclick="editTimePrompt('${col}','${row.id}','${field}','${time}')">✏️</button>`:""}
         </div>
       </td>`;
     };

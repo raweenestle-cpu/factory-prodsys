@@ -125,23 +125,25 @@ thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap
   </div>
   <div class="tw"><table>
     <thead><tr>
-      <th>#</th>
-      <th>Mix Code</th>
-      <th>Mix Name</th>
-      <th>Batch</th>
-      <th>Vol (L)</th>
-      <th>Tank Mix</th>
-      <th style="color:var(--orange)">♨️ เริ่ม Past.</th>
-      <th style="color:var(--cyan)">🕐 คาดเสร็จ</th>
-      <th style="color:var(--green)">✅ Past. เสร็จ</th>
-      <th style="color:var(--green)">Eff%</th>
-      <th style="background:#141a0c;color:#86efac;font-size:9px">🍬 Glc (ค่าจริง)</th>
-      <th style="background:#081014;color:#67e8f9;font-size:9px">🧂 Sgr (ค่าจริง)</th>
-      <th style="background:#120f08;color:#fdba74;font-size:9px">🌴 Plm (ค่าจริง)</th>
-      <th style="color:var(--cyan)">🪣 Aging Tank</th>
-      <th style="color:var(--purple)">รหัสผลิต</th>
-      <th>Status</th>
-    </tr></thead>
+    <tr>
+        <th>#</th>
+        <th>Mix Code</th>
+        <th>Mix Name</th>
+        <th>Batch</th>
+        <th>Vol (L)</th>
+        <th>Tank Mix</th>
+        <th style="color:var(--orange);min-width:130px">♨️ เริ่ม Past.</th>
+        <th style="color:var(--cyan);min-width:80px">🕐 คาดเสร็จ</th>
+        <th style="color:var(--green);min-width:130px">✅ Past. เสร็จ</th>
+        <th style="color:var(--green)">Eff%</th>
+        <th style="background:#141a0c;color:#86efac;font-size:9px">🍬 Glc ค่าจริง ☑️</th>
+        <th style="background:#081014;color:#67e8f9;font-size:9px">🧂 Sgr ค่าจริง ☑️</th>
+        <th style="background:#120f08;color:#fdba74;font-size:9px">🌴 Plm ค่าจริง ☑️</th>
+        <th style="color:var(--cyan)">🪣 Aging Tank</th>
+        <th style="color:var(--purple)">รหัสผลิต</th>
+        <th>Status</th>
+      </tr>
+    </thead>
     <tbody id="tbody-p1"></tbody>
   </table></div>
 </div>
@@ -162,23 +164,25 @@ thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap
   </div>
   <div class="tw"><table>
     <thead><tr>
-      <th>#</th>
-      <th>Mix Code</th>
-      <th>Mix Name</th>
-      <th>Batch</th>
-      <th>Vol (L)</th>
-      <th>Tank Mix</th>
-      <th style="color:var(--orange)">♨️ เริ่ม Past.</th>
-      <th style="color:var(--cyan)">🕐 คาดเสร็จ</th>
-      <th style="color:var(--green)">✅ Past. เสร็จ</th>
-      <th style="color:var(--green)">Eff%</th>
-      <th style="background:#141a0c;color:#86efac;font-size:9px">🍬 Glc (ค่าจริง)</th>
-      <th style="background:#081014;color:#67e8f9;font-size:9px">🧂 Sgr (ค่าจริง)</th>
-      <th style="background:#120f08;color:#fdba74;font-size:9px">🌴 Plm (ค่าจริง)</th>
-      <th style="color:var(--cyan)">🪣 Aging Tank</th>
-      <th style="color:var(--purple)">รหัสผลิต</th>
-      <th>Status</th>
-    </tr></thead>
+    <tr>
+        <th>#</th>
+        <th>Mix Code</th>
+        <th>Mix Name</th>
+        <th>Batch</th>
+        <th>Vol (L)</th>
+        <th>Tank Mix</th>
+        <th style="color:var(--orange);min-width:130px">♨️ เริ่ม Past.</th>
+        <th style="color:var(--cyan);min-width:80px">🕐 คาดเสร็จ</th>
+        <th style="color:var(--green);min-width:130px">✅ Past. เสร็จ</th>
+        <th style="color:var(--green)">Eff%</th>
+        <th style="background:#141a0c;color:#86efac;font-size:9px">🍬 Glc ค่าจริง ☑️</th>
+        <th style="background:#081014;color:#67e8f9;font-size:9px">🧂 Sgr ค่าจริง ☑️</th>
+        <th style="background:#120f08;color:#fdba74;font-size:9px">🌴 Plm ค่าจริง ☑️</th>
+        <th style="color:var(--cyan)">🪣 Aging Tank</th>
+        <th style="color:var(--purple)">รหัสผลิต</th>
+        <th>Status</th>
+      </tr>
+    </thead>
     <tbody id="tbody-p2"></tbody>
   </table></div>
 </div>
@@ -368,14 +372,14 @@ function renderPlan(p){
     }
 
     const stampCell=(field,time,label,isPulse=false)=>`
-      <td style="min-width:130px;padding:5px 7px">
-        <div style="display:flex;align-items:center;gap:5px;flex-wrap:nowrap">
+      <td style="min-width:130px;padding:5px 7px;white-space:nowrap">
+        <div style="display:flex;align-items:center;gap:4px">
           <button class="stamp-btn ${time?"stamped":""} ${isPulse&&!time?"past-pulse active":""}"
-            style="flex:1;min-width:90px"
+            style="flex:1;min-width:88px;font-size:11px"
             onclick="stampTime('${col}','${row.id}','${field}','${p}')">
             ⏱ ${time||label}
           </button>
-          ${time?`<button style="flex-shrink:0;font-size:10px;padding:4px 7px;border-radius:5px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:var(--t2);cursor:pointer;white-space:nowrap" onclick="editTimePrompt('${col}','${row.id}','${field}','${time}')">✏️</button>`:""}
+          ${time?`<button style="flex-shrink:0;font-size:10px;padding:4px 6px;border-radius:5px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:var(--t2);cursor:pointer" onclick="editTimePrompt('${col}','${row.id}','${field}','${time}')">✏️</button>`:""}
         </div>
       </td>`;
 
@@ -397,15 +401,6 @@ function renderPlan(p){
       <td><span style="font-family:var(--mono);font-size:12px">${estFinish}</span></td>
       ${stampCell("past_end_time",row.past_end_time,"Stamp เสร็จ")}
       <td>${effHTML}</td>
-      <td style="background:#0d1108">
-        <input class="ci" style="width:64px;text-align:right;background:#0d1108;border-color:rgba(166,200,90,.4);color:#86efac" type="number" step="0.1" value="${row.glc_actual||""}" placeholder="0" onchange="_up('${col}','${row.id}','glc_actual',+this.value)">
-      </td>
-      <td style="background:#060f12">
-        <input class="ci" style="width:64px;text-align:right;background:#060f12;border-color:rgba(6,182,212,.4);color:#67e8f9" type="number" step="0.1" value="${row.sgr_actual||""}" placeholder="0" onchange="_up('${col}','${row.id}','sgr_actual',+this.value)">
-      </td>
-      <td style="background:#110c06">
-        <input class="ci" style="width:64px;text-align:right;background:#110c06;border-color:rgba(249,115,22,.4);color:#fdba74" type="number" step="0.1" value="${row.plm_actual||""}" placeholder="0" onchange="_up('${col}','${row.id}','plm_actual',+this.value)">
-      </td>
       <td style="background:#141a0c;padding:5px 6px">
         <div style="display:flex;align-items:center;gap:4px">
           <input class="ci" style="width:58px;text-align:right;background:#141a0c;border-color:rgba(166,200,90,.4);color:#86efac" type="number" step="0.1" value="${row.glc_actual||""}" placeholder="0" onchange="_up('${col}','${row.id}','glc_actual',+this.value)">
