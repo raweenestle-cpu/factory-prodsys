@@ -331,9 +331,9 @@ async function loadPrefixes(){
   try{
     const d1 = await getDoc(doc(db,"settings","mixing_prefix_1"));
     const d2 = await getDoc(doc(db,"settings","mixing_prefix_2"));
-    if(d1.exists()){ prefix[1]=d1.data().value||""; $("prefix-m1").value=prefix[1]; }
-    if(d2.exists()){ prefix[2]=d2.data().value||""; $("prefix-m2").value=prefix[2]; }
-  }catch{}
+    if(d1.exists()){ prefix[1]=d1.data().value||""; const el=$("prefix-m1");if(el)el.value=prefix[1]; }
+    if(d2.exists()){ prefix[2]=d2.data().value||""; const el=$("prefix-m2");if(el)el.value=prefix[2]; }
+  }catch(e){console.warn("loadPrefixes:",e);}
 }
 window.savePrefix = async(n,v) => {
   prefix[n]=v;
@@ -432,7 +432,7 @@ function renderPlan(m){
     const lineMixCodes = curLine?.mix_codes||[];
     const prodOpts = lineMixCodes.length
       ? lineMixCodes.map(m=>`<option value="${m.code}"${row.product_code===m.code?" selected":""}>${m.code} — ${m.name}</option>`).join("")
-      : productsAll.map(p=>`<option value="${p.mix_code}"${row.product_code===p.mix_code?" selected":""}>${p.mix_code} — ${p.mix_name}</option>`).join("");
+      : products.map(p=>`<option value="${p.mix_code}"${row.product_code===p.mix_code?" selected":""}>${p.mix_code} — ${p.mix_name}</option>`).join("");
 
     tr.innerHTML=`
       <td><div class="dh" draggable="true">⠿</div></td>
