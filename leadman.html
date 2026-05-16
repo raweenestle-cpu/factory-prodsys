@@ -349,21 +349,32 @@ window.loadPlan = (m) => {
   const q = query(collection(db, planCol(m)), where("date","==",d), orderBy("seq","asc"));
   unsub[m] = onSnapshot(q, snap => {
     rows[m] = snap.docs.map(d=>({id:d.id,...d.data()}));
+    // ถ้าไม่มีข้อมูลเลย เพิ่ม 2 แถวว่างให้อัตโนมัติ
+    if(rows[m].length===0){
+      addRow(m);
+      addRow(m);
+    }
     renderPlan(m);
   });
 };
 
 window.addRow = async(m) => {
+  if(!ME){toast("กรุณา login ใหม่","red");return;}
   const d = $(m==="m1"?"date-m1":"date-m2").value || today();
   const last = rows[m][rows[m].length-1];
   const st = last ? calcEst(last.start_time, last.mix_code, last.volume_liter)||"" : "";
-  await addDoc(collection(db, planCol(m)), {
-    date:d, seq:rows[m].length+1, mixing_unit:m,
-    mix_code:"", mix_name:"", batch_no:"", volume_liter:"",
-    mixing_tank:"", glc_set:"", glc_actual:"", plm_set:"", plm_actual:"", sgr_set:"", sgr_actual:"",
-    filling_line:"", prod_suffix:"", start_time:st,
-    status:"pending", createdBy:ME.email, createdAt:new Date().toISOString()
-  });
+  try{
+    await addDoc(collection(db, planCol(m)), {
+      date:d, seq:rows[m].length+1, mixing_unit:m,
+      mix_code:"", mix_name:"", batch_no:"", volume_liter:"",
+      mixing_tank:"", glc_set:"", glc_actual:"", plm_set:"", plm_actual:"", sgr_set:"", sgr_actual:"",
+      filling_line:"", prod_suffix:"", start_time:st,
+      status:"pending", createdBy:ME?.email||"leadman", createdAt:new Date().toISOString()
+    });
+    toast("เพิ่มแถวแล้ว","green");
+  }catch(e){
+    toast("เกิดข้อผิดพลาด: "+e.message,"red");
+  }
 };
 
 window._up = async(col,id,field,val) => {
