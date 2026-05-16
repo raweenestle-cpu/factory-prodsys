@@ -346,10 +346,10 @@ function planCol(m){ return m==="m1"?"production_plans":"production_plans_m2"; }
 window.loadPlan = (m) => {
   const d = $(m==="m1"?"date-m1":"date-m2").value || today();
   if(unsub[m]) unsub[m]();
-  const q = query(collection(db, planCol(m)), where("date","==",d), orderBy("seq","asc"));
+  const q = query(collection(db, planCol(m)), where("date","==",d));
   unsub[m] = onSnapshot(q, snap => {
-    rows[m] = snap.docs.map(d=>({id:d.id,...d.data()}));
-    // ถ้าไม่มีข้อมูลเลย เพิ่ม 2 แถวว่างให้อัตโนมัติ
+    rows[m] = snap.docs.map(d=>({id:d.id,...d.data()}))
+      .sort((a,b)=>(a.seq||0)-(b.seq||0));
     if(rows[m].length===0){
       addRow(m);
       addRow(m);
