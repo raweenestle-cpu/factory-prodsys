@@ -20,6 +20,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 ::-webkit-scrollbar{width:6px;height:6px}
 ::-webkit-scrollbar-track{background:var(--bg)}
 ::-webkit-scrollbar-thumb{background:var(--b2);border-radius:3px}
+input[type="number"]{-moz-appearance:textfield}
+input[type="number"]::-webkit-inner-spin-button,input[type="number"]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
 
 /* NAV */
 nav{display:flex;align-items:center;height:52px;background:var(--s1);border-bottom:1px solid var(--b1);position:sticky;top:0;z-index:200;padding:0 16px;gap:8px}
@@ -339,9 +341,23 @@ window.editTime=async(col,id,field,current)=>{
 
 window.saveActual=async(col,id,field,val,m)=>{
   const upd={[field]:+val};
-  // เช็คว่ากรอก actual ครบหรือยัง
   const row=rows[m].find(r=>r.id===id);
   if(row){
+    // เช็คค่า ±5 จาก set point
+    const setMap={glc_actual:"glc_set",sgr_actual:"sgr_set",plm_actual:"plm_set"};
+    const setField=setMap[field];
+    if(setField&&row[setField]){
+      const diff=Math.abs(+val-(+row[setField]));
+      if(diff>5){
+        const fieldName=field==="glc_actual"?"Glucose":field==="sgr_actual"?"Sugar":"Palm Oil";
+        const comment=prompt(`⚠️ ${fieldName} ต่างจาก Set Point ${diff.toFixed(1)} kg\n\nกรุณาระบุเหตุผล:`);
+        if(comment===null)return; // กด Cancel = ยกเลิก
+        if(!comment.trim()){toast("กรุณาใส่เหตุผล","red");return;}
+        const commentField=field.replace("_actual","_comment");
+        upd[commentField]=comment.trim();
+        toast(`บันทึกพร้อม comment แล้ว`,"green");
+      }
+    }
     const merged={...row,...upd};
     const anyActual=(+merged.glc_actual||0)>0||(+merged.plm_actual||0)>0||(+merged.sgr_actual||0)>0;
     if(anyActual&&(merged.status==="pending"||merged.status==="mixing")){
@@ -393,7 +409,7 @@ function renderPlan(m){
     tr.innerHTML=`
       <td><span class="cr">${i+1}</span></td>
       <td><span style="font-family:var(--mono);font-weight:700;color:var(--blue2)">${row.mix_code||"—"}</span></td>
-      <td><span class="ca">${row.mix_name||"—"}</span></td>
+      <td><span style="font-family:var(--mono);font-weight:700;color:var(--blue2)">${row.mix_name||"—"}</span></td>
       <td><span class="cr">${row.batch_no||"—"}</span></td>
       <td><span style="font-family:var(--mono);color:var(--cyan)">${row.volume_liter||"—"}</span></td>
       <td><span style="font-family:var(--mono);font-size:12px;padding:2px 8px;border-radius:5px;background:rgba(6,182,212,.1);color:var(--cyan)">${row.mixing_tank||"—"}</span></td>
@@ -403,22 +419,31 @@ function renderPlan(m){
         <span style="font-family:var(--mono);font-size:11px;color:#6b8c3a;padding:2px 6px;min-width:66px;display:inline-block;text-align:right;font-family:var(--mono)">${row.glc_set||"—"}</span>
       </td>
       <td style="background:#0d1108">
-        <input class="act-input" style="border-color:rgba(166,200,90,.4)" type="number" step="0.1" value="${row.glc_actual||""}" placeholder="0"
-          onchange="saveActual('${col}','${row.id}','glc_actual',this.value,'${m}')">
+        <div style="display:flex;align-items:center;gap:3px">
+          <input class="act-input" style="border-color:rgba(166,200,90,.4)" type="number" step="0.1" value="${row.glc_actual||""}" placeholder="0"
+            onchange="saveActual('${col}','${row.id}','glc_actual',this.value,'${m}')">
+          ${row.glc_comment?`<span title="${row.glc_comment}" style="cursor:help;font-size:12px">⚠️</span>`:""}
+        </div>
       </td>
       <td style="background:#060f12">
         <span style="font-family:var(--mono);font-size:11px;color:#1e5f7a;padding:2px 6px;min-width:66px;display:inline-block;text-align:right;font-family:var(--mono)">${row.sgr_set||"—"}</span>
       </td>
       <td style="background:#060f12">
-        <input class="act-input" style="background:rgba(6,182,212,.06);border-color:rgba(6,182,212,.3);color:#67e8f9" type="number" step="0.1" value="${row.sgr_actual||""}" placeholder="0"
-          onchange="saveActual('${col}','${row.id}','sgr_actual',this.value,'${m}')">
+        <div style="display:flex;align-items:center;gap:3px">
+          <input class="act-input" style="background:rgba(6,182,212,.06);border-color:rgba(6,182,212,.3);color:#67e8f9" type="number" step="0.1" value="${row.sgr_actual||""}" placeholder="0"
+            onchange="saveActual('${col}','${row.id}','sgr_actual',this.value,'${m}')">
+          ${row.sgr_comment?`<span title="${row.sgr_comment}" style="cursor:help;font-size:12px">⚠️</span>`:""}
+        </div>
       </td>
       <td style="background:#110c06">
         <span style="font-family:var(--mono);font-size:11px;color:#6b5530;padding:2px 6px;min-width:66px;display:inline-block;text-align:right;font-family:var(--mono)">${row.plm_set||"—"}</span>
       </td>
       <td style="background:#110c06">
-        <input class="act-input" style="background:rgba(249,115,22,.06);border-color:rgba(249,115,22,.3);color:#fdba74" type="number" step="0.1" value="${row.plm_actual||""}" placeholder="0"
-          onchange="saveActual('${col}','${row.id}','plm_actual',this.value,'${m}')">
+        <div style="display:flex;align-items:center;gap:3px">
+          <input class="act-input" style="background:rgba(249,115,22,.06);border-color:rgba(249,115,22,.3);color:#fdba74" type="number" step="0.1" value="${row.plm_actual||""}" placeholder="0"
+            onchange="saveActual('${col}','${row.id}','plm_actual',this.value,'${m}')">
+          ${row.plm_comment?`<span title="${row.plm_comment}" style="cursor:help;font-size:12px">⚠️</span>`:""}
+        </div>
       </td>
       <td><span class="stat-badge" style="${statStyle}">${statText}</span></td>`;
     tbody.appendChild(tr);
@@ -432,15 +457,28 @@ function renderPlan(m){
 }
 
 window.editTimePrompt=async(col,id,field,current)=>{
-  const val=prompt(`แก้ไขเวลา (HH:MM) :`,current||"");
-  if(val===null)return;
-  const clean=val.trim();
-  if(!/^\d{2}:\d{2}$/.test(clean)){toast("รูปแบบ HH:MM เท่านั้น","red");return;}
-  const upd={[field]:clean};
-  if(field==="mix_start_time"&&clean) upd.status="mixing";
-  if(field==="mix_end_time"&&clean)   upd.status="pasteurising";
-  await updateDoc(doc(db,col,id),upd);
-  toast("แก้ไขเวลาแล้ว","green");
+  // แสดง dialog ให้เลือก แก้ไข หรือ ลบ
+  const action=confirm(`เวลาปัจจุบัน: ${current}\n\nกด OK = แก้ไขเวลา\nกด Cancel = ลบเวลาออก`);
+  if(action){
+    // แก้ไข
+    const val=prompt("แก้ไขเวลา (HH:MM):",current||"");
+    if(val===null)return;
+    const clean=val.trim();
+    if(!/^\d{2}:\d{2}$/.test(clean)){toast("รูปแบบ HH:MM เท่านั้น","red");return;}
+    const upd={[field]:clean};
+    if(field==="mix_start_time") upd.status="mixing";
+    if(field==="mix_end_time")   upd.status="pasteurising";
+    await updateDoc(doc(db,col,id),upd);
+    toast("แก้ไขเวลาแล้ว","green");
+  } else {
+    // ลบเวลา + reset status
+    if(!confirm("ยืนยันลบเวลานี้ออก?"))return;
+    const upd={[field]:null};
+    if(field==="mix_start_time") upd.status="pending";
+    if(field==="mix_end_time")   upd.status="mixing";
+    await updateDoc(doc(db,col,id),upd);
+    toast("ลบเวลาแล้ว","green");
+  }
 };
 
 // ── CHART ─────────────────────────────────────────────────────────────
