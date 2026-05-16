@@ -41,6 +41,8 @@ nav{display:flex;align-items:center;height:52px;background:var(--s1);border-bott
 /* TABLE */
 .tw{overflow-x:auto;border-radius:10px;border:1px solid var(--b1);margin-bottom:14px}
 table{width:100%;border-collapse:collapse;font-size:12px}
+tbody td{border-right:1px solid var(--b1);border-bottom:1px solid var(--b1)}
+thead th{border-right:1px solid var(--b2)!important}
 thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1px solid var(--b1);vertical-align:middle}
 
 /* STATUS ROW COLORS */
@@ -398,21 +400,21 @@ function renderPlan(m){
       ${stampCell("mix_start_time",row.mix_start_time,"Stamp เริ่ม","yellow")}
       ${stampCell("mix_end_time",row.mix_end_time,"Stamp เสร็จ","green")}
       <td style="background:#0d1108">
-        <span style="font-family:var(--mono);font-size:11px;color:#6b8c3a;padding:0 4px">${row.glc_set||"—"}</span>
+        <span style="font-family:var(--mono);font-size:11px;color:#6b8c3a;padding:2px 6px;min-width:66px;display:inline-block;text-align:right;font-family:var(--mono)">${row.glc_set||"—"}</span>
       </td>
       <td style="background:#0d1108">
         <input class="act-input" style="border-color:rgba(166,200,90,.4)" type="number" step="0.1" value="${row.glc_actual||""}" placeholder="0"
           onchange="saveActual('${col}','${row.id}','glc_actual',this.value,'${m}')">
       </td>
       <td style="background:#060f12">
-        <span style="font-family:var(--mono);font-size:11px;color:#1e5f7a;padding:0 4px">${row.sgr_set||"—"}</span>
+        <span style="font-family:var(--mono);font-size:11px;color:#1e5f7a;padding:2px 6px;min-width:66px;display:inline-block;text-align:right;font-family:var(--mono)">${row.sgr_set||"—"}</span>
       </td>
       <td style="background:#060f12">
         <input class="act-input" style="background:rgba(6,182,212,.06);border-color:rgba(6,182,212,.3);color:#67e8f9" type="number" step="0.1" value="${row.sgr_actual||""}" placeholder="0"
           onchange="saveActual('${col}','${row.id}','sgr_actual',this.value,'${m}')">
       </td>
       <td style="background:#110c06">
-        <span style="font-family:var(--mono);font-size:11px;color:#6b5530;padding:0 4px">${row.plm_set||"—"}</span>
+        <span style="font-family:var(--mono);font-size:11px;color:#6b5530;padding:2px 6px;min-width:66px;display:inline-block;text-align:right;font-family:var(--mono)">${row.plm_set||"—"}</span>
       </td>
       <td style="background:#110c06">
         <input class="act-input" style="background:rgba(249,115,22,.06);border-color:rgba(249,115,22,.3);color:#fdba74" type="number" step="0.1" value="${row.plm_actual||""}" placeholder="0"
