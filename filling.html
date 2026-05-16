@@ -9,92 +9,96 @@
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
   --bg:#06080e;--s1:#0b0e17;--s2:#10141f;--s3:#151a28;--b1:#1c2235;--b2:#242e48;
-  --text:#e4eaf8;--t2:#5e6e90;--t3:#2a3450;
+  --text:#e4eaf8;--t2:#8899bb;--t3:#2a3450;
   --blue:#3b7ef6;--blue2:#7ab3ff;--green:#1fd17a;--yellow:#f5c842;
   --red:#f04f5e;--cyan:#00d4ff;--orange:#ff8c42;--purple:#9b6dff;
   --mono:'DM Mono',monospace;--sans:'Sarabun',sans-serif;
+  --fs:12px; /* ขนาด font เดียวทั้งหมด */
 }
-html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px}
+html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:var(--sans)}
 
-nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;height:52px;
+nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;height:50px;
   background:rgba(6,8,14,.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--b1);padding:0 16px;gap:10px}
-.nav-logo{font-family:var(--mono);font-size:15px;font-weight:700}
+.nav-logo{font-family:var(--mono);font-size:14px;font-weight:700}
 .nav-logo b{color:var(--blue)}.nav-logo span{color:var(--t2)}
 .nav-r{display:flex;gap:8px;margin-left:auto}
 .nbtn{font-size:11px;padding:5px 12px;border-radius:6px;border:1px solid var(--b2);
   background:none;color:var(--t2);cursor:pointer;text-decoration:none;font-family:var(--mono)}
 
-main{padding:16px;display:flex;flex-direction:column;gap:16px}
+main{padding:14px;display:flex;flex-direction:column;gap:14px}
 
-/* LINE SECTION */
-.ls{border:2px solid rgba(255,140,66,.4);border-radius:16px;background:rgba(255,140,66,.03);overflow:hidden}
-.ls-title{font-family:var(--mono);font-size:22px;font-weight:800;color:var(--orange);
-  letter-spacing:.05em;padding:14px 18px 10px;border-bottom:1px solid rgba(255,140,66,.15)}
+/* LINE SECTION — ซ่อนถ้าไม่มีข้อมูล */
+.ls{border:2px solid rgba(255,140,66,.5);border-radius:14px;background:rgba(255,140,66,.04);overflow:hidden}
+.ls-title{font-family:var(--mono);font-size:20px;font-weight:800;color:var(--orange);
+  letter-spacing:.06em;padding:12px 16px 8px;border-bottom:1px solid rgba(255,140,66,.2)}
 
-/* PROD ROW */
-.pr{display:flex;gap:0;align-items:flex-start;overflow-x:auto}
+/* LAYOUT */
+.pr{display:flex;align-items:stretch;min-height:320px}
 
-/* LEFT SECTION — กำลังผลิต */
-.cur-wrap{flex-shrink:0;border-right:1px solid rgba(255,140,66,.2);background:rgba(255,140,66,.05);padding:12px 14px}
-.cur-header{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--orange);
-  text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px;display:flex;align-items:center;gap:6px}
-.cur-dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 1.2s infinite}
+/* LEFT — กำลังผลิต */
+.cur-wrap{flex-shrink:0;width:220px;border-right:2px solid rgba(255,140,66,.25);
+  background:rgba(255,140,66,.06);padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.sec-hd{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.12em}
+.dot-g{width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0;animation:blink 1.2s infinite}
+.dot-q{width:8px;height:8px;border-radius:50%;background:var(--t3);flex-shrink:0}
 
-/* RIGHT SECTION — คิวถัดไป */
-.que-wrap{flex:1;padding:12px 14px;background:rgba(0,0,0,.1)}
-.que-header{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--t2);
-  text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px;display:flex;align-items:center;gap:6px}
-.que-dot{width:8px;height:8px;border-radius:50%;background:var(--t3)}
-.que-inner{display:flex;gap:10px;flex-wrap:wrap;align-content:flex-start}
+/* RIGHT — คิว */
+.que-wrap{flex:1;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.que-inner{display:flex;gap:10px;flex-wrap:wrap;align-content:flex-start;flex:1}
 
-/* CARDS */
-.tc{border-radius:12px;overflow:hidden;flex-shrink:0;display:flex;flex-direction:column}
-.tc.cur{width:185px;background:var(--s1);border:1.5px solid rgba(255,140,66,.5);box-shadow:0 0 16px rgba(255,140,66,.1)}
-.tc.que{width:185px;background:var(--s2);border:1px solid var(--b1)}
+/* CARD — ขนาดเดียวกันทุกใบ */
+.tc{width:175px;border-radius:10px;overflow:hidden;flex-shrink:0;display:flex;flex-direction:column;
+  border:1.5px solid var(--b2);background:var(--s1)}
+.tc.cur{border-color:rgba(255,140,66,.6);box-shadow:0 0 14px rgba(255,140,66,.12)}
+.tc.que{border-color:var(--b1);background:var(--s2)}
 
-/* CARD HEAD */
-.ch{padding:10px 12px 6px}
-.ch-topline{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:4px}
-.ch-linename{font-family:var(--mono);font-size:12px;font-weight:800;color:var(--cyan)}
-.ch-prodname{font-size:12px;font-weight:700;color:var(--text)}
-.ch-sep{color:var(--t3);font-size:11px}
-.ch-code{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--orange)}
-.ch-name{font-size:12px;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ch-batch{font-family:var(--mono);font-size:11px;color:var(--t3)}
-.ch-prod{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--purple);letter-spacing:.08em;margin-top:3px}
+/* CARD HEAD — font เดียวกันทุกอย่าง */
+.ch{padding:9px 10px 6px;border-bottom:1px solid var(--b1)}
+.ch-top{display:flex;align-items:baseline;gap:5px;margin-bottom:3px;flex-wrap:wrap}
+.ch-line{font-family:var(--mono);font-size:var(--fs);font-weight:800;color:var(--cyan)}
+.ch-dot{color:var(--t3);font-size:10px}
+.ch-prod{font-size:var(--fs);font-weight:700;color:var(--text)}
+.ch-code{font-family:var(--mono);font-size:var(--fs);font-weight:700;color:var(--orange)}
+.ch-name{font-size:var(--fs);color:var(--t2)}
+.ch-batch{font-family:var(--mono);font-size:var(--fs);color:var(--t3);margin-top:2px}
+.ch-rp{font-family:var(--mono);font-size:var(--fs);font-weight:700;color:var(--purple);letter-spacing:.08em;margin-top:3px}
 
-/* AGING BADGE */
-.ab{font-family:var(--mono);font-size:13px;font-weight:700;background:rgba(0,212,255,.1);color:var(--cyan);
-  border:1px solid rgba(0,212,255,.3);border-radius:8px;text-align:center;margin:0 10px 6px;padding:4px}
+/* AGING */
+.ab{font-family:var(--mono);font-size:var(--fs);font-weight:700;color:var(--cyan);
+  background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.35);
+  border-radius:6px;text-align:center;margin:7px 10px 0;padding:3px 0;letter-spacing:.1em}
 
-/* SVG WRAP */
-.sw{position:relative;margin:0 8px 4px}
-.sw svg{display:block;width:100%;height:auto}
-.so{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;width:90%}
-.sv{font-family:var(--mono);font-size:13px;font-weight:700;color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.95);line-height:1.3}
-.sp{font-family:var(--mono);font-size:11px;color:rgba(255,255,255,.9);text-shadow:0 1px 6px rgba(0,0,0,.9);line-height:1.3}
+/* TANK SVG WRAP */
+.sw{position:relative;margin:8px 10px 4px}
+.so{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  text-align:center;pointer-events:none;width:90%}
+/* font เดียวกัน */
+.sv{font-family:var(--mono);font-size:var(--fs);font-weight:700;color:#fff;
+  text-shadow:0 2px 12px rgba(0,0,0,1);line-height:1.4}
+.sp{font-family:var(--mono);font-size:var(--fs);color:rgba(255,255,255,.95);
+  text-shadow:0 1px 8px rgba(0,0,0,1);line-height:1.4}
 
 /* STATUS */
-.stat-in{text-align:center;padding:0 8px 8px}
-.sbadge{font-family:var(--mono);font-size:11px;font-weight:700;padding:3px 10px;border-radius:99px;display:inline-block}
-
-.no-queue{font-family:var(--mono);font-size:12px;color:var(--t3);padding:30px;text-align:center}
+.st{text-align:center;padding:5px 8px 9px}
+.stb{font-family:var(--mono);font-size:var(--fs);font-weight:700;
+  padding:3px 12px;border-radius:99px;display:inline-block}
 
 #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);
-  padding:10px 22px;border-radius:10px;font-size:13px;opacity:0;transition:all .3s;
+  padding:10px 22px;border-radius:10px;font-size:12px;opacity:0;transition:all .3s;
   z-index:9999;pointer-events:none;font-family:var(--mono);color:#fff}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
 @keyframes wave{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
-@keyframes rise{0%{transform:translateY(0);opacity:.6}100%{transform:translateY(-35px);opacity:0}}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes rise{0%{transform:translateY(0);opacity:.6}100%{transform:translateY(-30px);opacity:0}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
 </style>
 </head>
 <body>
 <nav>
   <div class="nav-logo">PROD<b>.</b>SYS <span>/ FILLING</span></div>
   <div class="nav-r">
-    <a href="index.html" class="nbtn">🏠 Home</a>
+    <a href="index.html" class="nbtn">🏠</a>
     <button class="nbtn" onclick="doLogout()">ออก</button>
   </div>
 </nav>
@@ -104,7 +108,7 @@ main{padding:16px;display:flex;flex-direction:column;gap:16px}
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import{getAuth,signOut,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import{getFirestore,collection,query,where,onSnapshot,getDocs,doc,getDoc}
+import{getFirestore,collection,query,where,onSnapshot,getDocs,doc}
   from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const app=initializeApp({apiKey:"AIzaSyC3f6jMuhugE6BNfRfkpOA9BMrIKWR9YgQ",authDomain:"production-filling.firebaseapp.com",projectId:"production-filling",storageBucket:"production-filling.firebasestorage.app",messagingSenderId:"89098393458",appId:"1:89098393458:web:b723f2886e8a341935afeb"});
@@ -115,11 +119,11 @@ let tickTimer,u1,u2,u3,u4;
 const today=()=>new Date().toISOString().slice(0,10);
 const $=id=>document.getElementById(id);
 const fmtL=n=>Math.round(n).toLocaleString()+' L';
-const fmtPct=n=>n.toFixed(1)+'%';
+const fmtP=n=>n.toFixed(1)+'%';
 
 function toast(msg,t='blue'){const el=$('toast');el.textContent=msg;el.style.background=t==='green'?'#0d7a3e':t==='red'?'#8b1a24':'#1a3d8b';el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2500);}
 function rgba(h,a){const r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return`rgba(${r},${g},${b},${a})`;}
-function darken(h,f){return'#'+[1,3,5].map(i=>Math.max(0,parseInt(h.slice(i,i+2),16)-Math.round(f*180)).toString(16).padStart(2,'0')).join('');}
+function dk(h){return'#'+[1,3,5].map(i=>Math.max(0,parseInt(h.slice(i,i+2),16)-55).toString(16).padStart(2,'0')).join('');}
 
 onAuthStateChanged(auth,async user=>{
   if(!user){location.href='index.html';return;}
@@ -130,15 +134,9 @@ window.doLogout=async()=>{clearInterval(tickTimer);[u1,u2,u3,u4].forEach(u=>u&&u
 
 async function init(){
   u1=onSnapshot(collection(db,'lines'),snap=>{
-    // Deduplicate lines by name
-    const seen=new Set();
-    lineNames=[];lineMap={};
-    snap.docs.map(d=>({id:d.id,...d.data()}))
-      .filter(l=>l.type==='Filling')
-      .sort((a,b)=>(a.seq||0)-(b.seq||0))
-      .forEach(l=>{
-        if(!seen.has(l.name)){seen.add(l.name);lineNames.push(l.name);lineMap[l.name]=l;}
-      });
+    const seen=new Set();lineNames=[];lineMap={};
+    snap.docs.map(d=>({id:d.id,...d.data()})).filter(l=>l.type==='Filling').sort((a,b)=>(a.seq||0)-(b.seq||0))
+      .forEach(l=>{if(!seen.has(l.name)){seen.add(l.name);lineNames.push(l.name);lineMap[l.name]=l;}});
     renderAll();
   });
   u2=onSnapshot(collection(db,'cip_line_states'),snap=>{
@@ -146,121 +144,116 @@ async function init(){
   });
   const d=today();
   u3=onSnapshot(query(collection(db,'production_plans'),where('date','==',d)),snap=>{
-    const r=snap.docs.map(d=>({id:d.id,_col:'production_plans',...d.data()}));
-    planRows=planRows.filter(x=>x._col!=='production_plans').concat(r);renderAll();
+    planRows=planRows.filter(x=>x._col!=='production_plans').concat(snap.docs.map(d=>({id:d.id,_col:'production_plans',...d.data()})));renderAll();
   });
   u4=onSnapshot(query(collection(db,'production_plans_m2'),where('date','==',d)),snap=>{
-    const r=snap.docs.map(d=>({id:d.id,_col:'production_plans_m2',...d.data()}));
-    planRows=planRows.filter(x=>x._col!=='production_plans_m2').concat(r);renderAll();
+    planRows=planRows.filter(x=>x._col!=='production_plans_m2').concat(snap.docs.map(d=>({id:d.id,_col:'production_plans_m2',...d.data()})));renderAll();
   });
   tickTimer=setInterval(tick,1000);
 }
 
-function getTanks(lineName){
-  return planRows
-    .filter(r=>r.filling_line===lineName&&(r.status==='ready'||r.status==='past_done'||r.status==='pasteurising'))
-    .sort((a,b)=>(a.seq||0)-(b.seq||0));
+function getTanks(name){
+  return planRows.filter(r=>r.filling_line===name&&(r.status==='ready'||r.status==='past_done'||r.status==='pasteurising')).sort((a,b)=>(a.seq||0)-(b.seq||0));
 }
-
-function getLineState(lineName){
-  const l=lineMap[lineName];if(!l)return{};
-  return lineStates[l.id]||{};
-}
-
+function getSt(name){const l=lineMap[name];return l?(lineStates[l.id]||{}):{}}
 function calcVol(row,st){
   const sv=st.start_vol||+(row.volume_liter||0);
-  const isRun=st.running&&!!st.start_ts;
+  const isRun=!!(st.running&&st.start_ts);
   const elapsed=isRun?(Date.now()-st.start_ts)/3600000:0;
-  const fr=st.flow_rate||300;
-  const rem=isRun?Math.max(0,sv-(elapsed*fr)):+(row.volume_liter||0);
+  const rem=isRun?Math.max(0,sv-(elapsed*(st.flow_rate||300))):+(row.volume_liter||0);
   const pct=sv>0?(rem/sv)*100:100;
-  return{rem,pct,isRun,sv,fr};
+  return{rem,pct,isRun};
 }
 
-function tankSVG(uid,pct,col,run,w,h){
-  const bX=10,bY=18,bW=w-20,bH=h-40,nW=32,nH=8,cW=40,cH=5;
-  const nX=bX+(bW-nW)/2,cX=bX+(bW-cW)/2;
+// SVG — ถังผอม สูง
+function svg(uid,pct,col,run){
+  const W=140,H=195; // ผอม สูง
+  const bX=18,bY=22,bW=W-36,bH=H-50;
   const fillH=Math.max(0,(pct/100)*(bH-6));
   const fillY=bY+bH-3-fillH;
   const gid='g'+uid,cid='c'+uid;
   const bc=pct>50?'#1fd17a':pct>20?'#f5c842':'#f04f5e';
-  return`<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+  return`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto">
 <defs>
   <linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1">
     <stop offset="0%" stop-color="${col}" stop-opacity=".95"/>
-    <stop offset="100%" stop-color="${darken(col,.3)}" stop-opacity="1"/>
+    <stop offset="100%" stop-color="${dk(col)}" stop-opacity="1"/>
   </linearGradient>
-  <clipPath id="${cid}"><rect x="${bX+1}" y="${bY+1}" width="${bW-2}" height="${bH-2}" rx="7"/></clipPath>
+  <clipPath id="${cid}"><rect x="${bX+1}" y="${bY+1}" width="${bW-2}" height="${bH-2}" rx="6"/></clipPath>
 </defs>
-<rect x="${bX+1}" y="${bY+3}" width="${bW}" height="${bH}" rx="9" fill="rgba(0,0,0,.6)"/>
-<rect x="${bX}" y="${bY}" width="${bW}" height="${bH}" rx="9" fill="#070b15" stroke="#1e2d4a" stroke-width="1.5"/>
+<!-- shadow -->
+<rect x="${bX+2}" y="${bY+4}" width="${bW}" height="${bH}" rx="8" fill="rgba(0,0,0,.7)"/>
+<!-- body -->
+<rect x="${bX}" y="${bY}" width="${bW}" height="${bH}" rx="8" fill="#060a14" stroke="${rgba(col,.5)}" stroke-width="2"/>
 ${pct>0?`<g clip-path="url(#${cid})">
   <rect x="${bX+1}" y="${fillY}" width="${bW-2}" height="${fillH+5}" fill="url(#${gid})"/>
-  ${run?`<g style="animation:wave 2.2s linear infinite">
-    <path d="M${bX-6},${fillY+1} q7,-4 14,0 q7,4 14,0 q7,-4 14,0 q7,4 14,0 q7,-4 14,0 q7,4 14,0 q7,-4 14,0 q7,4 14,0 v12 h-${bW*5} z" fill="${rgba(col,.45)}"/>
+  ${run?`<g style="animation:wave 2s linear infinite">
+    <path d="M${bX-5},${fillY+2} q6,-4 12,0 q6,4 12,0 q6,-4 12,0 q6,4 12,0 q6,-4 12,0 q6,4 12,0 q6,-4 12,0 v10 h-${bW*4} z" fill="${rgba(col,.45)}"/>
   </g>
-  <circle cx="${bX+18}" cy="${fillY+fillH*.35}" r="2.2" fill="${rgba(col,.5)}" style="animation:rise 2.5s ease-in infinite"/>
-  <circle cx="${bX+bW*.65}" cy="${fillY+fillH*.55}" r="1.8" fill="${rgba(col,.4)}" style="animation:rise 2s ease-in infinite;animation-delay:.7s"/>
-  `:`<rect x="${bX+1}" y="${fillY}" width="${bW-2}" height="3" rx="1.5" fill="${rgba(col,.5)}"/>`}
-  <rect x="${bX+2}" y="${fillY+3}" width="8" height="${Math.max(0,fillH*.35)}" rx="4" fill="rgba(255,255,255,.07)"/>
+  <circle cx="${bX+12}" cy="${fillY+fillH*.35}" r="2" fill="${rgba(col,.5)}" style="animation:rise 2.5s ease-in infinite"/>
+  <circle cx="${bX+bW*.7}" cy="${fillY+fillH*.55}" r="1.7" fill="${rgba(col,.4)}" style="animation:rise 2s ease-in infinite;animation-delay:.8s"/>
+  `:`<rect x="${bX+1}" y="${fillY}" width="${bW-2}" height="3" rx="1.5" fill="${rgba(col,.45)}"/>`}
+  <!-- shine -->
+  <rect x="${bX+2}" y="${fillY+3}" width="6" height="${Math.max(0,fillH*.35)}" rx="3" fill="rgba(255,255,255,.07)"/>
 </g>
-<line x1="${bX+bW+2}" y1="${fillY}" x2="${bX+bW+9}" y2="${fillY}" stroke="${bc}" stroke-width="2" stroke-linecap="round"/>`:''}
-<rect x="${bX}" y="${bY}" width="${bW}" height="${bH}" rx="9" fill="none" stroke="${pct>0?rgba(col,.35):'#1e2d4a'}" stroke-width="1.5"/>
-<rect x="${bX+1}" y="${bY+1}" width="8" height="${bH-2}" rx="4" fill="rgba(255,255,255,.025)"/>
-<rect x="${nX}" y="${bY-nH}" width="${nW}" height="${nH+3}" rx="3" fill="#070b15" stroke="#1e2d4a" stroke-width="1.2"/>
-<rect x="${cX}" y="${bY-nH-cH}" width="${cW}" height="${cH+2}" rx="3" fill="#0a0e1a" stroke="#1e2d4a" stroke-width="1.2"/>
-<rect x="${bX+8}" y="${bY+bH}" width="7" height="9" rx="2" fill="#070b15" stroke="#1e2d4a" stroke-width="1.2"/>
-<rect x="${bX+bW-15}" y="${bY+bH}" width="7" height="9" rx="2" fill="#070b15" stroke="#1e2d4a" stroke-width="1.2"/>
-<rect x="${bX+3}" y="${bY+bH+8}" width="${bW-6}" height="3" rx="1.5" fill="#070b15" stroke="#1e2d4a" stroke-width="1.2"/>
+<!-- level line -->
+<line x1="${bX+bW+2}" y1="${fillY}" x2="${bX+bW+9}" y2="${fillY}" stroke="${bc}" stroke-width="2.5" stroke-linecap="round"/>`:''}
+<!-- border overlay -->
+<rect x="${bX}" y="${bY}" width="${bW}" height="${bH}" rx="8" fill="none" stroke="${pct>0?rgba(col,.6):'#1e2d4a'}" stroke-width="2"/>
+<!-- neck -->
+<rect x="${bX+(bW-28)/2}" y="${bY-8}" width="28" height="10" rx="3" fill="#060a14" stroke="#1e2d4a" stroke-width="1.5"/>
+<!-- cap -->
+<rect x="${bX+(bW-36)/2}" y="${bY-13}" width="36" height="6" rx="3" fill="#08101a" stroke="#1e2d4a" stroke-width="1.5"/>
+<!-- legs -->
+<rect x="${bX+8}" y="${bY+bH}" width="7" height="10" rx="2" fill="#060a14" stroke="#1e2d4a" stroke-width="1.5"/>
+<rect x="${bX+bW-15}" y="${bY+bH}" width="7" height="10" rx="2" fill="#060a14" stroke="#1e2d4a" stroke-width="1.5"/>
+<rect x="${bX+3}" y="${bY+bH+9}" width="${bW-6}" height="3" rx="1.5" fill="#060a14" stroke="#1e2d4a" stroke-width="1.5"/>
 </svg>`;
 }
 
-function card(row,isCur,qNo){
+function card(row,isCur){
   const p=productMap[row.mix_code]||{};
   const col=p.color||'#60a5fa';
-  const st=getLineState(row.filling_line);
+  const st=getSt(row.filling_line);
   const{rem,pct,isRun}=calcVol(row,st);
   const pctC=pct>50?'var(--green)':pct>20?'var(--yellow)':'var(--red)';
 
-  let statTxt='—',statC='var(--t2)';
-  if(row.status==='pasteurising'){statTxt='♨️ กำลัง Past.';statC='var(--orange)';}
-  else if(row.status==='past_done'){statTxt='⏳ กำลังบ่ม';statC='var(--yellow)';}
-  else if(row.status==='ready'){statTxt=isRun?'▶ กำลังผลิต':'✅ พร้อมส่ง';statC=isRun?'var(--green)':'var(--cyan)';}
+  let stTxt='—',stC='var(--t2)';
+  if(row.status==='pasteurising'){stTxt='♨️ กำลัง Past.';stC='var(--orange)';}
+  else if(row.status==='past_done'){stTxt='⏳ กำลังบ่ม';stC='var(--yellow)';}
+  else if(row.status==='ready'){stTxt=isRun?'▶ กำลังผลิต':'✅ พร้อมส่ง';stC=isRun?'var(--green)':'var(--cyan)';}
 
-  const agingTank=st.aging_tank||row.aging_tank||'—';
-  const fz=st.fz_A||'—';
-  const pp=st.pp_A||'—';
-  const prodCode=row.prod_suffix&&row.prod_prefix?(row.prod_prefix+row.prod_suffix):row.prod_suffix?row.prod_suffix:row.prod_prefix?row.prod_prefix:'—';
-  const prodName=row.product_name||'—';
+  const at=st.aging_tank||row.aging_tank||'—';
+  // รหัสผลิต 10 ตัวครบ
+  const rp=(row.prod_prefix&&row.prod_suffix)?(row.prod_prefix+row.prod_suffix)
+    :(row.prod_prefix||row.prod_suffix||'—');
   const uid=(isCur?'C':'Q')+row.id.slice(-8);
-  const sw=160,sh=150;
 
   return`<div class="tc ${isCur?'cur':'que'}">
   <div class="ch">
-    <div class="ch-topline">
-      <span class="ch-linename">${row.filling_line||'—'}</span>
-      <span class="ch-sep">·</span>
-      <span class="ch-prodname">${prodName}</span>
+    <div class="ch-top">
+      <span class="ch-line">${row.filling_line||'—'}</span>
+      <span class="ch-dot">·</span>
+      <span class="ch-prod">${row.product_name||'—'}</span>
     </div>
-    <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:3px">
+    <div style="display:flex;align-items:baseline;gap:5px;margin-top:2px">
       <span class="ch-code">${row.mix_code||'—'}</span>
-      <span style="color:var(--t3);font-size:10px">|</span>
+      <span class="ch-dot">|</span>
       <span class="ch-name">${row.mix_name||'—'}</span>
     </div>
     <div class="ch-batch">Batch ${row.batch_no||'—'}</div>
-    <div class="ch-prod">${prodCode}</div>
-
+    <div class="ch-rp">${rp}</div>
   </div>
-  <div class="ab">${agingTank}</div>
-  <div class="sw" id="sw-${uid}">
-    ${tankSVG(uid,pct,col,isRun,sw,sh)}
+  <div class="ab">${at}</div>
+  <div class="sw">
+    ${svg(uid,pct,col,isRun)}
     <div class="so">
       <div class="sv" id="vol-${uid}" style="color:${pctC}">${fmtL(rem)}</div>
-      <div class="sp" id="pct-${uid}" style="color:${pctC}">${fmtPct(pct)}</div>
+      <div class="sp" id="pct-${uid}" style="color:${pctC}">${fmtP(pct)}</div>
     </div>
   </div>
-  <div class="stat-in">
-    <span class="sbadge" style="color:${statC};background:${statC}22;border:1px solid ${statC}44">${statTxt}</span>
+  <div class="st">
+    <span class="stb" style="color:${stC};background:${stC}22;border:1px solid ${stC}55">${stTxt}</span>
   </div>
 </div>`;
 }
@@ -270,30 +263,25 @@ function renderAll(){
   let html='';
   lineNames.forEach(name=>{
     const tanks=getTanks(name);
-    html+=`<div class="ls"><div class="ls-title">${name.toUpperCase()}</div>`;
-    if(!tanks.length){
-      html+=`<div class="no-queue">ไม่มี batch ที่พร้อมผลิต</div>`;
-    } else {
-      const current=tanks[0];
-      const queue=tanks.slice(1);
-      html+=`<div class="pr">
+    // ซ่อน LINE ที่ไม่มีข้อมูล
+    if(!tanks.length)return;
+    html+=`<div class="ls">
+      <div class="ls-title">${name.toUpperCase()}</div>
+      <div class="pr">
         <div class="cur-wrap">
-          <div class="cur-header"><span class="cur-dot"></span>กำลังผลิตอยู่</div>
-          ${card(current,true,0)}
+          <div class="sec-hd"><span class="dot-g"></span><span style="color:var(--green)">กำลังผลิตอยู่</span></div>
+          ${card(tanks[0],true)}
         </div>
         <div class="que-wrap">
-          <div class="que-header"><span class="que-dot"></span>คิวรอผลิตถัดไป</div>
-          <div class="que-inner">`;
-      if(queue.length){
-        queue.forEach((t,i)=>html+=card(t,false,i+2));
-      } else {
-        html+=`<div class="no-queue">ไม่มีคิวถัดไป</div>`;
-      }
-      html+=`</div></div></div>`;
-    }
-    html+=`</div>`;
+          <div class="sec-hd"><span class="dot-q"></span><span style="color:var(--t2)">คิวรอผลิตถัดไป</span></div>
+          <div class="que-inner">
+            ${tanks.length>1?tanks.slice(1).map(t=>card(t,false)).join(''):'<div style="font-family:var(--mono);font-size:12px;color:var(--t3);padding:20px">ไม่มีคิวถัดไป</div>'}
+          </div>
+        </div>
+      </div>
+    </div>`;
   });
-  $('mg').innerHTML=html||'<div style="padding:60px;text-align:center;color:var(--t3);font-family:var(--mono)">ยังไม่มี LINE</div>';
+  $('mg').innerHTML=html||'<div style="padding:60px;text-align:center;color:var(--t3);font-family:var(--mono)">ไม่มีข้อมูลการผลิตวันนี้</div>';
 }
 
 function tick(){
@@ -301,14 +289,14 @@ function tick(){
     const tanks=getTanks(name);
     if(!tanks.length)return;
     const row=tanks[0];
-    const st=getLineState(name);
+    const st=getSt(name);
     const{rem,pct,isRun}=calcVol(row,st);
     if(!isRun)return;
     const pctC=pct>50?'var(--green)':pct>20?'var(--yellow)':'var(--red)';
     const uid='C'+row.id.slice(-8);
-    const vEl=$('vol-'+uid),pEl=$('pct-'+uid);
-    if(vEl){vEl.textContent=fmtL(rem);vEl.style.color=pctC;}
-    if(pEl){pEl.textContent=fmtPct(pct);pEl.style.color=pctC;}
+    const v=$('vol-'+uid),p=$('pct-'+uid);
+    if(v){v.textContent=fmtL(rem);v.style.color=pctC;}
+    if(p){p.textContent=fmtP(pct);p.style.color=pctC;}
   });
 }
 </script>
