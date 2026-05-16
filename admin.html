@@ -195,10 +195,6 @@ tbody td{padding:7px 10px;vertical-align:middle}
         <input id="nl-sku" class="ci" placeholder="เช่น SKU-001">
       </div>
       <div class="form-group">
-        <div class="form-label">ผลิตภัณฑ์หลัก</div>
-        <input id="nl-product" class="ci" placeholder="เช่น Eskimo">
-      </div>
-      <div class="form-group">
         <div class="form-label">Flow Rate (L/hr)</div>
         <input id="nl-flow" class="ci" type="number" value="300" placeholder="300">
       </div>
@@ -207,8 +203,21 @@ tbody td{padding:7px 10px;vertical-align:middle}
         <input id="nl-seq" class="ci" type="number" value="1" placeholder="1">
       </div>
     </div>
-    <div class="btn-row">
-      <button class="btn btn-b" onclick="addLine()">+ เพิ่ม LINE</button>
+
+    <!-- เพิ่มผลิตภัณฑ์ตอนสร้าง LINE -->
+    <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--b1)">
+      <div style="font-family:var(--mono);font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">🏷️ ผลิตภัณฑ์ใน LINE นี้</div>
+      <div id="nl-prod-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px">
+        <div style="color:var(--t3);font-size:11px;font-style:italic">ยังไม่มีผลิตภัณฑ์</div>
+      </div>
+      <div style="display:flex;gap:6px">
+        <input id="nl-prod-name" class="ci" placeholder="ชื่อผลิตภัณฑ์ เช่น เอสกิโมบานาน่า" style="flex:1" onkeydown="if(event.key==='Enter')addNewLineProd()">
+        <button class="btn btn-b" style="white-space:nowrap" onclick="addNewLineProd()">+ เพิ่มผลิตภัณฑ์</button>
+      </div>
+    </div>
+
+    <div class="btn-row" style="margin-top:14px">
+      <button class="btn btn-b" onclick="addLine()">✅ สร้าง LINE</button>
       <span class="err-text" id="l-err"></span>
     </div>
   </div>
@@ -527,19 +536,19 @@ function renderLines(){
     }
     group.sort((a,b)=>(a.seq||0)-(b.seq||0)).forEach(l=>{
       const products_list=(l.products||[]);
-      const prodHTML=products_list.length
-        ?products_list.map(p=>`<div style="font-family:var(--mono);font-size:10px;margin-bottom:2px">
-            <span style="color:var(--cyan)">${p.name}</span>
-            <span style="color:var(--t3);margin-left:4px">(${(p.mix_codes||[]).map(m=>m.code).join(", ")||"ยังไม่มี Mix"})</span>
-          </div>`).join('')
+      const prodNamesHTML=products_list.length
+        ?products_list.map(p=>`<div style="font-family:var(--sans);font-size:12px;margin-bottom:3px">${p.name}</div>`).join('')
+        :`<span style="color:var(--t3);font-size:11px">—</span>`;
+      const mixCodesHTML=products_list.length
+        ?products_list.map(p=>`<div style="font-family:var(--mono);font-size:10px;color:var(--cyan);margin-bottom:3px">${(p.mix_codes||[]).length?(p.mix_codes.map(m=>m.code).join(', ')):'<span style="color:var(--t3)">—</span>'}</div>`).join('')
         :`<span style="color:var(--t3);font-size:11px">—</span>`;
       const tr=document.createElement("tr");
       tr.innerHTML=`
         <td style="font-family:var(--mono);color:var(--t3)">${l.seq||"—"}</td>
         <td style="font-family:var(--mono);font-weight:700;color:var(--cyan)">${l.name||"—"}</td>
         <td style="font-family:var(--mono);font-size:11px;color:var(--yellow)">${l.sku||"—"}</td>
-        <td style="color:var(--t2)">${l.product||"—"}</td>
-        <td style="max-width:220px">${prodHTML}</td>
+        <td style="max-width:160px">${prodNamesHTML}</td>
+        <td style="max-width:160px">${mixCodesHTML}</td>
         <td style="font-family:var(--mono)">${l.flow_rate||300} L/hr</td>
         <td><span style="font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:4px;background:${g==="bangchan"?"rgba(59,130,246,.1)":"rgba(168,85,247,.1)"};color:${g==="bangchan"?"var(--blue2)":"var(--purple)"}">${g==="bangchan"?"Bangchan":"Twin"}</span></td>
         <td>
@@ -551,21 +560,89 @@ function renderLines(){
   });
 }
 
+// NEW LINE products temp state
+let newLineProducts=[];
+
+window.addNewLineProd=()=>{
+  const name=$("nl-prod-name").value.trim();
+  if(!name){toast("กรุณากรอกชื่อผลิตภัณฑ์","red");return;}
+  if(newLineProducts.find(p=>p.name===name)){toast("มีอยู่แล้ว","red");return;}
+  newLineProducts.push({name,mix_codes:[]});
+  $("nl-prod-name").value="";
+  renderNewLineProdList();
+};
+
+function renderNewLineProdList(){
+  const list=$("nl-prod-list");if(!list)return;
+  if(!newLineProducts.length){
+    list.innerHTML=`<div style="color:var(--t3);font-size:11px;font-style:italic">ยังไม่มีผลิตภัณฑ์</div>`;
+    return;
+  }
+  list.innerHTML=newLineProducts.map((prod,pi)=>`
+    <div style="background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:10px 12px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <span style="font-family:var(--mono);font-size:12px;font-weight:700;color:var(--cyan)">${prod.name}</span>
+        <button style="background:none;border:none;color:var(--t3);cursor:pointer;font-size:12px" onclick="removeNewLineProd(${pi})">✕ ลบ</button>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:7px">
+        ${(prod.mix_codes||[]).map((m,mi)=>`
+          <span style="display:inline-flex;align-items:center;gap:4px;font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:4px;background:rgba(6,182,212,.1);color:var(--cyan);border:1px solid rgba(6,182,212,.2)">
+            ${m.code} — ${m.name}
+            <button style="background:none;border:none;color:var(--t3);cursor:pointer;font-size:11px;padding:0" onclick="removeNewLineMix(${pi},${mi})">✕</button>
+          </span>`).join("")}
+        ${!(prod.mix_codes||[]).length?`<span style="color:var(--t3);font-size:10px;font-style:italic">ยังไม่มี Mix Code</span>`:""}
+      </div>
+      <div style="display:flex;gap:5px">
+        <select style="flex:1;background:var(--s3);border:1px solid var(--b2);border-radius:5px;color:var(--text);font-family:var(--mono);font-size:10px;padding:5px 6px;outline:none" id="nl-mix-sel-${pi}">
+          <option value="">— เลือก Mix Code —</option>
+          ${productsAll.map(p=>`<option value="${p.mix_code}|${p.mix_name}">${p.mix_code} — ${p.mix_name}</option>`).join("")}
+        </select>
+        <button class="btn btn-b" style="padding:5px 10px;font-size:11px;white-space:nowrap" onclick="addNewLineMix(${pi})">+ Mix</button>
+      </div>
+    </div>`).join("");
+}
+
+window.removeNewLineProd=(pi)=>{
+  newLineProducts.splice(pi,1);
+  renderNewLineProdList();
+};
+
+window.addNewLineMix=(pi)=>{
+  const sel=$(`nl-mix-sel-${pi}`);if(!sel||!sel.value)return;
+  const[code,name]=sel.value.split("|");
+  if(!newLineProducts[pi].mix_codes)newLineProducts[pi].mix_codes=[];
+  if(newLineProducts[pi].mix_codes.find(m=>m.code===code)){toast("มี Mix Code นี้แล้ว","red");return;}
+  newLineProducts[pi].mix_codes.push({code,name});
+  sel.value="";
+  renderNewLineProdList();
+};
+
+window.removeNewLineMix=(pi,mi)=>{
+  newLineProducts[pi].mix_codes.splice(mi,1);
+  renderNewLineProdList();
+};
+
 window.addLine=async()=>{
   const name=$("nl-name").value.trim();
   const group=$("nl-group").value;
   const sku=$("nl-sku").value.trim();
-  const product=$("nl-product").value.trim();
   const flow=+$("nl-flow").value||300;
   const seq=+$("nl-seq").value||1;
-  const err=$("l-err"); err.textContent="";
+  const err=$("l-err");err.textContent="";
   if(!name){err.textContent="กรุณากรอกชื่อ LINE";return;}
-  await addDoc(collection(db,"lines"),{
-    name,group,sku,product,flow_rate:flow,seq,mix_codes:[],type:"Filling",
-    createdAt:new Date().toISOString()
-  });
-  $("nl-name").value="";$("nl-product").value="";$("nl-sku").value="";
-  toast(`เพิ่ม LINE ${name} แล้ว`,"green");
+  try{
+    await addDoc(collection(db,"lines"),{
+      name,group,sku,flow_rate:flow,seq,
+      products:newLineProducts,
+      type:"Filling",
+      createdAt:new Date().toISOString()
+    });
+    // reset form
+    $("nl-name").value="";$("nl-sku").value="";
+    newLineProducts=[];
+    renderNewLineProdList();
+    toast(`เพิ่ม LINE ${name} แล้ว`,"green");
+  }catch(e){err.textContent="เกิดข้อผิดพลาด: "+e.message;}
 };
 
 // temp mix codes state
