@@ -319,39 +319,25 @@ function renderAll(){
   lines.forEach(line=>{
     const tanks=getReadyTanks(line.name);
     html+=`<div class="line-section">
-      <div class="line-title">โปโล ${line.name.toUpperCase()}</div>`;
+      <div class="line-title">${line.name.toUpperCase()}</div>`;
 
     if(!tanks.length){
       html+=`<div class="no-queue">ไม่มี batch ที่พร้อมผลิต</div>`;
     } else {
-      // group by product
-      const groups=groupByProduct(tanks);
-      groups.forEach(group=>{
-        html+=`<div class="prod-row">`;
-        // current (first of group)
-        html+=tankCard(group[0],true,0);
-        // queue
-        if(tanks.length>group.length||groups.indexOf(group)>0){
-          html+=`<div class="queue-wrap">`;
-          // remaining tanks in queue (exclude current group)
-          const queueTanks=tanks.filter(t=>!group.includes(t));
-          if(queueTanks.length){
-            // group queue by product too
-            const qGroups=groupByProduct(queueTanks);
-            let qNo=2;
-            qGroups.forEach(qg=>{
-              qg.forEach(qt=>{
-                html+=tankCard(qt,false,qNo);
-              });
-              qNo++;
-            });
-          } else {
-            html+=`<div class="no-queue">ไม่มีคิวถัดไป</div>`;
-          }
-          html+=`</div>`;
-        }
-        html+=`</div>`;
-      });
+      // แถวแรก = กำลังผลิต (ซ้าย) + คิวถัดไป (ขวา)
+      const current=tanks[0];
+      const queue=tanks.slice(1);
+      html+=`<div class="prod-row">`;
+      html+=tankCard(current,true,0);
+      html+=`<div class="queue-wrap">`;
+      if(queue.length){
+        queue.forEach((qt,i)=>{
+          html+=tankCard(qt,false,i+2);
+        });
+      } else {
+        html+=`<div class="no-queue">ไม่มีคิวถัดไป</div>`;
+      }
+      html+=`</div></div>`;
     }
     html+=`</div>`;
   });
