@@ -429,13 +429,6 @@ function renderPlan(m){
     else if(row.status==="pasteurising") tr.classList.add("row-past");
     else if(row.status==="past_done"||row.status==="ready") tr.classList.add("row-done");
 
-    // Product dropdown จาก LINE master products
-    const curLine = lines.find(l=>l.name===row.filling_line);
-    const lineProducts = curLine?.products||[];
-    const prodOpts = lineProducts.length
-      ? lineProducts.map(p=>`<option value="${p.name}"${row.product_name===p.name?" selected":""}>${p.name}</option>`).join("")
-      : `<option value="">— เลือก LINE ก่อน —</option>`;
-
     tr.innerHTML=`
       <td><div class="dh" draggable="true">⠿</div></td>
       <td><span class="cr">${i+1}</span></td>
@@ -460,12 +453,16 @@ function renderPlan(m){
       <td style="background:#110c06">${setInput(col,row.id,"plm_actual","#160d0422","#fdba7444",row.plm_actual)}</td>
       <td style="background:#130a13">${setInput(col,row.id,"rework_kg","#130a1322","#9d5aad44",row.rework_kg)}</td>
       <td style="background:#130a13">${setInput(col,row.id,"rework_tanks","#130a1322","#d8b4fe44",row.rework_tanks)}</td>
-      <td><select class="ci" style="width:110px" onchange="_up('${col}','${row.id}','filling_line',this.value)">
+      <td><select class="ci" style="width:110px" onchange="_up('${col}','${row.id}','filling_line',this.value);renderPlan('${m}')">
         <option value="">— เลือก —</option>${lineOpts}
       </select></td>
       <td>
-        <select class="ci" style="width:120px" onchange="_up('${col}','${row.id}','product_name',this.value)">
-          <option value="">— เลือก —</option>${prodOpts}
+        <select class="ci" style="width:130px" onchange="_up('${col}','${row.id}','product_name',this.value)">
+          <option value="">— เลือก —</option>
+          ${(()=>{
+            const cl=lines.find(l=>l.name===row.filling_line);
+            return (cl?.products||[]).map(p=>`<option value="${p.name}"${row.product_name===p.name?' selected':''}>${p.name}</option>`).join('');
+          })()}
         </select>
       </td>
       <td><input class="ci" style="width:72px;text-align:center;letter-spacing:.08em;font-family:var(--mono)" type="text" inputmode="numeric" maxlength="5" value="${row.start_time||""}" placeholder="0800" oninput="
