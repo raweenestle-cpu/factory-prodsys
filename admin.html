@@ -283,6 +283,18 @@ tbody td{padding:7px 10px;vertical-align:middle}
         <input id="np-spd2" class="ci" type="number" value="1000" placeholder="1000">
       </div>
       <div class="form-group">
+        <div class="form-label">Homo Stage 1</div>
+        <input id="np-homo1" class="ci" type="number" placeholder="0">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Homo Stage 2</div>
+        <input id="np-homo2" class="ci" type="number" placeholder="0">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Type</div>
+        <input id="np-type" class="ci" placeholder="เช่น UHT, Pasteurised">
+      </div>
+      <div class="form-group">
         <div class="form-label">สีถัง</div>
         <div style="display:flex;align-items:center;gap:8px">
           <input id="np-color" type="color" value="#60a5fa" style="width:44px;height:36px;border-radius:6px;border:1px solid var(--b1);background:var(--s2);cursor:pointer;padding:2px">
@@ -305,7 +317,7 @@ tbody td{padding:7px 10px;vertical-align:middle}
     <div class="tw">
       <table>
         <thead><tr>
-          <th>Mix Code</th><th>Mix Name</th><th>Density</th><th>Aging (hr)</th><th>Speed M1</th><th>Speed M2</th><th>สีถัง</th><th>จัดการ</th>
+          <th>Mix Code</th><th>Mix Name</th><th>Density</th><th>Aging (hr)</th><th>Speed M1</th><th>Speed M2</th><th>Homo St.1</th><th>Homo St.2</th><th>Type</th><th>สีถัง</th><th>จัดการ</th>
         </tr></thead>
         <tbody id="product-list"></tbody>
       </table>
@@ -356,6 +368,9 @@ tbody td{padding:7px 10px;vertical-align:middle}
     <div class="modal-field"><div class="modal-label">Aging Time (hr)</div><input id="ep-aging" class="ci" type="number" step="0.5"></div>
     <div class="modal-field"><div class="modal-label">Speed M1 (L/hr)</div><input id="ep-spd1" class="ci" type="number"></div>
     <div class="modal-field"><div class="modal-label">Speed M2 (L/hr)</div><input id="ep-spd2" class="ci" type="number"></div>
+    <div class="modal-field"><div class="modal-label">Homo Stage 1</div><input id="ep-homo1" class="ci" type="number"></div>
+    <div class="modal-field"><div class="modal-label">Homo Stage 2</div><input id="ep-homo2" class="ci" type="number"></div>
+    <div class="modal-field"><div class="modal-label">Type</div><input id="ep-type" class="ci" placeholder="เช่น UHT, Pasteurised"></div>
     <div class="modal-field">
       <div class="modal-label">สีถัง</div>
       <div style="display:flex;align-items:center;gap:8px">
@@ -766,6 +781,9 @@ function renderProducts(){
       <td style="font-family:var(--mono)">${p.aging_time||4} hr</td>
       <td style="font-family:var(--mono)">${p.speed_m1||p.speed||1000}</td>
       <td style="font-family:var(--mono)">${p.speed_m2||p.speed||1000}</td>
+      <td style="font-family:var(--mono)">${p.homo_stage1||'—'}</td>
+      <td style="font-family:var(--mono)">${p.homo_stage2||'—'}</td>
+      <td style="font-size:11px;color:var(--t2)">${p.product_type||'—'}</td>
       <td>
         <div style="display:flex;align-items:center;gap:6px">
           <span style="width:20px;height:20px;border-radius:5px;background:${p.color||'#60a5fa'};display:inline-block;border:1px solid rgba(255,255,255,.15)"></span>
@@ -804,7 +822,10 @@ window.addProduct=async()=>{
   if(productsAll.find(p=>p.mix_code===code)){err.textContent="Mix Code นี้มีอยู่แล้ว";return;}
   await addDoc(collection(db,"products"),{
     mix_code:code,mix_name:name,density,aging_time:aging,
-    speed_m1:spd1,speed_m2:spd2,speed:spd1,color,
+    const homo1=+$("np-homo1").value||0;
+  const homo2=+$("np-homo2").value||0;
+  const ptype=$("np-type").value.trim();
+    speed_m1:spd1,speed_m2:spd2,speed:spd1,color,homo_stage1:homo1,homo_stage2:homo2,product_type:ptype,
     createdAt:new Date().toISOString()
   });
   $("np-code").value="";$("np-name").value="";
@@ -820,6 +841,9 @@ window.openEditProduct=(id)=>{
   $("ep-aging").value=p.aging_time||4;
   $("ep-spd1").value=p.speed_m1||p.speed||1000;
   $("ep-spd2").value=p.speed_m2||p.speed||1000;
+  $("ep-homo1").value=p.homo_stage1||0;
+  $("ep-homo2").value=p.homo_stage2||0;
+  $("ep-type").value=p.product_type||"";
   $("ep-color").value=p.color||"#60a5fa";
   $("ep-color-val").textContent=p.color||"#60a5fa";
   $("modal-product").classList.add("show");
@@ -836,6 +860,9 @@ window.saveEditProduct=async()=>{
     speed_m1:+$("ep-spd1").value||1000,
     speed_m2:+$("ep-spd2").value||1000,
     speed:+$("ep-spd1").value||1000,
+    homo_stage1:+$("ep-homo1").value||0,
+    homo_stage2:+$("ep-homo2").value||0,
+    product_type:$("ep-type").value.trim(),
     color:$("ep-color").value||"#60a5fa",
   });
   closeModal("modal-product");
