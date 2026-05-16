@@ -49,48 +49,34 @@ main{padding:16px;display:flex;flex-direction:column;gap:16px}
 
 /* CARDS */
 .tc{border-radius:12px;overflow:hidden;flex-shrink:0;display:flex;flex-direction:column}
-.tc.cur{width:230px;background:var(--s1);border:1.5px solid rgba(255,140,66,.5);box-shadow:0 0 20px rgba(255,140,66,.1)}
-.tc.que{width:168px;background:var(--s2);border:1px solid var(--b1)}
+.tc.cur{width:185px;background:var(--s1);border:1.5px solid rgba(255,140,66,.5);box-shadow:0 0 16px rgba(255,140,66,.1)}
+.tc.que{width:185px;background:var(--s2);border:1px solid var(--b1)}
 
 /* CARD HEAD */
 .ch{padding:10px 12px 6px}
 .ch-topline{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:4px}
 .ch-linename{font-family:var(--mono);font-size:12px;font-weight:800;color:var(--cyan)}
-.tc.cur .ch-linename{font-size:13px}
 .ch-prodname{font-size:12px;font-weight:700;color:var(--text)}
-.tc.cur .ch-prodname{font-size:13px}
 .ch-sep{color:var(--t3);font-size:11px}
-.ch-code{font-family:var(--mono);font-weight:700;color:var(--orange)}
-.tc.cur .ch-code{font-size:14px}.tc.que .ch-code{font-size:11px}
-.ch-name{color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tc.cur .ch-name{font-size:12px}.tc.que .ch-name{font-size:10px}
-.ch-batch{font-family:var(--mono);color:var(--t3)}
-.tc.cur .ch-batch{font-size:11px}.tc.que .ch-batch{font-size:9px}
-.ch-prod{font-family:var(--mono);font-weight:700;color:var(--purple);letter-spacing:.1em;margin-top:3px}
-.tc.cur .ch-prod{font-size:12px}.tc.que .ch-prod{font-size:9px}
-.ch-row{display:flex;align-items:center;gap:5px;margin-top:3px}
-.ch-icon{font-size:11px;width:16px;text-align:center;flex-shrink:0}
-.ch-val{font-family:var(--mono);color:var(--t2)}
-.tc.cur .ch-val{font-size:12px}.tc.que .ch-val{font-size:10px}
+.ch-code{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--orange)}
+.ch-name{font-size:12px;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ch-batch{font-family:var(--mono);font-size:11px;color:var(--t3)}
+.ch-prod{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--purple);letter-spacing:.08em;margin-top:3px}
 
 /* AGING BADGE */
-.ab{font-family:var(--mono);font-weight:700;background:rgba(0,212,255,.1);color:var(--cyan);
+.ab{font-family:var(--mono);font-size:13px;font-weight:700;background:rgba(0,212,255,.1);color:var(--cyan);
   border:1px solid rgba(0,212,255,.3);border-radius:8px;text-align:center;margin:0 10px 6px;padding:4px}
-.tc.cur .ab{font-size:16px}.tc.que .ab{font-size:12px}
 
 /* SVG WRAP */
-.sw{position:relative;margin:0 10px 4px}
+.sw{position:relative;margin:0 8px 4px}
 .sw svg{display:block;width:100%;height:auto}
-.so{position:absolute;top:50%;left:50%;transform:translate(-50%,-52%);text-align:center;pointer-events:none}
-.sv{font-family:var(--mono);font-weight:700;color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.95);line-height:1.2}
-.tc.cur .sv{font-size:15px}.tc.que .sv{font-size:11px}
-.sp{font-family:var(--mono);color:rgba(255,255,255,.9);text-shadow:0 1px 6px rgba(0,0,0,.9);line-height:1.2}
-.tc.cur .sp{font-size:12px}.tc.que .sp{font-size:9px}
+.so{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;width:90%}
+.sv{font-family:var(--mono);font-size:13px;font-weight:700;color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.95);line-height:1.3}
+.sp{font-family:var(--mono);font-size:11px;color:rgba(255,255,255,.9);text-shadow:0 1px 6px rgba(0,0,0,.9);line-height:1.3}
 
-/* STATUS INSIDE TANK AREA */
-.stat-in{text-align:center;padding:0 10px 10px}
-.sbadge{font-family:var(--mono);font-weight:700;padding:4px 12px;border-radius:99px;display:inline-block}
-.tc.cur .sbadge{font-size:11px}.tc.que .sbadge{font-size:9px}
+/* STATUS */
+.stat-in{text-align:center;padding:0 8px 8px}
+.sbadge{font-family:var(--mono);font-size:11px;font-weight:700;padding:3px 10px;border-radius:99px;display:inline-block}
 
 .no-queue{font-family:var(--mono);font-size:12px;color:var(--t3);padding:30px;text-align:center}
 
@@ -128,7 +114,7 @@ let tickTimer,u1,u2,u3,u4;
 
 const today=()=>new Date().toISOString().slice(0,10);
 const $=id=>document.getElementById(id);
-const fmtL=n=>n>=1000?(n/1000).toFixed(1)+'k L':Math.round(n)+' L';
+const fmtL=n=>Math.round(n).toLocaleString()+' L';
 const fmtPct=n=>n.toFixed(1)+'%';
 
 function toast(msg,t='blue'){const el=$('toast');el.textContent=msg;el.style.background=t==='green'?'#0d7a3e':t==='red'?'#8b1a24':'#1a3d8b';el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2500);}
@@ -244,10 +230,10 @@ function card(row,isCur,qNo){
   const agingTank=st.aging_tank||row.aging_tank||'—';
   const fz=st.fz_A||'—';
   const pp=st.pp_A||'—';
-  const prodCode=row.prod_suffix?(row.prod_prefix||'')+row.prod_suffix:'—';
+  const prodCode=row.prod_suffix&&row.prod_prefix?(row.prod_prefix+row.prod_suffix):row.prod_suffix?row.prod_suffix:row.prod_prefix?row.prod_prefix:'—';
   const prodName=row.product_name||'—';
   const uid=(isCur?'C':'Q')+row.id.slice(-8);
-  const sw=isCur?218:153,sh=isCur?200:148;
+  const sw=160,sh=150;
 
   return`<div class="tc ${isCur?'cur':'que'}">
   <div class="ch">
@@ -263,13 +249,7 @@ function card(row,isCur,qNo){
     </div>
     <div class="ch-batch">Batch ${row.batch_no||'—'}</div>
     <div class="ch-prod">${prodCode}</div>
-    ${isCur?`
-    <div class="ch-row" style="margin-top:5px">
-      <span class="ch-icon">🧊</span><span class="ch-val">${fz}</span>
-    </div>
-    <div class="ch-row">
-      <span class="ch-icon">🔧</span><span class="ch-val">${pp}</span>
-    </div>`:''}
+
   </div>
   <div class="ab">${agingTank}</div>
   <div class="sw" id="sw-${uid}">
