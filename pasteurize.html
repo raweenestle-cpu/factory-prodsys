@@ -20,6 +20,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 ::-webkit-scrollbar{width:6px;height:6px}
 ::-webkit-scrollbar-track{background:var(--bg)}
 ::-webkit-scrollbar-thumb{background:var(--b2);border-radius:3px}
+input[type="number"]{-moz-appearance:textfield}
+input[type="number"]::-webkit-inner-spin-button,input[type="number"]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
 
 nav{display:flex;align-items:center;height:52px;background:var(--s1);border-bottom:1px solid var(--b1);position:sticky;top:0;z-index:200;padding:0 16px;gap:8px}
 .nav-logo{font-family:var(--mono);font-size:14px;font-weight:600;letter-spacing:.06em;margin-right:8px}
@@ -223,7 +225,7 @@ thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap
 import { initializeApp }     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { getFirestore, collection, query, where, orderBy, onSnapshot,
-         updateDoc, doc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+         updateDoc, addDoc, deleteDoc, doc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const app = initializeApp({
   apiKey:"AIzaSyC3f6jMuhugE6BNfRfkpOA9BMrIKWR9YgQ",
@@ -304,6 +306,58 @@ window._up=async(col,id,field,val)=>{
   }catch(e){toast("บันทึกไม่สำเร็จ: "+e.message,"red");}
 };
 
+// ── DELETE TIME ───────────────────────────────────────────────────────
+window.deleteTimePrompt=async(col,id,field)=>{
+  if(!confirm("ลบเวลานี้ออก?"))return;
+  const upd={[field]:null};
+  if(field==="past_start_time"){upd.status="pasteurising";upd.past_end_time=null;}
+  if(field==="past_end_time") upd.status="pasteurising";
+  await updateDoc(doc(db,col,id),upd);
+  toast("ลบเวลาแล้ว","green");
+};
+
+// ── ARCHIVE TO HISTORY ────────────────────────────────────────────────
+async function checkAndArchive(p){
+  const done=rows[p].filter(r=>r.status==="past_done"||r.status==="ready");
+  const col=planCol(p);
+
+  // ถ้ามี row เกิน 10 ให้ archive row ที่เสร็จเก่าสุด
+  while(rows[p].length>10&&done.length>0){
+    const oldest=done.sort((a,b)=>(a.seq||0)-(b.seq||0))[0];
+
+    // เช็ค checkbox — ถ้ามี actual > 0 ต้องติ๊กครบก่อน
+    const needGlc=(+oldest.glc_actual||0)>0&&!oldest.glc_confirmed;
+    const needSgr=(+oldest.sgr_actual||0)>0&&!oldest.sgr_confirmed;
+    const needPlm=(+oldest.plm_actual||0)>0&&!oldest.plm_confirmed;
+    if(needGlc||needSgr||needPlm){
+      const missing=[];
+      if(needGlc)missing.push("Glucose");
+      if(needSgr)missing.push("Sugar");
+      if(needPlm)missing.push("Palm Oil");
+      toast(`⚠️ ยังไม่ยืนยัน: ${missing.join(", ")} — ไม่สามารถ Archive ได้`,"red");
+      break;
+    }
+
+    // Archive ไป history
+    try{
+      await addDoc(collection(db,"past_history"),{
+        ...oldest,
+        archived_at:nowHHMM(),
+        archived_date:today(),
+        mixing_unit:p,
+      });
+      await deleteDoc(doc(db,col,oldest.id));
+      toast(`Archive ${oldest.mix_code} แล้ว`,"green");
+    }catch(e){
+      toast("Archive ไม่สำเร็จ: "+e.message,"red");
+      break;
+    }
+    // อัปเดต rows ใน local
+    done.shift();
+    rows[p]=rows[p].filter(r=>r.id!==oldest.id);
+  }
+}
+
 // ── STAMP ─────────────────────────────────────────────────────────────
 window.stampTime=async(col,id,field,p)=>{
   const now=nowHHMM();
@@ -378,10 +432,11 @@ function renderPlan(p){
         <div style="display:flex;align-items:center;gap:4px">
           <button class="stamp-btn ${time?"stamped":""} ${isPulse&&!time?"past-pulse active":""}"
             style="flex:1;min-width:88px;font-size:11px"
+            ${time?"disabled title='Stamp แล้ว กด ✏️ เพื่อแก้ไข'":""}
             onclick="stampTime('${col}','${row.id}','${field}','${p}')">
             ⏱ ${time||label}
           </button>
-          ${time?`<button style="flex-shrink:0;font-size:10px;padding:4px 6px;border-radius:5px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:var(--t2);cursor:pointer" onclick="editTimePrompt('${col}','${row.id}','${field}','${time}')">✏️</button>`:""}
+          ${time?`<button style="flex-shrink:0;font-size:10px;padding:4px 6px;border-radius:5px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:var(--t2);cursor:pointer" onclick="editTimePrompt('${col}','${row.id}','${field}','${time}')">✏️</button><button style="flex-shrink:0;font-size:10px;padding:4px 6px;border-radius:5px;border:1px dashed rgba(240,79,94,.3);background:rgba(240,79,94,.05);color:var(--red);cursor:pointer" onclick="deleteTimePrompt('${col}','${row.id}','${field}')">✕</button>`:""}
         </div>
       </td>`;
 
@@ -393,7 +448,7 @@ function renderPlan(p){
     tr.innerHTML=`
       <td><span class="cr">${i+1}</span></td>
       <td><span style="font-family:var(--mono);font-weight:700">${row.mix_code||"—"}</span></td>
-      <td><span class="ca">${row.mix_name||"—"}</span></td>
+      <td><span style="font-family:var(--mono);font-weight:700;color:var(--blue2)">${row.mix_name||"—"}</span></td>
       <td><span class="cr">${row.batch_no||"—"}</span></td>
       <td><span style="font-family:var(--mono)">${row.volume_liter||"—"}</span></td>
       <td>
@@ -428,8 +483,8 @@ function renderPlan(p){
       </td>
       <td style="padding:4px 6px">
         <div style="display:flex;align-items:center;gap:2px">
-          <span style="font-family:var(--mono);font-size:11px;font-weight:700;color:#a855f7;background:rgba(168,85,247,.1);padding:3px 6px;border-radius:4px 0 0 4px;white-space:nowrap;border:1px solid rgba(168,85,247,.3)">${getProdPrefix(p)}</span>
-          <input class="ci" style="width:58px;letter-spacing:.1em;font-family:var(--mono);font-size:12px;text-transform:uppercase;border-radius:0 4px 4px 0;border-left:none;padding:3px 6px" maxlength="4" value="${row.prod_suffix||''}" placeholder="0001" onchange="_up('${col}','${row.id}','prod_suffix',this.value.toUpperCase())">
+          <span style="font-family:var(--mono);font-size:12px;font-weight:700;color:#a855f7;background:rgba(168,85,247,.1);padding:3px 6px;border-radius:4px 0 0 4px;white-space:nowrap;border:1px solid rgba(168,85,247,.3);letter-spacing:.1em">${getProdPrefix(p)}</span>
+          <input class="ci" style="width:54px;letter-spacing:.1em;font-family:var(--mono);font-size:12px;text-transform:uppercase;border-radius:0 4px 4px 0;border-left:none;padding:3px 6px" maxlength="4" value="${row.prod_suffix||''}" placeholder="0001" onchange="_up('${col}','${row.id}','prod_suffix',this.value.toUpperCase())">
         </div>
       </td>
       <td><span class="stat-badge" style="${statStyle}">${statText}</span></td>`;
@@ -440,6 +495,9 @@ function renderPlan(p){
   $(`${p}-wait`).textContent=rows[p].filter(r=>r.status==="pasteurising"&&!r.past_start_time).length;
   $(`${p}-running`).textContent=rows[p].filter(r=>r.status==="pasteurising"&&!!r.past_start_time).length;
   $(`${p}-done`).textContent=rows[p].filter(r=>r.status==="past_done"||r.status==="ready").length;
+
+  // ถ้าเกิน 10 แถว ให้ archive อัตโนมัติ
+  if(rows[p].length>10) checkAndArchive(p);
 }
 
 
