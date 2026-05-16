@@ -46,9 +46,9 @@ nav{display:flex;align-items:center;height:52px;background:var(--s1);border-bott
 .kpi-val{font-size:22px;font-weight:700;font-family:var(--mono)}
 
 /* TABLE */
-.tw{overflow-x:auto;border-radius:10px;border:1px solid var(--b1)}
-table{width:100%;border-collapse:collapse;font-size:12px}
-thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1px solid var(--b1);position:sticky;top:52px;z-index:10;box-shadow:0 1px 0 var(--b1)}
+.tw{border-radius:10px;border:1px solid var(--b1);overflow:auto;max-height:calc(100vh - 200px)}
+table{width:100%;border-collapse:collapse;font-size:12px;min-width:1100px}
+thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1px solid var(--b1);position:sticky;top:0;z-index:10;box-shadow:0 1px 0 var(--b1)}
 tbody tr{border-bottom:1px solid var(--b1)}
 tbody tr:hover td{background:rgba(255,255,255,.02)}
 tbody td{padding:5px 6px;vertical-align:middle;font-weight:600}
