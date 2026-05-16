@@ -119,10 +119,7 @@ tbody td{padding:5px 6px;vertical-align:middle}
     <div class="toolbar-left">
       <span style="font-family:var(--mono);font-size:10px;color:var(--t3)">DATE</span>
       <input type="date" id="date-m1" class="ci" style="width:140px" onchange="loadPlan('m1')">
-      <div class="prefix-box">
-        <span style="font-size:10px;color:#a855f7;font-family:var(--mono);white-space:nowrap">Prefix M1</span>
-        <input id="prefix-m1" class="ci" maxlength="5" placeholder="AB12C" style="width:70px;letter-spacing:.15em;font-family:var(--mono);text-transform:uppercase;background:transparent;border-color:rgba(168,85,247,.3);color:#c084fc;font-weight:700" oninput="this.value=this.value.toUpperCase()" onchange="savePrefix(1,this.value)">
-      </div>
+
     </div>
     <div class="toolbar-right">
       <button class="btn btn-g btn-s" onclick="exportCSV('m1')">⬇ Export</button>
@@ -150,7 +147,6 @@ tbody td{padding:5px 6px;vertical-align:middle}
           <th colspan="2" style="text-align:center;background:#1a1510;color:#f59e6a;border-bottom:1px solid var(--b2)">🌴 PALM OIL (kg)</th>
           <th colspan="2" style="text-align:center;background:#10181a;color:#6ad4f5;border-bottom:1px solid var(--b2)">🧂 SUGAR (kg)</th>
           <th rowspan="2" style="white-space:nowrap">Filling Line</th>
-          <th rowspan="2" style="white-space:nowrap;color:#a855f7">รหัสผลิต</th>
           <th rowspan="2">Start</th>
           <th rowspan="2">Est.Finish</th>
           <th rowspan="2">Status</th>
@@ -177,10 +173,7 @@ tbody td{padding:5px 6px;vertical-align:middle}
     <div class="toolbar-left">
       <span style="font-family:var(--mono);font-size:10px;color:var(--t3)">DATE</span>
       <input type="date" id="date-m2" class="ci" style="width:140px" onchange="loadPlan('m2')">
-      <div class="prefix-box m2">
-        <span style="font-size:10px;color:#4ade80;font-family:var(--mono);white-space:nowrap">Prefix M2</span>
-        <input id="prefix-m2" class="ci" maxlength="5" placeholder="XY99Z" style="width:70px;letter-spacing:.15em;font-family:var(--mono);text-transform:uppercase;background:transparent;border-color:rgba(34,197,94,.3);color:#4ade80;font-weight:700" oninput="this.value=this.value.toUpperCase()" onchange="savePrefix(2,this.value)">
-      </div>
+
     </div>
     <div class="toolbar-right">
       <button class="btn btn-g btn-s" onclick="exportCSV('m2')">⬇ Export</button>
@@ -208,7 +201,6 @@ tbody td{padding:5px 6px;vertical-align:middle}
           <th colspan="2" style="text-align:center;background:#1a1510;color:#f59e6a;border-bottom:1px solid var(--b2)">🌴 PALM OIL (kg)</th>
           <th colspan="2" style="text-align:center;background:#10181a;color:#6ad4f5;border-bottom:1px solid var(--b2)">🧂 SUGAR (kg)</th>
           <th rowspan="2" style="white-space:nowrap">Filling Line</th>
-          <th rowspan="2" style="white-space:nowrap;color:#a855f7">รหัสผลิต</th>
           <th rowspan="2">Start</th>
           <th rowspan="2">Est.Finish</th>
           <th rowspan="2">Status</th>
