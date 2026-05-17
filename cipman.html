@@ -487,16 +487,16 @@ function fpPanel(lineId,tank){
 
 // SVG TANK
 function tankSVG(uid,pct,col,run){
-  const sw=220,sh=260;
-  const bX=14,bY=24,bW=sw-28,bH=sh-54,nW=44,nH=14,cW=56,cH=8;
+  const sw=160,sh=280; // ผอมสูง เหมือน Filling
+  const bX=18,bY=24,bW=sw-36,bH=sh-60,nW=32,nH=12,cW=42,cH=7;
   const nX=bX+(bW-nW)/2,cX=bX+(bW-cW)/2;
-  const _pct=Math.min(pct,65);
-  const fillH=Math.max(0,(_pct/100)*(bH-10));
-  const fillY=bY+bH-5-fillH;
+  const maxFillH=(bH-6)*0.92; // 100% = 92% ของถัง
+  const fillH=Math.max(0,(pct/100)*maxFillH);
+  const fillY=bY+bH-4-fillH;
   const gid='g'+uid,cid='cl'+uid,lid='l'+uid;
   const barC=pct>50?'#1fd17a':pct>20?'#f5c842':'#f04f5e';
   const waveW=bW*2;
-  const wAmp=5;
+  const wAmp=4;
   return`<svg width="${sw}" height="${sh}" viewBox="0 0 ${sw} ${sh}" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto">
   <defs>
     <linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1">
