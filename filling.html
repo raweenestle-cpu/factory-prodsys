@@ -202,7 +202,9 @@ function getCuringRemain(row){
 
 function getTanks(name){
   return planRows
-    .filter(r=>r.filling_line===name&&(r.status==='ready'||r.status==='past_done'||r.status==='pasteurising'))
+    .filter(r=>r.filling_line===name
+      &&(r.status==='ready'||r.status==='past_done'||r.status==='pasteurising')
+      &&+(r.volume_liter||0)>0) // กรองถังที่มี volume เท่านั้น
     .sort((a,b)=>(a.seq||0)-(b.seq||0));
 }
 function getCurrentTank(tanks){
@@ -391,12 +393,17 @@ function tick(){
   lineNames.forEach(name=>{
     const tanks=getTanks(name);
     if(!tanks.length)return;
+    const cur=getCurrentTank(tanks);
+    const queue=getQueueTanks(tanks,cur);
+    // อัปเดตทุก tank ที่กำลัง pasteurising
     tanks.forEach(row=>{
       if(row.status!=='pasteurising'||!row.past_start_time)return;
       const{filled,pct}=calcVol(row);
       const pctC=pct>50?'#1fd17a':pct>20?'#f5c842':'#f04f5e';
-      const isCur=tanks[0].id===row.id;
-      const uid=(isCur?'C':'Q')+row.id.slice(-8);
+      // isCur ตาม DOM จริง — cur = 'C', queue = 'Q'
+      const isCur=cur&&cur.id===row.id;
+      const isInQueue=queue.find(q=>q.id===row.id);
+      const uid=(isCur?'C':isInQueue?'Q':'Q')+row.id.slice(-8);
       const v=$('vol-'+uid),p=$('pct-'+uid);
       if(v){v.textContent=filled.toFixed(1)+' L';v.style.color=pctC;}
       if(p){p.textContent=pct.toFixed(1)+'%';p.style.color=pctC;}
