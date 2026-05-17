@@ -109,6 +109,103 @@ thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap
 @keyframes blink{0%,100%{opacity:1}40%{opacity:.15}}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(234,179,8,.4)}70%{box-shadow:0 0 0 6px rgba(234,179,8,0)}}
 .mixing-pulse{animation:pulse 1.5s infinite}
+
+/* ── MOBILE RESPONSIVE ──────────────────────────────────────────────── */
+@media(max-width:768px){
+  /* NAV */
+  nav{padding:0 10px;gap:4px}
+  .nav-logo{font-size:12px}
+  .nav-tab{font-size:11px;padding:5px 8px}
+  .nav-user{display:none}
+  .btn-logout{font-size:10px;padding:4px 8px}
+
+  /* PAGE */
+  .page{padding:10px 10px}
+
+  /* TABLE — เปลี่ยนเป็น card layout บนมือถือ */
+  .tw{border:none;background:none;overflow:visible}
+  table,thead,tbody,tr,td,th{display:block;width:100%}
+  thead tr{display:none} /* ซ่อน header */
+  tbody tr{
+    background:var(--s1);
+    border:1px solid var(--b1);
+    border-radius:12px;
+    margin-bottom:10px;
+    padding:12px;
+    position:relative;
+  }
+  tbody tr.row-mixing{border-left:4px solid var(--yellow)!important;background:rgba(234,179,8,.06)!important}
+  tbody tr.row-done{border-left:4px solid var(--green)!important;background:rgba(34,197,94,.06)!important}
+  tbody tr.row-past{border-left:4px solid var(--yellow)!important}
+  tbody td{
+    border:none!important;
+    padding:3px 0;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:13px;
+  }
+  /* ซ่อน td ที่ไม่สำคัญบนมือถือ */
+  tbody td:nth-child(1){display:none} /* drag handle */
+  tbody td:nth-child(2){display:none} /* # */
+
+  /* Set point columns — ซ่อนบนมือถือ แสดงแค่ Actual */
+  tbody td:nth-child(9){display:none}  /* Glc Set */
+  tbody td:nth-child(11){display:none} /* Sgr Set */
+  tbody td:nth-child(13){display:none} /* Plm Set */
+
+  /* Mix Code + Mix Name — ใหญ่ขึ้น */
+  tbody td:nth-child(3) select{width:100%!important;font-size:13px!important}
+  tbody td:nth-child(4) span{font-size:14px!important;font-weight:700!important;color:var(--blue2)!important}
+
+  /* Batch + Volume — inline */
+  tbody td:nth-child(5),tbody td:nth-child(6){display:inline-flex;width:auto;margin-right:10px}
+
+  /* Stamp area — full width */
+  tbody td:nth-child(7),tbody td:nth-child(8){
+    padding:4px 0;
+  }
+  tbody td:nth-child(7) div,tbody td:nth-child(8) div{
+    width:100%;
+  }
+
+  /* label ก่อน actual input */
+  tbody td:nth-child(10)::before{content:"🍬 Glucose: ";font-family:var(--mono);font-size:11px;color:var(--t2);flex-shrink:0}
+  tbody td:nth-child(12)::before{content:"🧂 Sugar: ";font-family:var(--mono);font-size:11px;color:var(--t2);flex-shrink:0}
+  tbody td:nth-child(14)::before{content:"🌴 Palm: ";font-family:var(--mono);font-size:11px;color:var(--t2);flex-shrink:0}
+
+  /* Status badge — full width centered */
+  tbody td:last-child{justify-content:center;padding-top:8px}
+
+  /* Stamp buttons — ใหญ่ขึ้น กดง่าย */
+  .stamp-btn{
+    min-height:44px;
+    font-size:13px!important;
+    padding:8px 14px!important;
+    border-radius:10px!important;
+    flex:1;
+    justify-content:center;
+  }
+
+  /* Act input — ใหญ่ขึ้น */
+  .act-input{
+    width:90px!important;
+    font-size:14px!important;
+    padding:8px 10px!important;
+    min-height:44px;
+  }
+
+  /* Toolbar */
+  .toolbar{flex-direction:column;align-items:stretch;gap:8px}
+  .toolbar .btn{min-height:44px;font-size:13px;text-align:center}
+
+  /* KPI */
+  .kpi-row{grid-template-columns:repeat(2,1fr);gap:8px}
+  .kpi-val{font-size:20px}
+
+  /* Chart */
+  .chart-wrap{height:180px}
+}
 </style>
 </head>
 <body>
