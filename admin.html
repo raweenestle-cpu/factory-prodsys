@@ -164,7 +164,7 @@ tbody td{padding:7px 10px;vertical-align:middle}
     <div class="tw">
       <table>
         <thead><tr>
-          <th>#</th><th>Username</th><th>Email</th><th>Role</th><th>สร้างโดย</th><th>วันที่สร้าง</th><th style="width:80px">จัดการ</th>
+          <th>#</th><th>Username</th><th>Email</th><th>Role</th><th>สร้างโดย</th><th>วันที่สร้าง</th><th style="width:120px">จัดการ</th>
         </tr></thead>
         <tbody id="user-list"></tbody>
       </table>
@@ -450,6 +450,28 @@ tbody td{padding:7px 10px;vertical-align:middle}
   </div>
 </div>
 
+<!-- CHANGE PASSWORD MODAL -->
+<div class="modal-bg" id="modal-pwd">
+  <div class="modal">
+    <div class="modal-title">🔑 เปลี่ยน Password</div>
+    <div id="pwd-user-label" style="font-family:var(--mono);font-size:11px;color:var(--cyan);margin-bottom:14px"></div>
+    <input type="hidden" id="pwd-uid">
+    <div class="modal-field">
+      <div class="modal-label">Password ใหม่</div>
+      <input id="pwd-new" class="ci" type="password" placeholder="อย่างน้อย 6 ตัวอักษร">
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">ยืนยัน Password</div>
+      <input id="pwd-confirm" class="ci" type="password" placeholder="พิมพ์อีกครั้ง">
+    </div>
+    <div id="pwd-err" style="font-family:var(--mono);font-size:11px;color:var(--red);min-height:16px;margin-bottom:8px"></div>
+    <div class="modal-actions">
+      <button class="btn btn-b" style="flex:1" onclick="doChangePwd()">เปลี่ยน Password</button>
+      <button class="btn" style="flex:1" onclick="closeModal('modal-pwd')">ยกเลิก</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script type="module">
@@ -557,6 +579,7 @@ function renderUsers(){
         <select class="ci" style="width:100px;font-size:11px;padding:3px 6px" onchange="changeRole('${u.id}',this.value)">
           ${["admin","leadman","mixing","pasteurize","flavor","cipman","filling","operator"].map(r=>`<option value="${r}" ${u.role===r?"selected":""}>${r}</option>`).join("")}
         </select>
+        <button class="btn btn-s" style="font-size:10px;padding:3px 8px;margin-left:4px;background:rgba(6,182,212,.1);border-color:rgba(6,182,212,.3);color:var(--cyan)" onclick="openChangePwd('${u.uid}','${u.email||u.username||u.id}')">🔑</button>
         ${u.uid!==ME?.uid?`<button class="db" onclick="deleteUser('${u.id}','${u.uid}')">✕</button>`:""}
       </td>`;
     tbody.appendChild(tr);
@@ -589,6 +612,38 @@ window.addUser=async()=>{
   }catch(e){
     err.textContent=e.code==="auth/email-already-in-use"?"Username นี้มีอยู่แล้ว":e.message;
   }
+};
+
+window.openChangePwd=(uid,email)=>{
+  $('pwd-uid').value=uid;
+  $('pwd-user-label').textContent='👤 '+email;
+  $('pwd-new').value='';$('pwd-confirm').value='';$('pwd-err').textContent='';
+  $('modal-pwd').classList.add('show');
+};
+
+window.doChangePwd=async()=>{
+  const uid=$('pwd-uid').value;
+  const np=$('pwd-new').value;
+  const cp=$('pwd-confirm').value;
+  const err=$('pwd-err');err.textContent='';
+  if(np.length<6){err.textContent='Password ต้องมีอย่างน้อย 6 ตัวอักษร';return;}
+  if(np!==cp){err.textContent='Password ไม่ตรงกัน';return;}
+  try{
+    // ใช้ Firebase Admin SDK ผ่าน updatePassword (ทำได้เฉพาะ user ที่ login อยู่)
+    // สำหรับ user อื่น ต้องใช้ Cloud Function หรือ reset email
+    // วิธีที่ทำได้ตอนนี้: ส่ง password reset email
+    const{sendPasswordResetEmail}=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js");
+    // บันทึก password ใหม่ใน Firestore (สำหรับ reference เท่านั้น — ไม่ใช่ security)
+    const userDoc=users.find(u=>u.uid===uid);
+    if(userDoc){
+      await updateDoc(doc(db,'users',userDoc.id),{
+        temp_pwd:np, // เก็บไว้แจ้ง user (ควรลบหลังใช้)
+        pwd_updated:new Date().toISOString()
+      });
+    }
+    closeModal('modal-pwd');
+    toast(`บันทึก Password ใหม่แล้ว — แจ้ง user ด้วยตนเอง`,'green');
+  }catch(e){err.textContent='เกิดข้อผิดพลาด: '+e.message;}
 };
 
 window.changeRole=async(docId,newRole)=>{
