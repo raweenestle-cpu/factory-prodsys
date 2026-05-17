@@ -333,8 +333,9 @@ function calcVol(row){
 function svg(uid,pct,col,run){
   const W=140,H=195;
   const bX=18,bY=22,bW=W-36,bH=H-50;
-  const _pct=Math.min(pct,60); // cap ที่ 60% ดูสมจริง ไม่ล้น
-  const fillH=Math.max(0,(_pct/100)*(bH-6));
+  const _pct=Math.min(pct,100);
+  const maxFillH=(bH-6)*0.92; // 100% = 92% ของถัง
+  const fillH=Math.max(0,(_pct/100)*maxFillH);
   const fillY=bY+bH-3-fillH;
   const gid='g'+uid,cid='c'+uid,wid='wc'+uid;
   const bc=pct>50?'#1fd17a':pct>20?'#f5c842':'#f04f5e';
