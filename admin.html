@@ -106,6 +106,7 @@ tbody td{padding:7px 10px;vertical-align:middle}
   <button class="nav-tab on" onclick="showPage('users',this)">👥 Users</button>
   <button class="nav-tab" onclick="showPage('lines',this)">🏭 LINE Master</button>
   <button class="nav-tab" onclick="showPage('products',this)">🧪 Product Master</button>
+  <button class="nav-tab" onclick="showPage('settings',this)">⚙️ Settings</button>
   <div class="nav-right">
     <span class="nav-role">ADMIN</span>
     <span class="nav-user" id="nav-user"></span>
@@ -385,6 +386,58 @@ tbody td{padding:7px 10px;vertical-align:middle}
   </div>
 </div>
 
+<!-- SETTINGS PAGE -->
+<div class="page" id="page-settings">
+  <div class="sec">
+    <div class="sec-title">⚙️ ระบบ Settings</div>
+
+    <!-- IDLE TIMEOUT -->
+    <div style="background:var(--s2);border:1px solid var(--b1);border-radius:12px;padding:18px 20px;margin-bottom:14px">
+      <div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px">🔒 Auto Logout (Idle Timeout)</div>
+      <div style="font-size:12px;color:var(--t2);margin-bottom:14px">ระบบจะ logout อัตโนมัติเมื่อไม่มีการใช้งานตามเวลาที่กำหนด</div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <select id="idle-sel" class="ci" style="width:180px">
+          <option value="0">ปิด (ไม่ logout)</option>
+          <option value="15">15 นาที</option>
+          <option value="30">30 นาที</option>
+          <option value="60">1 ชั่วโมง</option>
+          <option value="120">2 ชั่วโมง</option>
+          <option value="240">4 ชั่วโมง</option>
+          <option value="480">8 ชั่วโมง (1 กะ)</option>
+        </select>
+        <button class="btn btn-b" onclick="saveIdleTimeout()">บันทึก</button>
+        <span id="idle-status" style="font-family:var(--mono);font-size:11px;color:var(--green)"></span>
+      </div>
+      <div style="margin-top:12px;padding:10px 14px;background:var(--s3);border-radius:8px;border:1px solid var(--b1)">
+        <div style="font-family:var(--mono);font-size:11px;color:var(--t2)">ค่าปัจจุบัน: <span id="idle-current" style="color:var(--cyan);font-weight:700">กำลังโหลด...</span></div>
+      </div>
+    </div>
+
+    <!-- APP INFO -->
+    <div style="background:var(--s2);border:1px solid var(--b1);border-radius:12px;padding:18px 20px">
+      <div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--text);margin-bottom:12px">📋 ข้อมูลระบบ</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:12px">
+          <span style="color:var(--t2)">ระบบ</span>
+          <span style="color:var(--text)">PROD.SYS Factory App</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:12px">
+          <span style="color:var(--t2)">Firebase Project</span>
+          <span style="color:var(--cyan)">production-filling</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:12px">
+          <span style="color:var(--t2)">Hosting</span>
+          <span style="color:var(--cyan)">GitHub Pages</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:12px">
+          <span style="color:var(--t2)">License</span>
+          <span style="color:var(--green)">✅ ไม่มีวันหมดอายุ</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script type="module">
@@ -392,7 +445,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
 import { getAuth, signOut, onAuthStateChanged,
          createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { getFirestore, collection, query, where, orderBy, onSnapshot,
-         addDoc, updateDoc, deleteDoc, getDocs, doc, setDoc }
+         addDoc, updateDoc, deleteDoc, getDocs, doc, setDoc, getDoc }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const app = initializeApp({
@@ -880,11 +933,38 @@ document.getElementById("ep-color").addEventListener("input",e=>{document.getEle
 };
 
 // ── PAGE / MODAL ──────────────────────────────────────────────────────
+// ── IDLE TIMEOUT SETTINGS ─────────────────────────────────────────────
+async function loadIdleSettings(){
+  try{
+    const snap=await getDoc(doc(db,'settings','idle_timeout'));
+    const val=snap.exists()?(snap.data().minutes||0):0;
+    const sel=$('idle-sel');
+    if(sel)sel.value=String(val);
+    const cur=$('idle-current');
+    if(cur)cur.textContent=val===0?'ปิด (ไม่ logout)':val+' นาที';
+  }catch(e){console.warn('loadIdleSettings:',e);}
+}
+
+window.saveIdleTimeout=async()=>{
+  const sel=$('idle-sel');
+  if(!sel)return;
+  const minutes=+sel.value;
+  try{
+    await setDoc(doc(db,'settings','idle_timeout'),{minutes,updatedAt:new Date().toISOString()});
+    const cur=$('idle-current');
+    if(cur)cur.textContent=minutes===0?'ปิด (ไม่ logout)':minutes+' นาที';
+    const st=$('idle-status');
+    if(st){st.textContent='✅ บันทึกแล้ว';setTimeout(()=>{if(st)st.textContent='';},3000);}
+    toast('บันทึก Idle Timeout แล้ว','green');
+  }catch(e){toast('เกิดข้อผิดพลาด: '+e.message,'red');}
+};
+
 window.showPage=(p,btn)=>{
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('on'));
   document.querySelectorAll('.nav-tab').forEach(el=>el.classList.remove('on'));
   $(`page-${p}`).classList.add('on');
   btn.classList.add('on');
+  if(p==='settings')loadIdleSettings();
 };
 
 window.closeModal=(id)=>$(id).classList.remove("show");

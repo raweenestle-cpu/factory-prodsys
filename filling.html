@@ -144,10 +144,34 @@ function toast(msg,t='blue'){const el=$('toast');el.textContent=msg;el.style.bac
 function rgba(h,a){const r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return`rgba(${r},${g},${b},${a})`;}
 function dk(h){return'#'+[1,3,5].map(i=>Math.max(0,parseInt(h.slice(i,i+2),16)-55).toString(16).padStart(2,'0')).join('');}
 
+
+// ── IDLE TIMEOUT ──────────────────────────────────────────────────────
+async function initIdleTimeout(){
+  try{
+    const snap=await getDoc(doc(db,'settings','idle_timeout'));
+    const minutes=snap.exists()?(snap.data().minutes||0):0;
+    if(!minutes||minutes<=0)return;
+    let t;
+    const reset=()=>{
+      clearTimeout(t);
+      t=setTimeout(async()=>{
+        alert('ระบบ logout อัตโนมัติ เนื่องจากไม่มีการใช้งาน '+minutes+' นาที');
+        await signOut(auth);
+        window.location.href='index.html';
+      },minutes*60*1000);
+    };
+    ['mousemove','mousedown','keydown','touchstart','scroll','click'].forEach(e=>{
+      document.addEventListener(e,reset,{passive:true});
+    });
+    reset();
+  }catch(e){console.warn('idleTimeout:',e);}
+}
+
 onAuthStateChanged(auth,async user=>{
   if(!user){location.href='index.html';return;}
   try{const ps=await getDocs(collection(db,'products'));ps.docs.forEach(d=>{const p={id:d.id,...d.data()};productMap[p.mix_code]=p;});}catch{}
   await init();
+  initIdleTimeout();
 });
 window.doLogout=async()=>{clearInterval(tickTimer);[u1,u2,u3,u4].forEach(u=>u&&u());await signOut(auth);location.href='index.html';};
 
@@ -170,41 +194,53 @@ async function init(){
   tickTimer=setInterval(tick,1000);
 }
 
+function parseDateHHMM(dateStr, timeStr){
+  // dateStr = 'YYYY-MM-DD', timeStr = 'HH:MM'
+  if(!dateStr||!timeStr)return null;
+  const[h,m]=timeStr.split(':').map(Number);
+  const d=new Date(dateStr+'T00:00:00');
+  d.setHours(h,m,0,0);
+  return d;
+}
+
 function isCuringDone(row){
   if(!row.past_end_time)return false;
   const p=productMap[row.mix_code]||{};
   const agingHr=+(p.aging_time||4);
-  const[h,m]=row.past_end_time.split(':').map(Number);
-  const curingEndMin=(h*60+m)+(agingHr*60);
-  const now=new Date();
-  const nowMin=now.getHours()*60+now.getMinutes();
-  // รองรับข้ามวัน
-  const adj=curingEndMin>=1440?curingEndMin-1440:curingEndMin;
-  // ถ้า curingEnd ข้ามเที่ยงคืน และ nowMin < 12*60 แสดงว่าผ่านแล้ว
-  if(curingEndMin>=1440&&nowMin<12*60)return true;
-  return nowMin>=adj;
+  // ใช้วันที่ของ batch ถ้าไม่มีใช้วันนี้
+  const dateStr=row.date||new Date().toISOString().slice(0,10);
+  const pastEnd=parseDateHHMM(dateStr,row.past_end_time);
+  if(!pastEnd)return false;
+  const curingEnd=new Date(pastEnd.getTime()+agingHr*3600*1000);
+  return Date.now()>=curingEnd.getTime();
 }
 
 function getCuringRemain(row){
   if(!row.past_end_time)return null;
   const p=productMap[row.mix_code]||{};
   const agingHr=+(p.aging_time||4);
-  const[h,m]=row.past_end_time.split(':').map(Number);
-  const curingEndMin=(h*60+m)+(agingHr*60);
-  const now=new Date();
-  const nowMin=now.getHours()*60+now.getMinutes();
-  let rem=curingEndMin-nowMin;
-  if(curingEndMin>=1440)rem=(curingEndMin-1440)-nowMin;
-  if(rem<=0)return null; // บ่มเสร็จแล้ว
-  const rh=Math.floor(rem/60),rm=Math.floor(rem%60);
+  const dateStr=row.date||new Date().toISOString().slice(0,10);
+  const pastEnd=parseDateHHMM(dateStr,row.past_end_time);
+  if(!pastEnd)return null;
+  const curingEnd=new Date(pastEnd.getTime()+agingHr*3600*1000);
+  const rem=curingEnd.getTime()-Date.now();
+  if(rem<=0)return null;
+  const rh=Math.floor(rem/3600000);
+  const rm=Math.floor((rem%3600000)/60000);
   return rh>0?`${rh}ชม.${rm}น.`:`${rm}น.`;
 }
 
 function getTanks(name){
   return planRows
-    .filter(r=>r.filling_line===name
-      &&(r.status==='ready'||r.status==='past_done'||r.status==='pasteurising')
-      &&+(r.volume_liter||0)>0) // กรองถังที่มี volume เท่านั้น
+    .filter(r=>{
+      if(r.filling_line!==name)return false;
+      if(!['pasteurising','past_done','ready'].includes(r.status))return false;
+      // ต้องมี volume จริงๆ
+      if(+(r.volume_liter||0)<=0)return false;
+      // pasteurising ต้องมี past_start_time ด้วย
+      if(r.status==='pasteurising'&&!r.past_start_time)return false;
+      return true;
+    })
     .sort((a,b)=>(a.seq||0)-(b.seq||0));
 }
 function getCurrentTank(tanks){
