@@ -556,7 +556,7 @@ function renderTankVisual(m,rows){
   let t1Vol=t1Total, t2Vol=t2Total;
   let agVol=0, agPct=0, agName='—', agTank='—', agTime='';
   const lineData=lineMap[agRow?.filling_line||'']||{};
-  const flowRate=+(lineData.flow_rate||300);
+  const speed=+(lineData.flow_rate||5150); // Speed L/hr จาก LINE master
 
   if(agRow?.past_start_time){
     try{
@@ -564,20 +564,16 @@ function renderTankVisual(m,rows){
       const start=new Date((agRow.date||new Date().toISOString().slice(0,10))+'T'+String(h).padStart(2,'0')+':'+String(mm).padStart(2,'0')+':00');
       const elapsedHr=Math.max(0,(Date.now()-start)/3600000);
       const totalVol=+(agRow.volume_liter||0);
-      // ถ้าไม่มี flow_rate ใน LINE ให้คำนวณจาก volume/เวลาทั้งหมดที่ past
-      let estimatedRate=flowRate;
-      if(agRow.past_end_time&&agRow.past_start_time){
-        const[eh,em]=agRow.past_end_time.split(':').map(Number);
-        const[sh,sm]=agRow.past_start_time.split(':').map(Number);
-        const totalHr=((eh*60+em)-(sh*60+sm))/60;
-        if(totalHr>0) estimatedRate=totalVol/totalHr;
-      }
-      agVol=Math.min(totalVol,elapsedHr*Math.max(estimatedRate,flowRate,100));
+      const prod=productMap[agRow.mix_code]||{};
+      const density=+(prod.density||1.1);
+      // สูตร: totalTime(hr) = Volume(L) × Density / Speed(L/hr)
+      const totalTimeHr=(totalVol*density)/speed;
+      // volume ที่ไหลแล้ว = (เวลาที่ผ่านไป / เวลาทั้งหมด) × volume
+      agVol=totalTimeHr>0?Math.min(totalVol,(elapsedHr/totalTimeHr)*totalVol):0;
       agPct=totalVol>0?(agVol/totalVol)*100:0;
       agTank=agRow.aging_tank||'—';
       agName=(agRow.mix_name||'—').slice(0,12);
       agTime=agRow.past_start_time+(agRow.past_end_time?' → '+agRow.past_end_time:'');
-      // ลด volume ถังที่กำลัง past.
       const isT1Active=isT1;
       if(isT1Active) t1Vol=Math.max(0,t1Total-agVol);
       else t2Vol=Math.max(0,t2Total-agVol);
