@@ -229,7 +229,7 @@ tbody td{padding:7px 10px;vertical-align:middle}
     <div class="tw">
       <table>
         <thead><tr>
-          <th>Seq</th><th>ชื่อ LINE</th><th>รหัสสินค้า</th><th>ผลิตภัณฑ์</th><th>Mix Code</th><th>Mix Name</th><th>Flow Rate</th><th>กลุ่ม</th><th>จัดการ</th>
+          <th>Seq</th><th>ชื่อ LINE</th><th>รหัสสินค้า</th><th>ผลิตภัณฑ์</th><th>Mix Code</th><th>Mix Name</th><th>Flow Rate</th><th style="color:var(--cyan)">Aging Tanks</th><th>กลุ่ม</th><th>จัดการ</th>
         </tr></thead>
         <tbody id="lines-bangchan"></tbody>
       </table>
@@ -242,7 +242,7 @@ tbody td{padding:7px 10px;vertical-align:middle}
     <div class="tw">
       <table>
         <thead><tr>
-          <th>Seq</th><th>ชื่อ LINE</th><th>รหัสสินค้า</th><th>ผลิตภัณฑ์</th><th>Mix Code</th><th>Mix Name</th><th>Flow Rate</th><th>กลุ่ม</th><th>จัดการ</th>
+          <th>Seq</th><th>ชื่อ LINE</th><th>รหัสสินค้า</th><th>ผลิตภัณฑ์</th><th>Mix Code</th><th>Mix Name</th><th>Flow Rate</th><th style="color:var(--cyan)">Aging Tanks</th><th>กลุ่ม</th><th>จัดการ</th>
         </tr></thead>
         <tbody id="lines-twin"></tbody>
       </table>
@@ -342,6 +342,7 @@ tbody td{padding:7px 10px;vertical-align:middle}
     <div class="modal-field"><div class="modal-label">ผลิตภัณฑ์หลัก</div><input id="el-product" class="ci"></div>
     <div class="modal-field"><div class="modal-label">Flow Rate (L/hr)</div><input id="el-flow" class="ci" type="number"></div>
     <div class="modal-field"><div class="modal-label">ลำดับ (Seq)</div><input id="el-seq" class="ci" type="number"></div>
+    <div class="modal-field"><div class="modal-label">Aging Tanks (คั่นด้วย , เช่น T01,T02,T03)</div><input id="el-aging" class="ci" placeholder="T01, T02, T03"></div>
     <!-- Multi Products with Mix Codes -->
     <div class="modal-field" style="margin-top:10px">
       <div class="modal-label" style="margin-bottom:8px">🏷️ ผลิตภัณฑ์ใน LINE นี้ (เพิ่มได้ไม่จำกัด)</div>
@@ -689,6 +690,7 @@ function renderLines(){
         <td style="max-width:120px">${mixCodeHTML}</td>
         <td style="max-width:140px">${mixNameHTML}</td>
         <td style="font-family:var(--mono)">${l.flow_rate||300} L/hr</td>
+        <td style="font-family:var(--mono);font-size:11px;color:var(--cyan);max-width:120px">${(l.aging_tanks||[]).join(', ')||'—'}</td>
         <td><span style="font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:4px;background:${g==="bangchan"?"rgba(59,130,246,.1)":"rgba(168,85,247,.1)"};color:${g==="bangchan"?"var(--blue2)":"var(--purple)"}">${g==="bangchan"?"Bangchan":"Twin"}</span></td>
         <td>
           <button class="edit-btn" onclick="openEditLine('${l.id}')">✏️</button>
@@ -796,6 +798,7 @@ window.openEditLine=(id)=>{
   $("el-product").value=l.product||"";
   $("el-flow").value=l.flow_rate||300;
   $("el-seq").value=l.seq||1;
+  $("el-aging").value=(l.aging_tanks||[]).join(', ');
   editLineProducts=JSON.parse(JSON.stringify(l.products||[]));
   renderEditProdList();
   $("modal-line").classList.add("show");
@@ -865,6 +868,8 @@ window.removeMixFromProduct=(pi,mi)=>{
 window.saveEditLine=async()=>{
   const id=$("el-id").value;
   if(!id){toast("ไม่พบ LINE ID","red");return;}
+  const agingRaw=$("el-aging").value;
+  const agingTanks=agingRaw.split(',').map(t=>t.trim().toUpperCase()).filter(t=>t);
   try{
     await updateDoc(doc(db,"lines",id),{
       name:$("el-name").value.trim(),
@@ -874,6 +879,7 @@ window.saveEditLine=async()=>{
       flow_rate:+$("el-flow").value||300,
       seq:+$("el-seq").value||1,
       products:editLineProducts,
+      aging_tanks:agingTanks,
     });
     closeModal("modal-line");
     toast("แก้ไข LINE แล้ว","green");
