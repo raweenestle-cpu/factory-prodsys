@@ -1033,11 +1033,12 @@ function renderPlan(p){
     tbody.appendChild(tr);
   });
 
-  $(`${p}-total`).textContent=rows[p].length;
-  $(`${p}-bat-all`).textContent=rows[p].length;
-  $(`${p}-wait`).textContent=rows[p].filter(r=>r.status==="pasteurising"&&!r.past_start_time).length;
-  $(`${p}-running`).textContent=rows[p].filter(r=>r.status==="pasteurising"&&!!r.past_start_time).length;
-  $(`${p}-done`).textContent=rows[p].filter(r=>r.status==="past_done"||r.status==="ready").length;
+  const safeSet=(id,val)=>{const el=document.getElementById(id);if(el)el.textContent=val;};
+  safeSet(`${p}-total`,rows[p].length);
+  safeSet(`${p}-bat-all`,rows[p].length);
+  safeSet(`${p}-wait`,rows[p].filter(r=>r.status==="pasteurising"&&!r.past_start_time).length);
+  safeSet(`${p}-running`,rows[p].filter(r=>r.status==="pasteurising"&&!!r.past_start_time).length);
+  safeSet(`${p}-done`,rows[p].filter(r=>r.status==="past_done"||r.status==="ready").length);
 
   // ── Volume by Shift (pro-rata) ────────────────────────────────────────
   const SHIFTS=[
