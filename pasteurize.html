@@ -356,7 +356,7 @@ const app = initializeApp({
 const auth = getAuth(app);
 const db   = getFirestore(app);
 
-let ME=null, productMap={};
+let ME=null, productMap={}, lineMap={};
 let rows={p1:[],p2:[]};
 let unsub={p1:null,p2:null};
 let charts={};
@@ -411,6 +411,9 @@ onAuthStateChanged(auth,async user=>{
   try{
     const ps=await getDocs(collection(db,"products"));
     ps.docs.forEach(d=>{const p={id:d.id,...d.data()};productMap[p.mix_code]=p;});
+    // โหลด LINE master เพื่อดึง aging_tanks
+    const ls=await getDocs(collection(db,"lines"));
+    ls.docs.forEach(d=>{const l={id:d.id,...d.data()};if(l.name)lineMap[l.name]=l;});
   }catch{}
 
   $("nav-user").textContent=user.email.replace("@filling.local","");
@@ -618,9 +621,22 @@ function renderPlan(p){
         </div>
       </td>
       <td style="padding:4px 6px">
-        <input class="ci" style="width:80px;font-family:var(--mono);font-size:11px;padding:4px 7px" 
-          value="${row.aging_tank||''}" placeholder="เช่น T-01" 
-          onchange="_up('${col}','${row.id}','aging_tank',this.value)">
+        ${(()=>{
+          // ดึง aging_tanks จาก LINE ที่เลือก
+          const lineName=row.filling_line||'';
+          const lineData=lineMap[lineName];
+          const tanks=lineData?.aging_tanks||[];
+          if(!tanks.length){
+            return `<input class="ci" style="width:80px;font-family:var(--mono);font-size:11px;padding:4px 7px"
+              value="${row.aging_tank||''}" placeholder="T-01"
+              onchange="_up('${col}','${row.id}','aging_tank',this.value)">`;
+          }
+          return `<select class="ci" style="width:90px;font-family:var(--mono);font-size:11px;padding:4px 6px"
+            onchange="_up('${col}','${row.id}','aging_tank',this.value)">
+            <option value="">— เลือก —</option>
+            ${tanks.map(t=>`<option value="${t}" ${row.aging_tank===t?'selected':''}>${t}</option>`).join('')}
+          </select>`;
+        })()}
       </td>
       <td style="padding:4px 6px">
         <div style="display:flex;align-items:center;gap:2px">
