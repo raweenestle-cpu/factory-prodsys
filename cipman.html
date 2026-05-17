@@ -502,33 +502,26 @@ function queueList(q,accent,lineId){
   }).join('');
 }
 
-// BUILD CARD — vertical layout
+// BUILD CARD — left: current tank, right: queue info only
 function buildCard(line){
   const tanks=getTanksForLine(line.name);
   const current=tanks[0]||null;
+  const queue=tanks.slice(1);
   const st=lineStates[line.id]||{};
   const isRunning=st.running&&!!st.start_ts;
-
-  // ถ้า current ยังเป็น pasteurising ให้แสดงเป็น curing (กำลังพาส/บ่ม)
   const isPasteurising=current&&(current.status==='pasteurising'||current.status==='past_done');
   const curing=current&&!isPasteurising?getCuringInfo(current,line.id):{done:false,endTime:'—'};
   const cardStatus=isRunning?'running':isPasteurising?'curing':current&&!curing.done?'curing':current?'stopped':'empty';
   const pm={running:'sp-run',curing:'sp-cur',stopped:'sp-stp',empty:'sp-emp'};
   const pt={running:'● กำลังเดิน',curing:current?.status==='pasteurising'?'♨️ กำลัง Past.':'⏳ กำลังบ่ม',stopped:'⏸ หยุด',empty:'○ ว่าง'};
 
-  // EMPTY
   if(!current)return`<div class="lcard empty" id="card-${line.id}">
     <div class="accent"></div>
-    <div class="lhead">
-      <div class="lhead-top">
-        <div class="lname">LINE: ${line.name.toUpperCase()}</div>
-        <span class="spill sp-emp">○ ว่าง</span>
-      </div>
-    </div>
-    <div style="text-align:center;padding:40px 20px">
-      <div style="font-size:48px;opacity:.1;margin-bottom:8px">🏭</div>
-      <div style="font-family:var(--mono);font-size:12px;color:var(--t3)">ไม่มีถังที่พร้อม</div>
-    </div>
+    <div class="lhead"><div class="lhead-top">
+      <div class="lname">LINE: ${line.name.toUpperCase()}</div>
+      <span class="spill sp-emp">○ ว่าง</span>
+    </div></div>
+    <div style="text-align:center;padding:30px;color:var(--t3);font-family:var(--mono);font-size:12px">ไม่มีถังที่พร้อม</div>
   </div>`;
 
   const col=productMap[current.mix_code]?.color||'#60a5fa';
@@ -540,79 +533,109 @@ function buildCard(line){
   const pctC=pctColor(pct);
   const fp=getFP(line.id,'A');
   const agingTank=st.aging_tank||current.aging_tank||'—';
+  const yr=new Date().getFullYear().toString().slice(-1);
+  const unit=current._col==='production_plans_m2'?'2':'1';
+  const prodCode=current.prod_suffix?(yr+'0522'+unit+current.prod_suffix):'—';
+
+  // Queue items — text only, no SVG
+  function queueItem(row,idx){
+    const p=productMap[row.mix_code]||{};
+    const curingEnd=row.past_end_time?calcCuringEnd(row.past_end_time,+(p.aging_time||4)):'—';
+    const ryr=new Date().getFullYear().toString().slice(-1);
+    const runit=row._col==='production_plans_m2'?'2':'1';
+    const rpc=row.prod_suffix?(ryr+'0522'+runit+row.prod_suffix):'—';
+    const dot=p.color||'#60a5fa';
+    let stTxt='—',stC='var(--t2)';
+    if(row.status==='pasteurising'&&!row.past_end_time){stTxt='♨️ Past.';stC='var(--orange)';}
+    else if(row.status==='past_done'||row.status==='pasteurising'){stTxt='🌡️ บ่มอยู่';stC='var(--yellow)';}
+    if(row.past_end_time&&curingEnd!=='—'){stTxt+=` → ${curingEnd}`;} 
+    return`<div style="background:var(--s2);border:1px solid var(--b1);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:5px">
+      <div style="display:flex;align-items:center;gap:6px">
+        <span style="font-family:var(--mono);font-size:10px;color:var(--t3);min-width:14px">${idx}</span>
+        <span style="width:8px;height:8px;border-radius:50%;background:${dot};flex-shrink:0"></span>
+        <span style="font-family:var(--mono);font-size:12px;font-weight:700;color:${dot}">${row.mix_code||'—'}</span>
+        <span style="font-family:var(--mono);font-size:12px;font-weight:700;color:${dot}">|</span>
+        <span style="font-family:var(--mono);font-size:12px;font-weight:700;color:${dot}">${row.mix_name||'—'}</span>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;padding-left:20px">
+        <span style="font-family:var(--mono);font-size:11px;color:var(--t2)">Batch ${row.batch_no||'—'}</span>
+        <span style="font-family:var(--mono);font-size:11px;color:var(--t2)">${(+(row.volume_liter||0)).toLocaleString()} L</span>
+        ${row.aging_tank?`<span style="font-family:var(--mono);font-size:11px;color:var(--cyan)">🪣 ${row.aging_tank}</span>`:''}
+      </div>
+      <div style="padding-left:20px">
+        <span style="font-family:var(--mono);font-size:11px;color:var(--purple)">${rpc}</span>
+      </div>
+      <div style="padding-left:20px">
+        <span style="font-family:var(--mono);font-size:10px;font-weight:700;color:${stC};background:${stC}22;padding:2px 8px;border-radius:99px;border:1px solid ${stC}44">${stTxt}</span>
+      </div>
+    </div>`;
+  }
 
   return`<div class="lcard ${cardStatus}" id="card-${line.id}">
     <div class="accent"></div>
+    <div style="display:flex;align-items:stretch;min-height:420px">
 
-    <!-- HEADER CARD -->
-    <div class="lhead">
-      <div class="lhead-top">
-        <div class="lname">LINE: ${line.name.toUpperCase()}</div>
-        <span class="spill ${pm[cardStatus]}">${pt[cardStatus]}</span>
-      </div>
-      <div class="lhead-info">
-        <span class="mix-code">${current.mix_code||'—'}</span>
-        <span class="mix-sep">|</span>
-        <span class="mix-name">${current.mix_name||'—'}</span>
-        <span class="batch-pill">Batch ${current.batch_no||'—'}</span>
-      </div>
-      <div class="lhead-tags">
-        <span class="ltag">📦 ${(+(current.volume_liter||0)).toLocaleString()} L</span>
-        <span class="ltag">💧 ${fr} L/hr</span>
-        ${fp.fz?`<span class="ltag hi">🧊 ${fp.fz}</span>`:''}
-        ${fp.pp?`<span class="ltag">🔧 ${fp.pp}</span>`:''}
-      </div>
-      ${fpPanel(line.id,'A')}
-    </div>
-
-    <!-- TANK AREA -->
-    <div class="tank-area">
-      <div class="tank-num-badge">${agingTank}</div>
-      ${tankSVG('S'+line.id,pct,col,isRunning)}
-      <div class="tank-stats">
-        <div class="tank-vol" id="vol-S${line.id}" style="color:${pctC}">${fmtL(rem)} L</div>
-        <div class="prog-wrap">
-          <div class="prog-bg">
-            <div class="prog-fill" id="bar-S${line.id}" style="width:${pct.toFixed(1)}%;background:${pctC}"></div>
+      <!-- LEFT — ถังปัจจุบัน -->
+      <div style="flex-shrink:0;width:260px;border-right:1px solid rgba(255,140,66,.2);background:rgba(255,140,66,.04);display:flex;flex-direction:column">
+        <div style="padding:12px 14px;border-bottom:1px solid var(--b1)">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <div style="font-family:var(--mono);font-size:16px;font-weight:800;color:var(--orange)">LINE: ${line.name.toUpperCase()}</div>
+            <span class="spill ${pm[cardStatus]}">${pt[cardStatus]}</span>
+          </div>
+          <div style="display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;margin-bottom:4px">
+            <span style="font-family:var(--mono);font-size:13px;font-weight:700;color:${col}">${current.mix_code||'—'}</span>
+            <span style="color:var(--t3);font-size:11px">|</span>
+            <span style="font-family:var(--mono);font-size:13px;font-weight:700;color:${col}">${current.mix_name||'—'}</span>
+          </div>
+          <div style="font-family:var(--mono);font-size:11px;color:var(--t2);margin-bottom:2px">Batch ${current.batch_no||'—'} · ${(+(current.volume_liter||0)).toLocaleString()} L</div>
+          <div style="font-family:var(--mono);font-size:12px;font-weight:700;color:var(--purple)">${prodCode}</div>
+          <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">
+            ${fp.fz?`<span class="ltag hi">🧊 ${fp.fz}</span>`:''}
+            ${fp.pp?`<span class="ltag">🔧 ${fp.pp}</span>`:''}
+          </div>
+          ${fpPanel(line.id,'A')}
+        </div>
+        <div class="tank-area" style="flex:1">
+          <div class="tank-num-badge">${agingTank}</div>
+          ${tankSVG('S'+line.id,pct,col,isRunning)}
+          <div class="tank-stats">
+            <div class="tank-vol" id="vol-S${line.id}" style="color:${pctC}">${fmtL(rem)} L</div>
+            <div class="prog-wrap"><div class="prog-bg"><div class="prog-fill" id="bar-S${line.id}" style="width:${pct.toFixed(1)}%;background:${pctC}"></div></div></div>
+            <div class="tank-pct" id="pct-S${line.id}" style="color:${pctC}">${pct.toFixed(1)}%</div>
+            <div class="tank-eta" id="eta-S${line.id}">${getEtaStr(rem,fr,isRunning)}</div>
+          </div>
+          <div class="curing-box ${curing.done?'done':'pend'}">
+            <div class="curing-icon">${current.status==='pasteurising'?'♨️':curing.done?'✅':'⏳'}</div>
+            <div class="curing-txt" style="color:${current.status==='pasteurising'?'var(--orange)':curing.done?'var(--green)':'var(--yellow)'}">
+              ${current.status==='pasteurising'?'กำลัง Pasteurize':curing.done?'บ่มเสร็จแล้ว':'กำลังบ่ม'}
+            </div>
+            <div class="curing-time">Past.เสร็จ ${current.past_end_time||'รอ...'} → บ่มเสร็จ ${current.status==='pasteurising'?'รอ Past.':curing.endTime}</div>
           </div>
         </div>
-        <div class="tank-pct" id="pct-S${line.id}" style="color:${pctC}">${pct.toFixed(2)}%</div>
-        <div class="tank-eta" id="eta-S${line.id}">${getEtaStr(rem,fr,isRunning)}</div>
-      </div>
-      <div class="curing-box ${curing.done?'done':'pend'}">
-        <div class="curing-icon">${current.status==='pasteurising'?'♨️':curing.done?'✅':'⏳'}</div>
-        <div class="curing-txt" style="color:${current.status==='pasteurising'?'var(--orange)':curing.done?'var(--green)':'var(--yellow)'}">
-          ${current.status==='pasteurising'?'กำลัง Pasteurize':curing.done?'บ่มเสร็จแล้ว':'กำลังบ่ม'}
+        <div class="ctrl-area">
+          <div class="ctrl-lbl">ควบคุมถัง</div>
+          <div class="ctrl-btns">
+            <button class="cbtn start" ${isRunning||!curing.done?'disabled':''} onclick="startLine('${line.id}',${sv},${fr})"><span class="cbtn-icon">▶</span>Start</button>
+            <button class="cbtn stop" ${!isRunning?'disabled':''} onclick="stopLine('${line.id}')"><span class="cbtn-icon">⏸</span>Stop</button>
+            <button class="cbtn reset" onclick="resetLine('${line.id}')"><span class="cbtn-icon">↺</span>Reset</button>
+          </div>
+          <button class="empty-btn" onclick="askEmpty('${line.id}','${current._col}','${current.id}','${line.name}')">🪣 หมดถัง — บันทึกและโหลดถัดไป</button>
         </div>
-        <div class="curing-time">Past. ${current.past_end_time||'รอ stamp...'} → บ่มเสร็จ ${current.status==='pasteurising'?'(รอ Past. เสร็จ)':curing.endTime}</div>
       </div>
-    </div>
 
-    <!-- CONTROLS -->
-    <div class="ctrl-area">
-      <div class="ctrl-lbl">ควบคุมถัง</div>
-      <div class="ctrl-btns">
-        <button class="cbtn start" ${isRunning||!curing.done?'disabled':''} onclick="startLine('${line.id}',${sv},${fr})">
-          <span class="cbtn-icon">▶</span>Start
-        </button>
-        <button class="cbtn stop" ${!isRunning?'disabled':''} onclick="stopLine('${line.id}')">
-          <span class="cbtn-icon">⏸</span>Stop
-        </button>
-        <button class="cbtn reset" onclick="resetLine('${line.id}')">
-          <span class="cbtn-icon">↺</span>Reset
-        </button>
+      <!-- RIGHT — คิวถัดไป (ข้อมูลอย่างเดียว) -->
+      <div style="flex:1;padding:12px 14px;background:rgba(0,0,0,.1);overflow-y:auto">
+        <div style="font-family:var(--mono);font-size:10px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px;display:flex;align-items:center;gap:6px">
+          <span style="width:8px;height:8px;border-radius:50%;background:var(--t3)"></span>คิวรอผลิตถัดไป
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          ${queue.length?queue.map((r,i)=>queueItem(r,i+2)).join(''):'<div style="font-family:var(--mono);font-size:12px;color:var(--t3);padding:20px;text-align:center">ไม่มีคิวถัดไป</div>'}
+        </div>
       </div>
-      <button class="empty-btn" onclick="askEmpty('${line.id}','${current._col}','${current.id}','${line.name}')">
-        🪣 หมดถัง — บันทึกและโหลดถัดไป
-      </button>
-    </div>
 
-    <!-- QUEUE -->
-    <div class="queue-area">
-      <div class="queue-lbl">📋 คิวทั้งหมด</div>
-      <div class="qlist">${queueList(tanks,'var(--blue2)',line.id)}</div>
     </div>
   </div>`;
+}
 }
 
 // RENDER ALL
