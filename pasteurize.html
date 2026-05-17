@@ -561,12 +561,11 @@ function renderTankVisual(m,rows){
 
   const ac=isFlowing?'#22c55e':'#374151';
   const pc=isFlowing?'#06b6d4':'#1e2535';
-  const pf=isFlowing?'.75':'.3';
-  const gf=`url(#gf${m})`;
+  const pf=isFlowing?'.8':'.3';
 
   function fill(vol,total,gid,cid,tw,th,c1,c2){
     if(total<=0||vol<=0)return'';
-    const pct=Math.min(vol/total,1),fh=Math.round((th-6)*pct*0.92),fy=th-3-fh;
+    const pct=Math.min(vol/total,1),fh=Math.round((th-4)*pct*0.92),fy=th-2-fh;
     return `<defs>
       <linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0%" stop-color="${c1}" stop-opacity=".9"/>
@@ -575,55 +574,64 @@ function renderTankVisual(m,rows){
       <clipPath id="${cid}"><rect x="1" y="1" width="${tw-2}" height="${th-2}" rx="7"/></clipPath>
     </defs>
     <g clip-path="url(#${cid})">
-      <rect x="1" y="${fy+2}" width="${tw-2}" height="${fh+4}" fill="url(#${gid})"/>
-      ${isFlowing?`<path d="M1,${fy+2} C${tw*.25},${fy-3} ${tw*.75},${fy-3} ${tw-1},${fy+2} C${tw*1.25},${fy+7} ${tw*1.75},${fy+7} ${tw*2-1},${fy+2} L${tw*2},${fy+fh+6} L1,${fy+fh+6} Z" fill="${c1}88"><animateTransform attributeName="transform" type="translate" from="0,0" to="${-tw},0" dur="2.2s" repeatCount="indefinite"/></path>`:''}
-      <rect x="3" y="${fy+5}" width="7" height="${Math.max(0,fh*.4)}" rx="3" fill="rgba(255,255,255,.08)"/>
+      <rect x="1" y="${fy+2}" width="${tw-2}" height="${fh+3}" fill="url(#${gid})"/>
+      ${isFlowing?`<path d="M1,${fy+2} C${tw*.25},${fy-3} ${tw*.75},${fy-3} ${tw-1},${fy+2} C${tw*1.25},${fy+7} ${tw*1.75},${fy+7} ${tw*2-1},${fy+2} L${tw*2},${fy+fh+5} L1,${fy+fh+5} Z" fill="${c1}88"><animateTransform attributeName="transform" type="translate" from="0,0" to="${-tw},0" dur="2.2s" repeatCount="indefinite"/></path>`:''}
+      <rect x="3" y="${fy+5}" width="6" height="${Math.max(0,fh*.4)}" rx="3" fill="rgba(255,255,255,.08)"/>
     </g>`;
   }
 
   function valve(x,y,open){
     const c=open?ac:'#2d3748';
-    return `<circle cx="${x}" cy="${y}" r="10" fill="#060a14" stroke="${c}" stroke-width="2"/>
-    <path d="M${x-7},${y} L${x},${y-7} L${x+7},${y} L${x},${y+7} Z" fill="${c}" opacity="${open?'.9':'.5'}"/>
-    <line x1="${x}" y1="${y-10}" x2="${x}" y2="${y+10}" stroke="${c}" stroke-width="2.5"/>
-    ${open?`<circle cx="${x}" cy="${y}" r="13" fill="none" stroke="${c}" stroke-width="1.2" opacity=".0"><animate attributeName="r" from="11" to="18" dur="1.4s" repeatCount="indefinite"/><animate attributeName="opacity" from=".7" to="0" dur="1.4s" repeatCount="indefinite"/></circle>`:''}`;
+    return `<circle cx="${x}" cy="${y}" r="9" fill="#060a14" stroke="${c}" stroke-width="1.8"/>
+    <path d="M${x-6},${y} L${x},${y-6} L${x+6},${y} L${x},${y+6} Z" fill="${c}" opacity="${open?'.9':'.5'}"/>
+    <line x1="${x}" y1="${y-9}" x2="${x}" y2="${y+9}" stroke="${c}" stroke-width="2"/>
+    ${open?`<circle cx="${x}" cy="${y}" r="11" fill="none" stroke="${c}" stroke-width="1" opacity=".0">
+      <animate attributeName="r" from="10" to="17" dur="1.4s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" from=".6" to="0" dur="1.4s" repeatCount="indefinite"/>
+    </circle>`:''}`;
   }
 
   function pumpSVG(x,y,run){
     const c=run?ac:'#2d3748';
     const sp=run?'pump-spin 1.3s linear infinite':'none';
-    return `<circle cx="${x}" cy="${y}" r="22" fill="#06101e" stroke="${c}" stroke-width="2.2" ${run?`filter="${gf}"`:''}/>
-    <circle cx="${x}" cy="${y}" r="15" fill="#040c1a" stroke="${c}44" stroke-width="1.2"/>
+    const gf=run?`filter="url(#gf${m})"`:'' ;
+    return `<circle cx="${x}" cy="${y}" r="20" fill="#06101e" stroke="${c}" stroke-width="2.2" ${gf}/>
+    <circle cx="${x}" cy="${y}" r="13" fill="#040c1a" stroke="${c}44" stroke-width="1.2"/>
     <g transform-origin="${x} ${y}" style="animation:${sp};transform-box:fill-box">
-      <line x1="${x}" y1="${y-12}" x2="${x}" y2="${y+12}" stroke="${c}" stroke-width="2.8" stroke-linecap="round"/>
-      <line x1="${x-12}" y1="${y}" x2="${x+12}" y2="${y}" stroke="${c}" stroke-width="2.8" stroke-linecap="round"/>
-      <line x1="${x-8}" y1="${y-8}" x2="${x+8}" y2="${y+8}" stroke="${c}77" stroke-width="1.8" stroke-linecap="round"/>
-      <line x1="${x+8}" y1="${y-8}" x2="${x-8}" y2="${y+8}" stroke="${c}77" stroke-width="1.8" stroke-linecap="round"/>
+      <line x1="${x}" y1="${y-10}" x2="${x}" y2="${y+10}" stroke="${c}" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="${x-10}" y1="${y}" x2="${x+10}" y2="${y}" stroke="${c}" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="${x-7}" y1="${y-7}" x2="${x+7}" y2="${y+7}" stroke="${c}77" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="${x+7}" y1="${y-7}" x2="${x-7}" y2="${y+7}" stroke="${c}77" stroke-width="1.5" stroke-linecap="round"/>
       <circle cx="${x}" cy="${y}" r="4" fill="${c}"/>
-    </g>
-    <text x="${x}" y="${y+35}" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" font-weight="700" fill="${c}">PUMP</text>`;
+    </g>`;
   }
 
-  function pipes(d,on){
-    const p=on?`<path d="${d}" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 16" opacity=".9"><animate attributeName="stroke-dashoffset" from="24" to="0" dur="0.65s" repeatCount="indefinite"/></path>`:'';
-    return `<path d="${d}" fill="none" stroke="#0a1220" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="${d}" fill="none" stroke="${pc}" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" opacity="${pf}" ${on?`filter="${gf}"`:''}/>
-    ${p}`;
+  function pipe(d,on){
+    const gf=on?`filter="url(#gf${m})"`:'' ;
+    const particle=on?`<path d="${d}" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7 14" opacity=".9"><animate attributeName="stroke-dashoffset" from="21" to="0" dur="0.6s" repeatCount="indefinite"/></path>`:'';
+    return `<path d="${d}" fill="none" stroke="#080e1a" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="${d}" fill="none" stroke="${pc}" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" opacity="${pf}" ${gf}/>
+    ${particle}`;
   }
 
   const el=document.getElementById('tank-visual-'+m);
   if(!el)return;
 
-  // Layout 760×170
-  // T1: x=20,y=20 w=72 h=108
-  // T2: x=110,y=20 w=72 h=108
-  // Pipe T1 right outlet → y=72
-  // Pipe T2 right outlet → y=72
-  // Valve1 after T1: x=208,y=57
-  // Valve2 after T2: x=208,y=87
-  // Join→pump x=310,y=72
-  // Outlet valve x=368,y=72
-  // Aging: x=460,y=8 w=90 h=145
+  // LAYOUT (viewBox 400 x 340)
+  // Mix T1: center x=90, top y=10, w=80, h=100  → bottom center = (90, 110)
+  // Mix T2: center x=230, top y=10, w=80, h=100 → bottom center = (230, 110)
+  // Pipe T1 bottom → down to y=135 → right to x=160,y=135
+  // Pipe T2 bottom → down to y=135 → left to x=160,y=135
+  // Join at x=160,y=135 → down to valve at y=160
+  // Valve at (160,165)
+  // Pump at (160,200)
+  // Valve at (160,235)
+  // Pipe down to Aging tank bottom center (160,260)
+  // Aging T: center x=160, bottom y=340, w=100, h=80 → y from 260 to 340
+
+  const t1cx=90, t2cx=230, jx=160;
+  const tw=80, th=100;
+  const t1x=t1cx-tw/2, t2x=t2cx-tw/2;
 
   el.innerHTML=`<div class="flow-wrap" style="padding:8px 14px">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
@@ -632,92 +640,91 @@ function renderTankVisual(m,rows){
       ${isFlowing?'🟢 Pasteurising · '+agTime:'⚪ Standby'}
     </span>
   </div>
-  <svg viewBox="0 0 560 170" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;max-height:155px">
+  <svg viewBox="0 0 320 330" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;max-height:220px">
     <defs>
-      <filter id="gf${m}" x="-40%" y="-40%" width="180%" height="180%">
+      <filter id="gf${m}" x="-50%" y="-50%" width="200%" height="200%">
         <feGaussianBlur stdDeviation="2.5" result="b"/>
         <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
       </filter>
     </defs>
 
-    <!-- MIX TANK 1 -->
-    <g transform="translate(18,18)">
-      <rect x="2" y="4" width="72" height="108" rx="9" fill="rgba(0,0,0,.45)"/>
-      <rect x="0" y="0" width="72" height="108" rx="9" fill="#060a14" stroke="${mx1Rem>0?'rgba(59,130,246,.55)':'#1e2535'}" stroke-width="1.8"/>
-      ${fill(mx1Rem,mx1vol,'mg1'+m,'mc1'+m,72,108,'#3b82f6','#1e3a8a')}
-      <rect x="0" y="0" width="72" height="108" rx="9" fill="none" stroke="${mx1Rem>0?'rgba(59,130,246,.5)':'#1e2535'}" stroke-width="1.8"/>
-      <rect x="22" y="-8" width="28" height="10" rx="3" fill="#060a14" stroke="#1e2535" stroke-width="1.2"/>
-      <rect x="16" y="-14" width="40" height="7" rx="3" fill="#08101a" stroke="#1e2535" stroke-width="1.2"/>
-      <!-- right outlet pipe stub -->
-      <rect x="72" y="47" width="10" height="8" rx="2" fill="#060a14" stroke="${mx1Rem>0&&isFlowing?'rgba(59,130,246,.5)':'#1e2535'}" stroke-width="1.2"/>
-      <text x="36" y="48" text-anchor="middle" font-family="DM Mono,monospace" font-size="12" fill="white" font-weight="700">${Math.round(mx1Rem).toLocaleString()}</text>
-      <text x="36" y="61" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="rgba(96,165,250,.7)">/ ${mx1vol.toLocaleString()}L</text>
-      <text x="36" y="125" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="#60a5fa" font-weight="700">MIX T1</text>
-      <text x="36" y="135" text-anchor="middle" font-family="DM Mono,monospace" font-size="7" fill="#3d4560">${(mx1?.mix_name||'—').slice(0,10)}</text>
+    <!-- ══ MIX TANK 1 (top-left) ══ -->
+    <g transform="translate(${t1x},10)">
+      <rect x="2" y="3" width="${tw}" height="${th}" rx="9" fill="rgba(0,0,0,.45)"/>
+      <rect x="0" y="0" width="${tw}" height="${th}" rx="9" fill="#060a14" stroke="${mx1Rem>0?'rgba(59,130,246,.55)':'#1e2535'}" stroke-width="1.8"/>
+      ${fill(mx1Rem,mx1vol,'mg1'+m,'mc1'+m,tw,th,'#3b82f6','#1e3a8a')}
+      <rect x="0" y="0" width="${tw}" height="${th}" rx="9" fill="none" stroke="${mx1Rem>0?'rgba(59,130,246,.5)':'#1e2535'}" stroke-width="1.8"/>
+      <!-- neck top -->
+      <rect x="${tw/2-12}" y="-8" width="24" height="10" rx="3" fill="#060a14" stroke="#1e2535" stroke-width="1.2"/>
+      <rect x="${tw/2-16}" y="-14" width="32" height="6" rx="3" fill="#08101a" stroke="#1e2535" stroke-width="1.2"/>
+      <!-- bottom outlet stub -->
+      <rect x="${tw/2-5}" y="${th}" width="10" height="10" rx="2" fill="#060a14" stroke="${mx1Rem>0&&isFlowing?'rgba(59,130,246,.5)':'#1e2535'}" stroke-width="1.2"/>
+      <!-- volume -->
+      <text x="${tw/2}" y="${th/2-2}" text-anchor="middle" font-family="DM Mono,monospace" font-size="13" fill="white" font-weight="700">${Math.round(mx1Rem).toLocaleString()}</text>
+      <text x="${tw/2}" y="${th/2+12}" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="rgba(96,165,250,.7)">/ ${mx1vol.toLocaleString()} L</text>
+      <text x="${tw/2}" y="${th+26}" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="#60a5fa" font-weight="700">MIX T1</text>
+      <text x="${tw/2}" y="${th+36}" text-anchor="middle" font-family="DM Mono,monospace" font-size="7" fill="#3d4560">${(mx1?.mix_name||'—').slice(0,10)}</text>
     </g>
 
-    <!-- MIX TANK 2 -->
-    <g transform="translate(18,18)" style="transform:translate(108px,18px)">
-    </g>
-    <g transform="translate(108,18)">
-      <rect x="2" y="4" width="72" height="108" rx="9" fill="rgba(0,0,0,.45)"/>
-      <rect x="0" y="0" width="72" height="108" rx="9" fill="#060a14" stroke="${mx2Rem>0?'rgba(59,130,246,.55)':'#1e2535'}" stroke-width="1.8"/>
-      ${fill(mx2Rem,mx2vol,'mg2'+m,'mc2'+m,72,108,'#3b82f6','#1e3a8a')}
-      <rect x="0" y="0" width="72" height="108" rx="9" fill="none" stroke="${mx2Rem>0?'rgba(59,130,246,.5)':'#1e2535'}" stroke-width="1.8"/>
-      <rect x="22" y="-8" width="28" height="10" rx="3" fill="#060a14" stroke="#1e2535" stroke-width="1.2"/>
-      <rect x="16" y="-14" width="40" height="7" rx="3" fill="#08101a" stroke="#1e2535" stroke-width="1.2"/>
-      <rect x="72" y="47" width="10" height="8" rx="2" fill="#060a14" stroke="${mx2Rem>0&&isFlowing?'rgba(59,130,246,.5)':'#1e2535'}" stroke-width="1.2"/>
-      <text x="36" y="48" text-anchor="middle" font-family="DM Mono,monospace" font-size="12" fill="white" font-weight="700">${Math.round(mx2Rem).toLocaleString()}</text>
-      <text x="36" y="61" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="rgba(96,165,250,.7)">/ ${mx2vol.toLocaleString()}L</text>
-      <text x="36" y="125" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="#60a5fa" font-weight="700">MIX T2</text>
-      <text x="36" y="135" text-anchor="middle" font-family="DM Mono,monospace" font-size="7" fill="#3d4560">${(mx2?.mix_name||'—').slice(0,10)}</text>
+    <!-- ══ MIX TANK 2 (top-right) ══ -->
+    <g transform="translate(${t2x},10)">
+      <rect x="2" y="3" width="${tw}" height="${th}" rx="9" fill="rgba(0,0,0,.45)"/>
+      <rect x="0" y="0" width="${tw}" height="${th}" rx="9" fill="#060a14" stroke="${mx2Rem>0?'rgba(59,130,246,.55)':'#1e2535'}" stroke-width="1.8"/>
+      ${fill(mx2Rem,mx2vol,'mg2'+m,'mc2'+m,tw,th,'#3b82f6','#1e3a8a')}
+      <rect x="0" y="0" width="${tw}" height="${th}" rx="9" fill="none" stroke="${mx2Rem>0?'rgba(59,130,246,.5)':'#1e2535'}" stroke-width="1.8"/>
+      <rect x="${tw/2-12}" y="-8" width="24" height="10" rx="3" fill="#060a14" stroke="#1e2535" stroke-width="1.2"/>
+      <rect x="${tw/2-16}" y="-14" width="32" height="6" rx="3" fill="#08101a" stroke="#1e2535" stroke-width="1.2"/>
+      <rect x="${tw/2-5}" y="${th}" width="10" height="10" rx="2" fill="#060a14" stroke="${mx2Rem>0&&isFlowing?'rgba(59,130,246,.5)':'#1e2535'}" stroke-width="1.2"/>
+      <text x="${tw/2}" y="${th/2-2}" text-anchor="middle" font-family="DM Mono,monospace" font-size="13" fill="white" font-weight="700">${Math.round(mx2Rem).toLocaleString()}</text>
+      <text x="${tw/2}" y="${th/2+12}" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="rgba(96,165,250,.7)">/ ${mx2vol.toLocaleString()} L</text>
+      <text x="${tw/2}" y="${th+26}" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="#60a5fa" font-weight="700">MIX T2</text>
+      <text x="${tw/2}" y="${th+36}" text-anchor="middle" font-family="DM Mono,monospace" font-size="7" fill="#3d4560">${(mx2?.mix_name||'—').slice(0,10)}</text>
     </g>
 
-    <!-- PIPES: T1 right outlet(x=100,y=69) → valve1 -->
-    ${pipes(`M 100,69 L 196,57`,mx1Rem>0&&isFlowing)}
-    <!-- PIPES: T2 right outlet(x=190,y=69) → valve2 -->
-    ${pipes(`M 190,69 L 196,81`,mx2Rem>0&&isFlowing)}
+    <!-- ══ PIPES from BOTTOM of tanks ══ -->
+    <!-- T1 bottom(90,120) → down → join(160,148) -->
+    ${pipe(`M ${t1cx},${10+th+10} L ${t1cx},148 L ${jx},148`,mx1Rem>0&&isFlowing)}
+    <!-- T2 bottom(230,120) → down → join(160,148) -->
+    ${pipe(`M ${t2cx},${10+th+10} L ${t2cx},148 L ${jx},148`,mx2Rem>0&&isFlowing)}
 
-    <!-- VALVE 1 (T1 outlet) -->
-    ${valve(206,57,mx1Rem>0&&isFlowing)}
-    <!-- VALVE 2 (T2 outlet) -->
-    ${valve(206,81,mx2Rem>0&&isFlowing)}
+    <!-- VALVE 1 (inlet) -->
+    ${valve(jx,162,isFlowing)}
 
-    <!-- Join to pump -->
-    ${pipes(`M 216,57 L 240,69`,isFlowing)}
-    ${pipes(`M 216,81 L 240,69`,isFlowing)}
-    ${pipes(`M 240,69 L 265,69`,isFlowing)}
+    <!-- join → valve1 -->
+    ${pipe(`M ${jx},148 L ${jx},153`,isFlowing)}
+
+    <!-- valve1 → pump -->
+    ${pipe(`M ${jx},171 L ${jx},178`,isFlowing)}
 
     <!-- PUMP -->
-    ${pumpSVG(288,69,isFlowing)}
+    ${pumpSVG(jx,198,isFlowing)}
 
-    <!-- Pump → outlet valve -->
-    ${pipes(`M 310,69 L 340,69`,isFlowing)}
+    <!-- pump → valve2 -->
+    ${pipe(`M ${jx},218 L ${jx},225`,isFlowing)}
 
-    <!-- OUTLET VALVE -->
-    ${valve(350,69,isFlowing)}
+    <!-- VALVE 2 (outlet) -->
+    ${valve(jx,235,isFlowing)}
 
-    <!-- Valve → aging tank bottom -->
-    ${pipes(`M 360,69 L 415,69 L 415,153`,isFlowing)}
+    <!-- valve2 → aging tank bottom -->
+    ${pipe(`M ${jx},244 L ${jx},252`,isFlowing)}
 
-    <!-- AGING TANK -->
-    <g transform="translate(370,8)">
-      <rect x="2" y="4" width="92" height="148" rx="10" fill="rgba(0,0,0,.5)"/>
-      <rect x="0" y="0" width="92" height="148" rx="10" fill="#060a14" stroke="${isFlowing?'rgba(249,115,22,.6)':'#1e2535'}" stroke-width="2" ${isFlowing?`filter="${gf}"`:''}/>
-      ${fill(agVol,+(agRow?.volume_liter||1),'agg'+m,'agc'+m,92,148,isFlowing?'#f97316':'#374151',isFlowing?'#9a3412':'#1f2937')}
-      <rect x="0" y="0" width="92" height="148" rx="10" fill="none" stroke="${isFlowing?'rgba(249,115,22,.5)':'#1e2535'}" stroke-width="2"/>
-      <!-- neck top -->
-      <rect x="32" y="-9" width="28" height="11" rx="3" fill="#060a14" stroke="#1e2535" stroke-width="1.2"/>
-      <rect x="24" y="-16" width="44" height="8" rx="3" fill="#08101a" stroke="#1e2535" stroke-width="1.2"/>
-      <!-- bottom inlet -->
-      <rect x="38" y="148" width="16" height="12" rx="2" fill="#060a14" stroke="${isFlowing?'rgba(249,115,22,.4)':'#1e2535'}" stroke-width="1.2"/>
+    <!-- ══ AGING TANK (bottom center) ══ -->
+    <g transform="translate(${jx-50},252)">
+      <rect x="2" y="3" width="100" height="70" rx="9" fill="rgba(0,0,0,.5)"/>
+      <rect x="0" y="0" width="100" height="70" rx="9" fill="#060a14" stroke="${isFlowing?'rgba(249,115,22,.6)':'#1e2535'}" stroke-width="2" ${isFlowing?`filter="url(#gf${m})"`:''} />
+      ${fill(agVol,+(agRow?.volume_liter||1),'agg'+m,'agc'+m,100,70,isFlowing?'#f97316':'#374151',isFlowing?'#9a3412':'#1f2937')}
+      <rect x="0" y="0" width="100" height="70" rx="9" fill="none" stroke="${isFlowing?'rgba(249,115,22,.5)':'#1e2535'}" stroke-width="2"/>
+      <!-- bottom inlet stub -->
+      <rect x="45" y="-10" width="10" height="12" rx="2" fill="#060a14" stroke="${isFlowing?'rgba(249,115,22,.4)':'#1e2535'}" stroke-width="1.2"/>
+      <!-- legs bottom -->
+      <rect x="10" y="70" width="8" height="10" rx="2" fill="#060a14" stroke="#1e2535" stroke-width="1.2"/>
+      <rect x="82" y="70" width="8" height="10" rx="2" fill="#060a14" stroke="#1e2535" stroke-width="1.2"/>
+      <rect x="5" y="79" width="90" height="4" rx="2" fill="#060a14" stroke="#1e2535" stroke-width="1.2"/>
       <!-- volume -->
-      <text x="46" y="66" text-anchor="middle" font-family="DM Mono,monospace" font-size="15" fill="white" font-weight="700">${Math.round(agVol).toLocaleString()}</text>
-      <text x="46" y="81" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="rgba(255,255,255,.6)">L</text>
-      ${agPct>0?`<text x="46" y="97" text-anchor="middle" font-family="DM Mono,monospace" font-size="12" fill="${isFlowing?'#fb923c':'#4b5563'}" font-weight="700">${agPct.toFixed(1)}%</text>`:''}
+      <text x="50" y="32" text-anchor="middle" font-family="DM Mono,monospace" font-size="14" fill="white" font-weight="700">${Math.round(agVol).toLocaleString()} L</text>
+      ${agPct>0?`<text x="50" y="50" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="${isFlowing?'#fb923c':'#4b5563'}" font-weight="700">${agPct.toFixed(1)}%</text>`:''}
       <!-- label -->
-      <text x="46" y="166" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="${isFlowing?'#fb923c':'#4b5563'}" font-weight="700">AGING ${agTank}</text>
-      <text x="46" y="177" text-anchor="middle" font-family="DM Mono,monospace" font-size="7" fill="#3d4560">${agName}</text>
+      <text x="50" y="96" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="${isFlowing?'#fb923c':'#4b5563'}" font-weight="700">AGING ${agTank} · ${agName}</text>
     </g>
   </svg>
 </div>`;
