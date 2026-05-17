@@ -461,7 +461,7 @@ onAuthStateChanged(auth,async user=>{
   loadPlan("p2");
 });
 
-setInterval(()=>{["p1","p2"].forEach(p=>{if(document.getElementById("tank-visual-"+p))renderTankVisual(p,rows[p]||[]);});},30000);
+setInterval(()=>{["p1","p2"].forEach(p=>{if(document.getElementById("tank-visual-"+p))renderTankVisual(p,rows[p]||[]);});},5000);
 window.doLogout=async()=>{
   if(unsub.p1)unsub.p1();
   if(unsub.p2)unsub.p2();
@@ -542,8 +542,9 @@ function renderTankVisual(m,rows){
   const agRow=pastRow||null;
 
   const isFlowing=!!agRow?.past_start_time;
-  const activeTank=agRow?.mixing_tank||agRow?.tank_mix||''; // T1/T2 - ลอง field ทั้งสอง
-  console.log('🔍 agRow fields:', agRow?{status:agRow.status,mixing_tank:agRow.mixing_tank,tank_mix:agRow.tank_mix,past_start_time:agRow.past_start_time,volume_liter:agRow.volume_liter}:'null');
+  const activeTank=agRow?.mixing_tank||''; // ค่าจริงคือ "Tank 1" หรือ "Tank 2"
+  const isT1=activeTank==='Tank 1'||activeTank==='T1'||activeTank==='ถัง 1'||activeTank==='1';
+  const isT2=activeTank==='Tank 2'||activeTank==='T2'||activeTank==='ถัง 2'||activeTank==='2';
 
   // Volume แต่ละถัง
   const t1Total=+(t1Row?.volume_liter||0);
@@ -569,7 +570,7 @@ function renderTankVisual(m,rows){
       agName=(agRow.mix_name||'—').slice(0,12);
       agTime=agRow.past_start_time+(agRow.past_end_time?' → '+agRow.past_end_time:'');
       // ลด volume ถังที่กำลัง past.
-      const isT1Active=activeTank==='T1'||activeTank==='Tank 1'||activeTank==='ถัง 1'||activeTank==='1'||(!activeTank&&!!t1Row);
+      const isT1Active=isT1;
       if(isT1Active) t1Vol=Math.max(0,t1Total-agVol);
       else t2Vol=Math.max(0,t2Total-agVol);
     }catch{}
@@ -641,8 +642,8 @@ function renderTankVisual(m,rows){
       <!-- mix name inside tank (top area) — ขาวชัดเจน -->
       <text x="${tw/2}" y="20" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="white" font-weight="700">${sublabel}</text>
       <!-- volume (center) -->
-      <text x="${tw/2}" y="${th/2+8}" text-anchor="middle" font-family="DM Mono,monospace" font-size="16" fill="white" font-weight="700">${Math.round(vol).toLocaleString()}</text>
-      <text x="${tw/2}" y="${th/2+22}" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="rgba(255,255,255,.65)">/ ${total.toLocaleString()} L</text>
+      <text x="${tw/2}" y="${th/2+8}" text-anchor="middle" font-family="DM Mono,monospace" font-size="16" fill="white" font-weight="700">${vol.toLocaleString(undefined,{minimumFractionDigits:1,maximumFractionDigits:1})}</text>
+      <text x="${tw/2}" y="${th/2+22}" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="rgba(255,255,255,.65)">/ ${total.toLocaleString(undefined,{minimumFractionDigits:1,maximumFractionDigits:1})} L</text>
       <!-- status (bottom inside) -->
       <rect x="${tw/2-32}" y="${th-22}" width="64" height="16" rx="5" fill="rgba(0,0,0,.55)"/>
       <text x="${tw/2}" y="${th-11}" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="${status.col}" font-weight="700">${status.txt}</text>
@@ -707,10 +708,10 @@ function renderTankVisual(m,rows){
   const TBOT=TOP+TH; // 160
   const HPIPE=TBOT+45; // 205 — horizontal pipe y
   const PUMPX=320,PUMPY=HPIPE;
-  const isT1Active=isFlowing&&(activeTank==='T1'||activeTank==='Tank 1'||activeTank==='ถัง 1'||activeTank==='1'||(!activeTank&&!!t1Row));
-  const isT2Active=isFlowing&&(activeTank==='T2'||activeTank==='Tank 2'||activeTank==='ถัง 2'||activeTank==='2');
-  const t1Active=isFlowing&&isT1Active;
-  const t2Active=isFlowing&&isT2Active;
+  const isT1Active=isFlowing&&isT1;
+  const isT2Active=isFlowing&&isT2;
+  const t1Active=isT1Active;
+  const t2Active=isT2Active;
 
   el.innerHTML=`<div style="display:grid;grid-template-columns:220px 1fr;gap:12px;margin-bottom:4px">
   <!-- ══ BAR CHART LEFT ══ -->
