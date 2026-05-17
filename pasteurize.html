@@ -286,6 +286,7 @@ thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap
     </div>
   </div>
   <div class="tank-row" id="tank-visual-p1"></div>
+  <div id="chart-area-p1" style="margin-bottom:12px"></div>
   <div class="tw"><table>
     <thead><tr>
     <tr>
@@ -320,6 +321,7 @@ thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap
     </div>
   </div>
   <div class="tank-row" id="tank-visual-p2"></div>
+  <div id="chart-area-p2" style="margin-bottom:12px"></div>
   <div class="tw"><table>
     <thead><tr>
     <tr>
@@ -620,8 +622,8 @@ function renderTankVisual(m,rows){
     const borderCol=isActive?rgba(c1,.7):hasLiq?rgba(c1,.4):'#1e2535';
     const gf=isActive?`filter="url(#gfx${m})"`:'' ;
     return`<g transform="translate(${tx},${ty})">
-      <!-- label outside top -->
-      <text x="${tw/2}" y="-10" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="${c1}" font-weight="700">${label}</text>
+      <!-- label outside top — ขาวชัดเจน -->
+      <text x="${tw/2}" y="-6" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="white" font-weight="700">${label}</text>
       <!-- shadow -->
       <rect x="2" y="4" width="${tw}" height="${th}" rx="10" fill="rgba(0,0,0,.45)"/>
       <!-- body -->
@@ -635,8 +637,8 @@ function renderTankVisual(m,rows){
       <rect x="${tw/2-17}" y="-16" width="34" height="7" rx="3" fill="#08101a" stroke="#1e2535" stroke-width="1.2"/>
       <!-- bottom outlet -->
       <rect x="${tw/2-5}" y="${th}" width="10" height="12" rx="2" fill="#060a14" stroke="${isActive?rgba(c1,.5):'#1e2535'}" stroke-width="1.2"/>
-      <!-- mix name inside tank (top area) -->
-      <text x="${tw/2}" y="18" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="${c1}" font-weight="700">${sublabel}</text>
+      <!-- mix name inside tank (top area) — ขาวชัดเจน -->
+      <text x="${tw/2}" y="18" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="white" font-weight="600" opacity=".9">${sublabel}</text>
       <!-- volume (center) -->
       <text x="${tw/2}" y="${th/2+8}" text-anchor="middle" font-family="DM Mono,monospace" font-size="16" fill="white" font-weight="700">${Math.round(vol).toLocaleString()}</text>
       <text x="${tw/2}" y="${th/2+22}" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="rgba(255,255,255,.65)">/ ${total.toLocaleString()} L</text>
@@ -709,7 +711,51 @@ function renderTankVisual(m,rows){
   const t1Active=isFlowing&&isT1Active;
   const t2Active=isFlowing&&isT2Active;
 
-  el.innerHTML=`<div class="flow-wrap" style="padding:8px 14px">
+  el.innerHTML=`<div style="display:grid;grid-template-columns:220px 1fr;gap:12px;margin-bottom:4px">
+  <!-- ══ BAR CHART LEFT ══ -->
+  <div style="background:var(--s1);border:1px solid var(--b1);border-radius:12px;padding:12px">
+    <div style="font-family:var(--mono);font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">📊 Volume / กะ (L)</div>
+    ${(()=>{
+      const shifts=[
+        {label:'เช้า',color:'#3b82f6',rows:rows.filter(r=>{const h=+(r.past_start_time||'08:00').split(':')[0];return h>=6&&h<14;})},
+        {label:'บ่าย',color:'#f97316',rows:rows.filter(r=>{const h=+(r.past_start_time||'').split(':')[0];return h>=14&&h<22;})},
+        {label:'ดึก',color:'#a855f7',rows:rows.filter(r=>{const h=+(r.past_start_time||'').split(':')[0];return h>=22||h<6;})},
+      ];
+      const vols=shifts.map(s=>s.rows.reduce((sum,r)=>sum+(+(r.volume_liter||0)),0));
+      const total=vols.reduce((a,b)=>a+b,0);
+      const maxV=Math.max(...vols,1);
+      const barH=80;
+      const bars=shifts.map((s,i)=>{
+        const v=vols[i];
+        const h=v>0?Math.round((v/maxV)*barH):0;
+        const bx=10+i*62;
+        return`<g>
+          <rect x="${bx}" y="${barH-h+10}" width="44" height="${h}" rx="5" fill="${s.color}" opacity=".85"/>
+          ${h>0?`<rect x="${bx}" y="${barH-h+10}" width="44" height="${Math.min(h,8)}" rx="5" fill="${s.color}"/>`:'' }
+          <text x="${bx+22}" y="${barH+24}" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="white" font-weight="700">${s.label}</text>
+          <text x="${bx+22}" y="${barH-h+6}" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="${s.color}" font-weight="700">${v>0?v.toLocaleString():''}</text>
+        </g>`;
+      }).join('');
+      return`<svg viewBox="0 0 200 115" style="width:100%;height:auto">
+        <!-- grid lines -->
+        ${[25,50,75,100].map(p=>{
+          const y=10+barH*(1-p/100);
+          return`<line x1="0" y1="${y}" x2="200" y2="${y}" stroke="#1e2535" stroke-width="1"/>
+          <text x="196" y="${y+3}" text-anchor="end" font-family="DM Mono,monospace" font-size="7" fill="#3d4560">${Math.round(maxV*p/100).toLocaleString()}</text>`;
+        }).join('')}
+        ${bars}
+      </svg>
+      <!-- Total card -->
+      <div style="margin-top:8px;padding:8px 10px;background:var(--s2);border-radius:8px;border:1px solid var(--b1);text-align:center">
+        <div style="font-family:var(--mono);font-size:9px;color:var(--t2)">TOTAL</div>
+        <div style="font-family:var(--mono);font-size:16px;font-weight:700;color:var(--cyan)">${total.toLocaleString()}</div>
+        <div style="font-family:var(--mono);font-size:8px;color:var(--t3)">L / วันนี้</div>
+      </div>`;
+    })()}
+  </div>
+
+  <!-- ══ FLOW DIAGRAM RIGHT ══ -->
+  <div class="flow-wrap" style="padding:8px 14px;margin-bottom:0">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
     <span class="flow-title" style="margin:0">⚗️ PROCESS FLOW — ${m.toUpperCase()}</span>
     <span style="font-family:var(--mono);font-size:10px;color:${isFlowing?'#22c55e':'var(--t3)'}">
@@ -741,19 +787,25 @@ function renderTankVisual(m,rows){
     <!-- Aging bottom → down to horizontal (receive) -->
     ${pipe(`M ${AGCX},${TBOT+12} L ${AGCX},${HPIPE}`,isFlowing)}
 
-    <!-- ══ VALVES on vertical pipes ══ -->
+    <!-- ══ VALVES — เปิดเฉพาะถังที่ใช้งาน ══ -->
     ${valve(T1CX,TBOT+28,t1Active)}
     ${valve(T2CX,TBOT+28,t2Active)}
     ${valve(AGCX,TBOT+28,isFlowing)}
 
     <!-- ══ HORIZONTAL COLLECTOR PIPE ══ -->
-    ${pipe(`M ${T1CX},${HPIPE} L ${AGCX},${HPIPE}`,isFlowing)}
-
-    <!-- ══ PUMP (between T2 and Aging) ══ -->
-    ${pump(PUMPX,PUMPY,isFlowing)}
+    <!-- T1→pump หรือ T2→pump (แล้วแต่ถังที่ active) -->
+    ${t1Active?pipe(`M ${T1CX},${HPIPE} L ${PUMPX-22},${HPIPE}`,true):''}
+    ${t2Active?pipe(`M ${T2CX},${HPIPE} L ${PUMPX-22},${HPIPE}`,true):''}
+    <!-- เส้นที่ไม่ active แสดงเป็นเทา -->
+    ${!t1Active?`<path d="M ${T1CX},${HPIPE} L ${PUMPX-22},${HPIPE}" fill="none" stroke="#1e2535" stroke-width="6" stroke-linecap="round"/>`:'' }
+    ${!t2Active?`<path d="M ${T2CX},${HPIPE} L ${PUMPX-22},${HPIPE}" fill="none" stroke="#1e2535" stroke-width="6" stroke-linecap="round"/>`:'' }
+    <!-- pump → aging -->
+    ${pipe(`M ${PUMPX+22},${HPIPE} L ${AGCX},${HPIPE}`,isFlowing)}
     <text x="${PUMPX}" y="${PUMPY+36}" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" font-weight="700" fill="${isFlowing?ac:'#3d4560'}">PUMP</text>
 
   </svg>
+</div>
+</div>
 </div>`;
 }
 
