@@ -21,9 +21,11 @@ button{background:#3b82f6;border:none;color:#fff;padding:10px 24px;border-radius
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import{getFirestore,doc,setDoc}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import{getAuth,signInWithEmailAndPassword}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 const app=initializeApp({apiKey:"AIzaSyC3f6jMuhugE6BNfRfkpOA9BMrIKWR9YgQ",authDomain:"production-filling.firebaseapp.com",projectId:"production-filling",storageBucket:"production-filling.firebasestorage.app",messagingSenderId:"89098393458",appId:"1:89098393458:web:b723f2886e8a341935afeb"});
 const db=getFirestore(app);
+const auth=getAuth(app);
 const log=document.getElementById('log');
 function L(msg,cls='info'){log.innerHTML+=`<div class="${cls}">${msg}</div>`;log.scrollTop=log.scrollHeight;}
 
@@ -119,6 +121,15 @@ const products=[
 
 window.startImport=async()=>{
   log.innerHTML='';
+  // Login ก่อน
+  L('🔐 กำลัง Login...');
+  try{
+    await signInWithEmailAndPassword(auth,'leadman@filling.local','nestle1234');
+    L('✅ Login สำเร็จ','ok');
+  }catch(e){
+    L(`❌ Login ไม่สำเร็จ: ${e.message}`,'err');
+    return;
+  }
   L(`📦 เริ่ม Import ${products.length} รายการ...`);
   let ok=0,fail=0;
   for(const p of products){
