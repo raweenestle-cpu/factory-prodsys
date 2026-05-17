@@ -99,6 +99,82 @@ tbody td{padding:5px 6px;vertical-align:middle;font-weight:600}
 .tank-sel{background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.3);border-radius:6px;color:#06b6d4;font-family:var(--mono);font-size:12px;padding:4px 8px;outline:none;cursor:pointer}
 
 @keyframes blink{0%,100%{opacity:1}40%{opacity:.15}}
+
+/* ── MOBILE RESPONSIVE ──────────────────────────────────────────────── */
+@media(max-width:768px){
+  nav{padding:0 10px;gap:4px}
+  .nav-logo{font-size:12px}
+  .nav-tab{font-size:11px;padding:5px 8px}
+  .btn-logout{font-size:10px;padding:4px 8px}
+  .page{padding:10px}
+
+  /* TABLE → CARD */
+  .tw{border:none;background:none;overflow:visible;max-height:none}
+  table,thead,tbody,tr,td,th{display:block;width:100%}
+  thead tr{display:none}
+  tbody tr{
+    background:var(--s1);border:1px solid var(--b1);border-radius:12px;
+    margin-bottom:12px;padding:12px;position:relative;
+  }
+  tbody tr.row-mixing{border-left:4px solid var(--yellow)!important}
+  tbody tr.row-past{border-left:4px solid var(--orange)!important}
+  tbody tr.row-done{border-left:4px solid var(--green)!important}
+  tbody td{border:none!important;padding:3px 0;display:flex;align-items:center;gap:8px;font-size:13px}
+
+  /* ซ่อน td ที่ไม่จำเป็น */
+  tbody td:nth-child(1){display:none} /* drag */
+  tbody td:nth-child(2){display:none} /* # */
+
+  /* Mix Code select — full width */
+  tbody td:nth-child(3) select{width:100%!important;font-size:13px!important;min-height:44px}
+  /* Mix Name */
+  tbody td:nth-child(4) span{font-size:14px!important;font-weight:700!important}
+
+  /* Batch + Volume inline */
+  tbody td:nth-child(5),tbody td:nth-child(6){display:inline-flex;width:auto;margin-right:8px}
+  tbody td:nth-child(5) input,tbody td:nth-child(6) input{width:80px!important}
+
+  /* Mixing Tank */
+  tbody td:nth-child(7)::before{content:"🪣 Tank: ";font-size:11px;color:var(--t2);font-family:var(--mono);flex-shrink:0}
+
+  /* Glucose/Sugar/Palm — ซ่อน set แสดงแค่ actual */
+  tbody td:nth-child(8){display:none}  /* Glc Set */
+  tbody td:nth-child(10){display:none} /* Sgr Set */
+  tbody td:nth-child(12){display:none} /* Plm Set */
+  tbody td:nth-child(9)::before{content:"🍬 Glc: ";font-size:11px;color:#86efac;font-family:var(--mono);flex-shrink:0}
+  tbody td:nth-child(11)::before{content:"🧂 Sgr: ";font-size:11px;color:#67e8f9;font-family:var(--mono);flex-shrink:0}
+  tbody td:nth-child(13)::before{content:"🌴 Plm: ";font-size:11px;color:#fdba74;font-family:var(--mono);flex-shrink:0}
+
+  /* Rework */
+  tbody td:nth-child(14)::before{content:"♻️ RW kg: ";font-size:11px;color:var(--t2);font-family:var(--mono);flex-shrink:0}
+  tbody td:nth-child(15)::before{content:"♻️ ถัง: ";font-size:11px;color:var(--t2);font-family:var(--mono);flex-shrink:0}
+  tbody td:nth-child(14),tbody td:nth-child(15){display:inline-flex;width:auto;margin-right:8px}
+
+  /* Filling Line — full width */
+  tbody td:nth-child(16) select{width:100%!important;font-size:13px!important;min-height:44px}
+  /* Product */
+  tbody td:nth-child(17) select{width:100%!important;font-size:13px!important;min-height:44px}
+  /* Start */
+  tbody td:nth-child(18)::before{content:"⏱ Start: ";font-size:11px;color:var(--t2);font-family:var(--mono);flex-shrink:0}
+  tbody td:nth-child(18) input{flex:1}
+  /* Est Finish */
+  tbody td:nth-child(19)::before{content:"🕐 คาดจบ: ";font-size:11px;color:var(--t2);font-family:var(--mono);flex-shrink:0}
+  /* Status */
+  tbody td:nth-child(20){justify-content:center;padding-top:6px}
+  /* หมายเหตุ */
+  tbody td:nth-child(21)::before{content:"📝 ";font-size:11px;flex-shrink:0}
+  tbody td:nth-child(21) input{flex:1}
+  /* ลบ */
+  tbody td:last-child{justify-content:flex-end;padding-top:6px}
+
+  /* Toolbar */
+  .toolbar{flex-direction:column;align-items:stretch}
+  .toolbar-left,.toolbar-right{flex-wrap:wrap;gap:6px}
+  .btn{min-height:40px;font-size:13px}
+
+  /* KPI */
+  .kpi-row{grid-template-columns:repeat(2,1fr)!important;gap:8px}
+}
 </style>
 </head>
 <body>

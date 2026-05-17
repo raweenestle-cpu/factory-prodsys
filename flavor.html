@@ -113,6 +113,35 @@ nav{display:flex;align-items:center;height:52px;background:var(--s1);border-bott
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
 @keyframes blink{0%,100%{opacity:1}40%{opacity:.2}}
+
+/* ── MOBILE RESPONSIVE ──────────────────────────────────────────────── */
+@media(max-width:768px){
+  nav{padding:0 10px;gap:4px}
+  .nav-logo{font-size:12px}
+  .nav-tab{font-size:11px;padding:5px 8px}
+  .btn-logout{font-size:10px;padding:4px 8px}
+  .page{padding:10px}
+
+  /* CARDS — 1 คอลัมน์ */
+  .cards-grid{grid-template-columns:1fr!important;gap:10px}
+
+  /* CARD ใหญ่ขึ้น */
+  .flavor-card{padding:14px}
+  .info-val{font-size:15px}
+  .info-label{font-size:10px}
+
+  /* AGING TANK ใหญ่ขึ้น */
+  .tank-num{font-size:14px;padding:4px 12px}
+
+  /* HISTORY */
+  .history-item{padding:10px 12px}
+  .history-code{font-size:13px}
+  .history-time{font-size:11px}
+
+  /* KPI */
+  .kpi-row{grid-template-columns:repeat(2,1fr)!important;gap:8px}
+  .kpi-val{font-size:20px}
+}
 </style>
 </head>
 <body>
@@ -191,6 +220,29 @@ function toast(msg,t="blue"){
 }
 
 // ── AUTH ──────────────────────────────────────────────────────────────
+
+// ── IDLE TIMEOUT ──────────────────────────────────────────────────────
+async function initIdleTimeout(){
+  try{
+    const snap=await getDoc(doc(db,'settings','idle_timeout'));
+    const minutes=snap.exists()?(snap.data().minutes||0):0;
+    if(!minutes||minutes<=0)return;
+    let t;
+    const reset=()=>{
+      clearTimeout(t);
+      t=setTimeout(async()=>{
+        alert('ระบบ logout อัตโนมัติ เนื่องจากไม่มีการใช้งาน '+minutes+' นาที');
+        await signOut(auth);
+        window.location.href='index.html';
+      },minutes*60*1000);
+    };
+    ['mousemove','mousedown','keydown','touchstart','scroll','click'].forEach(e=>{
+      document.addEventListener(e,reset,{passive:true});
+    });
+    reset();
+  }catch(e){console.warn('idleTimeout:',e);}
+}
+
 onAuthStateChanged(auth,async user=>{
   if(!user){window.location.href="index.html";return;}
   ME=user;

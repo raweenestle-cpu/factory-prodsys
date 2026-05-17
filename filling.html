@@ -108,6 +108,51 @@ main{padding:14px;display:flex;flex-direction:column;gap:14px}
 @keyframes wave{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 @keyframes rise{0%{transform:translateY(0);opacity:.6}100%{transform:translateY(-30px);opacity:0}}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+
+/* ── MOBILE RESPONSIVE ──────────────────────────────────────────────── */
+@media(max-width:768px){
+  nav{padding:0 10px}
+  .nav-logo{font-size:12px}
+  .nbtn{font-size:10px;padding:4px 8px}
+  main{padding:8px}
+
+  /* LINE SELECTOR */
+  .line-sel-bar{padding:6px 10px;gap:5px;overflow-x:auto;flex-wrap:nowrap}
+  .lsel-btn{font-size:10px;padding:4px 10px;flex-shrink:0}
+
+  /* LINE SECTION */
+  .ls{border-radius:10px;margin-bottom:12px}
+  .ls-title{font-size:16px;padding:10px 12px 6px}
+
+  /* PR — stack vertically */
+  .pr{flex-direction:column}
+
+  /* LEFT — current full width */
+  .cur-wrap{width:100%!important;border-right:none!important;border-bottom:1px solid rgba(255,140,66,.2);}
+
+  /* RIGHT — queue full width, horizontal scroll */
+  .que-wrap{width:100%}
+  .que-inner{flex-wrap:nowrap;overflow-x:auto;padding-bottom:8px}
+
+  /* CARD — คงขนาดเท่าเดิมในคิว */
+  .tc.que{flex-shrink:0}
+  .tc.cur{width:100%!important}
+
+  /* FONT ใหญ่ขึ้น */
+  .ch-line{font-size:13px}
+  .ch-prod{font-size:13px}
+  .ch-code{font-size:13px}
+  .ch-name{font-size:13px}
+  .ch-batch{font-size:12px}
+  .ch-rp{font-size:13px}
+  .ab{font-size:14px}
+  .sv{font-size:16px!important}
+  .sp{font-size:13px!important}
+  .sbadge{font-size:12px}
+
+  /* SEC HEADER */
+  .sec-hd{font-size:11px}
+}
 </style>
 </head>
 <body>

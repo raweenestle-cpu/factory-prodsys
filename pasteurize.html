@@ -95,6 +95,72 @@ thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap
 @keyframes blink{0%,100%{opacity:1}40%{opacity:.15}}
 @keyframes pulse-orange{0%,100%{box-shadow:0 0 0 0 rgba(249,115,22,.4)}70%{box-shadow:0 0 0 6px rgba(249,115,22,0)}}
 .past-pulse{animation:pulse-orange 1.5s infinite}
+
+/* ── MOBILE RESPONSIVE ──────────────────────────────────────────────── */
+@media(max-width:768px){
+  nav{padding:0 10px;gap:4px}
+  .nav-logo{font-size:12px}
+  .nav-tab{font-size:11px;padding:5px 8px}
+  .nav-user{display:none}
+  .btn-logout{font-size:10px;padding:4px 8px}
+  .page{padding:10px}
+
+  /* TABLE → CARD */
+  .tw{border:none;background:none;overflow:visible}
+  table,thead,tbody,tr,td,th{display:block;width:100%}
+  thead tr{display:none}
+  tbody tr{
+    background:var(--s1);border:1px solid var(--b1);border-radius:12px;
+    margin-bottom:12px;padding:12px;position:relative;
+  }
+  tbody tr.row-past{border-left:4px solid var(--orange)!important;background:rgba(249,115,22,.06)!important}
+  tbody tr.row-done{border-left:4px solid var(--green)!important;background:rgba(34,197,94,.08)!important}
+  tbody tr.row-wait{border-left:4px solid var(--yellow)!important;background:rgba(234,179,8,.06)!important}
+  tbody td{border:none!important;padding:3px 0;display:flex;align-items:center;gap:8px;font-size:13px}
+
+  /* ซ่อน td ที่ไม่จำเป็น */
+  tbody td:nth-child(1){display:none} /* # */
+  tbody td:nth-child(4){display:none} /* Batch — แสดงใน mix name */
+
+  /* Mix Code + Mix Name */
+  tbody td:nth-child(2) span{font-family:var(--mono);font-size:14px!important;font-weight:700!important;color:var(--orange)!important}
+  tbody td:nth-child(3) span{font-size:14px!important;font-weight:700!important;color:var(--blue2)!important}
+
+  /* Volume + Tank — inline */
+  tbody td:nth-child(5),tbody td:nth-child(6){display:inline-flex;width:auto;margin-right:10px}
+
+  /* Stamp buttons — ใหญ่กดง่าย */
+  .stamp-btn{min-height:48px;font-size:14px!important;padding:10px 16px!important;border-radius:10px!important;justify-content:center;width:100%}
+
+  /* Stamp cells — full width */
+  tbody td:nth-child(7),tbody td:nth-child(8),tbody td:nth-child(9){padding:4px 0}
+
+  /* คาดเสร็จ */
+  tbody td:nth-child(8)::before{content:"🕐 คาดเสร็จ: ";font-family:var(--mono);font-size:11px;color:var(--t2);flex-shrink:0}
+
+  /* Eff% */
+  tbody td:nth-child(10){justify-content:center;padding-top:4px}
+  tbody td:nth-child(10)::before{content:"Eff%: ";font-family:var(--mono);font-size:11px;color:var(--t2)}
+
+  /* Actual + Checkbox — label กำกับ */
+  tbody td:nth-child(11)::before{content:"🍬 Glc: ";font-family:var(--mono);font-size:11px;color:#86efac;flex-shrink:0}
+  tbody td:nth-child(12)::before{content:"🧂 Sgr: ";font-family:var(--mono);font-size:11px;color:#67e8f9;flex-shrink:0}
+  tbody td:nth-child(13)::before{content:"🌴 Plm: ";font-family:var(--mono);font-size:11px;color:#fdba74;flex-shrink:0}
+
+  /* Aging Tank */
+  tbody td:nth-child(14)::before{content:"🪣 Aging: ";font-family:var(--mono);font-size:11px;color:var(--cyan);flex-shrink:0}
+  tbody td:nth-child(14) input{width:100%!important}
+
+  /* รหัสผลิต */
+  tbody td:nth-child(15)::before{content:"รหัส: ";font-family:var(--mono);font-size:11px;color:var(--purple);flex-shrink:0}
+
+  /* Status */
+  tbody td:last-child{justify-content:center;padding-top:8px}
+
+  /* KPI */
+  .kpi-row{grid-template-columns:repeat(2,1fr)!important;gap:8px}
+  .kpi-val{font-size:18px}
+}
 </style>
 </head>
 <body>

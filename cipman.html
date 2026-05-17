@@ -188,6 +188,50 @@ main{position:relative;z-index:1;padding:10px 12px;}
 @keyframes rise{0%{transform:translateY(0);opacity:.7}100%{transform:translateY(-50px);opacity:0}}
 @keyframes hgspin{0%{transform:rotate(0deg)}45%{transform:rotate(0deg)}55%{transform:rotate(180deg)}100%{transform:rotate(180deg)}}
 
+/* ── MOBILE RESPONSIVE ──────────────────────────────────────────────── */
+@media(max-width:768px){
+  nav{padding:0 10px;gap:4px;flex-wrap:nowrap;overflow-x:auto}
+  .nav-logo{font-size:12px;flex-shrink:0}
+  .ntab{font-size:10px;padding:4px 8px;flex-shrink:0}
+  .btn-logout{font-size:10px;padding:4px 8px}
+  main{padding:8px}
+
+  /* LINE SELECTOR */
+  .line-sel-bar{padding:6px 10px;gap:5px;overflow-x:auto;flex-wrap:nowrap}
+  .lsel-btn{font-size:10px;padding:4px 10px;flex-shrink:0}
+
+  /* LCARD — stack vertically */
+  .lcard > div[style*="display:flex"]{flex-direction:column!important}
+
+  /* LEFT — current tank full width */
+  .lcard > div > div:first-child{
+    width:100%!important;
+    border-right:none!important;
+    border-bottom:1px solid rgba(255,140,66,.2)!important;
+  }
+
+  /* RIGHT — queue full width */
+  .lcard > div > div:last-child{width:100%!important}
+
+  /* CTRL BUTTONS — larger */
+  .cbtn{padding:14px 8px;font-size:14px}
+  .empty-btn{font-size:14px;padding:16px}
+
+  /* FP SELECTS */
+  .fp-sel{font-size:12px;padding:7px 8px;min-height:44px}
+
+  /* TANK NUM BADGE */
+  .tank-num-badge{font-size:16px}
+
+  /* CURING BOX */
+  .curing-box{width:100%}
+
+  /* QUEUE ITEMS */
+  .qitem{padding:12px 14px}
+  .qcode{font-size:14px}
+  .qtime{font-size:12px}
+}
+
 </style>
 </head>
 <body>
