@@ -171,14 +171,8 @@ let tankStates={},lines=[],planRows=[],selectedTank=null;
 const $=id=>document.getElementById(id);
 function toast(msg,t='blue'){const el=$('toast');el.textContent=msg;el.style.background=t==='green'?'#15803d':t==='red'?'#991b1b':'#1d4ed8';el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2500);}
 
-// TANK DEFINITIONS
-const BANGCHAN_TANKS=Array.from({length:34},(_,i)=>`T${String(i+1).padStart(2,'0')}`);
-const TWIN_GROUPS=[
-  {name:'กลุ่ม 1A',tanks:['T61','T62','T63','T64']},
-  {name:'กลุ่ม 1B',tanks:['T71','T72','T73','T74']},
-  {name:'กลุ่ม 2A',tanks:['T65','T66','T67','T68']},
-  {name:'กลุ่ม 2B',tanks:['T75','T76','T77','T78']},
-];
+// TWIN TANKS — ดึงจาก LINE master เหมือน Bangchan
+const TWIN_ALL=['T61','T62','T63','T64','T65','T66','T67','T68','T71','T72','T73','T74','T75','T76','T77','T78'];
 
 onAuthStateChanged(auth,async user=>{
   if(!user){location.href='index.html';return;}
@@ -204,6 +198,42 @@ async function init(){
     tankStates={};
     snap.docs.forEach(d=>{tankStates[d.id]={id:d.id,...d.data()};});
     renderAll();
+  });
+}
+
+const BANGCHAN_TANKS=Array.from({length:34},(_,i)=>`T${String(i+1).padStart(2,'0')}`);
+
+function getLineGroups(group,allTanks){
+  // ดึง LINE ที่มี aging_tanks กำหนดไว้
+  const grpLines=lines.filter(l=>(l.group||'bangchan')===group&&(l.aging_tanks||[]).length>0)
+    .sort((a,b)=>(a.seq||0)-(b.seq||0));
+  const assigned=grpLines.flatMap(l=>l.aging_tanks||[]);
+  const unassigned=allTanks.filter(t=>!assigned.includes(t));
+  const groups=grpLines.map(l=>({name:l.name,tanks:l.aging_tanks||[]}));
+  if(unassigned.length)groups.push({name:'ยังไม่ได้กำหนด LINE',tanks:unassigned});
+  if(!groups.length)return[{name:`${group==='bangchan'?'Bangchan':'Twin'} (ทั้งหมด)`,tanks:allTanks}];
+  return groups;
+}
+
+function renderAll(){
+  // BANGCHAN
+  const bc=$('bangchan-grid');bc.innerHTML='';
+  getLineGroups('bangchan',BANGCHAN_TANKS).forEach(g=>{
+    const div=document.createElement('div');div.className='line-group';
+    div.innerHTML=`<div class="line-title">🏭 ${g.name}</div>`;
+    const grid=document.createElement('div');grid.className='tank-grid';
+    g.tanks.forEach(t=>grid.appendChild(tankCard(t)));
+    div.appendChild(grid);bc.appendChild(div);
+  });
+
+  // TWIN
+  const tw=$('twin-grid');tw.innerHTML='';
+  getLineGroups('twin',TWIN_ALL).forEach(g=>{
+    const div=document.createElement('div');div.className='line-group';
+    div.innerHTML=`<div class="line-title">🏭 ${g.name}</div>`;
+    const grid=document.createElement('div');grid.className='tank-grid';
+    g.tanks.forEach(t=>grid.appendChild(tankCard(t)));
+    div.appendChild(grid);tw.appendChild(div);
   });
 }
 
@@ -291,44 +321,6 @@ function tankCard(tankId){
     </div>
     <div class="tsb" style="color:${col};background:${rgba(col,.1)}">${statusLabel(status)}</div>`;
   return div;
-}
-
-// Group bangchan by LINE
-function getBangchanGroups(){
-  const lineMap={};
-  lines.filter(l=>(l.group||'bangchan')==='bangchan'&&l.aging_tanks?.length).forEach(l=>{
-    lineMap[l.name]=l.aging_tanks;
-  });
-  // ถังที่ยังไม่ได้กำหนด LINE
-  const assigned=Object.values(lineMap).flat();
-  const unassigned=BANGCHAN_TANKS.filter(t=>!assigned.includes(t));
-  const groups=Object.entries(lineMap).map(([name,tanks])=>({name,tanks}));
-  if(unassigned.length)groups.push({name:'ยังไม่ได้กำหนด LINE',tanks:unassigned});
-  if(!groups.length)return[{name:'Bangchan (T01-T34)',tanks:BANGCHAN_TANKS}];
-  return groups;
-}
-
-function renderAll(){
-  // BANGCHAN
-  const bc=$('bangchan-grid');bc.innerHTML='';
-  const bcGroups=getBangchanGroups();
-  bcGroups.forEach(g=>{
-    const div=document.createElement('div');div.className='line-group';
-    div.innerHTML=`<div class="line-title">🏭 ${g.name}</div>`;
-    const grid=document.createElement('div');grid.className='tank-grid';
-    g.tanks.forEach(t=>grid.appendChild(tankCard(t)));
-    div.appendChild(grid);bc.appendChild(div);
-  });
-
-  // TWIN
-  const tw=$('twin-grid');tw.innerHTML='';
-  TWIN_GROUPS.forEach(g=>{
-    const div=document.createElement('div');div.className='line-group';
-    div.innerHTML=`<div class="line-title">🏭 ${g.name}</div>`;
-    const grid=document.createElement('div');grid.className='tank-grid';
-    g.tanks.forEach(t=>grid.appendChild(tankCard(t)));
-    div.appendChild(grid);tw.appendChild(div);
-  });
 }
 
 // MODAL
