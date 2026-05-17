@@ -573,16 +573,20 @@ function renderTankVisual(m,rows){
   }
 
   // Status label
-  function statLabel(st,vol,total){
-    if(st==='mixing') return{txt:'🔄 กำลังผสม',col:'#eab308'};
-    if(st==='pasteurising') return{txt:'♨️ กำลัง Past.',col:'#f97316'};
-    if(st==='past_done'||st==='ready') return{txt:'✅ Past.เสร็จ',col:'#22c55e'};
-    if(vol>0) return{txt:'📦 พร้อม',col:'#3b82f6'};
-    return{txt:'—',col:'#374151'};
+  function statLabel(st,hasStartTime){
+    if(st==='mixing')           return{txt:'🔄 กำลังผสม',   col:'#eab308',tankCol:'#eab308',tankCol2:'#78350f'};
+    if(st==='pasteurising'&&!hasStartTime) return{txt:'⏳ รอ Past.',     col:'#eab308',tankCol:'#eab308',tankCol2:'#78350f'};
+    if(st==='pasteurising'&&hasStartTime)  return{txt:'♨️ กำลัง Past.', col:'#f97316',tankCol:'#f97316',tankCol2:'#9a3412'};
+    if(st==='past_done'||st==='ready')     return{txt:'✅ Past.เสร็จ',   col:'#22c55e',tankCol:'#22c55e',tankCol2:'#14532d'};
+    return{txt:'—',col:'#374151',tankCol:'#374151',tankCol2:'#1f2937'};
   }
 
-  const s1=statLabel(t1Status,t1Vol,t1Total);
-  const s2=statLabel(t2Status,t2Vol,t2Total);
+  const s1=statLabel(t1Status,!!t1Row?.past_start_time);
+  const s2=statLabel(t2Status,!!t2Row?.past_start_time);
+  const sAg={txt:isFlowing?'♨️ รับของ':agVol>0?'✅ เต็ม':'⚪ ว่าง',
+             col:isFlowing?'#f97316':agVol>0?'#22c55e':'#374151',
+             tankCol:isFlowing?'#f97316':agVol>0?'#22c55e':'#374151',
+             tankCol2:isFlowing?'#9a3412':agVol>0?'#14532d':'#1f2937'};
 
   const ac=isFlowing?'#22c55e':'#374151';
   const pc=isFlowing?'#06b6d4':'#1e2535';
@@ -721,15 +725,13 @@ function renderTankVisual(m,rows){
     </defs>
 
     <!-- ══ MIX TANK 1 ══ -->
-    ${drawTank(T1X,TOP,TW,TH,t1Vol,t1Total,'MIX T1',(t1Row?.mix_name||'—').slice(0,12),s1,'g1t'+m,'c1t'+m,'#3b82f6','#1e3a8a',t1Active)}
+    ${drawTank(T1X,TOP,TW,TH,t1Vol,t1Total,'Mixing 1',(t1Row?.mix_name||'—').slice(0,12),s1,'g1t'+m,'c1t'+m,s1.tankCol,s1.tankCol2,t1Active)}
 
     <!-- ══ MIX TANK 2 ══ -->
-    ${drawTank(T2X,TOP,TW,TH,t2Vol,t2Total,'MIX T2',(t2Row?.mix_name||'—').slice(0,12),s2,'g2t'+m,'c2t'+m,'#3b82f6','#1e3a8a',t2Active)}
+    ${drawTank(T2X,TOP,TW,TH,t2Vol,t2Total,'Mixing 2',(t2Row?.mix_name||'—').slice(0,12),s2,'g2t'+m,'c2t'+m,s2.tankCol,s2.tankCol2,t2Active)}
 
     <!-- ══ AGING TANK ══ -->
-    ${drawTank(AGX,TOP,TW,TH,agVol,+(agRow?.volume_liter||1),'AGING '+agTank,agName,
-      {txt:isFlowing?'♨️ รับของ':agVol>0?'✅ เต็ม':'⚪ ว่าง',col:isFlowing?'#f97316':agVol>0?'#22c55e':'#374151'},
-      'gag'+m,'cag'+m,isFlowing?'#f97316':'#374151',isFlowing?'#9a3412':'#1f2937',isFlowing)}
+    ${drawTank(AGX,TOP,TW,TH,agVol,+(agRow?.volume_liter||1),'Aging '+agTank,agName,sAg,'gag'+m,'cag'+m,sAg.tankCol,sAg.tankCol2,isFlowing)}
 
     <!-- ══ VERTICAL PIPES from tank bottoms ══ -->
     <!-- T1 bottom → down to horizontal -->
