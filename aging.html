@@ -287,17 +287,21 @@ function statusLabel(s){
 }
 
 function calcVolume(row){
-  // คำนวณ volume ที่ไหลเข้าถังแล้ว ณ ปัจจุบัน
-  if(!row||!row.past_start_time)return+(row?.volume_liter||0);
+  // ถ้าเสร็จแล้ว ใช้ volume จริง
+  if(!row)return 0;
   if(row.status==='past_done'||row.status==='ready')return+(row.volume_liter||0);
-  // กำลัง pasteurising — คำนวณตาม elapsed time และ flow rate
+  if(!row.past_start_time)return 0;
+  // กำลัง pasteurising — คำนวณตาม elapsed time
   try{
     const dateStr=row.date||new Date().toISOString().slice(0,10);
     const[h,m]=row.past_start_time.split(':').map(Number);
     const start=new Date(`${dateStr}T${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:00`);
     const now=new Date();
     const elapsedHr=Math.max(0,(now-start)/3600000);
-    const flowRate=+(row.flow_rate||300); // L/hr
+    // ดึง flow_rate จาก LINE master
+    const lineName=row.filling_line||'';
+    const lineData=lines.find(l=>l.name===lineName);
+    const flowRate=+(lineData?.flow_rate||row.flow_rate||300);
     return Math.min(+(row.volume_liter||0), elapsedHr*flowRate);
   }catch{return+(row.volume_liter||0);}
 }
