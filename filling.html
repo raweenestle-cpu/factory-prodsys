@@ -152,7 +152,6 @@ onAuthStateChanged(auth,async user=>{
 window.doLogout=async()=>{clearInterval(tickTimer);[u1,u2,u3,u4].forEach(u=>u&&u());await signOut(auth);location.href='index.html';};
 
 async function init(){
-  const d=today();
   u1=onSnapshot(collection(db,'lines'),snap=>{
     const seen=new Set();lineNames=[];lineMap={};
     snap.docs.map(d=>({id:d.id,...d.data()})).filter(l=>l.type==='Filling').sort((a,b)=>(a.seq||0)-(b.seq||0))
@@ -162,10 +161,10 @@ async function init(){
   u2=onSnapshot(collection(db,'cip_line_states'),snap=>{
     lineStates={};snap.docs.forEach(d=>{lineStates[d.id]={id:d.id,...d.data()};});renderAll();
   });
-  u3=onSnapshot(query(collection(db,'production_plans'),where('date','==',d)),snap=>{
+  u3=onSnapshot(query(collection(db,'production_plans'),where('status','in',['pasteurising','past_done','ready'])),snap=>{
     planRows=planRows.filter(x=>x._col!=='production_plans').concat(snap.docs.map(x=>({id:x.id,_col:'production_plans',...x.data()})));renderAll();
   });
-  u4=onSnapshot(query(collection(db,'production_plans_m2'),where('date','==',d)),snap=>{
+  u4=onSnapshot(query(collection(db,'production_plans_m2'),where('status','in',['pasteurising','past_done','ready'])),snap=>{
     planRows=planRows.filter(x=>x._col!=='production_plans_m2').concat(snap.docs.map(x=>({id:x.id,_col:'production_plans_m2',...x.data()})));renderAll();
   });
   tickTimer=setInterval(tick,1000);

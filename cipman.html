@@ -349,11 +349,11 @@ async function init(){
   });
 
   const d=today();
-  unsubP1=onSnapshot(query(collection(db,'production_plans'),where('date','==',d)),snap=>{
+  unsubP1=onSnapshot(query(collection(db,'production_plans'),where('status','in',['pasteurising','past_done','ready'])),snap=>{
     const r=snap.docs.map(d=>({id:d.id,_col:'production_plans',...d.data()}));
     planRows=planRows.filter(x=>x._col!=='production_plans').concat(r);renderAll();
   });
-  unsubP2=onSnapshot(query(collection(db,'production_plans_m2'),where('date','==',d)),snap=>{
+  unsubP2=onSnapshot(query(collection(db,'production_plans_m2'),where('status','in',['pasteurising','past_done','ready'])),snap=>{
     const r=snap.docs.map(d=>({id:d.id,_col:'production_plans_m2',...d.data()}));
     planRows=planRows.filter(x=>x._col!=='production_plans_m2').concat(r);renderAll();
   });
