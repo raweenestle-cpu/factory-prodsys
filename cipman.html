@@ -177,18 +177,17 @@ main{position:relative;z-index:1;padding:12px 14px;max-width:520px;margin:0 auto
 #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);padding:10px 22px;border-radius:10px;font-size:13px;opacity:0;transition:all .3s;z-index:9999;pointer-events:none;font-family:var(--mono);color:#fff;white-space:nowrap}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
+.line-sel-bar{display:flex;align-items:center;gap:6px;padding:8px 14px;border-bottom:1px solid var(--b1);background:var(--s1);flex-wrap:wrap}
+.lsel-lbl{font-family:var(--mono);font-size:10px;color:var(--t2)}
+.lsel-btn{font-family:var(--mono);font-size:11px;padding:5px 12px;border-radius:6px;border:1px solid var(--b2);background:none;color:var(--t2);cursor:pointer;white-space:nowrap;transition:all .2s}
+.lsel-btn:hover,.lsel-btn.on{border-color:var(--cyan);color:var(--cyan);background:rgba(0,212,255,.08)}
+.lsel-btn.all.on{border-color:var(--orange);color:var(--orange);background:rgba(255,140,66,.08)}
 @keyframes shimmer{0%{background-position:0% 50%}100%{background-position:200% 50%}}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 @keyframes wave{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 @keyframes rise{0%{transform:translateY(0);opacity:.7}100%{transform:translateY(-50px);opacity:0}}
 @keyframes hgspin{0%{transform:rotate(0deg)}45%{transform:rotate(0deg)}55%{transform:rotate(180deg)}100%{transform:rotate(180deg)}}
-/* DATE BAR */
-.date-bar{display:flex;align-items:center;gap:6px;padding:8px 14px;border-bottom:1px solid var(--b1);background:var(--s1);flex-wrap:wrap}
-.date-bar input{background:var(--s2);border:1px solid var(--b2);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:12px;padding:5px 10px;outline:none}
-.date-bar input:focus{border-color:var(--cyan)}
-.dbtn{font-size:11px;padding:5px 10px;border-radius:6px;border:1px solid var(--b2);background:none;color:var(--t2);cursor:pointer;font-family:var(--mono)}
-.dbtn:hover{border-color:var(--cyan);color:var(--cyan)}
-.date-lbl{font-family:var(--mono);font-size:10px;padding:3px 8px;border-radius:5px;background:rgba(0,212,255,.08);color:var(--cyan);border:1px solid rgba(0,212,255,.2)}
+
 </style>
 </head>
 <body>
@@ -204,14 +203,7 @@ main{position:relative;z-index:1;padding:12px 14px;max-width:520px;margin:0 auto
     <button class="btn-logout" onclick="doLogout()">ออก</button>
   </div>
 </nav>
-<div class="date-bar">
-  <button class="dbtn" onclick="cipChangeDate(-1)">◀</button>
-  <input type="date" id="cip-date" onchange="cipLoadDate(this.value)">
-  <button class="dbtn" onclick="cipChangeDate(1)">▶</button>
-  <button class="dbtn" onclick="cipGoToday()" style="color:var(--cyan);border-color:rgba(0,212,255,.3)">วันนี้</button>
-  <span class="date-lbl" id="cip-date-lbl"></span>
-</div>
-
+<div class="line-sel-bar" id="cip-lsb"><span class="lsel-lbl">แสดง LINE:</span><button class="lsel-btn all on" onclick="cipSel('all',this)">ทั้งหมด</button></div>
 <main>
   <!-- BANGCHAN -->
   <div class="page on" id="page-bangchan">
@@ -293,6 +285,8 @@ const db=getFirestore(app);
 
 let ME=null,ROLE=null;
 let lines=[],lineStates={},productMap={},planRows=[];
+let cipSL='all';
+window.cipSel=(name,btn)=>{cipSL=name;document.querySelectorAll('#cip-lsb .lsel-btn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderAll();};
 let freezers=[],pipes=[],hwState={};
 let tickTimer=null;
 let unsubLines=null,unsubStates=null,unsubP1=null,unsubP2=null;
@@ -302,34 +296,7 @@ const $=id=>document.getElementById(id);
 const nowHHMM=()=>{const d=new Date();return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');};
 const fmtL=n=>n.toLocaleString('th',{minimumFractionDigits:2,maximumFractionDigits:2});
 
-let cipCurrentDate=today();
 
-function cipSetDateLabel(d){
-  const inp=$('cip-date');if(inp)inp.value=d;
-  const lbl=$('cip-date-lbl');if(!lbl)return;
-  if(d===today())lbl.textContent='วันนี้';
-  else{const dt=new Date(d);lbl.textContent=dt.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit'});}
-}
-window.cipChangeDate=(delta)=>{
-  const d=new Date(cipCurrentDate);d.setDate(d.getDate()+delta);
-  cipCurrentDate=d.toISOString().slice(0,10);
-  cipSetDateLabel(cipCurrentDate);cipReloadPlans();
-};
-window.cipGoToday=()=>{cipCurrentDate=today();cipSetDateLabel(cipCurrentDate);cipReloadPlans();};
-window.cipLoadDate=(d)=>{cipCurrentDate=d;cipReloadPlans();};
-
-function cipReloadPlans(){
-  [unsubP1,unsubP2].forEach(u=>u&&u());
-  planRows=[];
-  unsubP1=onSnapshot(query(collection(db,'production_plans'),where('date','==',cipCurrentDate)),snap=>{
-    const r=snap.docs.map(d=>({id:d.id,_col:'production_plans',...d.data()}));
-    planRows=planRows.filter(x=>x._col!=='production_plans').concat(r);renderAll();
-  });
-  unsubP2=onSnapshot(query(collection(db,'production_plans_m2'),where('date','==',cipCurrentDate)),snap=>{
-    const r=snap.docs.map(d=>({id:d.id,_col:'production_plans_m2',...d.data()}));
-    planRows=planRows.filter(x=>x._col!=='production_plans_m2').concat(r);renderAll();
-  });
-}
 
 function toast(msg,t='blue'){
   const el=$('toast');el.textContent=msg;
@@ -381,8 +348,7 @@ async function init(){
     renderAll();
   });
 
-  const d=cipCurrentDate;
-  cipSetDateLabel(d);
+  const d=today();
   unsubP1=onSnapshot(query(collection(db,'production_plans'),where('date','==',d)),snap=>{
     const r=snap.docs.map(d=>({id:d.id,_col:'production_plans',...d.data()}));
     planRows=planRows.filter(x=>x._col!=='production_plans').concat(r);renderAll();
@@ -646,8 +612,11 @@ function buildCard(line){
 
 // RENDER ALL
 function renderAll(){
-  const bangchan=lines.filter(l=>(l.group||'bangchan')==='bangchan');
-  const twin=lines.filter(l=>l.group==='twin');
+  // Build line selector buttons
+  const lsb=document.getElementById('cip-lsb');
+  if(lsb){lsb.querySelectorAll('.lsel-btn:not(.all)').forEach(b=>b.remove());lines.forEach(l=>{const b=document.createElement('button');b.className='lsel-btn'+(cipSL===l.name?' on':'');b.textContent=l.name;b.onclick=()=>cipSel(l.name,b);lsb.appendChild(b);});}
+  const bangchan=lines.filter(l=>(l.group||'bangchan')==='bangchan'&&(cipSL==='all'||cipSL===l.name));
+  const twin=lines.filter(l=>l.group==='twin'&&(cipSL==='all'||cipSL===l.name));
   const render=(group,gridId,pfx)=>{
     const g=$(gridId);if(!g)return;
     g.innerHTML=group.length?group.map(l=>buildCard(l)).join(''):`<div style="color:var(--t3);font-family:var(--mono);padding:30px;text-align:center">ยังไม่มี LINE</div>`;

@@ -99,6 +99,12 @@ main{padding:14px;display:flex;flex-direction:column;gap:14px}
   z-index:9999;pointer-events:none;font-family:var(--mono);color:#fff}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
+/* LINE SELECTOR */
+.line-sel-bar{display:flex;align-items:center;gap:6px;padding:8px 14px;border-bottom:1px solid var(--b1);background:var(--s1);flex-wrap:wrap}
+.lsel-lbl{font-family:var(--mono);font-size:10px;color:var(--t2);flex-shrink:0}
+.lsel-btn{font-family:var(--mono);font-size:11px;padding:5px 12px;border-radius:6px;border:1px solid var(--b2);background:none;color:var(--t2);cursor:pointer;white-space:nowrap;transition:all .2s}
+.lsel-btn:hover,.lsel-btn.on{border-color:var(--orange);color:var(--orange);background:rgba(255,140,66,.1)}
+.lsel-btn.all.on{border-color:var(--cyan);color:var(--cyan);background:rgba(0,212,255,.08)}
 @keyframes wave{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 @keyframes rise{0%{transform:translateY(0);opacity:.6}100%{transform:translateY(-30px);opacity:0}}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
@@ -112,13 +118,8 @@ main{padding:14px;display:flex;flex-direction:column;gap:14px}
     <button class="nbtn" onclick="doLogout()">ออก</button>
   </div>
 </nav>
-<div class="date-bar">
-  <button class="dbtn" onclick="changeDate(-1)">◀</button>
-  <input type="date" id="date-sel" onchange="loadDate(this.value)">
-  <button class="dbtn" onclick="changeDate(1)">▶</button>
-  <button class="dbtn" onclick="goToday()" style="color:var(--orange);border-color:rgba(255,140,66,.3)">วันนี้</button>
-  <span class="today-badge" id="date-label"></span>
-</div>
+
+<div class="line-sel-bar" id="line-sel-bar"><span class="lsel-lbl">แสดง LINE:</span><button class="lsel-btn all on" onclick="selectLine('all',this)">ทั้งหมด</button></div>
 <main id="mg"><div style="text-align:center;padding:80px;color:var(--t3);font-family:var(--mono)">⏳ กำลังโหลด...</div></main>
 <div id="toast"></div>
 
@@ -130,43 +131,14 @@ import{getFirestore,collection,query,where,onSnapshot,getDocs,doc}
 
 const app=initializeApp({apiKey:"AIzaSyC3f6jMuhugE6BNfRfkpOA9BMrIKWR9YgQ",authDomain:"production-filling.firebaseapp.com",projectId:"production-filling",storageBucket:"production-filling.firebasestorage.app",messagingSenderId:"89098393458",appId:"1:89098393458:web:b723f2886e8a341935afeb"});
 const auth=getAuth(app),db=getFirestore(app);
-let lineNames=[],lineMap={},lineStates={},planRows=[],productMap={};
+let lineNames=[],lineMap={},lineStates={},planRows=[],productMap={},selectedLine='all';
 let tickTimer,u1,u2,u3,u4;
 
 const today=()=>new Date().toISOString().slice(0,10);
 const $=id=>document.getElementById(id);
 const fmtL=n=>Math.round(n).toLocaleString()+' L';
 const fmtP=n=>n.toFixed(1)+'%';
-let currentDate=today();
 
-function setDateLabel(d){
-  const t=today();
-  const inp=$('date-sel');if(inp)inp.value=d;
-  const lbl=$('date-label');
-  if(!lbl)return;
-  if(d===t)lbl.textContent='วันนี้';
-  else{
-    const dt=new Date(d);
-    lbl.textContent=dt.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit'});
-  }
-}
-window.changeDate=(delta)=>{
-  const d=new Date(currentDate);d.setDate(d.getDate()+delta);
-  currentDate=d.toISOString().slice(0,10);
-  setDateLabel(currentDate);loadDate(currentDate);
-};
-window.goToday=()=>{currentDate=today();setDateLabel(currentDate);loadDate(currentDate);};
-window.loadDate=(d)=>{
-  currentDate=d;
-  // unsubscribe เก่า แล้ว subscribe ใหม่
-  [u3,u4].forEach(u=>u&&u());
-  u3=onSnapshot(query(collection(db,'production_plans'),where('date','==',d)),snap=>{
-    planRows=planRows.filter(x=>x._col!=='production_plans').concat(snap.docs.map(d=>({id:d.id,_col:'production_plans',...d.data()})));renderAll();
-  });
-  u4=onSnapshot(query(collection(db,'production_plans_m2'),where('date','==',d)),snap=>{
-    planRows=planRows.filter(x=>x._col!=='production_plans_m2').concat(snap.docs.map(d=>({id:d.id,_col:'production_plans_m2',...d.data()})));renderAll();
-  });
-};
 
 function toast(msg,t='blue'){const el=$('toast');el.textContent=msg;el.style.background=t==='green'?'#0d7a3e':t==='red'?'#8b1a24':'#1a3d8b';el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2500);}
 function rgba(h,a){const r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return`rgba(${r},${g},${b},${a})`;}
@@ -199,8 +171,44 @@ async function init(){
   tickTimer=setInterval(tick,1000);
 }
 
+function isCuringDone(row){
+  if(!row.past_end_time)return false;
+  const p=productMap[row.mix_code]||{};
+  const agingHr=+(p.aging_time||4);
+  const[h,m]=row.past_end_time.split(':').map(Number);
+  const endMin=h*60+m+agingHr*60;
+  const now=new Date();
+  const nowMin=now.getHours()*60+now.getMinutes();
+  // ถ้าเลยเที่ยงคืน
+  const endAdj=endMin>=1440?endMin-1440:endMin;
+  return nowMin>=endAdj;
+}
+
+function getCuringRemain(row){
+  if(!row.past_end_time)return null;
+  const p=productMap[row.mix_code]||{};
+  const agingHr=+(p.aging_time||4);
+  const[h,m]=row.past_end_time.split(':').map(Number);
+  const endMin=h*60+m+agingHr*60;
+  const now=new Date();
+  const nowMin=now.getHours()*60+now.getMinutes();
+  const rem=endMin-nowMin;
+  if(rem<=0)return 0;
+  const rh=Math.floor(rem/60),rm=Math.floor(rem%60);
+  return `${rh}ชม.${rm}น.`;
+}
+
 function getTanks(name){
-  return planRows.filter(r=>r.filling_line===name&&(r.status==='ready'||r.status==='past_done'||r.status==='pasteurising')).sort((a,b)=>(a.seq||0)-(b.seq||0));
+  return planRows
+    .filter(r=>r.filling_line===name&&(r.status==='ready'||r.status==='past_done'||r.status==='pasteurising'))
+    .sort((a,b)=>(a.seq||0)-(b.seq||0));
+}
+function getCurrentTank(tanks){
+  // กำลังผลิต = past_done + บ่มครบแล้ว หรือ ready
+  return tanks.find(r=>(r.status==='past_done'||r.status==='ready')&&isCuringDone(r))||null;
+}
+function getQueueTanks(tanks,current){
+  return tanks.filter(r=>r!==current);
 }
 function getSt(name){const l=lineMap[name];return l?(lineStates[l.id]||{}):{}}
 
@@ -275,28 +283,32 @@ ${pct>0?`<g clip-path="url(#${cid})">
 </svg>`;
 }
 
-function card(row,isCur){
+function card(row,isCur,isSingle=false){
   const p=productMap[row.mix_code]||{};
   const col=p.color||'#60a5fa';
   const{filled,pct,totalVol}=calcVol(row);
   const pctC=pct>50?'#1fd17a':pct>20?'#f5c842':'#f04f5e';
   const isActive=row.status==='pasteurising'&&!!row.past_start_time;
 
+  const curingRem=getCuringRemain(row);
   let stTxt='—',stC='var(--t2)';
   if(row.status==='pasteurising'&&!row.past_start_time){stTxt='⏳ รอ Past.';stC='var(--yellow)';}
   else if(row.status==='pasteurising'&&row.past_start_time){stTxt='♨️ กำลัง Past.';stC='var(--orange)';}
-  else if(row.status==='past_done'){stTxt='⏳ กำลังบ่ม';stC='var(--yellow)';}
-  else if(row.status==='ready'){stTxt='✅ พร้อมส่ง';stC='var(--green)';}
+  else if((row.status==='past_done'||row.status==='ready')&&!isCuringDone(row)){
+    stTxt=curingRem?`🌡️ บ่มอยู่ ${curingRem}`:'🌡️ กำลังบ่ม';stC='var(--cyan)';}
+  else if((row.status==='past_done'||row.status==='ready')&&isCuringDone(row)){stTxt='✅ บ่มเสร็จ พร้อมส่ง';stC='var(--green)';}
 
   const at=row.aging_tank||'—';
-  // รหัสผลิต 10 ตัว — prefix 6 ตัว + suffix 4 ตัว
-  const rp=(row.prod_prefix&&row.prod_suffix)
-    ?(row.prod_prefix+row.prod_suffix)
-    :row.prod_suffix||row.prod_prefix||'—';
+  // รหัสผลิต 10 ตัว — คำนวณ prefix จากปี+0522+unit แล้วต่อ suffix 4 ตัว
+  const yr=new Date().getFullYear().toString().slice(-1);
+  const unit=row._col==='production_plans_m2'?'2':'1';
+  const prefix=yr+'0522'+unit; // เช่น 605221
+  const rp=row.prod_suffix?(prefix+row.prod_suffix):'—';
 
   const uid=(isCur?'C':'Q')+row.id.slice(-8);
+  const cardW=isSingle&&isCur?'260px':'175px';
 
-  return`<div class="tc ${isCur?'cur':'que'}">
+  return`<div class="tc ${isCur?'cur':'que'}" style="width:${cardW}">
   <div class="ch">
     <div class="ch-top">
       <span class="ch-line">${row.filling_line||'—'}</span>
@@ -325,24 +337,51 @@ function card(row,isCur){
 </div>`;
 }
 
+window.selectLine=(name,btn)=>{
+  selectedLine=name;
+  document.querySelectorAll('.lsel-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  renderAll();
+};
+
+function buildLineSelectorButtons(){
+  const bar=$('line-sel-bar');
+  if(!bar||!lineNames.length)return;
+  // ลบ button เก่า (ยกเว้น label และ all button)
+  const existing=bar.querySelectorAll('.lsel-btn:not(.all)');
+  existing.forEach(b=>b.remove());
+  lineNames.forEach(name=>{
+    const btn=document.createElement('button');
+    btn.className='lsel-btn'+(selectedLine===name?' on':'');
+    btn.textContent=name;
+    btn.onclick=()=>selectLine(name,btn);
+    bar.appendChild(btn);
+  });
+}
+
 function renderAll(){
   if(!lineNames.length)return;
   let html='';
-  lineNames.forEach(name=>{
+  buildLineSelectorButtons();
+  const visibleLines=selectedLine==='all'?lineNames:[selectedLine];
+  const isSingle=selectedLine!=='all';
+
+  visibleLines.forEach(name=>{
     const tanks=getTanks(name);
-    // ซ่อน LINE ที่ไม่มีข้อมูล
     if(!tanks.length)return;
-    html+=`<div class="ls">
+    const cur=getCurrentTank(tanks);
+    const queue=getQueueTanks(tanks,cur);
+    html+=`<div class="ls" style="${isSingle?'max-width:100%':''}">
       <div class="ls-title">${name.toUpperCase()}</div>
-      <div class="pr">
-        <div class="cur-wrap">
+      <div class="pr" style="${isSingle?'min-height:400px':''}">
+        <div class="cur-wrap" style="${isSingle?'width:280px':''}">
           <div class="sec-hd"><span class="dot-g"></span><span style="color:var(--green)">กำลังผลิตอยู่</span></div>
-          ${card(tanks[0],true)}
+          ${cur?card(cur,true,isSingle):'<div style="font-family:var(--mono);font-size:12px;color:var(--t3);padding:30px;text-align:center">⏳ รอบ่มเสร็จก่อน</div>'}
         </div>
         <div class="que-wrap">
           <div class="sec-hd"><span class="dot-q"></span><span style="color:var(--t2)">คิวรอผลิตถัดไป</span></div>
           <div class="que-inner">
-            ${tanks.length>1?tanks.slice(1).map(t=>card(t,false)).join(''):'<div style="font-family:var(--mono);font-size:12px;color:var(--t3);padding:20px">ไม่มีคิวถัดไป</div>'}
+            ${queue.length?queue.map(t=>card(t,false,isSingle)).join(''):'<div style="font-family:var(--mono);font-size:12px;color:var(--t3);padding:20px">ไม่มีคิว</div>'}
           </div>
         </div>
       </div>
@@ -366,6 +405,7 @@ function tick(){
       const pctC=pct>50?'#1fd17a':pct>20?'#f5c842':'#f04f5e';
       const isCur=tanks[0].id===row.id;
       const uid=(isCur?'C':'Q')+row.id.slice(-8);
+  const cardW=isSingle&&isCur?'260px':'175px';
       const v=$('vol-'+uid),p=$('pct-'+uid);
       if(v){v.textContent=filled.toFixed(1)+' L';v.style.color=pctC;}
       if(p){p.textContent=pct.toFixed(1)+'%';p.style.color=pctC;}
