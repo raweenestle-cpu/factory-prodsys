@@ -587,12 +587,13 @@ function buildCard(line){
         </div>
         <div class="tank-area" style="flex:1">
           <div class="tank-num-badge">${agingTank}</div>
-          ${tankSVG('S'+line.id,pct,col,isRunning)}
-          <div class="tank-stats">
-            <div class="tank-vol" id="vol-S${line.id}" style="color:${pctC}">${fmtL(rem)} L</div>
-            <div class="prog-wrap"><div class="prog-bg"><div class="prog-fill" id="bar-S${line.id}" style="width:${pct.toFixed(1)}%;background:${pctC}"></div></div></div>
-            <div class="tank-pct" id="pct-S${line.id}" style="color:${pctC}">${pct.toFixed(1)}%</div>
-            <div class="tank-eta" id="eta-S${line.id}">${getEtaStr(rem,fr,isRunning)}</div>
+          <div style="position:relative;display:flex;justify-content:center;align-items:center">
+            ${tankSVG('S'+line.id,pct,col,isRunning)}
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;width:90%">
+              <div id="vol-S${line.id}" style="font-family:var(--mono);font-size:16px;font-weight:700;color:${pctC};text-shadow:0 2px 12px rgba(0,0,0,1);line-height:1.4">${fmtL(rem)} L</div>
+              <div id="pct-S${line.id}" style="font-family:var(--mono);font-size:13px;color:${pctC};text-shadow:0 1px 8px rgba(0,0,0,1);line-height:1.4">${pct.toFixed(1)}%</div>
+              <div id="eta-S${line.id}" style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,.8);text-shadow:0 1px 6px rgba(0,0,0,1)">${getEtaStr(rem,fr,isRunning)}</div>
+            </div>
           </div>
           <div class="curing-box ${curing.done?'done':'pend'}">
             <div class="curing-icon">${current.status==='pasteurising'?'♨️':curing.done?'✅':'⏳'}</div>
