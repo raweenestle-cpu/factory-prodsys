@@ -508,10 +508,13 @@ function buildCard(line){
   const current=tanks[0]||null;
   const st=lineStates[line.id]||{};
   const isRunning=st.running&&!!st.start_ts;
-  const curing=getCuringInfo(current,line.id);
-  const cardStatus=isRunning?'running':current&&!curing.done?'curing':current?'stopped':'empty';
+
+  // ถ้า current ยังเป็น pasteurising ให้แสดงเป็น curing (กำลังพาส/บ่ม)
+  const isPasteurising=current&&(current.status==='pasteurising'||current.status==='past_done');
+  const curing=current&&!isPasteurising?getCuringInfo(current,line.id):{done:false,endTime:'—'};
+  const cardStatus=isRunning?'running':isPasteurising?'curing':current&&!curing.done?'curing':current?'stopped':'empty';
   const pm={running:'sp-run',curing:'sp-cur',stopped:'sp-stp',empty:'sp-emp'};
-  const pt={running:'● กำลังเดิน',curing:'⏳ กำลังบ่ม',stopped:'⏸ หยุด',empty:'○ ว่าง'};
+  const pt={running:'● กำลังเดิน',curing:current?.status==='pasteurising'?'♨️ กำลัง Past.':'⏳ กำลังบ่ม',stopped:'⏸ หยุด',empty:'○ ว่าง'};
 
   // EMPTY
   if(!current)return`<div class="lcard empty" id="card-${line.id}">
@@ -577,9 +580,11 @@ function buildCard(line){
         <div class="tank-eta" id="eta-S${line.id}">${getEtaStr(rem,fr,isRunning)}</div>
       </div>
       <div class="curing-box ${curing.done?'done':'pend'}">
-        <div class="curing-icon">${curing.done?'✅':'⏳'}</div>
-        <div class="curing-txt" style="color:${curing.done?'var(--green)':'var(--yellow)'}">${curing.done?'บ่มเสร็จแล้ว':'กำลังบ่ม'}</div>
-        <div class="curing-time">Past. ${current.past_end_time||'—'} → บ่มเสร็จ ${curing.endTime}</div>
+        <div class="curing-icon">${current.status==='pasteurising'?'♨️':curing.done?'✅':'⏳'}</div>
+        <div class="curing-txt" style="color:${current.status==='pasteurising'?'var(--orange)':curing.done?'var(--green)':'var(--yellow)'}">
+          ${current.status==='pasteurising'?'กำลัง Pasteurize':curing.done?'บ่มเสร็จแล้ว':'กำลังบ่ม'}
+        </div>
+        <div class="curing-time">Past. ${current.past_end_time||'รอ stamp...'} → บ่มเสร็จ ${current.status==='pasteurising'?'(รอ Past. เสร็จ)':curing.endTime}</div>
       </div>
     </div>
 
