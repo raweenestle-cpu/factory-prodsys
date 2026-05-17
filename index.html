@@ -2,7 +2,13 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1e40af">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="PROD.SYS">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PROD.SYS — Login</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;600&family=Sarabun:wght@400;500;600;700&display=swap');
@@ -389,6 +395,15 @@ window.doLogout=async()=>{
 function showStep(id){
   document.querySelectorAll('.step').forEach(s=>s.classList.remove('on'));
   document.getElementById(id).classList.add('on');
+}
+</script>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('sw.js')
+      .then(r=>console.log('SW registered'))
+      .catch(e=>console.warn('SW failed:',e));
+  });
 }
 </script>
 </body>
