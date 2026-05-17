@@ -166,20 +166,56 @@ nav{display:flex;align-items:center;height:52px;background:var(--s1);border-bott
       <button class="mat-btn" onclick="selectMat('plm',this)">🌴 Palm Oil</button>
     </div>
 
+    <!-- SET POINT EDITOR -->
+    <div style="margin-bottom:14px">
+      <div style="font-family:var(--mono);font-size:10px;color:var(--t3);margin-bottom:8px">Set Point (kg) — แก้ไขได้</div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:4px">
+          <span style="font-family:var(--mono);font-size:10px;color:var(--t2)">จุดที่ 1:</span>
+          <input id="sp1" type="number" class="ci" style="width:80px;text-align:center;font-family:var(--mono);font-weight:700" value="50" min="1" onchange="updateRanges()">
+        </div>
+        <div style="display:flex;align-items:center;gap:4px">
+          <span style="font-family:var(--mono);font-size:10px;color:var(--t2)">จุดที่ 2:</span>
+          <input id="sp2" type="number" class="ci" style="width:80px;text-align:center;font-family:var(--mono);font-weight:700" value="100" min="1" onchange="updateRanges()">
+        </div>
+        <div style="display:flex;align-items:center;gap:4px">
+          <span style="font-family:var(--mono);font-size:10px;color:var(--t2)">จุดที่ 3:</span>
+          <input id="sp3" type="number" class="ci" style="width:80px;text-align:center;font-family:var(--mono);font-weight:700" value="150" min="1" onchange="updateRanges()">
+        </div>
+        <span style="font-family:var(--mono);font-size:10px;color:var(--t3)">หน่วย: kg</span>
+      </div>
+    </div>
+
     <!-- VERIFY TABLE -->
     <div style="overflow-x:auto">
       <table class="rtable" id="verify-table">
         <thead>
           <tr>
-            <th rowspan="2">Set Point (kg)</th>
-            <th colspan="3" style="color:var(--cyan)">ค่าจริงที่ได้ (kg)</th>
-            <th colspan="3" style="color:var(--yellow)">% Deviation</th>
-            <th rowspan="2">ค่าเฉลี่ย Dev%</th>
-            <th rowspan="2">ผล</th>
+            <th rowspan="3">Set Point (kg)</th>
+            <th colspan="2" style="color:var(--cyan);border-bottom:1px solid var(--b2)">ครั้งที่ 1</th>
+            <th colspan="2" style="color:var(--cyan);border-bottom:1px solid var(--b2)">ครั้งที่ 2</th>
+            <th colspan="2" style="color:var(--cyan);border-bottom:1px solid var(--b2)">ครั้งที่ 3</th>
+            <th rowspan="3" style="color:var(--yellow)">Dev 1%</th>
+            <th rowspan="3" style="color:var(--yellow)">Dev 2%</th>
+            <th rowspan="3" style="color:var(--yellow)">Dev 3%</th>
+            <th rowspan="3" style="color:var(--orange)">Avg Dev%</th>
+            <th rowspan="3">ผล</th>
           </tr>
           <tr>
-            <th>ครั้งที่ 1</th><th>ครั้งที่ 2</th><th>ครั้งที่ 3</th>
-            <th>Dev 1</th><th>Dev 2</th><th>Dev 3</th>
+            <th style="color:#67e8f9;font-size:9px">Actual</th>
+            <th style="color:#a78bfa;font-size:9px">SCADA</th>
+            <th style="color:#67e8f9;font-size:9px">Actual</th>
+            <th style="color:#a78bfa;font-size:9px">SCADA</th>
+            <th style="color:#67e8f9;font-size:9px">Actual</th>
+            <th style="color:#a78bfa;font-size:9px">SCADA</th>
+          </tr>
+          <tr>
+            <th style="font-size:8px;color:var(--t3)">(kg)</th>
+            <th style="font-size:8px;color:var(--t3)">(kg)</th>
+            <th style="font-size:8px;color:var(--t3)">(kg)</th>
+            <th style="font-size:8px;color:var(--t3)">(kg)</th>
+            <th style="font-size:8px;color:var(--t3)">(kg)</th>
+            <th style="font-size:8px;color:var(--t3)">(kg)</th>
           </tr>
         </thead>
         <tbody id="verify-tbody"></tbody>
@@ -234,7 +270,8 @@ import{getFirestore,collection,query,where,orderBy,addDoc,getDocs,doc,getDoc,lim
 const app=initializeApp({apiKey:"AIzaSyC3f6jMuhugE6BNfRfkpOA9BMrIKWR9YgQ",authDomain:"production-filling.firebaseapp.com",projectId:"production-filling",storageBucket:"production-filling.firebasestorage.app",messagingSenderId:"89098393458",appId:"1:89098393458:web:b723f2886e8a341935afeb"});
 const auth=getAuth(app),db=getFirestore(app);
 let ME=null,curMat='glc',curInterval=15,curUnit='m1';
-const RANGES=[50,100,150];
+let RANGES=[50,100,150];
+let scadaVals={};
 const MAT={glc:{name:'Glucose',color:'#86efac',emoji:'🍬'},sgr:{name:'Sugar',color:'#67e8f9',emoji:'🧂'},plm:{name:'Palm Oil',color:'#fdba74',emoji:'🌴'}};
 const today=()=>new Date().toISOString().slice(0,10);
 const $=id=>document.getElementById(id);
@@ -273,6 +310,17 @@ window.selectUnit=(unit,btn)=>{
   resetVals();renderTable();loadDueInfo();
 };
 
+window.updateRanges=()=>{
+  const s1=+document.getElementById('sp1').value||50;
+  const s2=+document.getElementById('sp2').value||100;
+  const s3=+document.getElementById('sp3').value||150;
+  RANGES=[s1,s2,s3];
+  // reset vals ตาม ranges ใหม่
+  vals={};
+  RANGES.forEach(r=>{vals[r]=[null,null,null];});
+  renderTable();
+};
+
 window.selectMat=(mat,btn)=>{
   curMat=mat;
   document.querySelectorAll('.mat-btn').forEach(b=>b.classList.remove('on'));
@@ -291,7 +339,7 @@ window.setInterval=(days)=>{
   $('int-30').style.color=days===30?'var(--cyan)':'';
 };
 
-function resetVals(){RANGES.forEach(r=>{vals[r]=[null,null,null];});}
+function resetVals(){vals={};scadaVals={};RANGES.forEach(r=>{vals[r]=[null,null,null];scadaVals[r]=[null,null,null];});}
 
 window.resetForm=()=>{
   resetVals();renderTable();
@@ -326,14 +374,23 @@ function renderTable(){
 
     const tr=document.createElement('tr');
     tr.className='range-row';
-    tr.innerHTML=`
-      <td style="color:${mat.color};font-size:14px;font-weight:800">${set} kg</td>
-      ${[0,1,2].map(i=>`<td>
+    // สร้าง 3 คู่คอลัมน์ actual+scada
+    const pairCols=[0,1,2].map(i=>`
+      <td>
         <input class="act-in" type="number" step="0.01" value="${vals[set][i]??''}"
-          style="border-color:${vals[set][i]!==null?mat.color+'88':'var(--b2)'}"
+          style="border-color:${vals[set][i]!==null?mat.color+'88':'var(--b2)'};width:80px"
           placeholder="0.00"
           onchange="updateVal(${set},${i},this.value)">
-      </td>`).join('')}
+      </td>
+      <td>
+        <input class="act-in" type="number" step="0.01" value="${(scadaVals[set]||[])[i]??''}"
+          style="border-color:${(scadaVals[set]||[])[i]!=null?'rgba(167,139,250,.6)':'var(--b2)'};width:80px;background:rgba(167,139,250,.05)"
+          placeholder="0.00"
+          onchange="updateScada(${set},${i},this.value)">
+      </td>`).join('');
+    tr.innerHTML=`
+      <td style="color:${mat.color};font-size:14px;font-weight:800">${set} kg</td>
+      ${pairCols}
       ${devs.map(d=>devHTML(d)).map(h=>`<td>${h}</td>`).join('')}
       <td>${avg!==null?devHTML(avg):'<span class="dev-na">—</span>'}</td>
       <td>${validDevs.length===3
@@ -355,6 +412,11 @@ function renderTable(){
     $('overall-result').innerHTML='';
   }
 }
+
+window.updateScada=(set,idx,val)=>{
+  if(!scadaVals[set])scadaVals[set]=[null,null,null];
+  scadaVals[set][idx]=val===''?null:+val;
+};
 
 window.updateVal=(set,idx,val)=>{
   vals[set][idx]=val===''?null:+val;
@@ -382,6 +444,7 @@ window.saveVerify=async()=>{
     await addDoc(collection(db,'flowmeter_verify'),{
       date,material:curMat,material_name:mat.name,
       mixing_unit:curUnit,
+      scada_vals:scadaVals,
       interval_days:curInterval,results,overall_pass:allPass,
       note,created_by:ME?.email||'—',created_at:new Date().toISOString()
     });
