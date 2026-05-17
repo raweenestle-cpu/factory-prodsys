@@ -599,6 +599,7 @@ function buildCard(line){
   const queue=tanks.slice(1);
   const st=lineStates[line.id]||{};
   const isRunning=st.running&&!!st.start_ts;
+  const hasLiquid=!!current&&+(current.volume_liter||0)>0; // wave ทุกครั้งที่มีของ
   const isPasteurising=current&&(current.status==='pasteurising'||current.status==='past_done');
   const curing=current&&!isPasteurising?getCuringInfo(current,line.id):{done:false,endTime:'—'};
   const cardStatus=isRunning?'running':isPasteurising?'curing':current&&!curing.done?'curing':current?'stopped':'empty';
@@ -688,7 +689,7 @@ function buildCard(line){
         <div class="tank-area" style="flex:1">
           <div class="tank-num-badge">${agingTank}</div>
           <div style="position:relative;display:flex;justify-content:center;align-items:center">
-            ${tankSVG('S'+line.id,pct,col,isRunning)}
+            ${tankSVG('S'+line.id,pct,col,hasLiquid)}
             <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;width:90%">
               <div id="vol-S${line.id}" style="font-family:var(--mono);font-size:16px;font-weight:700;color:${pctC};text-shadow:0 2px 12px rgba(0,0,0,1);line-height:1.4">${fmtL(rem)} L</div>
               <div id="pct-S${line.id}" style="font-family:var(--mono);font-size:13px;color:${pctC};text-shadow:0 1px 8px rgba(0,0,0,1);line-height:1.4">${pct.toFixed(1)}%</div>
