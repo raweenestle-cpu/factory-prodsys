@@ -2,7 +2,13 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1e40af">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="PROD.SYS">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Aging Tank — PROD.SYS</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;600;700&family=Sarabun:wght@400;500;600;700&display=swap');
@@ -205,6 +211,9 @@ async function init(){
     snap.docs.forEach(d=>{tankStates[d.id]={id:d.id,...d.data()};});
     renderAll();
   });
+
+  // refresh ทุก 1 นาที เพื่ออัปเดต level pasteurising
+  setInterval(()=>renderAll(),60000);
 }
 
 const BANGCHAN_TANKS=Array.from({length:34},(_,i)=>`T${String(i+1).padStart(2,'0')}`);
@@ -243,11 +252,31 @@ function renderAll(){
   });
 }
 
+// CAPACITY ของแต่ละถัง
+function getTankCapacity(tankId){
+  const num=parseInt(tankId.replace('T',''));
+  if(num>=1&&num<=34)return 3000;   // Bangchan
+  if(num>=61&&num<=64)return 10000; // Twin Laser/Scoopy
+  if(num>=65&&num<=68)return 8000;  // Twin Hoyal/Laser
+  if(num>=71&&num<=74)return 10000; // Twin Laser/Scoopy
+  if(num>=75&&num<=78)return 8000;  // Twin Hoyal/Laser
+  return 3000;
+}
+
 function getTankInfo(tankId){
   // หา batch ที่ใช้ถังนี้อยู่
   const row=planRows.find(r=>r.aging_tank===tankId);
-  const st=tankStates[tankId]||{status:'empty'};
-  return{...st,row};
+  // ดึง status จาก planRow ก่อน ถ้าไม่มีค่อยดึงจาก tankStates
+  let status='empty';
+  if(row){
+    if(row.status==='pasteurising')status='pasteurising';
+    else if(row.status==='past_done')status='curing';
+    else if(row.status==='ready')status='filling';
+    else status='pasteurising';
+  } else {
+    status=tankStates[tankId]?.status||'empty';
+  }
+  return{status,row};
 }
 
 function statusColor(s){
@@ -256,12 +285,32 @@ function statusColor(s){
 function statusLabel(s){
   return s==='pasteurising'?'PASTEURISE':s==='filling'?'FILLING':s==='curing'?'CURING':s==='empty'?'รอล้าง':s==='cleaned'?'CLEANED':'EMPTY';
 }
-function statusPct(s,row){
-  if(s==='cleaned')return 0;
-  if(s==='empty')return 0;
-  if(s==='pasteurising')return 60;
-  if(s==='filling')return 85;
-  if(s==='curing')return 100;
+
+function calcVolume(row){
+  // คำนวณ volume ที่ไหลเข้าถังแล้ว ณ ปัจจุบัน
+  if(!row||!row.past_start_time)return+(row?.volume_liter||0);
+  if(row.status==='past_done'||row.status==='ready')return+(row.volume_liter||0);
+  // กำลัง pasteurising — คำนวณตาม elapsed time และ flow rate
+  try{
+    const dateStr=row.date||new Date().toISOString().slice(0,10);
+    const[h,m]=row.past_start_time.split(':').map(Number);
+    const start=new Date(`${dateStr}T${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:00`);
+    const now=new Date();
+    const elapsedHr=Math.max(0,(now-start)/3600000);
+    const flowRate=+(row.flow_rate||300); // L/hr
+    return Math.min(+(row.volume_liter||0), elapsedHr*flowRate);
+  }catch{return+(row.volume_liter||0);}
+}
+
+function statusPct(status,row,tankId){
+  if(status==='cleaned'||status==='empty')return 0;
+  const capacity=getTankCapacity(tankId);
+  if(status==='curing')return Math.min(100,Math.round((+(row?.volume_liter||0)/capacity)*100));
+  if(status==='pasteurising'){
+    const vol=calcVolume(row);
+    return Math.min(100,Math.round((vol/capacity)*100));
+  }
+  if(status==='filling')return Math.min(100,Math.round((+(row?.volume_liter||0)/capacity)*100));
   return 0;
 }
 
@@ -310,11 +359,14 @@ function tankSVG(tid,pct,col){
 
 function tankCard(tankId){
   const{status,row}=getTankInfo(tankId);
-  const col=status==='filling'?'#ef4444':status==='curing'?'#eab308':status==='cleaned'?'#22c55e':'#3d4560';
-  const pct=statusPct(status,row);
+  const col=statusColor(status);
+  const capacity=getTankCapacity(tankId);
+  const pct=statusPct(status,row,tankId);
   const stClass=`st-${status==='empty'?'empty':status==='filling'?'filling':status==='pasteurising'?'pasteurising':status==='curing'?'curing':'cleaned'}`;
   const mixName=row?.mix_name||'';
-  const vol=row?.volume_liter?`${(+row.volume_liter).toLocaleString()}L`:'';
+  const vol=status!=='empty'&&status!=='cleaned'?calcVolume(row):0;
+  const volTxt=vol>0?`${Math.round(vol).toLocaleString()}L`:'';
+  const capTxt=`${(capacity/1000).toFixed(0)}kL`;
   const div=document.createElement('div');
   div.className=`tc ${stClass}`;
   div.onclick=()=>openModal(tankId);
@@ -324,7 +376,8 @@ function tankCard(tankId){
       ${tankSVG(tankId,pct,col)}
       <div class="tov">
         ${mixName?`<div class="tv" style="color:${col};font-size:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60px">${mixName.slice(0,8)}</div>`:''}
-        ${vol?`<div class="tp" style="color:${col}">${vol}</div>`:''}
+        ${volTxt?`<div class="tp" style="color:${col}">${volTxt}</div>`:''}
+        ${pct>0?`<div class="tp" style="color:rgba(255,255,255,.7)">${pct}%</div>`:''}
       </div>
     </div>
     <div class="tsb" style="color:${col};background:${rgba(col,.1)}">${statusLabel(status)}</div>`;
@@ -335,8 +388,13 @@ function tankCard(tankId){
 window.openModal=(tankId)=>{
   selectedTank=tankId;
   const{status,row}=getTankInfo(tankId);
-  $('modal-tank-num').textContent=`ถัง ${tankId}`;
-  const info=row?`${statusLabel(status)} — ${row.mix_name||''} ${row.volume_liter?row.volume_liter+'L':''}`:`${statusLabel(status)}`;
+  const capacity=getTankCapacity(tankId);
+  const vol=calcVolume(row);
+  const pct=statusPct(status,row,tankId);
+  $('modal-tank-num').textContent=`ถัง ${tankId} — capacity ${capacity.toLocaleString()} L`;
+  const info=row
+    ?`${statusLabel(status)} — ${row.mix_name||''} ${vol>0?Math.round(vol).toLocaleString()+'L':''} ${pct>0?'('+pct+'%)':''}`
+    :`${statusLabel(status)}`;
   $('modal-tank-info').textContent=info;
   // highlight active
   document.querySelectorAll('.stat-btn').forEach(b=>{
@@ -369,6 +427,15 @@ window.showTab=(tab,btn)=>{
   document.querySelectorAll('.ntab').forEach(el=>el.classList.remove('on'));
   $(`page-${tab}`).classList.add('on');btn.classList.add('on');
 };
+</script>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('sw.js')
+      .then(r=>console.log('SW registered'))
+      .catch(e=>console.warn('SW failed:',e));
+  });
+}
 </script>
 </body>
 </html>
