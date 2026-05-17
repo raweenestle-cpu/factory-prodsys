@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Import Products</title>
+<style>
+body{font-family:monospace;background:#07090f;color:#dde3f0;padding:20px}
+#log{background:#0e1118;border:1px solid #1e2535;border-radius:8px;padding:16px;
+  height:400px;overflow-y:auto;font-size:12px;line-height:1.8}
+.ok{color:#22c55e}.err{color:#ef4444}.info{color:#60a5fa}
+button{background:#3b82f6;border:none;color:#fff;padding:10px 24px;border-radius:8px;
+  font-size:14px;cursor:pointer;margin-top:16px}
+</style>
+</head>
+<body>
+<h2 style="color:#60a5fa">📦 Import Product Master → Firebase</h2>
+<div id="log"></div>
+<button onclick="startImport()">▶ เริ่ม Import</button>
+
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import{getFirestore,doc,setDoc}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const app=initializeApp({apiKey:"AIzaSyC3f6jMuhugE6BNfRfkpOA9BMrIKWR9YgQ",authDomain:"production-filling.firebaseapp.com",projectId:"production-filling",storageBucket:"production-filling.firebasestorage.app",messagingSenderId:"89098393458",appId:"1:89098393458:web:b723f2886e8a341935afeb"});
+const db=getFirestore(app);
+const log=document.getElementById('log');
+function L(msg,cls='info'){log.innerHTML+=`<div class="${cls}">${msg}</div>`;log.scrollTop=log.scrollHeight;}
+
+// ข้อมูลทั้งหมดจากรูป
+const products=[
+  // รูปที่ 1
+  {mix_code:"41097007",mix_name:"Coconut",density:1.09,speed_paste_1:5150,speed_paste_2:4450,stage1:2300,stage2:500,type:"Ice Cream"},
+  {mix_code:"44354497",mix_name:"S.White Lychee Mix",density:1.08,speed_paste_1:5120,speed_paste_2:4450,stage1:1500,stage2:500,type:"Ice Cream"},
+  {mix_code:"41097034",mix_name:"MILO Ice Cream",density:1.13,speed_paste_1:5225,speed_paste_2:4450,stage1:1700,stage2:500,type:"Ice Cream"},
+  {mix_code:"41097402",mix_name:"9% Mocha",density:1.1,speed_paste_1:5150,speed_paste_2:4450,stage1:2500,stage2:500,type:"Ice Cream"},
+  {mix_code:"43096361",mix_name:"9%Cookie",density:1.1,speed_paste_1:5150,speed_paste_2:4450,stage1:2500,stage2:500,type:"Ice Cream"},
+  {mix_code:"43106102",mix_name:"7% MILO",density:1.13,speed_paste_1:5225,speed_paste_2:4520,stage1:2300,stage2:500,type:"Ice Cream"},
+  {mix_code:"43326447",mix_name:"Lime Sherbet",density:1.11,speed_paste_1:5150,speed_paste_2:4450,stage1:1500,stage2:500,type:"Ice Cream"},
+  {mix_code:"43329180",mix_name:"9% Straw CMC",density:1.1,speed_paste_1:5150,speed_paste_2:4450,stage1:2500,stage2:500,type:"Ice Cream"},
+  {mix_code:"43423991",mix_name:"9% Devil Choc",density:1.11,speed_paste_1:5150,speed_paste_2:4450,stage1:2500,stage2:500,type:"Ice Cream"},
+  {mix_code:"44413173",mix_name:"WI.yellow CMC",density:1.09,speed_paste_1:5150,speed_paste_2:4450,stage1:null,stage2:null,type:"Water Ice"},
+  {mix_code:"43522881",mix_name:"WI Cola CMC",density:1.08,speed_paste_1:5120,speed_paste_2:4450,stage1:null,stage2:null,type:"Water Ice"},
+  {mix_code:"44458603",mix_name:"10%Hokkaido",density:1.1,speed_paste_1:5150,speed_paste_2:4450,stage1:2000,stage2:500,type:"Ice Cream"},
+  {mix_code:"43543593",mix_name:"9%Vanilla",density:1.1,speed_paste_1:5150,speed_paste_2:4450,stage1:2500,stage2:500,type:"Ice Cream"},
+  {mix_code:"44419450",mix_name:"10% thai tea",density:1.1,speed_paste_1:5150,speed_paste_2:4450,stage1:2000,stage2:500,type:"Ice Cream"},
+  {mix_code:"44090477",mix_name:"10%Brown Sugar",density:1.1,speed_paste_1:5150,speed_paste_2:4450,stage1:2000,stage2:500,type:"Ice Cream"},
+  {mix_code:"44413172",mix_name:"WI.Green lemon",density:1.09,speed_paste_1:5150,speed_paste_2:4450,stage1:null,stage2:null,type:"Water Ice"},
+  {mix_code:"43607565",mix_name:"7% Chocolate",density:1.1,speed_paste_1:5150,speed_paste_2:4450,stage1:2800,stage2:500,type:"Ice Cream"},
+  {mix_code:"43607566",mix_name:"7% Vanilla",density:1.1,speed_paste_1:5150,speed_paste_2:4450,stage1:2800,stage2:500,type:"Ice Cream"},
+  {mix_code:"43637958",mix_name:"9% Green Tea",density:1.1,speed_paste_1:5150,speed_paste_2:4450,stage1:2500,stage2:500,type:"Ice Cream"},
+  {mix_code:"43685952",mix_name:"WI Green Ex",density:1.09,speed_paste_1:5120,speed_paste_2:4450,stage1:null,stage2:null,type:"Water Ice"},
+  {mix_code:"43685953",mix_name:"WI Red Ex",density:1.09,speed_paste_1:5120,speed_paste_2:4450,stage1:null,stage2:null,type:"Water Ice"},
+  {mix_code:"43891453",mix_name:"7% Choc Ex",density:1.1,speed_paste_1:5150,speed_paste_2:4450,stage1:2600,stage2:500,type:"Ice Cream"},
+  {mix_code:"43891454",mix_name:"7% Vanilla Ex",density:1.1,speed_paste_1:5150,speed_paste_2:4450,stage1:2600,stage2:500,type:"Ice Cream"},
+  {mix_code:"43718920",mix_name:"7% Nomyen",density:1.09,speed_paste_1:5150,speed_paste_2:4450,stage1:2600,stage2:500,type:"Ice Cream"},
+  {mix_code:"43727296",mix_name:"7%Chocolate",density:1.1,speed_paste_1:5150,speed_paste_2:4450,stage1:2800,stage2:500,type:"Ice Cream"},
+  {mix_code:"44487571",mix_name:"Jelle Apple",density:1.1,speed_paste_1:5120,speed_paste_2:4400,stage1:null,stage2:null,type:"Jelly"},
+  {mix_code:"44286221",mix_name:"ice Cream Coconut Sticky Rice Mix",density:1.08,speed_paste_1:5120,speed_paste_2:4450,stage1:2300,stage2:500,type:"Ice Cream"},
+  {mix_code:"44383149",mix_name:"Wi.Lime",density:1.08,speed_paste_1:5225,speed_paste_2:4520,stage1:null,stage2:null,type:"Water Ice"},
+  {mix_code:"43727969",mix_name:"Jelly Straw",density:1.13,speed_paste_1:5225,speed_paste_2:4520,stage1:null,stage2:null,type:"Jelly"},
+  {mix_code:"44361766",mix_name:"wi.mix frut",density:1.09,speed_paste_1:5150,speed_paste_2:4450,stage1:null,stage2:null,type:"Water Ice"},
+  {mix_code:"44195559",mix_name:"WI Straw",density:1.1,speed_paste_1:5150,speed_paste_2:4450,stage1:null,stage2:null,type:"Water Ice"},
+  {mix_code:"44195570",mix_name:"WI Grape",density:1.1,speed_paste_1:5150,speed_paste_2:4450,stage1:null,stage2:null,type:"Water Ice"},
+  {mix_code:"43727968",mix_name:"Jelly yellow Grape",density:1.13,speed_paste_1:5150,speed_paste_2:4450,stage1:null,stage2:null,type:"Jelly"},
+  {mix_code:"43806281",mix_name:"WI Pink Lychee",density:1.09,speed_paste_1:5120,speed_paste_2:4450,stage1:null,stage2:null,type:"Water Ice"},
+  {mix_code:"43899188",mix_name:"10% Cream",density:1.1,speed_paste_1:5150,speed_paste_2:4450,stage1:2000,stage2:500,type:"Ice Cream"},
+  {mix_code:"44361757",mix_name:"S.1.4%mix frut",density:1.08,speed_paste_1:5150,speed_paste_2:4450,stage1:1500,stage2:500,type:"Ice Cream"},
+  {mix_code:"44011574",mix_name:"11%Dark Choc",density:1.11,speed_paste_1:5120,speed_paste_2:4450,stage1:2000,stage2:500,type:"Ice Cream"},
+  // รูปที่ 2
+  {mix_code:"43854837",mix_name:"5%Yogurt",density:1.12,speed_paste_1:5150,speed_paste_2:4450,stage1:2800,stage2:500,type:"Ice Cream"},
+  {mix_code:"44363176",mix_name:"Wi.pine",density:1.08,speed_paste_1:5170,speed_paste_2:4400,stage1:null,stage2:null,type:"Jelly"},
+  {mix_code:"44416879",mix_name:"5% Yogurt pop",density:1.12,speed_paste_1:5150,speed_paste_2:4450,stage1:2800,stage2:500,type:"Ice Cream"},
+  {mix_code:"44338184",mix_name:"10.5% kikat",density:1.1,speed_paste_1:5150,speed_paste_2:4450,stage1:2000,stage2:500,type:"Ice Cream"},
+  {mix_code:"43953005",mix_name:"Pink Sherbet",density:1.11,speed_paste_1:5150,speed_paste_2:4450,stage1:1500,stage2:500,type:"Ice Cream"},
+  {mix_code:"43953011",mix_name:"White Sherbet",density:1.11,speed_paste_1:5150,speed_paste_2:4450,stage1:1500,stage2:500,type:"Ice Cream"},
+  {mix_code:"43988596",mix_name:"6% Mango Peach",density:1.09,speed_paste_1:5150,speed_paste_2:4450,stage1:2800,stage2:500,type:"Ice Cream"},
+  {mix_code:"44090489",mix_name:"9% Straw",density:1.1,speed_paste_1:5150,speed_paste_2:4450,stage1:2500,stage2:500,type:"Ice Cream"},
+  {mix_code:"44336201",mix_name:"S.lactic yogurt",density:1.08,speed_paste_1:5150,speed_paste_2:4450,stage1:1500,stage2:500,type:"Ice Cream"},
+  {mix_code:"44044930",mix_name:"10%Straw",density:1.1,speed_paste_1:5150,speed_paste_2:4450,stage1:2000,stage2:500,type:"Ice Cream"},
+  {mix_code:"44425826",mix_name:"Ice Cream Yogurt Strawberry 3% Fat Mix",density:1.12,speed_paste_1:5150,speed_paste_2:4450,stage1:2800,stage2:500,type:"Ice Cream"},
+  {mix_code:"44184993",mix_name:"5.5% Yoghurt",density:1.1,speed_paste_1:5150,speed_paste_2:4450,stage1:2800,stage2:500,type:"Ice Cream"},
+  {mix_code:"44467537",mix_name:"Jelly Lychee",density:1.13,speed_paste_1:5225,speed_paste_2:4450,stage1:null,stage2:null,type:"Jelly"},
+  {mix_code:"44185169",mix_name:"Jelly Orange",density:1.13,speed_paste_1:5225,speed_paste_2:4520,stage1:null,stage2:null,type:"Jelly"},
+  {mix_code:"44439437",mix_name:"9%White Decor",density:1.1,speed_paste_1:5150,speed_paste_2:4450,stage1:2500,stage2:500,type:"Ice Cream"},
+  {mix_code:"44148456",mix_name:"9%Vanilla",density:1.1,speed_paste_1:5150,speed_paste_2:4450,stage1:2500,stage2:500,type:"Ice Cream"},
+  {mix_code:"44325447",mix_name:"7%milo EX",density:1.13,speed_paste_1:5225,speed_paste_2:4520,stage1:2300,stage2:500,type:"Ice Cream"},
+  {mix_code:"44354443",mix_name:"S.Lychee pink",density:1.08,speed_paste_1:5170,speed_paste_2:4400,stage1:1500,stage2:500,type:"Ice Cream"},
+  {mix_code:"44325461",mix_name:"Ice Cream Mochi Milk 11.5%Fat Mix",density:1.09,speed_paste_1:5150,speed_paste_2:4450,stage1:2000,stage2:500,type:"Ice Cream"},
+  {mix_code:"44206880",mix_name:"8.5%Honey",density:1.09,speed_paste_1:5150,speed_paste_2:4450,stage1:2500,stage2:500,type:"Ice Cream"},
+  {mix_code:"44467570",mix_name:"3%kyoho Ex",density:1.1,speed_paste_1:5150,speed_paste_2:4450,stage1:2800,stage2:500,type:"Ice Cream"},
+  {mix_code:"44011474",mix_name:"7.5% mint",density:1.11,speed_paste_1:5150,speed_paste_2:4450,stage1:2800,stage2:500,type:"Ice Cream"},
+  {mix_code:"44253267",mix_name:"DarkChoc11% Bloil",density:1.11,speed_paste_1:5150,speed_paste_2:4450,stage1:2000,stage2:500,type:"Ice Cream"},
+  {mix_code:"44371793",mix_name:"DarkChoc11% Bloil",density:1.1,speed_paste_1:5150,speed_paste_2:4450,stage1:2500,stage2:500,type:"Ice Cream"},
+  {mix_code:"44253209",mix_name:"MILO 7% Fat BlendOil",density:1.13,speed_paste_1:5150,speed_paste_2:4450,stage1:2300,stage2:500,type:"Ice Cream"},
+  {mix_code:"44467248",mix_name:"3%Ice Apple",density:1.1,speed_paste_1:null,speed_paste_2:null,stage1:2600,stage2:500,type:"Ice Cream"},
+  {mix_code:"44271431",mix_name:"Strawberry 8% Fat",density:1.09,speed_paste_1:5150,speed_paste_2:4450,stage1:2500,stage2:500,type:"Ice Cream"},
+  {mix_code:"44413139",mix_name:"10% pandan",density:1.1,speed_paste_1:5150,speed_paste_2:4450,stage1:2000,stage2:500,type:"Ice Cream"},
+  {mix_code:"44501680",mix_name:"8% coconut",density:1.09,speed_paste_1:5150,speed_paste_2:4450,stage1:2500,stage2:500,type:"Ice Cream"},
+  {mix_code:"44501678",mix_name:"3%pandan",density:1.1,speed_paste_1:5150,speed_paste_2:4450,stage1:2600,stage2:500,type:"Ice Cream"},
+  {mix_code:"44482451",mix_name:"9%White Butter Beer",density:1.1,speed_paste_1:5150,speed_paste_2:4450,stage1:2500,stage2:500,type:"Ice Cream"},
+  {mix_code:"44482452",mix_name:"9%Orange Butter Beer",density:1.1,speed_paste_1:5150,speed_paste_2:4450,stage1:2500,stage2:500,type:"Ice Cream"},
+  {mix_code:"44501436",mix_name:"7% Milk pink EX",density:1.1,speed_paste_1:5150,speed_paste_2:4450,stage1:2800,stage2:500,type:"Ice Cream"},
+  {mix_code:"44501435",mix_name:"7%Milk White EX",density:1.1,speed_paste_1:5150,speed_paste_2:4450,stage1:2800,stage2:500,type:"Ice Cream"},
+  {mix_code:"99",mix_name:"Rework",density:1.1,speed_paste_1:5150,speed_paste_2:4450,stage1:null,stage2:null,type:"Jelly"},
+  {mix_code:"106095426",mix_name:"trial 9% potato",density:1.1,speed_paste_1:5150,speed_paste_2:4450,stage1:2500,stage2:500,type:"Ice Cream"},
+  {mix_code:"44467538",mix_name:"jelly kyoho grape",density:1.1,speed_paste_1:5150,speed_paste_2:4450,stage1:null,stage2:null,type:"Jelly"},
+  // รูปที่ 3 — Cleaning/Sanitize
+  {mix_code:"108",mix_name:"Exelerate - HIS 5kg (Past2) 300 Sce",density:0,speed_paste_1:null,speed_paste_2:null,stage1:null,stage2:null,type:"Cleaning"},
+  {mix_code:"109",mix_name:"Alkaline 26 kg (Past2) 1500 Sce",density:0,speed_paste_1:null,speed_paste_2:null,stage1:null,stage2:null,type:"Cleaning"},
+  {mix_code:"110",mix_name:"Acid 12.5 kg (Past2) 1200 Sce",density:0,speed_paste_1:null,speed_paste_2:null,stage1:null,stage2:null,type:"Cleaning"},
+  {mix_code:"2",mix_name:"Hotwater Past 2",density:0,speed_paste_1:null,speed_paste_2:null,stage1:null,stage2:null,type:"Sanitize"},
+  {mix_code:"444",mix_name:"Exelerate - HIS 4kg (Past1) 300 Sce",density:0,speed_paste_1:null,speed_paste_2:null,stage1:null,stage2:null,type:"Cleaning"},
+  {mix_code:"106",mix_name:"Alkaline 21 kg (Past1) 1500 Sce",density:0,speed_paste_1:null,speed_paste_2:null,stage1:null,stage2:null,type:"Cleaning"},
+  {mix_code:"107",mix_name:"Acid 10.5 kg (past1) 1200 Sce",density:0,speed_paste_1:null,speed_paste_2:null,stage1:null,stage2:null,type:"Cleaning"},
+  {mix_code:"8",mix_name:"Lanco Alkaline 26 kg 45นาที",density:0,speed_paste_1:null,speed_paste_2:null,stage1:null,stage2:null,type:"Cleaning"},
+  {mix_code:"9",mix_name:"Lanco Acid 16 kg 45นาที",density:0,speed_paste_1:null,speed_paste_2:null,stage1:null,stage2:null,type:"Cleaning"},
+];
+
+window.startImport=async()=>{
+  log.innerHTML='';
+  L(`📦 เริ่ม Import ${products.length} รายการ...`);
+  let ok=0,fail=0;
+  for(const p of products){
+    try{
+      await setDoc(doc(db,'products',p.mix_code),{
+        mix_code:p.mix_code,
+        mix_name:p.mix_name,
+        density:p.density||0,
+        speed_paste_1:p.speed_paste_1||null,
+        speed_paste_2:p.speed_paste_2||null,
+        stage1:p.stage1||null,
+        stage2:p.stage2||null,
+        type:p.type,
+      });
+      L(`✅ ${p.mix_code} — ${p.mix_name}`,'ok');
+      ok++;
+    }catch(e){
+      L(`❌ ${p.mix_code} — ${e.message}`,'err');
+      fail++;
+    }
+    await new Promise(r=>setTimeout(r,80));
+  }
+  L(`\n🏁 เสร็จแล้ว: ✅ ${ok} รายการ | ❌ ${fail} รายการ`,'info');
+};
+</script>
+</body>
+</html>
