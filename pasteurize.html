@@ -2,7 +2,13 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1e40af">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="PROD.SYS">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pasteurize — PROD.SYS</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <style>
@@ -71,6 +77,19 @@ thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap
 
 /* STATUS BADGE */
 .stat-badge{font-family:var(--mono);font-size:11px;font-weight:700;padding:4px 10px;border-radius:99px;white-space:nowrap;display:inline-block}
+
+
+/* TANK VISUAL */
+.tank-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px}
+@media(max-width:600px){.tank-row{grid-template-columns:1fr 1fr}}
+.tank-card{background:var(--s1);border:1px solid var(--b1);border-radius:12px;padding:14px;text-align:center;position:relative;overflow:hidden}
+.tank-card-title{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}
+.tank-card-name{font-family:var(--mono);font-size:11px;color:var(--blue2);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tank-card-vol{font-family:var(--mono);font-size:14px;font-weight:700;margin-top:4px}
+.tank-card-pct{font-family:var(--mono);font-size:10px;color:var(--t2);margin-top:2px}
+.tank-card-time{font-family:var(--mono);font-size:10px;color:var(--orange);margin-top:4px}
+@keyframes pastwave{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+@keyframes pastwave2{0%{transform:translateX(-30%)}100%{transform:translateX(20%)}}
 
 /* KPI */
 .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
@@ -157,7 +176,20 @@ thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap
   /* Status */
   tbody td:last-child{justify-content:center;padding-top:8px}
 
-  /* KPI */
+  
+/* TANK VISUAL */
+.tank-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px}
+@media(max-width:600px){.tank-row{grid-template-columns:1fr 1fr}}
+.tank-card{background:var(--s1);border:1px solid var(--b1);border-radius:12px;padding:14px;text-align:center;position:relative;overflow:hidden}
+.tank-card-title{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}
+.tank-card-name{font-family:var(--mono);font-size:11px;color:var(--blue2);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tank-card-vol{font-family:var(--mono);font-size:14px;font-weight:700;margin-top:4px}
+.tank-card-pct{font-family:var(--mono);font-size:10px;color:var(--t2);margin-top:2px}
+.tank-card-time{font-family:var(--mono);font-size:10px;color:var(--orange);margin-top:4px}
+@keyframes pastwave{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+@keyframes pastwave2{0%{transform:translateX(-30%)}100%{transform:translateX(20%)}}
+
+/* KPI */
   .kpi-row{grid-template-columns:repeat(2,1fr)!important;gap:8px}
   .kpi-val{font-size:18px}
 }
@@ -187,38 +219,7 @@ thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap
       <input type="date" id="date-p1" class="ci" style="width:140px" onchange="loadPlan('p1')">
     </div>
   </div>
-  <div class="kpi-row">
-    <div class="kpi" style="position:relative;overflow:hidden">
-      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#1e5f7a,#67e8f9)"></div>
-      <div class="kpi-label" style="color:#67e8f9">🌡️ Volume Past. (kg)</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:6px">
-        <div><div style="font-size:9px;color:#fff;font-family:var(--mono);font-weight:700">กะเช้า</div><div class="kpi-val" id="p1-vol-morning" style="font-size:16px;color:#67e8f9">—</div></div>
-        <div><div style="font-size:9px;color:#fff;font-family:var(--mono);font-weight:700">กะบ่าย</div><div class="kpi-val" id="p1-vol-afternoon" style="font-size:16px;color:#67e8f9">—</div></div>
-        <div><div style="font-size:9px;color:#fff;font-family:var(--mono);font-weight:700">กะดึก</div><div class="kpi-val" id="p1-vol-night" style="font-size:16px;color:#67e8f9">—</div></div>
-        <div><div style="font-size:9px;color:#fff;font-family:var(--mono);font-weight:700">Total</div><div class="kpi-val" id="p1-vol-total" style="font-size:16px;color:var(--cyan)">—</div></div>
-      </div>
-    </div>
-    <div class="kpi" style="position:relative;overflow:hidden">
-      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--blue),var(--cyan))"></div>
-      <div class="kpi-label" style="color:var(--blue2)">📊 Batches</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:6px">
-        <div><div style="font-size:9px;color:#fff;font-family:var(--mono);font-weight:700">กะเช้า</div><div class="kpi-val" id="p1-bat-morning" style="font-size:16px;color:var(--blue2)">0</div></div>
-        <div><div style="font-size:9px;color:#fff;font-family:var(--mono);font-weight:700">กะบ่าย</div><div class="kpi-val" id="p1-bat-afternoon" style="font-size:16px;color:var(--blue2)">0</div></div>
-        <div><div style="font-size:9px;color:#fff;font-family:var(--mono);font-weight:700">กะดึก</div><div class="kpi-val" id="p1-bat-night" style="font-size:16px;color:var(--blue2)">0</div></div>
-        <div><div style="font-size:9px;color:#fff;font-family:var(--mono);font-weight:700">Total</div><div class="kpi-val" id="p1-total" style="font-size:16px;color:var(--blue2)">0</div></div>
-      </div>
-    </div>
-    <div class="kpi" style="position:relative;overflow:hidden">
-      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--yellow),var(--orange))"></div>
-      <div class="kpi-label" style="color:var(--yellow)">⏳ สถานะ</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:6px">
-        <div><div style="font-size:9px;color:#fff;font-family:var(--mono);font-weight:700">รอ Past.</div><div class="kpi-val" id="p1-wait" style="font-size:16px;color:var(--yellow)">0</div></div>
-        <div><div style="font-size:9px;color:#fff;font-family:var(--mono);font-weight:700">กำลัง Past.</div><div class="kpi-val" id="p1-running" style="font-size:16px;color:var(--orange)">0</div></div>
-        <div><div style="font-size:9px;color:#fff;font-family:var(--mono);font-weight:700">เสร็จแล้ว</div><div class="kpi-val" id="p1-done" style="font-size:16px;color:var(--green)">0</div></div>
-        <div><div style="font-size:9px;color:#fff;font-family:var(--mono);font-weight:700">Batches</div><div class="kpi-val" id="p1-bat-all" style="font-size:16px;color:var(--blue2)">0</div></div>
-      </div>
-    </div>
-  </div>
+  <div class="tank-row" id="tank-visual-p1"></div>
   <div class="tw"><table>
     <thead><tr>
     <tr>
@@ -252,38 +253,7 @@ thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap
       <input type="date" id="date-p2" class="ci" style="width:140px" onchange="loadPlan('p2')">
     </div>
   </div>
-  <div class="kpi-row">
-    <div class="kpi" style="position:relative;overflow:hidden">
-      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#1e5f7a,#67e8f9)"></div>
-      <div class="kpi-label" style="color:#67e8f9">🌡️ Volume Past. (kg)</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:6px">
-        <div><div style="font-size:9px;color:#fff;font-family:var(--mono);font-weight:700">กะเช้า</div><div class="kpi-val" id="p2-vol-morning" style="font-size:16px;color:#67e8f9">—</div></div>
-        <div><div style="font-size:9px;color:#fff;font-family:var(--mono);font-weight:700">กะบ่าย</div><div class="kpi-val" id="p2-vol-afternoon" style="font-size:16px;color:#67e8f9">—</div></div>
-        <div><div style="font-size:9px;color:#fff;font-family:var(--mono);font-weight:700">กะดึก</div><div class="kpi-val" id="p2-vol-night" style="font-size:16px;color:#67e8f9">—</div></div>
-        <div><div style="font-size:9px;color:#fff;font-family:var(--mono);font-weight:700">Total</div><div class="kpi-val" id="p2-vol-total" style="font-size:16px;color:var(--cyan)">—</div></div>
-      </div>
-    </div>
-    <div class="kpi" style="position:relative;overflow:hidden">
-      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--blue),var(--cyan))"></div>
-      <div class="kpi-label" style="color:var(--blue2)">📊 Batches</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:6px">
-        <div><div style="font-size:9px;color:#fff;font-family:var(--mono);font-weight:700">กะเช้า</div><div class="kpi-val" id="p2-bat-morning" style="font-size:16px;color:var(--blue2)">0</div></div>
-        <div><div style="font-size:9px;color:#fff;font-family:var(--mono);font-weight:700">กะบ่าย</div><div class="kpi-val" id="p2-bat-afternoon" style="font-size:16px;color:var(--blue2)">0</div></div>
-        <div><div style="font-size:9px;color:#fff;font-family:var(--mono);font-weight:700">กะดึก</div><div class="kpi-val" id="p2-bat-night" style="font-size:16px;color:var(--blue2)">0</div></div>
-        <div><div style="font-size:9px;color:#fff;font-family:var(--mono);font-weight:700">Total</div><div class="kpi-val" id="p2-total" style="font-size:16px;color:var(--blue2)">0</div></div>
-      </div>
-    </div>
-    <div class="kpi" style="position:relative;overflow:hidden">
-      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--yellow),var(--orange))"></div>
-      <div class="kpi-label" style="color:var(--yellow)">⏳ สถานะ</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:6px">
-        <div><div style="font-size:9px;color:#fff;font-family:var(--mono);font-weight:700">รอ Past.</div><div class="kpi-val" id="p2-wait" style="font-size:16px;color:var(--yellow)">0</div></div>
-        <div><div style="font-size:9px;color:#fff;font-family:var(--mono);font-weight:700">กำลัง Past.</div><div class="kpi-val" id="p2-running" style="font-size:16px;color:var(--orange)">0</div></div>
-        <div><div style="font-size:9px;color:#fff;font-family:var(--mono);font-weight:700">เสร็จแล้ว</div><div class="kpi-val" id="p2-done" style="font-size:16px;color:var(--green)">0</div></div>
-        <div><div style="font-size:9px;color:#fff;font-family:var(--mono);font-weight:700">Batches</div><div class="kpi-val" id="p2-bat-all" style="font-size:16px;color:var(--blue2)">0</div></div>
-      </div>
-    </div>
-  </div>
+  <div class="tank-row" id="tank-visual-p2"></div>
   <div class="tw"><table>
     <thead><tr>
     <tr>
@@ -423,6 +393,7 @@ onAuthStateChanged(auth,async user=>{
   loadPlan("p2");
 });
 
+setInterval(()=>{["p1","p2"].forEach(p=>{if(document.getElementById("tank-visual-"+p))renderTankVisual(p,rows[p]||[]);});},60000);
 window.doLogout=async()=>{
   if(unsub.p1)unsub.p1();
   if(unsub.p2)unsub.p2();
@@ -530,6 +501,8 @@ function renderPlan(p){
   const tbody=$(`tbody-${p}`);
   if(!tbody)return;
   tbody.innerHTML="";
+  // render tank visual
+  renderTankVisual(p,rows[p]);
 
   rows[p].forEach((row,i)=>{
     const isWait     = row.status==="pasteurising"&&!row.past_start_time;
@@ -796,6 +769,15 @@ window.showPage=(type,p,btn)=>{
   btn.classList.add('on');
   if(type==="chart")renderChart(p);
 };
+</script>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('sw.js')
+      .then(r=>console.log('SW registered'))
+      .catch(e=>console.warn('SW failed:',e));
+  });
+}
 </script>
 </body>
 </html>
