@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Flowmeter Verify — PROD.SYS</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;600;700&family=Sarabun:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07090f;--s1:#0e1118;--s2:#141820;--s3:#1a2030;--b1:#1e2535;--b2:#2a3348;
+  --text:#dde3f0;--t2:#7a8499;--t3:#3d4560;
+  --blue:#3b82f6;--blue2:#60a5fa;--green:#22c55e;--yellow:#eab308;
+  --red:#ef4444;--cyan:#06b6d4;--orange:#f97316;--purple:#a855f7;
+  --mono:'DM Mono',monospace;--sans:'Sarabun',sans-serif;
+}
+html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:var(--sans)}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-thumb{background:var(--b2);border-radius:3px}
+input[type="number"]{-moz-appearance:textfield}
+input[type="number"]::-webkit-inner-spin-button,input[type="number"]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+
+nav{display:flex;align-items:center;height:52px;background:var(--s1);border-bottom:1px solid var(--b1);
+  position:sticky;top:0;z-index:200;padding:0 14px;gap:8px}
+.nav-logo{font-family:var(--mono);font-size:14px;font-weight:700;flex-shrink:0}
+.nav-logo b{color:var(--blue)}.nav-logo span{color:var(--t2)}
+.ntab{font-size:12px;font-weight:600;padding:6px 12px;border-radius:7px;border:none;
+  background:none;color:var(--t2);cursor:pointer;white-space:nowrap}
+.ntab.on{color:var(--cyan);background:rgba(6,182,212,.12)}
+.nav-r{display:flex;align-items:center;gap:8px;margin-left:auto}
+.nbtn{font-size:11px;padding:5px 10px;border-radius:6px;border:1px solid var(--b2);
+  background:none;color:var(--t2);cursor:pointer;text-decoration:none;font-family:var(--mono)}
+
+.page{display:none;padding:16px}
+.page.on{display:block}
+
+/* VERIFY FORM */
+.vcard{background:var(--s1);border:1px solid var(--b1);border-radius:14px;padding:20px;margin-bottom:16px}
+.vcard-title{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--text);margin-bottom:16px;
+  display:flex;align-items:center;gap:8px}
+
+/* MATERIAL SELECTOR */
+.mat-sel{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.mat-btn{font-family:var(--mono);font-size:12px;font-weight:700;padding:8px 18px;border-radius:8px;
+  border:1.5px solid var(--b2);background:none;color:var(--t2);cursor:pointer;transition:all .2s}
+.mat-btn.on.glc{border-color:#86efac;color:#86efac;background:rgba(134,239,172,.1)}
+.mat-btn.on.sgr{border-color:#67e8f9;color:#67e8f9;background:rgba(103,232,249,.1)}
+.mat-btn.on.plm{border-color:#fdba74;color:#fdba74;background:rgba(253,186,116,.1)}
+
+/* RANGE TABLE */
+.rtable{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:8px}
+.rtable th{background:var(--s2);padding:8px 10px;text-align:center;font-family:var(--mono);
+  font-size:10px;color:var(--t2);border:1px solid var(--b1);white-space:nowrap}
+.rtable td{padding:7px 8px;border:1px solid var(--b1);text-align:center;vertical-align:middle}
+.rtable tr.range-row td:first-child{font-family:var(--mono);font-size:13px;font-weight:700;
+  color:var(--cyan);background:rgba(6,182,212,.05)}
+
+/* ACTUAL INPUT */
+.act-in{width:90px;text-align:center;font-family:var(--mono);font-size:13px;font-weight:700;
+  background:var(--s2);border:1px solid var(--b2);border-radius:6px;color:var(--text);
+  padding:6px 8px;outline:none}
+.act-in:focus{border-color:var(--cyan)}
+
+/* DEVIATION */
+.dev-cell{font-family:var(--mono);font-size:12px;font-weight:700}
+.dev-pass{color:var(--green)}
+.dev-fail{color:var(--red)}
+.dev-na{color:var(--t3)}
+
+/* RESULT ROW */
+.avg-row td{background:var(--s3)!important;font-weight:700}
+.result-badge{font-family:var(--mono);font-size:12px;font-weight:700;padding:4px 14px;
+  border-radius:99px;display:inline-block}
+
+/* BUTTONS */
+.btn{font-size:12px;padding:8px 16px;border-radius:8px;border:1px solid var(--b2);
+  background:var(--s3);color:var(--text);cursor:pointer;font-family:var(--sans)}
+.btn-b{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn-b:hover{background:#2563eb}
+.btn-g{background:rgba(34,197,94,.12);border-color:rgba(34,197,94,.4);color:var(--green)}
+.ci{background:var(--s2);border:1px solid var(--b1);border-radius:6px;color:var(--text);
+  font-family:var(--mono);font-size:12px;padding:5px 8px;outline:none}
+
+/* HISTORY */
+.hist-card{background:var(--s1);border:1px solid var(--b1);border-radius:12px;padding:14px 16px;margin-bottom:10px}
+.hist-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.hist-mat{font-family:var(--mono);font-size:13px;font-weight:700}
+.hist-date{font-family:var(--mono);font-size:11px;color:var(--t2)}
+.hist-by{font-family:var(--mono);font-size:11px;color:var(--t3)}
+.overall-pass{color:var(--green);background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);
+  padding:3px 12px;border-radius:99px;font-family:var(--mono);font-size:11px;font-weight:700}
+.overall-fail{color:var(--red);background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);
+  padding:3px 12px;border-radius:99px;font-family:var(--mono);font-size:11px;font-weight:700}
+
+/* NEXT DUE */
+.due-badge{font-family:var(--mono);font-size:11px;padding:3px 10px;border-radius:6px;
+  border:1px solid var(--b2);background:var(--s3)}
+.due-warn{border-color:rgba(239,68,68,.4);color:var(--red);background:rgba(239,68,68,.06)}
+.due-ok{border-color:rgba(34,197,94,.3);color:var(--green);background:rgba(34,197,94,.06)}
+
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);
+  padding:10px 22px;border-radius:10px;font-size:13px;opacity:0;transition:all .3s;
+  z-index:9999;pointer-events:none;font-family:var(--mono);color:#fff}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@media(max-width:768px){
+  nav{padding:0 10px;gap:4px}
+  .nav-logo{font-size:12px}
+  .ntab{font-size:10px;padding:5px 8px}
+  .page{padding:10px}
+  .rtable{font-size:11px}
+  .act-in{width:70px;font-size:12px}
+}
+</style>
+</head>
+<body>
+<nav>
+  <div class="nav-logo">PROD<b>.</b>SYS <span>/ FLOWMETER</span></div>
+  <button class="ntab on" onclick="showPage('verify',this)">🔬 Verify</button>
+  <button class="ntab" onclick="showPage('history',this);loadHistory()">📋 ประวัติ</button>
+  <div class="nav-r">
+    <a href="index.html" class="nbtn">🏠</a>
+    <button class="nbtn" onclick="doLogout()">ออก</button>
+  </div>
+</nav>
+
+<!-- VERIFY PAGE -->
+<div class="page on" id="page-verify">
+  <div class="vcard">
+    <div class="vcard-title">🔬 Verify Flow Meter</div>
+
+    <!-- MIXING UNIT SELECTOR -->
+    <div style="margin-bottom:16px">
+      <div style="font-family:var(--mono);font-size:10px;color:var(--t3);margin-bottom:8px">เลือกชุด Mixing</div>
+      <div style="display:flex;gap:8px">
+        <button class="mat-btn on" id="unit-m1" onclick="selectUnit('m1',this)"
+          style="border-color:var(--purple);color:var(--purple);background:rgba(168,85,247,.1)">
+          🔵 Mixing 1
+        </button>
+        <button class="mat-btn" id="unit-m2" onclick="selectUnit('m2',this)">
+          🟢 Mixing 2
+        </button>
+      </div>
+    </div>
+
+    <!-- DATE + INTERVAL -->
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center">
+      <div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--t3);margin-bottom:4px">วันที่ทดสอบ</div>
+        <input type="date" id="verify-date" class="ci" style="width:150px">
+      </div>
+      <div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--t3);margin-bottom:4px">รอบถัดไป</div>
+        <div style="display:flex;gap:6px">
+          <button class="btn" id="int-15" onclick="setInterval(15)">15 วัน</button>
+          <button class="btn" id="int-30" onclick="setInterval(30)">1 เดือน</button>
+        </div>
+      </div>
+      <div id="due-info" style="margin-top:18px"></div>
+    </div>
+
+    <!-- MATERIAL SELECTOR -->
+    <div style="font-family:var(--mono);font-size:10px;color:var(--t3);margin-bottom:8px">เลือกวัตถุดิบ</div>
+    <div class="mat-sel">
+      <button class="mat-btn on glc" onclick="selectMat('glc',this)">🍬 Glucose</button>
+      <button class="mat-btn" onclick="selectMat('sgr',this)">🧂 Sugar</button>
+      <button class="mat-btn" onclick="selectMat('plm',this)">🌴 Palm Oil</button>
+    </div>
+
+    <!-- VERIFY TABLE -->
+    <div style="overflow-x:auto">
+      <table class="rtable" id="verify-table">
+        <thead>
+          <tr>
+            <th rowspan="2">Set Point (kg)</th>
+            <th colspan="3" style="color:var(--cyan)">ค่าจริงที่ได้ (kg)</th>
+            <th colspan="3" style="color:var(--yellow)">% Deviation</th>
+            <th rowspan="2">ค่าเฉลี่ย Dev%</th>
+            <th rowspan="2">ผล</th>
+          </tr>
+          <tr>
+            <th>ครั้งที่ 1</th><th>ครั้งที่ 2</th><th>ครั้งที่ 3</th>
+            <th>Dev 1</th><th>Dev 2</th><th>Dev 3</th>
+          </tr>
+        </thead>
+        <tbody id="verify-tbody"></tbody>
+      </table>
+    </div>
+
+    <!-- OVERALL RESULT -->
+    <div id="overall-result" style="margin-top:14px;text-align:center"></div>
+
+    <!-- NOTE -->
+    <div style="margin-top:14px">
+      <div style="font-family:var(--mono);font-size:10px;color:var(--t3);margin-bottom:4px">หมายเหตุ</div>
+      <input id="verify-note" class="ci" style="width:100%" placeholder="หมายเหตุ (ถ้ามี)">
+    </div>
+
+    <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-g" onclick="saveVerify()">💾 บันทึกผล</button>
+      <button class="btn" onclick="resetForm()">↺ Reset</button>
+    </div>
+  </div>
+</div>
+
+<!-- HISTORY PAGE -->
+<div class="page" id="page-history">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+    <div style="font-family:var(--mono);font-size:10px;color:var(--t3)">ชุด</div>
+    <select id="hist-unit" class="ci" onchange="loadHistory()">
+      <option value="">ทั้งหมด</option>
+      <option value="m1">🔵 Mixing 1</option>
+      <option value="m2">🟢 Mixing 2</option>
+    </select>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--t3)">วัตถุดิบ</div>
+    <select id="hist-mat" class="ci" onchange="loadHistory()">
+      <option value="">ทั้งหมด</option>
+      <option value="glc">🍬 Glucose</option>
+      <option value="sgr">🧂 Sugar</option>
+      <option value="plm">🌴 Palm Oil</option>
+    </select>
+    <button class="btn btn-b" onclick="loadHistory()">โหลด</button>
+  </div>
+  <div id="history-list"></div>
+</div>
+
+<div id="toast"></div>
+
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import{getAuth,signOut,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import{getFirestore,collection,query,where,orderBy,addDoc,getDocs,doc,getDoc,limit}
+  from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const app=initializeApp({apiKey:"AIzaSyC3f6jMuhugE6BNfRfkpOA9BMrIKWR9YgQ",authDomain:"production-filling.firebaseapp.com",projectId:"production-filling",storageBucket:"production-filling.firebasestorage.app",messagingSenderId:"89098393458",appId:"1:89098393458:web:b723f2886e8a341935afeb"});
+const auth=getAuth(app),db=getFirestore(app);
+let ME=null,curMat='glc',curInterval=15,curUnit='m1';
+const RANGES=[50,100,150];
+const MAT={glc:{name:'Glucose',color:'#86efac',emoji:'🍬'},sgr:{name:'Sugar',color:'#67e8f9',emoji:'🧂'},plm:{name:'Palm Oil',color:'#fdba74',emoji:'🌴'}};
+const today=()=>new Date().toISOString().slice(0,10);
+const $=id=>document.getElementById(id);
+function toast(msg,t='blue'){const el=$('toast');el.textContent=msg;el.style.background=t==='green'?'#15803d':t==='red'?'#991b1b':'#1d4ed8';el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2800);}
+
+// State — actual values
+let vals={};
+RANGES.forEach(r=>{vals[r]=[null,null,null];});
+
+onAuthStateChanged(auth,async user=>{
+  if(!user){location.href='index.html';return;}
+  ME=user;
+  $('verify-date').value=today();
+  renderTable();
+  await loadDueInfo();
+  setInterval(curInterval);
+});
+window.doLogout=async()=>{await signOut(auth);location.href='index.html';};
+
+window.showPage=(p,btn)=>{
+  document.querySelectorAll('.page').forEach(el=>el.classList.remove('on'));
+  document.querySelectorAll('.ntab').forEach(el=>el.classList.remove('on'));
+  $(`page-${p}`).classList.add('on');btn.classList.add('on');
+};
+
+window.selectUnit=(unit,btn)=>{
+  curUnit=unit;
+  document.querySelectorAll('#unit-m1,#unit-m2').forEach(b=>{
+    b.classList.remove('on');
+    b.style.borderColor='';b.style.color='';b.style.background='';
+  });
+  btn.classList.add('on');
+  btn.style.borderColor='var(--purple)';
+  btn.style.color='var(--purple)';
+  btn.style.background='rgba(168,85,247,.1)';
+  resetVals();renderTable();loadDueInfo();
+};
+
+window.selectMat=(mat,btn)=>{
+  curMat=mat;
+  document.querySelectorAll('.mat-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  resetVals();renderTable();
+  loadDueInfo();
+};
+
+window.setInterval=(days)=>{
+  curInterval=days;
+  $('int-15').style.background=days===15?'rgba(6,182,212,.15)':'';
+  $('int-15').style.borderColor=days===15?'var(--cyan)':'';
+  $('int-15').style.color=days===15?'var(--cyan)':'';
+  $('int-30').style.background=days===30?'rgba(6,182,212,.15)':'';
+  $('int-30').style.borderColor=days===30?'var(--cyan)':'';
+  $('int-30').style.color=days===30?'var(--cyan)':'';
+};
+
+function resetVals(){RANGES.forEach(r=>{vals[r]=[null,null,null];});}
+
+window.resetForm=()=>{
+  resetVals();renderTable();
+  $('verify-note').value='';
+  $('overall-result').innerHTML='';
+};
+
+function calcDev(set,actual){
+  if(actual===null||actual===''||isNaN(+actual))return null;
+  return ((+actual-set)/set)*100;
+}
+
+function devHTML(dev){
+  if(dev===null)return`<span class="dev-na">—</span>`;
+  const pass=Math.abs(dev)<=2;
+  return`<span class="dev-cell ${pass?'dev-pass':'dev-fail'}">${dev>0?'+':''}${dev.toFixed(2)}%</span>`;
+}
+
+function renderTable(){
+  const tbody=$('verify-tbody');
+  const mat=MAT[curMat];
+  tbody.innerHTML='';
+  let allPass=true,hasData=false;
+
+  RANGES.forEach(set=>{
+    const devs=vals[set].map(a=>calcDev(set,a));
+    const validDevs=devs.filter(d=>d!==null);
+    const avg=validDevs.length?validDevs.reduce((s,d)=>s+d,0)/validDevs.length:null;
+    const rowPass=validDevs.length===3&&validDevs.every(d=>Math.abs(d)<=2);
+    if(validDevs.length>0)hasData=true;
+    if(validDevs.length===3&&!rowPass)allPass=false;
+
+    const tr=document.createElement('tr');
+    tr.className='range-row';
+    tr.innerHTML=`
+      <td style="color:${mat.color};font-size:14px;font-weight:800">${set} kg</td>
+      ${[0,1,2].map(i=>`<td>
+        <input class="act-in" type="number" step="0.01" value="${vals[set][i]??''}"
+          style="border-color:${vals[set][i]!==null?mat.color+'88':'var(--b2)'}"
+          placeholder="0.00"
+          onchange="updateVal(${set},${i},this.value)">
+      </td>`).join('')}
+      ${devs.map(d=>devHTML(d)).map(h=>`<td>${h}</td>`).join('')}
+      <td>${avg!==null?devHTML(avg):'<span class="dev-na">—</span>'}</td>
+      <td>${validDevs.length===3
+        ?`<span class="result-badge" style="color:${rowPass?'var(--green)':'var(--red)'};background:${rowPass?'rgba(34,197,94,.1)':'rgba(239,68,68,.1)'};border:1px solid ${rowPass?'rgba(34,197,94,.3)':'rgba(239,68,68,.3)'}">${rowPass?'✅ Pass':'🔴 Fail'}</span>`
+        :'<span style="font-family:var(--mono);font-size:10px;color:var(--t3)">รอข้อมูล</span>'
+      }</td>`;
+    tbody.appendChild(tr);
+  });
+
+  // Overall
+  const allFilled=RANGES.every(r=>vals[r].every(v=>v!==null));
+  if(allFilled){
+    $('overall-result').innerHTML=`<div style="padding:12px;background:${allPass?'rgba(34,197,94,.08)':'rgba(239,68,68,.08)'};border:1.5px solid ${allPass?'rgba(34,197,94,.35)':'rgba(239,68,68,.35)'};border-radius:10px;display:inline-block;min-width:200px">
+      <div style="font-family:var(--mono);font-size:10px;color:var(--t2);margin-bottom:4px">ผลรวม ${mat.emoji} ${mat.name}</div>
+      <div style="font-family:var(--mono);font-size:18px;font-weight:700;color:${allPass?'var(--green)':'var(--red)'}">${allPass?'✅ PASS':'🔴 FAIL'}</div>
+      <div style="font-family:var(--mono);font-size:10px;color:var(--t3);margin-top:4px">${allPass?'อยู่ในเกณฑ์ ±2%':'เกินเกณฑ์ ±2% — ต้องปรับ Flow Meter'}</div>
+    </div>`;
+  } else {
+    $('overall-result').innerHTML='';
+  }
+}
+
+window.updateVal=(set,idx,val)=>{
+  vals[set][idx]=val===''?null:+val;
+  renderTable();
+};
+
+window.saveVerify=async()=>{
+  const allFilled=RANGES.every(r=>vals[r].every(v=>v!==null));
+  if(!allFilled){toast('กรุณากรอกค่าจริงให้ครบทุกช่อง','red');return;}
+  const date=$('verify-date').value||today();
+  const note=$('verify-note').value;
+  const mat=MAT[curMat];
+
+  const results={};
+  let allPass=true;
+  RANGES.forEach(set=>{
+    const devs=vals[set].map(a=>calcDev(set,a));
+    const avg=devs.reduce((s,d)=>s+d,0)/3;
+    const pass=devs.every(d=>Math.abs(d)<=2);
+    if(!pass)allPass=false;
+    results[set]={actuals:vals[set],devs,avg,pass};
+  });
+
+  try{
+    await addDoc(collection(db,'flowmeter_verify'),{
+      date,material:curMat,material_name:mat.name,
+      mixing_unit:curUnit,
+      interval_days:curInterval,results,overall_pass:allPass,
+      note,created_by:ME?.email||'—',created_at:new Date().toISOString()
+    });
+    toast(`บันทึก ${mat.name} แล้ว — ${allPass?'✅ Pass':'🔴 Fail'}`,'green');
+    resetForm();
+    loadDueInfo();
+  }catch(e){toast('บันทึกไม่สำเร็จ: '+e.message,'red');}
+};
+
+async function loadDueInfo(){
+  try{
+    const snap=await getDocs(query(collection(db,'flowmeter_verify'),
+      where('material','==',curMat),where('mixing_unit','==',curUnit),orderBy('date','desc'),limit(1)));
+    const info=$('due-info');
+    if(snap.empty){info.innerHTML=`<span class="due-badge due-warn">⚠️ ยังไม่เคย Verify</span>`;return;}
+    const last=snap.docs[0].data();
+    const lastDate=new Date(last.date);
+    const dueDate=new Date(lastDate);dueDate.setDate(dueDate.getDate()+last.interval_days);
+    const now=new Date();
+    const daysLeft=Math.ceil((dueDate-now)/86400000);
+    const isWarn=daysLeft<=3;
+    info.innerHTML=`<div style="display:flex;flex-direction:column;gap:4px">
+      <span class="due-badge ${isWarn?'due-warn':'due-ok'}">${isWarn?'⚠️':'✅'} ครั้งต่อไป: ${dueDate.toLocaleDateString('th-TH')} (${daysLeft>0?`อีก ${daysLeft} วัน`:'เกินกำหนดแล้ว'})</span>
+      <span style="font-family:var(--mono);font-size:10px;color:var(--t3)">ครั้งล่าสุด: ${last.date} — ${last.overall_pass?'✅ Pass':'🔴 Fail'}</span>
+    </div>`;
+  }catch(e){console.warn(e);}
+}
+
+window.loadHistory=async()=>{
+  const mat=$('hist-mat').value;
+  const unit=$('hist-unit')?.value||'';
+  const list=$('history-list');
+  list.innerHTML=`<div style="color:var(--t3);font-family:var(--mono);padding:20px">⏳ กำลังโหลด...</div>`;
+  try{
+    let q;
+    if(mat&&unit){q=query(collection(db,'flowmeter_verify'),where('material','==',mat),where('mixing_unit','==',unit),orderBy('date','desc'),limit(30));}
+    else if(mat){q=query(collection(db,'flowmeter_verify'),where('material','==',mat),orderBy('date','desc'),limit(30));}
+    else if(unit){q=query(collection(db,'flowmeter_verify'),where('mixing_unit','==',unit),orderBy('date','desc'),limit(30));}
+    else{q=query(collection(db,'flowmeter_verify'),orderBy('date','desc'),limit(50));}
+    const snap=await getDocs(q);
+    if(snap.empty){list.innerHTML=`<div style="color:var(--t3);font-family:var(--mono);padding:30px;text-align:center">ไม่มีประวัติ</div>`;return;}
+
+    list.innerHTML=snap.docs.map(d=>{
+      const r=d.data();
+      const m=MAT[r.material]||{name:r.material_name||r.material,color:'#60a5fa',emoji:'📊'};
+      const rows=RANGES.map(set=>{
+        const res=r.results?.[set];
+        if(!res)return'';
+        return`<tr>
+          <td style="font-family:var(--mono);font-size:12px;font-weight:700;color:${m.color}">${set} kg</td>
+          ${res.actuals.map(a=>`<td style="font-family:var(--mono);font-size:12px">${a?.toFixed(2)||'—'}</td>`).join('')}
+          ${res.devs.map(dv=>{const pass=Math.abs(dv)<=2;return`<td style="font-family:var(--mono);font-size:11px;color:${pass?'var(--green)':'var(--red)'};font-weight:700">${dv>0?'+':''}${dv.toFixed(2)}%</td>`}).join('')}
+          <td style="font-family:var(--mono);font-size:11px;font-weight:700;color:${res.pass?'var(--green)':'var(--red)'}">${res.pass?'✅':'🔴'}</td>
+        </tr>`;
+      }).join('');
+
+      return`<div class="hist-card">
+        <div class="hist-head">
+          <span class="hist-mat" style="color:${m.color}">${m.emoji} ${m.name}</span>
+          <span style="font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:5px;background:rgba(168,85,247,.1);color:var(--purple);border:1px solid rgba(168,85,247,.25)">${r.mixing_unit==='m2'?'🟢 M2':'🔵 M1'}</span>
+          <span class="hist-date">📅 ${r.date}</span>
+          <span class="${r.overall_pass?'overall-pass':'overall-fail'}">${r.overall_pass?'✅ Pass':'🔴 Fail'}</span>
+          <span style="font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:5px;background:var(--s3);color:var(--t2)">ทุก ${r.interval_days||15} วัน</span>
+          <span class="hist-by">${r.created_by||'—'}</span>
+        </div>
+        <div style="overflow-x:auto">
+          <table style="width:100%;border-collapse:collapse;font-size:11px">
+            <thead><tr>
+              <th style="padding:5px 8px;background:var(--s2);border:1px solid var(--b1);font-family:var(--mono);color:var(--t2)">Set</th>
+              <th style="padding:5px 8px;background:var(--s2);border:1px solid var(--b1);font-family:var(--mono);color:var(--t2)">ครั้ง 1</th>
+              <th style="padding:5px 8px;background:var(--s2);border:1px solid var(--b1);font-family:var(--mono);color:var(--t2)">ครั้ง 2</th>
+              <th style="padding:5px 8px;background:var(--s2);border:1px solid var(--b1);font-family:var(--mono);color:var(--t2)">ครั้ง 3</th>
+              <th style="padding:5px 8px;background:var(--s2);border:1px solid var(--b1);font-family:var(--mono);color:var(--yellow)">Dev 1</th>
+              <th style="padding:5px 8px;background:var(--s2);border:1px solid var(--b1);font-family:var(--mono);color:var(--yellow)">Dev 2</th>
+              <th style="padding:5px 8px;background:var(--s2);border:1px solid var(--b1);font-family:var(--mono);color:var(--yellow)">Dev 3</th>
+              <th style="padding:5px 8px;background:var(--s2);border:1px solid var(--b1);font-family:var(--mono);color:var(--t2)">ผล</th>
+            </tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+        ${r.note?`<div style="margin-top:8px;font-size:12px;color:var(--t2);font-family:var(--mono)">📝 ${r.note}</div>`:''}
+      </div>`;
+    }).join('');
+  }catch(e){list.innerHTML=`<div style="color:var(--red);font-family:var(--mono);padding:20px">${e.message}</div>`;}
+};
+</script>
+</body>
+</html>
