@@ -2,7 +2,13 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1e40af">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="PROD.SYS">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CIP Man — PROD.SYS</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;600&family=Sarabun:wght@400;500;600;700&display=swap');
@@ -185,6 +191,7 @@ main{position:relative;z-index:1;padding:10px 12px;}
 @keyframes shimmer{0%{background-position:0% 50%}100%{background-position:200% 50%}}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 @keyframes wave{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+@keyframes wave2{0%{transform:translateX(-30%)}100%{transform:translateX(20%)}}
 @keyframes rise{0%{transform:translateY(0);opacity:.7}100%{transform:translateY(-50px);opacity:0}}
 @keyframes hgspin{0%{transform:rotate(0deg)}45%{transform:rotate(0deg)}55%{transform:rotate(180deg)}100%{transform:rotate(180deg)}}
 
@@ -483,7 +490,7 @@ function tankSVG(uid,pct,col,run){
   const sw=220,sh=260;
   const bX=14,bY=24,bW=sw-28,bH=sh-54,nW=44,nH=14,cW=56,cH=8;
   const nX=bX+(bW-nW)/2,cX=bX+(bW-cW)/2;
-  const fillH=Math.max(0,(pct/100)*(bH-10));const fillY=bY+bH-5-fillH;
+  const _pct2=Math.min(pct,75);const fillH=Math.max(0,(_pct2/100)*(bH-10));const fillY=bY+bH-5-fillH;
   const gid='g'+uid,cid='cl'+uid,lid='l'+uid;
   const barC=pct>50?'#1fd17a':pct>20?'#f5c842':'#f04f5e';
   return`<svg width="${sw}" height="${sh}" viewBox="0 0 ${sw} ${sh}" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto">
@@ -497,12 +504,16 @@ function tankSVG(uid,pct,col,run){
   <rect x="${bX}" y="${bY}" width="${bW}" height="${bH}" rx="12" fill="#080c18" stroke="#1e2d4a" stroke-width="2"/>
   ${pct>0?`<g clip-path="url(#${cid})">
     <rect x="${bX+3}" y="${fillY}" width="${bW-6}" height="${fillH+8}" fill="url(#${gid})"/>
-    ${run?`<g style="animation:wave 2s linear infinite">
-      <path d="M${bX-10},${fillY+2} q10,-7 20,0 q10,7 20,0 q10,-7 20,0 q10,7 20,0 q10,-7 20,0 q10,7 20,0 q10,-7 20,0 q10,7 20,0 v20 h-${bW*5} z" fill="${rgba(col,.55)}"/>
+    ${run?`
+    <g style="animation:wave 2.8s linear infinite">
+      <path d="M${bX-10},${fillY+2} q${bW*.25},-7 ${bW*.5},0 q${bW*.25},7 ${bW*.5},0 q${bW*.25},-7 ${bW*.5},0 q${bW*.25},7 ${bW*.5},0 v20 h-${bW*4} z" fill="${rgba(col,.5)}"/>
     </g>
-    <circle cx="${bX+30}" cy="${fillY+fillH*.45}" r="3" fill="${rgba(col,.55)}" style="animation:rise 2.8s ease-in infinite;animation-delay:.3s"/>
-    <circle cx="${bX+bW*.65}" cy="${fillY+fillH*.6}" r="2.5" fill="${rgba(col,.5)}" style="animation:rise 2.2s ease-in infinite;animation-delay:.9s"/>
-    <circle cx="${bX+bW*.35}" cy="${fillY+fillH*.75}" r="2" fill="${rgba(col,.4)}" style="animation:rise 3.2s ease-in infinite;animation-delay:1.5s"/>`
+    <g style="animation:wave2 3.8s linear infinite">
+      <path d="M${bX-10},${fillY} q${bW*.3},-4.5 ${bW*.6},0 q${bW*.3},4.5 ${bW*.6},0 q${bW*.3},-4.5 ${bW*.6},0 v14 h-${bW*4} z" fill="${rgba(col,.25)}"/>
+    </g>
+    <circle cx="${bX+30}" cy="${fillY+fillH*.4}" r="3" fill="${rgba(col,.5)}" style="animation:rise 2.8s ease-in infinite;animation-delay:.3s"/>
+    <circle cx="${bX+bW*.65}" cy="${fillY+fillH*.55}" r="2.5" fill="${rgba(col,.4)}" style="animation:rise 2.2s ease-in infinite;animation-delay:.9s"/>
+    <circle cx="${bX+bW*.35}" cy="${fillY+fillH*.7}" r="2" fill="${rgba(col,.35)}" style="animation:rise 3.2s ease-in infinite;animation-delay:1.5s"/>`
     :`<rect x="${bX+3}" y="${fillY}" width="${bW-6}" height="6" rx="3" fill="${rgba(col,.6)}"/>`}
     <rect x="${bX+4}" y="${fillY+4}" width="14" height="${Math.max(0,fillH*.5)}" rx="6" fill="rgba(255,255,255,.1)"/>
   </g>`:''}
@@ -821,6 +832,15 @@ window.showPage=(p,btn)=>{
   document.querySelectorAll('.ntab').forEach(el=>el.classList.remove('on'));
   $(`page-${p}`).classList.add('on');btn.classList.add('on');
 };
+</script>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('sw.js')
+      .then(r=>console.log('SW registered'))
+      .catch(e=>console.warn('SW failed:',e));
+  });
+}
 </script>
 </body>
 </html>

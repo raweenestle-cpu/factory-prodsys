@@ -2,7 +2,13 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1e40af">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="PROD.SYS">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Filling — PROD.SYS</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;600;700&family=Sarabun:wght@400;500;600;700;800&display=swap');
@@ -106,6 +112,7 @@ main{padding:14px;display:flex;flex-direction:column;gap:14px}
 .lsel-btn:hover,.lsel-btn.on{border-color:var(--orange);color:var(--orange);background:rgba(255,140,66,.1)}
 .lsel-btn.all.on{border-color:var(--cyan);color:var(--cyan);background:rgba(0,212,255,.08)}
 @keyframes wave{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+@keyframes wave2{0%{transform:translateX(-30%)}100%{transform:translateX(20%)}}
 @keyframes rise{0%{transform:translateY(0);opacity:.6}100%{transform:translateY(-30px);opacity:0}}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
 
@@ -344,11 +351,15 @@ function svg(uid,pct,col,run){
 <rect x="${bX}" y="${bY}" width="${bW}" height="${bH}" rx="8" fill="#060a14" stroke="${rgba(col,.5)}" stroke-width="2"/>
 ${pct>0?`<g clip-path="url(#${cid})">
   <rect x="${bX+1}" y="${fillY}" width="${bW-2}" height="${fillH+5}" fill="url(#${gid})"/>
-  ${run?`<g style="animation:wave 2s linear infinite">
-    <path d="M${bX-5},${fillY+2} q6,-4 12,0 q6,4 12,0 q6,-4 12,0 q6,4 12,0 q6,-4 12,0 q6,4 12,0 q6,-4 12,0 v10 h-${bW*4} z" fill="${rgba(col,.45)}"/>
+  ${run?`
+  <g style="animation:wave 2.5s linear infinite">
+    <path d="M${bX-5},${fillY+2} q${bW*.25},-5 ${bW*.5},0 q${bW*.25},5 ${bW*.5},0 q${bW*.25},-5 ${bW*.5},0 q${bW*.25},5 ${bW*.5},0 v12 h-${bW*4} z" fill="${rgba(col,.5)}"/>
   </g>
-  <circle cx="${bX+12}" cy="${fillY+fillH*.35}" r="2" fill="${rgba(col,.5)}" style="animation:rise 2.5s ease-in infinite"/>
-  <circle cx="${bX+bW*.7}" cy="${fillY+fillH*.55}" r="1.7" fill="${rgba(col,.4)}" style="animation:rise 2s ease-in infinite;animation-delay:.8s"/>
+  <g style="animation:wave2 3.5s linear infinite">
+    <path d="M${bX-5},${fillY+1} q${bW*.3},-3.5 ${bW*.6},0 q${bW*.3},3.5 ${bW*.6},0 q${bW*.3},-3.5 ${bW*.6},0 v10 h-${bW*4} z" fill="${rgba(col,.25)}"/>
+  </g>
+  <circle cx="${bX+12}" cy="${fillY+fillH*.4}" r="2" fill="${rgba(col,.5)}" style="animation:rise 2.5s ease-in infinite"/>
+  <circle cx="${bX+bW*.65}" cy="${fillY+fillH*.55}" r="1.7" fill="${rgba(col,.4)}" style="animation:rise 2s ease-in infinite;animation-delay:.8s"/>
   `:`<rect x="${bX+1}" y="${fillY}" width="${bW-2}" height="3" rx="1.5" fill="${rgba(col,.45)}"/>`}
   <!-- shine -->
   <rect x="${bX+2}" y="${fillY+3}" width="6" height="${Math.max(0,fillH*.35)}" rx="3" fill="rgba(255,255,255,.07)"/>
@@ -489,6 +500,15 @@ function tick(){
       if(v){v.textContent=filled.toFixed(1)+' L';v.style.color=pctC;}
       if(p){p.textContent=pct.toFixed(1)+'%';p.style.color=pctC;}
     });
+  });
+}
+</script>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('sw.js')
+      .then(r=>console.log('SW registered'))
+      .catch(e=>console.warn('SW failed:',e));
   });
 }
 </script>
