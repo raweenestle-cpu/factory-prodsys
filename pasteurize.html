@@ -564,7 +564,15 @@ function renderTankVisual(m,rows){
       const start=new Date((agRow.date||new Date().toISOString().slice(0,10))+'T'+String(h).padStart(2,'0')+':'+String(mm).padStart(2,'0')+':00');
       const elapsedHr=Math.max(0,(Date.now()-start)/3600000);
       const totalVol=+(agRow.volume_liter||0);
-      agVol=Math.min(totalVol,elapsedHr*flowRate);
+      // ถ้าไม่มี flow_rate ใน LINE ให้คำนวณจาก volume/เวลาทั้งหมดที่ past
+      let estimatedRate=flowRate;
+      if(agRow.past_end_time&&agRow.past_start_time){
+        const[eh,em]=agRow.past_end_time.split(':').map(Number);
+        const[sh,sm]=agRow.past_start_time.split(':').map(Number);
+        const totalHr=((eh*60+em)-(sh*60+sm))/60;
+        if(totalHr>0) estimatedRate=totalVol/totalHr;
+      }
+      agVol=Math.min(totalVol,elapsedHr*Math.max(estimatedRate,flowRate,100));
       agPct=totalVol>0?(agVol/totalVol)*100:0;
       agTank=agRow.aging_tank||'—';
       agName=(agRow.mix_name||'—').slice(0,12);
@@ -625,7 +633,7 @@ function renderTankVisual(m,rows){
     const gf=isActive?`filter="url(#gfx${m})"`:'' ;
     return`<g transform="translate(${tx},${ty})">
       <!-- label outside top — ขาวชัดเจน -->
-      <text x="${tw/2}" y="-14" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="white" font-weight="700">${label}</text>
+      <text x="${tw/2}" y="-22" text-anchor="middle" font-family="DM Mono,monospace" font-size="12" fill="white" font-weight="800" letter-spacing="0.5">${label}</text>
       <!-- shadow -->
       <rect x="2" y="4" width="${tw}" height="${th}" rx="10" fill="rgba(0,0,0,.45)"/>
       <!-- body -->
@@ -702,7 +710,7 @@ function renderTankVisual(m,rows){
   // Pump between T2 and Aging: x=325, y=195
   // Aging bottom pipe down from 195 to 20 (enter from bottom going up)
 
-  const TW=110,TH=130,TOP=30;
+  const TW=110,TH=130,TOP=40;
   const T1X=30,T2X=165,AGX=370;
   const T1CX=T1X+TW/2,T2CX=T2X+TW/2,AGCX=AGX+TW/2;
   const TBOT=TOP+TH; // 160
