@@ -331,11 +331,12 @@ function calcVol(row){
 
 // SVG — ถังผอม สูง
 function svg(uid,pct,col,run){
-  const W=140,H=195; // ผอม สูง
+  const W=140,H=195;
   const bX=18,bY=22,bW=W-36,bH=H-50;
-  const fillH=Math.max(0,(pct/100)*(bH-6));
+  const _pct=Math.min(pct,65); // cap ที่ 65% ดูสมจริง
+  const fillH=Math.max(0,(_pct/100)*(bH-6));
   const fillY=bY+bH-3-fillH;
-  const gid='g'+uid,cid='c'+uid;
+  const gid='g'+uid,cid='c'+uid,wid='wc'+uid;
   const bc=pct>50?'#1fd17a':pct>20?'#f5c842':'#f04f5e';
   return`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto">
 <defs>
@@ -343,31 +344,36 @@ function svg(uid,pct,col,run){
     <stop offset="0%" stop-color="${col}" stop-opacity=".95"/>
     <stop offset="100%" stop-color="${dk(col)}" stop-opacity="1"/>
   </linearGradient>
-  <clipPath id="${cid}"><rect x="${bX+1}" y="${bY+1}" width="${bW-2}" height="${bH-2}" rx="6"/></clipPath>
+  <clipPath id="${cid}"><rect x="${bX+2}" y="${bY+2}" width="${bW-4}" height="${bH-4}" rx="6"/></clipPath>
 </defs>
 <!-- shadow -->
 <rect x="${bX+2}" y="${bY+4}" width="${bW}" height="${bH}" rx="8" fill="rgba(0,0,0,.7)"/>
 <!-- body -->
 <rect x="${bX}" y="${bY}" width="${bW}" height="${bH}" rx="8" fill="#060a14" stroke="${rgba(col,.5)}" stroke-width="2"/>
-${pct>0?`<g clip-path="url(#${cid})">
-  <rect x="${bX+1}" y="${fillY}" width="${bW-2}" height="${fillH+5}" fill="url(#${gid})"/>
+${_pct>0?`
+<g clip-path="url(#${cid})">
+  <!-- base fill -->
+  <rect x="${bX+2}" y="${fillY+4}" width="${bW-4}" height="${fillH+4}" fill="url(#${gid})"/>
   ${run?`
+  <!-- wave 1 -->
   <g style="animation:wave 2.5s linear infinite">
-    <path d="M${bX-5},${fillY+2} q${bW*.25},-5 ${bW*.5},0 q${bW*.25},5 ${bW*.5},0 q${bW*.25},-5 ${bW*.5},0 q${bW*.25},5 ${bW*.5},0 v12 h-${bW*4} z" fill="${rgba(col,.5)}"/>
+    <path d="M${bX+2},${fillY+3} q${bW*.2},-6 ${bW*.4},0 q${bW*.2},6 ${bW*.4},0 q${bW*.2},-6 ${bW*.4},0 q${bW*.2},6 ${bW*.4},0 v${fillH+6} h-${bW*3} z" fill="${rgba(col,.55)}"/>
   </g>
+  <!-- wave 2 -->
   <g style="animation:wave2 3.5s linear infinite">
-    <path d="M${bX-5},${fillY+1} q${bW*.3},-3.5 ${bW*.6},0 q${bW*.3},3.5 ${bW*.6},0 q${bW*.3},-3.5 ${bW*.6},0 v10 h-${bW*4} z" fill="${rgba(col,.25)}"/>
+    <path d="M${bX+2},${fillY+2} q${bW*.25},-4 ${bW*.5},0 q${bW*.25},4 ${bW*.5},0 q${bW*.25},-4 ${bW*.5},0 v${fillH+5} h-${bW*3} z" fill="${rgba(col,.25)}"/>
   </g>
-  <circle cx="${bX+12}" cy="${fillY+fillH*.4}" r="2" fill="${rgba(col,.5)}" style="animation:rise 2.5s ease-in infinite"/>
+  <!-- bubbles -->
+  <circle cx="${bX+14}" cy="${fillY+fillH*.4}" r="2" fill="${rgba(col,.5)}" style="animation:rise 2.5s ease-in infinite"/>
   <circle cx="${bX+bW*.65}" cy="${fillY+fillH*.55}" r="1.7" fill="${rgba(col,.4)}" style="animation:rise 2s ease-in infinite;animation-delay:.8s"/>
-  `:`<rect x="${bX+1}" y="${fillY}" width="${bW-2}" height="3" rx="1.5" fill="${rgba(col,.45)}"/>`}
+  `:`<rect x="${bX+2}" y="${fillY+2}" width="${bW-4}" height="4" rx="2" fill="${rgba(col,.5)}"/>`}
   <!-- shine -->
-  <rect x="${bX+2}" y="${fillY+3}" width="6" height="${Math.max(0,fillH*.35)}" rx="3" fill="rgba(255,255,255,.07)"/>
+  <rect x="${bX+4}" y="${fillY+6}" width="6" height="${Math.max(0,fillH*.35)}" rx="3" fill="rgba(255,255,255,.07)"/>
 </g>
 <!-- level line -->
-<line x1="${bX+bW+2}" y1="${fillY}" x2="${bX+bW+9}" y2="${fillY}" stroke="${bc}" stroke-width="2.5" stroke-linecap="round"/>`:''}
+<line x1="${bX+bW+2}" y1="${fillY+3}" x2="${bX+bW+9}" y2="${fillY+3}" stroke="${bc}" stroke-width="2.5" stroke-linecap="round"/>`:''}
 <!-- border overlay -->
-<rect x="${bX}" y="${bY}" width="${bW}" height="${bH}" rx="8" fill="none" stroke="${pct>0?rgba(col,.6):'#1e2d4a'}" stroke-width="2"/>
+<rect x="${bX}" y="${bY}" width="${bW}" height="${bH}" rx="8" fill="none" stroke="${_pct>0?rgba(col,.6):'#1e2d4a'}" stroke-width="2"/>
 <!-- neck -->
 <rect x="${bX+(bW-28)/2}" y="${bY-8}" width="28" height="10" rx="3" fill="#060a14" stroke="#1e2d4a" stroke-width="1.5"/>
 <!-- cap -->
