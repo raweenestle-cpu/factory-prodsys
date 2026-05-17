@@ -111,7 +111,20 @@ tbody td{padding:6px 8px;vertical-align:middle;border-right:1px solid var(--b1);
   opacity:0;transition:all .3s;z-index:9999;pointer-events:none;font-family:var(--mono)}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
-/* MOBILE */
+/* SIGNATURE MODAL */
+.sig-modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:999;align-items:center;justify-content:center;padding:16px}
+.sig-modal-bg.show{display:flex}
+.sig-modal{background:var(--s1);border:1px solid var(--b1);border-radius:16px;padding:20px;width:100%;max-width:400px}
+.sig-title{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px}
+.sig-sub{font-size:12px;color:var(--t2);margin-bottom:14px}
+#sig-canvas{width:100%;height:160px;background:#fff;border-radius:10px;border:2px solid var(--b2);cursor:crosshair;touch-action:none;display:block}
+.sig-btns{display:flex;gap:8px;margin-top:12px}
+.sig-btn{flex:1;padding:10px;border-radius:8px;border:none;font-family:var(--mono);font-size:12px;font-weight:700;cursor:pointer}
+.sig-btn.save{background:var(--green);color:#fff}
+.sig-btn.clear{background:var(--s3);border:1px solid var(--b2);color:var(--t2)}
+.sig-btn.cancel{background:var(--s3);border:1px solid var(--b2);color:var(--t2)}
+.sig-btn.confirm{background:var(--blue);color:#fff}
+#sig-preview-img{width:100%;max-height:120px;object-fit:contain;background:#fff;border-radius:10px;border:2px solid var(--b2);padding:8px}
 @media(max-width:768px){
   nav{padding:0 10px;gap:4px}
   .nav-logo{font-size:12px}
@@ -132,9 +145,10 @@ tbody td{padding:6px 8px;vertical-align:middle;border-right:1px solid var(--b1);
 </head>
 <body>
 <nav>
-  <div class="nav-logo">PROD<b>.</b>SYS <span>/ FLAVOR</span></div>
+  <div class="nav-logo" id="nav-logo-tap">PROD<b>.</b>SYS <span>/ FLAVOR</span></div>
   <button class="ntab on" onclick="showPage('main',this)">🧪 Flavor Queue</button>
   <button class="ntab" onclick="showPage('history',this);loadHistory()">📋 History</button>
+  <button class="ntab" id="tab-report" style="display:none;color:var(--red);background:rgba(239,68,68,.1)" onclick="showPage('report',this);loadReport()">🔐 Report</button>
   <div class="nav-r">
     <a href="index.html" class="nbtn">🏠</a>
     <button class="nbtn" onclick="doLogout()">ออก</button>
@@ -158,6 +172,7 @@ tbody td{padding:6px 8px;vertical-align:middle;border-right:1px solid var(--b1);
           <th rowspan="2">#</th>
           <th rowspan="2">Mix Code</th>
           <th rowspan="2">Mix Name</th>
+          <th rowspan="2">ผลิตภัณฑ์</th>
           <th rowspan="2">Batch</th>
           <th rowspan="2">Vol (L)</th>
           <th rowspan="2">Rework (kg)</th>
@@ -166,6 +181,8 @@ tbody td{padding:6px 8px;vertical-align:middle;border-right:1px solid var(--b1);
           <th colspan="3" style="text-align:center;color:var(--purple);border-bottom:1px solid var(--b2)">🧪 Flavor / Color / กรดมะนาว</th>
           <th rowspan="2">เวลาเท</th>
           <th rowspan="2">Status</th>
+          <th rowspan="2">หมายเหตุ</th>
+          <th rowspan="2" style="color:var(--cyan)">🖊️ ลายเซ็น</th>
           <th rowspan="2">Action</th>
         </tr>
         <tr>
@@ -193,6 +210,7 @@ tbody td{padding:6px 8px;vertical-align:middle;border-right:1px solid var(--b1);
           <th rowspan="2">#</th>
           <th rowspan="2">Mix Code</th>
           <th rowspan="2">Mix Name</th>
+          <th rowspan="2">ผลิตภัณฑ์</th>
           <th rowspan="2">Batch</th>
           <th rowspan="2">Vol (L)</th>
           <th rowspan="2">Rework (kg)</th>
@@ -201,6 +219,8 @@ tbody td{padding:6px 8px;vertical-align:middle;border-right:1px solid var(--b1);
           <th colspan="3" style="text-align:center;color:var(--purple);border-bottom:1px solid var(--b2)">🧪 Flavor / Color / กรดมะนาว</th>
           <th rowspan="2">เวลาเท</th>
           <th rowspan="2">Status</th>
+          <th rowspan="2">หมายเหตุ</th>
+          <th rowspan="2" style="color:var(--cyan)">🖊️ ลายเซ็น</th>
           <th rowspan="2">Action</th>
         </tr>
         <tr>
@@ -221,6 +241,60 @@ tbody td{padding:6px 8px;vertical-align:middle;border-right:1px solid var(--b1);
     <button class="btn" onclick="goTodayHist()">วันนี้</button>
   </div>
   <div id="history-list"></div>
+</div>
+
+<!-- REPORT PAGE — Admin Only -->
+<div class="page" id="page-report">
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+    <span style="font-family:var(--mono);font-size:10px;color:var(--t3)">DATE</span>
+    <input type="date" id="report-date" class="ci" style="width:140px" onchange="loadReport()">
+    <button class="btn" onclick="goTodayReport()">วันนี้</button>
+    <span style="font-family:var(--mono);font-size:10px;padding:3px 10px;border-radius:5px;background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.3)">🔐 Admin Only</span>
+  </div>
+  <div id="report-list"></div>
+</div>
+
+<!-- PIN MODAL -->
+<div id="pin-modal-bg" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:998;align-items:center;justify-content:center">
+  <div style="background:var(--s1);border:1px solid var(--b1);border-radius:16px;padding:24px 20px;width:100%;max-width:320px;text-align:center">
+    <div style="font-size:32px;margin-bottom:8px">🔐</div>
+    <div style="font-family:var(--mono);font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px">Report Access</div>
+    <div style="font-size:12px;color:var(--t2);margin-bottom:18px">ใส่ PIN 4 หลักเพื่อเข้าดู Report</div>
+    <input id="pin-input" type="password" inputmode="numeric" maxlength="4"
+      style="width:100%;text-align:center;letter-spacing:.3em;font-size:22px;font-family:var(--mono);background:var(--s2);border:2px solid var(--b2);border-radius:10px;color:var(--text);padding:12px;outline:none;margin-bottom:12px"
+      placeholder="••••" onkeydown="if(event.key==='Enter')checkPin()">
+    <div id="pin-err" style="font-family:var(--mono);font-size:11px;color:var(--red);min-height:16px;margin-bottom:10px"></div>
+    <div style="display:flex;gap:8px">
+      <button style="flex:1;padding:11px;border-radius:8px;border:1px solid var(--b2);background:var(--s3);color:var(--t2);font-family:var(--mono);cursor:pointer" onclick="closePinModal()">ยกเลิก</button>
+      <button style="flex:1;padding:11px;border-radius:8px;border:none;background:var(--blue);color:#fff;font-family:var(--mono);font-weight:700;cursor:pointer" onclick="checkPin()">ยืนยัน</button>
+    </div>
+  </div>
+</div>
+<div class="sig-modal-bg" id="sig-modal-bg">
+  <div class="sig-modal">
+    <!-- วาดลายเซ็น -->
+    <div id="sig-modal-draw">
+      <div class="sig-title">🖊️ วาดลายเซ็น</div>
+      <div class="sig-sub">ลายเซ็นจะถูกบันทึกไว้สำหรับครั้งต่อไป</div>
+      <canvas id="sig-canvas" width="360" height="160"></canvas>
+      <div class="sig-btns">
+        <button class="sig-btn clear" onclick="clearCanvas()">ลบ</button>
+        <button class="sig-btn cancel" onclick="closeSigModal()">ยกเลิก</button>
+        <button class="sig-btn save" onclick="saveSig()">บันทึก ✅</button>
+      </div>
+    </div>
+    <!-- ยืนยันลายเซ็นเดิม -->
+    <div id="sig-modal-preview" style="display:none">
+      <div class="sig-title">🖊️ ยืนยันลายเซ็น</div>
+      <div class="sig-sub">ลายเซ็นที่บันทึกไว้</div>
+      <img id="sig-preview-img" src="">
+      <div class="sig-btns">
+        <button class="sig-btn clear" onclick="redrawSig()">วาดใหม่</button>
+        <button class="sig-btn cancel" onclick="closeSigModal()">ยกเลิก</button>
+        <button class="sig-btn confirm" onclick="confirmSig()">ยืนยัน ✅</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div id="toast"></div>
@@ -253,6 +327,7 @@ onAuthStateChanged(auth,async user=>{
   if(!user){location.href='index.html';return;}
   ME=user;
   try{const ps=await getDocs(collection(db,'products'));ps.docs.forEach(d=>{const p={id:d.id,...d.data()};productMap[p.mix_code]=p;});}catch{}
+  await loadUserSignature();
   ['m1','m2'].forEach(m=>{
     const inp=$(m==='m1'?'date-m1':'date-m2');
     inp.value=today();
@@ -284,10 +359,17 @@ window.loadPlan=(m)=>{
   });
 };
 
-// UPDATE field
+// UPDATE field + stamp ชื่อเวลาไว้หลังบ้าน
 window._up=async(col,id,field,val)=>{
-  try{await updateDoc(doc(db,col,id),{[field]:val});}
-  catch(e){toast('บันทึกไม่สำเร็จ','red');}
+  try{
+    const upd={[field]:val};
+    // ถ้าเป็น checkbox (boolean) ให้ stamp ชื่อ+เวลาไว้ด้วย
+    if(typeof val==='boolean'&&val===true&&ME){
+      const name=ME?.displayName||ME?.email?.split('@')[0]||ME?.email||'—';
+      upd[field+'_by']=name+' · '+nowHHMM();
+    }
+    await updateDoc(doc(db,col,id),upd);
+  }catch(e){toast('บันทึกไม่สำเร็จ','red');}
 };
 
 // STAMP POUR TIME
@@ -320,6 +402,13 @@ function flvBox(col,id,type,row){
   const pour=!!row[`${field}_pour`];
   const notify=!!row[`${field}_notify`];
   const allDone=prep&&pour&&notify;
+
+  // logic ตาม status
+  const isMixing=row.status==='mixing'||row.status==='pending';
+  const canPrep=true; // เตรียมได้เสมอ
+  const canPour=!isMixing; // เทได้เมื่อไม่ใช่ mixing
+  const canNotify=!isMixing; // แจ้งได้เมื่อไม่ใช่ mixing
+
   return`<div class="flv-box${allDone?' all-done':''}">
     <div class="flv-title" style="color:${color}">${icon} ${type==='flavor'?'Flavor':type==='color'?'Color':'กรดมะนาว'}</div>
     <div class="flv-qty">
@@ -329,20 +418,20 @@ function flvBox(col,id,type,row){
       <span>ขวด</span>
     </div>
     <div class="flv-checks">
-      <label class="flv-check">
-        <input type="checkbox" ${prep?'checked':''} style="accent-color:${color}"
+      <label class="flv-check" style="opacity:${canPrep?1:.4}">
+        <input type="checkbox" ${prep?'checked':''} ${canPrep?'':'disabled'} style="accent-color:${color}"
           onchange="_up('${col}','${id}','${field}_prep',this.checked)">
         <span style="color:${prep?color:'var(--t2)'}">เตรียมแล้ว</span>
       </label>
-      <label class="flv-check">
-        <input type="checkbox" ${pour?'checked':''} style="accent-color:${color}"
+      <label class="flv-check" style="opacity:${canPour?1:.35}">
+        <input type="checkbox" ${pour?'checked':''} ${canPour?'':'disabled'} style="accent-color:${color}"
           onchange="_up('${col}','${id}','${field}_pour',this.checked)">
-        <span style="color:${pour?color:'var(--t2)'}">เทแล้ว</span>
+        <span style="color:${pour?color:canPour?'var(--t2)':'var(--t3)'}">เทแล้ว</span>
       </label>
-      <label class="flv-check">
-        <input type="checkbox" ${notify?'checked':''} style="accent-color:${color}"
+      <label class="flv-check" style="opacity:${canNotify?1:.35}">
+        <input type="checkbox" ${notify?'checked':''} ${canNotify?'':'disabled'} style="accent-color:${color}"
           onchange="_up('${col}','${id}','${field}_notify',this.checked)">
-        <span style="color:${notify?color:'var(--t2)'}">แจ้งใช้แล้ว</span>
+        <span style="color:${notify?color:canNotify?'var(--t2)':'var(--t3)'}">แจ้งใช้แล้ว</span>
       </label>
     </div>
   </div>`;
@@ -388,6 +477,7 @@ function renderPlan(m){
       <td><span style="font-family:var(--mono);font-size:11px;color:var(--t3)">${i+1}</span></td>
       <td><span style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--pink)">${row.mix_code||'—'}</span></td>
       <td><span style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--blue2)">${row.mix_name||'—'}</span></td>
+      <td><span style="font-size:12px;font-weight:600;color:var(--text)">${row.product_name||'—'}</span></td>
       <td><span style="font-family:var(--mono);font-size:12px;color:var(--t2)">Batch ${row.batch_no||'—'}</span></td>
       <td><span style="font-family:var(--mono);font-size:12px;color:var(--cyan)">${(+(row.volume_liter||0)).toLocaleString()} L</span></td>
       <td><span style="font-family:var(--mono);font-size:12px;color:var(--purple)">${row.rework_kg||'—'} kg</span></td>
@@ -397,12 +487,29 @@ function renderPlan(m){
       <td class="flv-cell"><div class="flv-wrap">${flvBox(col,row.id,'color',row)}</div></td>
       <td class="flv-cell"><div class="flv-wrap">${flvBox(col,row.id,'acid',row)}</div></td>
       <td>
-        <button class="stamp-btn ${row.flavor_pour_time?'stamped':''}" ${row.flavor_pour_time?'disabled':''}
+        <button class="stamp-btn ${row.flavor_pour_time?'stamped':''}"
+          ${row.flavor_pour_time||(row.status==='mixing'||row.status==='pending')?'disabled':''}
           onclick="stampPour('${col}','${row.id}')">
           ⏱ ${row.flavor_pour_time||'Stamp เท'}
         </button>
       </td>
       <td><span class="stat-badge" style="color:${statC};background:${statC}22;border:1px solid ${statC}44">${statTxt}</span></td>
+      <td>
+        <input class="ci" style="width:110px;font-size:11px" value="${row.flavor_note||''}"
+          placeholder="หมายเหตุ"
+          onchange="_up('${col}','${row.id}','flavor_note',this.value)">
+      </td>
+      <td style="text-align:center;padding:6px">
+        ${row.signature_url
+          ?`<div style="display:flex;flex-direction:column;align-items:center;gap:3px">
+              <img src="${row.signature_url}" style="height:36px;max-width:100px;border-radius:4px;border:1px solid var(--b2);background:#fff;padding:2px">
+              <span style="font-family:var(--mono);font-size:10px;color:var(--cyan);font-weight:700">${row.signature_name||''}</span>
+              <span style="font-family:var(--mono);font-size:9px;color:var(--t2)">${row.signature_time||''}</span>
+              <button style="font-size:9px;padding:2px 6px;border-radius:4px;border:1px solid var(--b2);background:none;color:var(--t2);cursor:pointer" onclick="signRow('${col}','${row.id}')">🖊️ แก้ไข</button>
+            </div>`
+          :`<button style="font-size:13px;padding:8px 14px;border-radius:8px;border:1px dashed rgba(6,182,212,.4);background:rgba(6,182,212,.06);color:var(--cyan);cursor:pointer;width:100%" onclick="signRow('${col}','${row.id}')">🖊️ เซ็นชื่อ</button>`
+        }
+      </td>
       <td>
         <button class="done-btn" ${!canDone?'disabled':''}
           onclick="completeFlavor('${col}','${row.id}','${m}')">
@@ -432,6 +539,251 @@ window.loadHistory=async()=>{
     </div>`).join('');
   }catch(e){list.innerHTML=`<div style="color:var(--red);font-family:var(--mono);padding:20px">${e.message}</div>`;}
 };
+
+// ── PIN + LOGO TAP SYSTEM ─────────────────────────────────────────────
+let logoTaps=0,logoTimer=null;
+document.getElementById('nav-logo-tap').addEventListener('click',()=>{
+  logoTaps++;
+  clearTimeout(logoTimer);
+  logoTimer=setTimeout(()=>logoTaps=0,2000);
+  if(logoTaps>=5){
+    logoTaps=0;clearTimeout(logoTimer);
+    openPinModal();
+  }
+});
+
+function openPinModal(){
+  const m=document.getElementById('pin-modal-bg');
+  m.style.display='flex';
+  const inp=document.getElementById('pin-input');
+  inp.value='';
+  document.getElementById('pin-err').textContent='';
+  setTimeout(()=>inp.focus(),100);
+}
+function closePinModal(){
+  document.getElementById('pin-modal-bg').style.display='none';
+}
+
+window.checkPin=async()=>{
+  const inp=document.getElementById('pin-input');
+  const entered=inp.value.trim();
+  if(entered.length!==4){document.getElementById('pin-err').textContent='PIN ต้องเป็น 4 หลัก';return;}
+  try{
+    const snap=await getDoc(doc(db,'settings','report_pin'));
+    const correct=snap.exists()?snap.data().pin:'';
+    if(entered===correct){
+      closePinModal();
+      document.getElementById('tab-report').style.display='';
+      document.getElementById('report-date').value=today();
+      // คลิก tab report
+      document.getElementById('tab-report').click();
+      toast('เข้าสู่ Report Mode','green');
+    } else {
+      document.getElementById('pin-err').textContent='PIN ไม่ถูกต้อง';
+      inp.value='';inp.focus();
+    }
+  }catch(e){document.getElementById('pin-err').textContent='เกิดข้อผิดพลาด';}
+};
+
+window.goTodayReport=()=>{document.getElementById('report-date').value=today();loadReport();};
+
+window.loadReport=async()=>{
+  const d=document.getElementById('report-date').value||today();
+  const list=document.getElementById('report-list');
+  if(!list)return;
+  list.innerHTML=`<div style="color:var(--t3);font-family:var(--mono);padding:20px">⏳ กำลังโหลด...</div>`;
+
+  try{
+    // ดึงข้อมูลทั้ง M1 และ M2
+    const [s1,s2]=await Promise.all([
+      getDocs(query(collection(db,'production_plans'),where('date','==',d))),
+      getDocs(query(collection(db,'production_plans_m2'),where('date','==',d))),
+    ]);
+    const allRows=[
+      ...s1.docs.map(x=>({id:x.id,_col:'production_plans',...x.data()})),
+      ...s2.docs.map(x=>({id:x.id,_col:'production_plans_m2',...x.data()})),
+    ].filter(r=>r.mix_code).sort((a,b)=>(a.seq||0)-(b.seq||0));
+
+    if(!allRows.length){
+      list.innerHTML=`<div style="color:var(--t3);font-family:var(--mono);padding:30px;text-align:center">ไม่มีข้อมูล</div>`;
+      return;
+    }
+
+    const actions=[
+      {key:'flavor_prep',label:'🍶 Flavor เตรียม'},
+      {key:'flavor_pour',label:'🍶 Flavor เท'},
+      {key:'flavor_notify',label:'🍶 Flavor แจ้งใช้'},
+      {key:'color_prep',label:'🎨 Color เตรียม'},
+      {key:'color_pour',label:'🎨 Color เท'},
+      {key:'color_notify',label:'🎨 Color แจ้งใช้'},
+      {key:'acid_prep',label:'🍋 กรดมะนาว เตรียม'},
+      {key:'acid_pour',label:'🍋 กรดมะนาว เท'},
+      {key:'acid_notify',label:'🍋 กรดมะนาว แจ้งใช้'},
+      {key:'flavor_pour_time',label:'⏱ เวลาเท',isTime:true},
+      {key:'signature_url',label:'🖊️ ลายเซ็น',isSig:true},
+    ];
+
+    list.innerHTML=allRows.map(row=>`
+      <div style="background:var(--s1);border:1px solid var(--b1);border-radius:12px;padding:14px 16px;margin-bottom:12px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+          <span style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--pink)">${row.mix_code||'—'}</span>
+          <span style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--blue2)">${row.mix_name||'—'}</span>
+          <span style="font-family:var(--mono);font-size:11px;color:var(--t2)">Batch ${row.batch_no||'—'}</span>
+          <span style="font-family:var(--mono);font-size:11px;padding:2px 8px;border-radius:5px;background:var(--s3);color:var(--t3)">${row._col==='production_plans'?'M1':'M2'}</span>
+        </div>
+        <table style="width:100%;border-collapse:collapse;font-size:12px">
+          <thead><tr>
+            <th style="text-align:left;padding:5px 8px;background:var(--s2);font-family:var(--mono);font-size:10px;color:var(--t2);border:1px solid var(--b1)">Action</th>
+            <th style="text-align:left;padding:5px 8px;background:var(--s2);font-family:var(--mono);font-size:10px;color:var(--t2);border:1px solid var(--b1)">ผู้ดำเนินการ</th>
+            <th style="text-align:left;padding:5px 8px;background:var(--s2);font-family:var(--mono);font-size:10px;color:var(--t2);border:1px solid var(--b1)">สถานะ</th>
+          </tr></thead>
+          <tbody>
+            ${actions.map(a=>{
+              if(a.isSig){
+                return `<tr>
+                  <td style="padding:6px 8px;border:1px solid var(--b1);font-family:var(--mono);font-size:11px">${a.label}</td>
+                  <td style="padding:6px 8px;border:1px solid var(--b1)">
+                    ${row.signature_url?`<div style="display:flex;align-items:center;gap:8px">
+                      <img src="${row.signature_url}" style="height:28px;border-radius:3px;border:1px solid var(--b2);background:#fff;padding:2px">
+                      <span style="font-family:var(--mono);font-size:11px;color:var(--cyan)">${row.signature_name||'—'}</span>
+                    </div>`:'<span style="color:var(--t3);font-family:var(--mono);font-size:11px">ยังไม่ได้เซ็น</span>'}
+                  </td>
+                  <td style="padding:6px 8px;border:1px solid var(--b1)">
+                    <span style="font-family:var(--mono);font-size:11px;color:${row.signature_time?'var(--green)':'var(--t3)'}">${row.signature_time||'—'}</span>
+                  </td>
+                </tr>`;
+              }
+              if(a.isTime){
+                return `<tr>
+                  <td style="padding:6px 8px;border:1px solid var(--b1);font-family:var(--mono);font-size:11px">${a.label}</td>
+                  <td style="padding:6px 8px;border:1px solid var(--b1);font-family:var(--mono);font-size:11px;color:var(--cyan)">${row[a.key]||'—'}</td>
+                  <td style="padding:6px 8px;border:1px solid var(--b1)"></td>
+                </tr>`;
+              }
+              const done=!!row[a.key];
+              const by=row[a.key+'_by']||'—';
+              return `<tr style="background:${done?'rgba(34,197,94,.05)':''}">
+                <td style="padding:6px 8px;border:1px solid var(--b1);font-family:var(--mono);font-size:11px">${a.label}</td>
+                <td style="padding:6px 8px;border:1px solid var(--b1);font-family:var(--mono);font-size:11px;color:${done?'var(--green)':'var(--t3)'}">${done?by:'—'}</td>
+                <td style="padding:6px 8px;border:1px solid var(--b1);text-align:center">${done?'<span style="color:var(--green);font-size:14px">✅</span>':'<span style="color:var(--t3);font-size:12px">○</span>'}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>`).join('');
+  }catch(e){
+    list.innerHTML=`<div style="color:var(--red);font-family:var(--mono);padding:20px">${e.message}</div>`;
+  }
+};
+let signTarget=null; // {col, id}
+let isDrawing=false;
+let savedSignature=null; // ลายเซ็นที่บันทึกไว้ของ user
+
+// โหลดลายเซ็นที่บันทึกไว้
+async function loadUserSignature(){
+  if(!ME)return;
+  try{
+    const snap=await getDoc(doc(db,'users',ME.uid));
+    if(snap.exists()&&snap.data().signature){
+      savedSignature=snap.data().signature;
+    }
+  }catch{}
+}
+
+// กดปุ่มเซ็นชื่อ
+window.signRow=async(col,id)=>{
+  signTarget={col,id};
+  if(savedSignature){
+    // มีลายเซ็นแล้ว — แสดง preview ให้ยืนยัน
+    $('sig-preview-img').src=savedSignature;
+    $('sig-modal-preview').style.display='flex';
+    $('sig-modal-draw').style.display='none';
+  } else {
+    // ครั้งแรก — เปิด canvas วาด
+    $('sig-modal-draw').style.display='flex';
+    $('sig-modal-preview').style.display='none';
+    initCanvas();
+  }
+  $('sig-modal-bg').classList.add('show');
+};
+
+window.closeSigModal=()=>{
+  $('sig-modal-bg').classList.remove('show');
+  signTarget=null;
+};
+
+window.redrawSig=()=>{
+  $('sig-modal-draw').style.display='flex';
+  $('sig-modal-preview').style.display='none';
+  initCanvas();
+};
+
+// ยืนยันใช้ลายเซ็นเดิม
+window.confirmSig=async()=>{
+  if(!signTarget||!savedSignature)return;
+  const name=ME?.displayName||ME?.email?.split('@')[0]||'—';
+  await updateDoc(doc(db,signTarget.col,signTarget.id),{
+    signature_url:savedSignature,
+    signature_name:name,
+    signature_time:nowHHMM(),
+  });
+  toast('บันทึกลายเซ็นแล้ว','green');
+  closeSigModal();
+};
+
+// บันทึกลายเซ็นใหม่
+window.saveSig=async()=>{
+  const canvas=$('sig-canvas');
+  const dataUrl=canvas.toDataURL('image/png');
+  const name=ME?.displayName||ME?.email?.split('@')[0]||'—';
+  // บันทึกลง user profile
+  try{
+    const{setDoc:sd}=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+    await sd(doc(db,'users',ME.uid),{signature:dataUrl,signature_name:name},{merge:true});
+    savedSignature=dataUrl;
+  }catch{}
+  // บันทึกลง row
+  if(signTarget){
+    await updateDoc(doc(db,signTarget.col,signTarget.id),{
+      signature_url:dataUrl,
+      signature_name:name,
+      signature_time:nowHHMM(),
+    });
+    toast('บันทึกลายเซ็นแล้ว','green');
+  }
+  closeSigModal();
+};
+
+window.clearCanvas=()=>{
+  const canvas=$('sig-canvas');
+  const ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+};
+
+function initCanvas(){
+  const canvas=$('sig-canvas');
+  const ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.strokeStyle='#1fd17a';
+  ctx.lineWidth=2.5;
+  ctx.lineCap='round';
+  ctx.lineJoin='round';
+
+  function getPos(e){
+    const r=canvas.getBoundingClientRect();
+    const src=e.touches?e.touches[0]:e;
+    return{x:(src.clientX-r.left)*(canvas.width/r.width),y:(src.clientY-r.top)*(canvas.height/r.height)};
+  }
+  canvas.onmousedown=canvas.ontouchstart=(e)=>{
+    e.preventDefault();isDrawing=true;
+    const p=getPos(e);ctx.beginPath();ctx.moveTo(p.x,p.y);
+  };
+  canvas.onmousemove=canvas.ontouchmove=(e)=>{
+    e.preventDefault();if(!isDrawing)return;
+    const p=getPos(e);ctx.lineTo(p.x,p.y);ctx.stroke();
+  };
+  canvas.onmouseup=canvas.ontouchend=()=>isDrawing=false;
+}
 
 window.showPage=(p,btn)=>{
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('on'));

@@ -413,7 +413,19 @@ tbody td{padding:7px 10px;vertical-align:middle}
       </div>
     </div>
 
-    <!-- APP INFO -->
+    <!-- REPORT PIN -->
+    <div style="background:var(--s2);border:1px solid var(--b1);border-radius:12px;padding:18px 20px;margin-bottom:14px">
+      <div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px">🔐 Report PIN (Flavor)</div>
+      <div style="font-size:12px;color:var(--t2);margin-bottom:14px">PIN 4 หลัก สำหรับเข้าดู Flavor Report — กด Logo 5 ครั้งแล้วใส่ PIN</div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <input id="report-pin" class="ci" type="password" maxlength="4" inputmode="numeric" placeholder="PIN 4 หลัก" style="width:130px;letter-spacing:.2em;font-size:16px;text-align:center">
+        <button class="btn btn-b" onclick="saveReportPin()">บันทึก PIN</button>
+        <span id="pin-status" style="font-family:var(--mono);font-size:11px;color:var(--green)"></span>
+      </div>
+      <div style="margin-top:10px;padding:10px 14px;background:var(--s3);border-radius:8px;border:1px solid var(--b1)">
+        <div style="font-family:var(--mono);font-size:11px;color:var(--t2)">PIN ปัจจุบัน: <span id="pin-current" style="color:var(--cyan);font-weight:700">****</span></div>
+      </div>
+    </div>
     <div style="background:var(--s2);border:1px solid var(--b1);border-radius:12px;padding:18px 20px">
       <div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--text);margin-bottom:12px">📋 ข้อมูลระบบ</div>
       <div style="display:flex;flex-direction:column;gap:8px">
@@ -934,6 +946,19 @@ document.getElementById("ep-color").addEventListener("input",e=>{document.getEle
 
 // ── PAGE / MODAL ──────────────────────────────────────────────────────
 // ── IDLE TIMEOUT SETTINGS ─────────────────────────────────────────────
+window.saveReportPin=async()=>{
+  const pin=$('report-pin').value.trim();
+  if(!/^\d{4}$/.test(pin)){toast('PIN ต้องเป็นตัวเลข 4 หลัก','red');return;}
+  try{
+    await setDoc(doc(db,'settings','report_pin'),{pin,updatedAt:new Date().toISOString()});
+    $('pin-current').textContent='****';
+    const st=$('pin-status');
+    if(st){st.textContent='✅ บันทึกแล้ว';setTimeout(()=>{if(st)st.textContent='';},3000);}
+    $('report-pin').value='';
+    toast('บันทึก PIN แล้ว','green');
+  }catch(e){toast('เกิดข้อผิดพลาด','red');}
+};
+
 async function loadIdleSettings(){
   try{
     const snap=await getDoc(doc(db,'settings','idle_timeout'));
