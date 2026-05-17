@@ -509,10 +509,10 @@ function tankSVG(uid,pct,col,run){
     </radialGradient>
     <clipPath id="${cid}"><rect x="${bX+3}" y="${bY+3}" width="${bW-6}" height="${bH-6}" rx="10"/></clipPath>
   </defs>
-  ${run&&_pct>0?`<ellipse cx="${bX+bW/2}" cy="${bY+bH*.6}" rx="${bW*.4}" ry="${bH*.25}" fill="url(#${lid})"/>`:''}
+  ${run&&pct>0?`<ellipse cx="${bX+bW/2}" cy="${bY+bH*.6}" rx="${bW*.4}" ry="${bH*.25}" fill="url(#${lid})"/>`:''}
   <rect x="${bX+2}" y="${bY+4}" width="${bW}" height="${bH+2}" rx="12" fill="rgba(0,0,0,.5)"/>
   <rect x="${bX}" y="${bY}" width="${bW}" height="${bH}" rx="12" fill="#080c18" stroke="#1e2d4a" stroke-width="2"/>
-  ${_pct>0?`<g clip-path="url(#${cid})">
+  ${pct>0?`<g clip-path="url(#${cid})">
     <!-- base fill -->
     <rect x="${bX+3}" y="${fillY+wAmp+2}" width="${bW-6}" height="${fillH}" fill="url(#${gid})"/>
     ${run?`
@@ -538,8 +538,8 @@ function tankSVG(uid,pct,col,run){
     :`<rect x="${bX+3}" y="${fillY+2}" width="${bW-6}" height="5" rx="2.5" fill="${rgba(col,.6)}"/>`}
     <rect x="${bX+4}" y="${fillY+wAmp+6}" width="14" height="${Math.max(0,fillH*.45)}" rx="6" fill="rgba(255,255,255,.08)"/>
   </g>`:''}
-  <rect x="${bX}" y="${bY}" width="${bW}" height="${bH}" rx="12" fill="none" stroke="${_pct>0?rgba(col,.35):'#1e2d4a'}" stroke-width="2"/>
-  ${_pct>0?`<line x1="${bX+bW+4}" y1="${fillY+wAmp}" x2="${bX+bW+14}" y2="${fillY+wAmp}" stroke="${barC}" stroke-width="2.5" stroke-linecap="round"/>
+  <rect x="${bX}" y="${bY}" width="${bW}" height="${bH}" rx="12" fill="none" stroke="${pct>0?rgba(col,.35):'#1e2d4a'}" stroke-width="2"/>
+  ${pct>0?`<line x1="${bX+bW+4}" y1="${fillY+wAmp}" x2="${bX+bW+14}" y2="${fillY+wAmp}" stroke="${barC}" stroke-width="2.5" stroke-linecap="round"/>
   <rect x="${bX+bW+10}" y="${fillY+wAmp}" width="3" height="${bY+bH-fillY-wAmp}" fill="${barC}" opacity=".2" rx="1.5"/>`:''}
   <rect x="${nX}" y="${bY-nH}" width="${nW}" height="${nH+5}" rx="5" fill="#080c18" stroke="#1e2d4a" stroke-width="1.5"/>
   <rect x="${cX}" y="${bY-nH-cH}" width="${cW}" height="${cH+3}" rx="5" fill="#0c1020" stroke="#1e2d4a" stroke-width="1.5"/>
