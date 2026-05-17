@@ -31,7 +31,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;height:52p
 .btn-logout{font-size:11px;padding:5px 10px;border-radius:6px;border:1px solid var(--b2);background:none;color:var(--t2);cursor:pointer}
 
 /* MAIN */
-main{position:relative;z-index:1;padding:12px 14px;max-width:520px;margin:0 auto}
+main{position:relative;z-index:1;padding:10px 12px;}
 .page{display:none}
 .page.on{display:block}
 
@@ -47,7 +47,7 @@ main{position:relative;z-index:1;padding:12px 14px;max-width:520px;margin:0 auto
 .kpi-val{font-size:22px;font-weight:700;font-family:var(--mono)}
 
 /* LINE CARD */
-.lcard{background:var(--s1);border:1px solid var(--b1);border-radius:14px;overflow:hidden;margin-bottom:12px}
+.lcard{background:var(--s1);border:1px solid var(--b1);border-radius:14px;overflow:hidden;margin-bottom:12px;width:100%}
 .lcard.running{border-color:rgba(31,209,122,.3)}
 .lcard.curing{border-color:rgba(245,200,66,.25)}
 .lcard.stopped{border-color:rgba(59,126,246,.2)}
@@ -207,23 +207,13 @@ main{position:relative;z-index:1;padding:12px 14px;max-width:520px;margin:0 auto
 <main>
   <!-- BANGCHAN -->
   <div class="page on" id="page-bangchan">
-    <div class="kpi-row">
-      <div class="kpi c1"><div class="kpi-lbl">LINE ทั้งหมด</div><div class="kpi-val" id="bc-total" style="color:var(--blue2)">0</div></div>
-      <div class="kpi c2"><div class="kpi-lbl">กำลังเดิน</div><div class="kpi-val" id="bc-run" style="color:var(--green)">0</div></div>
-      <div class="kpi c3"><div class="kpi-lbl">กำลังบ่ม</div><div class="kpi-val" id="bc-cur" style="color:var(--yellow)">0</div></div>
-      <div class="kpi c4"><div class="kpi-lbl">ว่าง</div><div class="kpi-val" id="bc-idle" style="color:var(--t2)">0</div></div>
-    </div>
+
     <div id="grid-bangchan"></div>
   </div>
 
   <!-- TWIN -->
   <div class="page" id="page-twin">
-    <div class="kpi-row">
-      <div class="kpi c1"><div class="kpi-lbl">LINE ทั้งหมด</div><div class="kpi-val" id="tw-total" style="color:var(--blue2)">0</div></div>
-      <div class="kpi c2"><div class="kpi-lbl">กำลังเดิน</div><div class="kpi-val" id="tw-run" style="color:var(--green)">0</div></div>
-      <div class="kpi c3"><div class="kpi-lbl">กำลังบ่ม</div><div class="kpi-val" id="tw-cur" style="color:var(--yellow)">0</div></div>
-      <div class="kpi c4"><div class="kpi-lbl">ว่าง</div><div class="kpi-val" id="tw-idle" style="color:var(--t2)">0</div></div>
-    </div>
+
     <div id="grid-twin"></div>
   </div>
 
@@ -642,20 +632,17 @@ function renderAll(){
   // Build line selector buttons
   const lsb=document.getElementById('cip-lsb');
   if(lsb){lsb.querySelectorAll('.lsel-btn:not(.all)').forEach(b=>b.remove());lines.forEach(l=>{const b=document.createElement('button');b.className='lsel-btn'+(cipSL===l.name?' on':'');b.textContent=l.name;b.onclick=()=>cipSel(l.name,b);lsb.appendChild(b);});}
-  const bangchan=lines.filter(l=>(l.group||'bangchan')==='bangchan'&&(cipSL==='all'||cipSL===l.name));
-  const twin=lines.filter(l=>l.group==='twin'&&(cipSL==='all'||cipSL===l.name));
-  const render=(group,gridId,pfx)=>{
+  // Deduplicate by name
+  const seen=new Set();
+  const uniqueLines=lines.filter(l=>{if(seen.has(l.name))return false;seen.add(l.name);return true;});
+  const bangchan=uniqueLines.filter(l=>(l.group||'bangchan')==='bangchan'&&(cipSL==='all'||cipSL===l.name));
+  const twin=uniqueLines.filter(l=>l.group==='twin'&&(cipSL==='all'||cipSL===l.name));
+  const render=(group,gridId)=>{
     const g=$(gridId);if(!g)return;
     g.innerHTML=group.length?group.map(l=>buildCard(l)).join(''):`<div style="color:var(--t3);font-family:var(--mono);padding:30px;text-align:center">ยังไม่มี LINE</div>`;
-    const running=group.filter(l=>{const s=lineStates[l.id];return s?.running&&s?.start_ts;}).length;
-    const cur=group.filter(l=>{const t=getTanksForLine(l.name);return !lineStates[l.id]?.running&&t[0]&&!getCuringInfo(t[0],l.id).done;}).length;
-    $(`${pfx}-total`).textContent=group.length;
-    $(`${pfx}-run`).textContent=running;
-    $(`${pfx}-cur`).textContent=cur;
-    $(`${pfx}-idle`).textContent=Math.max(0,group.length-running-cur);
   };
-  render(bangchan,'grid-bangchan','bc');
-  render(twin,'grid-twin','tw');
+  render(bangchan,'grid-bangchan');
+  render(twin,'grid-twin');
   renderQueuePage();
 }
 
