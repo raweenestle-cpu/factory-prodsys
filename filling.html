@@ -175,12 +175,14 @@ function isCuringDone(row){
   const p=productMap[row.mix_code]||{};
   const agingHr=+(p.aging_time||4);
   const[h,m]=row.past_end_time.split(':').map(Number);
-  const endMin=h*60+m+agingHr*60;
+  const curingEndMin=(h*60+m)+(agingHr*60);
   const now=new Date();
   const nowMin=now.getHours()*60+now.getMinutes();
-  // ถ้าเลยเที่ยงคืน
-  const endAdj=endMin>=1440?endMin-1440:endMin;
-  return nowMin>=endAdj;
+  // รองรับข้ามวัน
+  const adj=curingEndMin>=1440?curingEndMin-1440:curingEndMin;
+  // ถ้า curingEnd ข้ามเที่ยงคืน และ nowMin < 12*60 แสดงว่าผ่านแล้ว
+  if(curingEndMin>=1440&&nowMin<12*60)return true;
+  return nowMin>=adj;
 }
 
 function getCuringRemain(row){
@@ -188,13 +190,14 @@ function getCuringRemain(row){
   const p=productMap[row.mix_code]||{};
   const agingHr=+(p.aging_time||4);
   const[h,m]=row.past_end_time.split(':').map(Number);
-  const endMin=h*60+m+agingHr*60;
+  const curingEndMin=(h*60+m)+(agingHr*60);
   const now=new Date();
   const nowMin=now.getHours()*60+now.getMinutes();
-  const rem=endMin-nowMin;
-  if(rem<=0)return 0;
+  let rem=curingEndMin-nowMin;
+  if(curingEndMin>=1440)rem=(curingEndMin-1440)-nowMin;
+  if(rem<=0)return null; // บ่มเสร็จแล้ว
   const rh=Math.floor(rem/60),rm=Math.floor(rem%60);
-  return `${rh}ชม.${rm}น.`;
+  return rh>0?`${rh}ชม.${rm}น.`:`${rm}น.`;
 }
 
 function getTanks(name){
@@ -290,8 +293,10 @@ function card(row,isCur,isSingle=false){
   const isActive=row.status==='pasteurising'&&!!row.past_start_time;
 
   const curingRem=getCuringRemain(row);
+  const hasVol=+(row.volume_liter||0)>0;
   let stTxt='—',stC='var(--t2)';
-  if(row.status==='pasteurising'&&!row.past_start_time){stTxt='⏳ รอ Past.';stC='var(--yellow)';}
+  if(!hasVol){stTxt='📭 Empty';stC='var(--t3)';}
+  else if(row.status==='pasteurising'&&!row.past_start_time){stTxt='⏳ รอ Past.';stC='var(--yellow)';}
   else if(row.status==='pasteurising'&&row.past_start_time){stTxt='♨️ กำลัง Past.';stC='var(--orange)';}
   else if((row.status==='past_done'||row.status==='ready')&&!isCuringDone(row)){
     stTxt=curingRem?`🌡️ บ่มอยู่ ${curingRem}`:'🌡️ กำลังบ่ม';stC='var(--cyan)';}
@@ -314,10 +319,10 @@ function card(row,isCur,isSingle=false){
       <span class="ch-dot">·</span>
       <span class="ch-prod">${row.product_name||'—'}</span>
     </div>
-    <div style="display:flex;align-items:baseline;gap:5px;margin-top:3px">
+    <div style="display:flex;align-items:baseline;gap:5px;margin-top:3px;flex-wrap:wrap">
       <span class="ch-code">${row.mix_code||'—'}</span>
-      <span class="ch-dot">|</span>
-      <span class="ch-name">${row.mix_name||'—'}</span>
+      <span class="ch-code" style="opacity:.6">|</span>
+      <span class="ch-code">${row.mix_name||'—'}</span>
     </div>
     <div class="ch-batch">Batch ${row.batch_no||'—'}</div>
     <div class="ch-rp">${rp}</div>
