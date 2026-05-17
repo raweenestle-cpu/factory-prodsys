@@ -371,41 +371,28 @@ function renderAll(){
     if(!tanks.length)return;
     const cur=getCurrentTank(tanks);
     const queue=getQueueTanks(tanks,cur);
-    html+=`<div class="ls" style="${isSingle?'max-width:100%':''}">
-      <div class="ls-title">${name.toUpperCase()}</div>
-      <div class="pr" style="${isSingle?'min-height:400px':''}">
-        <div class="cur-wrap" style="${isSingle?'width:280px':''}">
-          <div class="sec-hd"><span class="dot-g"></span><span style="color:var(--green)">กำลังผลิตอยู่</span></div>
-          ${cur?card(cur,true,isSingle):'<div style="font-family:var(--mono);font-size:12px;color:var(--t3);padding:30px;text-align:center">⏳ รอบ่มเสร็จก่อน</div>'}
-        </div>
-        <div class="que-wrap">
-          <div class="sec-hd"><span class="dot-q"></span><span style="color:var(--t2)">คิวรอผลิตถัดไป</span></div>
-          <div class="que-inner">
-            ${queue.length?queue.map(t=>card(t,false,isSingle)).join(''):'<div style="font-family:var(--mono);font-size:12px;color:var(--t3);padding:20px">ไม่มีคิว</div>'}
-          </div>
-        </div>
-      </div>
-    </div>`;
+    const curW=isSingle?'width:280px':'';
+    html+='<div class="ls"><div class="ls-title">'+name.toUpperCase()+'</div>';
+    html+='<div class="pr"><div class="cur-wrap" style="'+curW+'">';
+    html+='<div class="sec-hd"><span class="dot-g"></span><span style="color:var(--green)">กำลังผลิตอยู่</span></div>';
+    html+=cur?card(cur,true,isSingle):'<div style="font-family:var(--mono);font-size:12px;color:var(--t3);padding:30px;text-align:center">⏳ รอบ่มเสร็จก่อน</div>';
+    html+='</div><div class="que-wrap"><div class="sec-hd"><span class="dot-q"></span><span style="color:var(--t2)">คิวรอผลิตถัดไป</span></div><div class="que-inner">';
+    html+=queue.length?queue.map(t=>card(t,false,isSingle)).join(''):'<div style="font-family:var(--mono);font-size:12px;color:var(--t3);padding:20px">ไม่มีคิว</div>';
+    html+='</div></div></div></div>';
   });
-  $('mg').innerHTML=html||`<div style="padding:80px;text-align:center;color:var(--t3);font-family:var(--mono)">
-    <div style="font-size:48px;margin-bottom:16px">📋</div>
-    <div style="font-size:14px;margin-bottom:8px">ไม่มีข้อมูลการผลิต</div>
-    <div style="font-size:12px;color:var(--t3)">${currentDate}</div>
-  </div>`;
+  $('mg').innerHTML=html||'<div style="padding:80px;text-align:center;color:var(--t3);font-family:var(--mono)">📋 ไม่มีข้อมูลการผลิต</div>';
 }
 
 function tick(){
   lineNames.forEach(name=>{
     const tanks=getTanks(name);
     if(!tanks.length)return;
-    // อัปเดตทุก tank ที่กำลัง pasteurising
     tanks.forEach(row=>{
       if(row.status!=='pasteurising'||!row.past_start_time)return;
       const{filled,pct}=calcVol(row);
       const pctC=pct>50?'#1fd17a':pct>20?'#f5c842':'#f04f5e';
       const isCur=tanks[0].id===row.id;
       const uid=(isCur?'C':'Q')+row.id.slice(-8);
-  const cardW=isSingle&&isCur?'260px':'175px';
       const v=$('vol-'+uid),p=$('pct-'+uid);
       if(v){v.textContent=filled.toFixed(1)+' L';v.style.color=pctC;}
       if(p){p.textContent=pct.toFixed(1)+'%';p.style.color=pctC;}
