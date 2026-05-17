@@ -255,18 +255,18 @@ tbody td{padding:6px 8px;vertical-align:middle;border-right:1px solid var(--b1);
 </div>
 
 <!-- PIN MODAL -->
-<div id="pin-modal-bg" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:998;align-items:center;justify-content:center">
+<div id="pin-modal-bg" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:998;align-items:center;justify-content:center" onclick="if(event.target===this)closePinModal()">
   <div style="background:var(--s1);border:1px solid var(--b1);border-radius:16px;padding:24px 20px;width:100%;max-width:320px;text-align:center">
     <div style="font-size:32px;margin-bottom:8px">🔐</div>
     <div style="font-family:var(--mono);font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px">Report Access</div>
     <div style="font-size:12px;color:var(--t2);margin-bottom:18px">ใส่ PIN 4 หลักเพื่อเข้าดู Report</div>
     <input id="pin-input" type="password" inputmode="numeric" maxlength="4"
       style="width:100%;text-align:center;letter-spacing:.3em;font-size:22px;font-family:var(--mono);background:var(--s2);border:2px solid var(--b2);border-radius:10px;color:var(--text);padding:12px;outline:none;margin-bottom:12px"
-      placeholder="••••" onkeydown="if(event.key==='Enter')checkPin()">
+      placeholder="••••" onkeydown="if(event.key==='Enter')checkPin();if(event.key==='Escape')closePinModal()">
     <div id="pin-err" style="font-family:var(--mono);font-size:11px;color:var(--red);min-height:16px;margin-bottom:10px"></div>
     <div style="display:flex;gap:8px">
-      <button style="flex:1;padding:11px;border-radius:8px;border:1px solid var(--b2);background:var(--s3);color:var(--t2);font-family:var(--mono);cursor:pointer" onclick="closePinModal()">ยกเลิก</button>
-      <button style="flex:1;padding:11px;border-radius:8px;border:none;background:var(--blue);color:#fff;font-family:var(--mono);font-weight:700;cursor:pointer" onclick="checkPin()">ยืนยัน</button>
+      <button style="flex:1;padding:11px;border-radius:8px;border:1px solid var(--b2);background:var(--s3);color:var(--t2);font-family:var(--mono);cursor:pointer;font-size:13px" onclick="closePinModal()">✕ ยกเลิก</button>
+      <button style="flex:1;padding:11px;border-radius:8px;border:none;background:var(--blue);color:#fff;font-family:var(--mono);font-weight:700;cursor:pointer;font-size:13px" onclick="checkPin()">ยืนยัน</button>
     </div>
   </div>
 </div>
