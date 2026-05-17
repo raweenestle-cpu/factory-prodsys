@@ -539,24 +539,24 @@ function buildCard(line){
     if(row.status==='pasteurising'&&!row.past_end_time){stTxt='♨️ Past.';stC='var(--orange)';}
     else if(row.status==='past_done'||row.status==='pasteurising'){stTxt='🌡️ บ่มอยู่';stC='var(--yellow)';}
     if(row.past_end_time&&curingEnd!=='—'){stTxt+=` → ${curingEnd}`;} 
-    return`<div style="background:var(--s2);border:1px solid var(--b1);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:5px">
-      <div style="display:flex;align-items:center;gap:6px">
-        <span style="font-family:var(--mono);font-size:10px;color:var(--t3);min-width:14px">${idx}</span>
-        <span style="width:8px;height:8px;border-radius:50%;background:${dot};flex-shrink:0"></span>
-        <span style="font-family:var(--mono);font-size:12px;font-weight:700;color:${dot}">${row.mix_code||'—'}</span>
-        <span style="font-family:var(--mono);font-size:12px;font-weight:700;color:${dot}">|</span>
-        <span style="font-family:var(--mono);font-size:12px;font-weight:700;color:${dot}">${row.mix_name||'—'}</span>
+    return`<div style="background:var(--s2);border:1px solid var(--b1);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:7px">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-family:var(--mono);font-size:11px;color:var(--t3);min-width:16px;font-weight:700">${idx}</span>
+        <span style="width:10px;height:10px;border-radius:50%;background:${dot};flex-shrink:0"></span>
+        <span style="font-family:var(--mono);font-size:14px;font-weight:700;color:${dot}">${row.mix_code||'—'}</span>
+        <span style="font-family:var(--mono);font-size:13px;color:${dot};opacity:.7">|</span>
+        <span style="font-family:var(--mono);font-size:14px;font-weight:700;color:${dot}">${row.mix_name||'—'}</span>
       </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;padding-left:20px">
-        <span style="font-family:var(--mono);font-size:11px;color:var(--t2)">Batch ${row.batch_no||'—'}</span>
-        <span style="font-family:var(--mono);font-size:11px;color:var(--t2)">${(+(row.volume_liter||0)).toLocaleString()} L</span>
-        ${row.aging_tank?`<span style="font-family:var(--mono);font-size:11px;color:var(--cyan)">🪣 ${row.aging_tank}</span>`:''}
+      <div style="display:flex;gap:10px;flex-wrap:wrap;padding-left:26px">
+        <span style="font-family:var(--mono);font-size:13px;font-weight:600;color:var(--text)">Batch ${row.batch_no||'—'}</span>
+        <span style="font-family:var(--mono);font-size:13px;font-weight:600;color:var(--cyan)">${(+(row.volume_liter||0)).toLocaleString()} L</span>
+        ${row.aging_tank?`<span style="font-family:var(--mono);font-size:13px;font-weight:600;color:var(--cyan)">🪣 ${row.aging_tank}</span>`:''}
       </div>
-      <div style="padding-left:20px">
-        <span style="font-family:var(--mono);font-size:11px;color:var(--purple)">${rpc}</span>
+      <div style="padding-left:26px">
+        <span style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--purple)">${rpc}</span>
       </div>
-      <div style="padding-left:20px">
-        <span style="font-family:var(--mono);font-size:10px;font-weight:700;color:${stC};background:${stC}22;padding:2px 8px;border-radius:99px;border:1px solid ${stC}44">${stTxt}</span>
+      <div style="padding-left:26px">
+        <span style="font-family:var(--mono);font-size:12px;font-weight:700;color:${stC};background:${stC}22;padding:3px 10px;border-radius:99px;border:1px solid ${stC}44">${stTxt}</span>
       </div>
     </div>`;
   }
@@ -615,7 +615,7 @@ function buildCard(line){
 
       <!-- RIGHT — คิวถัดไป (ข้อมูลอย่างเดียว) -->
       <div style="flex:1;padding:12px 14px;background:rgba(0,0,0,.1);overflow-y:auto">
-        <div style="font-family:var(--mono);font-size:10px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px;display:flex;align-items:center;gap:6px">
+        <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px;display:flex;align-items:center;gap:6px">
           <span style="width:8px;height:8px;border-radius:50%;background:var(--t3)"></span>คิวรอผลิตถัดไป
         </div>
         <div style="display:flex;flex-direction:column;gap:8px">
