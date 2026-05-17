@@ -237,15 +237,19 @@ body::before{
 
   <!-- STEP 3: เลือกหน้า -->
   <div class="step" id="step3">
-    <div class="welcome">
-      <div class="welcome-icon" id="w-icon"></div>
-      <div class="welcome-name" id="w-name"></div>
-      <div class="welcome-sub" id="w-sub"></div>
+    <!-- Logout บนสุด เห็นได้ทันที -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span id="w-icon" style="font-size:20px"></span>
+        <div>
+          <div id="w-name" style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--blue2)"></div>
+          <div id="w-sub" style="font-size:10px;color:var(--t2)"></div>
+        </div>
+      </div>
+      <button class="logout-btn" onclick="doLogout()" style="margin-top:0;width:auto;padding:7px 12px;white-space:nowrap">🚪 ออก</button>
     </div>
     <div class="menu-grid" id="menu-grid"></div>
-    <button class="logout-btn" onclick="doLogout()">🚪 ออกจากระบบ</button>
   </div>
-</div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -273,7 +277,9 @@ const MENUS={
     {icon:'🌡️',name:'Pasteurize',desc:'บันทึก Past.',file:'pasteurize.html',cls:'m-past'},
     {icon:'🍦',name:'Flavor',desc:'เทสี/กลิ่น',file:'flavor.html',cls:'m-flavor'},
     {icon:'🪣',name:'CIP Man',desc:'ควบคุมถัง',file:'cipman.html',cls:'m-cip'},
+    {icon:'🫙',name:'Aging Tank',desc:'สถานะถัง',file:'aging.html',cls:'m-cip'},
     {icon:'🏭',name:'Filling',desc:'ดู Dashboard',file:'filling.html',cls:'m-filling'},
+    {icon:'💧',name:'Flowmeter',desc:'Verify Flow',file:'flowmeter.html',cls:'m-mixing'},
     {icon:'⚙️',name:'Admin',desc:'จัดการระบบ',file:'admin.html',cls:'m-admin'},
   ],
   operator:[
@@ -282,7 +288,9 @@ const MENUS={
     {icon:'🌡️',name:'Pasteurize',desc:'บันทึก Past.',file:'pasteurize.html',cls:'m-past'},
     {icon:'🍦',name:'Flavor',desc:'เทสี/กลิ่น',file:'flavor.html',cls:'m-flavor'},
     {icon:'🪣',name:'CIP Man',desc:'ควบคุมถัง',file:'cipman.html',cls:'m-cip'},
+    {icon:'🫙',name:'Aging Tank',desc:'สถานะถัง',file:'aging.html',cls:'m-cip'},
     {icon:'🏭',name:'Filling',desc:'ดู Dashboard',file:'filling.html',cls:'m-filling'},
+    {icon:'💧',name:'Flowmeter',desc:'Verify Flow',file:'flowmeter.html',cls:'m-mixing'},
   ],
 };
 
