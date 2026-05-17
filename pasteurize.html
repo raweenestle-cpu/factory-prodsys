@@ -461,7 +461,7 @@ onAuthStateChanged(auth,async user=>{
   loadPlan("p2");
 });
 
-setInterval(()=>{["p1","p2"].forEach(p=>{if(document.getElementById("tank-visual-"+p))renderTankVisual(p,rows[p]||[]);});},60000);
+setInterval(()=>{["p1","p2"].forEach(p=>{if(document.getElementById("tank-visual-"+p))renderTankVisual(p,rows[p]||[]);});},30000);
 window.doLogout=async()=>{
   if(unsub.p1)unsub.p1();
   if(unsub.p2)unsub.p2();
@@ -542,7 +542,8 @@ function renderTankVisual(m,rows){
   const agRow=pastRow||null;
 
   const isFlowing=!!agRow?.past_start_time;
-  const activeTank=agRow?.mixing_tank||''; // T1 หรือ T2
+  const activeTank=agRow?.mixing_tank||agRow?.tank_mix||''; // T1/T2 - ลอง field ทั้งสอง
+  console.log('🔍 agRow fields:', agRow?{status:agRow.status,mixing_tank:agRow.mixing_tank,tank_mix:agRow.tank_mix,past_start_time:agRow.past_start_time,volume_liter:agRow.volume_liter}:'null');
 
   // Volume แต่ละถัง
   const t1Total=+(t1Row?.volume_liter||0);
@@ -568,7 +569,7 @@ function renderTankVisual(m,rows){
       agName=(agRow.mix_name||'—').slice(0,12);
       agTime=agRow.past_start_time+(agRow.past_end_time?' → '+agRow.past_end_time:'');
       // ลด volume ถังที่กำลัง past.
-      const isT1Active=activeTank==='T1'||activeTank==='ถัง 1'||activeTank==='1'||(!activeTank&&t1Row===agRow);
+      const isT1Active=activeTank==='T1'||activeTank==='Tank 1'||activeTank==='ถัง 1'||activeTank==='1'||(!activeTank&&!!t1Row);
       if(isT1Active) t1Vol=Math.max(0,t1Total-agVol);
       else t2Vol=Math.max(0,t2Total-agVol);
     }catch{}
@@ -623,7 +624,7 @@ function renderTankVisual(m,rows){
     const gf=isActive?`filter="url(#gfx${m})"`:'' ;
     return`<g transform="translate(${tx},${ty})">
       <!-- label outside top — ขาวชัดเจน -->
-      <text x="${tw/2}" y="-6" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="white" font-weight="700">${label}</text>
+      <text x="${tw/2}" y="-14" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="white" font-weight="700">${label}</text>
       <!-- shadow -->
       <rect x="2" y="4" width="${tw}" height="${th}" rx="10" fill="rgba(0,0,0,.45)"/>
       <!-- body -->
@@ -638,7 +639,7 @@ function renderTankVisual(m,rows){
       <!-- bottom outlet -->
       <rect x="${tw/2-5}" y="${th}" width="10" height="12" rx="2" fill="#060a14" stroke="${isActive?rgba(c1,.5):'#1e2535'}" stroke-width="1.2"/>
       <!-- mix name inside tank (top area) — ขาวชัดเจน -->
-      <text x="${tw/2}" y="18" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="white" font-weight="600" opacity=".9">${sublabel}</text>
+      <text x="${tw/2}" y="20" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="white" font-weight="700">${sublabel}</text>
       <!-- volume (center) -->
       <text x="${tw/2}" y="${th/2+8}" text-anchor="middle" font-family="DM Mono,monospace" font-size="16" fill="white" font-weight="700">${Math.round(vol).toLocaleString()}</text>
       <text x="${tw/2}" y="${th/2+22}" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="rgba(255,255,255,.65)">/ ${total.toLocaleString()} L</text>
@@ -706,8 +707,8 @@ function renderTankVisual(m,rows){
   const TBOT=TOP+TH; // 160
   const HPIPE=TBOT+45; // 205 — horizontal pipe y
   const PUMPX=320,PUMPY=HPIPE;
-  const isT1Active=isFlowing&&(activeTank==='T1'||activeTank==='ถัง 1'||activeTank==='1'||(!activeTank&&true));
-  const isT2Active=isFlowing&&(activeTank==='T2'||activeTank==='ถัง 2'||activeTank==='2');
+  const isT1Active=isFlowing&&(activeTank==='T1'||activeTank==='Tank 1'||activeTank==='ถัง 1'||activeTank==='1'||(!activeTank&&!!t1Row));
+  const isT2Active=isFlowing&&(activeTank==='T2'||activeTank==='Tank 2'||activeTank==='ถัง 2'||activeTank==='2');
   const t1Active=isFlowing&&isT1Active;
   const t2Active=isFlowing&&isT2Active;
 
@@ -777,7 +778,7 @@ function renderTankVisual(m,rows){
     ${drawTank(T2X,TOP,TW,TH,t2Vol,t2Total,'Mixing 2',(t2Row?.mix_name||'—').slice(0,12),s2,'g2t'+m,'c2t'+m,s2.tankCol,s2.tankCol2,t2Active)}
 
     <!-- ══ AGING TANK ══ -->
-    ${drawTank(AGX,TOP,TW,TH,agVol,+(agRow?.volume_liter||1),'Aging '+agTank,agName,sAg,'gag'+m,'cag'+m,sAg.tankCol,sAg.tankCol2,isFlowing)}
+    ${drawTank(AGX,TOP,TW,TH,agVol,Math.max(+(agRow?.volume_liter||0),agVol,1),'Aging '+agTank,agName,sAg,'gag'+m,'cag'+m,sAg.tankCol,sAg.tankCol2,isFlowing)}
 
     <!-- ══ VERTICAL PIPES from tank bottoms ══ -->
     <!-- T1 bottom → down to horizontal -->
@@ -799,6 +800,9 @@ function renderTankVisual(m,rows){
     <!-- เส้นที่ไม่ active แสดงเป็นเทา -->
     ${!t1Active?`<path d="M ${T1CX},${HPIPE} L ${PUMPX-22},${HPIPE}" fill="none" stroke="#1e2535" stroke-width="6" stroke-linecap="round"/>`:'' }
     ${!t2Active?`<path d="M ${T2CX},${HPIPE} L ${PUMPX-22},${HPIPE}" fill="none" stroke="#1e2535" stroke-width="6" stroke-linecap="round"/>`:'' }
+    <!-- ══ PUMP ══ -->
+    ${pump(PUMPX,PUMPY,isFlowing)}
+    <text x="${PUMPX}" y="${PUMPY+36}" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" font-weight="700" fill="${isFlowing?ac:'#3d4560'}">PUMP</text>
     <!-- pump → aging -->
     ${pipe(`M ${PUMPX+22},${HPIPE} L ${AGCX},${HPIPE}`,isFlowing)}
     <text x="${PUMPX}" y="${PUMPY+36}" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" font-weight="700" fill="${isFlowing?ac:'#3d4560'}">PUMP</text>
