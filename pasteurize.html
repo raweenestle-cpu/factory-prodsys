@@ -934,6 +934,9 @@ function renderPlan(p){
     const isPast     = row.status==="pasteurising"&&!!row.past_start_time;
     const isDone     = row.status==="past_done"||row.status==="ready";
 
+    // past_done และ ready ไม่แสดงในตาราง — ไปแสดงใน Filling แทน
+    if(isDone) return;
+
     const statStyle = isPast
       ? `background:rgba(249,115,22,.15);color:#fb923c;animation:blink 0.7s infinite`
       : isDone
