@@ -467,20 +467,40 @@ window.toggleHW=async(key)=>{
 // FP PANEL
 function fpPanel(lineId,tank){
   const fp=getFP(lineId,tank);
+  const st=lineStates[lineId]||{};
+  const hotOk=st[`hot_${tank}`]||false;
+  const cipOk=st[`cip_${tank}`]||false;
   const fzO=freezers.map(f=>`<option value="${f}"${fp.fz===f?' selected':''}>${f}</option>`).join('');
   const ppO=pipes.map(p=>`<option value="${p}"${fp.pp===p?' selected':''}>${p}</option>`).join('');
-  return`<div class="fp-row">
-    <div class="fp-item">
-      <div class="fp-lbl">🧊 Freezer</div>
-      <select class="fp-sel" onchange="setFP('${lineId}','${tank}','fz',this.value)">
+  return`<div style="background:rgba(6,182,212,.05);border:1px solid rgba(6,182,212,.2);border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:8px">
+    <!-- Freezer dropdown -->
+    <div>
+      <div style="font-family:var(--mono);font-size:9px;color:var(--cyan);margin-bottom:4px">🧊 FREEZER</div>
+      <select style="width:100%;background:rgba(6,182,212,.08);border:1px solid rgba(6,182,212,.3);border-radius:7px;color:var(--cyan);font-family:var(--mono);font-size:12px;padding:6px 8px;outline:none;cursor:pointer"
+        onchange="setFP('${lineId}','${tank}','fz',this.value)">
         <option value="">— เลือก —</option>${fzO}
       </select>
     </div>
-    <div class="fp-item">
-      <div class="fp-lbl">🔧 ท่อ</div>
-      <select class="fp-sel" onchange="setFP('${lineId}','${tank}','pp',this.value)">
+    <!-- ท่อ dropdown -->
+    <div>
+      <div style="font-family:var(--mono);font-size:9px;color:var(--cyan);margin-bottom:4px">⚙️ ท่อ</div>
+      <select style="width:100%;background:rgba(6,182,212,.08);border:1px solid rgba(6,182,212,.3);border-radius:7px;color:var(--cyan);font-family:var(--mono);font-size:12px;padding:6px 8px;outline:none;cursor:pointer"
+        onchange="setFP('${lineId}','${tank}','pp',this.value)">
         <option value="">— เลือก —</option>${ppO}
       </select>
+    </div>
+    <!-- Checkbox น้ำร้อน + CIP -->
+    <div style="display:flex;flex-direction:column;gap:5px;padding-top:4px;border-top:1px solid rgba(6,182,212,.15)">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+        <input type="checkbox" ${hotOk?'checked':''} onchange="setFP('${lineId}','${tank}','hot_${tank}',this.checked)"
+          style="width:14px;height:14px;accent-color:var(--green)">
+        <span style="font-family:var(--mono);font-size:11px;color:${hotOk?'var(--green)':'var(--t2)'}">⭐ เดินน้ำร้อนท่อแล้ว</span>
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+        <input type="checkbox" ${cipOk?'checked':''} onchange="setFP('${lineId}','${tank}','cip_${tank}',this.checked)"
+          style="width:14px;height:14px;accent-color:var(--green)">
+        <span style="font-family:var(--mono);font-size:11px;color:${cipOk?'var(--green)':'var(--t2)'}">⭐ CIP แล้ว</span>
+      </label>
     </div>
   </div>`;
 }
@@ -652,8 +672,15 @@ function buildCard(line){
     else if(row.status==='past_done'||row.status==='pasteurising'){stTxt='🌡️ บ่มอยู่';stC='var(--yellow)';}
     if(row.past_end_time&&curingEnd!=='—'){stTxt+=` → ${curingEnd}`;}
     return`<div style="background:var(--s2);border:1px solid var(--b1);border-radius:10px;padding:10px 12px;display:flex;gap:10px;align-items:center">
-      <!-- ถัง SVG เล็ก -->
-      <div style="flex-shrink:0">${tankSVG('Q'+line.id+idx,qPct,dot,true)}</div>
+      <!-- ถัง SVG — มี Mix Code + Name + % ในถัง -->
+      <div style="flex-shrink:0;position:relative">
+        ${tankSVG('Q'+line.id+idx,qPct,dot,true)}
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;width:90%">
+          <div style="font-family:var(--mono);font-size:9px;color:white;font-weight:700;text-shadow:0 1px 4px rgba(0,0,0,1)">${row.mix_code||''}</div>
+          <div style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,.8);text-shadow:0 1px 4px rgba(0,0,0,1)">${(row.mix_name||'').slice(0,12)}</div>
+          <div style="font-family:var(--mono);font-size:12px;font-weight:700;color:white;text-shadow:0 1px 6px rgba(0,0,0,1);margin-top:4px">${qPct.toFixed(1)}%</div>
+        </div>
+      </div>
       <!-- ข้อมูล -->
       <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px">
         <div style="font-family:var(--mono);font-size:9px;color:var(--cyan);font-weight:700">${idx} · ${row.aging_tank||'—'}</div>
@@ -711,15 +738,6 @@ function buildCard(line){
       <!-- Controls — เรียงแนวตั้ง ไม่ล้น -->
       <div style="flex-shrink:0;width:200px;padding:12px;display:flex;flex-direction:column;gap:8px;border-right:1px solid var(--b1)">
 
-        <!-- Freezer + ท่อ — แนวตั้ง เต็มความกว้าง -->
-        ${fp.fz?`<div style="background:var(--s2);border:1px solid rgba(6,182,212,.3);border-radius:10px;padding:10px 12px">
-          <div style="font-family:var(--mono);font-size:9px;color:var(--t3);margin-bottom:4px">🧊 FREEZER</div>
-          <div style="font-family:var(--mono);font-size:14px;font-weight:700;color:var(--cyan)">${fp.fz}</div>
-        </div>`:''}
-        ${fp.pp?`<div style="background:var(--s2);border:1px solid rgba(148,163,184,.2);border-radius:10px;padding:10px 12px">
-          <div style="font-family:var(--mono);font-size:9px;color:var(--t3);margin-bottom:4px">🔧 ท่อ</div>
-          <div style="font-family:var(--mono);font-size:14px;font-weight:700;color:var(--text)">${fp.pp}</div>
-        </div>`:''}
         ${fpPanel(line.id,'A')}
 
         <!-- Start / Stop / Reset — เต็มความกว้าง -->
