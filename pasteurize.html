@@ -288,24 +288,27 @@ thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap
   <div class="tank-row" id="tank-visual-p1"></div>
   <div id="chart-area-p1" style="margin-bottom:12px"></div>
   <div class="tw"><table>
-    <thead><tr>
-    <tr>
-        <th>#</th>
-        <th>Mix Code</th>
-        <th>Mix Name</th>
-        <th>Batch</th>
-        <th>Vol (L)</th>
-        <th>Tank Mix</th>
-        <th style="color:var(--orange);min-width:130px">♨️ เริ่ม Past.</th>
-        <th style="color:var(--cyan);min-width:80px">🕐 คาดเสร็จ</th>
-        <th style="color:var(--green);min-width:130px">✅ Past. เสร็จ</th>
-        <th style="color:var(--green)">Eff%</th>
-        <th style="background:#141a0c;color:#86efac;font-size:9px">🍬 Glc ค่าจริง ☑️</th>
-        <th style="background:#081014;color:#67e8f9;font-size:9px">🧂 Sgr ค่าจริง ☑️</th>
-        <th style="background:#120f08;color:#fdba74;font-size:9px">🌴 Plm ค่าจริง ☑️</th>
-        <th style="color:var(--cyan)">🪣 Aging Tank</th>
-        <th style="color:var(--purple)">รหัสผลิต</th>
-        <th>Status</th>
+    <thead>
+      <tr>
+        <th rowspan="2">#</th>
+        <th rowspan="2">Mix Code</th>
+        <th rowspan="2">Mix Name</th>
+        <th rowspan="2">Batch</th>
+        <th rowspan="2">Vol (L)</th>
+        <th rowspan="2">Tank</th>
+        <th rowspan="2" style="color:var(--orange);min-width:130px">♨️ เริ่ม Past.</th>
+        <th rowspan="2" style="color:var(--cyan);min-width:80px">🕐 คาด<br>เสร็จ</th>
+        <th rowspan="2" style="color:var(--green);min-width:130px">✅ Past.<br>เสร็จ</th>
+        <th rowspan="2" style="color:var(--green)">Eff%</th>
+        <th colspan="3" style="text-align:center;background:#0d1208;color:#86efac;font-size:9px;border-bottom:1px solid var(--b2)">ค่าจริง ☑️</th>
+        <th rowspan="2" style="color:var(--cyan)">🪣 Aging<br>Tank</th>
+        <th rowspan="2" style="color:var(--purple)">รหัส<br>ผลิต</th>
+        <th rowspan="2">Status</th>
+      </tr>
+      <tr>
+        <th style="background:#141a0c;color:#86efac;font-size:9px">🍬 Glc</th>
+        <th style="background:#081014;color:#67e8f9;font-size:9px">🧂 Sgr</th>
+        <th style="background:#120f08;color:#fdba74;font-size:9px">🌴 Plm</th>
       </tr>
     </thead>
     <tbody id="tbody-p1"></tbody>
@@ -323,24 +326,27 @@ thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap
   <div class="tank-row" id="tank-visual-p2"></div>
   <div id="chart-area-p2" style="margin-bottom:12px"></div>
   <div class="tw"><table>
-    <thead><tr>
-    <tr>
-        <th>#</th>
-        <th>Mix Code</th>
-        <th>Mix Name</th>
-        <th>Batch</th>
-        <th>Vol (L)</th>
-        <th>Tank Mix</th>
-        <th style="color:var(--orange);min-width:130px">♨️ เริ่ม Past.</th>
-        <th style="color:var(--cyan);min-width:80px">🕐 คาดเสร็จ</th>
-        <th style="color:var(--green);min-width:130px">✅ Past. เสร็จ</th>
-        <th style="color:var(--green)">Eff%</th>
-        <th style="background:#141a0c;color:#86efac;font-size:9px">🍬 Glc ค่าจริง ☑️</th>
-        <th style="background:#081014;color:#67e8f9;font-size:9px">🧂 Sgr ค่าจริง ☑️</th>
-        <th style="background:#120f08;color:#fdba74;font-size:9px">🌴 Plm ค่าจริง ☑️</th>
-        <th style="color:var(--cyan)">🪣 Aging Tank</th>
-        <th style="color:var(--purple)">รหัสผลิต</th>
-        <th>Status</th>
+    <thead>
+      <tr>
+        <th rowspan="2">#</th>
+        <th rowspan="2">Mix Code</th>
+        <th rowspan="2">Mix Name</th>
+        <th rowspan="2">Batch</th>
+        <th rowspan="2">Vol (L)</th>
+        <th rowspan="2">Tank</th>
+        <th rowspan="2" style="color:var(--orange);min-width:130px">♨️ เริ่ม Past.</th>
+        <th rowspan="2" style="color:var(--cyan);min-width:80px">🕐 คาด<br>เสร็จ</th>
+        <th rowspan="2" style="color:var(--green);min-width:130px">✅ Past.<br>เสร็จ</th>
+        <th rowspan="2" style="color:var(--green)">Eff%</th>
+        <th colspan="3" style="text-align:center;background:#0d1208;color:#86efac;font-size:9px;border-bottom:1px solid var(--b2)">ค่าจริง ☑️</th>
+        <th rowspan="2" style="color:var(--cyan)">🪣 Aging<br>Tank</th>
+        <th rowspan="2" style="color:var(--purple)">รหัส<br>ผลิต</th>
+        <th rowspan="2">Status</th>
+      </tr>
+      <tr>
+        <th style="background:#141a0c;color:#86efac;font-size:9px">🍬 Glc</th>
+        <th style="background:#081014;color:#67e8f9;font-size:9px">🧂 Sgr</th>
+        <th style="background:#120f08;color:#fdba74;font-size:9px">🌴 Plm</th>
       </tr>
     </thead>
     <tbody id="tbody-p2"></tbody>
@@ -1059,9 +1065,6 @@ function renderPlan(p){
         ? stampCell("past_start_time",row.past_start_time,"Stamp เริ่ม",!row.past_start_time,!canStampStart&&!row.past_start_time,blockReason)
         : `<td><span style="font-family:var(--mono);font-size:10px;color:var(--t3);padding:5px 8px">⏳ รอ Mixing</span></td>`}
       <td><span style="font-family:var(--mono);font-size:12px">${estFinish}</span></td>
-      <td>
-        <span style="font-family:var(--mono);font-size:12px;font-weight:700;padding:3px 10px;border-radius:6px;background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.2);white-space:nowrap">${row.mixing_tank||"—"}</span>
-      </td>
       ${row.status==='pasteurising'&&row.past_start_time
         ? stampCell("past_end_time",row.past_end_time,"Stamp เสร็จ")
         : `<td><span style="font-family:var(--mono);font-size:10px;color:var(--t3)">—</span></td>`}
