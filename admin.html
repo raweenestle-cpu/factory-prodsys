@@ -772,20 +772,17 @@ window.removeNewLineMix=(pi,mi)=>{
 window.addLine=async()=>{
   const name=$("nl-name").value.trim();
   const group=$("nl-group").value;
-  const sku=$("nl-sku").value.trim();
-  const flow=+$("nl-flow").value||300;
   const seq=+$("nl-seq").value||1;
   const err=$("l-err");err.textContent="";
   if(!name){err.textContent="กรุณากรอกชื่อ LINE";return;}
   try{
     await addDoc(collection(db,"lines"),{
-      name,group,sku,flow_rate:flow,seq,
+      name,group,seq,
       products:newLineProducts,
       type:"Filling",
       createdAt:new Date().toISOString()
     });
-    // reset form
-    $("nl-name").value="";$("nl-sku").value="";
+    $("nl-name").value="";
     newLineProducts=[];
     renderNewLineProdList();
     toast(`เพิ่ม LINE ${name} แล้ว`,"green");
@@ -800,9 +797,6 @@ window.openEditLine=(id)=>{
   $("el-id").value=id;
   $("el-name").value=l.name||"";
   $("el-group").value=l.group||"bangchan";
-  $("el-sku").value=l.sku||"";
-  $("el-product").value=l.product||"";
-  $("el-flow").value=l.flow_rate||300;
   $("el-seq").value=l.seq||1;
   $("el-aging").value=(l.aging_tanks||[]).join(', ');
   editLineProducts=JSON.parse(JSON.stringify(l.products||[]));
@@ -886,9 +880,6 @@ window.saveEditLine=async()=>{
     await updateDoc(doc(db,"lines",id),{
       name:$("el-name").value.trim(),
       group:$("el-group").value,
-      sku:$("el-sku").value.trim(),
-      product:$("el-product").value.trim(),
-      flow_rate:null, // flow_rate อยู่ใน product แต่ละตัวแล้ว
       seq:+$("el-seq").value||1,
       products:editLineProducts,
       aging_tanks:agingTanks,
