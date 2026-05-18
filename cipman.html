@@ -486,7 +486,7 @@ function fpPanel(lineId,tank){
 }
 
 // SVG TANK
-function tankSVG(uid,pct,col,run){
+function tankSVG(uid,pct,col,run,statusTxt="",statusCol="#fff"){
   const sw=160,sh=280; // ผอมสูง เหมือน Filling
   const bX=18,bY=24,bW=sw-36,bH=sh-60,nW=32,nH=12,cW=42,cH=7;
   const nX=bX+(bW-nW)/2,cX=bX+(bW-cW)/2;
@@ -549,6 +549,11 @@ function tankSVG(uid,pct,col,run){
   <rect x="${bX+bW-22}" y="${bY+bH}" width="10" height="14" rx="3" fill="#080c18" stroke="#1e2d4a" stroke-width="1.5"/>
   <rect x="${bX+6}" y="${bY+bH+13}" width="${bW-12}" height="5" rx="2.5" fill="#080c18" stroke="#1e2d4a" stroke-width="1.5"/>
   <rect x="${bX+3}" y="${bY+3}" width="14" height="${bH-6}" rx="7" fill="rgba(255,255,255,.025)"/>
+  ${statusTxt?`
+  <rect x="${bX+4}" y="${bY+bH-26}" width="${bW-8}" height="18" rx="6" fill="rgba(0,0,0,.65)"/>
+  <text x="${bX+bW/2}" y="${bY+bH-13}" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="${statusCol}" font-weight="700">${statusTxt}
+    <animate attributeName="opacity" values="1;0.3;1" dur="2s" repeatCount="indefinite"/>
+  </text>`:''}
 </svg>`;
 }
 
@@ -667,7 +672,7 @@ function buildCard(line){
   return`<div class="lcard ${cardStatus}" id="card-${line.id}">
     <div class="accent"></div>
 
-    <!-- HEADER — compact -->
+    <!-- HEADER -->
     <div style="padding:10px 14px;border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between;gap:8px">
       <div style="min-width:0;flex:1">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
@@ -685,27 +690,27 @@ function buildCard(line){
       </div>
     </div>
 
-    <!-- BODY — ถัง | controls | queue ข้างกัน -->
+    <!-- BODY -->
     <div style="display:flex;align-items:stretch">
 
-      <!-- ถัง SVG -->
-      <div style="flex-shrink:0;width:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px;border-right:1px solid var(--b1);background:rgba(0,0,0,.15)">
-        <div style="font-family:var(--mono);font-size:10px;color:var(--cyan);font-weight:700;margin-bottom:4px">🪣 ${agingTank}</div>
+      <!-- ถัง SVG — status อยู่ในถัง -->
+      <div style="flex-shrink:0;width:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 8px;border-right:1px solid var(--b1);background:rgba(0,0,0,.15)">
+        <div style="font-family:var(--mono);font-size:10px;color:var(--cyan);font-weight:700;margin-bottom:2px">🪣 ${agingTank}</div>
         <div style="position:relative;display:flex;justify-content:center;align-items:center">
-          ${tankSVG('S'+line.id,pct,col,hasLiquid)}
-          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;width:90%">
+          ${tankSVG('S'+line.id, pct, col, hasLiquid,
+            current.status==='pasteurising'?'♨️ กำลัง Past.':curing.done?'✅ บ่มเสร็จ':'⏳ '+curing.endTime,
+            current.status==='pasteurising'?'#fb923c':curing.done?'#4ade80':'#fde047'
+          )}
+          <div style="position:absolute;top:38%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;width:90%">
             <div id="vol-S${line.id}" style="font-family:var(--mono);font-size:13px;font-weight:700;color:${pctC};text-shadow:0 2px 8px rgba(0,0,0,1)">${fmtL(rem)} L</div>
             <div id="pct-S${line.id}" style="font-family:var(--mono);font-size:11px;color:${pctC};text-shadow:0 1px 6px rgba(0,0,0,1)">${pct.toFixed(1)}%</div>
             <div id="eta-S${line.id}" style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,.8)">${getEtaStr(rem,fr,isRunning)}</div>
           </div>
         </div>
-        <div style="font-family:var(--mono);font-size:9px;color:${current.status==='pasteurising'?'var(--orange)':curing.done?'var(--green)':'var(--yellow)'};margin-top:4px;text-align:center">
-          ${current.status==='pasteurising'?'♨️ กำลัง Past.':curing.done?'✅ บ่มเสร็จ':'⏳ '+curing.endTime}
-        </div>
       </div>
 
       <!-- Controls -->
-      <div style="flex-shrink:0;width:180px;padding:10px 12px;display:flex;flex-direction:column;justify-content:center;gap:8px;border-right:1px solid var(--b1)">
+      <div style="flex-shrink:0;width:175px;padding:10px 12px;display:flex;flex-direction:column;justify-content:center;gap:8px;border-right:1px solid var(--b1)">
         ${fpPanel(line.id,'A')}
         <div class="ctrl-btns">
           <button class="cbtn start" ${isRunning||!curing.done?'disabled':''} onclick="startLine('${line.id}',${sv},${fr})"><span class="cbtn-icon">▶</span>Start</button>
@@ -715,11 +720,13 @@ function buildCard(line){
         <button class="empty-btn" onclick="askEmpty('${line.id}','${current._col}','${current.id}','${line.name}')">🪣 หมดถัง — โหลดถัดไป</button>
       </div>
 
-      <!-- Queue — ด้านขวาสุด -->
-      <div style="flex:1;padding:10px 12px;overflow-y:auto;max-height:280px">
-        ${queue.length?`<div style="font-family:var(--mono);font-size:10px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px">⏳ คิวรอผลิต</div>
-        <div style="display:flex;flex-direction:column;gap:6px">${queue.map((r,i)=>queueItem(r,i+2)).join('')}</div>`
-        :'<div style="font-family:var(--mono);font-size:11px;color:var(--t3);padding:20px;text-align:center">ไม่มีคิวถัดไป</div>'}
+      <!-- Queue — แยก card ด้านขวา -->
+      <div style="flex:1;padding:10px 12px;overflow-y:auto;max-height:320px">
+        <div style="font-family:var(--mono);font-size:10px;font-weight:700;color:var(--t2);letter-spacing:.1em;margin-bottom:6px">⏳ คิวรอผลิต</div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          ${queue.length?queue.map((r,i)=>queueItem(r,i+2)).join('')
+            :'<div style="font-family:var(--mono);font-size:11px;color:var(--t3);padding:20px;text-align:center">ไม่มีคิวถัดไป</div>'}
+        </div>
       </div>
 
     </div>
