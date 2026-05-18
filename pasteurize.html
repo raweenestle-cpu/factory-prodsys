@@ -1110,7 +1110,6 @@ function renderPlan(p){
       const effLabel=eff>=97&&eff<=100?"✅":eff>100?"⚠️":"❌";
       effHTML=`<span style="font-family:var(--mono);font-size:12px;font-weight:700;color:${effColor}">${effLabel} ${eff.toFixed(1)}%</span>`;
     }
-    }
 
     // เช็ค checkbox ก่อนให้ Stamp เริ่ม Past.
     const needGlc=(+row.glc_actual||0)>0&&!row.glc_confirmed;
