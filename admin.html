@@ -2,7 +2,13 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1e40af">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="PROD.SYS">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin — PROD.SYS</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;600&family=Sarabun:wght@400;500;600;700&display=swap');
@@ -192,14 +198,6 @@ tbody td{padding:7px 10px;vertical-align:middle}
         </select>
       </div>
       <div class="form-group">
-        <div class="form-label">รหัสสินค้า</div>
-        <input id="nl-sku" class="ci" placeholder="เช่น SKU-001">
-      </div>
-      <div class="form-group">
-        <div class="form-label">Flow Rate (L/hr)</div>
-        <input id="nl-flow" class="ci" type="number" value="300" placeholder="300">
-      </div>
-      <div class="form-group">
         <div class="form-label">ลำดับ (Seq)</div>
         <input id="nl-seq" class="ci" type="number" value="1" placeholder="1">
       </div>
@@ -211,9 +209,11 @@ tbody td{padding:7px 10px;vertical-align:middle}
       <div id="nl-prod-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px">
         <div style="color:var(--t3);font-size:11px;font-style:italic">ยังไม่มีผลิตภัณฑ์</div>
       </div>
-      <div style="display:flex;gap:6px">
-        <input id="nl-prod-name" class="ci" placeholder="ชื่อผลิตภัณฑ์ เช่น เอสกิโมบานาน่า" style="flex:1" onkeydown="if(event.key==='Enter')addNewLineProd()">
-        <button class="btn btn-b" style="white-space:nowrap" onclick="addNewLineProd()">+ เพิ่มผลิตภัณฑ์</button>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <input id="nl-prod-name" class="ci" placeholder="ชื่อผลิตภัณฑ์" style="flex:2;min-width:120px" onkeydown="if(event.key==='Enter')addNewLineProd()">
+        <input id="nl-prod-sku" class="ci" placeholder="รหัสสินค้า SKU" style="flex:1;min-width:100px">
+        <input id="nl-prod-flow" class="ci" type="number" placeholder="Flow Rate L/hr" style="flex:1;min-width:100px">
+        <button class="btn btn-b" style="white-space:nowrap" onclick="addNewLineProd()">+ เพิ่ม</button>
       </div>
     </div>
 
@@ -338,17 +338,16 @@ tbody td{padding:7px 10px;vertical-align:middle}
         <option value="twin">Twin</option>
       </select>
     </div>
-    <div class="modal-field"><div class="modal-label">รหัสสินค้า</div><input id="el-sku" class="ci" placeholder="เช่น SKU-001"></div>
-    <div class="modal-field"><div class="modal-label">ผลิตภัณฑ์หลัก</div><input id="el-product" class="ci"></div>
-    <div class="modal-field"><div class="modal-label">Flow Rate (L/hr)</div><input id="el-flow" class="ci" type="number"></div>
     <div class="modal-field"><div class="modal-label">ลำดับ (Seq)</div><input id="el-seq" class="ci" type="number"></div>
     <div class="modal-field"><div class="modal-label">Aging Tanks (คั่นด้วย , เช่น T01,T02,T03)</div><input id="el-aging" class="ci" placeholder="T01, T02, T03"></div>
-    <!-- Multi Products with Mix Codes -->
+    <!-- Products — แต่ละตัวมี SKU + Flow Rate ของตัวเอง -->
     <div class="modal-field" style="margin-top:10px">
-      <div class="modal-label" style="margin-bottom:8px">🏷️ ผลิตภัณฑ์ใน LINE นี้ (เพิ่มได้ไม่จำกัด)</div>
+      <div class="modal-label" style="margin-bottom:8px">🏷️ ผลิตภัณฑ์ใน LINE นี้</div>
       <div id="el-prod-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px"></div>
-      <div style="display:flex;gap:6px;align-items:center">
-        <input id="el-prod-name" class="ci" placeholder="ชื่อผลิตภัณฑ์ เช่น Eskimo Swirl" style="flex:1">
+      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+        <input id="el-prod-name" class="ci" placeholder="ชื่อผลิตภัณฑ์" style="flex:2;min-width:120px">
+        <input id="el-prod-sku" class="ci" placeholder="รหัสสินค้า SKU" style="flex:1;min-width:100px">
+        <input id="el-prod-flow" class="ci" type="number" placeholder="Flow Rate L/hr" style="flex:1;min-width:100px">
         <button class="btn btn-b" style="padding:6px 12px;white-space:nowrap" onclick="addProductToLine()">+ เพิ่ม</button>
       </div>
     </div>
@@ -676,11 +675,14 @@ function renderLines(){
         ?products_list.map(p=>`<div style="font-family:var(--sans);font-size:12px;margin-bottom:3px">${p.name}</div>`).join('')
         :`<span style="color:var(--t3);font-size:11px">—</span>`;
       const mixCodeHTML=products_list.length
-        ?products_list.map(p=>`<div style="font-family:var(--mono);font-size:10px;color:var(--cyan);margin-bottom:3px">${(p.mix_codes||[]).map(m=>m.code).join('<br>')||'—'}</div>`).join('')
+        ?products_list.map(p=>`<div style="font-family:var(--mono);font-size:10px;color:var(--cyan);margin-bottom:3px">${(p.mix_codes||[]).map(m=>m.code).join(', ')||'—'}</div>`).join('')
         :`<span style="color:var(--t3);font-size:11px">—</span>`;
       const mixNameHTML=products_list.length
-        ?products_list.map(p=>`<div style="font-size:11px;color:var(--t2);margin-bottom:3px">${(p.mix_codes||[]).map(m=>m.name||'—').join('<br>')||'—'}</div>`).join('')
+        ?products_list.map(p=>`<div style="font-size:11px;color:var(--t2);margin-bottom:3px">${(p.mix_codes||[]).map(m=>m.name||'—').join(', ')||'—'}</div>`).join('')
         :`<span style="color:var(--t3);font-size:11px">—</span>`;
+      const flowRateHTML=products_list.length
+        ?products_list.map(p=>`<div style="font-family:var(--mono);font-size:10px;color:var(--green);margin-bottom:3px">${p.flow_rate||300} L/hr</div>`).join('')
+        :`<span style="color:var(--t3);font-size:11px">${l.flow_rate||300} L/hr</span>`;
       const tr=document.createElement("tr");
       tr.innerHTML=`
         <td style="font-family:var(--mono);color:var(--t3)">${l.seq||"—"}</td>
@@ -689,7 +691,7 @@ function renderLines(){
         <td style="max-width:140px">${prodNamesHTML}</td>
         <td style="max-width:120px">${mixCodeHTML}</td>
         <td style="max-width:140px">${mixNameHTML}</td>
-        <td style="font-family:var(--mono)">${l.flow_rate||300} L/hr</td>
+        <td style="font-family:var(--mono)">${flowRateHTML}</td>
         <td style="font-family:var(--mono);font-size:11px;color:var(--cyan);max-width:120px">${(l.aging_tanks||[]).join(', ')||'—'}</td>
         <td><span style="font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:4px;background:${g==="bangchan"?"rgba(59,130,246,.1)":"rgba(168,85,247,.1)"};color:${g==="bangchan"?"var(--blue2)":"var(--purple)"}">${g==="bangchan"?"Bangchan":"Twin"}</span></td>
         <td>
@@ -706,10 +708,14 @@ let newLineProducts=[];
 
 window.addNewLineProd=()=>{
   const name=$("nl-prod-name").value.trim();
+  const sku=$("nl-prod-sku")?.value.trim()||'';
+  const flow=+($("nl-prod-flow")?.value)||300;
   if(!name){toast("กรุณากรอกชื่อผลิตภัณฑ์","red");return;}
   if(newLineProducts.find(p=>p.name===name)){toast("มีอยู่แล้ว","red");return;}
-  newLineProducts.push({name,mix_codes:[]});
+  newLineProducts.push({name,sku,flow_rate:flow,mix_codes:[]});
   $("nl-prod-name").value="";
+  if($("nl-prod-sku"))$("nl-prod-sku").value="";
+  if($("nl-prod-flow"))$("nl-prod-flow").value="";
   renderNewLineProdList();
 };
 
@@ -812,8 +818,12 @@ function renderEditProdList(){
   }
   list.innerHTML=editLineProducts.map((prod,pi)=>`
     <div style="background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:10px 12px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-        <span style="font-family:var(--mono);font-size:12px;font-weight:700;color:var(--cyan)">${prod.name}</span>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <div>
+          <span style="font-family:var(--mono);font-size:12px;font-weight:700;color:var(--cyan)">${prod.name}</span>
+          ${prod.sku?`<span style="font-family:var(--mono);font-size:10px;color:var(--yellow);margin-left:8px">${prod.sku}</span>`:''}
+          <span style="font-family:var(--mono);font-size:10px;color:var(--green);margin-left:8px">${prod.flow_rate||300} L/hr</span>
+        </div>
         <button style="background:none;border:none;color:var(--t3);cursor:pointer;font-size:13px" onclick="removeProductFromLine(${pi})">✕ ลบ</button>
       </div>
       <div style="font-size:10px;color:var(--t3);margin-bottom:5px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em">Mix Codes ที่ใช้</div>
@@ -837,10 +847,12 @@ function renderEditProdList(){
 
 window.addProductToLine=()=>{
   const name=$("el-prod-name").value.trim();
+  const sku=$("el-prod-sku").value.trim();
+  const flow=+($("el-prod-flow").value)||300;
   if(!name){toast("กรุณากรอกชื่อผลิตภัณฑ์","red");return;}
   if(editLineProducts.find(p=>p.name===name)){toast("มีอยู่แล้ว","red");return;}
-  editLineProducts.push({name,mix_codes:[]});
-  $("el-prod-name").value="";
+  editLineProducts.push({name,sku,flow_rate:flow,mix_codes:[]});
+  $("el-prod-name").value="";$("el-prod-sku").value="";$("el-prod-flow").value="";
   renderEditProdList();
 };
 
@@ -876,7 +888,7 @@ window.saveEditLine=async()=>{
       group:$("el-group").value,
       sku:$("el-sku").value.trim(),
       product:$("el-product").value.trim(),
-      flow_rate:+$("el-flow").value||300,
+      flow_rate:null, // flow_rate อยู่ใน product แต่ละตัวแล้ว
       seq:+$("el-seq").value||1,
       products:editLineProducts,
       aging_tanks:agingTanks,
@@ -1058,6 +1070,15 @@ window.closeModal=(id)=>$(id).classList.remove("show");
 document.querySelectorAll('.modal-bg').forEach(bg=>{
   bg.addEventListener('click',e=>{if(e.target===bg)bg.classList.remove("show");});
 });
+</script>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('sw.js')
+      .then(r=>console.log('SW registered'))
+      .catch(e=>console.warn('SW failed:',e));
+  });
+}
 </script>
 </body>
 </html>
