@@ -307,33 +307,17 @@ function getSt(name){const l=lineMap[name];return l?(lineStates[l.id]||{}):{}}
 // คำนวณ Volume ที่ไหลเข้าถัง จาก past_start_time + speed
 function calcVol(row){
   const totalVol=+(row.volume_liter||0);
+  if(totalVol<=0) return{filled:0,pct:0,totalVol};
 
-  if(!row.past_start_time||totalVol<=0){
-    return{filled:0,pct:0,totalVol};
-  }
-
-  // ดึง flow_rate (L/hr) จาก LINE master
-  const lineName=row.filling_line||'';
-  const lineObj=lineMap[lineName]||{};
-  const flowRate=+(lineObj.flow_rate||300); // L/hr
-
-  const now=new Date();
-  const[h,m]=row.past_start_time.split(':').map(Number);
-  const startMin=h*60+m;
-  const nowMin=now.getHours()*60+now.getMinutes()+now.getSeconds()/60;
-  let elapsedMin=nowMin-startMin;
-  if(elapsedMin<0)elapsedMin+=1440;
-  const elapsedHr=elapsedMin/60;
-
-  // ใช้ current_vol ที่ Pasteurize เขียนไว้ ถ้ามี
+  // ใช้ current_vol ที่ Pasteurize เขียนไว้เท่านั้น
   if(row.current_vol!==undefined&&row.current_vol!==null){
-    const filled=+row.current_vol;
+    const filled=Math.min(totalVol,+row.current_vol);
     const pct=totalVol>0?(filled/totalVol)*100:0;
     return{filled,pct,totalVol};
   }
-  const filled=Math.min(totalVol,elapsedHr*flowRate);
-  const pct=totalVol>0?(filled/totalVol)*100:0;
-  return{filled,pct,totalVol};
+
+  // ถ้ายังไม่มี current_vol แสดง 0
+  return{filled:0,pct:0,totalVol};
 }
 
 // SVG — ถังผอม สูง
