@@ -706,8 +706,24 @@ function renderPlan(m){
           <input class="act-input" style="background:rgba(249,115,22,.06);border-color:rgba(249,115,22,.3);color:#fdba74" type="number" step="0.1" value="${row.plm_actual||""}" placeholder="0"
             onchange="saveActual('${col}','${row.id}','plm_actual',this.value,'${m}')">
           ${row.plm_comment?`<span title="${row.plm_comment}" style="cursor:help;font-size:12px">⚠️</span>`:""}
+          ${+(row.plm_set||0)>0?`<label class="chk-lbl"><input type="checkbox" ${row.plm_confirmed?"checked":""} onchange="_up('${col}','${row.id}','plm_confirmed',this.checked)">&nbsp;✅</label>`:""}
         </div>
       </td>
+      <!-- OIL MIX -->
+      <td style="background:#0a1a16"><span style="font-family:var(--mono);font-size:11px;color:#1e6b5a;padding:2px 6px;min-width:60px;display:inline-block;text-align:right">${row.oil_mix_set||"—"}</span></td>
+      <td style="background:#0d1a1a"><div style="display:flex;align-items:center;gap:3px">
+        <input class="act-input" style="background:rgba(52,211,153,.06);border-color:rgba(52,211,153,.3);color:#34d399" type="number" step="0.1" value="${row.oil_mix_actual||""}" placeholder="0"
+          onchange="saveActual('${col}','${row.id}','oil_mix_actual',this.value,'${m}')">
+        ${+(row.oil_mix_set||0)>0?`<label class="chk-lbl"><input type="checkbox" ${row.oil_mix_confirmed?"checked":""} onchange="_up('${col}','${row.id}','oil_mix_confirmed',this.checked)">&nbsp;✅</label>`:""}
+      </div></td>
+      <!-- FAT MILK -->
+      <td style="background:#160a16"><span style="font-family:var(--mono);font-size:11px;color:#7a3a7a;padding:2px 6px;min-width:60px;display:inline-block;text-align:right">${row.fat_milk_set||"—"}</span></td>
+      <td style="background:#1a0d1a"><div style="display:flex;align-items:center;gap:3px">
+        <input class="act-input" style="background:rgba(249,168,212,.06);border-color:rgba(249,168,212,.3);color:#f9a8d4" type="number" step="0.1" value="${row.fat_milk_actual||""}" placeholder="0"
+          onchange="saveActual('${col}','${row.id}','fat_milk_actual',this.value,'${m}')">
+        ${+(row.fat_milk_set||0)>0?`<label class="chk-lbl"><input type="checkbox" ${row.fat_milk_confirmed?"checked":""} onchange="_up('${col}','${row.id}','fat_milk_confirmed',this.checked)">&nbsp;✅</label>`:""}
+      </div></td>
+      <!-- STATUS -->
       <td><span class="stat-badge" style="${statStyle}">${statText}</span></td>`;
     tbody.appendChild(tr);
   });
