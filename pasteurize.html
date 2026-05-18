@@ -1043,6 +1043,9 @@ window.submitPast=async(col,id,p,eff,warn)=>{
     toast(`ส่งข้อมูลแล้ว (Eff ${eff}%)`,"green");
   }catch(e){toast("เกิดข้อผิดพลาด: "+e.message,"red");}
 };
+
+// ── EDIT / DELETE TIME ────────────────────────────────────────────────
+window.editTimePrompt=async(col,id,field,current)=>{
   const val=prompt("แก้ไขเวลา (HH:MM) :",current||"");
   if(val===null)return;
   const clean=val.trim();
