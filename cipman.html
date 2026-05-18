@@ -683,11 +683,10 @@ function buildCard(line){
       <div style="min-width:0;flex:1">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
           <span style="font-family:var(--mono);font-size:14px;font-weight:800;color:var(--orange)">${line.name.toUpperCase()}</span>
-          <span class="spill ${pm[cardStatus]}" style="font-family:var(--mono);font-size:10px">${
-            (line.products&&line.products.length)
-              ? line.products.map(p=>p.name).join(' · ')
-              : pt[cardStatus]
-          }</span>
+          <span class="spill ${pm[cardStatus]}" style="font-family:var(--mono);font-size:10px">${(()=>{
+            const matched=(line.products||[]).find(p=>(p.mix_codes||[]).some(m=>m.code===current.mix_code));
+            return matched?matched.name:pt[cardStatus];
+          })()}</span>
         </div>
         <div style="font-family:var(--mono);font-size:12px;font-weight:700;color:${col};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
           ${current.mix_code||'—'} | ${current.mix_name||'—'} &nbsp;·&nbsp; Batch ${current.batch_no||'—'} &nbsp;·&nbsp; ${(+(current.volume_liter||0)).toLocaleString()} L
