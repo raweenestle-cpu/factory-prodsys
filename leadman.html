@@ -569,11 +569,10 @@ function renderPlan(m){
         </select>
       </td>
       <td style="background:#0d1108">${setInput(col,row.id,"glc_set","#1a2a0a22","#a3c65a44",row.glc_set)}</td>
-      <td style="background:#0d1108">${setInput(col,row.id,"glc_actual","#0d1a0822","#86efac44",row.glc_actual)}</td>
       <td style="background:#060f12">${setInput(col,row.id,"sgr_set","#06101422","#06b6d444",row.sgr_set)}</td>
-      <td style="background:#060f12">${setInput(col,row.id,"sgr_actual","#040c1022","#67e8f944",row.sgr_actual)}</td>
       <td style="background:#110c06">${setInput(col,row.id,"plm_set","#1a100622","#f9731644",row.plm_set)}</td>
-      <td style="background:#110c06">${setInput(col,row.id,"plm_actual","#160d0422","#fdba7444",row.plm_actual)}</td>
+      <td style="background:#0d1a1a">${setInput(col,row.id,"oil_mix_set","#0d1a1a22","#34d39944",row.oil_mix_set)}</td>
+      <td style="background:#1a0d1a">${setInput(col,row.id,"fat_milk_set","#1a0d1a22","#f9a8d444",row.fat_milk_set)}</td>
       <td style="background:#130a13">${setInput(col,row.id,"rework_kg","#130a1322","#9d5aad44",row.rework_kg)}</td>
       <td style="background:#130a13">${setInput(col,row.id,"rework_tanks","#130a1322","#d8b4fe44",row.rework_tanks)}</td>
       <td><select class="ci" style="width:110px" onchange="_up('${col}','${row.id}','filling_line',this.value);renderPlan('${m}')">
