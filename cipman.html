@@ -631,7 +631,7 @@ function buildCard(line){
   const unit=current._col==='production_plans_m2'?'2':'1';
   const prodCode=current.prod_suffix?(yr+'0522'+unit+current.prod_suffix):'—';
 
-  // Queue items — text only, no SVG
+  // Queue items — with tank SVG
   function queueItem(row,idx){
     const p=productMap[row.mix_code]||{};
     const curingEnd=row.past_end_time?calcCuringEnd(row.past_end_time,+(p.aging_time||4)):'—';
@@ -639,28 +639,27 @@ function buildCard(line){
     const runit=row._col==='production_plans_m2'?'2':'1';
     const rpc=row.prod_suffix?(ryr+'0522'+runit+row.prod_suffix):'—';
     const dot=p.color||'#60a5fa';
+    const qVol=+(row.volume_liter||0);
+    const qRem=row.current_vol!==undefined&&row.current_vol!==null?+row.current_vol:qVol;
+    const qPct=qVol>0?(qRem/qVol)*100:100;
     let stTxt='—',stC='var(--t2)';
     if(row.status==='pasteurising'&&!row.past_end_time){stTxt='♨️ Past.';stC='var(--orange)';}
     else if(row.status==='past_done'||row.status==='pasteurising'){stTxt='🌡️ บ่มอยู่';stC='var(--yellow)';}
-    if(row.past_end_time&&curingEnd!=='—'){stTxt+=` → ${curingEnd}`;} 
-    return`<div style="background:var(--s2);border:1px solid var(--b1);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:7px">
-      <div style="display:flex;align-items:center;gap:8px">
-        <span style="font-family:var(--mono);font-size:11px;color:var(--t3);min-width:16px;font-weight:700">${idx}</span>
-        <span style="width:10px;height:10px;border-radius:50%;background:${dot};flex-shrink:0"></span>
-        <span style="font-family:var(--mono);font-size:14px;font-weight:700;color:${dot}">${row.mix_code||'—'}</span>
-        <span style="font-family:var(--mono);font-size:13px;color:${dot};opacity:.7">|</span>
-        <span style="font-family:var(--mono);font-size:14px;font-weight:700;color:${dot}">${row.mix_name||'—'}</span>
+    if(row.past_end_time&&curingEnd!=='—'){stTxt+=` → ${curingEnd}`;}
+    return`<div style="background:var(--s2);border:1px solid var(--b1);border-radius:10px;padding:12px 14px;display:flex;gap:12px;align-items:flex-start">
+      <!-- ถัง -->
+      <div style="flex-shrink:0">
+        ${tankSVG('Q'+line.id+idx, qPct, dot, true)}
       </div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;padding-left:26px">
-        <span style="font-family:var(--mono);font-size:13px;font-weight:600;color:var(--text)">Batch ${row.batch_no||'—'}</span>
-        <span style="font-family:var(--mono);font-size:13px;font-weight:600;color:var(--cyan)">${(+(row.volume_liter||0)).toLocaleString()} L</span>
-        ${row.aging_tank?`<span style="font-family:var(--mono);font-size:13px;font-weight:600;color:var(--cyan)">🪣 ${row.aging_tank}</span>`:''}
-      </div>
-      <div style="padding-left:26px">
-        <span style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--purple)">${rpc}</span>
-      </div>
-      <div style="padding-left:26px">
-        <span style="font-family:var(--mono);font-size:12px;font-weight:700;color:${stC};background:${stC}22;padding:3px 10px;border-radius:99px;border:1px solid ${stC}44">${stTxt}</span>
+      <!-- ข้อมูล -->
+      <div style="display:flex;flex-direction:column;gap:5px;flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="font-family:var(--mono);font-size:10px;color:var(--t3);font-weight:700">${idx}</span>
+          <span style="font-family:var(--mono);font-size:13px;font-weight:700;color:${dot};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${row.mix_code||'—'} | ${row.mix_name||'—'}</span>
+        </div>
+        <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--purple)">${rpc}</div>
+        <div style="font-family:var(--mono);font-size:11px;color:var(--t2)">Batch ${row.batch_no||'—'} · ${qVol.toLocaleString()} L ${row.aging_tank?'🪣 '+row.aging_tank:''}</div>
+        <div><span style="font-family:var(--mono);font-size:11px;font-weight:700;color:${stC};background:${stC}22;padding:2px 8px;border-radius:99px;border:1px solid ${stC}44">${stTxt}</span></div>
       </div>
     </div>`;
   }
