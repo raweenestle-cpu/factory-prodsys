@@ -477,7 +477,9 @@ onAuthStateChanged(auth,async user=>{
 
 setInterval(()=>{["p1","p2"].forEach(p=>{if(document.getElementById("tank-visual-"+p))renderTankVisual(p,rows[p]||[]);});},5000);
 
-// เขียน current_vol ลง Firebase ทุก 3 วินาที เพื่อให้ทุกหน้าแสดงตรงกัน
+// เขียน current_vol ลง Firebase ทุก 3 วินาที + Auto Stamp เมื่อถึง ETA
+const _autoStamping=new Set(); // ป้องกัน stamp ซ้ำ
+
 setInterval(async()=>{
   for(const p of["p1","p2"]){
     const pRows=window._rows[p]||[];
@@ -494,7 +496,80 @@ setInterval(async()=>{
       const elapsedMin=Math.max(0,(Date.now()-start)/60000);
       const agVol=totalMin>0?Math.min(totalVol,(elapsedMin/totalMin)*totalVol):0;
       await updateDoc(doc(db,planCol(p),agRow.id),{current_vol:Math.round(agVol*10)/10});
-    }catch(e){console.error('current_vol write error:',e);}
+
+      // ── AUTO STAMP ──────────────────────────────────────────
+      // ถ้าถึงเวลา ETA และยังไม่มี past_end_time
+      if(!agRow.past_end_time && totalMin>0 && elapsedMin>=totalMin){
+        // ต้องมี aging_tank ก่อนถึง auto stamp ได้
+        if(!agRow.aging_tank){
+          toast(`⚠️ Auto Stamp หยุด — กรุณาเลือก Aging Tank ก่อน`,"red");
+          continue;
+        }
+        const key=agRow.id;
+        if(!_autoStamping.has(key)){
+          _autoStamping.add(key);
+          const endTime=nowHHMM();
+          const eff=totalMin>0?(totalMin/elapsedMin)*100:0;
+
+          // คำนวณ Eff%
+          const effOk=eff>=97&&eff<=100;
+          const effOver=eff>100;
+
+          if(effOver){
+            // Eff > 100% → หยุด รอ Manual
+            toast(`⚠️ Auto Stamp หยุด — Eff% ${eff.toFixed(1)}% เกิน 100% กรุณา Stamp Manual`,"red");
+            _autoStamping.delete(key);
+            continue;
+          }
+
+          // Stamp Past.เสร็จ
+          await updateDoc(doc(db,planCol(p),agRow.id),{
+            past_end_time:endTime,
+            eff:Math.round(eff*10)/10,
+            status:'past_done',
+            current_vol:totalVol,
+            mix_start_time:"",mix_end_time:"",
+            glc_actual:"",sgr_actual:"",plm_actual:"",
+          });
+
+          if(!effOk){
+            toast(`⚠️ Auto Stamp Past.เสร็จ — Eff% ${eff.toFixed(1)}% ต่ำกว่า 97%`,"red");
+          } else {
+            toast(`✅ Auto Stamp Past.เสร็จ เวลา ${endTime}`,"green");
+          }
+
+          // เช็ค batch ถัดไปที่ต่อเนื่อง (batch_no +1)
+          function parseBatch(b){
+            const m=String(b||'').match(/^(\d+)[\/\-](\d+)$/);
+            if(m)return{prefix:+m[1],sub:+m[2]};
+            const n=String(b||'').match(/^(\d+)$/);
+            if(n)return{prefix:0,sub:+n[1]};
+            return null;
+          }
+          const cur=parseBatch(agRow.batch_no);
+          if(cur){
+            const nextBatch=cur.prefix>0?`${cur.prefix}/${cur.sub+1}`:`${cur.sub+1}`;
+            const nextRow=pRows.find(r=>
+              r.batch_no===nextBatch&&
+              r.mix_code===agRow.mix_code&&
+              r.date===agRow.date&&
+              r.filling_line===agRow.filling_line&&
+              r.status==='pasteurising'&&
+              !r.past_start_time
+            );
+            if(nextRow){
+              // Auto Stamp เริ่ม Past. batch ถัดไป
+              await updateDoc(doc(db,planCol(p),nextRow.id),{
+                past_start_time:endTime,
+                status:'pasteurising',
+                past_end_time:null,
+              });
+              toast(`🔄 Auto เริ่ม Past. Batch ${nextBatch} ต่อเนื่อง`,"green");
+            }
+          }
+        }
+      }
+    }catch(e){console.error('auto stamp error:',e);_autoStamping.delete(agRow?.id);}
   }
 },3000);
 window.doLogout=async()=>{
@@ -1122,8 +1197,9 @@ function renderPlan(p){
     const needGlc=(+row.glc_actual||0)>0&&!row.glc_confirmed;
     const needSgr=(+row.sgr_actual||0)>0&&!row.sgr_confirmed;
     const needPlm=(+row.plm_actual||0)>0&&!row.plm_confirmed;
-    const canStampStart=!needGlc&&!needSgr&&!needPlm;
-    const blockReason=needGlc?'ติ๊ก Glc ก่อน':needSgr?'ติ๊ก Sgr ก่อน':needPlm?'ติ๊ก Plm ก่อน':'';
+    const needTank=!row.aging_tank; // ต้องเลือกถังก่อน
+    const canStampStart=!needGlc&&!needSgr&&!needPlm&&!needTank;
+    const blockReason=needTank?'เลือก Aging Tank ก่อน':needGlc?'ติ๊ก Glc ก่อน':needSgr?'ติ๊ก Sgr ก่อน':needPlm?'ติ๊ก Plm ก่อน':'';
 
     const stampCell=(field,time,label,isPulse=false,blocked=false,blockMsg='')=>`
       <td style="min-width:130px;padding:5px 7px;white-space:nowrap">
