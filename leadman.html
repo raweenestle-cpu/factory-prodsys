@@ -561,13 +561,6 @@ function renderPlan(m){
       <td><span class="ca" style="min-width:110px">${row.mix_name||"—"}</span></td>
       <td><input class="ci" style="width:66px" value="${row.batch_no||""}" placeholder="B001" onchange="_up('${col}','${row.id}','batch_no',this.value)"></td>
       <td><input class="ci" style="width:66px;text-align:right" type="number" value="${row.volume_liter||""}" onchange="_up('${col}','${row.id}','volume_liter',+this.value)"></td>
-      <td style="text-align:center">
-        <select class="tank-sel" onchange="_up('${col}','${row.id}','mixing_tank',this.value)">
-          <option value="">—</option>
-          <option value="Tank 1" ${row.mixing_tank==="Tank 1"?"selected":""}>Tank 1</option>
-          <option value="Tank 2" ${row.mixing_tank==="Tank 2"?"selected":""}>Tank 2</option>
-        </select>
-      </td>
       <td style="background:#0d1108">${setInput(col,row.id,"glc_set","#1a2a0a22","#a3c65a44",row.glc_set)}</td>
       <td style="background:#060f12">${setInput(col,row.id,"sgr_set","#06101422","#06b6d444",row.sgr_set)}</td>
       <td style="background:#110c06">${setInput(col,row.id,"plm_set","#1a100622","#f9731644",row.plm_set)}</td>
