@@ -2,7 +2,13 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1e40af">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="PROD.SYS">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mixing — PROD.SYS</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <style>
@@ -510,23 +516,65 @@ window.loadPlan=(m)=>{
 window.stampTime=async(col,id,field,m)=>{
   const now=nowHHMM();
   const upd={[field]:now};
-  // อัปเดต status ตาม field
-  if(field==="mix_start_time") upd.status="mixing";
-  if(field==="mix_end_time")   upd.status="pasteurising";
+  const row=rows[m]?.find(r=>r.id===id);
+
+  if(field==="mix_start_time"){
+    upd.status="mixing";
+  }
+
+  if(field==="mix_end_time"){
+    // เช็คว่า actual ครบหรือยัง
+    if(row){
+      const glcSet=+(row.glc_set||0);
+      const sgrSet=+(row.sgr_set||0);
+      const plmSet=+(row.plm_set||0);
+      const glcOk=glcSet<=0||(+(row.glc_actual||0)>0);
+      const sgrOk=sgrSet<=0||(+(row.sgr_actual||0)>0);
+      const plmOk=plmSet<=0||(+(row.plm_actual||0)>0);
+
+      if(!glcOk||!sgrOk||!plmOk){
+        const missing=[];
+        if(!glcOk)missing.push('Glucose');
+        if(!sgrOk)missing.push('Sugar');
+        if(!plmOk)missing.push('Palm Oil');
+        toast(`กรุณากรอก Actual: ${missing.join(', ')} ก่อน`,'red');
+        return; // ไม่ให้ stamp
+      }
+      // ครบแล้ว → เปลี่ยน status เป็น pasteurising (รอ Past.)
+      upd.status="pasteurising";
+    } else {
+      upd.status="pasteurising";
+    }
+  }
+
   await updateDoc(doc(db,col,id),upd);
   toast(`Stamp ${now} แล้ว`,"green");
 };
 
-window.editTime=async(col,id,field,current)=>{
+window.editTime=async(col,id,field,current,m)=>{
   const val=prompt(`แก้ไขเวลา (HH:MM) :`,current||"");
   if(val===null)return;
   const clean=val.replace(/[^0-9:]/g,"");
   if(!/^\d{2}:\d{2}$/.test(clean)){toast("รูปแบบ HH:MM เท่านั้น","red");return;}
   const upd={[field]:clean};
   if(field==="mix_start_time"&&clean) upd.status="mixing";
-  if(field==="mix_end_time"&&clean)   upd.status="pasteurising";
-  await updateDoc(doc(db,planCol(field.includes("m2")?"m2":"m1"),id),upd);
-  // ใช้ col ที่ส่งมา
+  if(field==="mix_end_time"&&clean){
+    const row=rows[m]?.find(r=>r.id===id);
+    if(row){
+      const glcOk=+(row.glc_set||0)<=0||(+(row.glc_actual||0)>0);
+      const sgrOk=+(row.sgr_set||0)<=0||(+(row.sgr_actual||0)>0);
+      const plmOk=+(row.plm_set||0)<=0||(+(row.plm_actual||0)>0);
+      if(!glcOk||!sgrOk||!plmOk){
+        const missing=[];
+        if(!glcOk)missing.push('Glucose');
+        if(!sgrOk)missing.push('Sugar');
+        if(!plmOk)missing.push('Palm Oil');
+        toast(`กรุณากรอก Actual: ${missing.join(', ')} ก่อน`,'red');
+        return;
+      }
+    }
+    upd.status="pasteurising";
+  }
   await updateDoc(doc(db,col,id),upd);
   toast("แก้ไขเวลาแล้ว","green");
 };
@@ -819,6 +867,15 @@ window.showPage=(type,m,btn)=>{
   btn.classList.add('on');
   if(type==="chart") renderChart(m);
 };
+</script>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('sw.js')
+      .then(r=>console.log('SW registered'))
+      .catch(e=>console.warn('SW failed:',e));
+  });
+}
 </script>
 </body>
 </html>

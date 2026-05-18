@@ -1007,9 +1007,13 @@ function renderPlan(p){
       <td>
         <span style="font-family:var(--mono);font-size:12px;font-weight:700;padding:3px 10px;border-radius:6px;background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.2);white-space:nowrap">${row.mixing_tank||"—"}</span>
       </td>
-      ${stampCell("past_start_time",row.past_start_time,"Stamp เริ่ม",row.status==="pasteurising"&&!row.past_start_time,!canStampStart&&!row.past_start_time,blockReason)}
+      ${row.status==='pasteurising'
+        ? stampCell("past_start_time",row.past_start_time,"Stamp เริ่ม",!row.past_start_time,!canStampStart&&!row.past_start_time,blockReason)
+        : `<td><span style="font-family:var(--mono);font-size:10px;color:var(--t3);padding:5px 8px">⏳ รอ Mixing</span></td>`}
       <td><span style="font-family:var(--mono);font-size:12px">${estFinish}</span></td>
-      ${stampCell("past_end_time",row.past_end_time,"Stamp เสร็จ")}
+      ${row.status==='pasteurising'&&row.past_start_time
+        ? stampCell("past_end_time",row.past_end_time,"Stamp เสร็จ")
+        : `<td><span style="font-family:var(--mono);font-size:10px;color:var(--t3)">—</span></td>`}
       <td>${effHTML}</td>
       <td style="background:#141a0c;padding:5px 6px">
         <div style="display:flex;align-items:center;gap:4px">
