@@ -554,8 +554,9 @@ function renderMixTanks(m, rows){
   const el=document.getElementById(`tank-visual-${m}`);
   if(!el)return;
 
-  const t1Row=rows.find(r=>(r.mixing_tank==='Tank 1'||r.mixing_tank==='T1')&&r.status!=='past_done'&&r.status!=='ready')||null;
-  const t2Row=rows.find(r=>(r.mixing_tank==='Tank 2'||r.mixing_tank==='T2')&&r.status!=='past_done'&&r.status!=='ready')||null;
+  const activeStatus=['mixing','pasteurising'];
+  const t1Row=rows.find(r=>(r.mixing_tank==='Tank 1'||r.mixing_tank==='T1')&&activeStatus.includes(r.status))||null;
+  const t2Row=rows.find(r=>(r.mixing_tank==='Tank 2'||r.mixing_tank==='T2')&&activeStatus.includes(r.status))||null;
 
   function tankSVG(row, label){
     const st=row?.status||'';
