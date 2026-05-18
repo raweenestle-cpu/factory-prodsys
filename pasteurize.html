@@ -462,6 +462,27 @@ onAuthStateChanged(auth,async user=>{
 });
 
 setInterval(()=>{["p1","p2"].forEach(p=>{if(document.getElementById("tank-visual-"+p))renderTankVisual(p,rows[p]||[]);});},5000);
+
+// เขียน current_vol ลง Firebase ทุก 10 วินาที เพื่อให้ทุกหน้าแสดงตรงกัน
+setInterval(async()=>{
+  for(const p of["p1","p2"]){
+    const pRows=rows[p]||[];
+    const agRow=pRows.find(r=>r.status==='pasteurising'&&r.past_start_time)||null;
+    if(!agRow)continue;
+    try{
+      const totalVol=+(agRow.volume_liter||0);
+      const prod=productMap[agRow.mix_code]||{};
+      const density=+(prod.density||1.1);
+      const speed=+(prod.speed_m1||prod.speed||5150);
+      const totalMin=(totalVol*density*60)/speed;
+      const[h,mm]=agRow.past_start_time.split(':').map(Number);
+      const start=new Date((agRow.date||new Date().toISOString().slice(0,10))+'T'+String(h).padStart(2,'0')+':'+String(mm).padStart(2,'0')+':00');
+      const elapsedMin=Math.max(0,(Date.now()-start)/60000);
+      const agVol=totalMin>0?Math.min(totalVol,(elapsedMin/totalMin)*totalVol):0;
+      await updateDoc(doc(db,planCol(p),agRow.id),{current_vol:Math.round(agVol*10)/10});
+    }catch{}
+  }
+},3000);
 window.doLogout=async()=>{
   if(unsub.p1)unsub.p1();
   if(unsub.p2)unsub.p2();
@@ -1025,6 +1046,7 @@ function renderPlan(p){
       <td><span style="font-family:var(--mono);font-weight:700;color:var(--blue2)">${row.mix_name||"—"}</span></td>
       <td><span class="cr">${row.batch_no||"—"}</span></td>
       <td><span style="font-family:var(--mono)">${row.volume_liter||"—"}</span></td>
+
       <td>
         <span style="font-family:var(--mono);font-size:12px;font-weight:700;padding:3px 10px;border-radius:6px;background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.2);white-space:nowrap">${row.mixing_tank||"—"}</span>
       </td>
@@ -1032,6 +1054,9 @@ function renderPlan(p){
         ? stampCell("past_start_time",row.past_start_time,"Stamp เริ่ม",!row.past_start_time,!canStampStart&&!row.past_start_time,blockReason)
         : `<td><span style="font-family:var(--mono);font-size:10px;color:var(--t3);padding:5px 8px">⏳ รอ Mixing</span></td>`}
       <td><span style="font-family:var(--mono);font-size:12px">${estFinish}</span></td>
+      <td>
+        <span style="font-family:var(--mono);font-size:12px;font-weight:700;padding:3px 10px;border-radius:6px;background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.2);white-space:nowrap">${row.mixing_tank||"—"}</span>
+      </td>
       ${row.status==='pasteurising'&&row.past_start_time
         ? stampCell("past_end_time",row.past_end_time,"Stamp เสร็จ")
         : `<td><span style="font-family:var(--mono);font-size:10px;color:var(--t3)">—</span></td>`}
