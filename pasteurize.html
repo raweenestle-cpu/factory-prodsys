@@ -553,22 +553,7 @@ function renderTankVisual(m,rows){
   const t1Status=t1Row?.status||'';
   const t2Status=t2Row?.status||'';
 
-  // คำนวณ volume และ % สำหรับแสดงในถัง Mix
-  function mixTankVol(tRow,tTotal,tActive,tDone){
-    const st=tRow?.status||'';
-    if(!st||st==='pending'||st==='') return{vol:0,pct:0,show:false};
-    if(st==='mixing') return{vol:tTotal,pct:50,show:true,wave:true}; // กำลังผสม — โชว์ 50% กระเพื่อม
-    if(tDone) return{vol:0,pct:0,show:true,wave:false}; // past_done — ว่าง
-    if(tActive) return{vol:tTotal-agVol,pct:Math.max(0,((tTotal-agVol)/tTotal)*100),show:true,wave:true}; // กำลัง Past. — ลดลง
-    return{vol:tTotal,pct:100,show:true,wave:false}; // pasteurising รอ Past. — เต็ม
-  }
-
-  const mx1=mixTankVol(t1Row,t1Total,t1Active,t1Done);
-  const mx2=mixTankVol(t2Row,t2Total,t2Active,t2Done);
-
-  // ถ้าไม่ show ให้ volume = 0
-  t1Vol=mx1.show?mx1.vol:0;
-  t2Vol=mx2.show?mx2.vol:0;
+  let t1Vol=t1Total, t2Vol=t2Total;
   let agVol=0, agPct=0, agName='—', agTank='—', agTime='';
 
   if(agRow?.past_start_time){
@@ -614,6 +599,18 @@ function renderTankVisual(m,rows){
   const t2Done=isDone&&isT2;
   const s1=statLabel(t1Status,!!t1Row?.past_start_time,t1Vol,t1Done);
   const s2=statLabel(t2Status,!!t2Row?.past_start_time,t2Vol,t2Done);
+
+  // คำนวณ volume และ % สำหรับแสดงในถัง Mix (อยู่หลัง agVol คำนวณเสร็จแล้ว)
+  function mixTankVol(tRow,tTotal,tActive,tDone){
+    const st=tRow?.status||'';
+    if(!st||st==='pending') return{vol:0,pct:0,show:false,wave:false};
+    if(st==='mixing') return{vol:tTotal,pct:50,show:true,wave:true};
+    if(tDone) return{vol:0,pct:0,show:true,wave:false};
+    if(tActive) return{vol:Math.max(0,tTotal-agVol),pct:Math.max(0,((tTotal-agVol)/Math.max(tTotal,1))*100),show:true,wave:true};
+    return{vol:tTotal,pct:100,show:true,wave:false};
+  }
+  const mx1=mixTankVol(t1Row,t1Total,t1Active,t1Done);
+  const mx2=mixTankVol(t2Row,t2Total,t2Active,t2Done);
   const sAg={txt:isFlowing?'♨️ รับของ':agVol>0?'✅ เต็ม':'⚪ ว่าง',
              col:isFlowing?'#f97316':agVol>0?'#22c55e':'#374151',
              tankCol:isFlowing?'#f97316':agVol>0?'#22c55e':'#374151',
