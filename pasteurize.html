@@ -547,6 +547,8 @@ function renderTankVisual(m,rows){
   const activeTank=agRow?.mixing_tank||'';
   const isT1=activeTank==='Tank 1'||activeTank==='T1'||activeTank==='ถัง 1'||activeTank==='1';
   const isT2=activeTank==='Tank 2'||activeTank==='T2'||activeTank==='ถัง 2'||activeTank==='2';
+  const t1Active=isFlowing&&isT1;
+  const t2Active=isFlowing&&isT2;
 
   const t1Total=+(t1Row?.volume_liter||0);
   const t2Total=+(t2Row?.volume_liter||0);
@@ -729,13 +731,9 @@ function renderTankVisual(m,rows){
   const TW=110,TH=130,TOP=40;
   const T1X=30,T2X=165,AGX=370;
   const T1CX=T1X+TW/2,T2CX=T2X+TW/2,AGCX=AGX+TW/2;
-  const TBOT=TOP+TH; // 160
-  const HPIPE=TBOT+45; // 205 — horizontal pipe y
+  const TBOT=TOP+TH;
+  const HPIPE=TBOT+45;
   const PUMPX=320,PUMPY=HPIPE;
-  const isT1Active=isFlowing&&isT1;
-  const isT2Active=isFlowing&&isT2;
-  const t1Active=isT1Active;
-  const t2Active=isT2Active;
 
   el.innerHTML=`<div style="display:grid;grid-template-columns:220px 1fr;gap:12px;margin-bottom:4px">
   <!-- ══ BAR CHART LEFT ══ -->
