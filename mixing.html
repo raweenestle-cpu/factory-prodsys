@@ -585,10 +585,29 @@ function renderMixTanks(m, rows){
           <animateTransform attributeName="transform" type="translate" from="0,0" to="-53,0" dur="2s" repeatCount="indefinite"/>
         </path>
       </g>`;
-    } else if(st==='pasteurising'){ pct=100; statusTxt='⏳ รอ Past.'; statusCol='#f97316'; borderCol=col;
-      waveSVG=`<defs><linearGradient id="wg${label.replace(' ','')}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${col}" stop-opacity=".9"/><stop offset="100%" stop-color="${col}" stop-opacity=".6"/></linearGradient></defs>
-      <clipPath id="wc${label.replace(' ','')}"><rect x="12" y="10" width="106" height="140" rx="6"/></clipPath>
-      <g clip-path="url(#wc${label.replace(' ','')})"><rect x="12" y="10" width="106" height="140" fill="url(#wg${label.replace(' ','')})"/></g>`;
+    } else if(st==='pasteurising'){
+      // ถ้ากำลัง Past. อยู่ — ดึง current_vol มาคำนวณ % ที่เหลือ
+      const totalVol=vol||1;
+      const currentVol=row?.current_vol!==undefined&&row?.current_vol!==null?+row.current_vol:0;
+      if(row?.past_start_time&&currentVol>0){
+        // กำลัง Past. — volume ลดลง
+        pct=Math.max(0,((totalVol-currentVol)/totalVol)*100);
+        statusTxt='♨️ กำลัง Past.'; statusCol='#f97316'; borderCol=col;
+        waveSVG=`<defs><linearGradient id="wg${label.replace(' ','')}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${col}" stop-opacity=".9"/><stop offset="100%" stop-color="${col}" stop-opacity=".6"/></linearGradient></defs>
+        <clipPath id="wc${label.replace(' ','')}"><rect x="12" y="${10+140*(1-pct/100)}" width="106" height="${140*pct/100}" rx="6"/></clipPath>
+        <g clip-path="url(#wc${label.replace(' ','')})">
+          <rect x="12" y="10" width="106" height="140" fill="url(#wg${label.replace(' ','')})"/>
+          <path d="M12,${10+140*(1-pct/100)} q26,-12 53,0 t53,0 t53,0 v200 h-212 z" fill="${col}" opacity=".4">
+            <animateTransform attributeName="transform" type="translate" from="0,0" to="-53,0" dur="2s" repeatCount="indefinite"/>
+          </path>
+        </g>`;
+      } else {
+        // รอ Past. — เต็ม 100%
+        pct=100; statusTxt='⏳ รอ Past.'; statusCol='#f97316'; borderCol=col;
+        waveSVG=`<defs><linearGradient id="wg${label.replace(' ','')}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${col}" stop-opacity=".9"/><stop offset="100%" stop-color="${col}" stop-opacity=".6"/></linearGradient></defs>
+        <clipPath id="wc${label.replace(' ','')}"><rect x="12" y="10" width="106" height="140" rx="6"/></clipPath>
+        <g clip-path="url(#wc${label.replace(' ','')})"><rect x="12" y="10" width="106" height="140" fill="url(#wg${label.replace(' ','')})"/></g>`;
+      }
     }
 
     return`<div style="display:flex;flex-direction:column;align-items:center;gap:6px;min-width:140px">
@@ -598,7 +617,11 @@ function renderMixTanks(m, rows){
         <rect x="10" y="10" width="110" height="140" rx="10" fill="none" stroke="${borderCol}" stroke-width="2"/>
         <rect x="49" y="0" width="32" height="12" rx="3" fill="#060a14" stroke="#1e2535" stroke-width="1.2"/>
         <text x="65" y="55" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="white" font-weight="700">${name}</text>
-        <text x="65" y="85" text-anchor="middle" font-family="DM Mono,monospace" font-size="18" fill="white" font-weight="700">${vol.toLocaleString()}</text>
+        <text x="65" y="85" text-anchor="middle" font-family="DM Mono,monospace" font-size="18" fill="white" font-weight="700">${
+          st==='pasteurising'&&row?.past_start_time&&row?.current_vol!=null
+            ? Math.max(0,vol-+row.current_vol).toLocaleString(undefined,{maximumFractionDigits:1})
+            : vol.toLocaleString()
+        }</text>
         <text x="65" y="100" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="rgba(255,255,255,.6)">L</text>
         <rect x="33" y="118" width="64" height="16" rx="5" fill="rgba(0,0,0,.55)"/>
         <text x="65" y="129" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="${statusCol}" font-weight="700">
