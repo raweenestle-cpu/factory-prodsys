@@ -396,6 +396,9 @@ const db   = getFirestore(app);
 
 let ME=null, productMap={}, lineMap={};
 let rows={p1:[],p2:[]};
+// expose globals สำหรับ interval และ debug
+window._rows=rows;
+window._productMap=productMap;
 let unsub={p1:null,p2:null};
 let charts={};
 let period={p1:"day",p2:"day"};
@@ -449,6 +452,7 @@ onAuthStateChanged(auth,async user=>{
   try{
     const ps=await getDocs(collection(db,"products"));
     ps.docs.forEach(d=>{const p={id:d.id,...d.data()};productMap[p.mix_code]=p;});
+    window._productMap=productMap; // sync global
     // โหลด LINE master เพื่อดึง aging_tanks
     const ls=await getDocs(collection(db,"lines"));
     ls.docs.forEach(d=>{const l={id:d.id,...d.data()};if(l.name)lineMap[l.name]=l;});
@@ -463,15 +467,15 @@ onAuthStateChanged(auth,async user=>{
 
 setInterval(()=>{["p1","p2"].forEach(p=>{if(document.getElementById("tank-visual-"+p))renderTankVisual(p,rows[p]||[]);});},5000);
 
-// เขียน current_vol ลง Firebase ทุก 10 วินาที เพื่อให้ทุกหน้าแสดงตรงกัน
+// เขียน current_vol ลง Firebase ทุก 3 วินาที เพื่อให้ทุกหน้าแสดงตรงกัน
 setInterval(async()=>{
   for(const p of["p1","p2"]){
-    const pRows=rows[p]||[];
+    const pRows=window._rows[p]||[];
     const agRow=pRows.find(r=>r.status==='pasteurising'&&r.past_start_time)||null;
     if(!agRow)continue;
     try{
       const totalVol=+(agRow.volume_liter||0);
-      const prod=productMap[agRow.mix_code]||{};
+      const prod=window._productMap[agRow.mix_code]||{};
       const density=+(prod.density||1.1);
       const speed=+(prod.speed_m1||prod.speed||5150);
       const totalMin=(totalVol*density*60)/speed;
@@ -480,7 +484,7 @@ setInterval(async()=>{
       const elapsedMin=Math.max(0,(Date.now()-start)/60000);
       const agVol=totalMin>0?Math.min(totalVol,(elapsedMin/totalMin)*totalVol):0;
       await updateDoc(doc(db,planCol(p),agRow.id),{current_vol:Math.round(agVol*10)/10});
-    }catch{}
+    }catch(e){console.error('current_vol write error:',e);}
   }
 },3000);
 window.doLogout=async()=>{
@@ -868,6 +872,7 @@ window.loadPlan=(p)=>{
     rows[p]=snap.docs.map(d=>({id:d.id,...d.data()}))
       .filter(r=>r.mix_code&&r.mix_code!=="") // เฉพาะ row ที่ leadman กรอกข้อมูลแล้ว
       .sort((a,b)=>(a.seq||0)-(b.seq||0));
+    window._rows[p]=rows[p]; // sync global สำหรับ interval
     renderPlan(p);
   });
 };
