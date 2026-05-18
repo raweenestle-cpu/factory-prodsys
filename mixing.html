@@ -525,6 +525,13 @@ window.loadPlan=(m)=>{
 };
 
 // ── STAMP TIME ────────────────────────────────────────────────────────
+// ── GENERIC UPDATE ──────────────────────────────────────────────────────
+window._up=async(col,id,field,val)=>{
+  try{
+    await updateDoc(doc(db,col,id),{[field]:val});
+  }catch(e){toast("บันทึกไม่สำเร็จ: "+e.message,"red");}
+};
+
 window.stampTime=async(col,id,field,m)=>{
   const now=nowHHMM();
   const upd={[field]:now};
