@@ -645,32 +645,22 @@ function buildCard(line){
     const rpc=row.prod_suffix?(ryr+'0522'+runit+row.prod_suffix):'—';
     const dot=p.color||'#60a5fa';
     const qVol=+(row.volume_liter||0);
+    const qRem=row.current_vol!==undefined&&row.current_vol!==null?+row.current_vol:qVol;
+    const qPct=qVol>0?(qRem/qVol)*100:100;
     let stTxt='—',stC='var(--t2)';
     if(row.status==='pasteurising'&&!row.past_end_time){stTxt='♨️ Past.';stC='var(--orange)';}
     else if(row.status==='past_done'||row.status==='pasteurising'){stTxt='🌡️ บ่มอยู่';stC='var(--yellow)';}
     if(row.past_end_time&&curingEnd!=='—'){stTxt+=` → ${curingEnd}`;}
-    return`<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:8px;background:var(--s2);border:1px solid var(--b1);border-radius:10px">
-      <!-- กรอบ 1: LINE + ลำดับ -->
-      <div style="background:var(--s3);border:1px solid var(--b2);border-radius:7px;padding:6px 10px">
-        <div style="font-family:var(--mono);font-size:9px;color:var(--t3);margin-bottom:2px">ลำดับ</div>
-        <div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--cyan)">${idx}</div>
-      </div>
-      <!-- กรอบ 2: ถัง -->
-      <div style="background:var(--s3);border:1px solid var(--b2);border-radius:7px;padding:6px 10px">
-        <div style="font-family:var(--mono);font-size:9px;color:var(--t3);margin-bottom:2px">ถัง</div>
-        <div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--cyan)">${row.aging_tank||'—'}</div>
-      </div>
-      <!-- กรอบ 3: Mix -->
-      <div style="background:var(--s3);border:1px solid ${dot}44;border-radius:7px;padding:6px 10px;grid-column:1/-1">
-        <div style="font-family:var(--mono);font-size:9px;color:var(--t3);margin-bottom:2px">ผลิตภัณฑ์</div>
-        <div style="font-family:var(--mono);font-size:12px;font-weight:700;color:${dot}">${row.mix_code||'—'} | ${row.mix_name||'—'}</div>
-        <div style="font-family:var(--mono);font-size:10px;color:var(--purple);margin-top:2px">${rpc}</div>
-        <div style="font-family:var(--mono);font-size:10px;color:var(--t2);margin-top:2px">Batch ${row.batch_no||'—'} · ${qVol.toLocaleString()} L</div>
-      </div>
-      <!-- กรอบ 4: Status -->
-      <div style="background:var(--s3);border:1px solid ${stC}44;border-radius:7px;padding:6px 10px;grid-column:1/-1">
-        <div style="font-family:var(--mono);font-size:9px;color:var(--t3);margin-bottom:2px">สถานะ</div>
-        <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:${stC}">${stTxt}</div>
+    return`<div style="background:var(--s2);border:1px solid var(--b1);border-radius:10px;padding:10px 12px;display:flex;gap:10px;align-items:center">
+      <!-- ถัง SVG เล็ก -->
+      <div style="flex-shrink:0">${tankSVG('Q'+line.id+idx,qPct,dot,true)}</div>
+      <!-- ข้อมูล -->
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px">
+        <div style="font-family:var(--mono);font-size:9px;color:var(--cyan);font-weight:700">${idx} · ${row.aging_tank||'—'}</div>
+        <div style="font-family:var(--mono);font-size:12px;font-weight:700;color:${dot};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${row.mix_code||'—'} | ${row.mix_name||'—'}</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--purple)">${rpc}</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--t2)">Batch ${row.batch_no||'—'} · ${qVol.toLocaleString()} L</div>
+        <span style="font-family:var(--mono);font-size:10px;font-weight:700;color:${stC}">${stTxt}</span>
       </div>
     </div>`;
   }
