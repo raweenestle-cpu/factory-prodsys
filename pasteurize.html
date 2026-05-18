@@ -531,65 +531,74 @@ function pastTankSVG(uid,pct,col,animate){
 }
 
 function renderTankVisual(m,rows){
-  // หา row ที่กำลัง pasteurising
-  const pastRow=rows.find(r=>r.status==='pasteurising'&&r.past_start_time);
+  // หา row ที่กำลัง pasteurising หรือเพิ่งเสร็จ
+  const pastRow=rows.find(r=>r.status==='pasteurising'&&r.past_start_time)
+              ||rows.find(r=>r.status==='past_done'&&r.past_start_time)
+              ||rows.find(r=>r.status==='ready'&&r.past_start_time);
   // หา row ทั้งหมดของวันนั้น — T1 และ T2
-  const t1Rows=rows.filter(r=>r.mixing_tank==='T1'||r.mixing_tank==='ถัง 1'||r.mixing_tank==='1');
-  const t2Rows=rows.filter(r=>r.mixing_tank==='T2'||r.mixing_tank==='ถัง 2'||r.mixing_tank==='2');
-  // ถ้าไม่มี mixing_tank ให้ใช้ 2 rows แรก
+  const t1Rows=rows.filter(r=>r.mixing_tank==='Tank 1'||r.mixing_tank==='T1'||r.mixing_tank==='ถัง 1'||r.mixing_tank==='1');
+  const t2Rows=rows.filter(r=>r.mixing_tank==='Tank 2'||r.mixing_tank==='T2'||r.mixing_tank==='ถัง 2'||r.mixing_tank==='2');
   const t1Row=t1Rows[0]||rows[0]||null;
   const t2Row=t2Rows[0]||rows[1]||null;
   const agRow=pastRow||null;
 
-  const isFlowing=!!agRow?.past_start_time;
-  const activeTank=agRow?.mixing_tank||''; // ค่าจริงคือ "Tank 1" หรือ "Tank 2"
+  const isFlowing=agRow?.status==='pasteurising'&&!!agRow?.past_start_time;
+  const isDone=agRow?.status==='past_done'||agRow?.status==='ready';
+  const activeTank=agRow?.mixing_tank||'';
   const isT1=activeTank==='Tank 1'||activeTank==='T1'||activeTank==='ถัง 1'||activeTank==='1';
   const isT2=activeTank==='Tank 2'||activeTank==='T2'||activeTank==='ถัง 2'||activeTank==='2';
 
-  // Volume แต่ละถัง
   const t1Total=+(t1Row?.volume_liter||0);
   const t2Total=+(t2Row?.volume_liter||0);
   const t1Status=t1Row?.status||'';
   const t2Status=t2Row?.status||'';
 
-  // คำนวณ volume ที่เหลือใน mixing tank
   let t1Vol=t1Total, t2Vol=t2Total;
   let agVol=0, agPct=0, agName='—', agTank='—', agTime='';
 
   if(agRow?.past_start_time){
     try{
-      const[h,mm]=agRow.past_start_time.split(':').map(Number);
-      const start=new Date((agRow.date||new Date().toISOString().slice(0,10))+'T'+String(h).padStart(2,'0')+':'+String(mm).padStart(2,'0')+':00');
-      const elapsedHr=Math.max(0,(Date.now()-start)/3600000);
-      const elapsedMin=elapsedHr*60;
       const totalVol=+(agRow.volume_liter||0);
-      const prod=productMap[agRow.mix_code]||{};
-      const density=+(prod.density||1.1);
-      const speed_m1=+(prod.speed_m1||prod.speed||5150);
-      // สูตรเดียวกับแถวตาราง: totalMin = Volume × Density × 60 / speed_m1
-      const totalMin=(totalVol*density*60)/speed_m1;
-      agVol=totalMin>0?Math.min(totalVol,(elapsedMin/totalMin)*totalVol):0;
-      agPct=totalVol>0?(agVol/totalVol)*100:0;
       agTank=agRow.aging_tank||'—';
       agName=(agRow.mix_name||'—').slice(0,12);
       agTime=agRow.past_start_time+(agRow.past_end_time?' → '+agRow.past_end_time:'');
-      const isT1Active=isT1;
-      if(isT1Active) t1Vol=Math.max(0,t1Total-agVol);
-      else t2Vol=Math.max(0,t2Total-agVol);
+
+      if(isDone){
+        // เสร็จแล้ว — Mix ว่าง, Aging เต็ม
+        agVol=totalVol; agPct=100;
+        if(isT1) t1Vol=0;
+        else t2Vol=0;
+      } else {
+        const[h,mm]=agRow.past_start_time.split(':').map(Number);
+        const start=new Date((agRow.date||new Date().toISOString().slice(0,10))+'T'+String(h).padStart(2,'0')+':'+String(mm).padStart(2,'0')+':00');
+        const elapsedMin=Math.max(0,(Date.now()-start)/60000);
+        const prod=productMap[agRow.mix_code]||{};
+        const density=+(prod.density||1.1);
+        const speed_m1=+(prod.speed_m1||prod.speed||5150);
+        const totalMin=(totalVol*density*60)/speed_m1;
+        agVol=totalMin>0?Math.min(totalVol,(elapsedMin/totalMin)*totalVol):0;
+        agPct=totalVol>0?(agVol/totalVol)*100:0;
+        if(isT1) t1Vol=Math.max(0,t1Total-agVol);
+        else t2Vol=Math.max(0,t2Total-agVol);
+      }
     }catch{}
   }
 
   // Status label
-  function statLabel(st,hasStartTime){
-    if(st==='mixing')           return{txt:'🔄 กำลังผสม',   col:'#eab308',tankCol:'#eab308',tankCol2:'#78350f'};
-    if(st==='pasteurising'&&!hasStartTime) return{txt:'⏳ รอ Past.',     col:'#eab308',tankCol:'#eab308',tankCol2:'#78350f'};
-    if(st==='pasteurising'&&hasStartTime)  return{txt:'♨️ กำลัง Past.', col:'#f97316',tankCol:'#f97316',tankCol2:'#9a3412'};
-    if(st==='past_done'||st==='ready')     return{txt:'✅ Past.เสร็จ',   col:'#22c55e',tankCol:'#22c55e',tankCol2:'#14532d'};
+  function statLabel(st,hasStartTime,vol,isDoneRow){
+    if(isDoneRow)                              return{txt:'⚪ Empty',         col:'#6b7280',tankCol:'#374151',tankCol2:'#1f2937'};
+    if(st==='mixing')                          return{txt:'🔄 กำลังผสม',     col:'#eab308',tankCol:'#eab308',tankCol2:'#78350f'};
+    if(st==='pasteurising'&&!hasStartTime)     return{txt:'⏳ รอ Past.',      col:'#eab308',tankCol:'#eab308',tankCol2:'#78350f'};
+    if(st==='pasteurising'&&hasStartTime)      return{txt:'♨️ กำลัง Past.',  col:'#f97316',tankCol:'#f97316',tankCol2:'#9a3412'};
+    if(st==='past_done'||st==='ready')         return{txt:'✅ Past.เสร็จ',   col:'#22c55e',tankCol:'#22c55e',tankCol2:'#14532d'};
     return{txt:'—',col:'#374151',tankCol:'#374151',tankCol2:'#1f2937'};
   }
 
-  const s1=statLabel(t1Status,!!t1Row?.past_start_time);
-  const s2=statLabel(t2Status,!!t2Row?.past_start_time);
+  // Mix T1 empty ถ้า past เสร็จแล้วและเป็น active tank
+  const t1Done=isDone&&isT1;
+  const t2Done=isDone&&isT2;
+  const s1=statLabel(t1Status,!!t1Row?.past_start_time,t1Vol,t1Done);
+  const s2=statLabel(t2Status,!!t2Row?.past_start_time,t2Vol,t2Done);
   const sAg={txt:isFlowing?'♨️ รับของ':agVol>0?'✅ เต็ม':'⚪ ว่าง',
              col:isFlowing?'#f97316':agVol>0?'#22c55e':'#374151',
              tankCol:isFlowing?'#f97316':agVol>0?'#22c55e':'#374151',
@@ -776,10 +785,10 @@ function renderTankVisual(m,rows){
     </defs>
 
     <!-- ══ MIX TANK 1 ══ -->
-    ${drawTank(T1X,TOP,TW,TH,t1Vol,t1Total,'Mixing 1',(t1Row?.mix_name||'—').slice(0,12),s1,'g1t'+m,'c1t'+m,s1.tankCol,s1.tankCol2,t1Active)}
+    ${(()=>{const p1=productMap[t1Row?.mix_code||'']||{};const c1=p1.color||s1.tankCol;const c1d=c1+'88';return drawTank(T1X,TOP,TW,TH,t1Vol,t1Total,'Mixing 1',(t1Row?.mix_name||'—').slice(0,12),s1,'g1t'+m,'c1t'+m,t1Done?'#374151':c1,t1Done?'#1f2937':c1d,t1Active);})()}
 
     <!-- ══ MIX TANK 2 ══ -->
-    ${drawTank(T2X,TOP,TW,TH,t2Vol,t2Total,'Mixing 2',(t2Row?.mix_name||'—').slice(0,12),s2,'g2t'+m,'c2t'+m,s2.tankCol,s2.tankCol2,t2Active)}
+    ${(()=>{const p2=productMap[t2Row?.mix_code||'']||{};const c2=p2.color||s2.tankCol;const c2d=c2+'88';return drawTank(T2X,TOP,TW,TH,t2Vol,t2Total,'Mixing 2',(t2Row?.mix_name||'—').slice(0,12),s2,'g2t'+m,'c2t'+m,t2Done?'#374151':c2,t2Done?'#1f2937':c2d,t2Active);})()}
 
     <!-- ══ AGING TANK ══ -->
     ${drawTank(AGX,TOP,TW,TH,agVol,Math.max(+(agRow?.volume_liter||0),agVol,1),'Aging '+agTank,agName,sAg,'gag'+m,'cag'+m,sAg.tankCol,sAg.tankCol2,isFlowing)}
@@ -960,14 +969,22 @@ function renderPlan(p){
       effHTML=`<span style="font-family:var(--mono);font-size:12px;font-weight:700;color:${effColor}">${eff.toFixed(1)}%</span>`;
     }
 
-    const stampCell=(field,time,label,isPulse=false)=>`
+    // เช็ค checkbox ก่อนให้ Stamp เริ่ม Past.
+    const needGlc=(+row.glc_actual||0)>0&&!row.glc_confirmed;
+    const needSgr=(+row.sgr_actual||0)>0&&!row.sgr_confirmed;
+    const needPlm=(+row.plm_actual||0)>0&&!row.plm_confirmed;
+    const canStampStart=!needGlc&&!needSgr&&!needPlm;
+    const blockReason=needGlc?'ติ๊ก Glc ก่อน':needSgr?'ติ๊ก Sgr ก่อน':needPlm?'ติ๊ก Plm ก่อน':'';
+
+    const stampCell=(field,time,label,isPulse=false,blocked=false,blockMsg='')=>`
       <td style="min-width:130px;padding:5px 7px;white-space:nowrap">
         <div style="display:flex;align-items:center;gap:4px">
-          <button class="stamp-btn ${time?"stamped":""} ${isPulse&&!time?"past-pulse active":""}"
-            style="flex:1;min-width:88px;font-size:11px"
-            ${time?"disabled title='Stamp แล้ว กด ✏️ เพื่อแก้ไข'":""}
-            onclick="stampTime('${col}','${row.id}','${field}','${p}')">
-            ⏱ ${time||label}
+          <button class="stamp-btn ${time?"stamped":""} ${isPulse&&!time&&!blocked?"past-pulse active":""}"
+            style="flex:1;min-width:88px;font-size:11px${blocked?';opacity:.45;cursor:not-allowed':''}"
+            ${time||blocked?"disabled":""}
+            title="${blocked?blockMsg:time?'Stamp แล้ว กด ✏️ เพื่อแก้ไข':''}"
+            onclick="${blocked||time?'':``stampTime('${col}','${row.id}','${field}','${p}')``}">
+            ${blocked?'🔒 '+blockMsg:('⏱ '+(time||label))}
           </button>
           ${time?`<button style="flex-shrink:0;font-size:10px;padding:4px 6px;border-radius:5px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:var(--t2);cursor:pointer" onclick="editTimePrompt('${col}','${row.id}','${field}','${time}')">✏️</button><button style="flex-shrink:0;font-size:10px;padding:4px 6px;border-radius:5px;border:1px dashed rgba(240,79,94,.3);background:rgba(240,79,94,.05);color:var(--red);cursor:pointer" onclick="deleteTimePrompt('${col}','${row.id}','${field}')">✕</button>`:""}
         </div>
@@ -987,7 +1004,7 @@ function renderPlan(p){
       <td>
         <span style="font-family:var(--mono);font-size:12px;font-weight:700;padding:3px 10px;border-radius:6px;background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.2);white-space:nowrap">${row.mixing_tank||"—"}</span>
       </td>
-      ${stampCell("past_start_time",row.past_start_time,"Stamp เริ่ม",row.status==="pasteurising"&&!row.past_start_time)}
+      ${stampCell("past_start_time",row.past_start_time,"Stamp เริ่ม",row.status==="pasteurising"&&!row.past_start_time,!canStampStart&&!row.past_start_time,blockReason)}
       <td><span style="font-family:var(--mono);font-size:12px">${estFinish}</span></td>
       ${stampCell("past_end_time",row.past_end_time,"Stamp เสร็จ")}
       <td>${effHTML}</td>
