@@ -538,8 +538,8 @@ function renderTankVisual(m,rows){
   // หา row ทั้งหมดของวันนั้น — T1 และ T2
   const t1Rows=rows.filter(r=>r.mixing_tank==='Tank 1'||r.mixing_tank==='T1'||r.mixing_tank==='ถัง 1'||r.mixing_tank==='1');
   const t2Rows=rows.filter(r=>r.mixing_tank==='Tank 2'||r.mixing_tank==='T2'||r.mixing_tank==='ถัง 2'||r.mixing_tank==='2');
-  const t1Row=t1Rows[0]||rows[0]||null;
-  const t2Row=t2Rows[0]||rows[1]||null;
+  const t1Row=t1Rows[0]||null;
+  const t2Row=t2Rows[0]||null;
   const agRow=pastRow||null;
 
   const isFlowing=agRow?.status==='pasteurising'&&!!agRow?.past_start_time;
@@ -913,7 +913,10 @@ window.stampTime=async(col,id,field,p)=>{
   const now=nowHHMM();
   const upd={[field]:now};
   if(field==="past_start_time") upd.status="pasteurising";
-  if(field==="past_end_time")   upd.status="past_done";
+  if(field==="past_end_time"){
+    upd.status="past_done";
+    upd.mixing_tank=""; // ล้าง mixing_tank ออก ป้องกันดึงข้อมูลเก่า
+  }
   await updateDoc(doc(db,col,id),upd);
   toast(`Stamp ${now} แล้ว`,"green");
 };
