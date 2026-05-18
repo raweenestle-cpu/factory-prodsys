@@ -242,7 +242,7 @@ main{position:relative;z-index:1;padding:10px 12px;}
 
   /* Queue card — ใช้ style เหมือน Filling */
   --fs:12px;
-  .cq-tc{width:175px;border-radius:10px;overflow:hidden;flex-shrink:0;display:flex;flex-direction:column;background:var(--s2);border:1px solid var(--b1)}
+  .cq-tc{width:260px;border-radius:10px;overflow:hidden;flex-shrink:0;display:flex;flex-direction:column;background:var(--s2);border:1px solid var(--b1)}
   .cq-ch{padding:9px 10px 6px;border-bottom:1px solid var(--b1)}
   .cq-ch-top{display:flex;align-items:baseline;gap:5px;margin-bottom:3px;flex-wrap:wrap}
   .cq-code{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--orange)}
@@ -691,34 +691,34 @@ function buildCard(line){
     const cipOk=(lineStates[line.id]||{})[`cip_q${idx}`]||false;
     const pctC=qPct>50?'#1fd17a':qPct>20?'#f5c842':'#f04f5e';
     return`<div class="cq-tc">
+  <!-- Header: ชื่อ Mix + Batch + รหัส สีเดียวกับ mix -->
   <div class="cq-ch">
-    <div class="cq-ch-top">
-      <span class="cq-code">${row.mix_code||'—'}</span>
-      <span style="color:var(--t3);font-size:10px">|</span>
-      <span class="cq-code" style="color:#c8d8f0">${row.mix_name||'—'}</span>
-    </div>
-    <div class="cq-batch">Batch ${row.batch_no||'—'}</div>
-    <div class="cq-rp">${rpc}</div>
+    <div style="font-family:var(--mono);font-size:13px;font-weight:700;color:${dot};line-height:1.5">${row.mix_name||'—'} Batch ${row.batch_no||'—'}</div>
+    <div style="font-family:var(--mono);font-size:12px;font-weight:700;color:${dot};margin-top:2px">รหัส: ${rpc}</div>
   </div>
+  <!-- เลขถัง -->
   <div class="cq-ab">${row.aging_tank||'—'}</div>
-  <div class="cq-sw">
-    ${tankSVG('Q'+line.id+idx,qPct,dot,true)}
-    <div class="cq-so">
-      <div class="cq-sv" style="color:${pctC}">${qRem.toFixed(1)} L</div>
+  <!-- ถัง + checkbox ข้างกัน -->
+  <div style="display:flex;align-items:center;gap:10px;padding:8px 10px">
+    <!-- ถัง SVG -->
+    <div style="flex-shrink:0;position:relative">
+      ${tankSVG('Q'+line.id+idx,qPct,dot,true)}
+      <div class="cq-so">
+        <div class="cq-sv" style="color:${pctC}">${qRem.toFixed(1)} L</div>
+        <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:${stC};text-shadow:0 1px 4px rgba(0,0,0,1)">${stTxt}</div>
+      </div>
     </div>
-  </div>
-  <div class="cq-st">
-    <span class="cq-stb" style="color:${stC};background:${stC}22;border:1px solid ${stC}55">${stTxt}</span>
-  </div>
-  <div class="cq-cb">
-    <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
-      <input type="checkbox" ${hotOk?'checked':''} onchange="setFP('${line.id}','q${idx}','hot_q${idx}',this.checked)" style="width:16px;height:16px;accent-color:var(--green)">
-      <span style="font-family:var(--mono);font-size:13px;font-weight:700;color:${hotOk?'var(--green)':'var(--t2)'}">⭐ น้ำร้อน</span>
-    </label>
-    <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
-      <input type="checkbox" ${cipOk?'checked':''} onchange="setFP('${line.id}','q${idx}','cip_q${idx}',this.checked)" style="width:16px;height:16px;accent-color:var(--green)">
-      <span style="font-family:var(--mono);font-size:13px;font-weight:700;color:${cipOk?'var(--green)':'var(--t2)'}">⭐ CIP</span>
-    </label>
+    <!-- checkbox ด้านขวา -->
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+        <input type="checkbox" ${hotOk?'checked':''} onchange="setFP('${line.id}','q${idx}','hot_q${idx}',this.checked)" style="width:18px;height:18px;accent-color:var(--green)">
+        <span style="font-family:var(--mono);font-size:13px;font-weight:700;color:${hotOk?'var(--green)':'var(--t2)'}">⭐ น้ำร้อน</span>
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+        <input type="checkbox" ${cipOk?'checked':''} onchange="setFP('${line.id}','q${idx}','cip_q${idx}',this.checked)" style="width:18px;height:18px;accent-color:var(--green)">
+        <span style="font-family:var(--mono);font-size:13px;font-weight:700;color:${cipOk?'var(--green)':'var(--t2)'}">⭐ CIP</span>
+      </label>
+    </div>
   </div>
 </div>`;
   }
