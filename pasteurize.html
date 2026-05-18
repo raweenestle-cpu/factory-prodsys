@@ -535,11 +535,13 @@ function renderTankVisual(m,rows){
   const pastRow=rows.find(r=>r.status==='pasteurising'&&r.past_start_time)
               ||rows.find(r=>r.status==='past_done'&&r.past_start_time)
               ||rows.find(r=>r.status==='ready'&&r.past_start_time);
-  // หา row ทั้งหมดของวันนั้น — T1 และ T2
-  const t1Rows=rows.filter(r=>r.mixing_tank==='Tank 1'||r.mixing_tank==='T1'||r.mixing_tank==='ถัง 1'||r.mixing_tank==='1');
-  const t2Rows=rows.filter(r=>r.mixing_tank==='Tank 2'||r.mixing_tank==='T2'||r.mixing_tank==='ถัง 2'||r.mixing_tank==='2');
-  const t1Row=t1Rows[0]||null;
-  const t2Row=t2Rows[0]||null;
+
+  // ดึง row จากตารางโดยตรง — ทุก status ที่ active (mixing, pasteurising)
+  const activeStatuses=['mixing','pasteurising'];
+  const t1Row=rows.find(r=>activeStatuses.includes(r.status)&&
+    (r.mixing_tank==='Tank 1'||r.mixing_tank==='T1'||r.mixing_tank==='ถัง 1'||r.mixing_tank==='1'))||null;
+  const t2Row=rows.find(r=>activeStatuses.includes(r.status)&&
+    (r.mixing_tank==='Tank 2'||r.mixing_tank==='T2'||r.mixing_tank==='ถัง 2'||r.mixing_tank==='2'))||null;
   const agRow=pastRow||null;
 
   const isFlowing=agRow?.status==='pasteurising'&&!!agRow?.past_start_time;
@@ -916,12 +918,12 @@ window.stampTime=async(col,id,field,p)=>{
   if(field==="past_end_time"){
     upd.status="past_done";
     // Reset Mixing fields — document เดียวกัน
-    upd.mixing_tank="";
     upd.mix_start_time="";
     upd.mix_end_time="";
     upd.glc_actual="";
     upd.sgr_actual="";
     upd.plm_actual="";
+    // ไม่ล้าง mixing_tank เพราะ Leadman กำหนดไว้แล้ว
   }
   await updateDoc(doc(db,col,id),upd);
   toast(`Stamp ${now} แล้ว`,"green");
