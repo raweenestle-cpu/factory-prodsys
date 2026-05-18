@@ -2,7 +2,13 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1e40af">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="PROD.SYS">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Leadman — PROD.SYS</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;600&family=Sarabun:wght@400;500;600;700&display=swap');
@@ -223,10 +229,11 @@ tbody td{padding:5px 6px;vertical-align:middle;font-weight:600}
           <th rowspan="2">Mix Name</th>
           <th rowspan="2">Batch</th>
           <th rowspan="2">Volume (L)</th>
-          <th rowspan="2" style="color:var(--cyan)">Mixing Tank</th>
-          <th colspan="2" style="text-align:center;background:#1a1f10;color:#a3c65a;border-bottom:1px solid var(--b2)">🍬 GLUCOSE (kg)</th>
-          <th colspan="2" style="text-align:center;background:#10181a;color:#6ad4f5;border-bottom:1px solid var(--b2)">🧂 SUGAR (kg)</th>
-          <th colspan="2" style="text-align:center;background:#1a1510;color:#f59e6a;border-bottom:1px solid var(--b2)">🌴 PALM OIL (kg)</th>
+          <th rowspan="2" style="text-align:center;background:#1a1f10;color:#a3c65a">🍬 Glucose (kg)</th>
+          <th rowspan="2" style="text-align:center;background:#10181a;color:#6ad4f5">🧂 Sugar (kg)</th>
+          <th rowspan="2" style="text-align:center;background:#1a1510;color:#f59e6a">🌴 Palm Oil (kg)</th>
+          <th rowspan="2" style="text-align:center;background:#0d1a1a;color:#34d399">🛢️ Oil Mix (kg)</th>
+          <th rowspan="2" style="text-align:center;background:#1a0d1a;color:#f9a8d4">🥛 Fat Milk (kg)</th>
           <th colspan="2" style="text-align:center;background:#1a0f1a;color:#d8b4fe;border-bottom:1px solid var(--b2)">♻️ REWORK</th>
           <th rowspan="2" style="white-space:nowrap">Filling Line</th>
           <th rowspan="2" style="color:var(--cyan)">ผลิตภัณฑ์</th>
@@ -237,12 +244,7 @@ tbody td{padding:5px 6px;vertical-align:middle;font-weight:600}
           <th rowspan="2" style="width:30px"></th>
         </tr>
         <tr>
-          <th style="background:#141a0c;color:#6b8c3a;font-size:9px">Set</th>
-          <th style="background:#141a0c;color:#86efac;font-size:9px;border-right:1px solid var(--b2)">Actual</th>
-          <th style="background:#081014;color:#1e5f7a;font-size:9px">Set</th>
-          <th style="background:#081014;color:#67e8f9;font-size:9px;border-right:1px solid var(--b2)">Actual</th>
-          <th style="background:#120f08;color:#6b5530;font-size:9px">Set</th>
-          <th style="background:#120f08;color:#fdba74;font-size:9px;border-right:1px solid var(--b2)">Actual</th>
+
           <th style="background:#130a13;color:#9d5aad;font-size:9px">น้ำหนัก (kg)</th>
           <th style="background:#130a13;color:#d8b4fe;font-size:9px;border-right:1px solid var(--b2)">จำนวนถัง</th>
         </tr>
@@ -285,10 +287,11 @@ tbody td{padding:5px 6px;vertical-align:middle;font-weight:600}
           <th rowspan="2">Mix Name</th>
           <th rowspan="2">Batch</th>
           <th rowspan="2">Volume (L)</th>
-          <th rowspan="2" style="color:var(--cyan)">Mixing Tank</th>
-          <th colspan="2" style="text-align:center;background:#1a1f10;color:#a3c65a;border-bottom:1px solid var(--b2)">🍬 GLUCOSE (kg)</th>
-          <th colspan="2" style="text-align:center;background:#10181a;color:#6ad4f5;border-bottom:1px solid var(--b2)">🧂 SUGAR (kg)</th>
-          <th colspan="2" style="text-align:center;background:#1a1510;color:#f59e6a;border-bottom:1px solid var(--b2)">🌴 PALM OIL (kg)</th>
+          <th rowspan="2" style="text-align:center;background:#1a1f10;color:#a3c65a">🍬 Glucose (kg)</th>
+          <th rowspan="2" style="text-align:center;background:#10181a;color:#6ad4f5">🧂 Sugar (kg)</th>
+          <th rowspan="2" style="text-align:center;background:#1a1510;color:#f59e6a">🌴 Palm Oil (kg)</th>
+          <th rowspan="2" style="text-align:center;background:#0d1a1a;color:#34d399">🛢️ Oil Mix (kg)</th>
+          <th rowspan="2" style="text-align:center;background:#1a0d1a;color:#f9a8d4">🥛 Fat Milk (kg)</th>
           <th colspan="2" style="text-align:center;background:#1a0f1a;color:#d8b4fe;border-bottom:1px solid var(--b2)">♻️ REWORK</th>
           <th rowspan="2" style="white-space:nowrap">Filling Line</th>
           <th rowspan="2" style="color:var(--cyan)">ผลิตภัณฑ์</th>
@@ -299,12 +302,7 @@ tbody td{padding:5px 6px;vertical-align:middle;font-weight:600}
           <th rowspan="2" style="width:30px"></th>
         </tr>
         <tr>
-          <th style="background:#141a0c;color:#6b8c3a;font-size:9px">Set</th>
-          <th style="background:#141a0c;color:#86efac;font-size:9px;border-right:1px solid var(--b2)">Actual</th>
-          <th style="background:#081014;color:#1e5f7a;font-size:9px">Set</th>
-          <th style="background:#081014;color:#67e8f9;font-size:9px;border-right:1px solid var(--b2)">Actual</th>
-          <th style="background:#120f08;color:#6b5530;font-size:9px">Set</th>
-          <th style="background:#120f08;color:#fdba74;font-size:9px;border-right:1px solid var(--b2)">Actual</th>
+
           <th style="background:#130a13;color:#9d5aad;font-size:9px">น้ำหนัก (kg)</th>
           <th style="background:#130a13;color:#d8b4fe;font-size:9px;border-right:1px solid var(--b2)">จำนวนถัง</th>
         </tr>
@@ -494,7 +492,7 @@ window.addRow = async(m) => {
     await addDoc(collection(db, planCol(m)), {
       date:d, seq:rows[m].length+1, mixing_unit:m,
       mix_code:"", mix_name:"", batch_no:"", volume_liter:"",
-      mixing_tank:"", glc_set:"", glc_actual:"", plm_set:"", plm_actual:"", sgr_set:"", sgr_actual:"",
+      glc_set:"", sgr_set:"", plm_set:"", oil_mix_set:"", fat_milk_set:"",
       filling_line:"", product_code:"", start_time:st,
       rework_kg:"", rework_tanks:"", note:"",
       status:"pending", createdBy:ME?.email||"leadman", createdAt:new Date().toISOString()
@@ -651,6 +649,15 @@ window.exportCSV = (m) => {
   const csv=[h,...r].map(r=>r.join(",")).join("\n");
   const a=document.createElement("a"); a.href="data:text/csv;charset=utf-8,"+encodeURIComponent(csv); a.download=`plan_${m}_${today()}.csv`; a.click();
 };
+</script>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('sw.js')
+      .then(r=>console.log('SW registered'))
+      .catch(e=>console.warn('SW failed:',e));
+  });
+}
 </script>
 </body>
 </html>

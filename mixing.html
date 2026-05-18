@@ -290,15 +290,21 @@ thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap
         <th colspan="2" style="text-align:center;background:#141a0c;color:#a3c65a;border-bottom:1px solid var(--b2)">🍬 GLUCOSE (kg)</th>
         <th colspan="2" style="text-align:center;background:#081014;color:#6ad4f5;border-bottom:1px solid var(--b2)">🧂 SUGAR (kg)</th>
         <th colspan="2" style="text-align:center;background:#120f08;color:#f59e6a;border-bottom:1px solid var(--b2)">🌴 PALM OIL (kg)</th>
+        <th colspan="2" style="text-align:center;background:#0d1a1a;color:#34d399;border-bottom:1px solid var(--b2)">🛢️ OIL MIX (kg)</th>
+        <th colspan="2" style="text-align:center;background:#1a0d1a;color:#f9a8d4;border-bottom:1px solid var(--b2)">🥛 FAT MILK (kg)</th>
         <th rowspan="2">Status</th>
       </tr>
       <tr>
         <th style="background:#141a0c;color:#6b8c3a;font-size:9px">Set</th>
-        <th style="background:#141a0c;color:#86efac;font-size:9px;border-right:1px solid var(--b2)">Actual</th>
+        <th style="background:#141a0c;color:#86efac;font-size:9px;border-right:1px solid var(--b2)">Actual ✅</th>
         <th style="background:#081014;color:#1e5f7a;font-size:9px">Set</th>
-        <th style="background:#081014;color:#67e8f9;font-size:9px;border-right:1px solid var(--b2)">Actual</th>
+        <th style="background:#081014;color:#67e8f9;font-size:9px;border-right:1px solid var(--b2)">Actual ✅</th>
         <th style="background:#120f08;color:#6b5530;font-size:9px">Set</th>
-        <th style="background:#120f08;color:#fdba74;font-size:9px;border-right:1px solid var(--b2)">Actual</th>
+        <th style="background:#120f08;color:#fdba74;font-size:9px;border-right:1px solid var(--b2)">Actual ✅</th>
+        <th style="background:#0d1a1a;color:#1e6b5a;font-size:9px">Set</th>
+        <th style="background:#0d1a1a;color:#34d399;font-size:9px;border-right:1px solid var(--b2)">Actual ✅</th>
+        <th style="background:#1a0d1a;color:#7a3a7a;font-size:9px">Set</th>
+        <th style="background:#1a0d1a;color:#f9a8d4;font-size:9px;border-right:1px solid var(--b2)">Actual ✅</th>
       </tr>
     </thead>
     <tbody id="tbody-m1"></tbody>
@@ -365,15 +371,21 @@ thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap
         <th colspan="2" style="text-align:center;background:#141a0c;color:#a3c65a;border-bottom:1px solid var(--b2)">🍬 GLUCOSE (kg)</th>
         <th colspan="2" style="text-align:center;background:#081014;color:#6ad4f5;border-bottom:1px solid var(--b2)">🧂 SUGAR (kg)</th>
         <th colspan="2" style="text-align:center;background:#120f08;color:#f59e6a;border-bottom:1px solid var(--b2)">🌴 PALM OIL (kg)</th>
+        <th colspan="2" style="text-align:center;background:#0d1a1a;color:#34d399;border-bottom:1px solid var(--b2)">🛢️ OIL MIX (kg)</th>
+        <th colspan="2" style="text-align:center;background:#1a0d1a;color:#f9a8d4;border-bottom:1px solid var(--b2)">🥛 FAT MILK (kg)</th>
         <th rowspan="2">Status</th>
       </tr>
       <tr>
         <th style="background:#141a0c;color:#6b8c3a;font-size:9px">Set</th>
-        <th style="background:#141a0c;color:#86efac;font-size:9px;border-right:1px solid var(--b2)">Actual</th>
+        <th style="background:#141a0c;color:#86efac;font-size:9px;border-right:1px solid var(--b2)">Actual ✅</th>
         <th style="background:#081014;color:#1e5f7a;font-size:9px">Set</th>
-        <th style="background:#081014;color:#67e8f9;font-size:9px;border-right:1px solid var(--b2)">Actual</th>
+        <th style="background:#081014;color:#67e8f9;font-size:9px;border-right:1px solid var(--b2)">Actual ✅</th>
         <th style="background:#120f08;color:#6b5530;font-size:9px">Set</th>
-        <th style="background:#120f08;color:#fdba74;font-size:9px;border-right:1px solid var(--b2)">Actual</th>
+        <th style="background:#120f08;color:#fdba74;font-size:9px;border-right:1px solid var(--b2)">Actual ✅</th>
+        <th style="background:#0d1a1a;color:#1e6b5a;font-size:9px">Set</th>
+        <th style="background:#0d1a1a;color:#34d399;font-size:9px;border-right:1px solid var(--b2)">Actual ✅</th>
+        <th style="background:#1a0d1a;color:#7a3a7a;font-size:9px">Set</th>
+        <th style="background:#1a0d1a;color:#f9a8d4;font-size:9px;border-right:1px solid var(--b2)">Actual ✅</th>
       </tr>
     </thead>
     <tbody id="tbody-m2"></tbody>
@@ -525,22 +537,22 @@ window.stampTime=async(col,id,field,m)=>{
   if(field==="mix_end_time"){
     // เช็คว่า actual ครบหรือยัง
     if(row){
-      const glcSet=+(row.glc_set||0);
-      const sgrSet=+(row.sgr_set||0);
-      const plmSet=+(row.plm_set||0);
-      const glcOk=glcSet<=0||(+(row.glc_actual||0)>0);
-      const sgrOk=sgrSet<=0||(+(row.sgr_actual||0)>0);
-      const plmOk=plmSet<=0||(+(row.plm_actual||0)>0);
+      const glcOk=+(row.glc_set||0)<=0||(+(row.glc_actual||0)>0);
+      const sgrOk=+(row.sgr_set||0)<=0||(+(row.sgr_actual||0)>0);
+      const plmOk=+(row.plm_set||0)<=0||(+(row.plm_actual||0)>0);
+      const oilOk=+(row.oil_mix_set||0)<=0||(+(row.oil_mix_actual||0)>0);
+      const fatOk=+(row.fat_milk_set||0)<=0||(+(row.fat_milk_actual||0)>0);
 
-      if(!glcOk||!sgrOk||!plmOk){
+      if(!glcOk||!sgrOk||!plmOk||!oilOk||!fatOk){
         const missing=[];
         if(!glcOk)missing.push('Glucose');
         if(!sgrOk)missing.push('Sugar');
         if(!plmOk)missing.push('Palm Oil');
+        if(!oilOk)missing.push('Oil Mix');
+        if(!fatOk)missing.push('Fat Milk');
         toast(`กรุณากรอก Actual: ${missing.join(', ')} ก่อน`,'red');
-        return; // ไม่ให้ stamp
+        return;
       }
-      // ครบแล้ว → เปลี่ยน status เป็น pasteurising (รอ Past.)
       upd.status="pasteurising";
     } else {
       upd.status="pasteurising";
@@ -561,14 +573,18 @@ window.editTime=async(col,id,field,current,m)=>{
   if(field==="mix_end_time"&&clean){
     const row=rows[m]?.find(r=>r.id===id);
     if(row){
-      const glcOk=+(row.glc_set||0)<=0||(+(row.glc_actual||0)>0);
-      const sgrOk=+(row.sgr_set||0)<=0||(+(row.sgr_actual||0)>0);
-      const plmOk=+(row.plm_set||0)<=0||(+(row.plm_actual||0)>0);
-      if(!glcOk||!sgrOk||!plmOk){
+      const glcOk2=+(row.glc_set||0)<=0||(+(row.glc_actual||0)>0);
+      const sgrOk2=+(row.sgr_set||0)<=0||(+(row.sgr_actual||0)>0);
+      const plmOk2=+(row.plm_set||0)<=0||(+(row.plm_actual||0)>0);
+      const oilOk2=+(row.oil_mix_set||0)<=0||(+(row.oil_mix_actual||0)>0);
+      const fatOk2=+(row.fat_milk_set||0)<=0||(+(row.fat_milk_actual||0)>0);
+      if(!glcOk2||!sgrOk2||!plmOk2||!oilOk2||!fatOk2){
         const missing=[];
-        if(!glcOk)missing.push('Glucose');
-        if(!sgrOk)missing.push('Sugar');
-        if(!plmOk)missing.push('Palm Oil');
+        if(!glcOk2)missing.push('Glucose');
+        if(!sgrOk2)missing.push('Sugar');
+        if(!plmOk2)missing.push('Palm Oil');
+        if(!oilOk2)missing.push('Oil Mix');
+        if(!fatOk2)missing.push('Fat Milk');
         toast(`กรุณากรอก Actual: ${missing.join(', ')} ก่อน`,'red');
         return;
       }
@@ -652,7 +668,14 @@ function renderPlan(m){
       <td><span style="font-family:var(--mono);font-weight:700;color:var(--blue2)">${row.mix_name||"—"}</span></td>
       <td><span class="cr">${row.batch_no||"—"}</span></td>
       <td><span style="font-family:var(--mono);color:var(--cyan)">${row.volume_liter||"—"}</span></td>
-      <td><span style="font-family:var(--mono);font-size:12px;padding:2px 8px;border-radius:5px;background:rgba(6,182,212,.1);color:var(--cyan)">${row.mixing_tank||"—"}</span></td>
+      <td>
+        <select style="font-family:var(--mono);font-size:12px;padding:4px 8px;border-radius:6px;background:rgba(6,182,212,.1);color:var(--cyan);border:1px solid rgba(6,182,212,.3);cursor:pointer"
+          onchange="_up('${col}','${row.id}','mixing_tank',this.value)">
+          <option value="">— เลือกถัง —</option>
+          <option value="Tank 1" ${row.mixing_tank==="Tank 1"?"selected":""}>Tank 1</option>
+          <option value="Tank 2" ${row.mixing_tank==="Tank 2"?"selected":""}>Tank 2</option>
+        </select>
+      </td>
       ${stampCell("mix_start_time",row.mix_start_time,"Stamp เริ่ม","yellow")}
       ${stampCell("mix_end_time",row.mix_end_time,"Stamp เสร็จ","green")}
       <td style="background:#0d1108">
