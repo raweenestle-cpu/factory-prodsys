@@ -671,23 +671,38 @@ function buildCard(line){
     if(row.status==='pasteurising'&&!row.past_end_time){stTxt='♨️ Past.';stC='var(--orange)';}
     else if(row.status==='past_done'||row.status==='pasteurising'){stTxt='🌡️ บ่มอยู่';stC='var(--yellow)';}
     if(row.past_end_time&&curingEnd!=='—'){stTxt+=` → ${curingEnd}`;}
-    return`<div style="background:var(--s2);border:1px solid var(--b1);border-radius:10px;padding:10px 12px;display:flex;gap:10px;align-items:center">
-      <!-- ถัง SVG — มี Mix Code + Name + % ในถัง -->
-      <div style="flex-shrink:0;position:relative">
-        ${tankSVG('Q'+line.id+idx,qPct,dot,true)}
-        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;width:90%">
-          <div style="font-family:var(--mono);font-size:9px;color:white;font-weight:700;text-shadow:0 1px 4px rgba(0,0,0,1)">${row.mix_code||''}</div>
-          <div style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,.8);text-shadow:0 1px 4px rgba(0,0,0,1)">${(row.mix_name||'').slice(0,12)}</div>
-          <div style="font-family:var(--mono);font-size:12px;font-weight:700;color:white;text-shadow:0 1px 6px rgba(0,0,0,1);margin-top:4px">${qPct.toFixed(1)}%</div>
+    return`<div style="background:var(--s2);border:1px solid var(--b1);border-radius:10px;padding:10px 12px;display:flex;gap:10px;align-items:flex-start">
+      <!-- ถัง + เลขถัง + checkbox -->
+      <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px">
+        <!-- เลขถัง บนหัวถัง -->
+        <div style="font-family:var(--mono);font-size:11px;font-weight:800;color:var(--cyan);background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.25);border-radius:6px;padding:2px 8px">${row.aging_tank||'—'}</div>
+        <!-- ถัง SVG — ข้อมูลใน -->
+        <div style="position:relative">
+          ${tankSVG('Q'+line.id+idx,qPct,dot,true)}
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;width:88%">
+            <div style="font-family:var(--mono);font-size:10px;font-weight:700;color:white;text-shadow:0 1px 6px rgba(0,0,0,1);line-height:1.3">${row.mix_name||''}</div>
+            <div style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,.75);text-shadow:0 1px 4px rgba(0,0,0,1);margin-top:2px">Batch ${row.batch_no||'—'}</div>
+            <div style="font-family:var(--mono);font-size:13px;font-weight:700;color:white;text-shadow:0 1px 8px rgba(0,0,0,1);margin-top:4px">${qPct.toFixed(1)}%</div>
+            <div style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,.7);text-shadow:0 1px 4px rgba(0,0,0,1)">${qVol.toLocaleString()} L</div>
+            <div style="font-family:var(--mono);font-size:9px;font-weight:700;color:${stC};text-shadow:0 1px 4px rgba(0,0,0,1);margin-top:3px">${stTxt}</div>
+          </div>
         </div>
+        <!-- checkbox น้ำร้อน + CIP -->
+        <label style="display:flex;align-items:center;gap:5px;cursor:pointer;width:100%">
+          <input type="checkbox" ${(lineStates[line.id]||{})[`hot_q${idx}`]?'checked':''} onchange="setFP('${line.id}','q${idx}','hot_q${idx}',this.checked)" style="accent-color:var(--green)">
+          <span style="font-family:var(--mono);font-size:9px;color:${(lineStates[line.id]||{})[`hot_q${idx}`]?'var(--green)':'var(--t3)'}">⭐ น้ำร้อน</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:5px;cursor:pointer;width:100%">
+          <input type="checkbox" ${(lineStates[line.id]||{})[`cip_q${idx}`]?'checked':''} onchange="setFP('${line.id}','q${idx}','cip_q${idx}',this.checked)" style="accent-color:var(--green)">
+          <span style="font-family:var(--mono);font-size:9px;color:${(lineStates[line.id]||{})[`cip_q${idx}`]?'var(--green)':'var(--t3)'}">⭐ CIP</span>
+        </label>
       </div>
-      <!-- ข้อมูล -->
-      <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px">
-        <div style="font-family:var(--mono);font-size:9px;color:var(--cyan);font-weight:700">${idx} · ${row.aging_tank||'—'}</div>
-        <div style="font-family:var(--mono);font-size:12px;font-weight:700;color:${dot};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${row.mix_code||'—'} | ${row.mix_name||'—'}</div>
+      <!-- ข้อมูลด้านขวา -->
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;padding-top:4px">
+        <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:${dot}">${row.mix_code||'—'}</div>
+        <div style="font-family:var(--mono);font-size:13px;font-weight:700;color:${dot};line-height:1.3">${row.mix_name||'—'} Batch ${row.batch_no||'—'}</div>
         <div style="font-family:var(--mono);font-size:10px;color:var(--purple)">${rpc}</div>
-        <div style="font-family:var(--mono);font-size:10px;color:var(--t2)">Batch ${row.batch_no||'—'} · ${qVol.toLocaleString()} L</div>
-        <span style="font-family:var(--mono);font-size:10px;font-weight:700;color:${stC}">${stTxt}</span>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--t2)">${qVol.toLocaleString()} L · ${curingEnd!=='—'?'บ่มเสร็จ '+curingEnd:stTxt}</div>
       </div>
     </div>`;
   }
