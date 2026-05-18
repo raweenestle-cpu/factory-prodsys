@@ -53,7 +53,7 @@ main{position:relative;z-index:1;padding:10px 12px;}
 .kpi-val{font-size:22px;font-weight:700;font-family:var(--mono)}
 
 /* LINE CARD */
-.lcard{background:var(--s1);border:1px solid var(--b1);border-radius:14px;overflow:hidden;margin-bottom:12px;width:100%}
+.lcard{background:var(--s1);border:1px solid var(--b1);border-radius:14px;overflow:hidden;margin-bottom:12px;width:100%;min-height:460px}
 .lcard.running{border-color:rgba(31,209,122,.3)}
 .lcard.curing{border-color:rgba(245,200,66,.25)}
 .lcard.stopped{border-color:rgba(59,126,246,.2)}
@@ -672,17 +672,19 @@ function buildCard(line){
       <!-- LEFT — ถังปัจจุบัน -->
       <div style="flex-shrink:0;width:260px;border-right:1px solid rgba(255,140,66,.2);background:rgba(255,140,66,.04);display:flex;flex-direction:column">
         <div style="padding:12px 14px;border-bottom:1px solid var(--b1)">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-            <div style="font-family:var(--mono);font-size:16px;font-weight:800;color:var(--orange)">LINE: ${line.name.toUpperCase()}</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+            <div style="font-family:var(--mono);font-size:15px;font-weight:800;color:var(--orange);letter-spacing:.05em">${line.name.toUpperCase()}</div>
             <span class="spill ${pm[cardStatus]}">${pt[cardStatus]}</span>
           </div>
-          <div style="display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;margin-bottom:4px">
-            <span style="font-family:var(--mono);font-size:13px;font-weight:700;color:${col}">${current.mix_code||'—'}</span>
-            <span style="color:var(--t3);font-size:11px">|</span>
-            <span style="font-family:var(--mono);font-size:13px;font-weight:700;color:${col}">${current.mix_name||'—'}</span>
+          <div style="font-family:var(--mono);font-size:13px;font-weight:700;color:${col};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+            ${current.mix_code||'—'} | ${current.mix_name||'—'}
           </div>
-          <div style="font-family:var(--mono);font-size:11px;color:var(--t2);margin-bottom:2px">Batch ${current.batch_no||'—'} · ${(+(current.volume_liter||0)).toLocaleString()} L</div>
-          <div style="font-family:var(--mono);font-size:12px;font-weight:700;color:var(--purple)">${prodCode}</div>
+          <div style="font-family:var(--mono);font-size:11px;color:var(--purple);font-weight:700;letter-spacing:.08em;margin-top:3px">
+            รหัส: ${prodCode}
+          </div>
+          <div style="font-family:var(--mono);font-size:10px;color:var(--t2);margin-top:2px">
+            Batch ${current.batch_no||'—'} · ${(+(current.volume_liter||0)).toLocaleString()} L
+          </div>
           <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">
             ${fp.fz?`<span class="ltag hi">🧊 ${fp.fz}</span>`:''}
             ${fp.pp?`<span class="ltag">🔧 ${fp.pp}</span>`:''}
