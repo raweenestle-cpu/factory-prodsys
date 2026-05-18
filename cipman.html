@@ -618,13 +618,8 @@ function buildCard(line){
   const col=productMap[current.mix_code]?.color||'#60a5fa';
   const sv=st.start_vol||+(current.volume_liter||0);
   const elapsed=isRunning&&st.start_ts?(Date.now()-st.start_ts)/3600000:0;
-  // สูตรถูกต้อง: totalTime = Volume × Density / Speed
-  const prod=productMap[current.mix_code]||{};
-  const speed=+(prod.speed_paste_1||prod.speed_m1||5150);
-  const density=+(prod.density||1.1);
-  const totalTimeHr=sv>0?(sv*density)/speed:1;
-  const filled=totalTimeHr>0?Math.min(sv,(elapsed/totalTimeHr)*sv):0;
-  const rem=Math.max(0,sv-filled);
+  const fr=st.flow_rate||line.flow_rate||300;
+  const rem=Math.max(0,sv-(elapsed*fr));
   const pct=sv>0?(rem/sv)*100:0;
   const pctC=pctColor(pct);
   const fp=getFP(line.id,'A');
@@ -839,14 +834,8 @@ function tickCountdowns(){
     const st=lineStates[line.id];if(!st?.running||!st?.start_ts)return;
     const elapsed=(Date.now()-st.start_ts)/3600000;
     const sv=st.start_vol||0;
-    // หา product ของ line นี้
-    const currentRow=Object.values(planData||{}).flat?.()?.find?.(r=>r.filling_line===line.name&&r.status==='pasteurising')||null;
-    const prod=productMap[currentRow?.mix_code||'']||{};
-    const speed=+(prod.speed_paste_1||prod.speed_m1||5150);
-    const density=+(prod.density||1.1);
-    const totalTimeHr=sv>0?(sv*density)/speed:1;
-    const filled=totalTimeHr>0?Math.min(sv,(elapsed/totalTimeHr)*sv):0;
-    const rem=Math.max(0,sv-filled);
+    const fr=st.flow_rate||line.flow_rate||300;
+    const rem=Math.max(0,sv-(elapsed*fr));
     const pct=sv>0?(rem/sv)*100:0;const c=pctColor(pct);
     const key='S'+line.id;
     const vEl=document.getElementById('vol-'+key);

@@ -287,22 +287,29 @@ function statusLabel(s){
 }
 
 function calcVolume(row){
-  // ถ้าเสร็จแล้ว ใช้ volume จริง
   if(!row)return 0;
   if(row.status==='past_done'||row.status==='ready')return+(row.volume_liter||0);
   if(!row.past_start_time)return 0;
-  // กำลัง pasteurising — คำนวณตาม elapsed time
   try{
     const dateStr=row.date||new Date().toISOString().slice(0,10);
     const[h,m]=row.past_start_time.split(':').map(Number);
     const start=new Date(`${dateStr}T${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:00`);
     const now=new Date();
     const elapsedHr=Math.max(0,(now-start)/3600000);
-    // ดึง flow_rate จาก LINE master
+    const totalVol=+(row.volume_liter||0);
+    // ดึง speed และ density จาก product master
+    const prod=productMap[row.mix_code]||{};
+    const speed=+(prod.speed_m1||prod.speed||5150);
+    const density=+(prod.density||1.1);
     const lineName=row.filling_line||'';
-    const lineData=lines.find(l=>l.name===lineName);
-    const flowRate=+(lineData?.flow_rate||row.flow_rate||300);
-    return Math.min(+(row.volume_liter||0), elapsedHr*flowRate);
+    const lineObj=lines.find(l=>l.name===lineName);
+    const lineSpeed=+(lineObj?.flow_rate||0);
+    const useSpeed=lineSpeed>0?lineSpeed:speed;
+    // สูตร: totalTime = Volume × Density / Speed
+    // สูตร: totalMin = Volume × Density × 60 / Speed
+    const totalMin=(totalVol*density*60)/useSpeed;
+    const elapsedMin=elapsedHr*60;
+    return totalMin>0?Math.min(totalVol,(elapsedMin/totalMin)*totalVol):0;
   }catch{return+(row.volume_liter||0);}
 }
 
