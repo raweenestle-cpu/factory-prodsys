@@ -696,10 +696,14 @@ function renderTankVisual(m,rows){
       <!-- border overlay -->
       <rect x="0" y="0" width="${tw}" height="${th}" rx="10" fill="none" stroke="${borderCol}" stroke-width="2"/>
       <!-- neck top -->
-      <rect x="${tw/2-13}" y="-10" width="26" height="12" rx="3" fill="#060a14" stroke="#1e2535" stroke-width="1.2"/>
-      <rect x="${tw/2-17}" y="-16" width="34" height="7" rx="3" fill="#08101a" stroke="#1e2535" stroke-width="1.2"/>
+      <rect x="${tw/2-13}" y="-10" width="26" height="12" rx="3" fill="#060a14" stroke="${borderCol}" stroke-width="1.2"/>
+      <rect x="${tw/2-17}" y="-16" width="34" height="7" rx="3" fill="#08101a" stroke="${borderCol}" stroke-width="1.2"/>
       <!-- bottom outlet -->
-      <rect x="${tw/2-5}" y="${th}" width="10" height="12" rx="2" fill="#060a14" stroke="${wave?rgba(c1,.5):'#1e2535'}" stroke-width="1.2"/>
+      <rect x="${tw/2-5}" y="${th}" width="10" height="12" rx="2" fill="#060a14" stroke="${wave?rgba(c1,.5):borderCol}" stroke-width="1.2"/>
+      <!-- ขาถัง ซ้าย -->
+      <rect x="8" y="${th+10}" width="14" height="5" rx="2" fill="#060a14" stroke="${borderCol}" stroke-width="1.2"/>
+      <!-- ขาถัง ขวา -->
+      <rect x="${tw-22}" y="${th+10}" width="14" height="5" rx="2" fill="#060a14" stroke="${borderCol}" stroke-width="1.2"/>
       <!-- mix name inside tank (top area) — ขาวชัดเจน -->
       <text x="${tw/2}" y="20" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="white" font-weight="700">${sublabel}</text>
       <!-- volume (center) -->
@@ -830,10 +834,28 @@ function renderTankVisual(m,rows){
     </defs>
 
     <!-- ══ MIX TANK 1 ══ -->
-    ${mx1.show?(()=>{const p1=productMap[t1Row?.mix_code||'']||{};const c1=t1Done?'#374151':(p1.color||s1.tankCol);const c1d=c1+'88';return drawTank(T1X,TOP,TW,TH,mx1.vol,t1Total,'Mixing 1',(t1Row?.mix_name||'—').slice(0,12),s1,'g1t'+m,'c1t'+m,c1,c1d,mx1.wave);})():`<g transform="translate(${T1X},${TOP})"><rect x="0" y="0" width="${TW}" height="${TH}" rx="10" fill="#060a14" stroke="rgba(255,255,255,.5)" stroke-width="2"/><text x="${TW/2}" y="-22" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="#3d4560" font-weight="700">Mixing 1</text><text x="${TW/2}" y="${TH/2}" text-anchor="middle" font-family="DM Mono,monospace" font-size="10" fill="#3d4560">รอ Leadman</text></g>`}
+    ${mx1.show?(()=>{const p1=productMap[t1Row?.mix_code||'']||{};const c1=t1Done?'#374151':(p1.color||s1.tankCol);const c1d=c1+'88';return drawTank(T1X,TOP,TW,TH,mx1.vol,t1Total,'Mixing 1',(t1Row?.mix_name||'—').slice(0,12),s1,'g1t'+m,'c1t'+m,c1,c1d,mx1.wave);})():`<g transform="translate(${T1X},${TOP})">
+  <text x="${TW/2}" y="-22" text-anchor="middle" font-family="DM Mono,monospace" font-size="12" fill="rgba(255,255,255,.5)" font-weight="800">Mixing 1</text>
+  <rect x="2" y="4" width="${TW}" height="${TH}" rx="10" fill="rgba(0,0,0,.3)"/>
+  <rect x="0" y="0" width="${TW}" height="${TH}" rx="10" fill="#060a14" stroke="rgba(255,255,255,.5)" stroke-width="2"/>
+  <rect x="${TW/2-13}" y="-10" width="26" height="12" rx="3" fill="#060a14" stroke="rgba(255,255,255,.4)" stroke-width="1.5"/>
+  <rect x="${TW/2-17}" y="-16" width="34" height="7" rx="3" fill="#060a14" stroke="rgba(255,255,255,.4)" stroke-width="1.5"/>
+  <rect x="${TW/2-5}" y="${TH}" width="10" height="12" rx="2" fill="#060a14" stroke="rgba(255,255,255,.3)" stroke-width="1.2"/>
+  <rect x="8" y="${TH+10}" width="16" height="5" rx="2" fill="#060a14" stroke="rgba(255,255,255,.3)" stroke-width="1.2"/>
+  <rect x="${TW-24}" y="${TH+10}" width="16" height="5" rx="2" fill="#060a14" stroke="rgba(255,255,255,.3)" stroke-width="1.2"/>
+</g>`}
 
     <!-- ══ MIX TANK 2 ══ -->
-    ${mx2.show?(()=>{const p2=productMap[t2Row?.mix_code||'']||{};const c2=t2Done?'#374151':(p2.color||s2.tankCol);const c2d=c2+'88';return drawTank(T2X,TOP,TW,TH,mx2.vol,t2Total,'Mixing 2',(t2Row?.mix_name||'—').slice(0,12),s2,'g2t'+m,'c2t'+m,c2,c2d,mx2.wave);})():`<g transform="translate(${T2X},${TOP})"><rect x="0" y="0" width="${TW}" height="${TH}" rx="10" fill="#060a14" stroke="rgba(255,255,255,.5)" stroke-width="2"/><text x="${TW/2}" y="-22" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="#3d4560" font-weight="700">Mixing 2</text><text x="${TW/2}" y="${TH/2}" text-anchor="middle" font-family="DM Mono,monospace" font-size="10" fill="#3d4560">รอ Leadman</text></g>`}
+    ${mx2.show?(()=>{const p2=productMap[t2Row?.mix_code||'']||{};const c2=t2Done?'#374151':(p2.color||s2.tankCol);const c2d=c2+'88';return drawTank(T2X,TOP,TW,TH,mx2.vol,t2Total,'Mixing 2',(t2Row?.mix_name||'—').slice(0,12),s2,'g2t'+m,'c2t'+m,c2,c2d,mx2.wave);})():`<g transform="translate(${T2X},${TOP})">
+  <text x="${TW/2}" y="-22" text-anchor="middle" font-family="DM Mono,monospace" font-size="12" fill="rgba(255,255,255,.5)" font-weight="800">Mixing 2</text>
+  <rect x="2" y="4" width="${TW}" height="${TH}" rx="10" fill="rgba(0,0,0,.3)"/>
+  <rect x="0" y="0" width="${TW}" height="${TH}" rx="10" fill="#060a14" stroke="rgba(255,255,255,.5)" stroke-width="2"/>
+  <rect x="${TW/2-13}" y="-10" width="26" height="12" rx="3" fill="#060a14" stroke="rgba(255,255,255,.4)" stroke-width="1.5"/>
+  <rect x="${TW/2-17}" y="-16" width="34" height="7" rx="3" fill="#060a14" stroke="rgba(255,255,255,.4)" stroke-width="1.5"/>
+  <rect x="${TW/2-5}" y="${TH}" width="10" height="12" rx="2" fill="#060a14" stroke="rgba(255,255,255,.3)" stroke-width="1.2"/>
+  <rect x="8" y="${TH+10}" width="16" height="5" rx="2" fill="#060a14" stroke="rgba(255,255,255,.3)" stroke-width="1.2"/>
+  <rect x="${TW-24}" y="${TH+10}" width="16" height="5" rx="2" fill="#060a14" stroke="rgba(255,255,255,.3)" stroke-width="1.2"/>
+</g>`}
 
     <!-- ══ AGING TANK ══ -->
     ${drawTank(AGX,TOP,TW,TH,agVol,Math.max(+(agRow?.volume_liter||0),agVol,1),'Aging '+agTank,agName,sAg,'gag'+m,'cag'+m,sAg.tankCol,sAg.tankCol2,isFlowing)}
@@ -1133,27 +1155,26 @@ function renderPlan(p){
       <td>${effHTML}</td>
       <!-- ปุ่มส่งข้อมูล -->
       <td style="padding:4px 6px;min-width:100px">
-        ${(()=>{
-          if(!row.past_end_time) return '<span style="font-family:var(--mono);font-size:10px;color:var(--t3)">รอ Stamp</span>';
-          const prod2=productMap[row.mix_code]||{};
-          const spd2=+(prod2.speed_m1||prod2.speed||5150);
-          const den2=+(prod2.density||1.1);
-          const vol2=+(row.volume_liter||0);
-          const req2=vol2>0&&spd2>0?Math.round(vol2*den2*60/spd2):0;
-          const[sh2,sm2]=row.past_start_time.split(':').map(Number);
-          const[eh2,em2]=row.past_end_time.split(':').map(Number);
-          let act2=(eh2*60+em2)-(sh2*60+sm2);
-          if(act2<0)act2+=1440;
-          const eff2=act2>0?(req2/act2)*100:0;
-          if(eff2>100){
-            return `<button disabled style="width:100%;padding:6px 8px;border-radius:8px;font-family:var(--mono);font-size:11px;font-weight:700;border:1px solid rgba(240,79,94,.3);background:rgba(240,79,94,.08);color:#ef4444;cursor:not-allowed">🔒 ส่งไม่ได้<br>(Eff>${eff2.toFixed(1)}%)</button>`;
-          }
-          const warn=eff2<97;
-          return `<button onclick="submitPast('${col}','${row.id}','${p}',${eff2.toFixed(1)},${warn})"
-            style="width:100%;padding:6px 8px;border-radius:8px;font-family:var(--mono);font-size:12px;font-weight:700;border:1px solid ${warn?'rgba(234,179,8,.4)':'rgba(34,197,94,.4)'};background:${warn?'rgba(234,179,8,.08)':'rgba(34,197,94,.08)'};color:${warn?'#fde047':'#4ade80'};cursor:pointer">
-            ${warn?'⚠️':'✅'} ส่งข้อมูล<br><span style="font-size:10px">(Eff ${eff2.toFixed(1)}%)</span>
-          </button>`;
-        })()}
+        ${!row.past_end_time
+          ? '<span style="font-family:var(--mono);font-size:10px;color:var(--t3)">รอ Stamp</span>'
+          : (()=>{
+              const prod2=productMap[row.mix_code]||{};
+              const spd2=+(prod2.speed_m1||prod2.speed||5150);
+              const den2=+(prod2.density||1.1);
+              const vol2=+(row.volume_liter||0);
+              const req2=vol2>0&&spd2>0?Math.round(vol2*den2*60/spd2):0;
+              const[sh2,sm2]=(row.past_start_time||'00:00').split(':').map(Number);
+              const[eh2,em2]=row.past_end_time.split(':').map(Number);
+              let act2=(eh2*60+em2)-(sh2*60+sm2);
+              if(act2<0)act2+=1440;
+              const eff2=act2>0?(req2/act2)*100:0;
+              if(eff2>100){
+                return `<button disabled style="width:100%;padding:6px 8px;border-radius:8px;font-family:var(--mono);font-size:11px;font-weight:700;border:1px solid rgba(240,79,94,.3);background:rgba(240,79,94,.08);color:#ef4444;cursor:not-allowed">🔒 ส่งไม่ได้<br>(Eff ${eff2.toFixed(1)}%)</button>`;
+              }
+              const warn=eff2<97;
+              return `<button onclick="submitPast('${col}','${row.id}','${p}',${eff2.toFixed(1)},${warn})" style="width:100%;padding:6px 8px;border-radius:8px;font-family:var(--mono);font-size:12px;font-weight:700;border:1px solid ${warn?'rgba(234,179,8,.4)':'rgba(34,197,94,.4)'};background:${warn?'rgba(234,179,8,.08)':'rgba(34,197,94,.08)'};color:${warn?'#fde047':'#4ade80'};cursor:pointer">${warn?'⚠️':'✅'} ส่งข้อมูล<br><span style="font-size:10px">(Eff ${eff2.toFixed(1)}%)</span></button>`;
+            })()
+        }
       </td>
       <td style="background:#141a0c;padding:5px 6px">
         <div style="display:flex;align-items:center;gap:4px">

@@ -571,8 +571,12 @@ function renderMixTanks(m, rows){
       return`<div style="display:flex;flex-direction:column;align-items:center;gap:6px;min-width:140px">
         <span style="font-family:'DM Mono',monospace;font-size:11px;font-weight:800;color:white">${label}</span>
         <svg width="130" height="160" viewBox="0 0 130 160">
+          <rect x="12" y="14" width="110" height="140" rx="10" fill="rgba(0,0,0,.3)"/>
           <rect x="10" y="10" width="110" height="140" rx="10" fill="#060a14" stroke="rgba(255,255,255,.5)" stroke-width="2"/>
-          <text x="65" y="85" text-anchor="middle" font-family="DM Mono,monospace" font-size="10" fill="#3d4560">รอ Leadman</text>
+          <rect x="49" y="0" width="22" height="12" rx="3" fill="#060a14" stroke="rgba(255,255,255,.4)" stroke-width="1.5"/>
+          <rect x="44" y="-6" width="32" height="7" rx="3" fill="#060a14" stroke="rgba(255,255,255,.4)" stroke-width="1.5"/>
+          <rect x="8" y="150" width="16" height="5" rx="2" fill="#060a14" stroke="rgba(255,255,255,.3)" stroke-width="1.2"/>
+          <rect x="86" y="150" width="16" height="5" rx="2" fill="#060a14" stroke="rgba(255,255,255,.3)" stroke-width="1.2"/>
         </svg>
       </div>`;
     }
@@ -613,10 +617,20 @@ function renderMixTanks(m, rows){
 
     return`<div style="display:flex;flex-direction:column;align-items:center;gap:6px;min-width:140px">
       <span style="font-family:'DM Mono',monospace;font-size:11px;font-weight:800;color:white">${label}</span>
-      <svg width="130" height="160" viewBox="0 0 130 160">
+      <svg width="130" height="175" viewBox="0 0 130 175">
         ${waveSVG}
+        <!-- shadow -->
+        <rect x="12" y="14" width="110" height="140" rx="10" fill="rgba(0,0,0,.4)"/>
+        <!-- body -->
         <rect x="10" y="10" width="110" height="140" rx="10" fill="none" stroke="${borderCol}" stroke-width="2"/>
-        <rect x="49" y="0" width="32" height="12" rx="3" fill="#060a14" stroke="#1e2535" stroke-width="1.2"/>
+        <!-- neck top -->
+        <rect x="49" y="0" width="32" height="12" rx="3" fill="#060a14" stroke="${borderCol}" stroke-width="1.2"/>
+        <rect x="44" y="-6" width="42" height="7" rx="3" fill="#060a14" stroke="${borderCol}" stroke-width="1.2"/>
+        <!-- ขาถัง -->
+        <rect x="18" y="150" width="16" height="14" rx="3" fill="#060a14" stroke="${borderCol}" stroke-width="1.2"/>
+        <rect x="96" y="150" width="16" height="14" rx="3" fill="#060a14" stroke="${borderCol}" stroke-width="1.2"/>
+        <!-- ฐาน -->
+        <rect x="12" y="163" width="106" height="5" rx="2" fill="#060a14" stroke="${borderCol}" stroke-width="1.2"/>
         <text x="65" y="55" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="white" font-weight="700">${name}</text>
         <text x="65" y="85" text-anchor="middle" font-family="DM Mono,monospace" font-size="18" fill="white" font-weight="700">${
           st==='pasteurising'&&row?.past_start_time&&row?.current_vol!=null
