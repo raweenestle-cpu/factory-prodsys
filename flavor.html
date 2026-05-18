@@ -202,7 +202,8 @@ tbody tr:hover td{background:rgba(244,114,182,.04)!important}
 <body>
 <nav>
   <div class="nav-logo" id="nav-logo-tap">PROD<b>.</b>SYS <span>/ FLAVOR</span></div>
-  <button class="ntab on" onclick="showPage('main',this)">🧪 Flavor Queue</button>
+  <button class="ntab on" onclick="showPage('m1',this)">💗 Mix 1</button>
+  <button class="ntab" onclick="showPage('m2',this)">💜 Mix 2</button>
   <button class="ntab" onclick="showPage('history',this);loadHistory()">📋 History</button>
   <button class="ntab" id="tab-report" style="display:none;color:#fda4af;background:rgba(253,164,175,.1);border:1px solid rgba(253,164,175,.2)" onclick="showPage('report',this);loadReport()">🔐 Report</button>
   <div class="nav-r">
@@ -211,11 +212,9 @@ tbody tr:hover td{background:rgba(244,114,182,.04)!important}
   </div>
 </nav>
 
-<!-- MAIN PAGE -->
-<div class="page on" id="page-main">
-  <!-- Decorative top bar -->
-  <div style="height:3px;background:linear-gradient(90deg,var(--pink3),var(--pink),var(--lilac),var(--lavender));border-radius:0 0 4px 4px;margin:-14px -16px 16px;opacity:.7"></div>
-  <!-- M1 -->
+<!-- MIX 1 PAGE -->
+<div class="page on" id="page-m1">
+  <div style="height:3px;background:linear-gradient(90deg,var(--pink3),var(--pink),var(--lilac));border-radius:0 0 4px 4px;margin:-14px -16px 16px;opacity:.7"></div>
   <div style="margin-bottom:6px;font-family:var(--mono);font-size:11px;font-weight:700;background:linear-gradient(135deg,var(--pink),var(--lilac));-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-transform:uppercase;letter-spacing:.1em">💗 Mixing 1</div>
   <div class="toolbar">
     <input type="date" id="date-m1" class="ci" style="width:140px" onchange="loadPlan('m1')">
@@ -253,8 +252,12 @@ tbody tr:hover td{background:rgba(244,114,182,.04)!important}
     </table>
   </div>
 
-  <!-- M2 -->
-  <div style="margin-bottom:6px;font-family:var(--mono);font-size:11px;font-weight:700;background:linear-gradient(135deg,var(--lilac),var(--rose));-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-transform:uppercase;letter-spacing:.1em;margin-top:8px">💜 Mixing 2</div>
+</div>
+
+<!-- MIX 2 PAGE -->
+<div class="page" id="page-m2">
+  <div style="height:3px;background:linear-gradient(90deg,var(--lilac),var(--rose),var(--pink3));border-radius:0 0 4px 4px;margin:-14px -16px 16px;opacity:.7"></div>
+  <div style="margin-bottom:6px;font-family:var(--mono);font-size:11px;font-weight:700;background:linear-gradient(135deg,var(--lilac),var(--rose));-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-transform:uppercase;letter-spacing:.1em">💜 Mixing 2</div>
   <div class="toolbar">
     <input type="date" id="date-m2" class="ci" style="width:140px" onchange="loadPlan('m2')">
     <button class="btn" onclick="changeDate('m2',-1)">◀</button>
