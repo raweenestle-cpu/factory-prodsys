@@ -989,6 +989,19 @@ window.stampTime=async(col,id,field,p)=>{
   toast(`Stamp ${now} แล้ว`,"green");
 };
 
+// ── EDIT / DELETE TIME ────────────────────────────────────────────────
+window.editTimePrompt=async(col,id,field,current)=>{
+  const val=prompt("แก้ไขเวลา (HH:MM) :",current||"");
+  if(val===null)return;
+  const clean=val.trim();
+  if(!/^\d{2}:\d{2}$/.test(clean)){toast("รูปแบบ HH:MM เท่านั้น","red");return;}
+  const upd={[field]:clean};
+  if(field==="past_start_time"&&clean) upd.status="pasteurising";
+  if(field==="past_end_time"&&clean)   upd.status="pasteurising";
+  await updateDoc(doc(db,col,id),upd);
+  toast("แก้ไขเวลาแล้ว","green");
+};
+
 // ── SUBMIT PAST ───────────────────────────────────────────────────────
 window.submitPast=async(col,id,p,eff,warn)=>{
   if(warn){
