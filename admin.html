@@ -229,7 +229,7 @@ tbody td{padding:7px 10px;vertical-align:middle}
     <div class="tw">
       <table>
         <thead><tr>
-          <th>Seq</th><th>ชื่อ LINE</th><th>รหัสสินค้า</th><th>ผลิตภัณฑ์</th><th>Mix Code</th><th>Mix Name</th><th>Flow Rate</th><th style="color:var(--cyan)">Aging Tanks</th><th>กลุ่ม</th><th>จัดการ</th>
+          <th>Seq</th><th>ชื่อ LINE</th><th>ผลิตภัณฑ์ (SKU · Flow Rate)</th><th>Mix Code</th><th>Mix Name</th><th style="color:var(--cyan)">Aging Tanks</th><th>กลุ่ม</th><th>จัดการ</th>
         </tr></thead>
         <tbody id="lines-bangchan"></tbody>
       </table>
@@ -242,7 +242,7 @@ tbody td{padding:7px 10px;vertical-align:middle}
     <div class="tw">
       <table>
         <thead><tr>
-          <th>Seq</th><th>ชื่อ LINE</th><th>รหัสสินค้า</th><th>ผลิตภัณฑ์</th><th>Mix Code</th><th>Mix Name</th><th>Flow Rate</th><th style="color:var(--cyan)">Aging Tanks</th><th>กลุ่ม</th><th>จัดการ</th>
+          <th>Seq</th><th>ชื่อ LINE</th><th>ผลิตภัณฑ์ (SKU · Flow Rate)</th><th>Mix Code</th><th>Mix Name</th><th style="color:var(--cyan)">Aging Tanks</th><th>กลุ่ม</th><th>จัดการ</th>
         </tr></thead>
         <tbody id="lines-twin"></tbody>
       </table>
@@ -687,11 +687,9 @@ function renderLines(){
       tr.innerHTML=`
         <td style="font-family:var(--mono);color:var(--t3)">${l.seq||"—"}</td>
         <td style="font-family:var(--mono);font-weight:700;color:var(--cyan)">${l.name||"—"}</td>
-        <td style="font-family:var(--mono);font-size:11px;color:var(--yellow)">${l.sku||"—"}</td>
-        <td style="max-width:140px">${prodNamesHTML}</td>
+        <td style="max-width:200px">${(l.products||[]).map(p=>`<div style="margin-bottom:4px"><span style="font-family:var(--mono);font-size:11px;color:var(--text)">${p.name}</span> <span style="font-family:var(--mono);font-size:10px;color:var(--yellow)">${p.sku||''}</span> <span style="font-family:var(--mono);font-size:10px;color:var(--green)">${p.flow_rate||300} L/hr</span></div>`).join('')||'<span style="color:var(--t3);font-size:11px">—</span>'}</td>
         <td style="max-width:120px">${mixCodeHTML}</td>
         <td style="max-width:140px">${mixNameHTML}</td>
-        <td style="font-family:var(--mono)">${flowRateHTML}</td>
         <td style="font-family:var(--mono);font-size:11px;color:var(--cyan);max-width:120px">${(l.aging_tanks||[]).join(', ')||'—'}</td>
         <td><span style="font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:4px;background:${g==="bangchan"?"rgba(59,130,246,.1)":"rgba(168,85,247,.1)"};color:${g==="bangchan"?"var(--blue2)":"var(--purple)"}">${g==="bangchan"?"Bangchan":"Twin"}</span></td>
         <td>
