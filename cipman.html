@@ -609,7 +609,7 @@ function buildCard(line){
   const curing=current&&!isPasteurising?getCuringInfo(current,line.id):{done:false,endTime:'—'};
   const cardStatus=isRunning?'running':isPasteurising?'curing':current&&!curing.done?'curing':current?'stopped':'empty';
   const pm={running:'sp-run',curing:'sp-cur',stopped:'sp-stp',empty:'sp-emp'};
-  const pt={running:'● กำลังเดิน',curing:current?.status==='pasteurising'?'♨️ กำลัง Past.':'⏳ กำลังบ่ม',stopped:'⏸ หยุด',empty:'○ ว่าง'};
+  const pt={running:'● กำลังเดิน',curing:'⏳',stopped:'⏸ หยุด',empty:'○ ว่าง'};
 
   if(!current)return`<div class="lcard empty" id="card-${line.id}">
     <div class="accent"></div>
@@ -645,26 +645,32 @@ function buildCard(line){
     const rpc=row.prod_suffix?(ryr+'0522'+runit+row.prod_suffix):'—';
     const dot=p.color||'#60a5fa';
     const qVol=+(row.volume_liter||0);
-    const qRem=row.current_vol!==undefined&&row.current_vol!==null?+row.current_vol:qVol;
-    const qPct=qVol>0?(qRem/qVol)*100:100;
     let stTxt='—',stC='var(--t2)';
     if(row.status==='pasteurising'&&!row.past_end_time){stTxt='♨️ Past.';stC='var(--orange)';}
     else if(row.status==='past_done'||row.status==='pasteurising'){stTxt='🌡️ บ่มอยู่';stC='var(--yellow)';}
     if(row.past_end_time&&curingEnd!=='—'){stTxt+=` → ${curingEnd}`;}
-    return`<div style="background:var(--s2);border:1px solid var(--b1);border-radius:10px;padding:12px 14px;display:flex;gap:12px;align-items:flex-start">
-      <!-- ถัง -->
-      <div style="flex-shrink:0">
-        ${tankSVG('Q'+line.id+idx, qPct, dot, true)}
+    return`<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:8px;background:var(--s2);border:1px solid var(--b1);border-radius:10px">
+      <!-- กรอบ 1: LINE + ลำดับ -->
+      <div style="background:var(--s3);border:1px solid var(--b2);border-radius:7px;padding:6px 10px">
+        <div style="font-family:var(--mono);font-size:9px;color:var(--t3);margin-bottom:2px">ลำดับ</div>
+        <div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--cyan)">${idx}</div>
       </div>
-      <!-- ข้อมูล -->
-      <div style="display:flex;flex-direction:column;gap:5px;flex:1;min-width:0">
-        <div style="display:flex;align-items:center;gap:6px">
-          <span style="font-family:var(--mono);font-size:10px;color:var(--t3);font-weight:700">${idx}</span>
-          <span style="font-family:var(--mono);font-size:13px;font-weight:700;color:${dot};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${row.mix_code||'—'} | ${row.mix_name||'—'}</span>
-        </div>
-        <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--purple)">${rpc}</div>
-        <div style="font-family:var(--mono);font-size:11px;color:var(--t2)">Batch ${row.batch_no||'—'} · ${qVol.toLocaleString()} L ${row.aging_tank?'🪣 '+row.aging_tank:''}</div>
-        <div><span style="font-family:var(--mono);font-size:11px;font-weight:700;color:${stC};background:${stC}22;padding:2px 8px;border-radius:99px;border:1px solid ${stC}44">${stTxt}</span></div>
+      <!-- กรอบ 2: ถัง -->
+      <div style="background:var(--s3);border:1px solid var(--b2);border-radius:7px;padding:6px 10px">
+        <div style="font-family:var(--mono);font-size:9px;color:var(--t3);margin-bottom:2px">ถัง</div>
+        <div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--cyan)">${row.aging_tank||'—'}</div>
+      </div>
+      <!-- กรอบ 3: Mix -->
+      <div style="background:var(--s3);border:1px solid ${dot}44;border-radius:7px;padding:6px 10px;grid-column:1/-1">
+        <div style="font-family:var(--mono);font-size:9px;color:var(--t3);margin-bottom:2px">ผลิตภัณฑ์</div>
+        <div style="font-family:var(--mono);font-size:12px;font-weight:700;color:${dot}">${row.mix_code||'—'} | ${row.mix_name||'—'}</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--purple);margin-top:2px">${rpc}</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--t2);margin-top:2px">Batch ${row.batch_no||'—'} · ${qVol.toLocaleString()} L</div>
+      </div>
+      <!-- กรอบ 4: Status -->
+      <div style="background:var(--s3);border:1px solid ${stC}44;border-radius:7px;padding:6px 10px;grid-column:1/-1">
+        <div style="font-family:var(--mono);font-size:9px;color:var(--t3);margin-bottom:2px">สถานะ</div>
+        <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:${stC}">${stTxt}</div>
       </div>
     </div>`;
   }
@@ -677,7 +683,11 @@ function buildCard(line){
       <div style="min-width:0;flex:1">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
           <span style="font-family:var(--mono);font-size:14px;font-weight:800;color:var(--orange)">${line.name.toUpperCase()}</span>
-          <span class="spill ${pm[cardStatus]}">${pt[cardStatus]}</span>
+          <span class="spill ${pm[cardStatus]}" style="font-family:var(--mono);font-size:10px">${
+            (line.products&&line.products.length)
+              ? line.products.map(p=>p.name).join(' · ')
+              : pt[cardStatus]
+          }</span>
         </div>
         <div style="font-family:var(--mono);font-size:12px;font-weight:700;color:${col};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
           ${current.mix_code||'—'} | ${current.mix_name||'—'} &nbsp;·&nbsp; Batch ${current.batch_no||'—'} &nbsp;·&nbsp; ${(+(current.volume_liter||0)).toLocaleString()} L
@@ -695,7 +705,7 @@ function buildCard(line){
 
       <!-- ถัง SVG — status อยู่ในถัง -->
       <div style="flex-shrink:0;width:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 8px;border-right:1px solid var(--b1);background:rgba(0,0,0,.15)">
-        <div style="font-family:var(--mono);font-size:10px;color:var(--cyan);font-weight:700;margin-bottom:2px">🪣 ${agingTank}</div>
+        <div style="font-family:var(--mono);font-size:12px;color:var(--cyan);font-weight:800;margin-bottom:4px;text-align:center;background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.2);border-radius:6px;padding:2px 10px">${agingTank}</div>
         <div style="position:relative;display:flex;justify-content:center;align-items:center">
           ${tankSVG('S'+line.id, pct, col, hasLiquid,
             current.status==='pasteurising'?'♨️ กำลัง Past.':curing.done?'✅ บ่มเสร็จ':'🌡️ กำลังบ่ม',
