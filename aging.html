@@ -264,9 +264,9 @@ function getTankCapacity(tankId){
 }
 
 function getTankInfo(tankId){
-  // หา batch ที่ใช้ถังนี้อยู่
-  const row=planRows.find(r=>r.aging_tank===tankId);
-  // ดึง status จาก planRow ก่อน ถ้าไม่มีค่อยดึงจาก tankStates
+  const allRows=planRows.filter(r=>r.aging_tank===tankId);
+  const row=allRows[0]||null;
+
   let status='empty';
   if(row){
     if(row.status==='pasteurising')status='pasteurising';
@@ -276,7 +276,49 @@ function getTankInfo(tankId){
   } else {
     status=tankStates[tankId]?.status||'empty';
   }
-  return{status,row};
+
+  // กรอง rows ที่เป็น mix_code + date + filling_line เดียวกัน
+  const sameGroup=row
+    ? allRows.filter(r=>
+        r.mix_code===row.mix_code &&
+        r.date===row.date &&
+        r.filling_line===row.filling_line
+      )
+    : [];
+
+  // เช็คว่า batch_no ต่อเนื่องกัน เช่น 4/1, 4/2, 4/3
+  // รูปแบบ batch: "4/1", "4/2" หรือ "4-1", "4-2" หรือ "1","2","3"
+  function parseBatch(b){
+    if(!b) return null;
+    const m=String(b).match(/^(\d+)[\/\-](\d+)$/);
+    if(m) return{prefix:+m[1],sub:+m[2]};
+    const n=String(b).match(/^(\d+)$/);
+    if(n) return{prefix:0,sub:+n[1]};
+    return null;
+  }
+
+  function isSequential(rows){
+    if(rows.length<=1) return true;
+    const parsed=rows.map(r=>parseBatch(r.batch_no)).filter(Boolean);
+    if(parsed.length!==rows.length) return false;
+    // ต้อง prefix เดียวกัน
+    const prefix=parsed[0].prefix;
+    if(!parsed.every(p=>p.prefix===prefix)) return false;
+    // เรียง sub ascending
+    const subs=parsed.map(p=>p.sub).sort((a,b)=>a-b);
+    // เช็คว่าต่อเนื่อง ไม่มีช่องว่าง
+    for(let i=1;i<subs.length;i++){
+      if(subs[i]-subs[i-1]!==1) return false;
+    }
+    return true;
+  }
+
+  const rows=isSequential(sameGroup)?sameGroup:(row?[row]:[]);
+
+  const totalVolume=rows.reduce((sum,r)=>sum+(+(r.volume_liter||0)),0);
+  const totalCurrentVol=rows.reduce((sum,r)=>sum+(r.current_vol!=null?+r.current_vol:+(r.volume_liter||0)),0);
+
+  return{status,row,rows,totalVolume,totalCurrentVol};
 }
 
 function statusColor(s){
@@ -286,41 +328,25 @@ function statusLabel(s){
   return s==='pasteurising'?'PASTEURISE':s==='filling'?'FILLING':s==='curing'?'CURING':s==='empty'?'รอล้าง':s==='cleaned'?'CLEANED':'EMPTY';
 }
 
-function calcVolume(row){
+function calcVolume(row,totalCurrentVol,totalVolume){
   if(!row)return 0;
-  if(row.status==='past_done'||row.status==='ready')return+(row.volume_liter||0);
+  const vol=totalVolume||+(row.volume_liter||0);
+  if(row.status==='past_done'||row.status==='ready')return vol;
   if(!row.past_start_time)return 0;
-  try{
-    const dateStr=row.date||new Date().toISOString().slice(0,10);
-    const[h,m]=row.past_start_time.split(':').map(Number);
-    const start=new Date(`${dateStr}T${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:00`);
-    const now=new Date();
-    const elapsedHr=Math.max(0,(now-start)/3600000);
-    const totalVol=+(row.volume_liter||0);
-    // ดึง speed และ density จาก product master
-    const prod=productMap[row.mix_code]||{};
-    const speed=+(prod.speed_m1||prod.speed||5150);
-    const density=+(prod.density||1.1);
-    const lineName=row.filling_line||'';
-    const lineObj=lines.find(l=>l.name===lineName);
-    const lineSpeed=+(lineObj?.flow_rate||0);
-    const useSpeed=lineSpeed>0?lineSpeed:speed;
-    // สูตร: totalTime = Volume × Density / Speed
-    // ใช้ current_vol จาก Pasteurize อย่างเดียว
-    if(row.current_vol!==undefined&&row.current_vol!==null) return Math.min(totalVol,+row.current_vol);
-    return 0;
-  }catch{return+(row.volume_liter||0);}
+  if(totalCurrentVol!=null)return Math.min(vol,totalCurrentVol);
+  return 0;
 }
 
-function statusPct(status,row,tankId){
+function statusPct(status,row,tankId,totalVolume,totalCurrentVol){
   if(status==='cleaned'||status==='empty')return 0;
   const capacity=getTankCapacity(tankId);
-  if(status==='curing')return Math.min(100,Math.round((+(row?.volume_liter||0)/capacity)*100));
+  const vol=totalVolume||+(row?.volume_liter||0);
+  if(status==='curing')return Math.min(100,Math.round((vol/capacity)*100));
   if(status==='pasteurising'){
-    const vol=calcVolume(row);
-    return Math.min(100,Math.round((vol/capacity)*100));
+    const cv=calcVolume(row,totalCurrentVol,totalVolume);
+    return Math.min(100,Math.round((cv/capacity)*100));
   }
-  if(status==='filling')return Math.min(100,Math.round((+(row?.volume_liter||0)/capacity)*100));
+  if(status==='filling')return Math.min(100,Math.round((vol/capacity)*100));
   return 0;
 }
 
@@ -421,14 +447,16 @@ function tankSVG(tid,pct,col){
 }
 
 function tankCard(tankId){
-  const{status,row}=getTankInfo(tankId);
+  const{status,row,rows,totalVolume,totalCurrentVol}=getTankInfo(tankId);
   const col=statusColor(status);
   const capacity=getTankCapacity(tankId);
-  const pct=statusPct(status,row,tankId);
+  const pct=statusPct(status,row,tankId,totalVolume,totalCurrentVol);
   const stClass=`st-${status==='empty'?'empty':status==='filling'?'filling':status==='pasteurising'?'pasteurising':status==='curing'?'curing':'cleaned'}`;
-  const mixName=row?.mix_name||'';
-  const vol=status!=='empty'&&status!=='cleaned'?calcVolume(row):0;
-  const volTxt=vol>0?`${Math.round(vol).toLocaleString()}L`:'';
+  // แสดงชื่อ mix ทั้งหมด (อาจมีหลาย batch)
+  const mixNames=[...new Set(rows.map(r=>r.mix_name).filter(Boolean))].join(', ');
+  const batchCount=rows.length;
+  const vol=status!=='empty'&&status!=='cleaned'?calcVolume(row,totalCurrentVol,totalVolume):0;
+  const volTxt=totalVolume>0?`${Math.round(totalVolume).toLocaleString()}L`:'';
   const capTxt=`${(capacity/1000).toFixed(0)}kL`;
   const div=document.createElement('div');
   div.className=`tc ${stClass}`;
@@ -438,7 +466,8 @@ function tankCard(tankId){
     <div class="tsw">
       ${tankSVG(tankId,pct,col)}
       <div class="tov">
-        ${mixName?`<div class="tv" style="color:${col};font-size:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60px">${mixName.slice(0,8)}</div>`:''}
+        ${mixNames?`<div class="tv" style="color:${col};font-size:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60px">${mixNames.slice(0,8)}</div>`:''}
+        ${batchCount>1?`<div class="tv" style="color:rgba(255,255,255,.6);font-size:7px">${batchCount} batches</div>`:''}
         ${volTxt?`<div class="tp" style="color:${col}">${volTxt}</div>`:''}
         ${pct>0?`<div class="tp" style="color:rgba(255,255,255,.7)">${pct}%</div>`:''}
       </div>
@@ -450,13 +479,14 @@ function tankCard(tankId){
 // MODAL
 window.openModal=(tankId)=>{
   selectedTank=tankId;
-  const{status,row}=getTankInfo(tankId);
+  const{status,row,rows,totalVolume,totalCurrentVol}=getTankInfo(tankId);
   const capacity=getTankCapacity(tankId);
-  const vol=calcVolume(row);
-  const pct=statusPct(status,row,tankId);
+  const vol=calcVolume(row,totalCurrentVol,totalVolume);
+  const pct=statusPct(status,row,tankId,totalVolume,totalCurrentVol);
   $('modal-tank-num').textContent=`ถัง ${tankId} — capacity ${capacity.toLocaleString()} L`;
+  const batchInfo=rows.length>1?` (${rows.length} batches รวม ${Math.round(totalVolume).toLocaleString()} L)`:'';
   const info=row
-    ?`${statusLabel(status)} — ${row.mix_name||''} ${vol>0?Math.round(vol).toLocaleString()+'L':''} ${pct>0?'('+pct+'%)':''}`
+    ?`${statusLabel(status)} — ${row.mix_name||''}${batchInfo} ${pct>0?'('+pct+'%)':''}`
     :`${statusLabel(status)}`;
   $('modal-tank-info').textContent=info;
   // highlight active
