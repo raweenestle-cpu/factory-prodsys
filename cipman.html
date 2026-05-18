@@ -816,8 +816,8 @@ function buildCard(line){
       </div>
 
       <!-- Queue — card เหมือน Filling -->
-      <div style="flex:1;padding:10px 12px;overflow-y:auto;max-height:340px">
-        <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--t2);letter-spacing:.1em;margin-bottom:8px">⏳ คิวรอผลิต</div>
+      <div style="flex:1;padding:10px 12px;overflow-y:auto;max-height:340px;border:1px solid rgba(6,182,212,.2);border-radius:12px;background:rgba(6,182,212,.03)">
+        <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--cyan);letter-spacing:.1em;margin-bottom:8px">⏳ คิวรอผลิต</div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;align-content:flex-start">
           ${queue.length?queue.map((r,i)=>queueItem(r,i+2)).join('')
             :'<div style="font-family:var(--mono);font-size:12px;color:var(--t3);padding:20px;text-align:center">ไม่มีคิวถัดไป</div>'}
