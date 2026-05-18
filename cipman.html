@@ -620,8 +620,9 @@ function buildCard(line){
   const elapsed=isRunning&&st.start_ts?(Date.now()-st.start_ts)/3600000:0;
   const fr=st.flow_rate||line.flow_rate||300;
   // ใช้ current_vol ที่ Pasteurize เขียนไว้ถ้ามี
-  const agVol=current.current_vol!==undefined&&current.current_vol!==null?+current.current_vol:null;
-  const rem=agVol!==null?Math.max(0,sv-agVol):Math.max(0,sv-(elapsed*fr));
+  // ใช้ current_vol จาก Pasteurize อย่างเดียว
+  const agVol=current.current_vol!==undefined&&current.current_vol!==null?+current.current_vol:0;
+  const rem=Math.max(0,sv-agVol);
   const pct=sv>0?(rem/sv)*100:0;
   const pctC=pctColor(pct);
   const fp=getFP(line.id,'A');

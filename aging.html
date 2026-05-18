@@ -306,12 +306,9 @@ function calcVolume(row){
     const lineSpeed=+(lineObj?.flow_rate||0);
     const useSpeed=lineSpeed>0?lineSpeed:speed;
     // สูตร: totalTime = Volume × Density / Speed
-    // ใช้ current_vol ที่ Pasteurize เขียนไว้ ถ้ามี
-    if(row.current_vol!==undefined&&row.current_vol!==null) return+row.current_vol;
-    // สูตร: totalMin = Volume × Density × 60 / Speed
-    const totalMin=(totalVol*density*60)/useSpeed;
-    const elapsedMin=elapsedHr*60;
-    return totalMin>0?Math.min(totalVol,(elapsedMin/totalMin)*totalVol):0;
+    // ใช้ current_vol จาก Pasteurize อย่างเดียว
+    if(row.current_vol!==undefined&&row.current_vol!==null) return Math.min(totalVol,+row.current_vol);
+    return 0;
   }catch{return+(row.volume_liter||0);}
 }
 
