@@ -242,7 +242,7 @@ main{position:relative;z-index:1;padding:10px 12px;}
 
   /* Queue card — ใช้ style เหมือน Filling */
   --fs:12px;
-  .cq-tc{width:220px;border-radius:10px;overflow:hidden;flex-shrink:0;display:flex;flex-direction:column;background:var(--s2);border:1px solid var(--b1)}
+  .cq-tc{width:240px;border-radius:10px;overflow:hidden;flex-shrink:0;display:flex;flex-direction:column;background:var(--s2);border:1px solid var(--b1)}
   .cq-ch{padding:9px 10px 6px;border-bottom:1px solid var(--b1)}
   .cq-ch-top{display:flex;align-items:baseline;gap:5px;margin-bottom:3px;flex-wrap:wrap}
   .cq-code{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--orange)}
@@ -722,30 +722,31 @@ function buildCard(line){
     const cipOk=(lineStates[line.id]||{})[`cip_q${idx}`]||false;
     const pctC=qPct>50?'#1fd17a':qPct>20?'#f5c842':'#f04f5e';
     return`<div class="cq-tc">
-  <!-- เลขถัง — compact -->
-  <div style="padding:4px 10px;border-bottom:1px solid var(--b1);font-family:var(--mono);font-size:12px;font-weight:800;color:var(--cyan)">${row.aging_tank||'—'}</div>
   <!-- body: ถัง + ข้อมูล+checkbox -->
-  <div style="display:flex;gap:8px;padding:8px 10px;align-items:flex-start">
-    <!-- ถัง SVG เล็ก -->
-    <div style="flex-shrink:0;position:relative">
-      ${tankSVGSm('Q'+line.id+idx,qPct,dot,true)}
-      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;width:90%">
-        <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:${pctC};text-shadow:0 1px 6px rgba(0,0,0,1)">${qRem.toFixed(0)} L</div>
-        <div style="font-family:var(--mono);font-size:10px;font-weight:700;color:${stC};text-shadow:0 1px 4px rgba(0,0,0,1)">${stTxt}</div>
+  <div style="display:flex;gap:10px;padding:10px 12px;align-items:flex-start">
+    <!-- ถัง + เลขถังบนหัว + status ใต้ถัง -->
+    <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px">
+      <div style="font-family:var(--mono);font-size:13px;font-weight:800;color:var(--cyan);background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.3);border-radius:6px;padding:2px 10px">${row.aging_tank||'—'}</div>
+      <div style="position:relative">
+        ${tankSVGSm('Q'+line.id+idx,qPct,dot,true)}
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;width:90%">
+          <div style="font-family:var(--mono);font-size:12px;font-weight:700;color:${pctC};text-shadow:0 1px 6px rgba(0,0,0,1)">${qRem.toFixed(0)} L</div>
+        </div>
       </div>
+      <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:${stC}">${stTxt}</div>
     </div>
     <!-- ข้อมูล + checkbox -->
-    <div style="flex:1;display:flex;flex-direction:column;gap:5px;padding-top:2px">
-      <div style="font-family:var(--mono);font-size:12px;font-weight:700;color:${dot};line-height:1.4">${row.mix_name||'—'} Batch ${row.batch_no||'—'}</div>
-      <div style="font-family:var(--mono);font-size:11px;color:${dot};opacity:.8">รหัส: ${rpc}</div>
-      <div style="font-family:var(--mono);font-size:10px;color:var(--t2)">${qVol.toLocaleString()} L${curingEnd!=='—'?' → '+curingEnd:''}</div>
-      <label style="display:flex;align-items:center;gap:6px;cursor:pointer;margin-top:4px">
+    <div style="flex:1;display:flex;flex-direction:column;gap:6px;padding-top:4px">
+      <div style="font-family:var(--mono);font-size:13px;font-weight:700;color:${dot};line-height:1.5">${row.mix_name||'—'}</div>
+      <div style="font-family:var(--mono);font-size:12px;color:${dot};opacity:.9">Batch ${row.batch_no||'—'} · ${qVol.toLocaleString()} L</div>
+      <div style="font-family:var(--mono);font-size:12px;color:var(--purple);font-weight:700">รหัส: ${rpc}</div>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-top:6px">
         <input type="checkbox" ${hotOk?'checked':''} onchange="setFP('${line.id}','q${idx}','hot_q${idx}',this.checked)" style="width:16px;height:16px;accent-color:var(--green)">
-        <span style="font-family:var(--mono);font-size:12px;font-weight:700;color:${hotOk?'var(--green)':'var(--t2)'}">⭐ น้ำร้อน</span>
+        <span style="font-family:var(--mono);font-size:13px;font-weight:700;color:${hotOk?'var(--green)':'var(--t2)'}">⭐ น้ำร้อน</span>
       </label>
-      <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
         <input type="checkbox" ${cipOk?'checked':''} onchange="setFP('${line.id}','q${idx}','cip_q${idx}',this.checked)" style="width:16px;height:16px;accent-color:var(--green)">
-        <span style="font-family:var(--mono);font-size:12px;font-weight:700;color:${cipOk?'var(--green)':'var(--t2)'}">⭐ CIP</span>
+        <span style="font-family:var(--mono);font-size:13px;font-weight:700;color:${cipOk?'var(--green)':'var(--t2)'}">⭐ CIP</span>
       </label>
     </div>
   </div>
@@ -766,10 +767,10 @@ function buildCard(line){
             return matched?matched.name:pt[cardStatus];
           })()}</span>
         </div>
-        <div style="font-family:var(--mono);font-size:12px;font-weight:700;color:${col};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
-          ${current.mix_code||'—'} | ${current.mix_name||'—'} &nbsp;·&nbsp; Batch ${current.batch_no||'—'} &nbsp;·&nbsp; ${(+(current.volume_liter||0)).toLocaleString()} L
+        <div style="font-family:var(--mono);font-size:13px;font-weight:700;color:${col};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+          ${current.mix_name||'—'} &nbsp;·&nbsp; Batch ${current.batch_no||'—'} &nbsp;·&nbsp; ${(+(current.volume_liter||0)).toLocaleString()} L
         </div>
-        <div style="font-family:var(--mono);font-size:11px;color:var(--purple);font-weight:700;margin-top:2px">รหัส: ${prodCode}</div>
+        <div style="font-family:var(--mono);font-size:12px;color:var(--purple);font-weight:700;margin-top:2px">รหัส: ${prodCode}</div>
       </div>
       <div style="display:flex;gap:4px;flex-shrink:0">
         ${fp.fz?`<span class="ltag hi">🧊 ${fp.fz}</span>`:''}
