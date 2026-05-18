@@ -983,8 +983,8 @@ function renderPlan(p){
             style="flex:1;min-width:88px;font-size:11px${blocked?';opacity:.45;cursor:not-allowed':''}"
             ${time||blocked?"disabled":""}
             title="${blocked?blockMsg:time?'Stamp แล้ว กด ✏️ เพื่อแก้ไข':''}"
-            onclick="${blocked||time?'':``stampTime('${col}','${row.id}','${field}','${p}')``}">
-            ${blocked?'🔒 '+blockMsg:('⏱ '+(time||label))}
+            onclick="stampTime('${col}','${row.id}','${field}','${p}')">
+            ${blocked?'🔒 '+blockMsg:'⏱ '+(time||label)}
           </button>
           ${time?`<button style="flex-shrink:0;font-size:10px;padding:4px 6px;border-radius:5px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:var(--t2);cursor:pointer" onclick="editTimePrompt('${col}','${row.id}','${field}','${time}')">✏️</button><button style="flex-shrink:0;font-size:10px;padding:4px 6px;border-radius:5px;border:1px dashed rgba(240,79,94,.3);background:rgba(240,79,94,.05);color:var(--red);cursor:pointer" onclick="deleteTimePrompt('${col}','${row.id}','${field}')">✕</button>`:""}
         </div>
