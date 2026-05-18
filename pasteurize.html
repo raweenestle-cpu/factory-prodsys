@@ -300,6 +300,7 @@ thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap
         <th rowspan="2" style="color:var(--cyan);min-width:80px">🕐 คาด<br>เสร็จ</th>
         <th rowspan="2" style="color:var(--green);min-width:130px">✅ Past.<br>เสร็จ</th>
         <th rowspan="2" style="color:var(--green)">Eff%</th>
+        <th rowspan="2" style="color:var(--cyan);min-width:100px">ส่งข้อมูล</th>
         <th colspan="3" style="text-align:center;background:#0d1208;color:#86efac;font-size:9px;border-bottom:1px solid var(--b2)">ค่าจริง ☑️</th>
         <th rowspan="2" style="color:var(--cyan)">🪣 Aging<br>Tank</th>
         <th rowspan="2" style="color:var(--purple)">รหัส<br>ผลิต</th>
@@ -338,6 +339,7 @@ thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap
         <th rowspan="2" style="color:var(--cyan);min-width:80px">🕐 คาด<br>เสร็จ</th>
         <th rowspan="2" style="color:var(--green);min-width:130px">✅ Past.<br>เสร็จ</th>
         <th rowspan="2" style="color:var(--green)">Eff%</th>
+        <th rowspan="2" style="color:var(--cyan);min-width:100px">ส่งข้อมูล</th>
         <th colspan="3" style="text-align:center;background:#0d1208;color:#86efac;font-size:9px;border-bottom:1px solid var(--b2)">ค่าจริง ☑️</th>
         <th rowspan="2" style="color:var(--cyan)">🪣 Aging<br>Tank</th>
         <th rowspan="2" style="color:var(--purple)">รหัส<br>ผลิต</th>
@@ -828,10 +830,10 @@ function renderTankVisual(m,rows){
     </defs>
 
     <!-- ══ MIX TANK 1 ══ -->
-    ${mx1.show?(()=>{const p1=productMap[t1Row?.mix_code||'']||{};const c1=t1Done?'#374151':(p1.color||s1.tankCol);const c1d=c1+'88';return drawTank(T1X,TOP,TW,TH,mx1.vol,t1Total,'Mixing 1',(t1Row?.mix_name||'—').slice(0,12),s1,'g1t'+m,'c1t'+m,c1,c1d,mx1.wave);})():`<g transform="translate(${T1X},${TOP})"><rect x="0" y="0" width="${TW}" height="${TH}" rx="10" fill="#060a14" stroke="#1e2535" stroke-width="1.5" stroke-dasharray="4 4"/><text x="${TW/2}" y="-22" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="#3d4560" font-weight="700">Mixing 1</text><text x="${TW/2}" y="${TH/2}" text-anchor="middle" font-family="DM Mono,monospace" font-size="10" fill="#3d4560">รอ Leadman</text></g>`}
+    ${mx1.show?(()=>{const p1=productMap[t1Row?.mix_code||'']||{};const c1=t1Done?'#374151':(p1.color||s1.tankCol);const c1d=c1+'88';return drawTank(T1X,TOP,TW,TH,mx1.vol,t1Total,'Mixing 1',(t1Row?.mix_name||'—').slice(0,12),s1,'g1t'+m,'c1t'+m,c1,c1d,mx1.wave);})():`<g transform="translate(${T1X},${TOP})"><rect x="0" y="0" width="${TW}" height="${TH}" rx="10" fill="#060a14" stroke="rgba(255,255,255,.5)" stroke-width="2"/><text x="${TW/2}" y="-22" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="#3d4560" font-weight="700">Mixing 1</text><text x="${TW/2}" y="${TH/2}" text-anchor="middle" font-family="DM Mono,monospace" font-size="10" fill="#3d4560">รอ Leadman</text></g>`}
 
     <!-- ══ MIX TANK 2 ══ -->
-    ${mx2.show?(()=>{const p2=productMap[t2Row?.mix_code||'']||{};const c2=t2Done?'#374151':(p2.color||s2.tankCol);const c2d=c2+'88';return drawTank(T2X,TOP,TW,TH,mx2.vol,t2Total,'Mixing 2',(t2Row?.mix_name||'—').slice(0,12),s2,'g2t'+m,'c2t'+m,c2,c2d,mx2.wave);})():`<g transform="translate(${T2X},${TOP})"><rect x="0" y="0" width="${TW}" height="${TH}" rx="10" fill="#060a14" stroke="#1e2535" stroke-width="1.5" stroke-dasharray="4 4"/><text x="${TW/2}" y="-22" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="#3d4560" font-weight="700">Mixing 2</text><text x="${TW/2}" y="${TH/2}" text-anchor="middle" font-family="DM Mono,monospace" font-size="10" fill="#3d4560">รอ Leadman</text></g>`}
+    ${mx2.show?(()=>{const p2=productMap[t2Row?.mix_code||'']||{};const c2=t2Done?'#374151':(p2.color||s2.tankCol);const c2d=c2+'88';return drawTank(T2X,TOP,TW,TH,mx2.vol,t2Total,'Mixing 2',(t2Row?.mix_name||'—').slice(0,12),s2,'g2t'+m,'c2t'+m,c2,c2d,mx2.wave);})():`<g transform="translate(${T2X},${TOP})"><rect x="0" y="0" width="${TW}" height="${TH}" rx="10" fill="#060a14" stroke="rgba(255,255,255,.5)" stroke-width="2"/><text x="${TW/2}" y="-22" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="#3d4560" font-weight="700">Mixing 2</text><text x="${TW/2}" y="${TH/2}" text-anchor="middle" font-family="DM Mono,monospace" font-size="10" fill="#3d4560">รอ Leadman</text></g>`}
 
     <!-- ══ AGING TANK ══ -->
     ${drawTank(AGX,TOP,TW,TH,agVol,Math.max(+(agRow?.volume_liter||0),agVol,1),'Aging '+agTank,agName,sAg,'gag'+m,'cag'+m,sAg.tankCol,sAg.tankCol2,isFlowing)}
@@ -946,22 +948,66 @@ async function checkAndArchive(p){
 window.stampTime=async(col,id,field,p)=>{
   const now=nowHHMM();
   const upd={[field]:now};
+
   if(field==="past_start_time") upd.status="pasteurising";
+
   if(field==="past_end_time"){
+    // คำนวณ Eff% ก่อน
+    const row=rows[p]?.find(r=>r.id===id);
+    if(row&&row.past_start_time){
+      const prod=productMap[row.mix_code]||{};
+      const density=+(prod.density||1.1);
+      const speed=+(prod.speed_m1||prod.speed||5150);
+      const totalVol=+(row.volume_liter||0);
+      const reqMin=(totalVol*density*60)/speed;
+
+      const[sh,sm]=row.past_start_time.split(':').map(Number);
+      const[eh,em]=now.split(':').map(Number);
+      let actualMin=(eh*60+em)-(sh*60+sm);
+      if(actualMin<0) actualMin+=1440;
+
+      const eff=actualMin>0?(reqMin/actualMin)*100:0;
+      upd.eff=Math.round(eff*10)/10;
+
+      if(eff<97||eff>100){
+        const msg=eff<97
+          ?`⚠️ Eff% = ${eff.toFixed(1)}% ต่ำกว่า 97% — ใช้เวลานานเกินไป`
+          :`⚠️ Eff% = ${eff.toFixed(1)}% เกิน 100% — เวลาน้อยกว่าที่ควร`;
+        const confirm=window.confirm(`${msg}\n\nยืนยัน Stamp Past.เสร็จหรือไม่?`);
+        if(!confirm) return;
+      }
+    }
     upd.status="past_done";
-    // Reset Mixing fields — document เดียวกัน
     upd.mix_start_time="";
     upd.mix_end_time="";
     upd.glc_actual="";
     upd.sgr_actual="";
     upd.plm_actual="";
-    // ไม่ล้าง mixing_tank เพราะ Leadman กำหนดไว้แล้ว
   }
+
   await updateDoc(doc(db,col,id),upd);
   toast(`Stamp ${now} แล้ว`,"green");
 };
 
-window.editTimePrompt=async(col,id,field,current)=>{
+// ── SUBMIT PAST ───────────────────────────────────────────────────────
+window.submitPast=async(col,id,p,eff,warn)=>{
+  if(warn){
+    const ok=confirm(`⚠️ Eff% = ${eff}% ต่ำกว่า 97%\nยืนยันส่งข้อมูลหรือไม่?`);
+    if(!ok) return;
+  }
+  try{
+    await updateDoc(doc(db,col,id),{
+      status:'past_done',
+      eff:eff,
+      mix_start_time:"",
+      mix_end_time:"",
+      glc_actual:"",
+      sgr_actual:"",
+      plm_actual:"",
+    });
+    toast(`ส่งข้อมูลแล้ว (Eff ${eff}%)`,"green");
+  }catch(e){toast("เกิดข้อผิดพลาด: "+e.message,"red");}
+};
   const val=prompt("แก้ไขเวลา (HH:MM) :",current||"");
   if(val===null)return;
   const clean=val.trim();
@@ -1013,16 +1059,19 @@ function renderPlan(p){
     // คาดเสร็จ
     function addMin(t,m){if(!t||!m)return"—";const[h,mn]=t.split(":").map(Number);const tot=h*60+mn+m;return String(Math.floor(tot/60)%24).padStart(2,"0")+":"+String(tot%60).padStart(2,"0");}
     const estFinish=row.past_start_time?addMin(row.past_start_time,reqMin):"—";
-    // Efficiency
+    // Efficiency — แสดง real-time ระหว่าง past. และหลัง stamp เสร็จ
     let effHTML="—";
-    if(row.past_start_time&&row.past_end_time&&reqMin>0){
+    if(row.past_start_time&&reqMin>0){
       const[sh,sm]=row.past_start_time.split(":").map(Number);
-      const[eh,em]=row.past_end_time.split(":").map(Number);
+      const endTime=row.past_end_time||nowHHMM();
+      const[eh,em]=endTime.split(":").map(Number);
       let actualMin=(eh*60+em)-(sh*60+sm);
       if(actualMin<0)actualMin+=1440;
       const eff=actualMin>0?(reqMin/actualMin*100):0;
-      const effColor=(eff>=97&&eff<100)?"#22c55e":"#ef4444";
-      effHTML=`<span style="font-family:var(--mono);font-size:12px;font-weight:700;color:${effColor}">${eff.toFixed(1)}%</span>`;
+      const effColor=eff>=97&&eff<=100?"#22c55e":eff>100?"#f97316":"#ef4444";
+      const effLabel=eff>=97&&eff<=100?"✅":eff>100?"⚠️":"❌";
+      effHTML=`<span style="font-family:var(--mono);font-size:12px;font-weight:700;color:${effColor}">${effLabel} ${eff.toFixed(1)}%</span>`;
+    }
     }
 
     // เช็ค checkbox ก่อนให้ Stamp เริ่ม Past.
@@ -1069,6 +1118,30 @@ function renderPlan(p){
         ? stampCell("past_end_time",row.past_end_time,"Stamp เสร็จ")
         : `<td><span style="font-family:var(--mono);font-size:10px;color:var(--t3)">—</span></td>`}
       <td>${effHTML}</td>
+      <!-- ปุ่มส่งข้อมูล -->
+      <td style="padding:4px 6px;min-width:100px">
+        ${(()=>{
+          if(!row.past_end_time) return '<span style="font-family:var(--mono);font-size:10px;color:var(--t3)">รอ Stamp</span>';
+          const prod2=productMap[row.mix_code]||{};
+          const spd2=+(prod2.speed_m1||prod2.speed||5150);
+          const den2=+(prod2.density||1.1);
+          const vol2=+(row.volume_liter||0);
+          const req2=vol2>0&&spd2>0?Math.round(vol2*den2*60/spd2):0;
+          const[sh2,sm2]=row.past_start_time.split(':').map(Number);
+          const[eh2,em2]=row.past_end_time.split(':').map(Number);
+          let act2=(eh2*60+em2)-(sh2*60+sm2);
+          if(act2<0)act2+=1440;
+          const eff2=act2>0?(req2/act2)*100:0;
+          if(eff2>100){
+            return `<button disabled style="width:100%;padding:6px 8px;border-radius:8px;font-family:var(--mono);font-size:11px;font-weight:700;border:1px solid rgba(240,79,94,.3);background:rgba(240,79,94,.08);color:#ef4444;cursor:not-allowed">🔒 ส่งไม่ได้<br>(Eff>${eff2.toFixed(1)}%)</button>`;
+          }
+          const warn=eff2<97;
+          return `<button onclick="submitPast('${col}','${row.id}','${p}',${eff2.toFixed(1)},${warn})"
+            style="width:100%;padding:6px 8px;border-radius:8px;font-family:var(--mono);font-size:12px;font-weight:700;border:1px solid ${warn?'rgba(234,179,8,.4)':'rgba(34,197,94,.4)'};background:${warn?'rgba(234,179,8,.08)':'rgba(34,197,94,.08)'};color:${warn?'#fde047':'#4ade80'};cursor:pointer">
+            ${warn?'⚠️':'✅'} ส่งข้อมูล<br><span style="font-size:10px">(Eff ${eff2.toFixed(1)}%)</span>
+          </button>`;
+        })()}
+      </td>
       <td style="background:#141a0c;padding:5px 6px">
         <div style="display:flex;align-items:center;gap:4px">
           <input class="ci" style="width:58px;text-align:right;background:#141a0c;border-color:rgba(166,200,90,.4);color:#86efac" type="number" step="0.1" value="${row.glc_actual||""}" placeholder="0" onchange="_up('${col}','${row.id}','glc_actual',+this.value)">
