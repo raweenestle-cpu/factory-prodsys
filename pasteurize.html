@@ -845,11 +845,12 @@ function renderTankVisual(m,rows){
   // Aging bottom pipe down from 195 to 20 (enter from bottom going up)
 
   const TW=110,TH=130,TOP=40;
-  const T1X=30,T2X=165,AGX=370;
+  const T1X=30,T2X=165,AGX=470; // AGX ขยับออกไปจาก 370 → 470
   const T1CX=T1X+TW/2,T2CX=T2X+TW/2,AGCX=AGX+TW/2;
   const TBOT=TOP+TH;
   const HPIPE=TBOT+45;
   const PUMPX=320,PUMPY=HPIPE;
+  const HOMOX=395,HOMOY=HPIPE; // ตำแหน่ง Homogenizer ระหว่าง pump และ aging
 
   el.innerHTML=`<div style="display:grid;grid-template-columns:220px 1fr;gap:12px;margin-bottom:4px">
   <!-- ══ BAR CHART LEFT ══ -->
@@ -902,7 +903,7 @@ function renderTankVisual(m,rows){
       ${isFlowing?`🟢 Pasteurising · ${agTime}`:'⚪ Standby'}
     </span>
   </div>
-  <svg viewBox="0 0 560 270" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;max-height:200px">
+  <svg viewBox="0 0 660 270" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;max-height:200px">
     <defs>
       <filter id="gfx${m}" x="-40%" y="-40%" width="180%" height="180%">
         <feGaussianBlur stdDeviation="2.5" result="b"/>
@@ -960,9 +961,43 @@ function renderTankVisual(m,rows){
     <!-- ══ PUMP ══ -->
     ${pump(PUMPX,PUMPY,isFlowing)}
     <text x="${PUMPX}" y="${PUMPY+36}" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" font-weight="700" fill="${isFlowing?ac:'#3d4560'}">PUMP</text>
-    <!-- pump → aging -->
-    ${pipe(`M ${PUMPX+22},${HPIPE} L ${AGCX},${HPIPE}`,isFlowing)}
-    <text x="${PUMPX}" y="${PUMPY+36}" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" font-weight="700" fill="${isFlowing?ac:'#3d4560'}">PUMP</text>
+    <!-- pump → homogenizer -->
+    ${pipe(`M ${PUMPX+22},${HPIPE} L ${HOMOX-22},${HPIPE}`,isFlowing)}
+    <!-- ══ HOMOGENIZER ══ -->
+    ${(()=>{
+      const curProd=agRow?productMap[agRow.mix_code]||{}:{};
+      const h1=curProd.homo_stage1||0;
+      const h2=curProd.homo_stage2||0;
+      const hc=isFlowing?'#a78bfa':'#3d4560';
+      const hcb=isFlowing?'rgba(167,139,250,.15)':'rgba(0,0,0,.3)';
+      return`<g>
+        <!-- กรอบ -->
+        <rect x="${HOMOX-22}" y="${HOMOY-22}" width="44" height="44" rx="8" fill="${hcb}" stroke="${hc}" stroke-width="2"/>
+        <!-- วงกลมกลาง -->
+        <circle cx="${HOMOX}" cy="${HOMOY}" r="13" fill="none" stroke="${hc}" stroke-width="1.5"/>
+        <!-- ใบพัด 4 ทิศ -->
+        <line x1="${HOMOX-9}" y1="${HOMOY}" x2="${HOMOX+9}" y2="${HOMOY}" stroke="${hc}" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="${HOMOX}" y1="${HOMOY-9}" x2="${HOMOX}" y2="${HOMOY+9}" stroke="${hc}" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="${HOMOX-6}" y1="${HOMOY-6}" x2="${HOMOX+6}" y2="${HOMOY+6}" stroke="${hc}" stroke-width="1.5" stroke-linecap="round" opacity=".5"/>
+        <line x1="${HOMOX+6}" y1="${HOMOY-6}" x2="${HOMOX-6}" y2="${HOMOY+6}" stroke="${hc}" stroke-width="1.5" stroke-linecap="round" opacity=".5"/>
+        <!-- จุดกลาง -->
+        <circle cx="${HOMOX}" cy="${HOMOY}" r="3" fill="${hc}"/>
+        <!-- pulse เมื่อทำงาน -->
+        ${isFlowing?`<circle cx="${HOMOX}" cy="${HOMOY}" r="13" fill="none" stroke="#a78bfa" stroke-width="1.5" opacity="0">
+          <animate attributeName="r" from="13" to="24" dur="1.5s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" from="0.6" to="0" dur="1.5s" repeatCount="indefinite"/>
+        </circle>`:''}
+        <!-- label HOMO -->
+        <text x="${HOMOX}" y="${HOMOY+34}" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" font-weight="700" fill="${hc}">HOMO</text>
+        <!-- Stage 1 + Stage 2 -->
+        ${h1||h2?`
+        <rect x="${HOMOX-38}" y="${HOMOY+40}" width="76" height="28" rx="5" fill="rgba(0,0,0,.5)" stroke="${hc}" stroke-width="1" opacity=".8"/>
+        <text x="${HOMOX}" y="${HOMOY+51}" text-anchor="middle" font-family="DM Mono,monospace" font-size="7.5" fill="${h1?hc:'#3d4560'}" font-weight="700">St.1: ${h1?h1+' psi':'—'}</text>
+        <text x="${HOMOX}" y="${HOMOY+62}" text-anchor="middle" font-family="DM Mono,monospace" font-size="7.5" fill="${h2?hc:'#3d4560'}" font-weight="700">St.2: ${h2?h2+' psi':'—'}</text>`:''}
+      </g>`;
+    })()}
+    <!-- homogenizer → aging -->
+    ${pipe(`M ${HOMOX+22},${HPIPE} L ${AGCX},${HPIPE}`,isFlowing)}
 
   </svg>
 </div>
