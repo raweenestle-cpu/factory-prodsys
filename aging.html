@@ -157,6 +157,22 @@ nav{display:flex;align-items:center;height:52px;background:var(--s1);border-bott
   <div class="modal">
     <div class="modal-title" id="modal-tank-num">ถัง T01</div>
     <div class="modal-sub" id="modal-tank-info">กำลัง Filling — Milo 3,000 L</div>
+
+    <!-- ปรับปริมาตร -->
+    <div style="margin:12px 0;padding:12px;background:rgba(6,182,212,.06);border:1px solid rgba(6,182,212,.2);border-radius:10px">
+      <div style="font-family:'DM Mono',monospace;font-size:11px;color:#06b6d4;font-weight:700;margin-bottom:8px;letter-spacing:.04em">📊 ปรับปริมาตรจริงในถัง (L)</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <input id="modal-vol-input" type="number" min="0" step="100"
+          style="flex:1;padding:8px 10px;border-radius:7px;border:1.5px solid rgba(6,182,212,.4);background:#060a14;color:white;font-family:'DM Mono',monospace;font-size:14px;font-weight:700;text-align:right"
+          placeholder="กรอก volume L">
+        <button onclick="saveCurrentVol()"
+          style="padding:8px 16px;border-radius:7px;border:none;background:#06b6d4;color:#060a14;font-family:'DM Mono',monospace;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap">
+          ✅ บันทึก
+        </button>
+      </div>
+      <div id="modal-vol-hint" style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,.4);margin-top:6px"></div>
+    </div>
+
     <div class="stat-btns">
       <button class="stat-btn" onclick="setTankStatus('pasteurising')">🔵 กำลัง Pasteurize</button>
       <button class="stat-btn" onclick="setTankStatus('filling')">🟢 กำลัง Filling</button>
@@ -174,7 +190,7 @@ nav{display:flex;align-items:center;height:52px;background:var(--s1);border-bott
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import{getAuth,signOut,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import{getFirestore,collection,doc,onSnapshot,setDoc,getDocs,query,where,deleteDoc}
+import{getFirestore,collection,doc,onSnapshot,setDoc,getDocs,query,where,deleteDoc,updateDoc}
   from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const app=initializeApp({apiKey:"AIzaSyC3f6jMuhugE6BNfRfkpOA9BMrIKWR9YgQ",authDomain:"production-filling.firebaseapp.com",projectId:"production-filling",storageBucket:"production-filling.firebasestorage.app",messagingSenderId:"89098393458",appId:"1:89098393458:web:b723f2886e8a341935afeb"});
@@ -205,16 +221,24 @@ async function init(){
     if(p.mix_code) productMap[p.mix_code]={color:p.color||'#3b82f6',...p};
   });
 
-  // โหลด planRows ที่ active
-  const today=new Date().toISOString().slice(0,10);
-  const[s1,s2]=await Promise.all([
-    getDocs(query(collection(db,'production_plans'),where('status','in',['pasteurising','past_done','ready']))),
-    getDocs(query(collection(db,'production_plans_m2'),where('status','in',['pasteurising','past_done','ready']))),
-  ]);
-  planRows=[
-    ...s1.docs.map(d=>({...d.data(),_col:'production_plans'})),
-    ...s2.docs.map(d=>({...d.data(),_col:'production_plans_m2'}))
-  ];
+  // listen planRows real-time ทั้งสอง collection พร้อมกัน
+  let rows1=[],rows2=[];
+  onSnapshot(
+    query(collection(db,'production_plans'),where('status','in',['pasteurising','past_done','ready'])),
+    snap=>{
+      rows1=snap.docs.map(d=>({...d.data(),id:d.id,_col:'production_plans'}));
+      planRows=[...rows1,...rows2];
+      renderAll();
+    }
+  );
+  onSnapshot(
+    query(collection(db,'production_plans_m2'),where('status','in',['pasteurising','past_done','ready'])),
+    snap=>{
+      rows2=snap.docs.map(d=>({...d.data(),id:d.id,_col:'production_plans_m2'}));
+      planRows=[...rows1,...rows2];
+      renderAll();
+    }
+  );
 
   // listen tank states
   onSnapshot(collection(db,'aging_tank_states'),snap=>{
@@ -222,9 +246,6 @@ async function init(){
     snap.docs.forEach(d=>{tankStates[d.id]={id:d.id,...d.data()};});
     renderAll();
   });
-
-  // refresh ทุก 1 นาที เพื่ออัปเดต level pasteurising
-  setInterval(()=>renderAll(),60000);
 }
 
 const BANGCHAN_TANKS=Array.from({length:34},(_,i)=>`T${String(i+1).padStart(2,'0')}`);
@@ -566,6 +587,20 @@ window.openModal=(tankId)=>{
     ?`${statusLabel(status)} — ${row.mix_name||''}${batchInfo} ${pct>0?'('+pct+'%)':''}`
     :`${statusLabel(status)}`;
   $('modal-tank-info').textContent=info;
+
+  // แสดง current_vol ปัจจุบันใน input
+  const volInput=$('modal-vol-input');
+  const volHint=$('modal-vol-hint');
+  if(volInput){
+    volInput.value=totalCurrentVol!=null?Math.round(totalCurrentVol):'';
+    volInput.max=capacity;
+    if(totalVolume>0){
+      volHint.textContent=`ระบบแสดง: ${Math.round(totalCurrentVol||0).toLocaleString()} L จาก ${Math.round(totalVolume).toLocaleString()} L (capacity ${capacity.toLocaleString()} L)`;
+    } else {
+      volHint.textContent=`capacity ถัง: ${capacity.toLocaleString()} L`;
+    }
+  }
+
   // highlight active
   document.querySelectorAll('.stat-btn').forEach(b=>{
     b.className='stat-btn';
@@ -576,6 +611,30 @@ window.openModal=(tankId)=>{
     if(b.textContent.includes('ว่าง')&&status==='empty')b.classList.add('active-empty');
   });
   $('tank-modal').classList.add('show');
+};
+
+window.saveCurrentVol=async()=>{
+  if(!selectedTank)return;
+  const volInput=$('modal-vol-input');
+  const newVol=+(volInput?.value||0);
+  if(isNaN(newVol)||newVol<0){toast('กรุณากรอกตัวเลขที่ถูกต้อง','red');return;}
+  const capacity=getTankCapacity(selectedTank);
+  if(newVol>capacity){toast(`เกิน capacity ถัง (${capacity.toLocaleString()} L)`,'red');return;}
+
+  // อัปเดต current_vol ใน row ล่าสุดของถังนั้น
+  const tankRows=planRows.filter(r=>r.aging_tank===selectedTank);
+  if(!tankRows.length){toast('ไม่พบข้อมูลในถังนี้','red');return;}
+
+  try{
+    // อัปเดตทุก row ที่ผูกกับถังนี้ให้ current_vol รวมเท่ากับ newVol
+    const updates=tankRows.map(r=>
+      updateDoc(doc(db,r._col,r.id),{current_vol:newVol})
+    );
+    await Promise.all(updates);
+    toast(`✅ อัปเดต volume ถัง ${selectedTank} → ${newVol.toLocaleString()} L`,'green');
+    const hint=$('modal-vol-hint');
+    if(hint) hint.textContent=`บันทึกแล้ว: ${newVol.toLocaleString()} L`;
+  }catch(e){toast('บันทึกไม่สำเร็จ: '+e.message,'red');}
 };
 
 window.clearTank=async()=>{
