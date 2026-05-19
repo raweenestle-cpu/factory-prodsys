@@ -863,8 +863,8 @@ function renderTankVisual(m,rows){
       <!-- border overlay -->
       <rect x="0" y="0" width="${tw}" height="${th}" rx="10" fill="none" stroke="${borderCol}" stroke-width="2"/>
       <!-- neck/motor top — สีเขียวเมื่อมีของ (มอเตอร์กวน) -->
-      <rect x="${tw/2-13}" y="-10" width="26" height="12" rx="3" fill="${motorFill}" stroke="${motorCol}" stroke-width="2"/>
-      <rect x="${tw/2-17}" y="-18" width="34" height="9" rx="3" fill="${motorFill}" stroke="${motorCol}" stroke-width="2"/>
+      <rect x="${tw/2-13}" y="-10" width="26" height="12" rx="3" fill="${hasLiq?'#16a34a':'#060a14'}" stroke="${hasLiq?'#22c55e':borderCol}" stroke-width="2"/>
+      <rect x="${tw/2-17}" y="-18" width="34" height="9" rx="3" fill="${hasLiq?'#16a34a':'#060a14'}" stroke="${hasLiq?'#22c55e':borderCol}" stroke-width="2"/>
       ${hasLiq?`<circle cx="${tw/2}" cy="-13" r="4" fill="#22c55e" opacity=".9"/>
       <circle cx="${tw/2}" cy="-13" r="4" fill="none" stroke="#22c55e" stroke-width="1.5" opacity="0">
         <animate attributeName="r" from="4" to="10" dur="1.5s" repeatCount="indefinite"/>
