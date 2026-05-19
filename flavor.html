@@ -508,7 +508,30 @@ function renderPlan(m){
     return;
   }
   tbody.innerHTML='';
-  rows[m].forEach((row,i)=>{
+
+  // Group rows ที่มี process_order + mix_code เดียวกัน
+  const grouped=[];
+  const seen=new Set();
+  rows[m].forEach(row=>{
+    const key=row.process_order&&row.mix_code?`${row.process_order}__${row.mix_code}`:'';
+    if(key&&seen.has(key)) return; // ข้ามแถวที่รวมแล้ว
+    if(key){
+      seen.add(key);
+      const group=rows[m].filter(r=>r.process_order===row.process_order&&r.mix_code===row.mix_code);
+      if(group.length>1){
+        // รวม volume และ batch_no
+        const totalVol=group.reduce((sum,r)=>sum+(+(r.volume_liter||0)),0);
+        // ตัด /1 /2 /3 ออก เหลือแค่ prefix เช่น "1"
+        const batchBase=String(row.batch_no||'').replace(/[\/\-]\d+$/,'');
+        const merged={...row, volume_liter:totalVol, batch_no:batchBase, _merged:group};
+        grouped.push(merged);
+        return;
+      }
+    }
+    grouped.push(row);
+  });
+
+  grouped.forEach((row,i)=>{
     const p=productMap[row.mix_code]||{};
     const agingHr=+(p.aging_time||4);
     const curingEnd=row.past_end_time?calcCuringEnd(row.past_end_time,agingHr,row.date):'—';
