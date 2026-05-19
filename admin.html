@@ -1012,12 +1012,12 @@ window.saveEditProduct=async()=>{
 window.deleteProduct=async(id,code)=>{
   if(!confirm(`ลบผลิตภัณฑ์ "${code}"?`))return;
   await deleteDoc(doc(db,"products",id));
+  toast(`ลบ ${code} แล้ว`,"green");
+};
 
 // Color picker live preview
 document.getElementById("np-color").addEventListener("input",e=>{document.getElementById("np-color-val").textContent=e.target.value;});
 document.getElementById("ep-color").addEventListener("input",e=>{document.getElementById("ep-color-val").textContent=e.target.value;});
-  toast(`ลบ ${code} แล้ว`,"green");
-};
 
 // ── PAGE / MODAL ──────────────────────────────────────────────────────
 // ── IDLE TIMEOUT SETTINGS ─────────────────────────────────────────────
