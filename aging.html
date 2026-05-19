@@ -251,14 +251,35 @@ function renderAll(){
     div.appendChild(grid);bc.appendChild(div);
   });
 
-  // TWIN
+  // TWIN — hardcode layout 2×2 ตามตำแหน่งจริง
   const tw=$('twin-grid');tw.innerHTML='';
-  getLineGroups('twin',TWIN_ALL).forEach(g=>{
-    const div=document.createElement('div');div.className='line-group';
-    div.innerHTML=`<div class="line-title">🏭 ${g.name}</div>`;
-    const grid=document.createElement('div');grid.className='tank-grid';
-    g.tanks.forEach(t=>grid.appendChild(tankCard(t)));
-    div.appendChild(grid);tw.appendChild(div);
+
+  const TWIN_LINES=[
+    {name:'Hoyer',   tanks:['T65','T75','T66','T76'], color:'#f97316', icon:'🍦'},
+    {name:'Extru 3', tanks:['T67','T77','T68','T78'], color:'#a855f7', icon:'🍧'},
+    {name:'Glacé',   tanks:['T63','T73','T64','T74'], color:'#06b6d4', icon:'🧊'},
+    {name:'Scooping',tanks:['T61','T71','T62','T72'], color:'#22c55e', icon:'🍨'},
+  ];
+
+  // แถวบน: Hoyer + Extru 3
+  // แถวล่าง: Glacé + Scooping
+  const rows2=[[TWIN_LINES[0],TWIN_LINES[1]],[TWIN_LINES[2],TWIN_LINES[3]]];
+  rows2.forEach(rowLines=>{
+    const rowDiv=document.createElement('div');
+    rowDiv.style.cssText='display:flex;gap:12px;margin-bottom:14px;flex-wrap:wrap';
+    rowLines.forEach(line=>{
+      const lineDiv=document.createElement('div');
+      lineDiv.style.cssText=`flex:1;min-width:0;border:2px solid ${line.color}44;border-radius:12px;padding:8px 10px;background:${line.color}08`;
+      lineDiv.innerHTML=`<div style="font-family:'DM Mono',monospace;font-size:12px;font-weight:800;color:${line.color};letter-spacing:.06em;padding:0 0 8px 0;display:flex;align-items:center;gap:6px;border-bottom:1px solid ${line.color}30;margin-bottom:8px">
+        <span>${line.icon}</span><span>${line.name}</span>
+      </div>`;
+      const grid=document.createElement('div');
+      grid.style.cssText='display:flex;gap:8px;flex-wrap:wrap';
+      line.tanks.forEach(t=>grid.appendChild(tankCard(t)));
+      lineDiv.appendChild(grid);
+      rowDiv.appendChild(lineDiv);
+    });
+    tw.appendChild(rowDiv);
   });
 }
 
@@ -379,8 +400,8 @@ function tankSVG(tid,pct,col,wave=false,hasLiq=false){
   const uid='ag'+tid.replace(/\D/g,'');
   const gid='g'+uid,cid='c'+uid,wid='w'+uid,w2id='w2'+uid;
 
-  const legCol=hasLiq?rgba(col,.8):'#4a5568';
-  const legFill=hasLiq?rgba(col,.15):'#1e2535';
+  const legCol=hasLiq?col:'#4a5568';
+  const legFill=hasLiq?rgba(col,.35):'#1e2535';
   const motorFill=hasLiq?'#16a34a':'#060a14';
   const motorStroke=hasLiq?'#22c55e':'#1e2d4a';
 
