@@ -428,6 +428,16 @@ tbody td{padding:7px 10px;vertical-align:middle}
         <div style="font-family:var(--mono);font-size:11px;color:var(--t2)">PIN ปัจจุบัน: <span id="pin-current" style="color:var(--cyan);font-weight:700">****</span></div>
       </div>
     </div>
+    <div style="background:var(--s2);border:1px solid rgba(99,102,241,.3);border-radius:12px;padding:18px 20px;margin-top:4px">
+      <div style="font-family:var(--mono);font-size:13px;font-weight:700;color:#a5b4fc;margin-bottom:6px">🔄 คำนวณ current_vol ใหม่</div>
+      <div style="font-size:12px;color:var(--t2);margin-bottom:14px">คำนวณ current_vol แบบ cumulative ใหม่ทั้งหมด — ใช้เมื่อตัวเลขไม่ตรงกัน</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <input id="recalc-pwd" class="ci" type="password" placeholder="รหัสผ่าน Admin" style="width:160px">
+        <button class="btn btn-b" onclick="recalcCurrentVol()" style="background:rgba(99,102,241,.15);border-color:rgba(99,102,241,.4);color:#a5b4fc">🔄 คำนวณใหม่</button>
+      </div>
+      <div id="recalc-status" style="font-family:var(--mono);font-size:12px;color:var(--green);margin-top:8px"></div>
+    </div>
+
     <div style="background:var(--s2);border:1px solid rgba(240,79,94,.3);border-radius:12px;padding:18px 20px;margin-top:4px">
       <div style="font-family:var(--mono);font-size:13px;font-weight:700;color:#ef4444;margin-bottom:6px">🗑️ เคลียร์ถังการผลิต</div>
       <div style="font-size:12px;color:var(--t2);margin-bottom:14px">เคลียร์ข้อมูลเฉพาะถังที่เลือก — ต้องใส่รหัสผ่าน Admin ก่อน</div>
@@ -1021,6 +1031,64 @@ document.getElementById("ep-color").addEventListener("input",e=>{document.getEle
 
 // ── PAGE / MODAL ──────────────────────────────────────────────────────
 // ── IDLE TIMEOUT SETTINGS ─────────────────────────────────────────────
+// ── RECALC CURRENT_VOL ────────────────────────────────────────────────
+window.recalcCurrentVol=async()=>{
+  const pwd=$('recalc-pwd').value;
+  if(!pwd){toast('กรุณาใส่รหัสผ่าน','red');return;}
+  try{
+    const snap=await getDoc(doc(db,'settings','admin_password'));
+    const stored=snap.exists()?snap.data().password:'';
+    if(stored&&pwd!==stored){toast('รหัสผ่านไม่ถูกต้อง','red');return;}
+  }catch{}
+
+  const st=$('recalc-status');
+  st.textContent='⏳ กำลังคำนวณ...';
+
+  try{
+    const[s1,s2]=await Promise.all([
+      getDocs(collection(db,'production_plans')),
+      getDocs(collection(db,'production_plans_m2')),
+    ]);
+    const allRows=[
+      ...s1.docs.map(d=>({id:d.id,_col:'production_plans',...d.data()})),
+      ...s2.docs.map(d=>({id:d.id,_col:'production_plans_m2',...d.data()})),
+    ].filter(r=>r.mix_code&&r.status!=='sent_filling');
+
+    // Group โดย process_order + aging_tank
+    const groups={};
+    allRows.forEach(r=>{
+      const key=r.process_order&&r.aging_tank?`${r.process_order}__${r.aging_tank}`:`solo_${r.id}`;
+      if(!groups[key])groups[key]=[];
+      groups[key].push(r);
+    });
+
+    let updated=0;
+    for(const[key,group] of Object.entries(groups)){
+      if(group.length<=1)continue;
+      // เรียงตาม batch_no
+      group.sort((a,b)=>{
+        const pa=String(a.batch_no||'').match(/(\d+)$/);
+        const pb=String(b.batch_no||'').match(/(\d+)$/);
+        return (pa?+pa[1]:0)-(pb?+pb[1]:0);
+      });
+      // คำนวณ cumulative
+      let cumVol=0;
+      for(const r of group){
+        cumVol+=+(r.volume_liter||0);
+        if(r.status==='past_done'||r.status==='ready'||r.status==='pasteurising'){
+          await updateDoc(doc(db,r._col,r.id),{current_vol:cumVol});
+          updated++;
+        }
+      }
+    }
+    st.textContent=`✅ อัปเดต ${updated} records แล้ว`;
+    toast(`✅ คำนวณใหม่แล้ว ${updated} records`,'green');
+  }catch(e){
+    st.textContent='❌ Error: '+e.message;
+    toast('Error: '+e.message,'red');
+  }
+};
+
 // ── CLEAR TANK ────────────────────────────────────────────────────────
 window.loadClearList=async()=>{
   const pwd=$('clear-pwd').value;
