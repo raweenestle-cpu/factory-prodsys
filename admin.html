@@ -369,6 +369,8 @@ tbody td{padding:7px 10px;vertical-align:middle}
     <div class="modal-field"><div class="modal-label">Aging Time (hr)</div><input id="ep-aging" class="ci" type="number" step="0.5"></div>
     <div class="modal-field"><div class="modal-label">Speed M1 (L/hr)</div><input id="ep-spd1" class="ci" type="number"></div>
     <div class="modal-field"><div class="modal-label">Speed M2 (L/hr)</div><input id="ep-spd2" class="ci" type="number"></div>
+    <div class="modal-field"><div class="modal-label">🔬 Homo Stage 1 (psi)</div><input id="ep-homo1" class="ci" type="number" placeholder="เช่น 2500"></div>
+    <div class="modal-field"><div class="modal-label">🔬 Homo Stage 2 (psi)</div><input id="ep-homo2" class="ci" type="number" placeholder="เช่น 500"></div>
     <div class="modal-field"><div class="modal-label">Homo Stage 1</div><input id="ep-homo1" class="ci" type="number"></div>
     <div class="modal-field"><div class="modal-label">Homo Stage 2</div><input id="ep-homo2" class="ci" type="number"></div>
     <div class="modal-field"><div class="modal-label">Type</div><input id="ep-type" class="ci" placeholder="เช่น UHT, Pasteurised"></div>
@@ -426,8 +428,19 @@ tbody td{padding:7px 10px;vertical-align:middle}
         <div style="font-family:var(--mono);font-size:11px;color:var(--t2)">PIN ปัจจุบัน: <span id="pin-current" style="color:var(--cyan);font-weight:700">****</span></div>
       </div>
     </div>
+    <div style="background:var(--s2);border:1px solid rgba(240,79,94,.3);border-radius:12px;padding:18px 20px;margin-top:4px">
+      <div style="font-family:var(--mono);font-size:13px;font-weight:700;color:#ef4444;margin-bottom:6px">🗑️ เคลียร์ถังการผลิต</div>
+      <div style="font-size:12px;color:var(--t2);margin-bottom:14px">เคลียร์ข้อมูลเฉพาะถังที่เลือก — ต้องใส่รหัสผ่าน Admin ก่อน</div>
+      <!-- password -->
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+        <input id="clear-pwd" class="ci" type="password" placeholder="รหัสผ่าน Admin" style="width:160px">
+        <button class="btn btn-b" onclick="loadClearList()">🔓 โหลดรายการ</button>
+      </div>
+      <!-- รายการถัง -->
+      <div id="clear-list" style="display:flex;flex-direction:column;gap:6px"></div>
+    </div>
+
     <div style="background:var(--s2);border:1px solid var(--b1);border-radius:12px;padding:18px 20px">
-      <div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--text);margin-bottom:12px">📋 ข้อมูลระบบ</div>
       <div style="display:flex;flex-direction:column;gap:8px">
         <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:12px">
           <span style="color:var(--t2)">ระบบ</span>
@@ -1008,7 +1021,57 @@ document.getElementById("ep-color").addEventListener("input",e=>{document.getEle
 
 // ── PAGE / MODAL ──────────────────────────────────────────────────────
 // ── IDLE TIMEOUT SETTINGS ─────────────────────────────────────────────
-window.saveReportPin=async()=>{
+// ── CLEAR TANK ────────────────────────────────────────────────────────
+window.loadClearList=async()=>{
+  const pwd=$('clear-pwd').value;
+  if(!pwd){toast('กรุณาใส่รหัสผ่าน','red');return;}
+  // เช็ค password จาก Firebase
+  try{
+    const snap=await getDoc(doc(db,'settings','admin_password'));
+    const stored=snap.exists()?snap.data().password:'';
+    if(stored&&pwd!==stored){toast('รหัสผ่านไม่ถูกต้อง','red');return;}
+  }catch{}
+
+  // โหลด production_plans ทั้งหมดที่ active
+  const el=$('clear-list');
+  el.innerHTML='<div style="font-family:var(--mono);font-size:11px;color:var(--t3)">กำลังโหลด...</div>';
+  try{
+    const [s1,s2]=await Promise.all([
+      getDocs(collection(db,'production_plans')),
+      getDocs(collection(db,'production_plans_m2')),
+    ]);
+    const rows=[
+      ...s1.docs.map(d=>({id:d.id,_col:'production_plans',...d.data()})),
+      ...s2.docs.map(d=>({id:d.id,_col:'production_plans_m2',...d.data()})),
+    ].filter(r=>r.status&&r.status!=='sent_filling'&&r.mix_code);
+
+    if(!rows.length){el.innerHTML='<div style="font-family:var(--mono);font-size:12px;color:var(--t3)">ไม่มีข้อมูลที่ active</div>';return;}
+
+    el.innerHTML=rows.map(r=>`
+      <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--s3);border:1px solid var(--b1);border-radius:8px">
+        <div style="flex:1;font-family:var(--mono);font-size:12px">
+          <span style="color:var(--cyan);font-weight:700">${r.mix_code||'—'}</span>
+          <span style="color:var(--t2);margin:0 6px">|</span>
+          <span style="color:var(--text)">${r.mix_name||'—'}</span>
+          <span style="color:var(--t3);margin:0 6px">Batch ${r.batch_no||'—'} · ${(+(r.volume_liter||0)).toLocaleString()} L</span>
+          <span style="color:var(--yellow)">${r.status}</span>
+        </div>
+        <button onclick="clearTank('${r._col}','${r.id}','${r.mix_name||''}','${r.batch_no||''}')"
+          style="padding:5px 12px;border-radius:6px;font-family:var(--mono);font-size:11px;font-weight:700;background:rgba(240,79,94,.1);color:#ef4444;border:1px solid rgba(240,79,94,.3);cursor:pointer">
+          🗑️ เคลียร์
+        </button>
+      </div>`).join('');
+  }catch(e){el.innerHTML='<div style="color:#ef4444">Error: '+e.message+'</div>';}
+};
+
+window.clearTank=async(col,id,name,batch)=>{
+  if(!confirm(`เคลียร์ "${name}" Batch ${batch} ออกจากระบบ?\nคิวถัดไปจะเลื่อนขึ้นมาแทน`))return;
+  try{
+    await updateDoc(doc(db,col,id),{status:'sent_filling',cleared_at:new Date().toISOString(),cleared_by:auth.currentUser?.email||'admin'});
+    toast(`เคลียร์ "${name}" แล้ว ✅`,'green');
+    loadClearList(); // reload list
+  }catch(e){toast('Error: '+e.message,'red');}
+};
   const pin=$('report-pin').value.trim();
   if(!/^\d{4}$/.test(pin)){toast('PIN ต้องเป็นตัวเลข 4 หลัก','red');return;}
   try{
