@@ -560,11 +560,7 @@ function renderPlan(m){
       <td><select class="ci" style="width:100px" onchange="_up('${col}','${row.id}','mix_code',this.value)">
         <option value="">— เลือก —</option>${opts}
       </select></td>
-      <td style="white-space:nowrap">
-        <a href="pasteurize.html" target="_blank" style="display:inline-block;padding:3px 6px;border-radius:5px;font-family:var(--mono);font-size:10px;font-weight:700;background:rgba(249,115,22,.12);color:#fb923c;border:1px solid rgba(249,115,22,.3);text-decoration:none;margin-right:2px">♨️</a>
-        <a href="mixing.html" target="_blank" style="display:inline-block;padding:3px 6px;border-radius:5px;font-family:var(--mono);font-size:10px;font-weight:700;background:rgba(234,179,8,.12);color:#fde047;border:1px solid rgba(234,179,8,.3);text-decoration:none;margin-right:2px">🔄</a>
-        <a href="flavor.html" target="_blank" style="display:inline-block;padding:3px 6px;border-radius:5px;font-family:var(--mono);font-size:10px;font-weight:700;background:rgba(236,72,153,.12);color:#f9a8d4;border:1px solid rgba(236,72,153,.3);text-decoration:none">💗</a>
-      </td>
+      <td><input class="ci" style="width:60px;text-align:center;font-family:var(--mono);font-size:13px;font-weight:700;color:var(--cyan)" value="${row.process_order||''}" placeholder="—" onchange="_up('${col}','${row.id}','process_order',this.value)"></td>
       <td><span class="ca" style="min-width:110px">${row.mix_name||"—"}</span></td>
       <td><input class="ci" style="width:66px" value="${row.batch_no||""}" placeholder="B001" onchange="_up('${col}','${row.id}','batch_no',this.value)"></td>
       <td><input class="ci" style="width:66px;text-align:right" type="number" value="${row.volume_liter||""}" onchange="_up('${col}','${row.id}','volume_liter',+this.value)"></td>
