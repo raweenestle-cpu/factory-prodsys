@@ -165,6 +165,7 @@ nav{display:flex;align-items:center;height:52px;background:var(--s1);border-bott
       <button class="stat-btn" onclick="setTankStatus('empty')">🟡 รอล้าง</button>
     </div>
     <button class="modal-close" onclick="closeModal()">✕ ปิด</button>
+    <button onclick="clearTank()" style="width:100%;margin-top:10px;padding:10px;border-radius:8px;border:1.5px dashed rgba(239,68,68,.5);background:rgba(239,68,68,.08);color:#ef4444;font-family:'DM Mono',monospace;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:.04em">🗑️ เคลียร์ถัง — ลบข้อมูลทั้งหมดออก</button>
   </div>
 </div>
 
@@ -173,7 +174,7 @@ nav{display:flex;align-items:center;height:52px;background:var(--s1);border-bott
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import{getAuth,signOut,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import{getFirestore,collection,doc,onSnapshot,setDoc,getDocs,query,where}
+import{getFirestore,collection,doc,onSnapshot,setDoc,getDocs,query,where,deleteDoc}
   from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const app=initializeApp({apiKey:"AIzaSyC3f6jMuhugE6BNfRfkpOA9BMrIKWR9YgQ",authDomain:"production-filling.firebaseapp.com",projectId:"production-filling",storageBucket:"production-filling.firebasestorage.app",messagingSenderId:"89098393458",appId:"1:89098393458:web:b723f2886e8a341935afeb"});
@@ -575,6 +576,27 @@ window.openModal=(tankId)=>{
     if(b.textContent.includes('ว่าง')&&status==='empty')b.classList.add('active-empty');
   });
   $('tank-modal').classList.add('show');
+};
+
+window.clearTank=async()=>{
+  if(!selectedTank)return;
+  const confirm1=window.confirm(`⚠️ เคลียร์ถัง ${selectedTank}\n\nจะลบข้อมูลทั้งหมดที่ผูกกับถังนี้ออกจาก production_plans\nFilling, CIP Man, Pasteurize จะไม่เห็นข้อมูลนี้อีก\n\nยืนยันหรือไม่?`);
+  if(!confirm1)return;
+  try{
+    const rows1=planRows.filter(r=>r.aging_tank===selectedTank&&r._col==='production_plans');
+    const rows2=planRows.filter(r=>r.aging_tank===selectedTank&&r._col==='production_plans_m2');
+    const deletes=[
+      ...rows1.map(r=>deleteDoc(doc(db,'production_plans',r.id))),
+      ...rows2.map(r=>deleteDoc(doc(db,'production_plans_m2',r.id))),
+    ];
+    await Promise.all(deletes);
+    // reset aging_tank_states ด้วย
+    await setDoc(doc(db,'aging_tank_states',selectedTank),{status:'empty',updated_at:new Date().toISOString()},{merge:true});
+    planRows=planRows.filter(r=>r.aging_tank!==selectedTank);
+    toast(`🗑️ เคลียร์ถัง ${selectedTank} แล้ว`,'green');
+    closeModal();
+    renderAll();
+  }catch(e){toast('เคลียร์ไม่สำเร็จ: '+e.message,'red');}
 };
 
 window.closeModal=()=>{$('tank-modal').classList.remove('show');selectedTank=null;};
