@@ -940,10 +940,18 @@ function renderTankVisual(m,rows){
   <div style="background:var(--s1);border:1px solid var(--b1);border-radius:12px;padding:12px">
     <div style="font-family:var(--mono);font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">📊 Volume / กะ (L)</div>
     ${(()=>{
+      // นับเฉพาะ row ที่เสร็จแล้ว หรือกำลัง past. อยู่ (มี past_start_time)
+      const validRows=rows.filter(r=>
+        r.past_start_time && (
+          r.status==='past_done' ||
+          r.status==='ready' ||
+          r.status==='pasteurising'
+        )
+      );
       const shifts=[
-        {label:'เช้า',color:'#3b82f6',rows:rows.filter(r=>{const h=+(r.past_start_time||'08:00').split(':')[0];return h>=6&&h<14;})},
-        {label:'บ่าย',color:'#f97316',rows:rows.filter(r=>{const h=+(r.past_start_time||'').split(':')[0];return h>=14&&h<22;})},
-        {label:'ดึก',color:'#a855f7',rows:rows.filter(r=>{const h=+(r.past_start_time||'').split(':')[0];return h>=22||h<6;})},
+        {label:'เช้า', color:'#3b82f6', rows:validRows.filter(r=>{const h=+r.past_start_time.split(':')[0]; return h>=6&&h<14;})},
+        {label:'บ่าย', color:'#f97316', rows:validRows.filter(r=>{const h=+r.past_start_time.split(':')[0]; return h>=14&&h<22;})},
+        {label:'ดึก',  color:'#a855f7', rows:validRows.filter(r=>{const h=+r.past_start_time.split(':')[0]; return h>=22||h<6;})},
       ];
       const vols=shifts.map(s=>s.rows.reduce((sum,r)=>sum+(+(r.volume_liter||0)),0));
       const total=vols.reduce((a,b)=>a+b,0);
