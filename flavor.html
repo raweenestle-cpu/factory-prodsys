@@ -235,7 +235,7 @@ tbody tr:hover td{background:rgba(244,114,182,.04)!important}
           <th rowspan="2">Vol (L)</th>
           <th rowspan="2">Rework (kg)</th>
           <th rowspan="2" style="color:var(--cyan)">🪣 Aging Tank</th>
-          <th rowspan="2" style="color:var(--yellow)">คาดบ่มเสร็จ</th>
+          <th rowspan="2" style="color:var(--yellow)">คาดว่า Past.เสร็จ</th>
           <th colspan="3" style="text-align:center;color:var(--purple);border-bottom:1px solid var(--b2)">🧪 Flavor / Color / กรดมะนาว</th>
           <th rowspan="2">เวลาเท</th>
           <th rowspan="2">Status</th>
@@ -278,7 +278,7 @@ tbody tr:hover td{background:rgba(244,114,182,.04)!important}
           <th rowspan="2">Vol (L)</th>
           <th rowspan="2">Rework (kg)</th>
           <th rowspan="2" style="color:var(--cyan)">🪣 Aging Tank</th>
-          <th rowspan="2" style="color:var(--yellow)">คาดบ่มเสร็จ</th>
+          <th rowspan="2" style="color:var(--yellow)">คาดว่า Past.เสร็จ</th>
           <th colspan="3" style="text-align:center;color:var(--purple);border-bottom:1px solid var(--b2)">🧪 Flavor / Color / กรดมะนาว</th>
           <th rowspan="2">เวลาเท</th>
           <th rowspan="2">Status</th>
@@ -466,11 +466,10 @@ function flvBox(col,id,type,row){
   const notify=!!row[`${field}_notify`];
   const allDone=prep&&pour&&notify;
 
-  // logic ตาม status
-  const isMixing=row.status==='mixing'||row.status==='pending';
-  const canPrep=true; // เตรียมได้เสมอ
-  const canPour=!isMixing; // เทได้เมื่อไม่ใช่ mixing
-  const canNotify=!isMixing; // แจ้งได้เมื่อไม่ใช่ mixing
+  // ติ๊กได้เสมอทุก checkbox
+  const canPrep=true;
+  const canPour=true;
+  const canNotify=true;
 
   return`<div class="flv-box${allDone?' all-done':''}">
     <div class="flv-title" style="color:${color}">${icon} ${type==='flavor'?'Flavor':type==='color'?'Color':'กรดมะนาว'}</div>
@@ -566,7 +565,7 @@ function renderPlan(m){
       <td><span style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--blue2)">${row.mix_name||'—'}</span></td>
       <td><span style="font-size:12px;font-weight:600;color:var(--text)">${row.product_name||'—'}</span></td>
       <td><span style="font-family:var(--mono);font-size:12px;color:var(--t2)">Batch ${row.batch_no||'—'}</span></td>
-      <td><span style="font-family:var(--mono);font-size:12px;color:var(--cyan)">${(+(row.volume_liter||0)).toLocaleString()} L</span></td>
+      <td><span style="font-family:var(--mono);font-size:12px;color:var(--cyan);white-space:nowrap">${(+(row.volume_liter||0)).toLocaleString()} L</span></td>
       <td><span style="font-family:var(--mono);font-size:12px;color:var(--purple)">${row.rework_kg||'—'} kg</span></td>
       <td><span style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--cyan);background:rgba(6,182,212,.1);padding:3px 10px;border-radius:6px;border:1px solid rgba(6,182,212,.25)">${row.aging_tank||'—'}</span></td>
       <td><span style="font-family:var(--mono);font-size:12px;color:var(--yellow)">${curingEnd}</span></td>
