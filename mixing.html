@@ -242,7 +242,7 @@ thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap
   <div class="tw"><table>
     <thead>
       <tr>
-        <th rowspan="2">#</th><th rowspan="2">Mix Code</th><th rowspan="2">Mix Name</th>
+        <th rowspan="2">#</th><th rowspan="2">Mix Code</th><th rowspan="2" style="color:var(--cyan)">🔗 Process</th><th rowspan="2">Mix Name</th>
         <th rowspan="2">Batch</th><th rowspan="2">Vol (L)</th><th rowspan="2">Tank</th>
         <th rowspan="2" style="color:var(--yellow)">⏱ เริ่มผสม</th>
         <th rowspan="2" style="color:var(--green)">✅ ผสมเสร็จ</th>
@@ -282,7 +282,7 @@ thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap
   <div class="tw"><table>
     <thead>
       <tr>
-        <th rowspan="2">#</th><th rowspan="2">Mix Code</th><th rowspan="2">Mix Name</th>
+        <th rowspan="2">#</th><th rowspan="2">Mix Code</th><th rowspan="2" style="color:var(--cyan)">🔗 Process</th><th rowspan="2">Mix Name</th>
         <th rowspan="2">Batch</th><th rowspan="2">Vol (L)</th><th rowspan="2">Tank</th>
         <th rowspan="2" style="color:var(--yellow)">⏱ เริ่มผสม</th>
         <th rowspan="2" style="color:var(--green)">✅ ผสมเสร็จ</th>
@@ -701,6 +701,11 @@ function renderPlan(m){
     tr.innerHTML=`
       <td><span class="cr">${i+1}</span></td>
       <td><span style="font-family:var(--mono);font-weight:700;color:var(--blue2)">${row.mix_code||"—"}</span></td>
+      <td style="white-space:nowrap">
+        <a href="pasteurize.html" target="_blank" style="display:inline-block;padding:3px 6px;border-radius:5px;font-family:var(--mono);font-size:10px;font-weight:700;background:rgba(249,115,22,.12);color:#fb923c;border:1px solid rgba(249,115,22,.3);text-decoration:none;margin-right:2px">♨️</a>
+        <a href="leadman.html" target="_blank" style="display:inline-block;padding:3px 6px;border-radius:5px;font-family:var(--mono);font-size:10px;font-weight:700;background:rgba(99,102,241,.12);color:#a5b4fc;border:1px solid rgba(99,102,241,.3);text-decoration:none;margin-right:2px">👷</a>
+        <a href="flavor.html" target="_blank" style="display:inline-block;padding:3px 6px;border-radius:5px;font-family:var(--mono);font-size:10px;font-weight:700;background:rgba(236,72,153,.12);color:#f9a8d4;border:1px solid rgba(236,72,153,.3);text-decoration:none">💗</a>
+      </td>
       <td><span style="font-family:var(--mono);font-weight:700;color:var(--blue2)">${row.mix_name||"—"}</span></td>
       <td><span class="cr">${row.batch_no||"—"}</span></td>
       <td><span style="font-family:var(--mono);color:var(--cyan)">${row.volume_liter||"—"}</span></td>
