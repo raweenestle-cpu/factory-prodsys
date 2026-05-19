@@ -283,17 +283,37 @@ function getCuringRemain(row){
 }
 
 function getTanks(name){
-  return planRows
+  const raw=planRows
     .filter(r=>{
       if(r.filling_line!==name)return false;
       if(!['pasteurising','past_done','ready'].includes(r.status))return false;
-      // ต้องมี volume จริงๆ
       if(+(r.volume_liter||0)<=0)return false;
-      // pasteurising ต้องมี past_start_time ด้วย
       if(r.status==='pasteurising'&&!r.past_start_time)return false;
       return true;
     })
     .sort((a,b)=>(a.seq||0)-(b.seq||0));
+
+  // Group rows ที่ process_order + aging_tank เดียวกัน → รวมเป็น row เดียว
+  const grouped=[];
+  const seen=new Set();
+  raw.forEach(row=>{
+    const key=row.process_order&&row.aging_tank?`${row.process_order}__${row.aging_tank}`:'';
+    if(key&&seen.has(key))return;
+    if(key){
+      seen.add(key);
+      const group=raw.filter(r=>r.process_order===row.process_order&&r.aging_tank===row.aging_tank);
+      if(group.length>1){
+        const totalVol=group.reduce((s,r)=>s+(+(r.volume_liter||0)),0);
+        const batchBase=String(row.batch_no||'').replace(/[\/\-]\d+$/,'');
+        // ใช้ status จาก batch ที่ active ที่สุด
+        const activeRow=group.find(r=>r.status==='pasteurising')||group.find(r=>r.status==='past_done')||row;
+        grouped.push({...activeRow,volume_liter:totalVol,batch_no:batchBase,_group:group});
+        return;
+      }
+    }
+    grouped.push(row);
+  });
+  return grouped;
 }
 function getCurrentTank(tanks){
   // กำลังผลิต = past_done + บ่มครบแล้ว หรือ ready

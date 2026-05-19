@@ -444,7 +444,30 @@ async function init(){
 
 // HELPERS
 function getTanksForLine(lineName){
-  return planRows.filter(r=>r.filling_line===lineName&&(r.status==='ready'||r.status==='past_done'||r.status==='pasteurising')).sort((a,b)=>(a.seq||0)-(b.seq||0));
+  const raw=planRows
+    .filter(r=>r.filling_line===lineName&&(r.status==='ready'||r.status==='past_done'||r.status==='pasteurising'))
+    .sort((a,b)=>(a.seq||0)-(b.seq||0));
+
+  // Group rows ที่ process_order + aging_tank เดียวกัน → รวมเป็น row เดียว
+  const grouped=[];
+  const seen=new Set();
+  raw.forEach(row=>{
+    const key=row.process_order&&row.aging_tank?`${row.process_order}__${row.aging_tank}`:'';
+    if(key&&seen.has(key))return;
+    if(key){
+      seen.add(key);
+      const group=raw.filter(r=>r.process_order===row.process_order&&r.aging_tank===row.aging_tank);
+      if(group.length>1){
+        const totalVol=group.reduce((s,r)=>s+(+(r.volume_liter||0)),0);
+        const batchBase=String(row.batch_no||'').replace(/[\/\-]\d+$/,'');
+        const activeRow=group.find(r=>r.status==='pasteurising')||group.find(r=>r.status==='past_done')||row;
+        grouped.push({...activeRow,volume_liter:totalVol,batch_no:batchBase,_group:group});
+        return;
+      }
+    }
+    grouped.push(row);
+  });
+  return grouped;
 }
 function calcCuringEnd(pastEnd,agingHr){
   if(!pastEnd||!agingHr)return'—';
