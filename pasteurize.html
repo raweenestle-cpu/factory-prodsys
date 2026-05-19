@@ -605,6 +605,16 @@ window.doLogout=async()=>{
 };
 
 // ── LOAD PLAN ─────────────────────────────────────────────────────────
+// ── TANK CAPACITY ─────────────────────────────────────────
+function getTankCapacity(tankId){
+  const num=parseInt((tankId||'').replace(/\D/g,''));
+  if(num>=61&&num<=64) return 10000;
+  if(num>=71&&num<=74) return 10000;
+  if(num>=65&&num<=68) return 8000;
+  if(num>=75&&num<=78) return 8000;
+  if(num>=1&&num<=34)  return 3000;
+  return 3000;
+}
 // ── TANK VISUAL FUNCTIONS ─────────────────────────────────
 function pastTankSVG(uid,pct,col,animate){
   const W=100,H=160;
@@ -714,7 +724,9 @@ function renderTankVisual(m,rows){
       const cumVol=activeRow?.current_vol!=null?+activeRow.current_vol:0;
 
       if(isDone){
-        agVol=totalVol; agPct=100;
+        agVol=totalVol;
+        const _capDone=getTankCapacity(agRow.aging_tank||'');
+        agPct=_capDone>0?(totalVol/_capDone)*100:0;
         if(isT1) t1Vol=0;
         else t2Vol=0;
       } else {
@@ -727,7 +739,8 @@ function renderTankVisual(m,rows){
           .reduce((s,r)=>s+(+(r.volume_liter||0)),0);
         const currentBatchVol=Math.min(batchVol, Math.max(0, batchCumVol - doneBatchesVol));
         agVol=Math.min(totalVol, batchCumVol);
-        agPct=totalVol>0?(agVol/totalVol)*100:0;
+        const _cap=getTankCapacity(agRow.aging_tank||'');
+        agPct=_cap>0?(agVol/_cap)*100:0;
         // ถัง Mix ลดเฉพาะ batch ปัจจุบัน
         if(isT1) t1Vol=Math.max(0,t1Total-currentBatchVol);
         else t2Vol=Math.max(0,t2Total-currentBatchVol);
@@ -973,7 +986,7 @@ function renderTankVisual(m,rows){
 </g>`}
 
     <!-- ══ AGING TANK ══ -->
-    ${drawTank(AGX,TOP,TW,TH,agVol,Math.max(+(agRow?.volume_liter||0),agVol,1),'Aging '+agTank,agName,sAg,'gag'+m,'cag'+m,sAg.tankCol,sAg.tankCol2,isFlowing)}
+    ${drawTank(AGX,TOP,TW,TH,agVol,getTankCapacity(agTank),'Aging '+agTank,agName,sAg,'gag'+m,'cag'+m,sAg.tankCol,sAg.tankCol2,isFlowing)}
 
     <!-- ══ VERTICAL PIPES from tank bottoms ══ -->
     <!-- T1 bottom → down to horizontal -->

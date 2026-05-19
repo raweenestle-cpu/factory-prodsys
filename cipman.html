@@ -363,6 +363,15 @@ function toast(msg,t='blue'){
 function rgba(h,a){const r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return`rgba(${r},${g},${b},${a})`;}
 function darken(h,a){const r=Math.max(0,parseInt(h.slice(1,3),16)-Math.round(a*255)),g=Math.max(0,parseInt(h.slice(3,5),16)-Math.round(a*255)),b=Math.max(0,parseInt(h.slice(5,7),16)-Math.round(a*255));return`#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`;}
 function pctColor(p){return p>50?'var(--green)':p>20?'var(--yellow)':'var(--red)';}
+function getTankCapacity(tankId){
+  const num=parseInt((tankId||'').replace(/\D/g,''));
+  if(num>=61&&num<=64) return 10000;
+  if(num>=71&&num<=74) return 10000;
+  if(num>=65&&num<=68) return 8000;
+  if(num>=75&&num<=78) return 8000;
+  if(num>=1&&num<=34)  return 3000;
+  return 3000;
+}
 
 // AUTH
 
@@ -722,12 +731,13 @@ function buildCard(line){
   </div>`;
 
   const col=productMap[current.mix_code]?.color||'#3b82f6';
-  const sv=st.start_vol||+(current.volume_liter||0);
+  const sv=st.start_vol||agVol;
   const elapsed=isRunning&&st.start_ts?(Date.now()-st.start_ts)/3600000:0;
   const fr=st.flow_rate||line.flow_rate||300;
 
   // ใช้ current_vol แบบ cumulative — ถ้ามี process_order ให้ดึงจาก active batch
-  let agVol=0;
+  const _totalVol=+(current.volume_liter||0);
+  let agVol=_totalVol; // default = totalVol (แสดงตามจริง เหมือน aging.html)
   if(current.process_order&&current.aging_tank){
     const allPlanRows=[...Object.values(lineRows||{})].flat();
     const activeRow=allPlanRows.find(r=>
@@ -739,12 +749,14 @@ function buildCard(line){
       r.aging_tank===current.aging_tank&&
       r.current_vol!=null
     );
-    agVol=activeRow?.current_vol!=null?+activeRow.current_vol:0;
+    agVol=activeRow?.current_vol!=null?+activeRow.current_vol:_totalVol;
   } else {
-    agVol=current.current_vol!==undefined&&current.current_vol!==null?+current.current_vol:0;
+    agVol=current.current_vol!==undefined&&current.current_vol!==null?+current.current_vol:_totalVol;
   }
-  const rem=Math.max(0,sv-agVol);
-  const pct=sv>0?(rem/sv)*100:0;
+  // ก่อน Start → แสดง agVol ตรงๆ / หลัง Start → countdown จาก start_vol
+  const rem=isRunning?Math.max(0,(st.start_vol||agVol)-((Date.now()-(st.start_ts||0))/3600000*(st.flow_rate||line.flow_rate||300))):agVol;
+  const _capMain=getTankCapacity(st.aging_tank||current.aging_tank||'');
+  const pct=_capMain>0?(rem/_capMain)*100:0;
   const pctC=pctColor(pct);
   const fp=getFP(line.id,'A');
   const agingTank=st.aging_tank||current.aging_tank||'—';
@@ -762,7 +774,8 @@ function buildCard(line){
     const dot=p.color||'#60a5fa';
     const qVol=+(row.volume_liter||0);
     const qRem=row.current_vol!==undefined&&row.current_vol!==null?+row.current_vol:qVol;
-    const qPct=qVol>0?(qRem/qVol)*100:100;
+    const _capQ=getTankCapacity(row.aging_tank||'');
+    const qPct=_capQ>0?(qRem/_capQ)*100:0;
     let stTxt='—',stC='var(--t2)';
     if(row.status==='pasteurising'&&!row.past_end_time){stTxt='♨️ Past.';stC='var(--orange)';}
     else if(row.status==='past_done'||row.status==='pasteurising'){stTxt='🌡️ บ่มอยู่';stC='var(--yellow)';}
@@ -984,7 +997,8 @@ function tickCountdowns(){
     const sv=st.start_vol||0;
     const fr=st.flow_rate||line.flow_rate||300;
     const rem=Math.max(0,sv-(elapsed*fr));
-    const pct=sv>0?(rem/sv)*100:0;const c=pctColor(pct);
+    const cap=getTankCapacity(st.aging_tank||'');
+    const pct=cap>0?(rem/cap)*100:0;const c=pctColor(pct);
     const key='S'+line.id;
     const vEl=document.getElementById('vol-'+key);
     const pEl=document.getElementById('pct-'+key);

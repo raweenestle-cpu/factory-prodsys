@@ -346,11 +346,22 @@ function getQueueTanks(tanks,current){
 function getSt(name){const l=lineMap[name];return l?(lineStates[l.id]||{}):{}}
 
 // คำนวณ Volume ที่ไหลเข้าถัง จาก past_start_time + speed
+function getTankCapacity(tankId){
+  const num=parseInt((tankId||'').replace(/\D/g,''));
+  if(num>=61&&num<=64) return 10000;
+  if(num>=71&&num<=74) return 10000;
+  if(num>=65&&num<=68) return 8000;
+  if(num>=75&&num<=78) return 8000;
+  if(num>=1&&num<=34)  return 3000;
+  return 3000;
+}
+
 function calcVol(row){
   const totalVol=+(row.volume_liter||0);
   if(totalVol<=0) return{filled:0,pct:0,totalVol};
 
   const group=row._group||[row];
+  const capacity=getTankCapacity(row.aging_tank||'');
 
   // ใช้ค่า current_vol สูงสุดในกลุ่ม (cumulative ล่าสุด)
   const maxCv=group.reduce((max,r)=>{
@@ -360,15 +371,13 @@ function calcVol(row){
 
   if(maxCv>=0){
     const filled=Math.min(totalVol,maxCv);
-    const pct=totalVol>0?(filled/totalVol)*100:0;
+    const pct=capacity>0?(filled/capacity)*100:0;
     return{filled,pct,totalVol};
   }
 
-  if(group.every(r=>r.status==='past_done'||r.status==='ready')){
-    return{filled:totalVol,pct:100,totalVol};
-  }
-
-  return{filled:0,pct:0,totalVol};
+  // ไม่มี current_vol → แสดงตาม totalVol จริง (เหมือน aging.html)
+  const pct=capacity>0?(totalVol/capacity)*100:0;
+  return{filled:totalVol,pct,totalVol};
 }
 
 // SVG — ถังผอม สูง
