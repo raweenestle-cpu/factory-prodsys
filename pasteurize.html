@@ -269,6 +269,7 @@ thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap
   <button class="nav-tab" onclick="showPage('plan','p2',this)">♨️ Past. 2</button>
   <button class="nav-tab" onclick="showPage('chart','p1',this)">📊 กราฟ P1</button>
   <button class="nav-tab" onclick="showPage('chart','p2',this)">📊 กราฟ P2</button>
+  <button class="nav-tab" onclick="showPage('history','all',this)">📋 ประวัติ</button>
   <div class="nav-right">
     <span class="nav-role">PASTEURIZE</span>
     <span class="nav-user" id="nav-user"></span>
@@ -478,6 +479,30 @@ onAuthStateChanged(auth,async user=>{
 });
 
 setInterval(()=>{["p1","p2"].forEach(p=>{if(document.getElementById("tank-visual-"+p))renderTankVisual(p,rows[p]||[]);});},5000);
+
+// ── Eff% REAL-TIME UPDATE ทุก 10 วินาที ──────────────────────────────
+setInterval(()=>{
+  ["p1","p2"].forEach(p=>{
+    (rows[p]||[]).forEach(row=>{
+      if(!row.past_start_time||row.past_end_time) return; // เฉพาะที่กำลัง past. อยู่
+      const prod=productMap[row.mix_code]||{};
+      const speed=p==="p1"?+(prod.speed_m1||prod.speed||1000):+(prod.speed_m2||prod.speed||1000);
+      const density=+(prod.density||1);
+      const vol=+(row.volume_liter||0);
+      const reqMin=vol>0&&speed>0?Math.round(vol*density*60/speed):0;
+      if(!reqMin) return;
+      const[sh,sm]=row.past_start_time.split(":").map(Number);
+      const now=new Date();
+      const actualMin=(now.getHours()*60+now.getMinutes())-(sh*60+sm);
+      if(actualMin<=0) return;
+      const eff=reqMin/actualMin*100;
+      const effColor=eff>=97&&eff<=100?"#22c55e":eff>100?"#f97316":"#ef4444";
+      const effLabel=eff>=97&&eff<=100?"✅":eff>100?"⚠️":"❌";
+      const el=document.getElementById("eff-rt-"+row.id);
+      if(el) el.innerHTML=`<span style="font-family:var(--mono);font-size:12px;font-weight:700;color:${effColor}">${effLabel} ${eff.toFixed(1)}%</span>`;
+    });
+  });
+},10000);
 
 // เขียน current_vol ลง Firebase ทุก 3 วินาที + Auto Stamp เมื่อถึง ETA
 const _autoStamping=new Set(); // ป้องกัน stamp ซ้ำ
@@ -1053,7 +1078,8 @@ function renderTankVisual(m,rows){
           <animate attributeName="opacity" from="0.5" to="0" dur="1.8s" repeatCount="indefinite"/>
         </circle>`:''}
         <!-- label -->
-        <text x="${HX}" y="${HY+R+20}" text-anchor="middle" font-family="DM Mono,monospace" font-size="12" font-weight="800" fill="${hcBright}">HOMOGENIZER</text>
+        <rect x="${HX-52}" y="${HY+R+6}" width="104" height="20" rx="4" fill="rgba(0,0,0,.85)" stroke="${hc}" stroke-width="1"/>
+        <text x="${HX}" y="${HY+R+20}" text-anchor="middle" font-family="DM Mono,monospace" font-size="12" font-weight="800" fill="white" letter-spacing="0.5">HOMOGENIZER</text>
       </g>`;
     })()}
     <!-- homogenizer → aging -->
@@ -1098,43 +1124,42 @@ window.deleteTimePrompt=async(col,id,field)=>{
 
 // ── ARCHIVE TO HISTORY ────────────────────────────────────────────────
 async function checkAndArchive(p){
-  const done=rows[p].filter(r=>r.status==="past_done"||r.status==="ready");
   const col=planCol(p);
+  const done=rows[p].filter(r=>r.status==="past_done"||r.status==="ready");
+  if(!done.length) return;
 
-  // ถ้ามี row เกิน 10 ให้ archive row ที่เสร็จเก่าสุด
-  while(rows[p].length>10&&done.length>0){
-    const oldest=done.sort((a,b)=>(a.seq||0)-(b.seq||0))[0];
+  // นับ process_order ที่เสร็จแล้ว (past_done/ready) ใน line นี้
+  const doneOrders=[...new Set(
+    done.map(r=>r.process_order).filter(Boolean)
+  )];
 
-    // เช็ค checkbox — ถ้ามี actual > 0 ต้องติ๊กครบก่อน
-    const needGlc=(+oldest.glc_actual||0)>0&&!oldest.glc_confirmed;
-    const needSgr=(+oldest.sgr_actual||0)>0&&!oldest.sgr_confirmed;
-    const needPlm=(+oldest.plm_actual||0)>0&&!oldest.plm_confirmed;
-    if(needGlc||needSgr||needPlm){
-      const missing=[];
-      if(needGlc)missing.push("Glucose");
-      if(needSgr)missing.push("Sugar");
-      if(needPlm)missing.push("Palm Oil");
-      toast(`⚠️ ยังไม่ยืนยัน: ${missing.join(", ")} — ไม่สามารถ Archive ได้`,"red");
-      break;
-    }
+  // ต้องมี process order ที่เสร็จแล้ว >= 5 จึงจะ archive อันเก่าสุดออก
+  if(doneOrders.length < 5) return;
 
-    // Archive ไป history
-    try{
-      await addDoc(collection(db,"past_history"),{
-        ...oldest,
-        archived_at:nowHHMM(),
-        archived_date:today(),
-        mixing_unit:p,
-      });
-      await deleteDoc(doc(db,col,oldest.id));
-      toast(`Archive ${oldest.mix_code} แล้ว`,"green");
-    }catch(e){
-      toast("Archive ไม่สำเร็จ: "+e.message,"red");
-      break;
-    }
-    // อัปเดต rows ใน local
-    done.shift();
+  const oldest=done.sort((a,b)=>(a.seq||0)-(b.seq||0))[0];
+  const needGlc=(+oldest.glc_actual||0)>0&&!oldest.glc_confirmed;
+  const needSgr=(+oldest.sgr_actual||0)>0&&!oldest.sgr_confirmed;
+  const needPlm=(+oldest.plm_actual||0)>0&&!oldest.plm_confirmed;
+  if(needGlc||needSgr||needPlm){
+    const missing=[];
+    if(needGlc)missing.push("Glucose");
+    if(needSgr)missing.push("Sugar");
+    if(needPlm)missing.push("Palm Oil");
+    toast(`⚠️ ยังไม่ยืนยัน: ${missing.join(", ")} — ไม่สามารถ Archive ได้`,"red");
+    return;
+  }
+  try{
+    await addDoc(collection(db,"past_history"),{
+      ...oldest,
+      archived_at:nowHHMM(),
+      archived_date:today(),
+      mixing_unit:p,
+    });
+    await deleteDoc(doc(db,col,oldest.id));
     rows[p]=rows[p].filter(r=>r.id!==oldest.id);
+    toast(`Archive ${oldest.mix_code||''} แล้ว`,"green");
+  }catch(e){
+    toast("Archive ไม่สำเร็จ: "+e.message,"red");
   }
 }
 
@@ -1257,8 +1282,8 @@ function renderPlan(p){
     const isPast     = row.status==="pasteurising"&&!!row.past_start_time;
     const isDone     = row.status==="past_done"||row.status==="ready";
 
-    // past_done และ ready ไม่แสดงในตาราง — ไปแสดงใน Filling แทน
-    if(isDone) return;
+    // past_done และ ready — แสดงได้ ไม่ซ่อน (ค้างจนครบ 5 process order ใหม่)
+    // if(isDone) return;  ← ลบออกแล้ว
 
     const statStyle = isPast
       ? `background:rgba(249,115,22,.15);color:#fb923c;animation:blink 0.7s infinite`
@@ -1342,7 +1367,7 @@ function renderPlan(p){
       ${row.status==='pasteurising'&&row.past_start_time
         ? stampCell("past_end_time",row.past_end_time,"Stamp เสร็จ",false,false,'')
         : `<td><span style="font-family:var(--mono);font-size:10px;color:var(--t3)">—</span></td>`}
-      <td>${effHTML}</td>
+      <td id="eff-rt-${row.id}">${effHTML}</td>
       <!-- ปุ่มส่งข้อมูล -->
       <td style="padding:4px 6px;min-width:100px">
         ${!row.past_end_time
@@ -1563,7 +1588,41 @@ window.showPage=(type,p,btn)=>{
   $(`page-${type}-${p}`).classList.add('on');
   btn.classList.add('on');
   if(type==="chart")renderChart(p);
+  if(type==="history")loadHistory();
 };
+
+// ── HISTORY ────────────────────────────────────────────────────────────
+async function loadHistory(){
+  const el=$('history-tbody');
+  if(!el)return;
+  el.innerHTML=`<tr><td colspan="10" style="text-align:center;padding:20px;color:var(--t3)">⏳ กำลังโหลด...</td></tr>`;
+  try{
+    const {getDocs,query,collection,orderBy,limit}=await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+    const q=query(collection(db,"past_history"),orderBy("archived_date","desc"),orderBy("archived_at","desc"),limit(200));
+    const snap=await getDocs(q);
+    if(snap.empty){el.innerHTML=`<tr><td colspan="10" style="text-align:center;padding:20px;color:var(--t3)">ไม่มีข้อมูล</td></tr>`;return;}
+    el.innerHTML=snap.docs.map(d=>{
+      const r=d.data();
+      const eff=r.eff||0;
+      const effColor=eff>=97&&eff<=100?"#22c55e":eff>100?"#f97316":eff>0?"#ef4444":"var(--t3)";
+      const effLabel=eff>=97&&eff<=100?"✅":eff>100?"⚠️":eff>0?"❌":"—";
+      return`<tr>
+        <td style="font-family:var(--mono);font-size:11px;color:var(--t2)">${r.archived_date||'—'}</td>
+        <td style="font-family:var(--mono);font-size:11px;color:var(--t2)">${r.archived_at||'—'}</td>
+        <td style="font-family:var(--mono);font-weight:700">${r.mix_code||'—'}</td>
+        <td style="font-family:var(--mono);color:var(--cyan)">${r.process_order||'—'}</td>
+        <td>${r.mix_name||'—'}</td>
+        <td style="font-family:var(--mono)">${r.volume_liter||'—'}</td>
+        <td style="font-family:var(--mono);color:var(--t2)">${r.past_start_time||'—'} → ${r.past_end_time||'—'}</td>
+        <td style="font-family:var(--mono);color:#a78bfa">${r.aging_tank||'—'}</td>
+        <td style="font-family:var(--mono);font-size:11px;color:var(--t3)">${r.mixing_unit?.toUpperCase()||'—'}</td>
+        <td style="font-family:var(--mono);font-weight:700;color:${effColor}">${effLabel} ${eff?eff+'%':'—'}</td>
+      </tr>`;
+    }).join('');
+  }catch(e){
+    el.innerHTML=`<tr><td colspan="10" style="text-align:center;padding:20px;color:var(--red)">โหลดไม่ได้: ${e.message}</td></tr>`;
+  }
+}
 </script>
 <script>
 if('serviceWorker' in navigator){
@@ -1574,5 +1633,32 @@ if('serviceWorker' in navigator){
   });
 }
 </script>
-</body>
-</html>
+
+<!-- HISTORY PAGE -->
+<div class="page" id="page-history-all">
+  <div style="padding:14px 16px">
+    <div style="font-family:var(--mono);font-size:14px;font-weight:700;color:var(--orange);margin-bottom:12px">📋 ประวัติ Pasteurise ทั้งหมด</div>
+    <div class="tw">
+      <table>
+        <thead>
+          <tr>
+            <th>วันที่</th>
+            <th>เวลา Archive</th>
+            <th>Mix Code</th>
+            <th style="color:var(--cyan)">Process</th>
+            <th>ชื่อสูตร</th>
+            <th>Vol (L)</th>
+            <th>เวลา Past.</th>
+            <th style="color:#a78bfa">Aging Tank</th>
+            <th>Line</th>
+            <th>Eff%</th>
+          </tr>
+        </thead>
+        <tbody id="history-tbody">
+          <tr><td colspan="10" style="text-align:center;padding:20px;color:var(--t3)">กด tab ประวัติเพื่อโหลด</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</body></html>
