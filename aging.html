@@ -190,7 +190,7 @@ nav{display:flex;align-items:center;height:52px;background:var(--s1);border-bott
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import{getAuth,signOut,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import{getFirestore,collection,doc,onSnapshot,setDoc,getDocs,query,where,deleteDoc,updateDoc}
+import{getFirestore,collection,doc,onSnapshot,setDoc,getDocs,query,where,deleteDoc,updateDoc,addDoc}
   from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const app=initializeApp({apiKey:"AIzaSyC3f6jMuhugE6BNfRfkpOA9BMrIKWR9YgQ",authDomain:"production-filling.firebaseapp.com",projectId:"production-filling",storageBucket:"production-filling.firebasestorage.app",messagingSenderId:"89098393458",appId:"1:89098393458:web:b723f2886e8a341935afeb"});
@@ -639,22 +639,37 @@ window.saveCurrentVol=async()=>{
 
 window.clearTank=async()=>{
   if(!selectedTank)return;
-  const confirm1=window.confirm(`⚠️ เคลียร์ถัง ${selectedTank}\n\nจะลบข้อมูลทั้งหมดที่ผูกกับถังนี้ออกจาก production_plans\nFilling, CIP Man, Pasteurize จะไม่เห็นข้อมูลนี้อีก\n\nยืนยันหรือไม่?`);
+  const confirm1=window.confirm(`⚠️ เคลียร์ถัง ${selectedTank}\n\nข้อมูลจะถูก archive ไปใน past_history ก่อน แล้วค่อยลบออกจากระบบ\nสามารถดูย้อนหลังได้จากแท็บ 📋 ประวัติ ใน pasteurize\n\nยืนยันหรือไม่?`);
   if(!confirm1)return;
   try{
-    const rows1=planRows.filter(r=>r.aging_tank===selectedTank&&r._col==='production_plans');
-    const rows2=planRows.filter(r=>r.aging_tank===selectedTank&&r._col==='production_plans_m2');
-    const deletes=[
-      ...rows1.map(r=>deleteDoc(doc(db,'production_plans',r.id))),
-      ...rows2.map(r=>deleteDoc(doc(db,'production_plans_m2',r.id))),
-    ];
+    const tankRows=planRows.filter(r=>r.aging_tank===selectedTank);
+    const now=new Date();
+    const archiveDate=now.toISOString().slice(0,10);
+    const archiveTime=now.toTimeString().slice(0,5);
+
+    // archive ทุก row ไปใน past_history ก่อน
+    const archives=tankRows.map(r=>
+      addDoc(collection(db,'past_history'),{
+        ...r,
+        archived_at:archiveTime,
+        archived_date:archiveDate,
+        archived_by:'clear_tank',
+        mixing_unit:r._col==='production_plans_m2'?'p2':'p1',
+      })
+    );
+    await Promise.all(archives);
+
+    // แล้วค่อยลบออกจาก production_plans
+    const deletes=tankRows.map(r=>deleteDoc(doc(db,r._col,r.id)));
     await Promise.all(deletes);
-    // reset aging_tank_states ด้วย
-    await setDoc(doc(db,'aging_tank_states',selectedTank),{status:'empty',updated_at:new Date().toISOString()},{merge:true});
-    planRows=planRows.filter(r=>r.aging_tank!==selectedTank);
-    toast(`🗑️ เคลียร์ถัง ${selectedTank} แล้ว`,'green');
+
+    // reset aging_tank_states
+    await setDoc(doc(db,'aging_tank_states',selectedTank),{
+      status:'empty',updated_at:now.toISOString()
+    },{merge:true});
+
+    toast(`🗑️ เคลียร์ถัง ${selectedTank} แล้ว — archive ${tankRows.length} รายการ`,'green');
     closeModal();
-    renderAll();
   }catch(e){toast('เคลียร์ไม่สำเร็จ: '+e.message,'red');}
 };
 
