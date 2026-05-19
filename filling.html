@@ -255,24 +255,40 @@ function parseDateHHMM(dateStr, timeStr){
   return d;
 }
 
+function getLastPastEndTime(row){
+  // ถ้ามี _group ให้ใช้ past_end_time ของ batch สุดท้าย
+  if(row._group&&row._group.length>1){
+    const lastDone=row._group
+      .filter(r=>r.past_end_time)
+      .sort((a,b)=>{
+        const [ah,am]=a.past_end_time.split(':').map(Number);
+        const [bh,bm]=b.past_end_time.split(':').map(Number);
+        return (bh*60+bm)-(ah*60+am);
+      });
+    return lastDone[0]?.past_end_time||row.past_end_time;
+  }
+  return row.past_end_time;
+}
+
 function isCuringDone(row){
-  if(!row.past_end_time)return false;
+  const pastEndTime=getLastPastEndTime(row);
+  if(!pastEndTime)return false;
   const p=productMap[row.mix_code]||{};
   const agingHr=+(p.aging_time||4);
-  // ใช้วันที่ของ batch ถ้าไม่มีใช้วันนี้
   const dateStr=row.date||new Date().toISOString().slice(0,10);
-  const pastEnd=parseDateHHMM(dateStr,row.past_end_time);
+  const pastEnd=parseDateHHMM(dateStr,pastEndTime);
   if(!pastEnd)return false;
   const curingEnd=new Date(pastEnd.getTime()+agingHr*3600*1000);
   return Date.now()>=curingEnd.getTime();
 }
 
 function getCuringRemain(row){
-  if(!row.past_end_time)return null;
+  const pastEndTime=getLastPastEndTime(row);
+  if(!pastEndTime)return null;
   const p=productMap[row.mix_code]||{};
   const agingHr=+(p.aging_time||4);
   const dateStr=row.date||new Date().toISOString().slice(0,10);
-  const pastEnd=parseDateHHMM(dateStr,row.past_end_time);
+  const pastEnd=parseDateHHMM(dateStr,pastEndTime);
   if(!pastEnd)return null;
   const curingEnd=new Date(pastEnd.getTime()+agingHr*3600*1000);
   const rem=curingEnd.getTime()-Date.now();
@@ -326,33 +342,24 @@ function getSt(name){const l=lineMap[name];return l?(lineStates[l.id]||{}):{}}
 
 // คำนวณ Volume ที่ไหลเข้าถัง จาก past_start_time + speed
 function calcVol(row){
+  // ถ้ามี _group ให้ใช้ totalVolume ของ group
   const totalVol=+(row.volume_liter||0);
   if(totalVol<=0) return{filled:0,pct:0,totalVol};
 
-  // ถ้ามี process_order ให้ sum current_vol จากทุก batch ที่ process_order + aging_tank เดียวกัน
-  let filled=0;
-  if(row.process_order&&row.aging_tank){
-    const sameBatches=planRows.filter(r=>
-      r.process_order===row.process_order&&
-      r.aging_tank===row.aging_tank
-    );
-    // รวม volume_liter ทั้งหมดของ group นี้
-    const groupTotalVol=sameBatches.reduce((sum,r)=>sum+(+(r.volume_liter||0)),0);
-    // ใช้ current_vol ของ batch ที่กำลัง past (ค่า cumulative ที่ Pasteurize เขียนไว้)
-    const activeRow=sameBatches.find(r=>r.status==='pasteurising'&&r.current_vol!=null)||
-                    sameBatches.find(r=>r.current_vol!=null);
-    if(activeRow&&activeRow.current_vol!=null){
-      filled=Math.min(groupTotalVol,+activeRow.current_vol);
-      const pct=groupTotalVol>0?(filled/groupTotalVol)*100:0;
-      return{filled,pct,totalVol:groupTotalVol};
-    }
-  }
+  // หา current_vol จาก batch ที่มีค่า cumulative สูงสุด
+  const group=row._group||[row];
+  const activeRow=group.find(r=>r.status==='pasteurising'&&r.current_vol!=null)
+    ||group.slice().reverse().find(r=>r.current_vol!=null);
 
-  // ใช้ current_vol ของ row เดียว
-  if(row.current_vol!==undefined&&row.current_vol!==null){
-    filled=Math.min(totalVol,+row.current_vol);
+  if(activeRow?.current_vol!=null){
+    const filled=Math.min(totalVol,+activeRow.current_vol);
     const pct=totalVol>0?(filled/totalVol)*100:0;
     return{filled,pct,totalVol};
+  }
+
+  // past_done ทั้งหมด = เต็ม
+  if(group.every(r=>r.status==='past_done'||r.status==='ready')){
+    return{filled:totalVol,pct:100,totalVol};
   }
 
   return{filled:0,pct:0,totalVol};
