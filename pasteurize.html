@@ -292,6 +292,7 @@ thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap
       <tr>
         <th rowspan="2">#</th>
         <th rowspan="2">Mix Code</th>
+        <th rowspan="2" style="color:var(--cyan)">🔗 Process</th>
         <th rowspan="2">Mix Name</th>
         <th rowspan="2">Batch</th>
         <th rowspan="2">Vol (L)</th>
@@ -332,6 +333,7 @@ thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap
       <tr>
         <th rowspan="2">#</th>
         <th rowspan="2">Mix Code</th>
+        <th rowspan="2" style="color:var(--cyan)">🔗 Process</th>
         <th rowspan="2">Mix Name</th>
         <th rowspan="2">Batch</th>
         <th rowspan="2">Vol (L)</th>
@@ -1267,6 +1269,7 @@ function renderPlan(p){
     tr.innerHTML=`
       <td><span class="cr">${i+1}</span></td>
       <td><span style="font-family:var(--mono);font-weight:700">${row.mix_code||"—"}</span></td>
+      <td style="text-align:center"><span style="font-family:var(--mono);font-size:14px;font-weight:800;color:var(--cyan)">${row.process_order||'—'}</span></td>
       <td><span style="font-family:var(--mono);font-weight:700;color:var(--blue2)">${row.mix_name||"—"}</span></td>
       <td><span class="cr">${row.batch_no||"—"}</span></td>
       <td><span style="font-family:var(--mono)">${row.volume_liter||"—"}</span></td>
