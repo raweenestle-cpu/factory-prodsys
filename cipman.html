@@ -738,7 +738,7 @@ function buildCard(line){
   const _totalVol=+(current.volume_liter||0);
   let agVol=_totalVol; // default = totalVol (แสดงตามจริง เหมือน aging.html)
   if(current.process_order&&current.aging_tank){
-    const allPlanRows=[...Object.values(lineRows||{})].flat();
+    const allPlanRows=planRows;
     const activeRow=allPlanRows.find(r=>
       r.process_order===current.process_order&&
       r.aging_tank===current.aging_tank&&
