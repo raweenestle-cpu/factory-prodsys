@@ -539,12 +539,20 @@ setInterval(async()=>{
             continue;
           }
 
-          // Stamp Past.เสร็จ
+          // Stamp Past.เสร็จ — current_vol = cumulative รวม batch ก่อนหน้าด้วย
+          const donePrevVol=allRows
+            .filter(r=>r.id!==agRow.id&&
+              r.process_order===agRow.process_order&&
+              r.aging_tank===agRow.aging_tank&&
+              (r.status==='past_done'||r.status==='ready'))
+            .reduce((s,r)=>s+(+(r.volume_liter||0)),0);
+          const finalCumVol=donePrevVol+(+(agRow.volume_liter||0));
+
           await updateDoc(doc(db,planCol(p),agRow.id),{
             past_end_time:endTime,
             eff:Math.round(eff*10)/10,
             status:'past_done',
-            current_vol:totalVol,
+            current_vol:finalCumVol,
             mix_start_time:"",mix_end_time:"",
             glc_actual:"",sgr_actual:"",plm_actual:"",
           });
@@ -1176,7 +1184,6 @@ window.editTimePrompt=async(col,id,field,current)=>{
 
 // ── SUBMIT PAST ───────────────────────────────────────────────────────
 window.submitPast=async(col,id,p,eff,warn)=>{
-  // ป้องกันส่งถ้า eff > 100
   if(eff>100){
     alert(`🔒 ส่งไม่ได้ — Eff% = ${eff}% เกิน 100%\nกรุณาแก้ไขเวลา Past.เสร็จก่อน`);
     return;
@@ -1186,14 +1193,24 @@ window.submitPast=async(col,id,p,eff,warn)=>{
     if(!ok) return;
   }
   try{
+    const row=(rows[p]||[]).find(r=>r.id===id);
+    // คำนวณ cumulative current_vol
+    const allRows=[...(window._rows['p1']||[]),...(window._rows['p2']||[])];
+    const donePrevVol=row?.process_order&&row?.aging_tank
+      ? allRows.filter(r=>r.id!==id&&
+          r.process_order===row.process_order&&
+          r.aging_tank===row.aging_tank&&
+          (r.status==='past_done'||r.status==='ready'))
+        .reduce((s,r)=>s+(+(r.volume_liter||0)),0)
+      : 0;
+    const finalCumVol=donePrevVol+(+(row?.volume_liter||0));
+
     await updateDoc(doc(db,col,id),{
       status:'past_done',
       eff:eff,
-      mix_start_time:"",
-      mix_end_time:"",
-      glc_actual:"",
-      sgr_actual:"",
-      plm_actual:"",
+      current_vol:finalCumVol,
+      mix_start_time:"",mix_end_time:"",
+      glc_actual:"",sgr_actual:"",plm_actual:"",
     });
     toast(`ส่งข้อมูลแล้ว (Eff ${eff}%)`,"green");
   }catch(e){toast("เกิดข้อผิดพลาด: "+e.message,"red");}
