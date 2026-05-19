@@ -1072,6 +1072,8 @@ window.clearTank=async(col,id,name,batch)=>{
     loadClearList(); // reload list
   }catch(e){toast('Error: '+e.message,'red');}
 };
+
+window.saveReportPin=async()=>{
   const pin=$('report-pin').value.trim();
   if(!/^\d{4}$/.test(pin)){toast('PIN ต้องเป็นตัวเลข 4 หลัก','red');return;}
   try{
