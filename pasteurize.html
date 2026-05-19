@@ -689,28 +689,41 @@ function renderTankVisual(m,rows){
 
   if(agRow?.past_start_time){
     try{
-      const totalVol=+(agRow.volume_liter||0);
       agTank=agRow.aging_tank||'—';
       agName=(agRow.mix_name||'—').slice(0,12);
       agTime=agRow.past_start_time+(agRow.past_end_time?' → '+agRow.past_end_time:'');
 
+      // รวม volume จากทุก batch ที่ process_order + aging_tank เดียวกัน
+      const allRows=[...(window._rows['p1']||[]),...(window._rows['p2']||[])];
+      const groupRows=agRow.process_order&&agRow.aging_tank
+        ? allRows.filter(r=>r.process_order===agRow.process_order&&r.aging_tank===agRow.aging_tank)
+        : [agRow];
+      const totalVol=groupRows.reduce((sum,r)=>sum+(+(r.volume_liter||0)),0)||+(agRow.volume_liter||0);
+
+      // current_vol cumulative จาก Pasteurize
+      const activeRow=groupRows.find(r=>r.status==='pasteurising'&&r.current_vol!=null)
+        ||groupRows.slice().reverse().find(r=>r.current_vol!=null);
+      const cumVol=activeRow?.current_vol!=null?+activeRow.current_vol:0;
+
       if(isDone){
-        // เสร็จแล้ว — Mix ว่าง, Aging เต็ม
         agVol=totalVol; agPct=100;
         if(isT1) t1Vol=0;
         else t2Vol=0;
       } else {
-        const[h,mm]=agRow.past_start_time.split(':').map(Number);
-        const start=new Date((agRow.date||new Date().toISOString().slice(0,10))+'T'+String(h).padStart(2,'0')+':'+String(mm).padStart(2,'0')+':00');
-        const elapsedMin=Math.max(0,(Date.now()-start)/60000);
-        const prod=productMap[agRow.mix_code]||{};
-        const density=+(prod.density||1.1);
-        const speed_m1=+(prod.speed_m1||prod.speed||5150);
-        const totalMin=(totalVol*density*60)/speed_m1;
-        agVol=totalMin>0?Math.min(totalVol,(elapsedMin/totalMin)*totalVol):0;
+        agVol=Math.min(totalVol, cumVol>0?cumVol:(()=>{
+          const[h,mm]=agRow.past_start_time.split(':').map(Number);
+          const start=new Date((agRow.date||new Date().toISOString().slice(0,10))+'T'+String(h).padStart(2,'0')+':'+String(mm).padStart(2,'0')+':00');
+          const elapsedMin=Math.max(0,(Date.now()-start)/60000);
+          const prod=productMap[agRow.mix_code]||{};
+          const density=+(prod.density||1.1);
+          const speed_m1=+(prod.speed_m1||prod.speed||5150);
+          const batchVol=+(agRow.volume_liter||0);
+          const totalMin=(batchVol*density*60)/speed_m1;
+          return totalMin>0?(elapsedMin/totalMin)*batchVol:0;
+        })());
         agPct=totalVol>0?(agVol/totalVol)*100:0;
-        if(isT1) t1Vol=Math.max(0,t1Total-agVol);
-        else t2Vol=Math.max(0,t2Total-agVol);
+        if(isT1) t1Vol=Math.max(0,t1Total-(agVol-(groupRows.filter(r=>r.status==='past_done'||r.status==='ready').reduce((s,r)=>s+(+(r.volume_liter||0)),0))));
+        else t2Vol=Math.max(0,t2Total-(agVol-(groupRows.filter(r=>r.status==='past_done'||r.status==='ready').reduce((s,r)=>s+(+(r.volume_liter||0)),0))));
       }
     }catch{}
   }
