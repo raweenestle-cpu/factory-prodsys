@@ -797,6 +797,7 @@ function renderTankVisual(m,rows){
     if(st==='mixing') return{vol:tTotal,pct:50,show:true,wave:true};
     if(tDone) return{vol:0,pct:0,show:true,wave:false};
     if(tActive) return{vol:Math.max(0,tTotal-agVol),pct:Math.max(0,((tTotal-agVol)/Math.max(tTotal,1))*100),show:true,wave:true};
+    if(st==='pasteurising') return{vol:tTotal,pct:50,show:true,wave:true}; // กำลัง past. = 50% + wave
     return{vol:tTotal,pct:100,show:true,wave:false};
   }
   const mx1=mixTankVol(t1Row,t1Total,t1Active,t1Done);
@@ -816,6 +817,7 @@ function renderTankVisual(m,rows){
   function tankFill(vol,total,gid,cid,tw,th,c1,c2,flowing){
     if(total<=0||vol<=0)return'';
     const pct=Math.min(vol/total,1),fh=Math.round((th-4)*pct*0.92),fy=th-2-fh;
+    const amp=flowing?8:2; // wave amplitude — แรงเมื่อ flowing
     return`<defs>
       <linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0%" stop-color="${c1}" stop-opacity=".9"/>
@@ -824,12 +826,22 @@ function renderTankVisual(m,rows){
       <clipPath id="${cid}"><rect x="1" y="1" width="${tw-2}" height="${th-2}" rx="7"/></clipPath>
     </defs>
     <g clip-path="url(#${cid})">
-      <rect x="1" y="${fy+2}" width="${tw-2}" height="${fh+3}" fill="url(#${gid})"/>
+      <rect x="1" y="${fy+amp+2}" width="${tw-2}" height="${fh}" fill="url(#${gid})"/>
       ${flowing?`
-      <path d="M1,${fy+2} C${tw*.25},${fy-3} ${tw*.75},${fy-3} ${tw-1},${fy+2} C${tw*1.25},${fy+7} ${tw*1.75},${fy+7} ${tw*2-1},${fy+2} L${tw*2},${fy+fh+5} L1,${fy+fh+5} Z" fill="${c1}88">
-        <animateTransform attributeName="transform" type="translate" from="0,0" to="${-tw},0" dur="2.2s" repeatCount="indefinite"/>
-      </path>`:''}
-      <rect x="3" y="${fy+5}" width="6" height="${Math.max(0,fh*.4)}" rx="3" fill="rgba(255,255,255,.08)"/>
+      <!-- layer 1 — หลัก -->
+      <path d="M1,${fy+amp} C${tw*.25},${fy} ${tw*.75},${fy} ${tw-1},${fy+amp} C${tw*1.25},${fy+amp*2} ${tw*1.75},${fy+amp*2} ${tw*2-1},${fy+amp} L${tw*2},${fy+fh+amp+4} L1,${fy+fh+amp+4} Z" fill="${c1}cc">
+        <animateTransform attributeName="transform" type="translate" from="0,0" to="${-tw},0" dur="1.6s" repeatCount="indefinite"/>
+      </path>
+      <!-- layer 2 — ตาม offset -->
+      <path d="M1,${fy+amp*.6} C${tw*.3},${fy-amp*.4} ${tw*.7},${fy-amp*.4} ${tw-1},${fy+amp*.6} C${tw*1.3},${fy+amp*1.6} ${tw*1.7},${fy+amp*1.6} ${tw*2-1},${fy+amp*.6} L${tw*2},${fy+fh+amp+4} L1,${fy+fh+amp+4} Z" fill="${c1}66">
+        <animateTransform attributeName="transform" type="translate" from="${tw*.4},0" to="${-tw*.6},0" dur="2.1s" repeatCount="indefinite"/>
+      </path>
+      <!-- layer 3 — สวนทาง ฟองขาว -->
+      <path d="M1,${fy+amp*1.2} C${tw*.35},${fy+amp*.2} ${tw*.65},${fy+amp*.2} ${tw-1},${fy+amp*1.2} C${tw*1.35},${fy+amp*2.2} ${tw*1.65},${fy+amp*2.2} ${tw*2-1},${fy+amp*1.2} L${tw*2},${fy+fh+amp+4} L1,${fy+fh+amp+4} Z" fill="rgba(255,255,255,.12)">
+        <animateTransform attributeName="transform" type="translate" from="${-tw*.2},0" to="${tw*.8},0" dur="2.8s" repeatCount="indefinite"/>
+      </path>`
+      :`<rect x="${tw/2-20}" y="${fy+1}" width="40" height="3" rx="1.5" fill="${c1}66"/>`}
+      <rect x="3" y="${fy+amp+6}" width="6" height="${Math.max(0,fh*.35)}" rx="3" fill="rgba(255,255,255,.07)"/>
     </g>`;
   }
 

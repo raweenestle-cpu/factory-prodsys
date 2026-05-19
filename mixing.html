@@ -586,8 +586,17 @@ function renderMixTanks(m, rows){
       <clipPath id="wc${label.replace(' ','')}"><rect x="12" y="${10+140*(1-pct/100)}" width="106" height="${140*pct/100}" rx="6"/></clipPath>
       <g clip-path="url(#wc${label.replace(' ','')})">
         <rect x="12" y="10" width="106" height="140" fill="url(#wg${label.replace(' ','')})"/>
-        <path d="M12,${10+140*(1-pct/100)} q26,-12 53,0 t53,0 t53,0 v200 h-212 z" fill="${col}" opacity=".4">
-          <animateTransform attributeName="transform" type="translate" from="0,0" to="-53,0" dur="2s" repeatCount="indefinite"/>
+        <!-- layer 1 หลัก -->
+        <path d="M12,${10+140*(1-pct/100)} q26,-14 53,0 t53,0 t53,0 v200 h-212 z" fill="${col}" opacity=".75">
+          <animateTransform attributeName="transform" type="translate" from="0,0" to="-53,0" dur="1.6s" repeatCount="indefinite"/>
+        </path>
+        <!-- layer 2 ตาม -->
+        <path d="M12,${10+140*(1-pct/100)+4} q26,-10 53,0 t53,0 t53,0 v200 h-212 z" fill="${col}" opacity=".4">
+          <animateTransform attributeName="transform" type="translate" from="26,0" to="-27,0" dur="2.1s" repeatCount="indefinite"/>
+        </path>
+        <!-- layer 3 ฟองขาวสวนทาง -->
+        <path d="M12,${10+140*(1-pct/100)+7} q26,-8 53,0 t53,0 t53,0 v200 h-212 z" fill="rgba(255,255,255,.13)">
+          <animateTransform attributeName="transform" type="translate" from="-10,0" to="43,0" dur="2.8s" repeatCount="indefinite"/>
         </path>
       </g>`;
     } else if(st==='pasteurising'){
@@ -602,8 +611,17 @@ function renderMixTanks(m, rows){
         <clipPath id="wc${label.replace(' ','')}"><rect x="12" y="${10+140*(1-pct/100)}" width="106" height="${140*pct/100}" rx="6"/></clipPath>
         <g clip-path="url(#wc${label.replace(' ','')})">
           <rect x="12" y="10" width="106" height="140" fill="url(#wg${label.replace(' ','')})"/>
-          <path d="M12,${10+140*(1-pct/100)} q26,-12 53,0 t53,0 t53,0 v200 h-212 z" fill="${col}" opacity=".4">
-            <animateTransform attributeName="transform" type="translate" from="0,0" to="-53,0" dur="2s" repeatCount="indefinite"/>
+          <!-- layer 1 หลัก -->
+          <path d="M12,${10+140*(1-pct/100)} q26,-14 53,0 t53,0 t53,0 v200 h-212 z" fill="${col}" opacity=".75">
+            <animateTransform attributeName="transform" type="translate" from="0,0" to="-53,0" dur="1.6s" repeatCount="indefinite"/>
+          </path>
+          <!-- layer 2 ตาม -->
+          <path d="M12,${10+140*(1-pct/100)+4} q26,-10 53,0 t53,0 t53,0 v200 h-212 z" fill="${col}" opacity=".4">
+            <animateTransform attributeName="transform" type="translate" from="26,0" to="-27,0" dur="2.1s" repeatCount="indefinite"/>
+          </path>
+          <!-- layer 3 ฟองขาวสวนทาง -->
+          <path d="M12,${10+140*(1-pct/100)+7} q26,-8 53,0 t53,0 t53,0 v200 h-212 z" fill="rgba(255,255,255,.13)">
+            <animateTransform attributeName="transform" type="translate" from="-10,0" to="43,0" dur="2.8s" repeatCount="indefinite"/>
           </path>
         </g>`;
       } else {
@@ -623,9 +641,14 @@ function renderMixTanks(m, rows){
         <rect x="12" y="14" width="110" height="140" rx="10" fill="rgba(0,0,0,.4)"/>
         <!-- body -->
         <rect x="10" y="10" width="110" height="140" rx="10" fill="none" stroke="${borderCol}" stroke-width="2"/>
-        <!-- neck top -->
-        <rect x="49" y="0" width="32" height="12" rx="3" fill="#060a14" stroke="${borderCol}" stroke-width="1.2"/>
-        <rect x="44" y="-6" width="42" height="7" rx="3" fill="#060a14" stroke="${borderCol}" stroke-width="1.2"/>
+        <!-- neck/motor top — สีเขียวเมื่อมีของ (มอเตอร์กวน) -->
+        <rect x="49" y="0" width="32" height="12" rx="3" fill="${pct>0?'rgba(34,197,94,.25)':'#060a14'}" stroke="${pct>0?'#22c55e':borderCol}" stroke-width="${pct>0?2:1.2}"/>
+        <rect x="44" y="-6" width="42" height="7" rx="3" fill="${pct>0?'rgba(34,197,94,.25)':'#060a14'}" stroke="${pct>0?'#22c55e':borderCol}" stroke-width="${pct>0?2:1.2}"/>
+        ${pct>0?`<circle cx="65" cy="-3" r="4" fill="#22c55e" opacity=".9"/>
+        <circle cx="65" cy="-3" r="4" fill="none" stroke="#22c55e" stroke-width="1.5" opacity="0">
+          <animate attributeName="r" from="4" to="10" dur="1.5s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" from="0.6" to="0" dur="1.5s" repeatCount="indefinite"/>
+        </circle>`:''}
         <!-- ขาถัง -->
         <rect x="18" y="150" width="16" height="14" rx="3" fill="#060a14" stroke="${borderCol}" stroke-width="1.2"/>
         <rect x="96" y="150" width="16" height="14" rx="3" fill="#060a14" stroke="${borderCol}" stroke-width="1.2"/>
