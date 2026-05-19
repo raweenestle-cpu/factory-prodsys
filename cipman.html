@@ -460,7 +460,11 @@ function getTanksForLine(lineName){
       if(group.length>1){
         const totalVol=group.reduce((s,r)=>s+(+(r.volume_liter||0)),0);
         const batchBase=String(row.batch_no||'').replace(/[\/\-]\d+$/,'');
-        const activeRow=group.find(r=>r.status==='pasteurising')||group.find(r=>r.status==='past_done')||row;
+        const activeRow=group.reduce((best,r)=>{
+          const cv=r.current_vol!=null?+r.current_vol:-1;
+          const bcv=best.current_vol!=null?+best.current_vol:-1;
+          return cv>bcv?r:best;
+        }, group.find(r=>r.status==='pasteurising')||group[0]);
         grouped.push({...activeRow,volume_liter:totalVol,batch_no:batchBase,_group:group});
         return;
       }
