@@ -607,7 +607,8 @@ window.doLogout=async()=>{
 // ── LOAD PLAN ─────────────────────────────────────────────────────────
 // ── TANK CAPACITY ─────────────────────────────────────────
 function getTankCapacity(tankId){
-  const num=parseInt((tankId||'').replace(/\D/g,''));
+  const raw=parseInt((tankId||'').replace(/\D/g,''));
+  const num=raw>100?Math.floor(raw/10):raw;
   if(num>=61&&num<=64) return 10000;
   if(num>=71&&num<=74) return 10000;
   if(num>=65&&num<=68) return 8000;
