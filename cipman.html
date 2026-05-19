@@ -731,7 +731,6 @@ function buildCard(line){
   </div>`;
 
   const col=productMap[current.mix_code]?.color||'#3b82f6';
-  const sv=st.start_vol||agVol;
   const elapsed=isRunning&&st.start_ts?(Date.now()-st.start_ts)/3600000:0;
   const fr=st.flow_rate||line.flow_rate||300;
 
@@ -753,6 +752,7 @@ function buildCard(line){
   } else {
     agVol=current.current_vol!==undefined&&current.current_vol!==null?+current.current_vol:_totalVol;
   }
+  const sv=st.start_vol||agVol;
   // ก่อน Start → แสดง agVol ตรงๆ / หลัง Start → countdown จาก start_vol
   const rem=isRunning?Math.max(0,(st.start_vol||agVol)-((Date.now()-(st.start_ts||0))/3600000*(st.flow_rate||line.flow_rate||300))):agVol;
   const _capMain=getTankCapacity(st.aging_tank||current.aging_tank||'');
