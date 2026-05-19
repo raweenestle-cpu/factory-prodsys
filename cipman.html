@@ -698,9 +698,24 @@ function buildCard(line){
   const sv=st.start_vol||+(current.volume_liter||0);
   const elapsed=isRunning&&st.start_ts?(Date.now()-st.start_ts)/3600000:0;
   const fr=st.flow_rate||line.flow_rate||300;
-  // ใช้ current_vol ที่ Pasteurize เขียนไว้ถ้ามี
-  // ใช้ current_vol จาก Pasteurize อย่างเดียว
-  const agVol=current.current_vol!==undefined&&current.current_vol!==null?+current.current_vol:0;
+
+  // ใช้ current_vol แบบ cumulative — ถ้ามี process_order ให้ดึงจาก active batch
+  let agVol=0;
+  if(current.process_order&&current.aging_tank){
+    const allPlanRows=[...Object.values(lineRows||{})].flat();
+    const activeRow=allPlanRows.find(r=>
+      r.process_order===current.process_order&&
+      r.aging_tank===current.aging_tank&&
+      r.status==='pasteurising'&&r.current_vol!=null
+    )||allPlanRows.slice().reverse().find(r=>
+      r.process_order===current.process_order&&
+      r.aging_tank===current.aging_tank&&
+      r.current_vol!=null
+    );
+    agVol=activeRow?.current_vol!=null?+activeRow.current_vol:0;
+  } else {
+    agVol=current.current_vol!==undefined&&current.current_vol!==null?+current.current_vol:0;
+  }
   const rem=Math.max(0,sv-agVol);
   const pct=sv>0?(rem/sv)*100:0;
   const pctC=pctColor(pct);

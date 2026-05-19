@@ -277,12 +277,13 @@ function getTankInfo(tankId){
     status=tankStates[tankId]?.status||'empty';
   }
 
-  // กรอง rows ที่เป็น mix_code + date + filling_line เดียวกัน
+  // กรอง rows ที่เป็น process_order + mix_code + date + filling_line เดียวกัน
   const sameGroup=row
     ? allRows.filter(r=>
         r.mix_code===row.mix_code &&
         r.date===row.date &&
-        r.filling_line===row.filling_line
+        r.filling_line===row.filling_line &&
+        (!row.process_order || r.process_order===row.process_order)
       )
     : [];
 
@@ -316,7 +317,12 @@ function getTankInfo(tankId){
   const rows=isSequential(sameGroup)?sameGroup:(row?[row]:[]);
 
   const totalVolume=rows.reduce((sum,r)=>sum+(+(r.volume_liter||0)),0);
-  const totalCurrentVol=rows.reduce((sum,r)=>sum+(r.current_vol!=null?+r.current_vol:+(r.volume_liter||0)),0);
+
+  // current_vol — ใช้ค่า cumulative จาก active batch (Pasteurize เขียนค่า cumulative ไว้แล้ว)
+  // หา batch ที่กำลัง pasteurising อยู่ก่อน ถ้าไม่มีให้ใช้ batch ล่าสุดที่มี current_vol
+  const activeRow=rows.find(r=>r.status==='pasteurising'&&r.current_vol!=null)
+    || rows.slice().reverse().find(r=>r.current_vol!=null);
+  const totalCurrentVol=activeRow?.current_vol!=null ? +activeRow.current_vol : totalVolume;
 
   return{status,row,rows,totalVolume,totalCurrentVol};
 }
