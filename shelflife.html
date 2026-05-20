@@ -4,301 +4,453 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Shelf Life Calculator — PROD.SYS</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sarabun:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sarabun:wght@400;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#07090f;--s1:#0d1117;--s2:#141920;--s3:#1a2230;
-  --b1:#1e2d40;--b2:#263550;
+  --bg:#07090f;--s1:#0d1117;--s2:#141920;--b1:#1e2d40;--b2:#263550;
   --text:#e8eef8;--t2:#7a90b0;--t3:#3d5070;
-  --cyan:#00d4ff;--green:#00e87a;--yellow:#ffd040;
-  --orange:#ff8c42;--red:#ff4560;--purple:#c084fc;
+  --cyan:#00d4ff;--green:#00e87a;--yellow:#ffd040;--orange:#ff8c42;--red:#ff4560;
   --mono:'DM Mono',monospace;--sans:'Sarabun',sans-serif;--display:'Syne',sans-serif;
 }
-body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;overflow-x:hidden}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh}
 body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
-nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;height:56px;background:rgba(7,9,15,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--b1);padding:0 20px;gap:12px;}
-.nav-logo{font-family:var(--display);font-size:16px;font-weight:800;color:var(--cyan);letter-spacing:.05em}
-.nav-sub{font-family:var(--mono);font-size:11px;color:var(--t2);margin-left:4px}
+nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;height:56px;background:rgba(7,9,15,.9);backdrop-filter:blur(12px);border-bottom:1px solid var(--b1);padding:0 20px;gap:10px;}
+.nav-logo{font-family:var(--display);font-size:16px;font-weight:800;color:var(--cyan)}
+.nav-sub{font-family:var(--mono);font-size:11px;color:var(--t2)}
 .nav-back{margin-left:auto;font-family:var(--mono);font-size:11px;padding:5px 12px;border-radius:6px;border:1px solid var(--b2);background:none;color:var(--t2);cursor:pointer;text-decoration:none}
-main{position:relative;z-index:1;max-width:960px;margin:0 auto;padding:28px 20px 60px}
-.section-title{font-family:var(--display);font-size:22px;font-weight:800;color:white;letter-spacing:.02em;margin-bottom:6px;}
-.section-sub{font-size:13px;color:var(--t2);margin-bottom:24px}
-.card{background:var(--s1);border:1px solid var(--b1);border-radius:14px;padding:20px 24px;margin-bottom:16px;}
-.card-title{font-family:var(--mono);font-size:11px;font-weight:500;color:var(--cyan);letter-spacing:.12em;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:8px}
-.card-title::before{content:'';width:3px;height:14px;background:var(--cyan);border-radius:2px;flex-shrink:0}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.form-group{display:flex;flex-direction:column;gap:6px}
-.form-group.full{grid-column:1/-1}
-label{font-family:var(--mono);font-size:10px;color:var(--t2);letter-spacing:.08em;text-transform:uppercase}
-input,select{background:var(--s2);border:1.5px solid var(--b1);border-radius:8px;color:var(--text);font-family:var(--mono);font-size:13px;padding:9px 12px;width:100%;outline:none;transition:border-color .15s;-webkit-appearance:none;}
-input:focus,select:focus{border-color:var(--cyan)}
-select option{background:var(--s2)}
-.temp-wrap{display:flex;align-items:center;gap:12px}
-.temp-display{font-family:var(--display);font-size:32px;font-weight:800;color:var(--cyan);min-width:70px;text-align:center;line-height:1;}
-.temp-unit{font-family:var(--mono);font-size:12px;color:var(--t2);text-align:center}
-input[type=range]{flex:1;-webkit-appearance:none;height:6px;border-radius:3px;background:linear-gradient(90deg,var(--cyan) var(--pct,40%),var(--b2) var(--pct,40%));border:none;padding:0;cursor:pointer;}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--cyan);border:3px solid var(--bg);cursor:pointer;box-shadow:0 0 10px rgba(0,212,255,.5);}
-.btn-calc{width:100%;padding:14px;border-radius:10px;border:none;cursor:pointer;background:linear-gradient(135deg,var(--cyan),#0088cc);color:#060a14;font-family:var(--display);font-size:15px;font-weight:800;letter-spacing:.04em;margin-top:4px;transition:transform .1s,box-shadow .1s;box-shadow:0 4px 20px rgba(0,212,255,.25);}
-.btn-calc:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(0,212,255,.35)}
-.result-card{background:linear-gradient(135deg,rgba(0,212,255,.06),rgba(0,212,255,.02));border:1.5px solid rgba(0,212,255,.3);border-radius:14px;padding:24px;margin-top:20px;display:none;animation:fadeIn .3s ease;}
-.result-card.show{display:block}
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-.result-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px}
-.result-title{font-family:var(--display);font-size:14px;font-weight:800;color:var(--cyan);letter-spacing:.06em}
-.result-main{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;}
-.result-box{background:var(--s2);border:1px solid var(--b1);border-radius:10px;padding:14px 16px;}
-.result-box-label{font-family:var(--mono);font-size:9px;color:var(--t2);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
-.result-box-val{font-family:var(--display);font-size:18px;font-weight:800;color:white;line-height:1.2}
-.result-box-sub{font-family:var(--mono);font-size:10px;color:var(--t3);margin-top:3px}
-.expire-big{background:var(--s2);border:1px solid var(--b1);border-radius:12px;padding:18px 20px;margin-bottom:16px;text-align:center;}
-.expire-label{font-family:var(--mono);font-size:10px;color:var(--t2);letter-spacing:.1em;margin-bottom:8px}
-.expire-date{font-family:var(--display);font-size:26px;font-weight:800;line-height:1.2}
-.expire-time{font-family:var(--mono);font-size:14px;margin-top:4px}
-.expire-remain{font-family:var(--mono);font-size:12px;margin-top:8px;padding:6px 14px;border-radius:20px;display:inline-block}
-.status-bar{height:8px;border-radius:4px;background:var(--b2);overflow:hidden;margin:12px 0}
-.status-fill{height:100%;border-radius:4px;transition:width .8s cubic-bezier(.4,0,.2,1)}
-.shelf-table{width:100%;border-collapse:collapse;font-size:12px}
-.shelf-table th{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--t2);padding:8px 12px;border-bottom:1px solid var(--b1);text-align:center}
-.shelf-table td{font-family:var(--mono);padding:8px 12px;text-align:center;border-bottom:1px solid rgba(30,45,64,.5)}
-.shelf-table tr.active-row td{background:rgba(0,212,255,.08);color:var(--cyan);font-weight:700}
+main{position:relative;z-index:1;max-width:960px;margin:0 auto;padding:24px 16px 60px}
+.page-title{font-family:var(--display);font-size:22px;font-weight:800;color:white;margin-bottom:4px}
+.page-sub{font-size:13px;color:var(--t2);margin-bottom:20px}
+
+/* SEARCH BAR */
+.search-bar{display:flex;gap:10px;margin-bottom:20px}
+.search-bar input{flex:1;background:var(--s1);border:1.5px solid var(--b1);border-radius:10px;color:var(--text);font-family:var(--mono);font-size:14px;padding:12px 16px;outline:none;transition:border-color .15s;}
+.search-bar input:focus{border-color:var(--cyan)}
+.btn-search{padding:12px 20px;border-radius:10px;border:none;background:var(--cyan);color:#060a14;font-family:var(--display);font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap;transition:opacity .15s}
+.btn-search:hover{opacity:.85}
+.btn-search:disabled{opacity:.4;cursor:not-allowed}
+
+/* CARD */
+.card{background:var(--s1);border:1px solid var(--b1);border-radius:14px;padding:18px 20px;margin-bottom:14px}
+.card-hd{font-family:var(--mono);font-size:10px;font-weight:500;color:var(--cyan);letter-spacing:.12em;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.card-hd::before{content:'';width:3px;height:12px;background:var(--cyan);border-radius:2px}
+
+/* INFO GRID */
+.info-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+.info-item{background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:10px 12px}
+.info-label{font-family:var(--mono);font-size:9px;color:var(--t3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px}
+.info-val{font-family:var(--mono);font-size:12px;color:var(--text);font-weight:500;word-break:break-all}
+.info-val.accent{color:var(--cyan)}
+.info-val.green{color:var(--green)}
+.info-val.yellow{color:var(--yellow)}
+.info-val.red{color:var(--red)}
+.info-val.orange{color:var(--orange)}
+
+/* TIMELINE */
+.timeline{display:flex;flex-direction:column;gap:0}
+.tl-item{display:flex;gap:14px;position:relative}
+.tl-item:not(:last-child)::after{content:'';position:absolute;left:15px;top:32px;bottom:0;width:2px;background:var(--b2);z-index:0}
+.tl-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;border:2px solid;z-index:1;position:relative;margin-top:2px}
+.tl-body{flex:1;padding-bottom:18px}
+.tl-title{font-family:var(--display);font-size:13px;font-weight:700;margin-bottom:10px}
+
+/* INGREDIENT TABLE */
+.ing-table{width:100%;border-collapse:collapse;font-size:12px}
+.ing-table th{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--t2);padding:6px 10px;border-bottom:1px solid var(--b1);text-align:left}
+.ing-table td{font-family:var(--mono);padding:6px 10px;border-bottom:1px solid rgba(30,45,64,.4)}
+.ing-table td:last-child{font-weight:700}
+.diff-ok{color:var(--green)}
+.diff-warn{color:var(--yellow)}
+.diff-bad{color:var(--red)}
+
+/* SHELF LIFE */
+.shelf-block{background:linear-gradient(135deg,rgba(0,212,255,.07),rgba(0,212,255,.02));border:1.5px solid rgba(0,212,255,.25);border-radius:12px;padding:18px 20px}
+.temp-row{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.temp-num{font-family:var(--display);font-size:36px;font-weight:800;min-width:65px;text-align:center;line-height:1}
+.temp-unit{font-family:var(--mono);font-size:11px;color:var(--t2);text-align:center}
+input[type=range]{flex:1;-webkit-appearance:none;height:6px;border-radius:3px;background:linear-gradient(90deg,var(--cyan) var(--pct,40%),var(--b2) var(--pct,40%));border:none;padding:0;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--cyan);border:3px solid var(--bg);cursor:pointer;box-shadow:0 0 10px rgba(0,212,255,.4)}
+
+.expire-box{background:var(--s2);border:1px solid var(--b1);border-radius:10px;padding:16px 18px;text-align:center;margin-bottom:14px}
+.expire-label{font-family:var(--mono);font-size:9px;color:var(--t2);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}
+.expire-date{font-family:var(--display);font-size:22px;font-weight:800;line-height:1.2}
+.expire-time{font-family:var(--mono);font-size:13px;margin-top:3px;color:var(--t2)}
+.expire-remain{font-family:var(--mono);font-size:11px;margin-top:8px;padding:5px 14px;border-radius:20px;display:inline-block}
+
+.status-bar{height:8px;border-radius:4px;background:var(--b2);overflow:hidden;margin:10px 0}
+.status-fill{height:100%;border-radius:4px;transition:width 1s cubic-bezier(.4,0,.2,1)}
+
+.shelf-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.stat-box{background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:12px 14px}
+.stat-label{font-family:var(--mono);font-size:9px;color:var(--t2);letter-spacing:.08em;text-transform:uppercase;margin-bottom:5px}
+.stat-val{font-family:var(--display);font-size:20px;font-weight:800}
+
+.shelf-table{width:100%;border-collapse:collapse;font-size:11px}
+.shelf-table th{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--t2);padding:7px 10px;border-bottom:1px solid var(--b1);text-align:center}
+.shelf-table td{font-family:var(--mono);padding:7px 10px;text-align:center;border-bottom:1px solid rgba(30,45,64,.4)}
+.shelf-table tr.active-row td{background:rgba(0,212,255,.1);color:var(--cyan);font-weight:700}
 .shelf-table td:first-child{text-align:left;color:var(--t2)}
-.process-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:12px;}
-.proc-item{background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:10px 12px;}
-.proc-label{font-family:var(--mono);font-size:9px;color:var(--t3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px}
-.proc-val{font-family:var(--mono);font-size:12px;color:white;font-weight:500}
-@media(max-width:600px){.form-grid{grid-template-columns:1fr}.form-group.full{grid-column:1}.result-main{grid-template-columns:1fr}.expire-date{font-size:20px}}
+
+/* EMPTY / LOADING */
+.state-box{text-align:center;padding:40px 20px;color:var(--t3);font-family:var(--mono);font-size:13px}
+.state-box .ico{font-size:36px;margin-bottom:12px}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:10px 20px;border-radius:8px;font-family:var(--mono);font-size:12px;z-index:999;backdrop-filter:blur(8px);white-space:nowrap;transition:opacity .3s}
+
+@media(max-width:600px){
+  .info-grid{grid-template-columns:1fr 1fr}
+  .shelf-stats{grid-template-columns:1fr 1fr}
+  .expire-date{font-size:18px}
+}
 </style>
 </head>
 <body>
 <nav>
   <div class="nav-logo">PROD<span style="color:var(--t3)">.</span>SYS</div>
-  <div class="nav-sub">/ Shelf Life Calculator</div>
+  <div class="nav-sub">/ Shelf Life</div>
   <a href="index.html" class="nav-back">← Home</a>
 </nav>
 <main>
-  <div class="section-title">🧊 Shelf Life Calculator</div>
-  <div class="section-sub">คำนวณวันหมดอายุของมิกซ์ตามอุณหภูมิเก็บรักษา</div>
-  <div class="card">
-    <div class="card-title">ข้อมูลการผลิต</div>
-    <div class="form-grid">
-      <div class="form-group">
-        <label>Process Order</label>
-        <div style="display:flex;gap:8px">
-          <input id="inp-po" type="text" placeholder="เช่น PO-2506-001" style="flex:1">
-          <button onclick="fetchByPO()" style="padding:9px 14px;border-radius:8px;border:1px solid var(--cyan);background:rgba(0,212,255,.1);color:var(--cyan);font-family:var(--mono);font-size:12px;cursor:pointer;white-space:nowrap">🔍 ดึง</button>
-        </div>
-      </div>
-      <div class="form-group">
-        <label>Product Type</label>
-        <select id="inp-type">
-          <option value="">— เลือก Type —</option>
-          <option value="Ice Cream">🍦 Ice Cream Mix</option>
-          <option value="Water Ice">🧊 Water Ice Mix</option>
-          <option value="Jelly">🍮 Jelly Mix</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>วันที่ผลิต</label>
-        <input id="inp-date" type="date">
-      </div>
-      <div class="form-group">
-        <label>เวลาเริ่มผลิต</label>
-        <input id="inp-time" type="time">
-      </div>
-      <div class="form-group">
-        <label>Mix Code</label>
-        <input id="inp-code" type="text" placeholder="เช่น IC-001" oninput="this.value=this.value.toUpperCase()">
-      </div>
-      <div class="form-group">
-        <label>Volume (L)</label>
-        <input id="inp-vol" type="number" placeholder="0" min="0">
-      </div>
-      <div class="form-group full">
-        <label>อุณหภูมิเก็บรักษา (Mix Temp)</label>
-        <div class="temp-wrap">
-          <div>
-            <div class="temp-display" id="temp-display">4</div>
-            <div class="temp-unit">°C</div>
-          </div>
-          <input type="range" id="inp-temp" min="0" max="10" value="4" step="1" oninput="updateTemp(this.value)">
-          <div style="font-family:var(--mono);font-size:10px;color:var(--t3);text-align:right;line-height:1.8">
-            <div>0°C</div><div>10°C</div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div style="margin-top:16px">
-      <button class="btn-calc" onclick="calculate()">⚡ คำนวณ Shelf Life</button>
-    </div>
+  <div class="page-title">🧊 Shelf Life Calculator</div>
+  <div class="page-sub">ดึงข้อมูลทุก Stage ตาม Process Order และคำนวณวันหมดอายุ</div>
+
+  <!-- SEARCH -->
+  <div class="search-bar">
+    <input id="inp-po" type="text" placeholder="กรอก Process Order เช่น PO-2506-001" onkeydown="if(event.key==='Enter')fetchAll()">
+    <button class="btn-search" id="btn-fetch" onclick="fetchAll()">🔍 ดึงข้อมูล</button>
   </div>
 
-  <div class="result-card" id="result-card">
-    <div class="result-header">
-      <div class="result-title" id="res-title"></div>
-      <div id="res-badge"></div>
-    </div>
-    <div class="expire-big">
-      <div class="expire-label">⏰ วันและเวลาหมดอายุ</div>
-      <div class="expire-date" id="res-expire-date">—</div>
-      <div class="expire-time" id="res-expire-time" style="color:var(--t2)">—</div>
-      <div id="res-remain" class="expire-remain"></div>
-    </div>
-    <div style="font-family:var(--mono);font-size:10px;color:var(--t2);margin-bottom:4px;display:flex;justify-content:space-between">
-      <span>เริ่มผลิต</span><span id="res-pct-txt"></span><span>หมดอายุ</span>
-    </div>
-    <div class="status-bar"><div class="status-fill" id="res-bar" style="width:0%"></div></div>
-    <div class="result-main">
-      <div class="result-box">
-        <div class="result-box-label">อายุรวม (ที่อุณหภูมินี้)</div>
-        <div class="result-box-val" id="res-total-hr">—</div>
-        <div class="result-box-sub">ชั่วโมง</div>
-      </div>
-      <div class="result-box">
-        <div class="result-box-label">เหลืออายุ</div>
-        <div class="result-box-val" id="res-remain-hr">—</div>
-        <div class="result-box-sub" id="res-remain-sub">ชั่วโมง</div>
-      </div>
-    </div>
-    <div style="font-family:var(--mono);font-size:10px;color:var(--t2);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px">ข้อมูลการผลิต</div>
-    <div class="process-row" id="res-proc-row"></div>
-    <div style="font-family:var(--mono);font-size:10px;color:var(--t2);letter-spacing:.08em;text-transform:uppercase;margin:20px 0 8px">ตารางอายุตามอุณหภูมิ — <span id="res-type-label" style="color:var(--cyan)"></span></div>
-    <div style="overflow-x:auto;border-radius:8px;border:1px solid var(--b1)">
-      <table class="shelf-table">
-        <thead><tr><th>Temp (°C)</th><th>🍦 Ice Cream</th><th>🧊 Water Ice</th><th>🍮 Jelly</th></tr></thead>
-        <tbody id="shelf-tbody"></tbody>
-      </table>
+  <div id="result-area">
+    <div class="state-box">
+      <div class="ico">📋</div>
+      <div>กรอก Process Order แล้วกด ดึงข้อมูล</div>
     </div>
   </div>
 </main>
 
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import{getFirestore,collection,query,where,getDocs,limit}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import{getFirestore,collection,query,where,getDocs,limit,orderBy}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const app=initializeApp({apiKey:"AIzaSyC3f6jMuhugE6BNfRfkpOA9BMrIKWR9YgQ",authDomain:"production-filling.firebaseapp.com",projectId:"production-filling",storageBucket:"production-filling.firebasestorage.app",messagingSenderId:"89098393458",appId:"1:89098393458:web:b723f2886e8a341935afeb"});
 const db=getFirestore(app);
 
 const SHELF={'Ice Cream':[96,96,96,96,92,76,62,51,43,37,32],'Water Ice':[96,96,96,96,96,96,96,93,81,71,63],'Jelly':[24,24,24,24,24,24,24,24,24,24,24]};
 const $=id=>document.getElementById(id);
+let currentRows=[],currentType='',currentProdDate='',currentStartTime='';
 
-window.updateTemp=v=>{
-  $('temp-display').textContent=v;
-  const pct=((+v)/10)*100;
-  $('inp-temp').style.setProperty('--pct',pct+'%');
-  const col=+v<=3?'#00d4ff':+v<=6?'#00e87a':+v<=8?'#ffd040':'#ff4560';
-  $('temp-display').style.color=col;
-};
-updateTemp(4);
+function toast(msg,col='#00e87a'){
+  const t=document.createElement('div');
+  t.className='toast';t.textContent=msg;
+  t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:'+col+'18;color:'+col+';border:1px solid '+col+'44;padding:10px 20px;border-radius:8px;font-family:var(--mono);font-size:12px;z-index:999;backdrop-filter:blur(8px)';
+  document.body.appendChild(t);setTimeout(()=>t.remove(),3000);
+}
 
-window.fetchByPO=async()=>{
+window.fetchAll=async()=>{
   const po=$('inp-po').value.trim();
-  if(!po){alert('กรุณากรอก Process Order');return;}
+  if(!po){toast('กรุณากรอก Process Order','#ff4560');return;}
+  const btn=$('btn-fetch');
+  btn.disabled=true;btn.textContent='⏳ กำลังดึง...';
+  $('result-area').innerHTML='<div class="state-box"><div class="ico">⏳</div><div>กำลังดึงข้อมูล...</div></div>';
+
   try{
-    const[s1,s2]=await Promise.all([
-      getDocs(query(collection(db,'past_history'),where('process_order','==',po),limit(10))),
-      getDocs(query(collection(db,'production_plans'),where('process_order','==',po),limit(10))),
+    // ดึงจากทุก collection พร้อมกัน
+    const[s1,s2,s3,s4]=await Promise.all([
+      getDocs(query(collection(db,'production_plans'),where('process_order','==',po))),
+      getDocs(query(collection(db,'production_plans_m2'),where('process_order','==',po))),
+      getDocs(query(collection(db,'past_history'),where('process_order','==',po))),
+      getDocs(query(collection(db,'cip_line_states'))),
     ]);
-    const docs=[...s1.docs,...s2.docs].map(d=>({id:d.id,...d.data()}));
-    if(!docs.length){alert('ไม่พบข้อมูล Process Order: '+po);return;}
-    const r=docs[0];
-    if(r.mix_code)$('inp-code').value=r.mix_code;
-    if(r.date)$('inp-date').value=r.date;
-    if(r.mix_start_time)$('inp-time').value=r.mix_start_time;
-    if(r.volume_liter)$('inp-vol').value=r.volume_liter;
+
+    const rows=[
+      ...s1.docs.map(d=>({...d.data(),id:d.id,_col:'production_plans'})),
+      ...s2.docs.map(d=>({...d.data(),id:d.id,_col:'production_plans_m2'})),
+      ...s3.docs.map(d=>({...d.data(),id:d.id,_col:'past_history'})),
+    ];
+
+    if(!rows.length){
+      $('result-area').innerHTML='<div class="state-box"><div class="ico">🔍</div><div>ไม่พบข้อมูล Process Order: <b style="color:var(--text)">'+po+'</b></div></div>';
+      btn.disabled=false;btn.textContent='🔍 ดึงข้อมูล';
+      return;
+    }
+
+    currentRows=rows;
+    const r=rows[0];
+
+    // ดึง product type จาก products
+    let productType='';
     if(r.mix_code){
       const ps=await getDocs(query(collection(db,'products'),where('mix_code','==',r.mix_code),limit(1)));
-      if(!ps.empty){const pt=ps.docs[0].data().product_type||'';if(pt)$('inp-type').value=pt;}
+      if(!ps.empty) productType=ps.docs[0].data().product_type||'';
     }
-    showToast('✅ โหลดข้อมูล Process Order '+po+' แล้ว','#00e87a');
-  }catch(e){alert('โหลดไม่สำเร็จ: '+e.message);}
+    currentType=productType;
+
+    // หาวันผลิตและเวลาเริ่ม
+    currentProdDate=r.date||'';
+    currentStartTime=r.mix_start_time||r.start_time||'';
+
+    renderAll(rows,po,productType);
+    toast('✅ พบข้อมูล '+rows.length+' รายการ');
+  }catch(e){
+    $('result-area').innerHTML='<div class="state-box"><div class="ico">❌</div><div>โหลดไม่สำเร็จ: '+e.message+'</div></div>';
+    toast('โหลดไม่สำเร็จ','#ff4560');
+  }
+  btn.disabled=false;btn.textContent='🔍 ดึงข้อมูล';
 };
 
-window.calculate=()=>{
-  const type=$('inp-type').value;
-  const dateStr=$('inp-date').value;
-  const timeStr=$('inp-time').value;
-  const temp=+$('inp-temp').value;
-  const code=$('inp-code').value||'—';
-  const vol=$('inp-vol').value||'—';
-  if(!type){alert('กรุณาเลือก Product Type');return;}
-  if(!dateStr||!timeStr){alert('กรุณากรอกวันที่และเวลาเริ่มผลิต');return;}
+function renderAll(rows,po,productType){
+  const r=rows[0];
+  const yr=new Date().getFullYear().toString().slice(-1);
+  const unit=r._col==='production_plans_m2'?'2':'1';
+  const prefix=yr+'0522'+unit;
+  const prodCode=r.prod_suffix?(prefix+r.prod_suffix):'—';
+  const totalVol=rows.reduce((s,x)=>s+(+(x.volume_liter||0)),0);
 
-  const shelfHr=SHELF[type][temp];
-  const prodDt=new Date(dateStr+'T'+timeStr);
+  // คำนวณ Eff%
+  let effTxt='—',effCol='var(--t2)';
+  if(r.past_start_time&&r.past_end_time){
+    const[sh,sm]=r.past_start_time.split(':').map(Number);
+    const[eh,em]=r.past_end_time.split(':').map(Number);
+    const actualMin=(eh*60+em)-(sh*60+sm);
+    if(actualMin>0&&r.mix_code){
+      const spd=+(r.speed_m1||r.speed||1000);
+      const den=+(r.density||1);
+      const reqMin=totalVol>0?Math.round(totalVol*den*60/spd):0;
+      const eff=reqMin/actualMin*100;
+      effTxt=eff.toFixed(1)+'%';
+      effCol=eff>=97&&eff<=100?'var(--green)':eff>100?'var(--orange)':'var(--red)';
+    }
+  } else if(r.eff){
+    effTxt=r.eff+'%';
+    effCol=r.eff>=97&&r.eff<=100?'var(--green)':r.eff>100?'var(--orange)':'var(--red)';
+  }
+
+  // status badge
+  const statusMap={pending:'⚪ Pending',mixing:'🟡 Mixing',pasteurising:'🔵 Pasteurising',past_done:'🟢 Past.เสร็จ',ready:'✅ Ready',sent_filling:'📦 ส่ง Filling แล้ว'};
+  const statusTxt=statusMap[r.status]||r.status||'—';
+
+  let html='';
+
+  // ── 1. HEADER INFO ──────────────────────────────────────────────────
+  html+=`<div class="card">
+    <div class="card-hd">📋 ข้อมูลทั่วไป — Process Order ${po}</div>
+    <div class="info-grid">
+      <div class="info-item"><div class="info-label">Process Order</div><div class="info-val accent">${po}</div></div>
+      <div class="info-item"><div class="info-label">Mix Code</div><div class="info-val accent">${r.mix_code||'—'}</div></div>
+      <div class="info-item"><div class="info-label">ชื่อสูตร (Mix Name)</div><div class="info-val">${r.mix_name||'—'}</div></div>
+      <div class="info-item"><div class="info-label">Product Type</div><div class="info-val">${productType||'—'}</div></div>
+      <div class="info-item"><div class="info-label">Batch No.</div><div class="info-val">${r.batch_no||'—'}</div></div>
+      <div class="info-item"><div class="info-label">รหัสผลิต (10 หลัก)</div><div class="info-val accent">${prodCode}</div></div>
+      <div class="info-item"><div class="info-label">Volume รวม</div><div class="info-val">${totalVol.toLocaleString()} L</div></div>
+      <div class="info-item"><div class="info-label">วันที่ผลิต</div><div class="info-val">${r.date?new Date(r.date+'T12:00').toLocaleDateString('th-TH'):r.archived_date||'—'}</div></div>
+      <div class="info-item"><div class="info-label">Filling Line</div><div class="info-val">${r.filling_line||'—'}</div></div>
+      <div class="info-item"><div class="info-label">Aging Tank</div><div class="info-val">${r.aging_tank||'—'}</div></div>
+      <div class="info-item"><div class="info-label">สถานะ</div><div class="info-val">${statusTxt}</div></div>
+      <div class="info-item"><div class="info-label">Mixing Unit</div><div class="info-val">${r._col==='production_plans_m2'?'Mixing 2':'Mixing 1'}</div></div>
+    </div>
+  </div>`;
+
+  // ── 2. TIMELINE ─────────────────────────────────────────────────────
+  html+=`<div class="card"><div class="card-hd">⏱️ Timeline การผลิต</div><div class="timeline">`;
+
+  // MIXING
+  const mixDone=r.mix_start_time&&r.mix_end_time;
+  html+=`<div class="tl-item">
+    <div class="tl-dot" style="background:${mixDone?'rgba(255,208,64,.15)':'var(--s2)'};border-color:${mixDone?'var(--yellow)':'var(--b2)'}">🧪</div>
+    <div class="tl-body">
+      <div class="tl-title" style="color:var(--yellow)">Mixing</div>
+      <div class="info-grid">
+        <div class="info-item"><div class="info-label">Mixing Tank</div><div class="info-val">${r.mixing_tank||'—'}</div></div>
+        <div class="info-item"><div class="info-label">กะเริ่ม (Leadman)</div><div class="info-val">${r.start_time||'—'}</div></div>
+        <div class="info-item"><div class="info-label">เริ่ม Mix</div><div class="info-val ${r.mix_start_time?'green':''}">${r.mix_start_time||'— ยังไม่เริ่ม'}</div></div>
+        <div class="info-item"><div class="info-label">Mix เสร็จ</div><div class="info-val ${r.mix_end_time?'green':''}">${r.mix_end_time||'— ยังไม่เสร็จ'}</div></div>
+        ${r.mix_start_time&&r.mix_end_time?`<div class="info-item"><div class="info-label">ระยะเวลา Mix</div><div class="info-val">${calcDuration(r.mix_start_time,r.mix_end_time)}</div></div>`:''}
+      </div>
+    </div>
+  </div>`;
+
+  // INGREDIENTS
+  const hasIng=(+r.glc_set||0)+(+r.sgr_set||0)+(+r.plm_set||0)>0;
+  if(hasIng){
+    html+=`<div class="tl-item">
+      <div class="tl-dot" style="background:rgba(192,132,252,.1);border-color:#c084fc">🧂</div>
+      <div class="tl-body">
+        <div class="tl-title" style="color:#c084fc">วัตถุดิบเพิ่มเติม</div>
+        <div style="overflow-x:auto;border-radius:8px;border:1px solid var(--b1)">
+          <table class="ing-table">
+            <thead><tr><th>วัตถุดิบ</th><th>ตั้งค่า (Set)</th><th>จริง (Actual)</th><th>ผลต่าง</th><th>ยืนยัน</th></tr></thead>
+            <tbody>
+              ${ingRow('Glucose',r.glc_set,r.glc_actual,r.glc_confirmed)}
+              ${ingRow('Sugar',r.sgr_set,r.sgr_actual,r.sgr_confirmed)}
+              ${ingRow('Palm Oil',r.plm_set,r.plm_actual,r.plm_confirmed)}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // PASTEURISE
+  const pastDone=r.past_start_time&&r.past_end_time;
+  html+=`<div class="tl-item">
+    <div class="tl-dot" style="background:${pastDone?'rgba(0,232,122,.15)':'var(--s2)'};border-color:${pastDone?'var(--green)':'var(--b2)'}">♨️</div>
+    <div class="tl-body">
+      <div class="tl-title" style="color:var(--green)">Pasteurise</div>
+      <div class="info-grid">
+        <div class="info-item"><div class="info-label">เริ่ม Past.</div><div class="info-val ${r.past_start_time?'green':''}">${r.past_start_time||'— ยังไม่เริ่ม'}</div></div>
+        <div class="info-item"><div class="info-label">Past. เสร็จ</div><div class="info-val ${r.past_end_time?'green':''}">${r.past_end_time||'— ยังไม่เสร็จ'}</div></div>
+        ${r.past_start_time&&r.past_end_time?`<div class="info-item"><div class="info-label">ระยะเวลา Past.</div><div class="info-val">${calcDuration(r.past_start_time,r.past_end_time)}</div></div>`:''}
+        <div class="info-item"><div class="info-label">Homo Stage 1</div><div class="info-val">${r.homo_stage1?r.homo_stage1+' psi':'—'}</div></div>
+        <div class="info-item"><div class="info-label">Homo Stage 2</div><div class="info-val">${r.homo_stage2?r.homo_stage2+' psi':'—'}</div></div>
+        <div class="info-item"><div class="info-label">Efficiency</div><div class="info-val" style="color:${effCol}">${effTxt}</div></div>
+        <div class="info-item"><div class="info-label">Aging Tank</div><div class="info-val accent">${r.aging_tank||'—'}</div></div>
+        <div class="info-item"><div class="info-label">Current Vol</div><div class="info-val">${r.current_vol!=null?Number(r.current_vol).toLocaleString()+' L':'—'}</div></div>
+      </div>
+    </div>
+  </div>`;
+
+  // FILLING / CIP
+  html+=`<div class="tl-item">
+    <div class="tl-dot" style="background:${r.status==='sent_filling'?'rgba(0,212,255,.15)':'var(--s2)'};border-color:${r.status==='sent_filling'?'var(--cyan)':'var(--b2)'}">🏭</div>
+    <div class="tl-body">
+      <div class="tl-title" style="color:var(--cyan)">Filling / CIP Man</div>
+      <div class="info-grid">
+        <div class="info-item"><div class="info-label">Filling Line</div><div class="info-val">${r.filling_line||'—'}</div></div>
+        <div class="info-item"><div class="info-label">รหัสผลิต</div><div class="info-val accent">${prodCode}</div></div>
+        <div class="info-item"><div class="info-label">สถานะ</div><div class="info-val">${statusTxt}</div></div>
+        <div class="info-item"><div class="info-label">Volume ส่ง</div><div class="info-val">${totalVol.toLocaleString()} L</div></div>
+      </div>
+    </div>
+  </div>`;
+
+  html+=`</div></div>`; // end timeline card
+
+  // ── 3. SHELF LIFE ────────────────────────────────────────────────────
+  const prodDate=r.date||r.archived_date||'';
+  const startTime=r.mix_start_time||r.start_time||'';
+  html+=`<div class="card shelf-block">
+    <div class="card-hd" style="color:var(--cyan)">🧊 Shelf Life Calculator</div>
+    <div class="temp-row">
+      <div>
+        <div id="temp-disp" style="font-family:var(--display);font-size:36px;font-weight:800;color:var(--cyan);min-width:65px;text-align:center;line-height:1">4</div>
+        <div style="font-family:var(--mono);font-size:11px;color:var(--t2);text-align:center">°C</div>
+      </div>
+      <input type="range" id="inp-temp" min="0" max="10" value="4" step="1" oninput="updateShelf(this.value,'${productType}','${prodDate}','${startTime}')">
+      <div style="font-family:var(--mono);font-size:10px;color:var(--t3);text-align:right;line-height:2">
+        <div>0°C</div><div>10°C</div>
+      </div>
+    </div>
+    <div id="shelf-result"></div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--t2);letter-spacing:.08em;text-transform:uppercase;margin:16px 0 8px">ตารางอายุตามอุณหภูมิ</div>
+    <div style="overflow-x:auto;border-radius:8px;border:1px solid var(--b1)">
+      <table class="shelf-table" id="shelf-tbl">
+        <thead><tr><th>Temp</th><th>🍦 Ice Cream</th><th>🧊 Water Ice</th><th>🍮 Jelly</th></tr></thead>
+        <tbody id="shelf-tbody"></tbody>
+      </table>
+    </div>
+  </div>`;
+
+  $('result-area').innerHTML=html;
+
+  // render shelf life ทันที
+  updateShelf(4,productType,prodDate,startTime);
+};
+
+window.updateShelf=(temp,type,prodDate,startTime)=>{
+  temp=+temp;
+  const col=temp<=3?'#00d4ff':temp<=6?'#00e87a':temp<=8?'#ffd040':'#ff4560';
+  const d=$('temp-disp');
+  if(d){d.textContent=temp;d.style.color=col;}
+  const pct=(temp/10)*100;
+  const sl=$('inp-temp');
+  if(sl) sl.style.setProperty('--pct',pct+'%');
+
+  // shelf table
+  const types=['Ice Cream','Water Ice','Jelly'];
+  const tbody=$('shelf-tbody');
+  if(tbody) tbody.innerHTML=Array.from({length:11},(_,i)=>{
+    const isActive=i===temp;
+    return'<tr class="'+(isActive?'active-row':'')+'"><td>'+i+'°C '+(isActive?'◀':'')+'</td>'+types.map(t=>'<td style="'+(isActive&&t===type?'color:var(--cyan);font-weight:800':'')+'">'+SHELF[t][i]+' hr</td>').join('')+'</tr>';
+  }).join('');
+
+  if(!type||!prodDate||!startTime){
+    const sr=$('shelf-result');
+    if(sr) sr.innerHTML='<div style="font-family:var(--mono);font-size:11px;color:var(--t2);margin-bottom:14px">⚠️ ไม่มีข้อมูลวันผลิตหรือ product type — ไม่สามารถคำนวณได้</div>';
+    return;
+  }
+  const shelfHr=SHELF[type]?SHELF[type][temp]:null;
+  if(!shelfHr){
+    const sr=$('shelf-result');
+    if(sr) sr.innerHTML='<div style="font-family:var(--mono);font-size:11px;color:var(--t2);margin-bottom:14px">ไม่พบ type "'+type+'" ในตาราง</div>';
+    return;
+  }
+
+  const prodDt=new Date(prodDate+'T'+startTime);
   const expireDt=new Date(prodDt.getTime()+shelfHr*3600000);
   const now=new Date();
   const remainMs=expireDt-now;
   const remainHr=remainMs/3600000;
   const elapsed=(now-prodDt)/3600000;
-  const pct=Math.min(100,Math.max(0,(elapsed/shelfHr)*100));
+  const barPct=Math.min(100,Math.max(0,(elapsed/shelfHr)*100));
 
   const isExpired=remainHr<=0;
   const isCritical=remainHr>0&&remainHr<=6;
   const isWarning=remainHr>6&&remainHr<=24;
   const statusCol=isExpired?'#ff4560':isCritical?'#ff8c42':isWarning?'#ffd040':'#00e87a';
-  const statusTxt=isExpired?'❌ หมดอายุแล้ว':isCritical?'⚠️ ใกล้หมดอายุ (<6 hr)':isWarning?'🟡 ควรระวัง (<24 hr)':'✅ ยังอยู่ในอายุ';
+  const statusTxt=isExpired?'❌ หมดอายุแล้ว':isCritical?'⚠️ ใกล้หมดอายุ':isWarning?'🟡 ควรระวัง':'✅ ยังอยู่ในอายุ';
 
-  $('res-title').textContent=type.toUpperCase()+' — '+code;
-  $('res-badge').innerHTML=statusTxt;
-  $('res-badge').style.cssText='background:'+statusCol+'18;color:'+statusCol+';border:1px solid '+statusCol+'44;font-family:var(--mono);font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px';
+  const sr=$('shelf-result');
+  if(!sr) return;
 
-  $('res-expire-date').textContent=expireDt.toLocaleDateString('th-TH',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-  $('res-expire-date').style.color=statusCol;
-  $('res-expire-time').textContent='เวลา '+expireDt.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})+' น.';
-
-  const remEl=$('res-remain');
+  let remTxt='';
   if(isExpired){
-    remEl.textContent='เกินอายุมาแล้ว '+Math.abs(remainHr).toFixed(1)+' ชั่วโมง';
-    remEl.style.cssText='background:rgba(255,69,96,.15);color:#ff4560;border:1px solid rgba(255,69,96,.3)';
+    remTxt='เกินอายุมาแล้ว '+Math.abs(remainHr).toFixed(1)+' ชั่วโมง';
   } else {
     const rH=Math.floor(remainHr),rM=Math.round((remainHr-rH)*60);
-    remEl.textContent='เหลืออายุ '+rH+' ชั่วโมง '+rM+' นาที';
-    remEl.style.cssText='background:'+statusCol+'15;color:'+statusCol+';border:1px solid '+statusCol+'30';
+    remTxt='เหลืออายุ '+rH+' ชั่วโมง '+rM+' นาที';
   }
 
-  $('res-bar').style.width=pct+'%';
-  $('res-bar').style.background='linear-gradient(90deg,'+statusCol+','+statusCol+'99)';
-  $('res-pct-txt').textContent=pct.toFixed(0)+'% ผ่านไปแล้ว';
-  $('res-total-hr').textContent=shelfHr+' hr';
-  $('res-remain-hr').textContent=isExpired?'0 hr':remainHr.toFixed(1)+' hr';
-  $('res-remain-hr').style.color=statusCol;
-  $('res-remain-sub').textContent=isExpired?'หมดอายุแล้ว':'ชั่วโมงที่เหลือ';
+  sr.innerHTML=`
+    <div style="display:inline-block;background:${statusCol}18;color:${statusCol};border:1px solid ${statusCol}44;font-family:var(--mono);font-size:11px;font-weight:700;padding:4px 14px;border-radius:20px;margin-bottom:14px">${statusTxt}</div>
+    <div class="expire-box">
+      <div class="expire-label">⏰ วันและเวลาหมดอายุ</div>
+      <div class="expire-date" style="color:${statusCol}">${expireDt.toLocaleDateString('th-TH',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}</div>
+      <div class="expire-time">เวลา ${expireDt.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})} น.</div>
+      <div class="expire-remain" style="background:${statusCol}15;color:${statusCol};border:1px solid ${statusCol}30">${remTxt}</div>
+    </div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--t2);display:flex;justify-content:space-between;margin-bottom:4px">
+      <span>เริ่มผลิต ${startTime} น.</span><span>${barPct.toFixed(0)}% ผ่านไปแล้ว</span><span>หมดอายุ</span>
+    </div>
+    <div class="status-bar"><div class="status-fill" style="width:${barPct}%;background:linear-gradient(90deg,${statusCol},${statusCol}88)"></div></div>
+    <div class="shelf-stats">
+      <div class="stat-box"><div class="stat-label">อายุรวมที่ ${temp}°C</div><div class="stat-val" style="color:var(--cyan)">${shelfHr} hr</div></div>
+      <div class="stat-box"><div class="stat-label">เหลืออายุ</div><div class="stat-val" style="color:${statusCol}">${isExpired?'0':remainHr.toFixed(1)} hr</div></div>
+    </div>`;
 
-  $('res-proc-row').innerHTML=[
-    {l:'วันผลิต',v:new Date(dateStr+'T12:00').toLocaleDateString('th-TH')},
-    {l:'เวลาเริ่ม',v:timeStr+' น.'},
-    {l:'Mix Code',v:code},
-    {l:'Volume',v:vol!=='—'?Number(vol).toLocaleString()+' L':vol},
-    {l:'อุณหภูมิ',v:temp+'°C'},
-    {l:'Product Type',v:type},
-  ].map(x=>'<div class="proc-item"><div class="proc-label">'+x.l+'</div><div class="proc-val">'+x.v+'</div></div>').join('');
-
-  $('res-type-label').textContent=type;
-  const types=['Ice Cream','Water Ice','Jelly'];
-  $('shelf-tbody').innerHTML=Array.from({length:11},(_,i)=>{
-    const isActive=i===temp;
-    return'<tr class="'+(isActive?'active-row':'')+'"><td>'+i+'°C '+(isActive?'◀':'')+'</td>'+types.map(t=>'<td style="'+(isActive&&t===type?'color:var(--cyan);font-weight:800':'')+'">'+SHELF[t][i]+' hr</td>').join('')+'</tr>';
-  }).join('');
-
-  $('result-card').classList.add('show');
-  setTimeout(()=>$('result-card').scrollIntoView({behavior:'smooth',block:'nearest'}),100);
-  clearInterval(window._calcTimer);
-  window._calcTimer=setInterval(()=>calculate(),60000);
+  clearInterval(window._shelfTimer);
+  window._shelfTimer=setInterval(()=>updateShelf(temp,type,prodDate,startTime),60000);
 };
 
-function showToast(msg,col){
-  const t=document.createElement('div');
-  t.textContent=msg;
-  t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:'+col+'18;color:'+col+';border:1px solid '+col+'44;padding:10px 20px;border-radius:8px;font-family:var(--mono);font-size:12px;z-index:999;backdrop-filter:blur(8px);white-space:nowrap';
-  document.body.appendChild(t);setTimeout(()=>t.remove(),3000);
+function calcDuration(start,end){
+  if(!start||!end) return '—';
+  const[sh,sm]=start.split(':').map(Number);
+  const[eh,em]=end.split(':').map(Number);
+  let mins=(eh*60+em)-(sh*60+sm);
+  if(mins<0) mins+=1440;
+  const h=Math.floor(mins/60),m=mins%60;
+  return h>0?h+' ชม. '+m+' น.':(m+' น.');
 }
-window.showToast=showToast;
 
-const today=new Date().toISOString().slice(0,10);
-$('inp-date').value=today;
-const now=new Date();
-$('inp-time').value=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+function ingRow(name,set,actual,confirmed){
+  if(!+set) return '';
+  const s=+(set||0),a=+(actual||0);
+  const diff=a-s;
+  const pct=s>0?(diff/s*100):0;
+  const cls=Math.abs(pct)<=2?'diff-ok':Math.abs(pct)<=5?'diff-warn':'diff-bad';
+  const diffTxt=diff===0?'ตรง':(diff>0?'+':'')+diff.toFixed(1)+' ('+pct.toFixed(1)+'%)';
+  return'<tr><td>'+name+'</td><td>'+s+' kg</td><td>'+(a||'—')+'</td><td class="'+cls+'">'+diffTxt+'</td><td>'+(confirmed?'✅':'⏳')+'</td></tr>';
+}
 </script>
 </body>
 </html>
