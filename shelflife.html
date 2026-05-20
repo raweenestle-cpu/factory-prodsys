@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shelf Life Calculator — PROD.SYS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sarabun:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07090f;--s1:#0d1117;--s2:#141920;--s3:#1a2230;
+  --b1:#1e2d40;--b2:#263550;
+  --text:#e8eef8;--t2:#7a90b0;--t3:#3d5070;
+  --cyan:#00d4ff;--green:#00e87a;--yellow:#ffd040;
+  --orange:#ff8c42;--red:#ff4560;--purple:#c084fc;
+  --mono:'DM Mono',monospace;--sans:'Sarabun',sans-serif;--display:'Syne',sans-serif;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;height:56px;background:rgba(7,9,15,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--b1);padding:0 20px;gap:12px;}
+.nav-logo{font-family:var(--display);font-size:16px;font-weight:800;color:var(--cyan);letter-spacing:.05em}
+.nav-sub{font-family:var(--mono);font-size:11px;color:var(--t2);margin-left:4px}
+.nav-back{margin-left:auto;font-family:var(--mono);font-size:11px;padding:5px 12px;border-radius:6px;border:1px solid var(--b2);background:none;color:var(--t2);cursor:pointer;text-decoration:none}
+main{position:relative;z-index:1;max-width:960px;margin:0 auto;padding:28px 20px 60px}
+.section-title{font-family:var(--display);font-size:22px;font-weight:800;color:white;letter-spacing:.02em;margin-bottom:6px;}
+.section-sub{font-size:13px;color:var(--t2);margin-bottom:24px}
+.card{background:var(--s1);border:1px solid var(--b1);border-radius:14px;padding:20px 24px;margin-bottom:16px;}
+.card-title{font-family:var(--mono);font-size:11px;font-weight:500;color:var(--cyan);letter-spacing:.12em;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.card-title::before{content:'';width:3px;height:14px;background:var(--cyan);border-radius:2px;flex-shrink:0}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-group{display:flex;flex-direction:column;gap:6px}
+.form-group.full{grid-column:1/-1}
+label{font-family:var(--mono);font-size:10px;color:var(--t2);letter-spacing:.08em;text-transform:uppercase}
+input,select{background:var(--s2);border:1.5px solid var(--b1);border-radius:8px;color:var(--text);font-family:var(--mono);font-size:13px;padding:9px 12px;width:100%;outline:none;transition:border-color .15s;-webkit-appearance:none;}
+input:focus,select:focus{border-color:var(--cyan)}
+select option{background:var(--s2)}
+.temp-wrap{display:flex;align-items:center;gap:12px}
+.temp-display{font-family:var(--display);font-size:32px;font-weight:800;color:var(--cyan);min-width:70px;text-align:center;line-height:1;}
+.temp-unit{font-family:var(--mono);font-size:12px;color:var(--t2);text-align:center}
+input[type=range]{flex:1;-webkit-appearance:none;height:6px;border-radius:3px;background:linear-gradient(90deg,var(--cyan) var(--pct,40%),var(--b2) var(--pct,40%));border:none;padding:0;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--cyan);border:3px solid var(--bg);cursor:pointer;box-shadow:0 0 10px rgba(0,212,255,.5);}
+.btn-calc{width:100%;padding:14px;border-radius:10px;border:none;cursor:pointer;background:linear-gradient(135deg,var(--cyan),#0088cc);color:#060a14;font-family:var(--display);font-size:15px;font-weight:800;letter-spacing:.04em;margin-top:4px;transition:transform .1s,box-shadow .1s;box-shadow:0 4px 20px rgba(0,212,255,.25);}
+.btn-calc:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(0,212,255,.35)}
+.result-card{background:linear-gradient(135deg,rgba(0,212,255,.06),rgba(0,212,255,.02));border:1.5px solid rgba(0,212,255,.3);border-radius:14px;padding:24px;margin-top:20px;display:none;animation:fadeIn .3s ease;}
+.result-card.show{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.result-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px}
+.result-title{font-family:var(--display);font-size:14px;font-weight:800;color:var(--cyan);letter-spacing:.06em}
+.result-main{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;}
+.result-box{background:var(--s2);border:1px solid var(--b1);border-radius:10px;padding:14px 16px;}
+.result-box-label{font-family:var(--mono);font-size:9px;color:var(--t2);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
+.result-box-val{font-family:var(--display);font-size:18px;font-weight:800;color:white;line-height:1.2}
+.result-box-sub{font-family:var(--mono);font-size:10px;color:var(--t3);margin-top:3px}
+.expire-big{background:var(--s2);border:1px solid var(--b1);border-radius:12px;padding:18px 20px;margin-bottom:16px;text-align:center;}
+.expire-label{font-family:var(--mono);font-size:10px;color:var(--t2);letter-spacing:.1em;margin-bottom:8px}
+.expire-date{font-family:var(--display);font-size:26px;font-weight:800;line-height:1.2}
+.expire-time{font-family:var(--mono);font-size:14px;margin-top:4px}
+.expire-remain{font-family:var(--mono);font-size:12px;margin-top:8px;padding:6px 14px;border-radius:20px;display:inline-block}
+.status-bar{height:8px;border-radius:4px;background:var(--b2);overflow:hidden;margin:12px 0}
+.status-fill{height:100%;border-radius:4px;transition:width .8s cubic-bezier(.4,0,.2,1)}
+.shelf-table{width:100%;border-collapse:collapse;font-size:12px}
+.shelf-table th{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--t2);padding:8px 12px;border-bottom:1px solid var(--b1);text-align:center}
+.shelf-table td{font-family:var(--mono);padding:8px 12px;text-align:center;border-bottom:1px solid rgba(30,45,64,.5)}
+.shelf-table tr.active-row td{background:rgba(0,212,255,.08);color:var(--cyan);font-weight:700}
+.shelf-table td:first-child{text-align:left;color:var(--t2)}
+.process-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:12px;}
+.proc-item{background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:10px 12px;}
+.proc-label{font-family:var(--mono);font-size:9px;color:var(--t3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px}
+.proc-val{font-family:var(--mono);font-size:12px;color:white;font-weight:500}
+@media(max-width:600px){.form-grid{grid-template-columns:1fr}.form-group.full{grid-column:1}.result-main{grid-template-columns:1fr}.expire-date{font-size:20px}}
+</style>
+</head>
+<body>
+<nav>
+  <div class="nav-logo">PROD<span style="color:var(--t3)">.</span>SYS</div>
+  <div class="nav-sub">/ Shelf Life Calculator</div>
+  <a href="index.html" class="nav-back">← Home</a>
+</nav>
+<main>
+  <div class="section-title">🧊 Shelf Life Calculator</div>
+  <div class="section-sub">คำนวณวันหมดอายุของมิกซ์ตามอุณหภูมิเก็บรักษา</div>
+  <div class="card">
+    <div class="card-title">ข้อมูลการผลิต</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Process Order</label>
+        <div style="display:flex;gap:8px">
+          <input id="inp-po" type="text" placeholder="เช่น PO-2506-001" style="flex:1">
+          <button onclick="fetchByPO()" style="padding:9px 14px;border-radius:8px;border:1px solid var(--cyan);background:rgba(0,212,255,.1);color:var(--cyan);font-family:var(--mono);font-size:12px;cursor:pointer;white-space:nowrap">🔍 ดึง</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Product Type</label>
+        <select id="inp-type">
+          <option value="">— เลือก Type —</option>
+          <option value="Ice Cream">🍦 Ice Cream Mix</option>
+          <option value="Water Ice">🧊 Water Ice Mix</option>
+          <option value="Jelly">🍮 Jelly Mix</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>วันที่ผลิต</label>
+        <input id="inp-date" type="date">
+      </div>
+      <div class="form-group">
+        <label>เวลาเริ่มผลิต</label>
+        <input id="inp-time" type="time">
+      </div>
+      <div class="form-group">
+        <label>Mix Code</label>
+        <input id="inp-code" type="text" placeholder="เช่น IC-001" oninput="this.value=this.value.toUpperCase()">
+      </div>
+      <div class="form-group">
+        <label>Volume (L)</label>
+        <input id="inp-vol" type="number" placeholder="0" min="0">
+      </div>
+      <div class="form-group full">
+        <label>อุณหภูมิเก็บรักษา (Mix Temp)</label>
+        <div class="temp-wrap">
+          <div>
+            <div class="temp-display" id="temp-display">4</div>
+            <div class="temp-unit">°C</div>
+          </div>
+          <input type="range" id="inp-temp" min="0" max="10" value="4" step="1" oninput="updateTemp(this.value)">
+          <div style="font-family:var(--mono);font-size:10px;color:var(--t3);text-align:right;line-height:1.8">
+            <div>0°C</div><div>10°C</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:16px">
+      <button class="btn-calc" onclick="calculate()">⚡ คำนวณ Shelf Life</button>
+    </div>
+  </div>
+
+  <div class="result-card" id="result-card">
+    <div class="result-header">
+      <div class="result-title" id="res-title"></div>
+      <div id="res-badge"></div>
+    </div>
+    <div class="expire-big">
+      <div class="expire-label">⏰ วันและเวลาหมดอายุ</div>
+      <div class="expire-date" id="res-expire-date">—</div>
+      <div class="expire-time" id="res-expire-time" style="color:var(--t2)">—</div>
+      <div id="res-remain" class="expire-remain"></div>
+    </div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--t2);margin-bottom:4px;display:flex;justify-content:space-between">
+      <span>เริ่มผลิต</span><span id="res-pct-txt"></span><span>หมดอายุ</span>
+    </div>
+    <div class="status-bar"><div class="status-fill" id="res-bar" style="width:0%"></div></div>
+    <div class="result-main">
+      <div class="result-box">
+        <div class="result-box-label">อายุรวม (ที่อุณหภูมินี้)</div>
+        <div class="result-box-val" id="res-total-hr">—</div>
+        <div class="result-box-sub">ชั่วโมง</div>
+      </div>
+      <div class="result-box">
+        <div class="result-box-label">เหลืออายุ</div>
+        <div class="result-box-val" id="res-remain-hr">—</div>
+        <div class="result-box-sub" id="res-remain-sub">ชั่วโมง</div>
+      </div>
+    </div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--t2);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px">ข้อมูลการผลิต</div>
+    <div class="process-row" id="res-proc-row"></div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--t2);letter-spacing:.08em;text-transform:uppercase;margin:20px 0 8px">ตารางอายุตามอุณหภูมิ — <span id="res-type-label" style="color:var(--cyan)"></span></div>
+    <div style="overflow-x:auto;border-radius:8px;border:1px solid var(--b1)">
+      <table class="shelf-table">
+        <thead><tr><th>Temp (°C)</th><th>🍦 Ice Cream</th><th>🧊 Water Ice</th><th>🍮 Jelly</th></tr></thead>
+        <tbody id="shelf-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import{getFirestore,collection,query,where,getDocs,limit}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const app=initializeApp({apiKey:"AIzaSyC3f6jMuhugE6BNfRfkpOA9BMrIKWR9YgQ",authDomain:"production-filling.firebaseapp.com",projectId:"production-filling",storageBucket:"production-filling.firebasestorage.app",messagingSenderId:"89098393458",appId:"1:89098393458:web:b723f2886e8a341935afeb"});
+const db=getFirestore(app);
+
+const SHELF={'Ice Cream':[96,96,96,96,92,76,62,51,43,37,32],'Water Ice':[96,96,96,96,96,96,96,93,81,71,63],'Jelly':[24,24,24,24,24,24,24,24,24,24,24]};
+const $=id=>document.getElementById(id);
+
+window.updateTemp=v=>{
+  $('temp-display').textContent=v;
+  const pct=((+v)/10)*100;
+  $('inp-temp').style.setProperty('--pct',pct+'%');
+  const col=+v<=3?'#00d4ff':+v<=6?'#00e87a':+v<=8?'#ffd040':'#ff4560';
+  $('temp-display').style.color=col;
+};
+updateTemp(4);
+
+window.fetchByPO=async()=>{
+  const po=$('inp-po').value.trim();
+  if(!po){alert('กรุณากรอก Process Order');return;}
+  try{
+    const[s1,s2]=await Promise.all([
+      getDocs(query(collection(db,'past_history'),where('process_order','==',po),limit(10))),
+      getDocs(query(collection(db,'production_plans'),where('process_order','==',po),limit(10))),
+    ]);
+    const docs=[...s1.docs,...s2.docs].map(d=>({id:d.id,...d.data()}));
+    if(!docs.length){alert('ไม่พบข้อมูล Process Order: '+po);return;}
+    const r=docs[0];
+    if(r.mix_code)$('inp-code').value=r.mix_code;
+    if(r.date)$('inp-date').value=r.date;
+    if(r.mix_start_time)$('inp-time').value=r.mix_start_time;
+    if(r.volume_liter)$('inp-vol').value=r.volume_liter;
+    if(r.mix_code){
+      const ps=await getDocs(query(collection(db,'products'),where('mix_code','==',r.mix_code),limit(1)));
+      if(!ps.empty){const pt=ps.docs[0].data().product_type||'';if(pt)$('inp-type').value=pt;}
+    }
+    showToast('✅ โหลดข้อมูล Process Order '+po+' แล้ว','#00e87a');
+  }catch(e){alert('โหลดไม่สำเร็จ: '+e.message);}
+};
+
+window.calculate=()=>{
+  const type=$('inp-type').value;
+  const dateStr=$('inp-date').value;
+  const timeStr=$('inp-time').value;
+  const temp=+$('inp-temp').value;
+  const code=$('inp-code').value||'—';
+  const vol=$('inp-vol').value||'—';
+  if(!type){alert('กรุณาเลือก Product Type');return;}
+  if(!dateStr||!timeStr){alert('กรุณากรอกวันที่และเวลาเริ่มผลิต');return;}
+
+  const shelfHr=SHELF[type][temp];
+  const prodDt=new Date(dateStr+'T'+timeStr);
+  const expireDt=new Date(prodDt.getTime()+shelfHr*3600000);
+  const now=new Date();
+  const remainMs=expireDt-now;
+  const remainHr=remainMs/3600000;
+  const elapsed=(now-prodDt)/3600000;
+  const pct=Math.min(100,Math.max(0,(elapsed/shelfHr)*100));
+
+  const isExpired=remainHr<=0;
+  const isCritical=remainHr>0&&remainHr<=6;
+  const isWarning=remainHr>6&&remainHr<=24;
+  const statusCol=isExpired?'#ff4560':isCritical?'#ff8c42':isWarning?'#ffd040':'#00e87a';
+  const statusTxt=isExpired?'❌ หมดอายุแล้ว':isCritical?'⚠️ ใกล้หมดอายุ (<6 hr)':isWarning?'🟡 ควรระวัง (<24 hr)':'✅ ยังอยู่ในอายุ';
+
+  $('res-title').textContent=type.toUpperCase()+' — '+code;
+  $('res-badge').innerHTML=statusTxt;
+  $('res-badge').style.cssText='background:'+statusCol+'18;color:'+statusCol+';border:1px solid '+statusCol+'44;font-family:var(--mono);font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px';
+
+  $('res-expire-date').textContent=expireDt.toLocaleDateString('th-TH',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  $('res-expire-date').style.color=statusCol;
+  $('res-expire-time').textContent='เวลา '+expireDt.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})+' น.';
+
+  const remEl=$('res-remain');
+  if(isExpired){
+    remEl.textContent='เกินอายุมาแล้ว '+Math.abs(remainHr).toFixed(1)+' ชั่วโมง';
+    remEl.style.cssText='background:rgba(255,69,96,.15);color:#ff4560;border:1px solid rgba(255,69,96,.3)';
+  } else {
+    const rH=Math.floor(remainHr),rM=Math.round((remainHr-rH)*60);
+    remEl.textContent='เหลืออายุ '+rH+' ชั่วโมง '+rM+' นาที';
+    remEl.style.cssText='background:'+statusCol+'15;color:'+statusCol+';border:1px solid '+statusCol+'30';
+  }
+
+  $('res-bar').style.width=pct+'%';
+  $('res-bar').style.background='linear-gradient(90deg,'+statusCol+','+statusCol+'99)';
+  $('res-pct-txt').textContent=pct.toFixed(0)+'% ผ่านไปแล้ว';
+  $('res-total-hr').textContent=shelfHr+' hr';
+  $('res-remain-hr').textContent=isExpired?'0 hr':remainHr.toFixed(1)+' hr';
+  $('res-remain-hr').style.color=statusCol;
+  $('res-remain-sub').textContent=isExpired?'หมดอายุแล้ว':'ชั่วโมงที่เหลือ';
+
+  $('res-proc-row').innerHTML=[
+    {l:'วันผลิต',v:new Date(dateStr+'T12:00').toLocaleDateString('th-TH')},
+    {l:'เวลาเริ่ม',v:timeStr+' น.'},
+    {l:'Mix Code',v:code},
+    {l:'Volume',v:vol!=='—'?Number(vol).toLocaleString()+' L':vol},
+    {l:'อุณหภูมิ',v:temp+'°C'},
+    {l:'Product Type',v:type},
+  ].map(x=>'<div class="proc-item"><div class="proc-label">'+x.l+'</div><div class="proc-val">'+x.v+'</div></div>').join('');
+
+  $('res-type-label').textContent=type;
+  const types=['Ice Cream','Water Ice','Jelly'];
+  $('shelf-tbody').innerHTML=Array.from({length:11},(_,i)=>{
+    const isActive=i===temp;
+    return'<tr class="'+(isActive?'active-row':'')+'"><td>'+i+'°C '+(isActive?'◀':'')+'</td>'+types.map(t=>'<td style="'+(isActive&&t===type?'color:var(--cyan);font-weight:800':'')+'">'+SHELF[t][i]+' hr</td>').join('')+'</tr>';
+  }).join('');
+
+  $('result-card').classList.add('show');
+  setTimeout(()=>$('result-card').scrollIntoView({behavior:'smooth',block:'nearest'}),100);
+  clearInterval(window._calcTimer);
+  window._calcTimer=setInterval(()=>calculate(),60000);
+};
+
+function showToast(msg,col){
+  const t=document.createElement('div');
+  t.textContent=msg;
+  t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:'+col+'18;color:'+col+';border:1px solid '+col+'44;padding:10px 20px;border-radius:8px;font-family:var(--mono);font-size:12px;z-index:999;backdrop-filter:blur(8px);white-space:nowrap';
+  document.body.appendChild(t);setTimeout(()=>t.remove(),3000);
+}
+window.showToast=showToast;
+
+const today=new Date().toISOString().slice(0,10);
+$('inp-date').value=today;
+const now=new Date();
+$('inp-time').value=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+</script>
+</body>
+</html>
