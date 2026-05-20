@@ -160,6 +160,9 @@ main{padding:14px;display:flex;flex-direction:column;gap:14px}
   /* SEC HEADER */
   .sec-hd{font-size:11px}
 }
+
+@keyframes statusPulse{0%,100%{opacity:1}50%{opacity:.45}}
+.status-blink{animation:statusPulse 1.4s ease-in-out infinite}
 </style>
 </head>
 <body>
@@ -447,13 +450,7 @@ function card(row,isCur,isSingle=false){
 
   const curingRem=getCuringRemain(row);
   const hasVol=+(row.volume_liter||0)>0;
-  let stTxt='—',stC='var(--t2)';
-  if(!hasVol){stTxt='📭 Empty';stC='var(--t3)';}
-  else if(row.status==='pasteurising'&&!row.past_start_time){stTxt='⏳ รอ Past.';stC='var(--yellow)';}
-  else if(row.status==='pasteurising'&&row.past_start_time){stTxt='♨️ กำลัง Past.';stC='var(--orange)';}
-  else if((row.status==='past_done'||row.status==='ready')&&!isCuringDone(row)){
-    stTxt=curingRem?`🌡️ บ่มอยู่ ${curingRem}`:'🌡️ กำลังบ่ม';stC='var(--cyan)';}
-  else if((row.status==='past_done'||row.status==='ready')&&isCuringDone(row)){stTxt='✅ บ่มเสร็จ พร้อมส่ง';stC='var(--green)';}
+  const stBadge=statusBadge(resolveStatus(row));
 
   const at=row.aging_tank||'—';
   // รหัสผลิต 10 ตัว — คำนวณ prefix จากปี+0522+unit แล้วต่อ suffix 4 ตัว
@@ -489,7 +486,7 @@ function card(row,isCur,isSingle=false){
     </div>
   </div>
   <div class="st">
-    <span class="stb" style="color:${stC};background:${stC}22;border:1px solid ${stC}55">${stTxt}</span>
+    ${stBadge}
   </div>
 </div>`;
 }
@@ -560,6 +557,28 @@ function tick(){
       if(p){p.textContent=pct.toFixed(1)+'%';p.style.color=pctC;}
     });
   });
+}
+
+function statusBadge(s){
+  const label=statusLabel(s);
+  const col=statusColor(s);
+  const blink=statusBlink(s);
+  return `<span class="${blink?'status-blink':''}" style="display:inline-block;font-family:'DM Mono',monospace;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;background:${col}22;color:${col};border:1px solid ${col}55;white-space:nowrap">${label}</span>`;
+}
+
+function resolveStatus(row){
+  const s=row?.status||'pending';
+  if(s==='pasteurising'&&!row?.past_start_time) return 'waiting_past';
+  return s;
+}
+function statusLabel(s){
+  return s==='pending'?'⚪ รอดำเนินการ':s==='mixing'?'🟡 กำลัง Mixing':s==='waiting_past'?'🔵 รอ Pasteurise':s==='pasteurising'?'🔵 กำลัง Pasteurise':s==='past_done'?'🟢 Past. เสร็จ':s==='ready'?'🟢 พร้อมส่ง Filling':s==='sent_filling'?'🟣 ส่ง Filling แล้ว':s==='filling'?'🟢 กำลัง Filling':s==='curing'?'🟠 กำลังบ่ม':s==='empty'?'🟡 รอล้าง':s==='cleaned'?'⚪ ล้างแล้ว':'—';
+}
+function statusColor(s){
+  return s==='pending'?'#6b7280':s==='mixing'?'#fbbf24':s==='waiting_past'?'#60a5fa':s==='pasteurising'?'#3b82f6':s==='past_done'?'#22c55e':s==='ready'?'#4ade80':s==='sent_filling'?'#c084fc':s==='filling'?'#22c55e':s==='curing'?'#f97316':s==='empty'?'#eab308':s==='cleaned'?'#e5e7eb':'#6b7280';
+}
+function statusBlink(s){
+  return s==='mixing'||s==='waiting_past'||s==='pasteurising'||s==='past_done'||s==='ready'||s==='sent_filling'||s==='filling'||s==='curing';
 }
 </script>
 <script>

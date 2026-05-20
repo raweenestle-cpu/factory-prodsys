@@ -181,6 +181,9 @@ tbody td{padding:5px 6px;vertical-align:middle;font-weight:600}
   /* KPI */
   .kpi-row{grid-template-columns:repeat(2,1fr)!important;gap:8px}
 }
+
+@keyframes statusPulse{0%,100%{opacity:1}50%{opacity:.45}}
+.status-blink{animation:statusPulse 1.4s ease-in-out infinite}
 </style>
 </head>
 <body>
@@ -518,8 +521,8 @@ window._del = async(col,id,m) => {
 };
 
 // ── RENDER ─────────────────────────────────────────────────────────────
-const SC = {pending:"#374151",mixing:"#713f12",pasteurising:"#713f12",past_done:"#14532d",ready:"#14532d"};
-const ST = {pending:"#9ca3af",mixing:"#fde047",pasteurising:"#fde047",past_done:"#4ade80",ready:"#4ade80"};
+const SC = {pending:'#1f2937',mixing:'#78350f',waiting_past:'#1e3a5f',pasteurising:'#1e3a8a',past_done:'#14532d',ready:'#14532d',sent_filling:'#4a1d96',filling:'#14532d',curing:'#7c2d12',empty:'#713f12',cleaned:'#374151'};
+const ST = {pending:'#6b7280',mixing:'#fbbf24',waiting_past:'#60a5fa',pasteurising:'#3b82f6',past_done:'#22c55e',ready:'#4ade80',sent_filling:'#c084fc',filling:'#22c55e',curing:'#f97316',empty:'#eab308',cleaned:'#e5e7eb'};
 const SA = {pending:"none",mixing:"none",pasteurising:"blink 0.7s infinite",past_done:"none",ready:"none"};
 
 function renderPlan(m){
@@ -589,11 +592,7 @@ function renderPlan(m){
         else this.value=v;
       " onchange="_up('${col}','${row.id}','start_time',this.value)"></td>
       <td><span style="font-family:var(--mono);font-size:12px;color:var(--t2)">${ef||"—"}</span></td>
-      <td>
-        <span class="stat-sel" style="background:${SC[row.status]||SC.pending};color:${ST[row.status]||ST.pending};font-family:var(--mono);font-size:10px;font-weight:600;padding:3px 8px;border-radius:5px;white-space:nowrap;display:inline-block">
-          ${row.status==="pending"?"Pending":row.status==="mixing"?"Mixing":row.status==="pasteurising"?"Past...":row.status==="past_done"?"Past.Done":row.status==="ready"?"Ready":"—"}
-        </span>
-      </td>
+      <td>${statusBadge(resolveStatus(row))}</td>
       <td><input class="ci" style="width:100px;font-size:11px" value="${row.note||""}" placeholder="หมายเหตุ" onchange="_up('${col}','${row.id}','note',this.value)"></td>
 
       <td><button class="db" onclick="_del('${col}','${row.id}','${m}')">✕</button></td>`;
@@ -645,6 +644,28 @@ window.exportCSV = (m) => {
   const csv=[h,...r].map(r=>r.join(",")).join("\n");
   const a=document.createElement("a"); a.href="data:text/csv;charset=utf-8,"+encodeURIComponent(csv); a.download=`plan_${m}_${today()}.csv`; a.click();
 };
+
+function statusBadge(s){
+  const label=statusLabel(s);
+  const col=statusColor(s);
+  const blink=statusBlink(s);
+  return `<span class="${blink?'status-blink':''}" style="display:inline-block;font-family:'DM Mono',monospace;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;background:${col}22;color:${col};border:1px solid ${col}55;white-space:nowrap">${label}</span>`;
+}
+
+function resolveStatus(row){
+  const s=row?.status||'pending';
+  if(s==='pasteurising'&&!row?.past_start_time) return 'waiting_past';
+  return s;
+}
+function statusLabel(s){
+  return s==='pending'?'⚪ รอดำเนินการ':s==='mixing'?'🟡 กำลัง Mixing':s==='waiting_past'?'🔵 รอ Pasteurise':s==='pasteurising'?'🔵 กำลัง Pasteurise':s==='past_done'?'🟢 Past. เสร็จ':s==='ready'?'🟢 พร้อมส่ง Filling':s==='sent_filling'?'🟣 ส่ง Filling แล้ว':s==='filling'?'🟢 กำลัง Filling':s==='curing'?'🟠 กำลังบ่ม':s==='empty'?'🟡 รอล้าง':s==='cleaned'?'⚪ ล้างแล้ว':'—';
+}
+function statusColor(s){
+  return s==='pending'?'#6b7280':s==='mixing'?'#fbbf24':s==='waiting_past'?'#60a5fa':s==='pasteurising'?'#3b82f6':s==='past_done'?'#22c55e':s==='ready'?'#4ade80':s==='sent_filling'?'#c084fc':s==='filling'?'#22c55e':s==='curing'?'#f97316':s==='empty'?'#eab308':s==='cleaned'?'#e5e7eb':'#6b7280';
+}
+function statusBlink(s){
+  return s==='mixing'||s==='waiting_past'||s==='pasteurising'||s==='past_done'||s==='ready'||s==='sent_filling'||s==='filling'||s==='curing';
+}
 </script>
 <script>
 if('serviceWorker' in navigator){

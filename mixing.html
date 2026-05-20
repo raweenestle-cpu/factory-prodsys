@@ -10,7 +10,29 @@
   <link rel="apple-touch-icon" href="icons/icon-192.png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mixing — PROD.SYS</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js">
+function statusBadge(s){
+  const label=statusLabel(s);
+  const col=statusColor(s);
+  const blink=statusBlink(s);
+  return `<span class="${blink?'status-blink':''}" style="display:inline-block;font-family:'DM Mono',monospace;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;background:${col}22;color:${col};border:1px solid ${col}55;white-space:nowrap">${label}</span>`;
+}
+
+function resolveStatus(row){
+  const s=row?.status||'pending';
+  if(s==='pasteurising'&&!row?.past_start_time) return 'waiting_past';
+  return s;
+}
+function statusLabel(s){
+  return s==='pending'?'⚪ รอดำเนินการ':s==='mixing'?'🟡 กำลัง Mixing':s==='waiting_past'?'🔵 รอ Pasteurise':s==='pasteurising'?'🔵 กำลัง Pasteurise':s==='past_done'?'🟢 Past. เสร็จ':s==='ready'?'🟢 พร้อมส่ง Filling':s==='sent_filling'?'🟣 ส่ง Filling แล้ว':s==='filling'?'🟢 กำลัง Filling':s==='curing'?'🟠 กำลังบ่ม':s==='empty'?'🟡 รอล้าง':s==='cleaned'?'⚪ ล้างแล้ว':'—';
+}
+function statusColor(s){
+  return s==='pending'?'#6b7280':s==='mixing'?'#fbbf24':s==='waiting_past'?'#60a5fa':s==='pasteurising'?'#3b82f6':s==='past_done'?'#22c55e':s==='ready'?'#4ade80':s==='sent_filling'?'#c084fc':s==='filling'?'#22c55e':s==='curing'?'#f97316':s==='empty'?'#eab308':s==='cleaned'?'#e5e7eb':'#6b7280';
+}
+function statusBlink(s){
+  return s==='mixing'||s==='waiting_past'||s==='pasteurising'||s==='past_done'||s==='ready'||s==='sent_filling'||s==='filling'||s==='curing';
+}
+</script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;600&family=Sarabun:wght@400;500;600;700&display=swap');
 *{box-sizing:border-box;margin:0;padding:0}
@@ -212,6 +234,9 @@ thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap
   /* Chart */
   .chart-wrap{height:180px}
 }
+
+@keyframes statusPulse{0%,100%{opacity:1}50%{opacity:.45}}
+.status-blink{animation:statusPulse 1.4s ease-in-out infinite}
 </style>
 </head>
 <body>
@@ -606,7 +631,7 @@ function renderMixTanks(m, rows){
       if(row?.past_start_time&&currentVol>0){
         // กำลัง Past. — volume ลดลง
         pct=Math.max(0,((totalVol-currentVol)/totalVol)*100);
-        statusTxt='♨️ กำลัง Past.'; statusCol='#f97316'; borderCol=col;
+        statusTxt='🔵 กำลัง Pasteurise'; statusCol='#f97316'; borderCol=col;
         waveSVG=`<defs><linearGradient id="wg${label.replace(' ','')}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${col}" stop-opacity=".9"/><stop offset="100%" stop-color="${col}" stop-opacity=".6"/></linearGradient></defs>
         <clipPath id="wc${label.replace(' ','')}"><rect x="12" y="${10+140*(1-pct/100)}" width="106" height="${140*pct/100}" rx="6"/></clipPath>
         <g clip-path="url(#wc${label.replace(' ','')})">
@@ -626,7 +651,7 @@ function renderMixTanks(m, rows){
         </g>`;
       } else {
         // รอ Past. — เต็ม 100%
-        pct=100; statusTxt='⏳ รอ Past.'; statusCol='#f97316'; borderCol=col;
+        pct=100; statusTxt='🔵 รอ Pasteurise'; statusCol='#f97316'; borderCol=col;
         waveSVG=`<defs><linearGradient id="wg${label.replace(' ','')}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${col}" stop-opacity=".9"/><stop offset="100%" stop-color="${col}" stop-opacity=".6"/></linearGradient></defs>
         <clipPath id="wc${label.replace(' ','')}"><rect x="12" y="10" width="106" height="140" rx="6"/></clipPath>
         <g clip-path="url(#wc${label.replace(' ','')})"><rect x="12" y="10" width="106" height="140" fill="url(#wg${label.replace(' ','')})"/></g>`;
@@ -690,16 +715,8 @@ function renderPlan(m){
     const isWaitPast=isPast&&!row.past_start_time; // รอ Past.
     const isDone=row.status==="past_done"||row.status==="ready";
 
-    const statStyle=isMixing
-      ?`background:rgba(234,179,8,.15);color:#fde047;animation:blink 0.7s infinite`
-      :isPasting?`background:rgba(249,115,22,.15);color:#fb923c;animation:blink 0.7s infinite`
-      :isWaitPast?`background:rgba(234,179,8,.1);color:#fde047`
-      :isDone?`background:rgba(34,197,94,.15);color:#4ade80`
-      :`background:var(--s3);color:var(--t2)`;
-    const statText=isMixing?"🔄 กำลังผสม"
-      :isPasting?"♨️ กำลัง Past."
-      :isWaitPast?"⏳ รอ Pasteurize"
-      :isDone?"✅ เสร็จแล้ว":"⏸ Pending";
+    const statStyle='';
+    const statText=statusBadge(resolveStatus(row));
 
     // Stamp cell builder
     const stampCell=(field,time,label,color)=>{
@@ -784,7 +801,7 @@ function renderPlan(m){
         
       </div></td>
       <!-- STATUS -->
-      <td><span class="stat-badge" style="${statStyle}">${statText}</span></td>`;
+      <td>${statText}</td>`;
     tbody.appendChild(tr);
   });
 
