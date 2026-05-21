@@ -321,6 +321,7 @@ tbody td{padding:5px 6px;vertical-align:middle;font-weight:600}
 <div id="toast"></div>
 
 <script type="module">
+import {resolveStatus,statusLabel,statusColor,statusBlink,statusBadge} from "./shared.js";
 import { initializeApp }     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
@@ -329,9 +330,7 @@ import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/fi
 import { getFirestore, collection, query, where, orderBy, onSnapshot, addDoc, updateDoc, deleteDoc, doc, getDocs, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 
-import {resolveStatus,statusLabel,statusColor,statusBlink,statusBadge} from "./shared.js";
 
-         addDoc, updateDoc, deleteDoc, doc, getDocs, getDoc,
 
 
 
