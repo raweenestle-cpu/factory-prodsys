@@ -359,6 +359,7 @@ thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap
 <script type="module">
 import { initializeApp }     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, collection, query, where, orderBy, onSnapshot,
 
 
 function resolveStatus(row){
@@ -382,7 +383,6 @@ function statusBadge(s){
   return `<span class="${blink?'status-blink':''}" style="display:inline-block;font-family:'DM Mono',monospace;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;background:${col}22;color:${col};border:1px solid ${col}55;white-space:nowrap">${label}</span>`;
 }
 
-import { getFirestore, collection, query, where, orderBy, onSnapshot,
          updateDoc, doc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const app  = initializeApp({
