@@ -487,7 +487,7 @@ onAuthStateChanged(auth,async user=>{
       lineMap[d.id]=l;
     });
     window._lineMap=lineMap;
-  }catch{}
+  }catch(e){console.error("INIT ERROR:",e);}
 
   $("nav-user").textContent=user.email.replace("@filling.local","");
   $("date-p1").value=today();
