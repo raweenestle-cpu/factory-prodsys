@@ -1176,7 +1176,7 @@ function renderTankVisual(m,rows){
         <div class="card-row"><span class="card-label">Vol รวม PO × Density</span><span class="card-value">\${totalKg.toLocaleString()} kg</span></div>
         <div class="card-row"><span class="card-label">รหัสผลิต</span><span class="card-value">\${(agRow.mix_code||'—').toString().slice(0,10)}</span></div>
         <div class="card-row"><span class="card-label">Tank</span><span class="card-value highlight">\${agTank||'—'}</span></div>
-      </div>\`);
+      </div>`);
     }
     return cards.join('');
   })()}
