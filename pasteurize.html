@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-  
+  <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#1e40af">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -806,19 +806,22 @@ function renderTankVisual(m,rows){
   // คำนวณ volume และ % สำหรับแสดงในถัง Mix (อยู่หลัง agVol คำนวณเสร็จแล้ว)
   function mixTankVol(tRow,tTotal,tActive,tDone){
     const st=tRow?.status||'';
+    const cap=3000;
     if(!st||st==='pending') return{vol:0,pct:0,show:false,wave:false};
-    if(st==='mixing') return{vol:tTotal,pct:50,show:true,wave:true};
+    if(st==='mixing'){
+      const vol=tTotal*0.5;
+      const pct=Math.min(100,(vol/cap)*100);
+      return{vol,pct,show:true,wave:true};
+    }
     if(tDone) return{vol:0,pct:0,show:true,wave:false};
     if(tActive){
-      // ใช้ current_vol โดยตรงจาก row — volume ที่ยังเหลือใน mixing tank
-      // current_vol = volume ที่ไหลเข้า aging แล้ว ดังนั้น ที่เหลือ = tTotal - current_vol
       const flowed=tRow?.current_vol!=null?+tRow.current_vol:0;
       const remaining=Math.max(0,tTotal-flowed);
-      const pct=tTotal>0?(remaining/tTotal)*100:0;
+      const pct=Math.min(100,(remaining/cap)*100);
       return{vol:remaining,pct,show:true,wave:true};
     }
-    if(st==='pasteurising') return{vol:tTotal,pct:50,show:true,wave:true};
-    return{vol:tTotal,pct:100,show:true,wave:false};
+    const pct=Math.min(100,(tTotal/cap)*100);
+    return{vol:tTotal,pct,show:true,wave:false};
   }
   const mx1=mixTankVol(t1Row,t1Total,t1Active,t1Done);
   const mx2=mixTankVol(t2Row,t2Total,t2Active,t2Done);
@@ -1664,7 +1667,12 @@ async function loadHistory(){
 }
 </script>
 <script>
-;
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('sw.js')
+      .then(r=>console.log('SW registered'))
+      .catch(e=>console.warn('SW failed:',e));
+  });
 }
 </script>
 
