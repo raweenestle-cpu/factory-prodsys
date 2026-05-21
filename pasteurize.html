@@ -406,6 +406,8 @@ import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/fi
 import { getFirestore, collection, query, where, orderBy, onSnapshot, updateDoc, doc, addDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 
+         updateDoc, addDoc, deleteDoc, doc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
 function resolveStatus(row){
   var s=row&&row.status||'pending';
   if(s==='pasteurising'&&!row.past_start_time) return 'waiting_past';
@@ -423,7 +425,7 @@ function statusLabel(s){
   if(s==='curing') return 'Curing';
   if(s==='empty') return 'Empty';
   if(s==='cleaned') return 'Cleaned';
-  return s||'—';
+  return s||'';
 }
 function statusColor(s){
   if(s==='pending') return '#6b7280';
@@ -447,7 +449,6 @@ function statusBadge(s){
   return '<span class="'+(blk?'status-blink':'')+'" style="display:inline-block;font-family:DM Mono,monospace;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;background:'+col+'22;color:'+col+';border:1px solid '+col+'55;white-space:nowrap">'+lbl+'</span>';
 }
 
-         updateDoc, addDoc, deleteDoc, doc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const app = initializeApp({
   apiKey:"AIzaSyC3f6jMuhugE6BNfRfkpOA9BMrIKWR9YgQ",
