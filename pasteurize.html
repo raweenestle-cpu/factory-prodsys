@@ -1674,62 +1674,6 @@ function overlap(bS,bE,sS,sE){
        + Math.max(0,Math.min(bE,sE+1440)-Math.max(bS,sS+1440));
 }
 
-  else if(period[p]==="week"){for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);dates.push(d.toISOString().slice(0,10));}}
-  else if(period[p]==="month"){for(let i=29;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);dates.push(d.toISOString().slice(0,10));}}
-  else{for(let i=11;i>=0;i--){const d=new Date();d.setMonth(d.getMonth()-i);dates.push(d.toISOString().slice(0,7));}}
-
-  let allRows=[];
-  try{
-    const s=period[p]==="year"?dates[0]+"-01":dates[0];
-    const e=period[p]==="year"?dates[dates.length-1]+"-31":dates[dates.length-1];
-    const snap=await getDocs(query(collection(db,col),where("date",">=",s),where("date","<=",e)));
-    allRows=snap.docs.map(d=>({...d.data()}));
-  }catch{}
-
-  const shiftData=SHIFTS.map(()=>new Array(dates.length).fill(0));
-  allRows.forEach(r=>{
-    const vol=+r.volume_liter||0;
-    if(!vol||!r.past_start_time||!r.past_end_time)return;
-    const p2=productMap[r.mix_code];
-    const kg=vol*(p2?.density||1);
-    const bS=toMin(r.past_start_time);
-    const bE=toMin(r.past_end_time);
-    if(bS===null||bE===null)return;
-    const dur=bE>=bS?bE-bS:(1440-bS)+bE;
-    if(!dur)return;
-    const key=period[p]==="year"?r.date?.slice(0,7):r.date;
-    const idx=dates.indexOf(key);
-    if(idx===-1)return;
-    SHIFTS.forEach((sh,si)=>{shiftData[si][idx]+=kg*(overlap(bS,bE,sh.start,sh.end)/dur);});
-  });
-
-  if(charts[p])charts[p].destroy();
-  const ctx=$(`chart-${p}`).getContext("2d");
-  charts[p]=new Chart(ctx,{
-    type:"bar",
-    data:{
-      labels:period[p]==="year"
-        ?dates.map(d=>{const[y,mo]=d.split("-");return["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."][+mo-1];})
-        :dates.map(d=>{const pt=d.split("-");return`${pt[2]}/${pt[1]}`;}),
-      datasets:SHIFTS.map((sh,si)=>({
-        label:sh.label,
-        data:shiftData[si].map(v=>Math.round(v)),
-        backgroundColor:sh.color,
-        borderRadius:4,
-      }))
-    },
-    options:{
-      plugins:{legend:{labels:{color:"#7a8499",font:{family:"DM Mono",size:11}}}},
-      scales:{
-        x:{stacked:true,ticks:{color:"#3d4560",font:{size:10}},grid:{color:"#1e2535"}},
-        y:{stacked:true,ticks:{color:"#3d4560",font:{size:10}},grid:{color:"#1e2535"},title:{display:true,text:"kg",color:"#3d4560"}}
-      },
-      responsive:true,maintainAspectRatio:false
-    }
-  });
-}
-
-// ── PAGE SWITCH ────────────────────────────────────────────────────────
 window.showPage=(type,p,btn)=>{
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('on'));
   document.querySelectorAll('.nav-tab').forEach(el=>el.classList.remove('on'));
