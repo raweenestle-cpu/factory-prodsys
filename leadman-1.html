@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1e40af">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="PROD.SYS">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leadman — PROD.SYS</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;600&family=Sarabun:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07090f;--s1:#0e1118;--s2:#141820;--s3:#1a2030;
+  --b1:#1e2535;--b2:#2a3348;
+  --text:#dde3f0;--t2:#7a8499;--t3:#3d4560;
+  --blue:#3b82f6;--blue2:#60a5fa;
+  --green:#22c55e;--yellow:#eab308;--red:#ef4444;--cyan:#06b6d4;--purple:#a855f7;
+  --mono:'DM Mono',monospace;--sans:'Sarabun',sans-serif;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13px;min-height:100vh}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--b2);border-radius:3px}
+input[type="number"]{-moz-appearance:textfield}
+input[type="number"]::-webkit-inner-spin-button,input[type="number"]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+
+/* NAV */
+nav{display:flex;align-items:center;height:52px;background:var(--s1);border-bottom:1px solid var(--b1);position:sticky;top:0;z-index:200;padding:0 16px;gap:8px}
+.nav-logo{font-family:var(--mono);font-size:14px;font-weight:600;letter-spacing:.06em;margin-right:8px;white-space:nowrap}
+.nav-logo b{color:var(--blue)}
+.nav-tab{font-size:12px;font-weight:600;padding:6px 12px;border-radius:7px;border:none;background:none;color:var(--t2);cursor:pointer;white-space:nowrap}
+.nav-tab:hover{color:var(--text);background:var(--s3)}
+.nav-tab.on{color:var(--blue);background:rgba(59,130,246,.12)}
+.nav-right{display:flex;align-items:center;gap:8px;margin-left:auto}
+.nav-user{font-family:var(--mono);font-size:11px;color:var(--t2)}
+.nav-role{font-size:10px;font-family:var(--mono);padding:2px 8px;border-radius:4px;background:rgba(234,179,8,.15);color:var(--yellow);border:1px solid rgba(234,179,8,.3)}
+.btn-logout{font-size:11px;padding:5px 10px;border-radius:6px;border:1px solid var(--b2);background:none;color:var(--t2);cursor:pointer}
+.btn-logout:hover{color:var(--red);border-color:var(--red)}
+
+/* PAGE */
+.page{display:none;padding:14px 16px}
+.page.on{display:block}
+
+/* KPI */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.kpi{background:var(--s1);border:1px solid var(--b1);border-radius:10px;padding:12px 14px}
+.kpi-label{font-size:10px;color:var(--t3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
+.kpi-val{font-size:22px;font-weight:700;font-family:var(--mono)}
+
+/* TABLE */
+.tw{border-radius:10px;border:1px solid var(--b1);overflow:auto;max-height:calc(100vh - 200px)}
+table{width:100%;border-collapse:collapse;font-size:12px;min-width:1100px}
+thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1px solid var(--b1);position:sticky;top:0;z-index:10;box-shadow:0 1px 0 var(--b1)}
+tbody tr{border-bottom:1px solid var(--b1)}
+tbody tr:hover td{background:rgba(255,255,255,.02)}
+tbody td{padding:5px 6px;vertical-align:middle;font-weight:600}
+.row-mixing td{background:rgba(234,179,8,.08)!important}
+.row-mixing td:first-child{border-left:3px solid var(--yellow)!important}
+.row-past td{background:rgba(234,179,8,.08)!important}
+.row-past td:first-child{border-left:3px solid var(--yellow)!important}
+.row-done td{background:rgba(34,197,94,.08)!important}
+.row-done td:first-child{border-left:3px solid var(--green)!important}
+
+/* INPUTS */
+.ci{background:var(--s2);border:1px solid var(--b1);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:12px;padding:5px 7px;outline:none;width:100%}
+.ci:focus{border-color:var(--blue)}
+.ca{font-family:var(--mono);font-size:12px;color:var(--t2);padding:0 6px;white-space:nowrap}
+.cr{font-family:var(--mono);font-size:11px;color:var(--t3);padding:0 6px}
+
+/* BUTTONS */
+.btn{font-size:12px;padding:6px 12px;border-radius:7px;border:1px solid var(--b2);background:var(--s3);color:var(--text);cursor:pointer;font-family:var(--sans);white-space:nowrap}
+.btn:hover{background:var(--b2)}
+.btn-b{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn-b:hover{background:#2563eb}
+.btn-g{background:var(--s3);border-color:var(--b2)}
+.btn-s{font-size:11px;padding:5px 10px}
+.db{background:none;border:none;color:var(--t3);cursor:pointer;font-size:14px;padding:2px 6px;border-radius:4px}
+.db:hover{color:var(--red);background:rgba(239,68,68,.1)}
+
+/* TOOLBAR */
+.toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px;flex-wrap:wrap;gap:8px}
+.toolbar-left{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.toolbar-right{display:flex;align-items:center;gap:6px}
+
+/* PREFIX */
+.prefix-box{display:flex;align-items:center;gap:6px;background:rgba(168,85,247,.08);border:1px solid rgba(168,85,247,.25);border-radius:8px;padding:5px 10px}
+.prefix-box.m2{background:rgba(34,197,94,.08);border-color:rgba(34,197,94,.25)}
+
+/* STATUS SELECT */
+.stat-sel{font-family:var(--mono);font-size:11px;font-weight:700;padding:4px 9px;border-radius:99px;border:none;cursor:pointer;outline:none}
+
+/* DRAG */
+.dh{cursor:grab;color:var(--t3);font-size:16px;padding:0 4px;user-select:none}
+.dh:active{cursor:grabbing}
+
+/* TOAST */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#1d4ed8;color:#fff;padding:10px 20px;border-radius:10px;font-size:13px;opacity:0;transition:all .3s;z-index:9999;white-space:nowrap;pointer-events:none}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* MIXING TANK BADGE */
+.tank-sel{background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.3);border-radius:6px;color:#06b6d4;font-family:var(--mono);font-size:12px;padding:4px 8px;outline:none;cursor:pointer}
+
+@keyframes blink{0%,100%{opacity:1}40%{opacity:.15}}
+
+/* ── MOBILE RESPONSIVE ──────────────────────────────────────────────── */
+@media(max-width:768px){
+  nav{padding:0 10px;gap:4px}
+  .nav-logo{font-size:12px}
+  .nav-tab{font-size:11px;padding:5px 8px}
+  .btn-logout{font-size:10px;padding:4px 8px}
+  .page{padding:10px}
+
+  /* TABLE → CARD */
+  .tw{border:none;background:none;overflow:visible;max-height:none}
+  table,thead,tbody,tr,td,th{display:block;width:100%}
+  thead tr{display:none}
+  tbody tr{
+    background:var(--s1);border:1px solid var(--b1);border-radius:12px;
+    margin-bottom:12px;padding:12px;position:relative;
+  }
+  tbody tr.row-mixing{border-left:4px solid var(--yellow)!important}
+  tbody tr.row-past{border-left:4px solid var(--orange)!important}
+  tbody tr.row-done{border-left:4px solid var(--green)!important}
+  tbody td{border:none!important;padding:3px 0;display:flex;align-items:center;gap:8px;font-size:13px}
+
+  /* ซ่อน td ที่ไม่จำเป็น */
+  tbody td:nth-child(1){display:none} /* drag */
+  tbody td:nth-child(2){display:none} /* # */
+
+  /* Mix Code select — full width */
+  tbody td:nth-child(3) select{width:100%!important;font-size:13px!important;min-height:44px}
+  /* Mix Name */
+  tbody td:nth-child(4) span{font-size:14px!important;font-weight:700!important}
+
+  /* Batch + Volume inline */
+  tbody td:nth-child(5),tbody td:nth-child(6){display:inline-flex;width:auto;margin-right:8px}
+  tbody td:nth-child(5) input,tbody td:nth-child(6) input{width:80px!important}
+
+  /* Mixing Tank */
+  tbody td:nth-child(7)::before{content:"🪣 Tank: ";font-size:11px;color:var(--t2);font-family:var(--mono);flex-shrink:0}
+
+  /* Glucose/Sugar/Palm — ซ่อน set แสดงแค่ actual */
+  tbody td:nth-child(8){display:none}  /* Glc Set */
+  tbody td:nth-child(10){display:none} /* Sgr Set */
+  tbody td:nth-child(12){display:none} /* Plm Set */
+  tbody td:nth-child(9)::before{content:"🍬 Glc: ";font-size:11px;color:#86efac;font-family:var(--mono);flex-shrink:0}
+  tbody td:nth-child(11)::before{content:"🧂 Sgr: ";font-size:11px;color:#67e8f9;font-family:var(--mono);flex-shrink:0}
+  tbody td:nth-child(13)::before{content:"🌴 Plm: ";font-size:11px;color:#fdba74;font-family:var(--mono);flex-shrink:0}
+
+  /* Rework */
+  tbody td:nth-child(14)::before{content:"♻️ RW kg: ";font-size:11px;color:var(--t2);font-family:var(--mono);flex-shrink:0}
+  tbody td:nth-child(15)::before{content:"♻️ ถัง: ";font-size:11px;color:var(--t2);font-family:var(--mono);flex-shrink:0}
+  tbody td:nth-child(14),tbody td:nth-child(15){display:inline-flex;width:auto;margin-right:8px}
+
+  /* Filling Line — full width */
+  tbody td:nth-child(16) select{width:100%!important;font-size:13px!important;min-height:44px}
+  /* Product */
+  tbody td:nth-child(17) select{width:100%!important;font-size:13px!important;min-height:44px}
+  /* Start */
+  tbody td:nth-child(18)::before{content:"⏱ Start: ";font-size:11px;color:var(--t2);font-family:var(--mono);flex-shrink:0}
+  tbody td:nth-child(18) input{flex:1}
+  /* Est Finish */
+  tbody td:nth-child(19)::before{content:"🕐 คาดจบ: ";font-size:11px;color:var(--t2);font-family:var(--mono);flex-shrink:0}
+  /* Status */
+  tbody td:nth-child(20){justify-content:center;padding-top:6px}
+  /* หมายเหตุ */
+  tbody td:nth-child(21)::before{content:"📝 ";font-size:11px;flex-shrink:0}
+  tbody td:nth-child(21) input{flex:1}
+  /* ลบ */
+  tbody td:last-child{justify-content:flex-end;padding-top:6px}
+
+  /* Toolbar */
+  .toolbar{flex-direction:column;align-items:stretch}
+  .toolbar-left,.toolbar-right{flex-wrap:wrap;gap:6px}
+  .btn{min-height:40px;font-size:13px}
+
+  /* KPI */
+  .kpi-row{grid-template-columns:repeat(2,1fr)!important;gap:8px}
+}
+
+@keyframes statusPulse{0%,100%{opacity:1}50%{opacity:.45}}
+.status-blink{animation:statusPulse 1.4s ease-in-out infinite}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">PROD<b>.</b>SYS</div>
+  <button class="nav-tab on" onclick="showPage('m1')">🔵 Mixing 1</button>
+  <button class="nav-tab" onclick="showPage('m2')">🟢 Mixing 2</button>
+  <div class="nav-right">
+    <span class="nav-role">LEADMAN</span>
+    <span class="nav-user" id="nav-user"></span>
+    <a href="index.html" style="font-size:11px;padding:5px 10px;border-radius:6px;border:1px solid var(--b2);background:none;color:var(--t2);cursor:pointer;text-decoration:none;white-space:nowrap;flex-shrink:0">🏠 Home</a>
+    <button class="btn-logout" onclick="doLogout()">Logout</button>
+  </div>
+</nav>
+
+<!-- PAGE M1 -->
+<div class="page on" id="page-m1">
+  <div class="toolbar">
+    <div class="toolbar-left">
+      <span style="font-family:var(--mono);font-size:10px;color:var(--t3)">DATE</span>
+      <input type="date" id="date-m1" class="ci" style="width:140px" onchange="loadPlan('m1')">
+      <button class="btn btn-s" onclick="changeDate('m1',-1)" style="padding:5px 10px">◀</button>
+      <button class="btn btn-s" onclick="changeDate('m1',1)" style="padding:5px 10px">▶</button>
+      <button class="btn btn-s" onclick="goToday('m1')" style="font-size:10px">วันนี้</button>
+
+    </div>
+    <div class="toolbar-right">
+      <button class="btn btn-g btn-s" onclick="exportCSV('m1')">⬇ Export</button>
+      <button class="btn btn-b btn-s" onclick="addRow('m1');addRow('m1')">+ Add Row</button>
+    </div>
+  </div>
+  <div class="kpi-row">
+    <div class="kpi"><div class="kpi-label">Batches</div><div class="kpi-val" id="m1-total" style="color:var(--blue2)">0</div></div>
+    <div class="kpi"><div class="kpi-label">Volume</div><div class="kpi-val" id="m1-vol" style="color:var(--cyan)">0 L</div></div>
+    <div class="kpi"><div class="kpi-label">Mixing</div><div class="kpi-val" id="m1-mixing" style="color:var(--yellow)">0</div></div>
+    <div class="kpi"><div class="kpi-label">Done</div><div class="kpi-val" id="m1-done" style="color:var(--green)">0</div></div>
+  </div>
+  <div class="tw">
+    <table>
+      <thead>
+        <tr>
+          <th rowspan="2" style="width:26px"></th>
+          <th rowspan="2" style="width:28px">#</th>
+          <th rowspan="2">Mix Code</th>
+          <th rowspan="2" style="color:var(--cyan);white-space:nowrap">🔗 Process</th>
+          <th rowspan="2">Mix Name</th>
+          <th rowspan="2">Batch</th>
+          <th rowspan="2">Volume (L)</th>
+          <th rowspan="2" style="text-align:center;background:#1a1f10;color:#a3c65a">🍬 Glucose (kg)</th>
+          <th rowspan="2" style="text-align:center;background:#10181a;color:#6ad4f5">🧂 Sugar (kg)</th>
+          <th rowspan="2" style="text-align:center;background:#1a1510;color:#f59e6a">🌴 Palm Oil (kg)</th>
+          <th rowspan="2" style="text-align:center;background:#0d1a1a;color:#34d399">🛢️ Oil Mix (kg)</th>
+          <th rowspan="2" style="text-align:center;background:#1a0d1a;color:#f9a8d4">🥛 Fat Milk (kg)</th>
+          <th colspan="2" style="text-align:center;background:#1a0f1a;color:#d8b4fe;border-bottom:1px solid var(--b2)">♻️ REWORK</th>
+          <th rowspan="2" style="white-space:nowrap">Filling Line</th>
+          <th rowspan="2" style="color:var(--cyan)">ผลิตภัณฑ์</th>
+          <th rowspan="2">Start</th>
+          <th rowspan="2" style="color:var(--t2)">คาดจบ</th>
+          <th rowspan="2">Status</th>
+          <th rowspan="2">หมายเหตุ</th>
+          <th rowspan="2" style="width:30px"></th>
+        </tr>
+        <tr>
+
+          <th style="background:#130a13;color:#9d5aad;font-size:9px">น้ำหนัก (kg)</th>
+          <th style="background:#130a13;color:#d8b4fe;font-size:9px;border-right:1px solid var(--b2)">จำนวนถัง</th>
+        </tr>
+      </thead>
+      <tbody id="tbody-m1"></tbody>
+    </table>
+    <div style="padding:8px 12px"><button class="btn btn-g btn-s" onclick="addRow('m1');addRow('m1')">+ Add Row</button></div>
+  </div>
+</div>
+
+<!-- PAGE M2 -->
+<div class="page" id="page-m2">
+  <div class="toolbar">
+    <div class="toolbar-left">
+      <span style="font-family:var(--mono);font-size:10px;color:var(--t3)">DATE</span>
+      <input type="date" id="date-m2" class="ci" style="width:140px" onchange="loadPlan('m2')">
+      <button class="btn btn-s" onclick="changeDate('m2',-1)" style="padding:5px 10px">◀</button>
+      <button class="btn btn-s" onclick="changeDate('m2',1)" style="padding:5px 10px">▶</button>
+      <button class="btn btn-s" onclick="goToday('m2')" style="font-size:10px">วันนี้</button>
+
+    </div>
+    <div class="toolbar-right">
+      <button class="btn btn-g btn-s" onclick="exportCSV('m2')">⬇ Export</button>
+      <button class="btn btn-b btn-s" onclick="addRow('m2');addRow('m2')">+ Add Row</button>
+    </div>
+  </div>
+  <div class="kpi-row">
+    <div class="kpi"><div class="kpi-label">Batches</div><div class="kpi-val" id="m2-total" style="color:var(--blue2)">0</div></div>
+    <div class="kpi"><div class="kpi-label">Volume</div><div class="kpi-val" id="m2-vol" style="color:var(--cyan)">0 L</div></div>
+    <div class="kpi"><div class="kpi-label">Mixing</div><div class="kpi-val" id="m2-mixing" style="color:var(--yellow)">0</div></div>
+    <div class="kpi"><div class="kpi-label">Done</div><div class="kpi-val" id="m2-done" style="color:var(--green)">0</div></div>
+  </div>
+  <div class="tw">
+    <table>
+      <thead>
+        <tr>
+          <th rowspan="2" style="width:26px"></th>
+          <th rowspan="2" style="width:28px">#</th>
+          <th rowspan="2">Mix Code</th>
+          <th rowspan="2" style="color:var(--cyan);white-space:nowrap">🔗 Process</th>
+          <th rowspan="2">Mix Name</th>
+          <th rowspan="2">Batch</th>
+          <th rowspan="2">Volume (L)</th>
+          <th rowspan="2" style="text-align:center;background:#1a1f10;color:#a3c65a">🍬 Glucose (kg)</th>
+          <th rowspan="2" style="text-align:center;background:#10181a;color:#6ad4f5">🧂 Sugar (kg)</th>
+          <th rowspan="2" style="text-align:center;background:#1a1510;color:#f59e6a">🌴 Palm Oil (kg)</th>
+          <th rowspan="2" style="text-align:center;background:#0d1a1a;color:#34d399">🛢️ Oil Mix (kg)</th>
+          <th rowspan="2" style="text-align:center;background:#1a0d1a;color:#f9a8d4">🥛 Fat Milk (kg)</th>
+          <th colspan="2" style="text-align:center;background:#1a0f1a;color:#d8b4fe;border-bottom:1px solid var(--b2)">♻️ REWORK</th>
+          <th rowspan="2" style="white-space:nowrap">Filling Line</th>
+          <th rowspan="2" style="color:var(--cyan)">ผลิตภัณฑ์</th>
+          <th rowspan="2">Start</th>
+          <th rowspan="2" style="color:var(--t2)">คาดจบ</th>
+          <th rowspan="2">Status</th>
+          <th rowspan="2">หมายเหตุ</th>
+          <th rowspan="2" style="width:30px"></th>
+        </tr>
+        <tr>
+
+          <th style="background:#130a13;color:#9d5aad;font-size:9px">น้ำหนัก (kg)</th>
+          <th style="background:#130a13;color:#d8b4fe;font-size:9px;border-right:1px solid var(--b2)">จำนวนถัง</th>
+        </tr>
+      </thead>
+      <tbody id="tbody-m2"></tbody>
+    </table>
+    <div style="padding:8px 12px"><button class="btn btn-g btn-s" onclick="addRow('m2');addRow('m2')">+ Add Row</button></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script type="module">
+import { initializeApp }     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+
+
+import { getFirestore, collection, query, where, orderBy, onSnapshot, addDoc, updateDoc, deleteDoc, doc, getDocs, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+
+import {resolveStatus,statusLabel,statusColor,statusBlink,statusBadge} from "./shared.js";
+
+         addDoc, updateDoc, deleteDoc, doc, getDocs, getDoc,
+
+
+
+const app  = initializeApp({
+  apiKey:"AIzaSyC3f6jMuhugE6BNfRfkpOA9BMrIKWR9YgQ",
+  authDomain:"production-filling.firebaseapp.com",
+  projectId:"production-filling",
+  storageBucket:"production-filling.firebasestorage.app",
+  messagingSenderId:"89098393458",
+  appId:"1:89098393458:web:b723f2886e8a341935afeb"
+});
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+// ── STATE ──────────────────────────────────────────────────────────────
+let ME = null, ROLE = null;
+let products = [], productMap = {}, lines = [];
+let rows = { m1:[], m2:[] };
+let unsub = { m1:null, m2:null };
+let prefix = { 1:"", 2:"" };
+let dragSrc = null;
+
+// ── UTILS ──────────────────────────────────────────────────────────────
+const today  = () => new Date().toISOString().slice(0,10);
+const $      = id => document.getElementById(id);
+const fmt    = n  => Number(n||0).toLocaleString();
+function addMins(t,m){
+  if(!t) return "";
+  const [h,mn]=t.split(":").map(Number);
+  const tot=h*60+mn+Math.round(m);
+  return String(Math.floor(tot/60)%24).padStart(2,"0")+":"+String(tot%60).padStart(2,"0");
+}
+function calcEst(start,code,vol){
+  const p=productMap[code];
+  if(!p||!start||!vol) return "";
+  const spd = p.speed_m1||p.speed||1000;
+  return addMins(start,(+vol*(p.density||1)*60)/spd);
+}
+function toast(msg,t="blue"){
+  const el=$("toast");
+  el.textContent=msg;
+  el.style.background=t==="green"?"#15803d":t==="red"?"#991b1b":"#1d4ed8";
+  el.classList.add("show");
+  setTimeout(()=>el.classList.remove("show"),2500);
+}
+function autoColon(v){
+  v=v.replace(/\D/g,"");
+  if(v.length>=3) v=v.slice(0,2)+":"+v.slice(2,4);
+  return v;
+}
+
+// ── AUTH ──────────────────────────────────────────────────────────────
+
+// ── IDLE TIMEOUT ──────────────────────────────────────────────────────
+async function initIdleTimeout(){
+  try{
+    const snap=await getDoc(doc(db,'settings','idle_timeout'));
+    const minutes=snap.exists()?(snap.data().minutes||0):0;
+    if(!minutes||minutes<=0)return;
+    let t;
+    const reset=()=>{
+      clearTimeout(t);
+      t=setTimeout(async()=>{
+        alert('ระบบ logout อัตโนมัติ เนื่องจากไม่มีการใช้งาน '+minutes+' นาที');
+        await signOut(auth);
+        window.location.href='index.html';
+      },minutes*60*1000);
+    };
+    ['mousemove','mousedown','keydown','touchstart','scroll','click'].forEach(e=>{
+      document.addEventListener(e,reset,{passive:true});
+    });
+    reset();
+  }catch(e){console.warn('idleTimeout:',e);}
+}
+
+onAuthStateChanged(auth, async user => {
+  if(!user){ window.location.href="index.html"; return; }
+  ME = user;
+  try{
+    const snap = await getDocs(query(collection(db,"users"),where("uid","==",user.uid)));
+    ROLE = snap.empty ? "leadman" : (snap.docs[0].data().role||"leadman");
+  }catch{ ROLE="leadman"; }
+
+  // ถ้าไม่ใช่ leadman หรือ admin หรือ operator ให้ redirect กลับ
+  if(ROLE !== "leadman" && ROLE !== "admin" && ROLE !== "operator"){
+    window.location.href="index.html"; return;
+  }
+
+  $("nav-user").textContent = user.email.replace("@filling.local","");
+  await loadMaster();
+  await loadPrefixes();
+  $("date-m1").value = today();
+  $("date-m2").value = today();
+  loadPlan("m1");
+  loadPlan("m2");
+});
+
+window.doLogout = async () => {
+  if(unsub.m1) unsub.m1();
+  if(unsub.m2) unsub.m2();
+  await signOut(auth);
+  window.location.href="index.html";
+};
+
+// ── MASTER ─────────────────────────────────────────────────────────────
+async function loadMaster(){
+  const pSnap = await getDocs(collection(db,"products"));
+  products = pSnap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.mix_code.localeCompare(b.mix_code));
+  products.forEach(p=>{ productMap[p.mix_code]=p; if(!p.speed_m1&&p.speed) productMap[p.mix_code].speed_m1=p.speed; });
+
+  const lSnap = await getDocs(collection(db,"lines"));
+  lines = lSnap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.seq||0)-(b.seq||0));
+}
+
+// ── PREFIX ─────────────────────────────────────────────────────────────
+async function loadPrefixes(){
+  try{
+    const d1 = await getDoc(doc(db,"settings","mixing_prefix_1"));
+    const d2 = await getDoc(doc(db,"settings","mixing_prefix_2"));
+    if(d1.exists()){ prefix[1]=d1.data().value||""; const el=$("prefix-m1");if(el)el.value=prefix[1]; }
+    if(d2.exists()){ prefix[2]=d2.data().value||""; const el=$("prefix-m2");if(el)el.value=prefix[2]; }
+  }catch(e){console.warn("loadPrefixes:",e);}
+}
+window.savePrefix = async(n,v) => {
+  prefix[n]=v;
+  await setDoc(doc(db,"settings",`mixing_prefix_${n}`),{value:v});
+};
+
+// ── PLAN ───────────────────────────────────────────────────────────────
+function planCol(m){ return m==="m1"?"production_plans":"production_plans_m2"; }
+
+window.loadPlan = (m) => {
+  const d = $(m==="m1"?"date-m1":"date-m2").value || today();
+  if(unsub[m]) unsub[m]();
+  let firstLoad=true;
+  const q = query(collection(db, planCol(m)), where("date","==",d));
+  unsub[m] = onSnapshot(q, snap => {
+    rows[m] = snap.docs.map(d=>({id:d.id,...d.data()}))
+      .sort((a,b)=>(a.seq||0)-(b.seq||0));
+    // เพิ่ม 2 แถวว่างเฉพาะครั้งแรกที่โหลดและยังไม่มีข้อมูล
+    if(firstLoad && rows[m].length===0){
+      firstLoad=false;
+      addRow(m);
+      addRow(m);
+      return;
+    }
+    firstLoad=false;
+    renderPlan(m);
+  });
+};
+
+window.changeDate=(m,delta)=>{
+  const inp=$(m==="m1"?"date-m1":"date-m2");
+  const d=new Date(inp.value||today());
+  d.setDate(d.getDate()+delta);
+  inp.value=d.toISOString().slice(0,10);
+  loadPlan(m);
+};
+window.goToday=(m)=>{
+  const inp=$(m==="m1"?"date-m1":"date-m2");
+  inp.value=today();
+  loadPlan(m);
+};
+
+window.addRow = async(m) => {
+  if(!ME){toast("กรุณา login ใหม่","red");return;}
+  const d = $(m==="m1"?"date-m1":"date-m2").value || today();
+  const last = rows[m][rows[m].length-1];
+  const st = last ? calcEst(last.start_time, last.mix_code, last.volume_liter)||"" : "";
+  try{
+    await addDoc(collection(db, planCol(m)), {
+      date:d, seq:rows[m].length+1, mixing_unit:m,
+      mix_code:"", mix_name:"", batch_no:"", volume_liter:"",
+      glc_set:"", sgr_set:"", plm_set:"", oil_mix_set:"", fat_milk_set:"",
+      filling_line:"", product_code:"", start_time:st,
+      rework_kg:"", rework_tanks:"", note:"",
+      status:"pending", createdBy:ME?.email||"leadman", createdAt:new Date().toISOString()
+    });
+    toast("เพิ่มแถวแล้ว","green");
+  }catch(e){
+    toast("เกิดข้อผิดพลาด: "+e.message,"red");
+  }
+};
+
+window._up = async(col,id,field,val) => {
+  const upd = {[field]:val};
+  if(field==="mix_code"){ const p=productMap[val]||{}; upd.mix_name=p.mix_name||""; }
+  await updateDoc(doc(db,col,id), upd);
+};
+
+window._del = async(col,id,m) => {
+  if(rows[m].length<=1){ toast("ต้องมีอย่างน้อย 1 แถว","red"); return; }
+  if(!confirm("ลบแถวนี้?")) return;
+  await deleteDoc(doc(db,col,id));
+};
+
+// ── RENDER ─────────────────────────────────────────────────────────────
+const SC = {pending:'#1f2937',mixing:'#78350f',waiting_past:'#1e3a5f',pasteurising:'#1e3a8a',past_done:'#14532d',ready:'#14532d',sent_filling:'#4a1d96',filling:'#14532d',curing:'#7c2d12',empty:'#713f12',cleaned:'#374151'};
+const ST = {pending:'#6b7280',mixing:'#fbbf24',waiting_past:'#60a5fa',pasteurising:'#3b82f6',past_done:'#22c55e',ready:'#4ade80',sent_filling:'#c084fc',filling:'#22c55e',curing:'#f97316',empty:'#eab308',cleaned:'#e5e7eb'};
+const SA = {pending:"none",mixing:"none",pasteurising:"blink 0.7s infinite",past_done:"none",ready:"none"};
+
+function renderPlan(m){
+  const col  = planCol(m);
+  const pfx  = m==="m1"?1:2;
+  const tbody = $(`tbody-${m}`);
+  if(!tbody) return;
+  tbody.innerHTML="";
+
+  // auto start propagation
+  for(let i=1;i<rows[m].length;i++){
+    const prev=rows[m][i-1];
+    rows[m][i]._auto = rows[m][i].start_time ? "" : (calcEst(prev.start_time,prev.mix_code,prev.volume_liter)||"");
+  }
+
+  rows[m].forEach((row,i)=>{
+    const ef = calcEst(row.start_time||row._auto||"", row.mix_code, row.volume_liter);
+    const opts = products.map(p=>`<option value="${p.mix_code}" ${row.mix_code===p.mix_code?"selected":""}>${p.mix_code}</option>`).join("");
+    const uniqueLines = [];
+    const seenNames = new Set();
+    lines.filter(l=>l.type==="Filling").forEach(l=>{
+      if(!seenNames.has(l.name)){seenNames.add(l.name);uniqueLines.push(l);}
+    });
+    const lineOpts = uniqueLines.map(l=>`<option value="${l.name}" ${row.filling_line===l.name?"selected":""}>${l.name}</option>`).join("");
+
+    // Leadman-only fields (set values)
+    const setInput = (col,id,field,bg,bc,val) =>
+      `<input class="ci" style="width:64px;text-align:right;background:${bg};border-color:${bc}" type="number" step="0.1" value="${val||""}" placeholder="0" onchange="_up('${col}','${id}','${field}',+this.value)">`;
+
+    const tr = document.createElement("tr");
+    if(row.status==="mixing")       tr.classList.add("row-mixing");
+    else if(row.status==="pasteurising") tr.classList.add("row-past");
+    else if(row.status==="past_done"||row.status==="ready") tr.classList.add("row-done");
+
+    tr.innerHTML=`
+      <td><div class="dh" draggable="true">⠿</div></td>
+      <td><span class="cr">${i+1}</span></td>
+      <td><select class="ci" style="width:100px" onchange="_up('${col}','${row.id}','mix_code',this.value)">
+        <option value="">— เลือก —</option>${opts}
+      </select></td>
+      <td><input class="ci" style="width:90px;text-align:center;font-family:var(--mono);font-size:13px;font-weight:700;color:var(--cyan)" value="${row.process_order||''}" placeholder="—" onchange="_up('${col}','${row.id}','process_order',this.value)"></td>
+      <td><span class="ca" style="min-width:110px">${row.mix_name||"—"}</span></td>
+      <td><input class="ci" style="width:66px" value="${row.batch_no||""}" placeholder="B001" onchange="_up('${col}','${row.id}','batch_no',this.value)"></td>
+      <td><input class="ci" style="width:66px;text-align:right" type="number" value="${row.volume_liter||""}" onchange="_up('${col}','${row.id}','volume_liter',+this.value)"></td>
+      <td style="background:#0d1108">${setInput(col,row.id,"glc_set","#1a2a0a22","#a3c65a44",row.glc_set)}</td>
+      <td style="background:#060f12">${setInput(col,row.id,"sgr_set","#06101422","#06b6d444",row.sgr_set)}</td>
+      <td style="background:#110c06">${setInput(col,row.id,"plm_set","#1a100622","#f9731644",row.plm_set)}</td>
+      <td style="background:#0d1a1a">${setInput(col,row.id,"oil_mix_set","#0d1a1a22","#34d39944",row.oil_mix_set)}</td>
+      <td style="background:#1a0d1a">${setInput(col,row.id,"fat_milk_set","#1a0d1a22","#f9a8d444",row.fat_milk_set)}</td>
+      <td style="background:#130a13">${setInput(col,row.id,"rework_kg","#130a1322","#9d5aad44",row.rework_kg)}</td>
+      <td style="background:#130a13">${setInput(col,row.id,"rework_tanks","#130a1322","#d8b4fe44",row.rework_tanks)}</td>
+      <td><select class="ci" style="width:110px" onchange="_up('${col}','${row.id}','filling_line',this.value);renderPlan('${m}')">
+        <option value="">— เลือก —</option>${lineOpts}
+      </select></td>
+      <td>
+        <select class="ci" style="width:130px" onchange="_up('${col}','${row.id}','product_name',this.value)">
+          <option value="">— เลือก —</option>
+          ${(()=>{
+            const cl=lines.find(l=>l.name===row.filling_line);
+            return (cl?.products||[]).map(p=>`<option value="${p.name}"${row.product_name===p.name?' selected':''}>${p.name}</option>`).join('');
+          })()}
+        </select>
+      </td>
+      <td><input class="ci" style="width:72px;text-align:center;letter-spacing:.08em;font-family:var(--mono)" type="text" inputmode="numeric" maxlength="5" value="${row.start_time||""}" placeholder="0800" oninput="
+        let v=this.value.replace(/\D/g,'').slice(0,4);
+        if(v.length>=3)this.value=v.slice(0,2)+':'+v.slice(2);
+        else this.value=v;
+      " onchange="_up('${col}','${row.id}','start_time',this.value)"></td>
+      <td><span style="font-family:var(--mono);font-size:12px;color:var(--t2)">${ef||"—"}</span></td>
+      <td>${statusBadge(resolveStatus(row))}</td>
+      <td><input class="ci" style="width:100px;font-size:11px" value="${row.note||""}" placeholder="หมายเหตุ" onchange="_up('${col}','${row.id}','note',this.value)"></td>
+
+      <td><button class="db" onclick="_del('${col}','${row.id}','${m}')">✕</button></td>`;
+
+    // drag
+    const dh = tr.querySelector(".dh");
+    dh.addEventListener("dragstart", e=>{ dragSrc=i; tr.style.opacity=".4"; e.dataTransfer.effectAllowed="move"; });
+    dh.addEventListener("dragend",   ()=>tr.style.opacity="1");
+    tr.addEventListener("dragover",  e=>{ e.preventDefault(); tr.style.borderTop="2px solid var(--blue)"; });
+    tr.addEventListener("dragleave", ()=>tr.style.borderTop="");
+    tr.addEventListener("drop", async e=>{
+      e.preventDefault(); tr.style.borderTop="";
+      if(dragSrc===null||dragSrc===i) return;
+      const nr=[...rows[m]]; const[mv]=nr.splice(dragSrc,1); nr.splice(i,0,mv);
+      rows[m]=nr; renderPlan(m);
+      for(let j=0;j<nr.length;j++) if(nr[j].id) await updateDoc(doc(db,col,nr[j].id),{seq:j+1});
+      toast("เรียงใหม่แล้ว","green"); dragSrc=null;
+    });
+    tbody.appendChild(tr);
+  });
+
+  // KPI
+  const total = rows[m].reduce((s,r)=>s+(+r.volume_liter||0),0);
+  $(`${m}-total`).textContent = rows[m].length;
+  $(`${m}-vol`).textContent   = fmt(total)+" L";
+  $(`${m}-mixing`).textContent = rows[m].filter(r=>r.status==="mixing"||r.status==="pasteurising").length;
+  $(`${m}-done`).textContent  = rows[m].filter(r=>r.status==="past_done"||r.status==="ready").length;
+}
+
+window.applyStatStyle = (sel) => {
+  const v = sel.value;
+  sel.style.background = SC[v]||SC.pending;
+  sel.style.color      = ST[v]||ST.pending;
+  sel.style.animation  = SA[v]||"none";
+};
+
+// ── PAGE SWITCH ────────────────────────────────────────────────────────
+window.showPage = (p) => {
+  document.querySelectorAll('.page').forEach(el=>el.classList.remove('on'));
+  document.querySelectorAll('.nav-tab').forEach(el=>el.classList.remove('on'));
+  $(`page-${p}`).classList.add('on');
+  event.target.classList.add('on');
+};
+
+// ── EXPORT CSV ─────────────────────────────────────────────────────────
+window.exportCSV = (m) => {
+  const h=["#","Mix Code","Mix Name","Batch","Volume(L)","Mixing Tank","Glc Set","Glc Actual","Plm Set","Plm Actual","Sgr Set","Sgr Actual","Filling Line","รหัสผลิต","Start","Est.Finish","Status"];
+  const r=rows[m].map((row,i)=>[i+1,row.mix_code,row.mix_name,row.batch_no,row.volume_liter,row.mixing_tank,row.glc_set,row.glc_actual,row.plm_set,row.plm_actual,row.sgr_set,row.sgr_actual,row.filling_line,(prefix[m==="m1"?1:2]||"")+(row.prod_suffix||""),row.start_time,calcEst(row.start_time,row.mix_code,row.volume_liter)||"",row.status]);
+  const csv=[h,...r].map(r=>r.join(",")).join("\n");
+  const a=document.createElement("a"); a.href="data:text/csv;charset=utf-8,"+encodeURIComponent(csv); a.download=`plan_${m}_${today()}.csv`; a.click();
+};
+
+
+
+
+</script>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('sw.js')
+      .then(r=>console.log('SW registered'))
+      .catch(e=>console.warn('SW failed:',e));
+  });
+}
+</script>
+</body>
+</html>
