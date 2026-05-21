@@ -535,7 +535,7 @@ setInterval(async()=>{
       const prod=window._productMap[agRow.mix_code]||{};
       const density=+(prod.density||1);
       const speed=p==='p1'?+(prod.speed_m1||prod.speed||0):+(prod.speed_m2||prod.speed||0);
-      if(!speed||!totalVol) continue; // ถ้าไม่มี speed ใน product master ข้ามไป
+      if(!speed||!totalVol){console.warn('SKIP',p,agRow.mix_code,'speed:',speed,'vol:',totalVol,'prod:',JSON.stringify(prod));continue;}
       const totalMin=(totalVol*density*60)/speed;
       const[h,mm]=agRow.past_start_time.split(':').map(Number);
       const start=new Date((agRow.date||new Date().toISOString().slice(0,10))+'T'+String(h).padStart(2,'0')+':'+String(mm).padStart(2,'0')+':00');
