@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-  <link rel="manifest" href="manifest.json">
+  
   <meta name="theme-color" content="#1e40af">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -329,7 +329,6 @@ main{position:relative;z-index:1;padding:10px 12px;}
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import {resolveStatus,statusLabel,statusColor,statusBlink,statusBadge} from "./shared.js";
-
 import { getFirestore, collection, query, where, onSnapshot,    updateDoc, addDoc, getDocs, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const app=initializeApp({
@@ -1028,12 +1027,7 @@ window.showPage=(p,btn)=>{
 
 </script>
 <script>
-if('serviceWorker' in navigator){
-  window.addEventListener('load',()=>{
-    navigator.serviceWorker.register('sw.js')
-      .then(r=>console.log('SW registered'))
-      .catch(e=>console.warn('SW failed:',e));
-  });
+;
 }
 </script>
 </body>
