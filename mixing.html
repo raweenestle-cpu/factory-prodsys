@@ -638,8 +638,8 @@ function renderMixTanks(m, rows){
           </path>
         </g>`;
       } else {
-        // รอ Past. — เต็ม 100%
-        pct=100; statusTxt='🔵 รอ Pasteurise'; statusCol='#f97316'; borderCol=col;
+        // รอ Past. — 100% ผสมเสร็จแล้ว รอส่งออก
+        pct=100; statusTxt='🔵 รอ Pasteurise'; statusCol='#60a5fa'; borderCol=col;
         waveSVG=`<defs><linearGradient id="wg${label.replace(' ','')}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${col}" stop-opacity=".9"/><stop offset="100%" stop-color="${col}" stop-opacity=".6"/></linearGradient></defs>
         <clipPath id="wc${label.replace(' ','')}"><rect x="12" y="10" width="106" height="140" rx="6"/></clipPath>
         <g clip-path="url(#wc${label.replace(' ','')})"><rect x="12" y="10" width="106" height="140" fill="url(#wg${label.replace(' ','')})"/></g>`;
