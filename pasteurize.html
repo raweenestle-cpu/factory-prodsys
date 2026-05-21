@@ -1192,8 +1192,8 @@ function getCurrentShift(){
 }
 
 function calcShiftKg(p, shiftIdx){
-  const pRows = window._rows[p]||[];
-  const allPRows = [...(window._rows['p1']||[]),...(window._rows['p2']||[])];
+  // แยก P1/P2 — p1=production_plans, p2=production_plans_m2
+  const allPRows = window._rows[p]||[];
   const [sMin, eMin] = SHIFT_RANGES[shiftIdx];
   let kg = 0;
   allPRows.forEach(r=>{
