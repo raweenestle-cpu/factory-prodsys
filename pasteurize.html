@@ -551,9 +551,9 @@ setInterval(async()=>{
       const agVol=totalMin>0?Math.min(totalVol,(elapsedMin/totalMin)*totalVol):0;
 
       // รวม current_vol จาก batch อื่นที่ process_order + aging_tank เดียวกัน (past_done แล้ว)
+      const allRows=[...(window._rows['p1']||[]),...(window._rows['p2']||[])];
       let prevVol=0;
       if(agRow.process_order&&agRow.aging_tank){
-        const allRows=[...(window._rows['p1']||[]),...(window._rows['p2']||[])];
         prevVol=allRows
           .filter(r=>
             r.id!==agRow.id &&
