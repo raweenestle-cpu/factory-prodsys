@@ -1,7 +1,8 @@
-const CACHE_NAME = 'prodsys-v1';
+const CACHE_NAME = 'prodsys-v3';
 const STATIC = [
   '/factory-prodsys/',
   '/factory-prodsys/index.html',
+  '/factory-prodsys/shared.js',
   '/factory-prodsys/leadman.html',
   '/factory-prodsys/mixing.html',
   '/factory-prodsys/pasteurize.html',
@@ -29,9 +30,17 @@ self.addEventListener('activate', e => {
   self.clients.claim();
 });
 
-// Network first — ถ้าออนไลน์ดึงใหม่ ถ้าออฟไลน์ใช้ cache
 self.addEventListener('fetch', e => {
   if(e.request.method !== 'GET') return;
+  
+  // ไม่ cache Firebase, gstatic, googleapis — ดึงจาก network เสมอ
+  const url = e.request.url;
+  if(url.includes('firebase') || url.includes('gstatic') || url.includes('googleapis') || url.includes('firebaseio')) {
+    e.respondWith(fetch(e.request));
+    return;
+  }
+  
+  // Network first สำหรับไฟล์อื่น
   e.respondWith(
     fetch(e.request)
       .then(res => {
