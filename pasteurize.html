@@ -727,7 +727,7 @@ function renderTankVisual(m,rows){
               ||rows.find(r=>r.status==='ready'&&r.past_start_time);
 
   // ดึง row จากตารางโดยตรง — ทุก status ที่ active (mixing, pasteurising)
-  const activeStatuses=['mixing','pasteurising'];
+  const activeStatuses=['mixing','pasteurising','past_done','ready'];
   const t1Row=rows.find(r=>activeStatuses.includes(r.status)&&
     (r.mixing_tank==='Tank 1'||r.mixing_tank==='T1'||r.mixing_tank==='ถัง 1'||r.mixing_tank==='1'))||null;
   const t2Row=rows.find(r=>activeStatuses.includes(r.status)&&
