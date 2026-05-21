@@ -266,6 +266,14 @@ thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap
 
 @keyframes statusPulse{0%,100%{opacity:1}50%{opacity:.45}}
 .status-blink{animation:statusPulse 1.4s ease-in-out infinite}
+
+.info-card{background:linear-gradient(135deg,#0d1f35,#0a1628);border:1px solid #1e3a5f;border-radius:12px;padding:12px 16px;margin-top:10px;font-family:'DM Mono',monospace;}
+.info-card .card-title{font-size:10px;color:#60a5fa;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;border-bottom:1px solid #1e3a5f;padding-bottom:6px;}
+.info-card .card-row{display:flex;justify-content:space-between;align-items:center;margin:4px 0;font-size:11px;}
+.info-card .card-label{color:#64748b;}
+.info-card .card-value{color:#e2e8f0;font-weight:700;}
+.info-card .card-value.highlight{color:#60a5fa;font-size:13px;}
+.info-cards-wrap{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:4px 0 8px;}
 </style>
 </head>
 <body>
@@ -1151,6 +1159,27 @@ function renderTankVisual(m,rows){
 
   </svg>
 </div>
+<div class="info-cards-wrap" id="info-cards-${m}">
+  ${(()=>{
+    const cards=[];
+    if(agRow){
+      const prod=productMap[agRow.mix_code]||{};
+      const dens=+(prod.density||1);
+      const allRows=[...(window._rows['p1']||[]),...(window._rows['p2']||[])];
+      const totalVol=agRow.process_order?allRows.filter(r=>r.process_order===agRow.process_order).reduce((s,r)=>s+(+(r.volume_liter||0)),0):+(agRow.volume_liter||0);
+      const totalKg=Math.round(totalVol*dens);
+      cards.push(`<div class="info-card">
+        <div class="card-title">🧊 กำลัง Pasteurise</div>
+        <div class="card-row"><span class="card-label">Mix Name</span><span class="card-value highlight">\${agRow.mix_name||'—'}</span></div>
+        <div class="card-row"><span class="card-label">Batch</span><span class="card-value">\${agRow.batch_no||'—'}</span></div>
+        <div class="card-row"><span class="card-label">Vol รวม PO</span><span class="card-value">\${totalVol.toLocaleString()} L</span></div>
+        <div class="card-row"><span class="card-label">Vol รวม PO × Density</span><span class="card-value">\${totalKg.toLocaleString()} kg</span></div>
+        <div class="card-row"><span class="card-label">รหัสผลิต</span><span class="card-value">\${(agRow.mix_code||'—').toString().slice(0,10)}</span></div>
+        <div class="card-row"><span class="card-label">Tank</span><span class="card-value highlight">\${agTank||'—'}</span></div>
+      </div>\`);
+    }
+    return cards.join('');
+  })()}
 </div>
 </div>`;
 }
