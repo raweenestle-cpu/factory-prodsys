@@ -179,28 +179,6 @@ main{padding:14px;display:flex;flex-direction:column;gap:14px}
 <div id="toast"></div>
 
 <script type="module">
-
-function resolveStatus(row){
-  const s=row?.status||'pending';
-  if(s==='pasteurising'&&!row?.past_start_time) return 'waiting_past';
-  return s;
-}
-function statusLabel(s){
-  return s==='pending'?'⚪ รอดำเนินการ':s==='mixing'?'🟡 กำลัง Mixing':s==='waiting_past'?'🔵 รอ Pasteurise':s==='pasteurising'?'🔵 กำลัง Pasteurise':s==='past_done'?'🟢 Past. เสร็จ':s==='ready'?'🟢 พร้อมส่ง Filling':s==='sent_filling'?'🟣 ส่ง Filling แล้ว':s==='filling'?'🟢 กำลัง Filling':s==='curing'?'🟠 กำลังบ่ม':s==='empty'?'🟡 รอล้าง':s==='cleaned'?'⚪ ล้างแล้ว':'—';
-}
-function statusColor(s){
-  return s==='pending'?'#6b7280':s==='mixing'?'#fbbf24':s==='waiting_past'?'#60a5fa':s==='pasteurising'?'#3b82f6':s==='past_done'?'#22c55e':s==='ready'?'#4ade80':s==='sent_filling'?'#c084fc':s==='filling'?'#22c55e':s==='curing'?'#f97316':s==='empty'?'#eab308':s==='cleaned'?'#e5e7eb':'#6b7280';
-}
-function statusBlink(s){
-  return s==='mixing'||s==='waiting_past'||s==='pasteurising'||s==='past_done'||s==='ready'||s==='sent_filling'||s==='filling'||s==='curing';
-}
-function statusBadge(s){
-  const label=statusLabel(s);
-  const col=statusColor(s);
-  const blink=statusBlink(s);
-  return `<span class="${blink?'status-blink':''}" style="display:inline-block;font-family:'DM Mono',monospace;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;background:${col}22;color:${col};border:1px solid ${col}55;white-space:nowrap">${label}</span>`;
-}
-
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import{getAuth,signOut,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import{getFirestore,collection,query,where,onSnapshot,getDocs,doc}
@@ -581,9 +559,18 @@ function tick(){
   });
 }
 
+function statusBadge(s){
+  const label=statusLabel(s);
+  const col=statusColor(s);
+  const blink=statusBlink(s);
+  return `<span class="${blink?'status-blink':''}" style="display:inline-block;font-family:'DM Mono',monospace;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;background:${col}22;color:${col};border:1px solid ${col}55;white-space:nowrap">${label}</span>`;
+}
 
-
-
+function resolveStatus(row){
+  const s=row?.status||'pending';
+  if(s==='pasteurising'&&!row?.past_start_time) return 'waiting_past';
+  return s;
+}
 function statusLabel(s){
   return s==='pending'?'⚪ รอดำเนินการ':s==='mixing'?'🟡 กำลัง Mixing':s==='waiting_past'?'🔵 รอ Pasteurise':s==='pasteurising'?'🔵 กำลัง Pasteurise':s==='past_done'?'🟢 Past. เสร็จ':s==='ready'?'🟢 พร้อมส่ง Filling':s==='sent_filling'?'🟣 ส่ง Filling แล้ว':s==='filling'?'🟢 กำลัง Filling':s==='curing'?'🟠 กำลังบ่ม':s==='empty'?'🟡 รอล้าง':s==='cleaned'?'⚪ ล้างแล้ว':'—';
 }
