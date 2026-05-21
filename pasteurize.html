@@ -957,7 +957,7 @@ function renderTankVisual(m,rows){
       <circle cx="${x}" cy="${y}" r="7" fill="#06101e" stroke="${c}" stroke-width="1.5"/>
       <circle cx="${x}" cy="${y}" r="3" fill="${c}"/>
     </g>
-    ${run?`<path d="M${x+30},${y} L${x+22},${y-5} L${x+22},${y+5} Z" fill="${c}" opacity=".8"/>`:''}\`; 
+    ${run?`<path d="M${x+30},${y} L${x+22},${y-5} L${x+22},${y+5} Z" fill="${c}" opacity=".8"/>`:''}`;
   }
 
   function pipe(d,on){
