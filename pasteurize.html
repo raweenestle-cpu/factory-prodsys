@@ -486,6 +486,7 @@ onAuthStateChanged(auth,async user=>{
       if(l.lineName) lineMap[l.lineName]=l;
       lineMap[d.id]=l;
     });
+    window._lineMap=lineMap;
   }catch{}
 
   $("nav-user").textContent=user.email.replace("@filling.local","");
