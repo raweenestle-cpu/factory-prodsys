@@ -328,23 +328,46 @@ import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/fi
 
 import { getFirestore, collection, query, where, orderBy, onSnapshot, addDoc, updateDoc, deleteDoc, doc, getDocs, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+
 function resolveStatus(row){
-  const s=row?.status||'pending';
-  if(s==='pasteurising'&&!row?.past_start_time) return 'waiting_past';
+  var s=row&&row.status||'pending';
+  if(s==='pasteurising'&&!row.past_start_time) return 'waiting_past';
   return s;
 }
 function statusLabel(s){
-  return s==='pending'?'\u26aa \u0e23\u0e2d\u0e14\u0e33\u0e40\u0e19\u0e34\u0e19\u0e01\u0e32\u0e23':s==='mixing'?'\U0001f7e1 \u0e01\u0e33\u0e25\u0e31\u0e07 Mixing':s==='waiting_past'?'\U0001f535 \u0e23\u0e2d Pasteurise':s==='pasteurising'?'\U0001f535 \u0e01\u0e33\u0e25\u0e31\u0e07 Pasteurise':s==='past_done'?'\U0001f7e2 Past. \u0e40\u0e2a\u0e23\u0e47\u0e08':s==='ready'?'\U0001f7e2 \u0e1e\u0e23\u0e49\u0e2d\u0e21\u0e2a\u0e48\u0e07 Filling':s==='sent_filling'?'\U0001f7e3 \u0e2a\u0e48\u0e07 Filling \u0e41\u0e25\u0e49\u0e27':s==='filling'?'\U0001f7e2 \u0e01\u0e33\u0e25\u0e31\u0e07 Filling':s==='curing'?'\U0001f7e0 \u0e01\u0e33\u0e25\u0e31\u0e07\u0e1a\u0e48\u0e21':s==='empty'?'\U0001f7e1 \u0e23\u0e2d\u0e25\u0e49\u0e32\u0e07':s==='cleaned'?'\u26aa \u0e25\u0e49\u0e32\u0e07\u0e41\u0e25\u0e49\u0e27':'\u2014';
+  if(s==='pending') return 'Pending';
+  if(s==='mixing') return 'Mixing';
+  if(s==='waiting_past') return 'Waiting Past.';
+  if(s==='pasteurising') return 'Pasteurising';
+  if(s==='past_done') return 'Past. Done';
+  if(s==='ready') return 'Ready';
+  if(s==='sent_filling') return 'Sent Filling';
+  if(s==='filling') return 'Filling';
+  if(s==='curing') return 'Curing';
+  if(s==='empty') return 'Empty';
+  if(s==='cleaned') return 'Cleaned';
+  return s||'—';
 }
 function statusColor(s){
-  return s==='pending'?'#6b7280':s==='mixing'?'#fbbf24':s==='waiting_past'?'#60a5fa':s==='pasteurising'?'#3b82f6':s==='past_done'?'#22c55e':s==='ready'?'#4ade80':s==='sent_filling'?'#c084fc':s==='filling'?'#22c55e':s==='curing'?'#f97316':s==='empty'?'#eab308':s==='cleaned'?'#e5e7eb':'#6b7280';
+  if(s==='pending') return '#6b7280';
+  if(s==='mixing') return '#fbbf24';
+  if(s==='waiting_past') return '#60a5fa';
+  if(s==='pasteurising') return '#3b82f6';
+  if(s==='past_done') return '#22c55e';
+  if(s==='ready') return '#4ade80';
+  if(s==='sent_filling') return '#c084fc';
+  if(s==='filling') return '#22c55e';
+  if(s==='curing') return '#f97316';
+  if(s==='empty') return '#eab308';
+  if(s==='cleaned') return '#e5e7eb';
+  return '#6b7280';
 }
 function statusBlink(s){
   return s==='mixing'||s==='waiting_past'||s==='pasteurising'||s==='past_done'||s==='ready'||s==='sent_filling'||s==='filling'||s==='curing';
 }
 function statusBadge(s){
-  const _lbl=statusLabel(s),_col=statusColor(s),_blk=statusBlink(s);
-  return '<span class="'+(_blk?'status-blink':'')+'" style="display:inline-block;font-family:DM Mono,monospace;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;background:'+_col+'22;color:'+_col+';border:1px solid '+_col+'55;white-space:nowrap">'+_lbl+'</span>';
+  var lbl=statusLabel(s),col=statusColor(s),blk=statusBlink(s);
+  return '<span class="'+(blk?'status-blink':'')+'" style="display:inline-block;font-family:DM Mono,monospace;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;background:'+col+'22;color:'+col+';border:1px solid '+col+'55;white-space:nowrap">'+lbl+'</span>';
 }
 
          addDoc, updateDoc, deleteDoc, doc, getDocs, getDoc,
