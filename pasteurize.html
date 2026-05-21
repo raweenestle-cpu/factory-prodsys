@@ -480,7 +480,12 @@ onAuthStateChanged(auth,async user=>{
     window._productMap=productMap; // sync global
     // โหลด LINE master เพื่อดึง aging_tanks
     const ls=await getDocs(collection(db,"lines"));
-    ls.docs.forEach(d=>{const l={id:d.id,...d.data()};if(l.name)lineMap[l.name]=l;});
+    ls.docs.forEach(d=>{const l={id:d.id,...d.data()};
+      if(l.name) lineMap[l.name]=l;
+      if(l.line_name) lineMap[l.line_name]=l;
+      if(l.lineName) lineMap[l.lineName]=l;
+      lineMap[d.id]=l;
+    });
   }catch{}
 
   $("nav-user").textContent=user.email.replace("@filling.local","");
