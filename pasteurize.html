@@ -403,7 +403,7 @@ import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/fi
 
 
 
-import { getFirestore, collection, query, where, orderBy, onSnapshot, updateDoc, doc, addDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, collection, query, where, orderBy, onSnapshot, updateDoc, doc, addDoc, deleteDoc, getDocs, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 
 import {resolveStatus,statusLabel,statusColor,statusBlink,statusBadge} from "./shared.js";
@@ -487,7 +487,7 @@ onAuthStateChanged(auth,async user=>{
       lineMap[d.id]=l;
     });
     window._lineMap=lineMap;
-  }catch(e){console.error("INIT ERROR:",e);}
+  }catch{}
 
   $("nav-user").textContent=user.email.replace("@filling.local","");
   $("date-p1").value=today();
