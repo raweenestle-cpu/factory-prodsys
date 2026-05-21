@@ -205,7 +205,10 @@ tbody td{padding:5px 6px;vertical-align:middle;font-weight:600}
   <div class="toolbar">
     <div class="toolbar-left">
       <span style="font-family:var(--mono);font-size:10px;color:var(--t3)">DATE</span>
-      <input type="date" id="date-m1" class="ci" style="width:140px" onchange="loadPlan('m1')">
+      <div style="display:flex;align-items:center;gap:4px">
+  <input type="date" id="date-m1" style="position:absolute;opacity:0;width:1px;height:1px" onchange="updateDateDisplay('m1')">
+  <button onclick="document.getElementById('date-m1').showPicker()" style="font-family:var(--mono);font-size:12px;padding:5px 10px;border-radius:6px;border:1.5px solid var(--b1);background:var(--s2);color:var(--text);cursor:pointer;min-width:110px;text-align:left" id="date-m1-btn">📅 วันนี้</button>
+</div>
       <button class="btn btn-s" onclick="changeDate('m1',-1)" style="padding:5px 10px">◀</button>
       <button class="btn btn-s" onclick="changeDate('m1',1)" style="padding:5px 10px">▶</button>
       <button class="btn btn-s" onclick="goToday('m1')" style="font-size:10px">วันนี้</button>
@@ -264,7 +267,10 @@ tbody td{padding:5px 6px;vertical-align:middle;font-weight:600}
   <div class="toolbar">
     <div class="toolbar-left">
       <span style="font-family:var(--mono);font-size:10px;color:var(--t3)">DATE</span>
-      <input type="date" id="date-m2" class="ci" style="width:140px" onchange="loadPlan('m2')">
+      <div style="display:flex;align-items:center;gap:4px">
+  <input type="date" id="date-m2" style="position:absolute;opacity:0;width:1px;height:1px" onchange="updateDateDisplay('m2')">
+  <button onclick="document.getElementById('date-m2').showPicker()" style="font-family:var(--mono);font-size:12px;padding:5px 10px;border-radius:6px;border:1.5px solid var(--b1);background:var(--s2);color:var(--text);cursor:pointer;min-width:110px;text-align:left" id="date-m2-btn">📅 วันนี้</button>
+</div>
       <button class="btn btn-s" onclick="changeDate('m2',-1)" style="padding:5px 10px">◀</button>
       <button class="btn btn-s" onclick="changeDate('m2',1)" style="padding:5px 10px">▶</button>
       <button class="btn btn-s" onclick="goToday('m2')" style="font-size:10px">วันนี้</button>
@@ -425,6 +431,8 @@ onAuthStateChanged(auth, async user => {
   await loadPrefixes();
   $("date-m1").value = today();
   $("date-m2").value = today();
+  updateDateDisplay('m1');
+  updateDateDisplay('m2');
   loadPlan("m1");
   loadPlan("m2");
 });
