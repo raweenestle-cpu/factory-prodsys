@@ -11,9 +11,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pasteurize — PROD.SYS</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js">
+function statusBadge(s){
+  const label=statusLabel(s);
+  const col=statusColor(s);
+  const blink=statusBlink(s);
+  return `<span class="${blink?'status-blink':''}" style="display:inline-block;font-family:'DM Mono',monospace;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;background:${col}22;color:${col};border:1px solid ${col}55;white-space:nowrap">${label}</span>`;
+}
 
-
-
+function resolveStatus(row){
+  const s=row?.status||'pending';
+  if(s==='pasteurising'&&!row?.past_start_time) return 'waiting_past';
+  return s;
+}
 function statusLabel(s){
   return s==='pending'?'⚪ รอดำเนินการ':s==='mixing'?'🟡 กำลัง Mixing':s==='waiting_past'?'🔵 รอ Pasteurise':s==='pasteurising'?'🔵 กำลัง Pasteurise':s==='past_done'?'🟢 Past. เสร็จ':s==='ready'?'🟢 พร้อมส่ง Filling':s==='sent_filling'?'🟣 ส่ง Filling แล้ว':s==='filling'?'🟢 กำลัง Filling':s==='curing'?'🟠 กำลังบ่ม':s==='empty'?'🟡 รอล้าง':s==='cleaned'?'⚪ ล้างแล้ว':'—';
 }
@@ -409,29 +418,6 @@ thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap
 <script type="module">
 import { initializeApp }     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-
-
-function resolveStatus(row){
-  const s=row?.status||'pending';
-  if(s==='pasteurising'&&!row?.past_start_time) return 'waiting_past';
-  return s;
-}
-function statusLabel(s){
-  return s==='pending'?'⚪ รอดำเนินการ':s==='mixing'?'🟡 กำลัง Mixing':s==='waiting_past'?'🔵 รอ Pasteurise':s==='pasteurising'?'🔵 กำลัง Pasteurise':s==='past_done'?'🟢 Past. เสร็จ':s==='ready'?'🟢 พร้อมส่ง Filling':s==='sent_filling'?'🟣 ส่ง Filling แล้ว':s==='filling'?'🟢 กำลัง Filling':s==='curing'?'🟠 กำลังบ่ม':s==='empty'?'🟡 รอล้าง':s==='cleaned'?'⚪ ล้างแล้ว':'—';
-}
-function statusColor(s){
-  return s==='pending'?'#6b7280':s==='mixing'?'#fbbf24':s==='waiting_past'?'#60a5fa':s==='pasteurising'?'#3b82f6':s==='past_done'?'#22c55e':s==='ready'?'#4ade80':s==='sent_filling'?'#c084fc':s==='filling'?'#22c55e':s==='curing'?'#f97316':s==='empty'?'#eab308':s==='cleaned'?'#e5e7eb':'#6b7280';
-}
-function statusBlink(s){
-  return s==='mixing'||s==='waiting_past'||s==='pasteurising'||s==='past_done'||s==='ready'||s==='sent_filling'||s==='filling'||s==='curing';
-}
-function statusBadge(s){
-  const label=statusLabel(s);
-  const col=statusColor(s);
-  const blink=statusBlink(s);
-  return `<span class="${blink?'status-blink':''}" style="display:inline-block;font-family:'DM Mono',monospace;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;background:${col}22;color:${col};border:1px solid ${col}55;white-space:nowrap">${label}</span>`;
-}
-
 import { getFirestore, collection, query, where, orderBy, onSnapshot,
          updateDoc, addDoc, deleteDoc, doc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
@@ -554,8 +540,9 @@ setInterval(async()=>{
     try{
       const totalVol=+(agRow.volume_liter||0);
       const prod=window._productMap[agRow.mix_code]||{};
-      const density=+(prod.density||1.1);
-      const speed=+(prod.speed_m1||prod.speed||5150);
+      const density=+(prod.density||1);
+      const speed=p==='p1'?+(prod.speed_m1||prod.speed||0):+(prod.speed_m2||prod.speed||0);
+      if(!speed||!totalVol) continue; // ถ้าไม่มี speed ใน product master ข้ามไป
       const totalMin=(totalVol*density*60)/speed;
       const[h,mm]=agRow.past_start_time.split(':').map(Number);
       const start=new Date((agRow.date||new Date().toISOString().slice(0,10))+'T'+String(h).padStart(2,'0')+':'+String(mm).padStart(2,'0')+':00');
@@ -1250,8 +1237,8 @@ window.stampTime=async(col,id,field,p)=>{
     const row=rows[p]?.find(r=>r.id===id);
     if(row&&row.past_start_time){
       const prod=productMap[row.mix_code]||{};
-      const density=+(prod.density||1.1);
-      const speed=+(prod.speed_m1||prod.speed||5150);
+      const density=+(prod.density||1);
+      const speed=p==='p1'?+(prod.speed_m1||prod.speed||0):+(prod.speed_m2||prod.speed||0);
       const totalVol=+(row.volume_liter||0);
       const reqMin=(totalVol*density*60)/speed;
 
@@ -1439,7 +1426,7 @@ function renderPlan(p){
           ? '<span style="font-family:var(--mono);font-size:10px;color:var(--t3)">รอ Stamp</span>'
           : (()=>{
               const prod2=productMap[row.mix_code]||{};
-              const spd2=+(prod2.speed_m1||prod2.speed||5150);
+              const spd2=+(prod2.speed_m1||prod2.speed||1000);
               const den2=+(prod2.density||1.1);
               const vol2=+(row.volume_liter||0);
               const req2=vol2>0&&spd2>0?Math.round(vol2*den2*60/spd2):0;
