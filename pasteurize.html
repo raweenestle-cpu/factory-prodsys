@@ -275,19 +275,20 @@ thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap
 .info-card .card-value.highlight{color:#60a5fa;font-size:13px;}
 .info-cards-wrap{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:4px 0 8px;}
 
-/* Real-time Shift Chart */
-.shift-chart-wrap{display:grid;grid-template-columns:70px 1fr 80px;gap:0;align-items:center;padding:6px 0;}
-.shift-chart-label{font-family:'DM Mono',monospace;font-size:10px;font-weight:700;text-align:right;padding-right:10px;}
-.shift-bar-track{height:28px;background:#0a0f1e;border-radius:6px;overflow:hidden;position:relative;}
-.shift-bar-fill{height:100%;border-radius:6px;transition:width 1s ease;position:relative;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;min-width:4px;}
-.shift-bar-fill.active{box-shadow:0 0 12px currentColor;}
-.shift-bar-fill .bar-val{font-family:'DM Mono',monospace;font-size:10px;font-weight:700;color:#fff;white-space:nowrap;text-shadow:0 0 6px rgba(0,0,0,0.8);}
-.shift-bar-kg{font-family:'DM Mono',monospace;font-size:11px;font-weight:700;text-align:right;padding-left:10px;}
-.shift-chart-card{background:linear-gradient(135deg,#080d1a,#0d1525);border:1px solid #1e2535;border-radius:12px;padding:14px 18px;margin:8px 0;}
-.shift-chart-title{font-family:'DM Mono',monospace;font-size:10px;color:#60a5fa;font-weight:700;letter-spacing:1px;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+/* Real-time Shift Chart — แนวตั้ง */
+.shift-chart-card{background:linear-gradient(135deg,#080d1a,#0d1525);border:1px solid #1e2535;border-radius:12px;padding:12px 16px;margin:8px 0;}
+.shift-chart-title{font-family:'DM Mono',monospace;font-size:10px;color:#60a5fa;font-weight:700;letter-spacing:1px;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
 .shift-live-dot{width:8px;height:8px;background:#22c55e;border-radius:50%;animation:livePulse 1.2s ease-in-out infinite;}
 @keyframes livePulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(34,197,94,.4)}50%{opacity:.7;box-shadow:0 0 0 6px rgba(34,197,94,0)}}
-.shift-total{font-family:'DM Mono',monospace;font-size:11px;color:#64748b;text-align:right;margin-top:10px;padding-top:8px;border-top:1px solid #1e2535;}
+.shift-bars-wrap{display:flex;align-items:flex-end;gap:16px;height:120px;padding:0 8px;}
+.shift-bar-col{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;}
+.shift-bar-track-v{width:100%;flex:1;background:#0a0f1e;border-radius:8px 8px 4px 4px;position:relative;overflow:hidden;display:flex;align-items:flex-end;}
+.shift-bar-fill-v{width:100%;border-radius:6px 6px 3px 3px;transition:height 1s cubic-bezier(.4,0,.2,1);position:relative;min-height:3px;}
+.shift-bar-fill-v.active{box-shadow:0 -4px 20px currentColor;}
+.shift-bar-fill-v .bar-val-v{position:absolute;top:-18px;left:0;right:0;text-align:center;font-family:'DM Mono',monospace;font-size:10px;font-weight:700;color:#fff;white-space:nowrap;}
+.shift-bar-label{font-family:'DM Mono',monospace;font-size:10px;font-weight:700;text-align:center;}
+.shift-bar-kg-v{font-family:'DM Mono',monospace;font-size:11px;font-weight:700;text-align:center;}
+.shift-total{font-family:'DM Mono',monospace;font-size:11px;color:#64748b;text-align:right;margin-top:8px;padding-top:6px;border-top:1px solid #1e2535;}
 </style>
 </head>
 <body>
@@ -1253,29 +1254,30 @@ function renderShiftChart(p){
   const el = document.getElementById(`chart-area-${p}`);
   if(!el) return;
   const curShift = getCurrentShift();
-  const maxKg = Math.max(...[0,1,2].map(i=>calcShiftKg(p,i)), 1);
-  const totalKg = [0,1,2].reduce((s,i)=>s+calcShiftKg(p,i),0);
+  const kgs = [0,1,2].map(i=>calcShiftKg(p,i));
+  const maxKg = Math.max(...kgs, 1);
+  const totalKg = kgs.reduce((s,v)=>s+v,0);
 
   el.innerHTML = `<div class="shift-chart-card">
     <div class="shift-chart-title">
       <span class="shift-live-dot"></span>
       📊 ผลผลิตสะสมตามกะ — วันนี้ (kg)
     </div>
-    ${[0,1,2].map(i=>{
-      const kg = calcShiftKg(p,i);
-      const pct = maxKg>0?(kg/maxKg*100):0;
-      const isActive = i===curShift;
-      const col = SHIFT_COLORS[i];
-      return `<div class="shift-chart-wrap" style="margin-bottom:${i<2?'8px':'0'}">
-        <div class="shift-chart-label" style="color:${col}">${SHIFT_LABELS[i]}</div>
-        <div class="shift-bar-track">
-          <div class="shift-bar-fill${isActive?' active':''}" style="width:${pct}%;background:${isActive?`linear-gradient(90deg,${col}99,${col})`:`${col}66`};color:${col}">
-            ${kg>0?`<span class="bar-val">${kg.toLocaleString()}</span>`:''}
+    <div class="shift-bars-wrap">
+      ${[0,1,2].map(i=>{
+        const kg = kgs[i];
+        const pct = maxKg>0?(kg/maxKg*100):0;
+        const isActive = i===curShift;
+        const col = SHIFT_COLORS[i];
+        return `<div class="shift-bar-col">
+          <div class="shift-bar-kg-v" style="color:${isActive?col:'#4a5568'};font-size:${isActive?'13px':'11px'}">${kg>0?kg.toLocaleString():'—'}</div>
+          <div class="shift-bar-track-v">
+            <div class="shift-bar-fill-v${isActive?' active':''}" style="height:${pct}%;background:${isActive?`linear-gradient(0deg,${col}88,${col})`:`${col}44`};color:${col}"></div>
           </div>
-        </div>
-        <div class="shift-bar-kg" style="color:${isActive?col:'#4a5568'}">${kg>0?kg.toLocaleString():'—'} kg</div>
-      </div>`;
-    }).join('')}
+          <div class="shift-bar-label" style="color:${isActive?col:'#4a5568'}">${SHIFT_LABELS[i]}</div>
+        </div>`;
+      }).join('')}
+    </div>
     <div class="shift-total">รวมวันนี้ <b style="color:#e2e8f0">${totalKg.toLocaleString()} kg</b></div>
   </div>`;
 }
