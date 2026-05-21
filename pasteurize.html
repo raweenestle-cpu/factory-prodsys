@@ -470,20 +470,22 @@ onAuthStateChanged(auth,async user=>{
     if(role!=="pasteurize"&&role!=="admin"&&role!=="leadman"&&role!=="operator"){window.location.href="index.html";return;}
   }catch{}
 
-  try{
-    const ps=await getDocs(collection(db,"products"));
-    ps.docs.forEach(d=>{const p={id:d.id,...d.data()};productMap[p.mix_code]=p;});
-    window._productMap=productMap; // sync global
-    // โหลด LINE master เพื่อดึง aging_tanks
-    const ls=await getDocs(collection(db,"lines"));
-    ls.docs.forEach(d=>{const l={id:d.id,...d.data()};
+  // โหลด products แบบ realtime
+  onSnapshot(collection(db,"products"), snap=>{
+    snap.docs.forEach(d=>{const p={id:d.id,...d.data()};if(p.mix_code)productMap[p.mix_code]=p;});
+    window._productMap=productMap;
+  }, e=>console.error('products error:',e));
+
+  // โหลด lines แบบ realtime
+  onSnapshot(collection(db,"lines"), snap=>{
+    snap.docs.forEach(d=>{const l={id:d.id,...d.data()};
       if(l.name) lineMap[l.name]=l;
       if(l.line_name) lineMap[l.line_name]=l;
       if(l.lineName) lineMap[l.lineName]=l;
       lineMap[d.id]=l;
     });
     window._lineMap=lineMap;
-  }catch{}
+  }, e=>console.error('lines error:',e));
 
   $("nav-user").textContent=user.email.replace("@filling.local","");
   $("date-p1").value=today();
