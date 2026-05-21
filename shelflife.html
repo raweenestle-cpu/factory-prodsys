@@ -148,26 +148,33 @@ function toast(msg,col='#00e87a'){
 }
 
 window.fetchAll=async()=>{
-  const po=$('inp-po').value.trim();
-  if(!po){toast('กรุณากรอก Process Order','#ff4560');return;}
+  const poRaw=$('inp-po').value.trim();
+  if(!poRaw){toast('กรุณากรอก Process Order','#ff4560');return;}
+  // ลอง query ทั้ง string และ number
+  const poStr=poRaw;
+  const poNum=isNaN(poRaw)?null:+poRaw;
   const btn=$('btn-fetch');
   btn.disabled=true;btn.textContent='⏳ กำลังดึง...';
   $('result-area').innerHTML='<div class="state-box"><div class="ico">⏳</div><div>กำลังดึงข้อมูล...</div></div>';
 
   try{
-    // ดึงจากทุก collection พร้อมกัน
-    const[s1,s2,s3,s4]=await Promise.all([
-      getDocs(query(collection(db,'production_plans'),where('process_order','==',po))),
-      getDocs(query(collection(db,'production_plans_m2'),where('process_order','==',po))),
-      getDocs(query(collection(db,'past_history'),where('process_order','==',po))),
-      getDocs(query(collection(db,'cip_line_states'))),
-    ]);
+    // ดึงจากทุก collection — ลอง number และ string
+    const queries=[];
+    const cols=['production_plans','production_plans_m2','past_history'];
+    for(const col of cols){
+      queries.push(getDocs(query(collection(db,col),where('process_order','==',poStr))));
+      if(poNum!==null) queries.push(getDocs(query(collection(db,col),where('process_order','==',poNum))));
+    }
+    const results=await Promise.all(queries);
+    const s1=results[0],s2=results[2]||results[0],s3=results[4]||results[0];
+    // รวม docs ทั้งหมด dedup by id
+    const allDocs=new Map();
+    results.forEach(snap=>{snap.docs.forEach(d=>allDocs.set(d.id,d));});
+    const po=poStr;
+    const fakeSnap={docs:[...allDocs.values()]};
+    const[s1r,s2r,s3r]=[fakeSnap,fakeSnap,fakeSnap];
 
-    const rows=[
-      ...s1.docs.map(d=>({...d.data(),id:d.id,_col:'production_plans'})),
-      ...s2.docs.map(d=>({...d.data(),id:d.id,_col:'production_plans_m2'})),
-      ...s3.docs.map(d=>({...d.data(),id:d.id,_col:'past_history'})),
-    ];
+    const rows=[...allDocs.values()].map(d=>({...d.data(),id:d.id,_col:d.ref?.parent?.id||'production_plans'}));
 
     if(!rows.length){
       $('result-area').innerHTML='<div class="state-box"><div class="ico">🔍</div><div>ไม่พบข้อมูล Process Order: <b style="color:var(--text)">'+po+'</b></div></div>';
