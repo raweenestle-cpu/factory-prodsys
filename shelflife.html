@@ -132,9 +132,24 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;heigh
 
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import{getAuth,onAuthStateChanged,signInAnonymously}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import{getFirestore,collection,query,where,getDocs,limit,orderBy}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const app=initializeApp({apiKey:"AIzaSyC3f6jMuhugE6BNfRfkpOA9BMrIKWR9YgQ",authDomain:"production-filling.firebaseapp.com",projectId:"production-filling",storageBucket:"production-filling.firebasestorage.app",messagingSenderId:"89098393458",appId:"1:89098393458:web:b723f2886e8a341935afeb"});
 const db=getFirestore(app);
+const auth=getAuth(app);
+
+// ต้อง login ก่อนถึงจะดึงข้อมูล Firebase ได้
+let _authReady=false;
+onAuthStateChanged(auth,user=>{
+  if(user){_authReady=true;}
+  else{
+    // login แบบ anonymous ถ้ายังไม่ login
+    signInAnonymously(auth).catch(e=>{
+      // ถ้า anonymous ไม่ได้ redirect ไป login
+      window.location.href='index.html';
+    });
+  }
+});
 
 const SHELF={'Ice Cream':[96,96,96,96,92,76,62,51,43,37,32],'Water Ice':[96,96,96,96,96,96,96,93,81,71,63],'Jelly':[24,24,24,24,24,24,24,24,24,24,24]};
 const $=id=>document.getElementById(id);
@@ -148,6 +163,11 @@ function toast(msg,col='#00e87a'){
 }
 
 window.fetchAll=async()=>{
+  if(!auth.currentUser){
+    toast('กรุณา Login ก่อนใช้งาน','#ff4560');
+    setTimeout(()=>window.location.href='index.html',2000);
+    return;
+  }
   const poRaw=$('inp-po').value.trim();
   if(!poRaw){toast('กรุณากรอก Process Order','#ff4560');return;}
   // ลอง query ทั้ง string และ number
