@@ -187,8 +187,8 @@ window.fetchAll=async()=>{
     currentType=productType;
 
     // หาวันผลิตและเวลาเริ่ม
-    currentProdDate=r.date||'';
-    currentStartTime=r.mix_start_time||r.start_time||'';
+    currentProdDate=r.date||r.archived_date||'';
+    currentStartTime=r.past_end_time||'';
 
     renderAll(rows,po,productType);
     toast('✅ พบข้อมูล '+rows.length+' รายการ');
@@ -328,7 +328,7 @@ function renderAll(rows,po,productType){
 
   // ── 3. SHELF LIFE ────────────────────────────────────────────────────
   const prodDate=r.date||r.archived_date||'';
-  const startTime=r.mix_start_time||r.start_time||'';
+  const startTime=r.past_end_time||r.mix_start_time||'';
   html+=`<div class="card shelf-block">
     <div class="card-hd" style="color:var(--cyan)">🧊 Shelf Life Calculator</div>
     <div class="temp-row">
