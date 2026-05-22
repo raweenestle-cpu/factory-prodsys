@@ -945,13 +945,13 @@ function renderTankVisual(m,rows){
   }
 
   function pipe(d,on){
-    const gf=on?('filter="url(#gfx'+m+'")'):'  ';
-    const ptcl=on?`<path d="${d}" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 16" opacity=".9">
-      <animate attributeName="stroke-dashoffset" from="24" to="0" dur="0.65s" repeatCount="indefinite"/>
-    </path>`:'';
-    return`<path d="${d}" fill="none" stroke="#08111e" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="${d}" fill="none" stroke="${pc}" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity="${pf}" ${gf}/>
-    ${ptcl}`;
+    const pc=on?ac:'#1e2535';
+    const gfAttr=on?'filter="url(#gfx'+m+'")':'' ;
+    if(!on) return '<path d="'+d+'" fill="none" stroke="#08111e" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>';
+    return '<path d="'+d+'" fill="none" stroke="#08111e" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>'
+      +'<path d="'+d+'" fill="none" stroke="'+pc+'" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" '+gfAttr+'>'
+      +'<animate attributeName="stroke-dashoffset" from="24" to="0" dur="0.65s" repeatCount="indefinite"/>'
+      +'</path>';
   }
 
   const el=document.getElementById('tank-visual-'+m);
