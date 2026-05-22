@@ -448,8 +448,8 @@ function tankSVG(tid,pct,col,wave=false,hasLiq=false){
     <rect x="${bX+2}" y="${bY+bH+11}" width="${bW-4}" height="4" rx="2" fill="#1e2535" stroke="#4a5568" stroke-width="1.5"/>
   </svg>`;
 
-  const waveAmp=wave?6:1.5;
-  const waveDur=wave?'1.8s':'3.5s';
+  const waveAmp=wave?12:2;
+  const waveDur=wave?'1s':'3s';
   const waveW=bW*2;
 
   return`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">

@@ -601,15 +601,15 @@ function renderMixTanks(m, rows){
         <rect x="12" y="10" width="106" height="140" fill="url(#wg${label.replace(' ','')})"/>
         <!-- layer 1 หลัก -->
         <path d="M12,${10+140*(1-pct/100)} q26,-14 53,0 t53,0 t53,0 v200 h-212 z" fill="${col}" opacity=".75">
-          <animateTransform attributeName="transform" type="translate" from="0,0" to="-53,0" dur="1.6s" repeatCount="indefinite"/>
+          <animateTransform attributeName="transform" type="translate" from="0,0" to="-53,0" dur="0.9s" repeatCount="indefinite"/>
         </path>
         <!-- layer 2 ตาม -->
         <path d="M12,${10+140*(1-pct/100)+4} q26,-10 53,0 t53,0 t53,0 v200 h-212 z" fill="${col}" opacity=".4">
-          <animateTransform attributeName="transform" type="translate" from="26,0" to="-27,0" dur="2.1s" repeatCount="indefinite"/>
+          <animateTransform attributeName="transform" type="translate" from="26,0" to="-27,0" dur="1.2s" repeatCount="indefinite"/>
         </path>
         <!-- layer 3 ฟองขาวสวนทาง -->
         <path d="M12,${10+140*(1-pct/100)+7} q26,-8 53,0 t53,0 t53,0 v200 h-212 z" fill="rgba(255,255,255,.13)">
-          <animateTransform attributeName="transform" type="translate" from="-10,0" to="43,0" dur="2.8s" repeatCount="indefinite"/>
+          <animateTransform attributeName="transform" type="translate" from="-10,0" to="43,0" dur="1.6s" repeatCount="indefinite"/>
         </path>
       </g>`;
     } else if(st==='pasteurising'){
@@ -626,15 +626,15 @@ function renderMixTanks(m, rows){
           <rect x="12" y="10" width="106" height="140" fill="url(#wg${label.replace(' ','')})"/>
           <!-- layer 1 หลัก -->
           <path d="M12,${10+140*(1-pct/100)} q26,-14 53,0 t53,0 t53,0 v200 h-212 z" fill="${col}" opacity=".75">
-            <animateTransform attributeName="transform" type="translate" from="0,0" to="-53,0" dur="1.6s" repeatCount="indefinite"/>
+            <animateTransform attributeName="transform" type="translate" from="0,0" to="-53,0" dur="0.9s" repeatCount="indefinite"/>
           </path>
           <!-- layer 2 ตาม -->
           <path d="M12,${10+140*(1-pct/100)+4} q26,-10 53,0 t53,0 t53,0 v200 h-212 z" fill="${col}" opacity=".4">
-            <animateTransform attributeName="transform" type="translate" from="26,0" to="-27,0" dur="2.1s" repeatCount="indefinite"/>
+            <animateTransform attributeName="transform" type="translate" from="26,0" to="-27,0" dur="1.2s" repeatCount="indefinite"/>
           </path>
           <!-- layer 3 ฟองขาวสวนทาง -->
           <path d="M12,${10+140*(1-pct/100)+7} q26,-8 53,0 t53,0 t53,0 v200 h-212 z" fill="rgba(255,255,255,.13)">
-            <animateTransform attributeName="transform" type="translate" from="-10,0" to="43,0" dur="2.8s" repeatCount="indefinite"/>
+            <animateTransform attributeName="transform" type="translate" from="-10,0" to="43,0" dur="1.6s" repeatCount="indefinite"/>
           </path>
         </g>`;
       } else {
