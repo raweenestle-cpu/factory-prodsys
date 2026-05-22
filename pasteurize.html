@@ -691,21 +691,10 @@ function pastTankSVG(uid,pct,col,animate){
   <rect x="${bX}" y="${bY}" width="${bW}" height="${bH}" rx="8" fill="#060a14" stroke="${rgba2(.4)}" stroke-width="1.5"/>
   <g clip-path="url(#${cid})">
     <rect x="${bX+1}" y="${fillY+wAmp+1}" width="${bW-2}" height="${fillH}" fill="url(#${gid})"/>
-    ${animate?`
-    <g>
-      <path d="M${bX+1},${fillY+wAmp} C${bX+1+bW*.3},${fillY} ${bX+1+bW*.7},${fillY} ${bX+1+bW},${fillY+wAmp} C${bX+1+bW*1.3},${fillY+wAmp*2} ${bX+1+bW*1.7},${fillY+wAmp*2} ${bX+1+waveW},${fillY+wAmp} L${bX+1+waveW},${fillY+fillH+6} L${bX+1},${fillY+fillH+6} Z" fill="${rgba2(.5)}">
-        <animateTransform attributeName="transform" type="translate" from="0,0" to="${-bW},0" dur="2.5s" repeatCount="indefinite"/>
-      </path>
-      <path d="M${bX+1+bW},${fillY+wAmp} C${bX+1+bW*1.3},${fillY} ${bX+1+bW*1.7},${fillY} ${bX+1+waveW},${fillY+wAmp} C${bX+1+waveW+bW*.3},${fillY+wAmp*2} ${bX+1+waveW+bW*.7},${fillY+wAmp*2} ${bX+1+waveW+bW},${fillY+wAmp} L${bX+1+waveW+bW},${fillY+fillH+6} L${bX+1+bW},${fillY+fillH+6} Z" fill="${rgba2(.5)}">
-        <animateTransform attributeName="transform" type="translate" from="${bW},0" to="0,0" dur="2.5s" repeatCount="indefinite"/>
-      </path>
-    </g>
-    <g>
-      <path d="M${bX+1},${fillY+wAmp*.8} C${bX+1+bW*.35},${fillY-wAmp*.5} ${bX+1+bW*.65},${fillY-wAmp*.5} ${bX+1+bW},${fillY+wAmp*.8} C${bX+1+bW*1.35},${fillY+wAmp*2} ${bX+1+bW*1.65},${fillY+wAmp*2} ${bX+1+waveW},${fillY+wAmp*.8} L${bX+1+waveW},${fillY+fillH+6} L${bX+1},${fillY+fillH+6} Z" fill="${rgba2(.22)}">
-        <animateTransform attributeName="transform" type="translate" from="${-bW*.4},0" to="${bW*.6},0" dur="3.5s" repeatCount="indefinite"/>
-      </path>
-    </g>`
-    :`<rect x="${bX+1}" y="${fillY+1}" width="${bW-2}" height="4" rx="2" fill="${rgba2(.5)}"/>`}
+    ${animate?'\
+        <g>      <path d="M'+(bX+1)+','+(fillY+wAmp)+' C'+(bX+1+bW*.3)+','+(fillY)+' '+(bX+1+bW*.7)+','+(fillY)+' '+(bX+1+bW)+','+(fillY+wAmp)+' C'+(bX+1+bW*1.3)+','+(fillY+wAmp*2)+' '+(bX+1+bW*1.7)+','+(fillY+wAmp*2)+' '+(bX+1+waveW)+','+(fillY+wAmp)+' L'+(bX+1+waveW)+','+(fillY+fillH+6)+' L'+(bX+1)+','+(fillY+fillH+6)+' Z" fill="'+(rgba2(.5))+'">        <animateTransform attributeName="transform" type="translate" from="0,0" to="'+(-bW)+',0" dur="2.5s" repeatCount="indefinite"/>      </path>      <path d="M'+(bX+1+bW)+','+(fillY+wAmp)+' C'+(bX+1+bW*1.3)+','+(fillY)+' '+(bX+1+bW*1.7)+','+(fillY)+' '+(bX+1+waveW)+','+(fillY+wAmp)+' C'+(bX+1+waveW+bW*.3)+','+(fillY+wAmp*2)+' '+(bX+1+waveW+bW*.7)+','+(fillY+wAmp*2)+' '+(bX+1+waveW+bW)+','+(fillY+wAmp)+' L'+(bX+1+waveW+bW)+','+(fillY+fillH+6)+' L'+(bX+1+bW)+','+(fillY+fillH+6)+' Z" fill="'+(rgba2(.5))+'">        <animateTransform attributeName="transform" type="translate" from="'+(bW)+',0" to="0,0" dur="2.5s" repeatCount="indefinite"/>      </path>    </g>    <g>      <path d="M'+(bX+1)+','+(fillY+wAmp*.8)+' C'+(bX+1+bW*.35)+','+(fillY-wAmp*.5)+' '+(bX+1+bW*.65)+','+(fillY-wAmp*.5)+' '+(bX+1+bW)+','+(fillY+wAmp*.8)+' C'+(bX+1+bW*1.35)+','+(fillY+wAmp*2)+' '+(bX+1+bW*1.65)+','+(fillY+wAmp*2)+' '+(bX+1+waveW)+','+(fillY+wAmp*.8)+' L'+(bX+1+waveW)+','+(fillY+fillH+6)+' L'+(bX+1)+','+(fillY+fillH+6)+' Z" fill="'+(rgba2(.22))+'">        <animateTransform attributeName="transform" type="translate" from="'+(-bW*.4)+',0" to="'+(bW*.6)+',0" dur="3.5s" repeatCount="indefinite"/>      </path>\
+    </g>'\
+    :'<rect x="'+(bX+1)+'" y="'+(fillY+1)+'" width="'+(bW-2)+'" height="4" rx="2" fill="'+rgba2(.5)+'"/>'}
     <rect x="${bX+3}" y="${fillY+wAmp+4}" width="5" height="${Math.max(0,fillH*.35)}" rx="2.5" fill="rgba(255,255,255,.07)"/>
   </g>
   <line x1="${bX+bW+2}" y1="${fillY+wAmp}" x2="${bX+bW+7}" y2="${fillY+wAmp}" stroke="${col}" stroke-width="1.5" stroke-linecap="round"/>
@@ -861,17 +850,17 @@ function renderTankVisual(m,rows){
     </defs>
     <g clip-path="url(#${cid})">
       <rect x="1" y="${fy+amp+2}" width="${tw-2}" height="${fh}" fill="url(#${gid})"/>
-      ${flowing?`
-      <path d="M1,${fy+amp} C${tw*.25},${fy} ${tw*.75},${fy} ${tw-1},${fy+amp} C${tw*1.25},${fy+amp*2} ${tw*1.75},${fy+amp*2} ${tw*2-1},${fy+amp} L${tw*2},${fy+fh+amp+4} L1,${fy+fh+amp+4} Z" fill="${c1}cc">
-        <animateTransform attributeName="transform" type="translate" from="0,0" to="${-tw},0" dur="1.6s" repeatCount="indefinite"/>
-      </path>
-      <path d="M1,${fy+amp*.6} C${tw*.3},${fy-amp*.4} ${tw*.7},${fy-amp*.4} ${tw-1},${fy+amp*.6} C${tw*1.3},${fy+amp*1.6} ${tw*1.7},${fy+amp*1.6} ${tw*2-1},${fy+amp*.6} L${tw*2},${fy+fh+amp+4} L1,${fy+fh+amp+4} Z" fill="${c1}66">
-        <animateTransform attributeName="transform" type="translate" from="${tw*.4},0" to="${-tw*.6},0" dur="2.1s" repeatCount="indefinite"/>
-      </path>
-      <path d="M1,${fy+amp*1.2} C${tw*.35},${fy+amp*.2} ${tw*.65},${fy+amp*.2} ${tw-1},${fy+amp*1.2} C${tw*1.35},${fy+amp*2.2} ${tw*1.65},${fy+amp*2.2} ${tw*2-1},${fy+amp*1.2} L${tw*2},${fy+fh+amp+4} L1,${fy+fh+amp+4} Z" fill="rgba(255,255,255,.12)">
-        <animateTransform attributeName="transform" type="translate" from="${-tw*.2},0" to="${tw*.8},0" dur="2.8s" repeatCount="indefinite"/>
-      </path>`
-      :`<rect x="${tw/2-20}" y="${fy+1}" width="40" height="3" rx="1.5" fill="${c1}66"/>`}
+      ${flowing?
+      '<path d="M1,'+(fy+amp)+' C'+(tw*.25)+','+(fy)+' '+(tw*.75)+','+(fy)+' '+(tw-1)+','+(fy+amp)+' C'+(tw*1.25)+','+(fy+amp*2)+' '+(tw*1.75)+','+(fy+amp*2)+' '+(tw*2-1)+','+(fy+amp)+' L'+(tw*2)+','+(fy+fh+amp+4)+' L1,'+(fy+fh+amp+4)+' Z" fill="'+(c1)+'cc">'
+      +'<animateTransform attributeName="transform" type="translate" from="0,0" to="'+(-tw)+',0" dur="1.6s" repeatCount="indefinite"/>'
+      +'</path>'
+      +'<path d="M1,'+(fy+amp*.6)+' C'+(tw*.3)+','+(fy-amp*.4)+' '+(tw*.7)+','+(fy-amp*.4)+' '+(tw-1)+','+(fy+amp*.6)+' C'+(tw*1.3)+','+(fy+amp*1.6)+' '+(tw*1.7)+','+(fy+amp*1.6)+' '+(tw*2-1)+','+(fy+amp*.6)+' L'+(tw*2)+','+(fy+fh+amp+4)+' L1,'+(fy+fh+amp+4)+' Z" fill="'+(c1)+'66">'
+      +'<animateTransform attributeName="transform" type="translate" from="'+(tw*.4)+',0" to="'+(-tw*.6)+',0" dur="2.1s" repeatCount="indefinite"/>'
+      +'</path>'
+      +'<path d="M1,'+(fy+amp*1.2)+' C'+(tw*.35)+','+(fy+amp*.2)+' '+(tw*.65)+','+(fy+amp*.2)+' '+(tw-1)+','+(fy+amp*1.2)+' C'+(tw*1.35)+','+(fy+amp*2.2)+' '+(tw*1.65)+','+(fy+amp*2.2)+' '+(tw*2-1)+','+(fy+amp*1.2)+' L'+(tw*2)+','+(fy+fh+amp+4)+' L1,'+(fy+fh+amp+4)+' Z" fill="rgba(255,255,255,.12)">'
+      +'<animateTransform attributeName="transform" type="translate" from="'+(-tw*.2)+',0" to="'+(tw*.8)+',0" dur="2.8s" repeatCount="indefinite"/>'
+      </path>'
+      :'<rect x="'+(tw/2-20)+'" y="'+(fy+1)+'" width="40" height="3" rx="1.5" fill="'+c1+'66"/>'}
       <rect x="3" y="${fy+amp+6}" width="6" height="${Math.max(0,fh*.35)}" rx="3" fill="rgba(255,255,255,.07)"/>
     </g>`;
   }
@@ -881,7 +870,7 @@ function renderTankVisual(m,rows){
     const borderCol=wave?rgba(c1,.7):hasLiq?rgba(c1,.4):'#1e2535';
     const motorCol=hasLiq?'#22c55e':'#1e2535'; // สีเขียวเมื่อมีของ
     const motorFill=hasLiq?'rgba(34,197,94,.25)':'#060a14';
-    const gf=wave?`filter="url(#gfx${m})"`:'' ;
+    const gf=wave?('filter="url(#gfx'+m+'")'):\'\' ;
     return`<g transform="translate(${tx},${ty})">
       <text x="${tw/2}" y="-32" text-anchor="middle" font-family="DM Mono,monospace" font-size="14" fill="white" font-weight="800" letter-spacing="0.5">${label}</text>
       <rect x="2" y="4" width="${tw}" height="${th}" rx="10" fill="rgba(0,0,0,.45)"/>
@@ -890,11 +879,11 @@ function renderTankVisual(m,rows){
       <rect x="0" y="0" width="${tw}" height="${th}" rx="10" fill="none" stroke="${borderCol}" stroke-width="2"/>
       <rect x="${tw/2-13}" y="-10" width="26" height="12" rx="3" fill="${hasLiq?'#16a34a':'#060a14'}" stroke="${hasLiq?'#22c55e':borderCol}" stroke-width="2"/>
       <rect x="${tw/2-17}" y="-18" width="34" height="9" rx="3" fill="${hasLiq?'#16a34a':'#060a14'}" stroke="${hasLiq?'#22c55e':borderCol}" stroke-width="2"/>
-      ${hasLiq?`<circle cx="${tw/2}" cy="-13" r="4" fill="#22c55e" opacity=".9"/>
-      <circle cx="${tw/2}" cy="-13" r="4" fill="none" stroke="#22c55e" stroke-width="1.5" opacity="0">
-        <animate attributeName="r" from="4" to="10" dur="1.5s" repeatCount="indefinite"/>
-        <animate attributeName="opacity" from="0.6" to="0" dur="1.5s" repeatCount="indefinite"/>
-      </circle>`:''}
+      ${hasLiq?('<circle cx="'+(tw/2)+'" cy="-13" r="4" fill="#22c55e" opacity=".9"/>'
+      +'<circle cx="'+(tw/2)+'" cy="-13" r="4" fill="none" stroke="#22c55e" stroke-width="1.5" opacity="0">'
+      +'<animate attributeName="r" from="4" to="10" dur="1.5s" repeatCount="indefinite"/>'
+      +'<animate attributeName="opacity" from="0.6" to="0" dur="1.5s" repeatCount="indefinite"/>'
+      +'</circle>'):''}
       <rect x="${tw/2-5}" y="${th}" width="10" height="12" rx="2" fill="#060a14" stroke="${wave?rgba(c1,.5):borderCol}" stroke-width="1.2"/>
       <rect x="8" y="${th+10}" width="14" height="14" rx="3" fill="#060a14" stroke="${borderCol}" stroke-width="1.2"/>
       <rect x="${tw-22}" y="${th+10}" width="14" height="14" rx="3" fill="#060a14" stroke="${borderCol}" stroke-width="1.2"/>
