@@ -925,7 +925,7 @@ function renderTankVisual(m,rows){
     <circle cx="${x}" cy="${y}" r="14" fill="${run?'#052e16':'#0a0f1e'}" stroke="${col}66" stroke-width="1.5"/>
     <circle cx="${x}" cy="${y}" r="7" fill="${col}" opacity="${run?'0.9':'0.3'}"/>
     <text x="${x}" y="${y+4}" text-anchor="middle" font-size="8" fill="${col}" font-family="DM Mono" font-weight="700">PUMP</text>
-    ${run?`<circle cx="${x}" cy="${y}" r="22" fill="none" stroke="${col}" stroke-width="1" style="animation:pumpRing 1s ease-out infinite;opacity:.5"/>`:''}\`
+    ${run?('<circle cx="'+x+'" cy="'+y+'" r="22" fill="none" stroke="'+col+'" stroke-width="1" style="animation:pumpRing 1s ease-out infinite;opacity:.5"/>'):''}\`
   }
 
   function pipe(d,on){
@@ -967,7 +967,7 @@ function renderTankVisual(m,rows){
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
     <span class="flow-title" style="margin:0">⚗️ PROCESS FLOW — ${m.toUpperCase()}</span>
     <span style="font-family:var(--mono);font-size:10px;color:${isFlowing?'#22c55e':'var(--t3)'}">
-      ${isFlowing?`🟢 Pasteurising · ${agTime}`:'⚪ Standby'}
+      ${isFlowing?'🟢 Pasteurising · '+agTime:'⚪ Standby'}
     </span>
   </div>
   <svg viewBox="0 0 1050 330" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;max-height:260px">
@@ -1002,21 +1002,21 @@ function renderTankVisual(m,rows){
 
     ${drawTank(AGX,TOP,TW,TH,agVol,getTankCapacity(agTank),'Aging '+agTank,agName,sAg,'gag'+m,'cag'+m,sAg.tankCol,sAg.tankCol2,isFlowing)}
 
-    ${pipe(`M ${T1CX},${TBOT+12} L ${T1CX},${HPIPE}`,t1Active)}
-    ${pipe(`M ${T2CX},${TBOT+12} L ${T2CX},${HPIPE}`,t2Active)}
-    ${pipe(`M ${AGCX},${TBOT+12} L ${AGCX},${HPIPE}`,isFlowing)}
+    ${pipe('M '+(T1CX)+','+(TBOT+12)+' L '+(T1CX)+','+(HPIPE)+'',t1Active)}
+    ${pipe('M '+(T2CX)+','+(TBOT+12)+' L '+(T2CX)+','+(HPIPE)+'',t2Active)}
+    ${pipe('M '+(AGCX)+','+(TBOT+12)+' L '+(AGCX)+','+(HPIPE)+'',isFlowing)}
 
     ${valve(T1CX,TBOT+28,t1Active)}
     ${valve(T2CX,TBOT+28,t2Active)}
     ${valve(AGCX,TBOT+28,isFlowing)}
 
-    ${t1Active?pipe(`M ${T1CX},${HPIPE} L ${PUMPX-22},${HPIPE}`,true):''}
-    ${t2Active?pipe(`M ${T2CX},${HPIPE} L ${PUMPX-22},${HPIPE}`,true):''}
-    ${!t1Active?`<path d="M ${T1CX},${HPIPE} L ${PUMPX-22},${HPIPE}" fill="none" stroke="#1e2535" stroke-width="6" stroke-linecap="round"/>`:'' }
-    ${!t2Active?`<path d="M ${T2CX},${HPIPE} L ${PUMPX-22},${HPIPE}" fill="none" stroke="#1e2535" stroke-width="6" stroke-linecap="round"/>`:'' }
+    ${t1Active?pipe('M '+(T1CX)+','+(HPIPE)+' L '+(PUMPX-22)+','+(HPIPE)+'',true):''}
+    ${t2Active?pipe('M '+(T2CX)+','+(HPIPE)+' L '+(PUMPX-22)+','+(HPIPE)+'',true):''}
+    ${!t1Active?('<path d="M '+T1CX+','+HPIPE+' L '+(PUMPX-22)+','+HPIPE+'" fill="none" stroke="#1e2535" stroke-width="12" stroke-linecap="round"/>'):''}
+    ${!t2Active?('<path d="M '+T2CX+','+HPIPE+' L '+(PUMPX-22)+','+HPIPE+'" fill="none" stroke="#1e2535" stroke-width="12" stroke-linecap="round"/>'):''}
     ${pump(PUMPX,PUMPY,isFlowing)}
     <text x="${PUMPX}" y="${PUMPY+36}" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" font-weight="700" fill="${isFlowing?ac:'#3d4560'}">PUMP</text>
-    ${pipe(`M ${PUMPX+22},${HPIPE} L ${HOMOX-30},${HPIPE}`,isFlowing)}
+    ${pipe('M '+(PUMPX+22)+','+(HPIPE)+' L '+(HOMOX-30)+','+(HPIPE)+'',isFlowing)}
     ${(()=>{
       const curProd=agRow?productMap[agRow.mix_code]||{}:{};
       const h1=curProd.homo_stage1||0;
@@ -1051,7 +1051,7 @@ function renderTankVisual(m,rows){
         <text x="${HX}" y="${HY+R+20}" text-anchor="middle" font-family="DM Mono,monospace" font-size="12" font-weight="800" fill="white" letter-spacing="0.5">HOMOGENIZER</text>
       </g>`;
     })()}
-    ${pipe(`M ${HOMOX+34},${HPIPE} L ${AGCX},${HPIPE}`,isFlowing)}
+    ${pipe('M '+(HOMOX+34)+','+(HPIPE)+' L '+(AGCX)+','+(HPIPE)+'',isFlowing)}
 
 
     ${agRow?(()=>{
@@ -1152,7 +1152,7 @@ function renderShiftChart(p){
         return `<div class="shift-bar-col">
           <div class="shift-bar-kg-v" style="color:${isActive?col:'#4a5568'};font-size:${isActive?'13px':'11px'}">${kg>0?kg.toLocaleString():'—'}</div>
           <div class="shift-bar-track-v">
-            <div class="shift-bar-fill-v${isActive?' active':''}" style="height:${pct}%;background:${isActive?`linear-gradient(0deg,${col}88,${col})`:`${col}44`};color:${col}"></div>
+            <div class="shift-bar-fill-v${isActive?' active':''}" style="height:${pct}%;background:${isActive?'linear-gradient(0deg,'+col+'88,'+col+')':col+'44'};color:${col}"></div>
           </div>
           <div class="shift-bar-label" style="color:${isActive?col:'#4a5568'}">${SHIFT_LABELS[i]}</div>
         </div>`;
@@ -1406,7 +1406,7 @@ function renderPlan(p){
             onclick="stampTime('${col}','${row.id}','${field}','${p}')">
             ${blocked?'🔒 '+blockMsg:'⏱ '+(time||label)}
           </button>
-          ${time?`<button style="flex-shrink:0;font-size:10px;padding:4px 6px;border-radius:5px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:var(--t2);cursor:pointer" onclick="editTimePrompt('${col}','${row.id}','${field}','${time}')">✏️</button><button style="flex-shrink:0;font-size:10px;padding:4px 6px;border-radius:5px;border:1px dashed rgba(240,79,94,.3);background:rgba(240,79,94,.05);color:var(--red);cursor:pointer" onclick="deleteTimePrompt('${col}','${row.id}','${field}')">✕</button>`:""}
+          ${time?('<button style="flex-shrink:0;font-size:10px;padding:4px 6px;border-radius:5px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:var(--t2);cursor:pointer" onclick="editTimePrompt('${col}','${row.id}','${field}','${time}')">✏️</button><button style="flex-shrink:0;font-size:10px;padding:4px 6px;border-radius:5px;border:1px dashed rgba(240,79,94,.3);background:rgba(240,79,94,.05);color:var(--red);cursor:pointer" onclick="deleteTimePrompt('${col}','${row.id}','${field}')">✕</button>)':""}
         </div>
       </td>`;
 
@@ -1491,7 +1491,7 @@ function renderPlan(p){
           return `<select class="ci" style="width:90px;font-family:var(--mono);font-size:11px;padding:4px 6px"
             onchange="_up('${col}','${row.id}','aging_tank',this.value)">
             <option value="">— เลือก —</option>
-            ${tanks.map(t=>`<option value="${t}" ${row.aging_tank===t?'selected':''}>${t}</option>`).join('')}
+            ${tanks.map(t=>'<option value="'+t+'" '+(row.aging_tank===t?'selected':'')+'>'+t+'</option>').join('')}
           </select>`;
         })()}
       </td>
