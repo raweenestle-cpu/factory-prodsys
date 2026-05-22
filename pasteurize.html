@@ -795,20 +795,23 @@ function renderTankVisual(m,rows){
   }
 
   // Status label
-  function statLabel(st,hasStartTime,vol,isDoneRow){
-    if(isDoneRow)                              return{txt:'⚪ Empty',         col:'#6b7280',tankCol:'#374151',tankCol2:'#1f2937'};
-    if(st==='mixing')                          return{txt:'🔄 กำลังผสม',     col:'#eab308',tankCol:'#eab308',tankCol2:'#78350f'};
-    if(st==='pasteurising'&&!hasStartTime)     return{txt:'🔵 รอ Pasteurise',      col:'#eab308',tankCol:'#eab308',tankCol2:'#78350f'};
-    if(st==='pasteurising'&&hasStartTime)      return{txt:'🔵 กำลัง Pasteurise',  col:'#f97316',tankCol:'#f97316',tankCol2:'#9a3412'};
-    if(st==='past_done'||st==='ready')         return{txt:'✅ Past.เสร็จ',   col:'#22c55e',tankCol:'#22c55e',tankCol2:'#14532d'};
+  function statLabel(st,hasStartTime,vol,isDoneRow,prodColor){
+    if(isDoneRow) return{txt:'⚪ Empty',col:'#6b7280',tankCol:'#374151',tankCol2:'#1f2937'};
+    const pc=prodColor||null;
+    if(st==='mixing') return{txt:'🔄 กำลังผสม',col:'#eab308',tankCol:pc||'#eab308',tankCol2:'#78350f'};
+    if(st==='pasteurising'&&!hasStartTime) return{txt:'🔵 รอ Pasteurise',col:'#60a5fa',tankCol:pc||'#60a5fa',tankCol2:'#1e3a5f'};
+    if(st==='pasteurising'&&hasStartTime) return{txt:'🔵 กำลัง Pasteurise',col:'#f97316',tankCol:pc||'#f97316',tankCol2:'#9a3412'};
+    if(st==='past_done'||st==='ready') return{txt:'✅ Past.เสร็จ',col:'#22c55e',tankCol:pc||'#22c55e',tankCol2:'#14532d'};
     return{txt:'—',col:'#374151',tankCol:'#374151',tankCol2:'#1f2937'};
   }
 
   // Mix T1 empty ถ้า past เสร็จแล้วและเป็น active tank
   const t1Done=isDone&&isT1;
   const t2Done=isDone&&isT2;
-  const s1=statLabel(t1Status,!!t1Row?.past_start_time,t1Vol,t1Done);
-  const s2=statLabel(t2Status,!!t2Row?.past_start_time,t2Vol,t2Done);
+  const _p1c=(productMap[t1Row?.mix_code||'']||{}).color||null;
+  const _p2c=(productMap[t2Row?.mix_code||'']||{}).color||null;
+  const s1=statLabel(t1Status,!!t1Row?.past_start_time,t1Vol,t1Done,_p1c);
+  const s2=statLabel(t2Status,!!t2Row?.past_start_time,t2Vol,t2Done,_p2c);
 
   // คำนวณ volume และ % สำหรับแสดงในถัง Mix (อยู่หลัง agVol คำนวณเสร็จแล้ว)
   function mixTankVol(tRow,tTotal,tActive,tDone,tankCap){
