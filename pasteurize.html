@@ -945,7 +945,7 @@ function renderTankVisual(m,rows){
   }
 
   function pipe(d,on){
-    const gf=on?`filter="url(#gfx${m})"`:'' ;
+    const gf=on?('filter="url(#gfx'+m+'")'):'  ';
     const ptcl=on?`<path d="${d}" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 16" opacity=".9">
       <animate attributeName="stroke-dashoffset" from="24" to="0" dur="0.65s" repeatCount="indefinite"/>
     </path>`:'';
