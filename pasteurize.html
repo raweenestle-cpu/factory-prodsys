@@ -811,9 +811,9 @@ function renderTankVisual(m,rows){
   const s2=statLabel(t2Status,!!t2Row?.past_start_time,t2Vol,t2Done);
 
   // คำนวณ volume และ % สำหรับแสดงในถัง Mix (อยู่หลัง agVol คำนวณเสร็จแล้ว)
-  function mixTankVol(tRow,tTotal,tActive,tDone){
+  function mixTankVol(tRow,tTotal,tActive,tDone,tankCap){
     const st=tRow?.status||'';
-    const cap=3000;
+    const cap=tankCap||3000;
     if(!st||st==='pending') return{vol:0,pct:0,show:false,wave:false};
     if(st==='mixing'){
       const vol=tTotal*0.5;
@@ -830,8 +830,8 @@ function renderTankVisual(m,rows){
     const pct=Math.min(100,(tTotal/cap)*100);
     return{vol:tTotal,pct,show:true,wave:false};
   }
-  const mx1=mixTankVol(t1Row,t1Total,t1Active,t1Done);
-  const mx2=mixTankVol(t2Row,t2Total,t2Active,t2Done);
+  const mx1=mixTankVol(t1Row,t1Total,t1Active,t1Done,3000);
+  const mx2=mixTankVol(t2Row,t2Total,t2Active,t2Done,3500);
   const sAg={txt:isFlowing?'♨️ รับของ':agVol>0?'✅ เต็ม':'⚪ ว่าง',
              col:isFlowing?'#f97316':agVol>0?'#22c55e':'#374151',
              tankCol:isFlowing?'#f97316':agVol>0?'#22c55e':'#374151',
