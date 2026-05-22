@@ -420,11 +420,11 @@ onAuthStateChanged(auth, async user=>{
     if(role!=="mixing"&&role!=="admin"&&role!=="leadman"&&role!=="operator"){window.location.href="index.html";return;}
   }catch{}
 
-  // load productMap
-  try{
-    const ps=await getDocs(collection(db,"products"));
-    ps.docs.forEach(d=>{const p={id:d.id,...d.data()};productMap[p.mix_code]=p;});
-  }catch{}
+  // load productMap แบบ realtime
+  onSnapshot(collection(db,"products"), snap=>{
+    snap.docs.forEach(d=>{const p={id:d.id,...d.data()};if(p.mix_code)productMap[p.mix_code]=p;});
+    window._productMap=productMap;
+  }, e=>console.error('products error:',e));
 
   $("nav-user").textContent=user.email.replace("@filling.local","");
   $("date-m1").value=today();
@@ -449,7 +449,7 @@ window.loadPlan=(m)=>{
   const q=query(collection(db,planCol(m)),where("date","==",d));
   unsub[m]=onSnapshot(q,snap=>{
     rows[m]=snap.docs.map(d=>({id:d.id,...d.data()}))
-      .filter(r=>r.mix_code&&r.mix_code!==""&&r.status!=='past_done'&&r.status!=='ready'&&r.status!=='sent_filling'&&r.status!=='filling'&&r.status!=='curing')
+      .filter(r=>(r.mix_code||r.mix_name||r.process_order)&&r.status!=='past_done'&&r.status!=='ready'&&r.status!=='sent_filling'&&r.status!=='filling'&&r.status!=='curing')
       .sort((a,b)=>(a.seq||0)-(b.seq||0));
     renderPlan(m);
   });
