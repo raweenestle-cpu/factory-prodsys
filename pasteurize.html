@@ -784,13 +784,15 @@ function renderTankVisual(m,rows){
         if(isT1) t1Vol=0;
         else t2Vol=0;
       } else {
-        // agVol = batch ที่ past_done แล้ว + current_vol ของ batch ปัจจุบัน
-        agVol=Math.min(totalVol, doneBatchesVol + currentBatchCumVol);
+        // current_vol ของ batch นี้เท่านั้น = cumVol ทั้งหมด - doneBatchesVol
+        const thisBatchFlowed=Math.min(batchVol, Math.max(0, currentBatchCumVol - doneBatchesVol));
+        // agVol = batch ที่ past_done แล้ว + flow จริงของ batch นี้
+        agVol=Math.min(totalVol, doneBatchesVol + thisBatchFlowed);
         const _cap=getTankCapacity(agRow.aging_tank||'');
         agPct=_cap>0?(agVol/_cap)*100:0;
-        // ถัง Mix ลดตาม currentBatchVol เท่านั้น
-        if(isT1) t1Vol=Math.max(0,t1Total-currentBatchVol);
-        else t2Vol=Math.max(0,t2Total-currentBatchVol);
+        // ถัง Mix ลดตาม thisBatchFlowed เท่านั้น
+        if(isT1) t1Vol=Math.max(0,t1Total-thisBatchFlowed);
+        else t2Vol=Math.max(0,t2Total-thisBatchFlowed);
       }
     }catch{}
   }
