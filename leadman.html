@@ -501,8 +501,9 @@ window.addRow = async(m) => {
   const last = rows[m][rows[m].length-1];
   const st = last ? calcEst(last.start_time, last.mix_code, last.volume_liter)||"" : "";
   try{
+    const maxSeq=rows[m].reduce((mx,r)=>Math.max(mx,+(r.seq||0)),0);
     await addDoc(collection(db, planCol(m)), {
-      date:d, seq:rows[m].length+1, mixing_unit:m,
+      date:d, seq:maxSeq+1, mixing_unit:m,
       mix_code:"", mix_name:"", batch_no:"", volume_liter:"",
       glc_set:"", sgr_set:"", plm_set:"", oil_mix_set:"", fat_milk_set:"",
       filling_line:"", product_code:"", start_time:st,
