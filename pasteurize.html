@@ -862,12 +862,15 @@ function renderTankVisual(m,rows){
     <g clip-path="url(#${cid})">
       <rect x="1" y="${fy+amp+2}" width="${tw-2}" height="${fh}" fill="url(#${gid})"/>
       ${flowing?`
+      <!-- layer 1 — หลัก -->
       <path d="M1,${fy+amp} C${tw*.25},${fy} ${tw*.75},${fy} ${tw-1},${fy+amp} C${tw*1.25},${fy+amp*2} ${tw*1.75},${fy+amp*2} ${tw*2-1},${fy+amp} L${tw*2},${fy+fh+amp+4} L1,${fy+fh+amp+4} Z" fill="${c1}cc">
         <animateTransform attributeName="transform" type="translate" from="0,0" to="${-tw},0" dur="1.6s" repeatCount="indefinite"/>
       </path>
+      <!-- layer 2 — ตาม offset -->
       <path d="M1,${fy+amp*.6} C${tw*.3},${fy-amp*.4} ${tw*.7},${fy-amp*.4} ${tw-1},${fy+amp*.6} C${tw*1.3},${fy+amp*1.6} ${tw*1.7},${fy+amp*1.6} ${tw*2-1},${fy+amp*.6} L${tw*2},${fy+fh+amp+4} L1,${fy+fh+amp+4} Z" fill="${c1}66">
         <animateTransform attributeName="transform" type="translate" from="${tw*.4},0" to="${-tw*.6},0" dur="2.1s" repeatCount="indefinite"/>
       </path>
+      <!-- layer 3 — สวนทาง ฟองขาว -->
       <path d="M1,${fy+amp*1.2} C${tw*.35},${fy+amp*.2} ${tw*.65},${fy+amp*.2} ${tw-1},${fy+amp*1.2} C${tw*1.35},${fy+amp*2.2} ${tw*1.65},${fy+amp*2.2} ${tw*2-1},${fy+amp*1.2} L${tw*2},${fy+fh+amp+4} L1,${fy+fh+amp+4} Z" fill="rgba(255,255,255,.12)">
         <animateTransform attributeName="transform" type="translate" from="${-tw*.2},0" to="${tw*.8},0" dur="2.8s" repeatCount="indefinite"/>
       </path>`
@@ -883,11 +886,17 @@ function renderTankVisual(m,rows){
     const motorFill=hasLiq?'rgba(34,197,94,.25)':'#060a14';
     const gf=wave?`filter="url(#gfx${m})"`:'' ;
     return`<g transform="translate(${tx},${ty})">
+      <!-- label outside top — ขยับขึ้นสูงกว่าเดิม -->
       <text x="${tw/2}" y="-32" text-anchor="middle" font-family="DM Mono,monospace" font-size="14" fill="white" font-weight="800" letter-spacing="0.5">${label}</text>
+      <!-- shadow -->
       <rect x="2" y="4" width="${tw}" height="${th}" rx="10" fill="rgba(0,0,0,.45)"/>
+      <!-- body -->
       <rect x="0" y="0" width="${tw}" height="${th}" rx="10" fill="#060a14" stroke="${borderCol}" stroke-width="2" ${gf}/>
+      <!-- fill -->
       ${tankFill(vol,total,gid,cid,tw,th,c1,c2,wave)}
+      <!-- border overlay -->
       <rect x="0" y="0" width="${tw}" height="${th}" rx="10" fill="none" stroke="${borderCol}" stroke-width="2"/>
+      <!-- neck/motor top — สีเขียวเมื่อมีของ (มอเตอร์กวน) -->
       <rect x="${tw/2-13}" y="-10" width="26" height="12" rx="3" fill="${hasLiq?'#16a34a':'#060a14'}" stroke="${hasLiq?'#22c55e':borderCol}" stroke-width="2"/>
       <rect x="${tw/2-17}" y="-18" width="34" height="9" rx="3" fill="${hasLiq?'#16a34a':'#060a14'}" stroke="${hasLiq?'#22c55e':borderCol}" stroke-width="2"/>
       ${hasLiq?`<circle cx="${tw/2}" cy="-13" r="4" fill="#22c55e" opacity=".9"/>
@@ -895,13 +904,20 @@ function renderTankVisual(m,rows){
         <animate attributeName="r" from="4" to="10" dur="1.5s" repeatCount="indefinite"/>
         <animate attributeName="opacity" from="0.6" to="0" dur="1.5s" repeatCount="indefinite"/>
       </circle>`:''}
+      <!-- bottom outlet -->
       <rect x="${tw/2-5}" y="${th}" width="10" height="12" rx="2" fill="#060a14" stroke="${wave?rgba(c1,.5):borderCol}" stroke-width="1.2"/>
+      <!-- ขาถัง ซ้าย -->
       <rect x="8" y="${th+10}" width="14" height="14" rx="3" fill="#060a14" stroke="${borderCol}" stroke-width="1.2"/>
+      <!-- ขาถัง ขวา -->
       <rect x="${tw-22}" y="${th+10}" width="14" height="14" rx="3" fill="#060a14" stroke="${borderCol}" stroke-width="1.2"/>
+      <!-- ฐานแท่ง -->
       <rect x="4" y="${th+23}" width="${tw-8}" height="5" rx="2" fill="#060a14" stroke="${borderCol}" stroke-width="1.2"/>
+      <!-- mix name inside tank (top area) — ขาวชัดเจน -->
       <text x="${tw/2}" y="20" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="white" font-weight="700">${sublabel}</text>
+      <!-- volume (center) -->
       <text x="${tw/2}" y="${th/2+8}" text-anchor="middle" font-family="DM Mono,monospace" font-size="16" fill="white" font-weight="700">${vol.toLocaleString(undefined,{minimumFractionDigits:1,maximumFractionDigits:1})}</text>
       <text x="${tw/2}" y="${th/2+22}" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="rgba(255,255,255,.65)">/ ${total.toLocaleString(undefined,{minimumFractionDigits:1,maximumFractionDigits:1})} L</text>
+      <!-- status (bottom inside) -->
       <rect x="${tw/2-32}" y="${th-22}" width="64" height="16" rx="5" fill="rgba(0,0,0,.55)"/>
       <text x="${tw/2}" y="${th-11}" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="${status.col}" font-weight="700">${status.txt}</text>
     </g>`;
@@ -925,17 +941,19 @@ function renderTankVisual(m,rows){
     <circle cx="${x}" cy="${y}" r="14" fill="${run?'#052e16':'#0a0f1e'}" stroke="${col}66" stroke-width="1.5"/>
     <circle cx="${x}" cy="${y}" r="7" fill="${col}" opacity="${run?'0.9':'0.3'}"/>
     <text x="${x}" y="${y+4}" text-anchor="middle" font-size="8" fill="${col}" font-family="DM Mono" font-weight="700">PUMP</text>
-    ${run?('<circle cx="'+x+'" cy="'+y+'" r="22" fill="none" stroke="'+col+'" stroke-width="1" style="animation:pumpRing 1s ease-out infinite;opacity:.5"/>'):''}\`
+    ${run?`<circle cx="${x}" cy="${y}" r="22" fill="none" stroke="${col}" stroke-width="1" style="animation:pumpRing 1s ease-out infinite;opacity:.5"/>`:''}\`
   }
 
   function pipe(d,on){
     const pc=on?ac:'#1e2535';
-    const gfAttr=on?'filter="url(#gfx'+m+'")':'' ;
-    if(!on) return '<path d="'+d+'" fill="none" stroke="#08111e" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>';
-    return '<path d="'+d+'" fill="none" stroke="#08111e" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>'
-      +'<path d="'+d+'" fill="none" stroke="'+pc+'" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" '+gfAttr+'>'
+    const gf=on?'filter="url(#gfx'+m+'")':\'\' ;
+    const ptcl=on?
+      '<path d="'+d+'" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="12 12" stroke-dashoffset="24" '+gf+'>'
       +'<animate attributeName="stroke-dashoffset" from="24" to="0" dur="0.65s" repeatCount="indefinite"/>'
-      +'</path>';
+      +'</path>':'';
+    return '<path d="'+d+'" fill="none" stroke="#08111e" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>'
+      +(on?'<path d="'+d+'" fill="none" stroke="'+pc+'" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" '+gf+'>'
+      +ptcl+'</path>':'');
   }
 
   const el=document.getElementById('tank-visual-'+m);
@@ -961,11 +979,12 @@ function renderTankVisual(m,rows){
   const HOMOX=440,HOMOY=HPIPE;
 
   el.innerHTML=`
+    <!-- ══ FLOW DIAGRAM RIGHT ══ -->
   <div class="flow-wrap" style="padding:8px 14px;margin-bottom:0">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
     <span class="flow-title" style="margin:0">⚗️ PROCESS FLOW — ${m.toUpperCase()}</span>
     <span style="font-family:var(--mono);font-size:10px;color:${isFlowing?'#22c55e':'var(--t3)'}">
-      ${isFlowing?'🟢 Pasteurising · '+agTime:'⚪ Standby'}
+      ${isFlowing?`🟢 Pasteurising · ${agTime}`:'⚪ Standby'}
     </span>
   </div>
   <svg viewBox="0 0 1050 330" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;max-height:260px">
@@ -976,6 +995,7 @@ function renderTankVisual(m,rows){
       </filter>
     </defs>
 
+    <!-- ══ MIX TANK 1 ══ -->
     ${mx1.show?(()=>{const p1=productMap[t1Row?.mix_code||'']||{};const c1=t1Done?'#374151':(p1.color||s1.tankCol);const c1d=c1+'88';return drawTank(T1X,TOP,TW,TH,mx1.vol,t1Total,'Mixing 1',(t1Row?.mix_name||'—').slice(0,12),s1,'g1t'+m,'c1t'+m,c1,c1d,mx1.wave);})():`<g transform="translate(${T1X},${TOP})">
   <text x="${TW/2}" y="-32" text-anchor="middle" font-family="DM Mono,monospace" font-size="14" fill="rgba(255,255,255,.6)" font-weight="800">Mixing 1</text>
   <rect x="2" y="4" width="${TW}" height="${TH}" rx="10" fill="rgba(0,0,0,.3)"/>
@@ -987,6 +1007,7 @@ function renderTankVisual(m,rows){
   <rect x="${TW-24}" y="${TH+10}" width="16" height="5" rx="2" fill="#060a14" stroke="rgba(255,255,255,.3)" stroke-width="1.2"/>
 </g>`}
 
+    <!-- ══ MIX TANK 2 ══ -->
     ${mx2.show?(()=>{const p2=productMap[t2Row?.mix_code||'']||{};const c2=t2Done?'#374151':(p2.color||s2.tankCol);const c2d=c2+'88';return drawTank(T2X,TOP,TW,TH,mx2.vol,t2Total,'Mixing 2',(t2Row?.mix_name||'—').slice(0,12),s2,'g2t'+m,'c2t'+m,c2,c2d,mx2.wave);})():`<g transform="translate(${T2X},${TOP})">
   <text x="${TW/2}" y="-32" text-anchor="middle" font-family="DM Mono,monospace" font-size="14" fill="rgba(255,255,255,.6)" font-weight="800">Mixing 2</text>
   <rect x="2" y="4" width="${TW}" height="${TH}" rx="10" fill="rgba(0,0,0,.3)"/>
@@ -998,23 +1019,35 @@ function renderTankVisual(m,rows){
   <rect x="${TW-24}" y="${TH+10}" width="16" height="5" rx="2" fill="#060a14" stroke="rgba(255,255,255,.3)" stroke-width="1.2"/>
 </g>`}
 
+    <!-- ══ AGING TANK ══ -->
     ${drawTank(AGX,TOP,TW,TH,agVol,getTankCapacity(agTank),'Aging '+agTank,agName,sAg,'gag'+m,'cag'+m,sAg.tankCol,sAg.tankCol2,isFlowing)}
 
-    ${pipe('M '+(T1CX)+','+(TBOT+12)+' L '+(T1CX)+','+(HPIPE)+'',t1Active)}
-    ${pipe('M '+(T2CX)+','+(TBOT+12)+' L '+(T2CX)+','+(HPIPE)+'',t2Active)}
-    ${pipe('M '+(AGCX)+','+(TBOT+12)+' L '+(AGCX)+','+(HPIPE)+'',isFlowing)}
+    <!-- ══ VERTICAL PIPES from tank bottoms ══ -->
+    <!-- T1 bottom → down to horizontal -->
+    ${pipe(`M ${T1CX},${TBOT+12} L ${T1CX},${HPIPE}`,t1Active)}
+    <!-- T2 bottom → down to horizontal -->
+    ${pipe(`M ${T2CX},${TBOT+12} L ${T2CX},${HPIPE}`,t2Active)}
+    <!-- Aging bottom → down to horizontal (receive) -->
+    ${pipe(`M ${AGCX},${TBOT+12} L ${AGCX},${HPIPE}`,isFlowing)}
 
+    <!-- ══ VALVES — เปิดเฉพาะถังที่ใช้งาน ══ -->
     ${valve(T1CX,TBOT+28,t1Active)}
     ${valve(T2CX,TBOT+28,t2Active)}
     ${valve(AGCX,TBOT+28,isFlowing)}
 
-    ${t1Active?pipe('M '+(T1CX)+','+(HPIPE)+' L '+(PUMPX-22)+','+(HPIPE)+'',true):''}
-    ${t2Active?pipe('M '+(T2CX)+','+(HPIPE)+' L '+(PUMPX-22)+','+(HPIPE)+'',true):''}
-    ${!t1Active?('<path d="M '+T1CX+','+HPIPE+' L '+(PUMPX-22)+','+HPIPE+'" fill="none" stroke="#1e2535" stroke-width="12" stroke-linecap="round"/>'):''}
-    ${!t2Active?('<path d="M '+T2CX+','+HPIPE+' L '+(PUMPX-22)+','+HPIPE+'" fill="none" stroke="#1e2535" stroke-width="12" stroke-linecap="round"/>'):''}
+    <!-- ══ HORIZONTAL COLLECTOR PIPE ══ -->
+    <!-- T1→pump หรือ T2→pump (แล้วแต่ถังที่ active) -->
+    ${t1Active?pipe(`M ${T1CX},${HPIPE} L ${PUMPX-22},${HPIPE}`,true):''}
+    ${t2Active?pipe(`M ${T2CX},${HPIPE} L ${PUMPX-22},${HPIPE}`,true):''}
+    <!-- เส้นที่ไม่ active แสดงเป็นเทา -->
+    ${!t1Active?`<path d="M ${T1CX},${HPIPE} L ${PUMPX-22},${HPIPE}" fill="none" stroke="#1e2535" stroke-width="6" stroke-linecap="round"/>`:'' }
+    ${!t2Active?`<path d="M ${T2CX},${HPIPE} L ${PUMPX-22},${HPIPE}" fill="none" stroke="#1e2535" stroke-width="6" stroke-linecap="round"/>`:'' }
+    <!-- ══ PUMP ══ -->
     ${pump(PUMPX,PUMPY,isFlowing)}
     <text x="${PUMPX}" y="${PUMPY+36}" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" font-weight="700" fill="${isFlowing?ac:'#3d4560'}">PUMP</text>
-    ${pipe('M '+(PUMPX+22)+','+(HPIPE)+' L '+(HOMOX-30)+','+(HPIPE)+'',isFlowing)}
+    <!-- pump → homogenizer -->
+    ${pipe(`M ${PUMPX+22},${HPIPE} L ${HOMOX-30},${HPIPE}`,isFlowing)}
+    <!-- ══ HOMOGENIZER ══ -->
     ${(()=>{
       const curProd=agRow?productMap[agRow.mix_code]||{}:{};
       const h1=curProd.homo_stage1||0;
@@ -1025,33 +1058,43 @@ function renderTankVisual(m,rows){
       const HX=HOMOX, HY=HOMOY;
       const R=34; // รัศมีถัง HOMO ใหญ่ขึ้น
       return`<g>
+        <!-- Stage 1 บนถัง -->
         <rect x="${HX-60}" y="${HY-R-60}" width="120" height="28" rx="5" fill="rgba(0,0,0,.9)" stroke="${hc}" stroke-width="1.5"/>
         <text x="${HX-36}" y="${HY-R-41}" text-anchor="middle" font-family="DM Mono,monospace" font-size="10" fill="${hcBright}" font-weight="700">St.1</text>
         <text x="${HX+18}" y="${HY-R-41}" text-anchor="middle" font-family="DM Mono,monospace" font-size="13" fill="white" font-weight="800">${h1?h1+' psi':'— psi'}</text>
 
+        <!-- Stage 2 บนถัง -->
         <rect x="${HX-60}" y="${HY-R-30}" width="120" height="28" rx="5" fill="rgba(0,0,0,.9)" stroke="${hc}" stroke-width="1.5"/>
         <text x="${HX-36}" y="${HY-R-11}" text-anchor="middle" font-family="DM Mono,monospace" font-size="10" fill="${hcBright}" font-weight="700">St.2</text>
         <text x="${HX+18}" y="${HY-R-11}" text-anchor="middle" font-family="DM Mono,monospace" font-size="13" fill="white" font-weight="800">${h2?h2+' psi':'— psi'}</text>
 
+        <!-- กรอบ HOMO วงกลม -->
         <circle cx="${HX}" cy="${HY}" r="${R+6}" fill="rgba(0,0,0,.4)" />
         <circle cx="${HX}" cy="${HY}" r="${R}" fill="${hcBox}" stroke="${hc}" stroke-width="2.5"/>
+        <!-- วงกลมใน -->
         <circle cx="${HX}" cy="${HY}" r="${R*0.65}" fill="none" stroke="${hc}" stroke-width="1.5"/>
+        <!-- ใบพัด -->
         <line x1="${HX-R*0.55}" y1="${HY}" x2="${HX+R*0.55}" y2="${HY}" stroke="${hcBright}" stroke-width="3" stroke-linecap="round"/>
         <line x1="${HX}" y1="${HY-R*0.55}" x2="${HX}" y2="${HY+R*0.55}" stroke="${hcBright}" stroke-width="3" stroke-linecap="round"/>
         <line x1="${HX-R*0.4}" y1="${HY-R*0.4}" x2="${HX+R*0.4}" y2="${HY+R*0.4}" stroke="${hc}" stroke-width="2" stroke-linecap="round" opacity=".7"/>
         <line x1="${HX+R*0.4}" y1="${HY-R*0.4}" x2="${HX-R*0.4}" y2="${HY+R*0.4}" stroke="${hc}" stroke-width="2" stroke-linecap="round" opacity=".7"/>
+        <!-- จุดกลาง -->
         <circle cx="${HX}" cy="${HY}" r="5" fill="${hcBright}"/>
+        <!-- pulse -->
         ${isFlowing?`<circle cx="${HX}" cy="${HY}" r="${R}" fill="none" stroke="#a78bfa" stroke-width="2" opacity="0">
           <animate attributeName="r" from="${R}" to="${R+18}" dur="1.8s" repeatCount="indefinite"/>
           <animate attributeName="opacity" from="0.5" to="0" dur="1.8s" repeatCount="indefinite"/>
         </circle>`:''}
+        <!-- label -->
         <rect x="${HX-52}" y="${HY+R+6}" width="104" height="20" rx="4" fill="rgba(0,0,0,.85)" stroke="${hc}" stroke-width="1"/>
         <text x="${HX}" y="${HY+R+20}" text-anchor="middle" font-family="DM Mono,monospace" font-size="12" font-weight="800" fill="white" letter-spacing="0.5">HOMOGENIZER</text>
       </g>`;
     })()}
-    ${pipe('M '+(HOMOX+34)+','+(HPIPE)+' L '+(AGCX)+','+(HPIPE)+'',isFlowing)}
+    <!-- homogenizer → aging -->
+    ${pipe(`M ${HOMOX+34},${HPIPE} L ${AGCX},${HPIPE}`,isFlowing)}
 
 
+    <!-- ══ INFO CARD ══ -->
     ${agRow?(()=>{
       const prod=productMap[agRow.mix_code]||{};
       const dens=+(prod.density||1);
@@ -1150,7 +1193,7 @@ function renderShiftChart(p){
         return `<div class="shift-bar-col">
           <div class="shift-bar-kg-v" style="color:${isActive?col:'#4a5568'};font-size:${isActive?'13px':'11px'}">${kg>0?kg.toLocaleString():'—'}</div>
           <div class="shift-bar-track-v">
-            <div class="shift-bar-fill-v${isActive?' active':''}" style="height:${pct}%;background:${isActive?('linear-gradient(0deg,'+col+'88,'+col+')'):(col+'44')};color:${col}"></div>
+            <div class="shift-bar-fill-v${isActive?' active':''}" style="height:${pct}%;background:${isActive?`linear-gradient(0deg,${col}88,${col})`:`${col}44`};color:${col}"></div>
           </div>
           <div class="shift-bar-label" style="color:${isActive?col:'#4a5568'}">${SHIFT_LABELS[i]}</div>
         </div>`;
@@ -1432,6 +1475,7 @@ function renderPlan(p){
         ? stampCell("past_end_time",row.past_end_time,"Stamp เสร็จ",false,false,'')
         : `<td><span style="font-family:var(--mono);font-size:10px;color:var(--t3)">—</span></td>`}
       <td id="eff-rt-${row.id}">${effHTML}</td>
+      <!-- ปุ่มส่งข้อมูล -->
       <td style="padding:4px 6px;min-width:100px">
         ${!row.past_end_time
           ? '<span style="font-family:var(--mono);font-size:10px;color:var(--t3)">รอ Stamp</span>'
@@ -1489,7 +1533,7 @@ function renderPlan(p){
           return `<select class="ci" style="width:90px;font-family:var(--mono);font-size:11px;padding:4px 6px"
             onchange="_up('${col}','${row.id}','aging_tank',this.value)">
             <option value="">— เลือก —</option>
-            ${tanks.map(t=>'<option value="'+t+'" '+(row.aging_tank===t?'selected':'')+'>'+t+'</option>').join('')}
+            ${tanks.map(t=>`<option value="${t}" ${row.aging_tank===t?'selected':''}>${t}</option>`).join('')}
           </select>`;
         })()}
       </td>
