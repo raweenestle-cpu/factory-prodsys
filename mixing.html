@@ -571,7 +571,7 @@ function renderMixTanks(m, rows){
   const t1Row=rows.find(r=>(r.mixing_tank==='Tank 1'||r.mixing_tank==='T1')&&activeStatus.includes(r.status))||null;
   const t2Row=rows.find(r=>(r.mixing_tank==='Tank 2'||r.mixing_tank==='T2')&&activeStatus.includes(r.status))||null;
 
-  function tankSVG(row, label){
+  function tankSVG(row,label,cap){cap=cap||3000;
     const st=row?.status||'';
     const name=(row?.mix_name||'').slice(0,14);
     const vol=+(row?.volume_liter||0);
@@ -594,7 +594,7 @@ function renderMixTanks(m, rows){
       </div>`;
     }
 
-    if(st==='mixing'){ pct=Math.min(100,(vol*0.5/3000)*100); statusTxt='🔄 กำลังผสม'; statusCol='#eab308'; borderCol=col;
+    if(st==='mixing'){ pct=Math.min(100,(vol*0.5/cap)*100); statusTxt='🔄 กำลังผสม'; statusCol='#eab308'; borderCol=col;
       waveSVG=`<defs><linearGradient id="wg${label.replace(' ','')}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${col}" stop-opacity=".9"/><stop offset="100%" stop-color="${col}" stop-opacity=".5"/></linearGradient></defs>
       <clipPath id="wc${label.replace(' ','')}"><rect x="12" y="${10+140*(1-pct/100)}" width="106" height="${140*pct/100}" rx="6"/></clipPath>
       <g clip-path="url(#wc${label.replace(' ','')})">
@@ -618,7 +618,7 @@ function renderMixTanks(m, rows){
       const currentVol=row?.current_vol!==undefined&&row?.current_vol!==null?+row.current_vol:0;
       if(row?.past_start_time&&currentVol>0){
         // กำลัง Past. — volume ลดลง
-        pct=Math.max(0,((totalVol-currentVol)/3000)*100);
+        pct=Math.max(0,((totalVol-currentVol)/cap)*100);
         statusTxt='🔵 กำลัง Pasteurise'; statusCol='#f97316'; borderCol=col;
         waveSVG=`<defs><linearGradient id="wg${label.replace(' ','')}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${col}" stop-opacity=".9"/><stop offset="100%" stop-color="${col}" stop-opacity=".6"/></linearGradient></defs>
         <clipPath id="wc${label.replace(' ','')}"><rect x="12" y="${10+140*(1-pct/100)}" width="106" height="${140*pct/100}" rx="6"/></clipPath>
@@ -639,7 +639,7 @@ function renderMixTanks(m, rows){
         </g>`;
       } else {
         // รอ Past. — 100% ผสมเสร็จแล้ว รอส่งออก
-        pct=Math.min(100,(vol/3000)*100); statusTxt='🔵 รอ Pasteurise'; statusCol='#60a5fa'; borderCol=col;
+        pct=Math.min(100,(vol/cap)*100); statusTxt='🔵 รอ Pasteurise'; statusCol='#60a5fa'; borderCol=col;
         waveSVG=`<defs><linearGradient id="wg${label.replace(' ','')}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${col}" stop-opacity=".9"/><stop offset="100%" stop-color="${col}" stop-opacity=".6"/></linearGradient></defs>
         <clipPath id="wc${label.replace(' ','')}"><rect x="12" y="10" width="106" height="140" rx="6"/></clipPath>
         <g clip-path="url(#wc${label.replace(' ','')})"><rect x="12" y="10" width="106" height="140" fill="url(#wg${label.replace(' ','')})"/></g>`;
@@ -684,8 +684,8 @@ function renderMixTanks(m, rows){
   }
 
   el.innerHTML=`<div style="display:flex;gap:24px;padding:12px 16px;background:var(--s1);border:1px solid var(--b1);border-radius:12px;margin-bottom:4px;align-items:flex-start">
-    ${tankSVG(t1Row,'Mixing 1')}
-    ${tankSVG(t2Row,'Mixing 2')}
+    ${tankSVG(t1Row,'Mixing 1',3000)}
+    ${tankSVG(t2Row,'Mixing 2',3500)}
   </div>`;
 }
 
