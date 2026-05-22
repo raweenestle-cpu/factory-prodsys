@@ -377,9 +377,20 @@ function getTankInfo(tankId){
 
   // current_vol — ใช้ค่า cumulative จาก active batch (Pasteurize เขียนค่า cumulative ไว้แล้ว)
   // หา batch ที่กำลัง pasteurising อยู่ก่อน ถ้าไม่มีให้ใช้ batch ล่าสุดที่มี current_vol
-  const activeRow=rows.find(r=>r.status==='pasteurising'&&r.current_vol!=null)
-    || rows.slice().reverse().find(r=>r.current_vol!=null);
-  const totalCurrentVol=activeRow?.current_vol!=null ? +activeRow.current_vol : totalVolume;
+  // รวม volume ของ batch ที่ past_done แล้ว
+  const doneVol=rows
+    .filter(r=>r.status==='past_done'||r.status==='ready')
+    .reduce((s,r)=>s+(+(r.volume_liter||0)),0);
+  // batch ที่กำลัง pasteurising อยู่
+  const activeRow=rows.find(r=>r.status==='pasteurising'&&r.current_vol!=null);
+  // flow จริงของ batch ปัจจุบัน = current_vol - doneVol (เพราะ current_vol เป็น cumulative)
+  const activeBatchVol=activeRow
+    ? Math.min(+(activeRow.volume_liter||0), Math.max(0, +activeRow.current_vol - doneVol))
+    : 0;
+  // totalCurrentVol = done batches + flow จริงของ batch ปัจจุบัน
+  const totalCurrentVol = rows.some(r=>r.status==='past_done'||r.status==='ready'||r.status==='pasteurising')
+    ? doneVol + activeBatchVol
+    : totalVolume;
 
   return{status,row,rows,totalVolume,totalCurrentVol};
 }
