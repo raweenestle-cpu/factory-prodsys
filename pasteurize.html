@@ -765,10 +765,17 @@ function renderTankVisual(m,rows){
         : [agRow];
       const totalVol=groupRows.reduce((sum,r)=>sum+(+(r.volume_liter||0)),0)||+(agRow.volume_liter||0);
 
-      // current_vol cumulative จาก Pasteurize
-      const activeRow=groupRows.find(r=>r.status==='pasteurising'&&r.current_vol!=null)
-        ||groupRows.slice().reverse().find(r=>r.current_vol!=null);
-      const cumVol=activeRow?.current_vol!=null?+activeRow.current_vol:0;
+      // current_vol ของ batch ปัจจุบัน (agRow) เท่านั้น — ไม่ใช่ cumulative ทั้งหมด
+      const currentBatchCumVol=agRow.current_vol!=null?+agRow.current_vol:0;
+
+      // volume ของ batch ที่ past_done แล้วใน process_order เดียวกัน
+      const doneBatchesVol=groupRows
+        .filter(r=>r.id!==agRow.id&&(r.status==='past_done'||r.status==='ready'))
+        .reduce((s,r)=>s+(+(r.volume_liter||0)),0);
+
+      const batchVol=+(agRow.volume_liter||0);
+      // ปริมาตรที่ไหลออกจากถัง mix ปัจจุบัน
+      const currentBatchVol=Math.min(batchVol, currentBatchCumVol);
 
       if(isDone){
         agVol=totalVol;
@@ -777,19 +784,11 @@ function renderTankVisual(m,rows){
         if(isT1) t1Vol=0;
         else t2Vol=0;
       } else {
-        // agVol ของ batch ปัจจุบันเท่านั้น (ไม่รวม batch ก่อนหน้า)
-        const batchVol=+(agRow.volume_liter||0);
-        const batchCumVol=cumVol>0?cumVol:0;
-        // หัก batch ที่ past_done แล้วออกก่อน = volume ที่กำลัง past อยู่จริงๆ
-        const doneBatchesVol=groupRows
-          .filter(r=>r.id!==agRow.id&&(r.status==='past_done'||r.status==='ready'))
-          .reduce((s,r)=>s+(+(r.volume_liter||0)),0);
-        const currentBatchVol=Math.min(batchVol, Math.max(0, batchCumVol - doneBatchesVol));
-        // agVol = batch ที่ past_done แล้ว + batch ปัจจุบัน
-        agVol=Math.min(totalVol, doneBatchesVol + batchCumVol);
+        // agVol = batch ที่ past_done แล้ว + current_vol ของ batch ปัจจุบัน
+        agVol=Math.min(totalVol, doneBatchesVol + currentBatchCumVol);
         const _cap=getTankCapacity(agRow.aging_tank||'');
         agPct=_cap>0?(agVol/_cap)*100:0;
-        // ถัง Mix ลดเฉพาะ batch ปัจจุบัน
+        // ถัง Mix ลดตาม currentBatchVol เท่านั้น
         if(isT1) t1Vol=Math.max(0,t1Total-currentBatchVol);
         else t2Vol=Math.max(0,t2Total-currentBatchVol);
       }
