@@ -727,7 +727,7 @@ function renderTankVisual(m,rows){
               ||rows.find(r=>r.status==='ready'&&r.past_start_time);
 
   // ดึง row จากตารางโดยตรง — ทุก status ที่ active (mixing, pasteurising)
-  const activeStatuses=['mixing','pasteurising','past_done','ready'];
+  const activeStatuses=['mixing','pasteurising'];
   const t1Row=rows.find(r=>activeStatuses.includes(r.status)&&
     (r.mixing_tank==='Tank 1'||r.mixing_tank==='T1'||r.mixing_tank==='ถัง 1'||r.mixing_tank==='1'))||null;
   const t2Row=rows.find(r=>activeStatuses.includes(r.status)&&
@@ -783,7 +783,8 @@ function renderTankVisual(m,rows){
           .filter(r=>r.id!==agRow.id&&(r.status==='past_done'||r.status==='ready'))
           .reduce((s,r)=>s+(+(r.volume_liter||0)),0);
         const currentBatchVol=Math.min(batchVol, Math.max(0, batchCumVol - doneBatchesVol));
-        agVol=Math.min(totalVol, batchCumVol);
+        // agVol = batch ที่ past_done แล้ว + batch ปัจจุบัน
+        agVol=Math.min(totalVol, doneBatchesVol + batchCumVol);
         const _cap=getTankCapacity(agRow.aging_tank||'');
         agPct=_cap>0?(agVol/_cap)*100:0;
         // ถัง Mix ลดเฉพาะ batch ปัจจุบัน
