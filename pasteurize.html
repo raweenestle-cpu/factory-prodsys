@@ -774,20 +774,20 @@ function renderTankVisual(m,rows){
         if(isT1) t1Vol=0;
         else t2Vol=0;
       } else {
-        // agVol ของ batch ปัจจุบันเท่านั้น (ไม่รวม batch ก่อนหน้า)
         const batchVol=+(agRow.volume_liter||0);
-        const batchCumVol=cumVol>0?cumVol:0;
-        // หัก batch ที่ past_done แล้วออกก่อน = volume ที่กำลัง past อยู่จริงๆ
+        // batch ที่ past_done แล้ว (ไม่รวม agRow ปัจจุบัน)
         const doneBatchesVol=groupRows
           .filter(r=>r.id!==agRow.id&&(r.status==='past_done'||r.status==='ready'))
           .reduce((s,r)=>s+(+(r.volume_liter||0)),0);
-        const currentBatchVol=Math.min(batchVol, Math.max(0, batchCumVol - doneBatchesVol));
-        agVol=Math.min(totalVol, batchCumVol);
+        // flow จริงของ batch นี้ = cumVol - doneBatchesVol
+        const thisBatchFlowed=Math.min(batchVol, Math.max(0, cumVol - doneBatchesVol));
+        // agVol = done batches + flow จริงของ batch นี้
+        agVol=Math.min(totalVol, doneBatchesVol + thisBatchFlowed);
         const _cap=getTankCapacity(agRow.aging_tank||'');
         agPct=_cap>0?(agVol/_cap)*100:0;
-        // ถัง Mix ลดเฉพาะ batch ปัจจุบัน
-        if(isT1) t1Vol=Math.max(0,t1Total-currentBatchVol);
-        else t2Vol=Math.max(0,t2Total-currentBatchVol);
+        // ถัง Mix ลดตาม thisBatchFlowed
+        if(isT1) t1Vol=Math.max(0,t1Total-thisBatchFlowed);
+        else t2Vol=Math.max(0,t2Total-thisBatchFlowed);
       }
     }catch{}
   }
