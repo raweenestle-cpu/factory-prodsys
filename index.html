@@ -194,6 +194,8 @@ body::before{
 @keyframes loading{0%{left:-100%}100%{left:100%}}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .step.on{animation:fadeIn .3s ease}
+.pin-key{padding:16px;font-size:20px;font-weight:700;font-family:DM Mono,monospace;background:#0d1525;border:1px solid #1e2535;border-radius:12px;color:#e2e8f0;cursor:pointer;transition:background .1s}
+.pin-key:active{background:#1e3a5f}
 </style>
 </head>
 <body>
@@ -272,6 +274,10 @@ const app=initializeApp({
 });
 const auth=getAuth(app);
 const db=getFirestore(app);
+window._db=db;
+window._collection=collection;
+window._query=query;
+window._getDocs=getDocs;
 
 let selectedRole=null;
 
@@ -423,14 +429,110 @@ function showStep(id){
 
     <!-- Keypad -->
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px">
-      ${[1,2,3,4,5,6,7,8,9,'','0','⌫'].map(k=>`
-      <button onclick="pinKey('${k}')" style="padding:16px;font-size:20px;font-weight:700;font-family:DM Mono,monospace;background:#0d1525;border:1px solid #1e2535;border-radius:12px;color:#e2e8f0;cursor:pointer;transition:background .1s" onmousedown="this.style.background='#1e3a5f'" onmouseup="this.style.background='#0d1525'">${k}</button>`).join('')}
+      <button onclick="pinKey('1')" class="pin-key">1</button>
+      <button onclick="pinKey('2')" class="pin-key">2</button>
+      <button onclick="pinKey('3')" class="pin-key">3</button>
+      <button onclick="pinKey('4')" class="pin-key">4</button>
+      <button onclick="pinKey('5')" class="pin-key">5</button>
+      <button onclick="pinKey('6')" class="pin-key">6</button>
+      <button onclick="pinKey('7')" class="pin-key">7</button>
+      <button onclick="pinKey('8')" class="pin-key">8</button>
+      <button onclick="pinKey('9')" class="pin-key">9</button>
+      <button class="pin-key" style="opacity:0;pointer-events:none"></button>
+      <button onclick="pinKey('0')" class="pin-key">0</button>
+      <button onclick="pinKey('⌫')" class="pin-key">⌫</button>
     </div>
 
     <button onclick="closePinModal()" style="width:100%;padding:10px;background:none;border:1px solid #1e2535;border-radius:10px;color:#64748b;font-size:13px;cursor:pointer">ยกเลิก</button>
     <div id="pin-error" style="color:#f04f5e;font-size:12px;margin-top:10px;min-height:16px"></div>
   </div>
 </div>
+
+
+<script>
+// ══ PIN MODAL ══════════════════════════════════════════════
+var pinTarget='', pinValue='', pinEmployees=[];
+
+function openPinModal(file,name){
+  var noPinPages=['admin.html','shelflife.html'];
+  if(noPinPages.indexOf(file)>=0){window.location.href=file;return;}
+  pinTarget=file;pinValue='';
+  document.getElementById('pin-modal-page').textContent=name;
+  document.getElementById('pin-error').textContent='';
+  updatePinDots();
+  var m=document.getElementById('pin-modal');
+  m.style.display='flex';
+  loadPinEmployees();
+}
+
+function closePinModal(){
+  document.getElementById('pin-modal').style.display='none';
+  pinValue='';updatePinDots();
+}
+
+function pinKey(k){
+  if(k===''){return;}
+  if(k==='⌫'){pinValue=pinValue.slice(0,-1);updatePinDots();document.getElementById('pin-error').textContent='';return;}
+  if(pinValue.length>=4)return;
+  pinValue+=k;updatePinDots();
+  if(pinValue.length===4)checkPin();
+}
+
+function updatePinDots(){
+  for(var i=1;i<=4;i++){
+    var el=document.getElementById('pin-d'+i);
+    if(el)el.style.background=i<=pinValue.length?'#3b82f6':'#1e2535';
+  }
+}
+
+function loadPinEmployees(){
+  if(typeof firebase!=='undefined'||window._db){
+    // โหลดจาก Firebase ถ้ามี
+  }
+  // ใช้ค่าที่โหลดไว้แล้ว
+}
+
+async function checkPin(){
+  // โหลด employees จาก Firebase
+  if(!window._db){
+    document.getElementById('pin-error').textContent='⚠️ กำลังเชื่อมต่อ...';
+    setTimeout(checkPin,800);
+    return;
+  }
+  try{
+    var snap=await window._getDocs(window._query(
+      window._collection(window._db,'employees')
+    ));
+    pinEmployees=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
+  }catch(e){
+    // ถ้าโหลดไม่ได้ใช้ค่าเดิม
+  }
+
+  var emp=pinEmployees.find(function(e){return e.pin===pinValue;});
+  if(!emp){
+    document.getElementById('pin-error').textContent='❌ รหัส PIN ไม่ถูกต้อง';
+    pinValue='';updatePinDots();return;
+  }
+  var page=pinTarget.replace('.html','');
+  var perms=emp.permissions||[];
+  if(perms.length>0&&perms.indexOf(page)<0&&perms.indexOf('all')<0){
+    document.getElementById('pin-error').textContent='🚫 ไม่มีสิทธิ์เข้าหน้านี้';
+    pinValue='';updatePinDots();return;
+  }
+  sessionStorage.setItem('emp_name',emp.name||'');
+  sessionStorage.setItem('emp_id',emp.id||'');
+  sessionStorage.setItem('emp_sig',emp.signature||'');
+  window.location.href=pinTarget;
+}
+
+document.addEventListener('keydown',function(e){
+  var m=document.getElementById('pin-modal');
+  if(!m||m.style.display==='none')return;
+  if(e.key>='0'&&e.key<='9')pinKey(e.key);
+  if(e.key==='Backspace')pinKey('⌫');
+  if(e.key==='Escape')closePinModal();
+});
+</script>
 
 </body>
 </html>
