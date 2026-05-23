@@ -790,9 +790,9 @@ function renderTankVisual(m,rows){
         agVol=Math.min(totalVol, doneBatchesVol + thisBatchFlowed);
         const _cap=getTankCapacity(agRow.aging_tank||'');
         agPct=_cap>0?(agVol/_cap)*100:0;
-        // ถัง Mix ลดตาม thisBatchFlowed
-        if(isT1) t1Vol=Math.max(0,t1Total-thisBatchFlowed);
-        else t2Vol=Math.max(0,t2Total-thisBatchFlowed);
+        // ถัง Mix ลดตาม agVol (volume ที่ไหลเข้า aging แล้วจริงๆ)
+        if(isT1) t1Vol=Math.max(0,t1Total-agVol);
+        else t2Vol=Math.max(0,t2Total-agVol);
       }
     }catch{}
   }
