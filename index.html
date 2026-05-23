@@ -283,6 +283,7 @@ const MENUS={
     {icon:'🌡️',name:'Pasteurize',desc:'บันทึก Past.',file:'pasteurize.html',cls:'m-past'},
     {icon:'🍦',name:'Flavor',desc:'เทสี/กลิ่น',file:'flavor.html',cls:'m-flavor'},
     {icon:'🪣',name:'CIP Man',desc:'ควบคุมถัง',file:'cipman.html',cls:'m-cip'},
+    {icon:'🧹',name:'CIP Mixing',desc:'ล้าง+ฆ่าเชื้อถัง',file:'cipmixing.html',cls:'m-cip'},
     {icon:'🫙',name:'Aging Tank',desc:'สถานะถัง',file:'aging.html',cls:'m-cip'},
     {icon:'🏭',name:'Filling',desc:'ดู Dashboard',file:'filling.html',cls:'m-filling'},
     {icon:'💧',name:'Flowmeter',desc:'Verify Flow',file:'flowmeter.html',cls:'m-mixing'},
@@ -295,6 +296,7 @@ const MENUS={
     {icon:'🌡️',name:'Pasteurize',desc:'บันทึก Past.',file:'pasteurize.html',cls:'m-past'},
     {icon:'🍦',name:'Flavor',desc:'เทสี/กลิ่น',file:'flavor.html',cls:'m-flavor'},
     {icon:'🪣',name:'CIP Man',desc:'ควบคุมถัง',file:'cipman.html',cls:'m-cip'},
+    {icon:'🧹',name:'CIP Mixing',desc:'ล้าง+ฆ่าเชื้อถัง',file:'cipmixing.html',cls:'m-cip'},
     {icon:'🫙',name:'Aging Tank',desc:'สถานะถัง',file:'aging.html',cls:'m-cip'},
     {icon:'🏭',name:'Filling',desc:'ดู Dashboard',file:'filling.html',cls:'m-filling'},
     {icon:'💧',name:'Flowmeter',desc:'Verify Flow',file:'flowmeter.html',cls:'m-mixing'},
@@ -379,11 +381,11 @@ function showMenu(role){
   document.getElementById('w-name').textContent='สวัสดี '+l.name;
   document.getElementById('w-sub').textContent='เลือกหน้าที่ต้องการเข้าใช้งาน';
   document.getElementById('menu-grid').innerHTML=menus.map(m=>`
-    <a class="menu-btn ${m.cls}" href="${m.file}">
+    <div class="menu-btn ${m.cls}" onclick="openPinModal('${m.file}','${m.name}')" style="cursor:pointer">
       <div class="menu-icon">${m.icon}</div>
       <div class="menu-name">${m.name}</div>
       <div class="menu-desc">${m.desc}</div>
-    </a>`).join('');
+    </div>`).join('');
   showStep('step3');
 }
 
@@ -403,5 +405,32 @@ function showStep(id){
 ;
 }
 </script>
+
+<!-- PIN MODAL -->
+<div id="pin-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;align-items:center;justify-content:center">
+  <div style="background:linear-gradient(135deg,#0d1525,#0a0f1e);border:1px solid #1e2535;border-radius:20px;padding:28px 24px;width:320px;text-align:center">
+    <div style="font-size:28px;margin-bottom:6px" id="pin-modal-icon">🔐</div>
+    <div style="font-family:DM Mono,monospace;font-size:16px;font-weight:700;color:#e2e8f0;margin-bottom:4px" id="pin-modal-title">ใส่รหัส PIN</div>
+    <div style="font-size:12px;color:#64748b;margin-bottom:20px" id="pin-modal-page"></div>
+
+    <!-- PIN Display -->
+    <div style="display:flex;justify-content:center;gap:12px;margin-bottom:20px">
+      <div id="pin-d1" style="width:14px;height:14px;border-radius:50%;background:#1e2535;border:2px solid #3b82f6;transition:background .15s"></div>
+      <div id="pin-d2" style="width:14px;height:14px;border-radius:50%;background:#1e2535;border:2px solid #3b82f6;transition:background .15s"></div>
+      <div id="pin-d3" style="width:14px;height:14px;border-radius:50%;background:#1e2535;border:2px solid #3b82f6;transition:background .15s"></div>
+      <div id="pin-d4" style="width:14px;height:14px;border-radius:50%;background:#1e2535;border:2px solid #3b82f6;transition:background .15s"></div>
+    </div>
+
+    <!-- Keypad -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px">
+      ${[1,2,3,4,5,6,7,8,9,'','0','⌫'].map(k=>`
+      <button onclick="pinKey('${k}')" style="padding:16px;font-size:20px;font-weight:700;font-family:DM Mono,monospace;background:#0d1525;border:1px solid #1e2535;border-radius:12px;color:#e2e8f0;cursor:pointer;transition:background .1s" onmousedown="this.style.background='#1e3a5f'" onmouseup="this.style.background='#0d1525'">${k}</button>`).join('')}
+    </div>
+
+    <button onclick="closePinModal()" style="width:100%;padding:10px;background:none;border:1px solid #1e2535;border-radius:10px;color:#64748b;font-size:13px;cursor:pointer">ยกเลิก</button>
+    <div id="pin-error" style="color:#f04f5e;font-size:12px;margin-top:10px;min-height:16px"></div>
+  </div>
+</div>
+
 </body>
 </html>
