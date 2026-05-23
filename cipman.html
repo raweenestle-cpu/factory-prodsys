@@ -258,6 +258,10 @@ main{position:relative;z-index:1;padding:10px 12px;}
 
 @keyframes statusPulse{0%,100%{opacity:1}50%{opacity:.45}}
 .status-blink{animation:statusPulse 1.4s ease-in-out infinite}
+
+.sig-btn{background:none;border:none;cursor:pointer;padding:4px 6px;border-radius:6px;transition:background .15s;display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#64748b;}
+.sig-btn:hover{background:rgba(99,102,241,.15);color:#818cf8;}
+.sig-preview{height:28px;vertical-align:middle;opacity:.95;}
 </style>
 </head>
 <body>
@@ -938,8 +942,14 @@ function renderQueuePage(){
 }
 
 // CONTROLS
+
+// ── SIGNATURE STAMP (CIP) ─────────────────────────────────
+const _empName = sessionStorage.getItem('emp_name')||'';
+const _empSig  = sessionStorage.getItem('emp_sig')||'';
+
 window.startLine=async(lineId,sv,fr)=>{
-  await setDoc(doc(db,'cip_line_states',lineId),{running:true,start_ts:Date.now(),start_vol:sv,flow_rate:fr,started_at:nowHHMM(),started_by:ME.email},{merge:true});
+  if(!_empSig){toast('กรุณา login ด้วย PIN ก่อน','red');return;}
+  await setDoc(doc(db,'cip_line_states',lineId),{running:true,start_ts:Date.now(),start_vol:sv,flow_rate:fr,started_by:_empName,start_sig:_empSig,started_at:nowHHMM(),started_by:ME.email},{merge:true});
   toast('▶ Start แล้ว','green');
 };
 window.stopLine=async(lineId)=>{
@@ -971,7 +981,7 @@ async function confirmEmpty(){
   await addDoc(collection(db,'cip_tank_history'),{
     date:today(),line_id:lineId,line_name:lineName,plan_id:planId,
     start_vol:st.start_vol||0,flow_rate:st.flow_rate||300,
-    started_at:st.started_at||'—',emptied_at:nowHHMM(),emptied_by:ME.email,
+    started_at:st.started_at||'—',emptied_at:nowHHMM(),emptied_by:_empName||ME.email,emptied_sig:_empSig,
     aging_tank:st.aging_tank||'—',freezer:st.fz_A||'—',pipe:st.pp_A||'—',
   });
   try{await updateDoc(doc(db,col,planId),{status:'sent_filling',sent_filling_at:nowHHMM()});}catch{}
