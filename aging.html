@@ -150,6 +150,20 @@ nav{display:flex;align-items:center;height:52px;background:var(--s1);border-bott
 @keyframes stagePulse{0%,100%{box-shadow:0 0 4px rgba(34,197,94,.4)}50%{box-shadow:0 0 14px rgba(34,197,94,.9)}}
 .stage-line{width:6px;height:2px;background:rgba(255,255,255,.1);flex-shrink:0;border-radius:1px}
 .stage-line.done{background:#22c55e}
+
+.temp-sel{display:flex;align-items:center;gap:5px;background:rgba(0,212,255,.08);border:1.5px solid rgba(0,212,255,.3);border-radius:8px;padding:4px 10px;cursor:pointer;user-select:none;margin-right:6px}
+.temp-num{font-family:'DM Mono',monospace;font-size:16px;font-weight:800;color:#00d4ff;line-height:1}
+.temp-unit{font-family:'DM Mono',monospace;font-size:10px;color:rgba(0,212,255,.7)}
+.temp-drop{position:absolute;top:calc(100% + 4px);right:0;background:#0d1525;border:1.5px solid rgba(0,212,255,.3);border-radius:10px;padding:6px;display:none;z-index:999;min-width:90px}
+.temp-drop.open{display:block}
+.temp-opt{font-family:'DM Mono',monospace;font-size:12px;padding:5px 12px;border-radius:6px;cursor:pointer;color:#e2e8f0}
+.temp-opt:hover{background:rgba(0,212,255,.1);color:#00d4ff}
+.temp-opt.active{color:#00d4ff;font-weight:700}
+
+.tc-temp{display:flex;align-items:center;gap:6px;margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,.08);flex-wrap:wrap}
+.tc-temp-label{font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,.4)}
+.tc-temp-sel{font-family:'DM Mono',monospace;font-size:12px;font-weight:700;color:#00d4ff;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.25);border-radius:6px;padding:2px 6px;cursor:pointer;outline:none}
+.tc-expire{font-family:'DM Mono',monospace;font-size:11px;font-weight:700}
 </style>
 </head>
 <body>
@@ -783,13 +797,20 @@ function tankCard(tankId){
     </div>
     <!-- วันพาสและวันหมดอายุ -->
     ${row?.date||row?.past_start_time?(()=>{
-      const exp=calcExpiry(row,productMap);
+      const exp=calcExpiryForTank(row,tankId);
       return `<div class="tdate">
         ${row?.date?`<div class="td-row"><span class="td-label">วันผลิต</span><span class="td-val">${new Date(row.date).toLocaleDateString('th-TH',{day:'2-digit',month:'short'})}</span></div>`:''}
         ${row?.past_start_time?`<div class="td-row"><span class="td-label">Past.เริ่ม</span><span class="td-val">${row.past_start_time}</span></div>`:''}
         ${row?.past_end_time?`<div class="td-row"><span class="td-label">Past.เสร็จ</span><span class="td-val">${row.past_end_time}</span></div>`:''}
         ${exp?`<div class="td-row"><span class="td-label">หมดอายุ</span><span style="color:${exp.isExpired?'#ff4560':exp.isCritical?'#ff8c42':'#ffd040'};font-weight:700">${exp.isExpired?'❌ ':exp.isCritical?'⚠️ ':'⏰ '}${exp.date} ${exp.time}</span></div>`:''}
       </div>`;
+    <div class="tc-temp">
+      <span class="tc-temp-label">🌡️ อุณหภูมิ:</span>
+      <select class="tc-temp-sel" onchange="setTankTemp('${tankId}',this.value)">
+        ${[0,1,2,3,4,5,6,7,8,9,10].map(t=>'<option value="'+t+'"'+((tankTemps[tankId]??5)===t?' selected':'')+'>'+t+'°C</option>').join('')}
+      </select>
+      ${exp?('<span class="tc-expire" style="color:'+(exp.isExpired?'#ff4560':exp.isCritical?'#ff8c42':exp.isWarning?'#ffd040':'#00e87a')+'">'+(exp.isExpired?'❌':exp.isCritical?'⚠️':exp.isWarning?'🟡':'✅')+' '+exp.date+' '+exp.time+'</span>'):''}
+    </div>
     })():''}
     ${renderStageRing(status)}
     <div class="tsb" style="color:${col};background:${rgba(col,.1)}">${statusBadge(resolveStatus(row)||status)}</div>`;
@@ -932,12 +953,6 @@ document.addEventListener('click',e=>{
   const w=document.getElementById('temp-wrap');
   if(w&&!w.contains(e.target)) document.getElementById('temp-drop').classList.remove('open');
 });
-function getShelfHours(row){
-  const prod=productMap[row?.mix_code||'']||{};
-  const pt=(prod.product_type||'').toLowerCase();
-  const type=pt.includes('water ice')?'Water Ice':pt.includes('jelly')?'Jelly':'Ice Cream';
-  return SHELF_TABLE[type]?.[currentTemp]||null;
-}
 function calcExpiry(row,productMap){
   if(!row?.past_end_time||!row?.date)return null;
   const hours=getShelfHours(row);
@@ -999,6 +1014,29 @@ function renderStageRing(status){
   });
   html += '</div>';
   return html;
+}
+
+
+
+
+const SHELF_TABLE_TC={'Ice Cream':[96,96,96,96,92,76,62,51,43,37,32],'Water Ice':[96,96,96,96,96,96,96,93,81,71,63],'Jelly':[24,24,24,24,24,24,24,24,24,24,24]};
+const tankTemps={};
+window.setTankTemp=function(tid,t){tankTemps[tid]=+t;renderTanks();};
+function calcExpiryForTank(row,tid){
+  if(!row||!row.past_end_time||!row.date)return null;
+  const temp=tankTemps[tid]??5;
+  const prod=productMap[row.mix_code||'']||{};
+  const pt=(prod.product_type||'').toLowerCase();
+  const type=pt.includes('water ice')?'Water Ice':pt.includes('jelly')?'Jelly':'Ice Cream';
+  const hours=SHELF_TABLE_TC[type]?.[temp]||null;
+  if(!hours)return null;
+  const[h,m]=row.past_end_time.split(':').map(Number);
+  const base=new Date(row.date);
+  base.setHours(h||0,m||0,0,0);
+  const expire=new Date(base.getTime()+hours*3600000);
+  const now=new Date();
+  const rem=(expire-now)/3600000;
+  return{date:expire.toLocaleDateString('th-TH',{day:'2-digit',month:'short',year:'numeric'}),time:expire.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'}),hours,temp,isExpired:rem<=0,isCritical:rem>0&&rem<=6,isWarning:rem>6&&rem<=12};
 }
 
 </script>
