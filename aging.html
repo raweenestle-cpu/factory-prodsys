@@ -141,6 +141,15 @@ nav{display:flex;align-items:center;height:52px;background:var(--s1);border-bott
 .temp-opt{font-family:'DM Mono',monospace;font-size:13px;padding:7px 14px;border-radius:7px;cursor:pointer;color:#e2e8f0;display:flex;justify-content:space-between}
 .temp-opt:hover{background:rgba(0,212,255,.1);color:#00d4ff}
 .temp-opt.active{background:rgba(0,212,255,.15);color:#00d4ff;font-weight:700}
+
+/* PROGRESS RING */
+.stage-ring{display:flex;align-items:center;justify-content:center;gap:4px;padding:5px 4px;flex-wrap:nowrap}
+.stage-dot{width:11px;height:11px;border-radius:50%;border:2px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);flex-shrink:0;transition:all .3s;position:relative}
+.stage-dot.done{background:#22c55e;border-color:#22c55e;box-shadow:0 0 6px rgba(34,197,94,.4)}
+.stage-dot.active{background:#22c55e;border-color:#22c55e;box-shadow:0 0 10px rgba(34,197,94,.6);animation:stagePulse 1s ease-in-out infinite}
+@keyframes stagePulse{0%,100%{box-shadow:0 0 4px rgba(34,197,94,.4)}50%{box-shadow:0 0 14px rgba(34,197,94,.9)}}
+.stage-line{width:6px;height:2px;background:rgba(255,255,255,.1);flex-shrink:0;border-radius:1px}
+.stage-line.done{background:#22c55e}
 </style>
 </head>
 <body>
@@ -200,11 +209,13 @@ nav{display:flex;align-items:center;height:52px;background:var(--s1);border-bott
     </div>
 
     <div class="stat-btns">
-      <button class="stat-btn" onclick="setTankStatus('pasteurising')">🔵 กำลัง Pasteurize</button>
-      <button class="stat-btn" onclick="setTankStatus('filling')">🟢 กำลัง Filling</button>
-      <button class="stat-btn" onclick="setTankStatus('curing')">🟠 กำลังบ่ม (Curing)</button>
-      <button class="stat-btn" onclick="setTankStatus('cleaned')">⚪ ล้างแล้ว พร้อมใช้</button>
-      <button class="stat-btn" onclick="setTankStatus('empty')">🟡 รอล้าง</button>
+      <button class="stat-btn" onclick="setTankStatus('cip_done')">🧹 CIP Done</button>
+      <button class="stat-btn" onclick="setTankStatus('sanitized')">✨ Sanitized</button>
+      <button class="stat-btn" onclick="setTankStatus('pasteurising')">🔵 Pasteurizing</button>
+      <button class="stat-btn" onclick="setTankStatus('aging')">⏳ Aging</button>
+      <button class="stat-btn" onclick="setTankStatus('ready')">✅ Ready</button>
+      <button class="stat-btn" onclick="setTankStatus('filling')">🟢 Filling</button>
+      <button class="stat-btn" onclick="setTankStatus('empty')">⚪ Empty</button>
     </div>
     <button class="modal-close" onclick="closeModal()">✕ ปิด</button>
     <button onclick="clearTank()" style="width:100%;margin-top:10px;padding:10px;border-radius:8px;border:1.5px dashed rgba(239,68,68,.5);background:rgba(239,68,68,.08);color:#ef4444;font-family:'DM Mono',monospace;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:.04em">🗑️ เคลียร์ถัง — ลบข้อมูลทั้งหมดออก</button>
@@ -643,6 +654,7 @@ function tankCard(tankId){
         ${exp?`<div class="td-row"><span class="td-label">หมดอายุ</span><span style="color:${exp.isExpired?'#ff4560':exp.isCritical?'#ff8c42':'#ffd040'};font-weight:700">${exp.isExpired?'❌ ':exp.isCritical?'⚠️ ':'⏰ '}${exp.date} ${exp.time}</span></div>`:''}
       </div>`;
     })():''}
+    ${renderStageRing(status)}
     <div class="tsb" style="color:${col};background:${rgba(col,.1)}">${statusBadge(resolveStatus(row)||status)}</div>`;
   return div;
 }
@@ -754,7 +766,7 @@ window.setTankStatus=async(status)=>{
     await setDoc(doc(db,'aging_tank_states',selectedTank),{
       status,updated_at:new Date().toISOString()
     },{merge:true});
-    const labels={filling:'🔴 Filling',curing:'🟡 Curing',cleaned:'🟢 ล้างแล้ว',empty:'⚪ ว่าง'};
+    const labels={cip_done:'🧹 CIP Done',sanitized:'✨ Sanitized',pasteurising:'🔵 Pasteurizing',aging:'⏳ Aging',ready:'✅ Ready',filling:'🟢 Filling',empty:'⚪ Empty'};
     toast(`${selectedTank} → ${labels[status]}`,'green');
     closeModal();
   }catch(e){toast('บันทึกไม่สำเร็จ','red');}
@@ -810,6 +822,47 @@ function getAlertClass(row){
   return'';
 }
 setTimeout(()=>{document.querySelectorAll('.temp-opt')[5]?.classList.add('active');},300);
+
+
+// ── PROGRESS RING STAGES ──────────────────────────────────
+const STAGES = [
+  {key:'cip_done',    label:'CIP Done',     icon:'🧹'},
+  {key:'sanitized',   label:'Sanitized',    icon:'✨'},
+  {key:'pasteurising',label:'Pasteurizing', icon:'🔵'},
+  {key:'aging',       label:'Aging',        icon:'⏳'},
+  {key:'ready',       label:'Ready',        icon:'✅'},
+  {key:'filling',     label:'Filling',      icon:'🟢'},
+  {key:'empty',       label:'Empty',        icon:'⚪'},
+];
+
+// status ของระบบ → index ใน STAGES
+const STATUS_STAGE = {
+  'cip_done':0, 'cleaned':0,
+  'sanitized':1,
+  'pasteurising':2, 'past_done':3,
+  'aging':3, 'curing':3,
+  'ready':4,
+  'filling':5, 'sent_filling':5,
+  'empty':6, 'pending':6,
+};
+
+function getStageIndex(status){
+  return STATUS_STAGE[status] ?? -1;
+}
+
+function renderStageRing(status){
+  const cur = getStageIndex(status);
+  const isEmpty = status === 'empty' || status === 'pending' || !status;
+  let html = '<div class="stage-ring">';
+  STAGES.forEach((s,i)=>{
+    const isDone = !isEmpty && cur >= 0 && i < cur;
+    const isActive = !isEmpty && i === cur;
+    html += `<div class="stage-dot ${isDone?'done':''} ${isActive?'active':''}" title="${s.label}"></div>`;
+    if(i < STAGES.length-1) html += `<div class="stage-line ${isDone||isActive?'done':''}"></div>`;
+  });
+  html += '</div>';
+  return html;
+}
 
 </script>
 <script>
