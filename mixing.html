@@ -219,6 +219,11 @@ thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap
 
 @keyframes statusPulse{0%,100%{opacity:1}50%{opacity:.45}}
 .status-blink{animation:statusPulse 1.4s ease-in-out infinite}
+
+.sig-btn{background:none;border:none;cursor:pointer;padding:4px 6px;border-radius:6px;transition:background .15s;display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#64748b;}
+.sig-btn:hover{background:rgba(99,102,241,.15);color:#818cf8;}
+.sig-btn svg{width:18px;height:18px;}
+.sig-preview{height:28px;filter:invert(1) brightness(2);vertical-align:middle;opacity:.9;}
 </style>
 </head>
 <body>
@@ -788,6 +793,16 @@ function renderPlan(m){
           onchange="saveActual('${col}','${row.id}','fat_milk_actual',this.value,'${m}')">
         
       </div></td>
+      <!-- SIGNATURE -->
+      <td style="text-align:center;min-width:60px">
+        ${row.mix_sig
+          ? `<img src="${row.mix_sig}" style="height:30px;vertical-align:middle;opacity:.95" title="${row.mix_by||''} ${row.mix_sig_time||''}">`
+          : `<button class="sig-btn" onclick="stampSig('${col}','${row.id}','mix_sig','${m}')" title="เซ็นชื่อ">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>
+              </svg>
+            </button>`}
+      </td>
       <!-- STATUS -->
       <td>${statText}</td>`;
     tbody.appendChild(tr);

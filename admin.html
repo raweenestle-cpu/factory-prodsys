@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-  <link rel="manifest" href="manifest.json">
+  
   <meta name="theme-color" content="#1e40af">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -492,7 +492,54 @@ tbody td{padding:7px 10px;vertical-align:middle}
       <button class="btn btn-b" style="flex:1" onclick="doChangePwd()">เปลี่ยน Password</button>
       <button class="btn" style="flex:1" onclick="closeModal('modal-pwd')">ยกเลิก</button>
     </div>
-  </div>
+  
+    <!-- EMPLOYEE MANAGEMENT -->
+    <div style="background:var(--s2);border:1px solid var(--b1);border-radius:12px;padding:18px 20px;margin-bottom:16px">
+      <div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px">👤 จัดการพนักงาน</div>
+      <div style="font-size:12px;color:var(--t2);margin-bottom:14px">เพิ่ม/แก้ไขพนักงาน กำหนด PIN และลายเซ็น</div>
+
+      <!-- Add Employee Form -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 80px;gap:8px;margin-bottom:12px;align-items:end">
+        <div>
+          <div style="font-size:11px;color:var(--t2);margin-bottom:4px">ชื่อพนักงาน</div>
+          <input id="emp-name" class="ci" style="width:100%" placeholder="ชื่อ-นามสกุล">
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--t2);margin-bottom:4px">PIN 4 หลัก</div>
+          <input id="emp-pin" class="ci" type="password" maxlength="4" inputmode="numeric" style="width:100%" placeholder="xxxx">
+        </div>
+        <button class="btn btn-b" onclick="addEmployee()">+ เพิ่ม</button>
+      </div>
+
+      <!-- Permission -->
+      <div style="margin-bottom:12px">
+        <div style="font-size:11px;color:var(--t2);margin-bottom:6px">สิทธิ์การเข้าถึง</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px" id="emp-perms">
+          ${['leadman','mixing','pasteurize','filling','aging','cipman','shelflife','flavor'].map(p=>`
+          <label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer">
+            <input type="checkbox" id="perm-${p}" value="${p}" checked style="accent-color:var(--blue)"> ${p}
+          </label>`).join('')}
+        </div>
+      </div>
+
+      <!-- Employee List -->
+      <div id="emp-list" style="margin-top:14px"></div>
+    </div>
+
+    <!-- SIGNATURE MODAL -->
+    <div id="sig-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:none;align-items:center;justify-content:center">
+      <div style="background:var(--s1);border:1px solid var(--b1);border-radius:16px;padding:24px;width:400px">
+        <div style="font-family:var(--mono);font-size:14px;font-weight:700;margin-bottom:12px">✍️ เซ็นลายเซ็น</div>
+        <div style="font-size:12px;color:var(--t2);margin-bottom:10px">เซ็นชื่อในกรอบด้านล่าง</div>
+        <canvas id="sig-canvas" width="352" height="160" style="border:1px solid var(--b2);border-radius:8px;background:rgba(255,255,255,0.05);touch-action:none;cursor:crosshair;width:100%;border:1px solid rgba(99,102,241,.4)"></canvas>
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <button class="btn" style="flex:1;background:var(--s3)" onclick="clearSig()">ล้าง</button>
+          <button class="btn btn-b" style="flex:1" onclick="saveSig()">บันทึกลายเซ็น</button>
+          <button class="btn" style="background:var(--s3)" onclick="closeSigModal()">ยกเลิก</button>
+        </div>
+      </div>
+    </div>
+</div>
 </div>
 
 <div id="toast"></div>
@@ -1193,14 +1240,6 @@ document.querySelectorAll('.modal-bg').forEach(bg=>{
   bg.addEventListener('click',e=>{if(e.target===bg)bg.classList.remove("show");});
 });
 </script>
-<script>
-if('serviceWorker' in navigator){
-  window.addEventListener('load',()=>{
-    navigator.serviceWorker.register('sw.js')
-      .then(r=>console.log('SW registered'))
-      .catch(e=>console.warn('SW failed:',e));
-  });
-}
-</script>
+
 </body>
 </html>

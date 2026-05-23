@@ -288,6 +288,11 @@ thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap
 .shift-bar-label{font-family:'DM Mono',monospace;font-size:10px;font-weight:700;text-align:center;}
 .shift-bar-kg-v{font-family:'DM Mono',monospace;font-size:11px;font-weight:700;text-align:center;}
 .shift-total{font-family:'DM Mono',monospace;font-size:11px;color:#64748b;text-align:right;margin-top:8px;padding-top:6px;border-top:1px solid #1e2535;}
+
+.sig-btn{background:none;border:none;cursor:pointer;padding:4px 6px;border-radius:6px;transition:background .15s;display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#64748b;}
+.sig-btn:hover{background:rgba(99,102,241,.15);color:#818cf8;}
+.sig-btn svg{width:18px;height:18px;}
+.sig-preview{height:28px;filter:invert(1) brightness(2);vertical-align:middle;opacity:.9;}
 </style>
 </head>
 <body>
@@ -1533,6 +1538,15 @@ function renderPlan(p){
           <span style="font-family:var(--mono);font-size:12px;font-weight:700;color:#a855f7;background:rgba(168,85,247,.1);padding:3px 6px;border-radius:4px 0 0 4px;white-space:nowrap;border:1px solid rgba(168,85,247,.3);letter-spacing:.1em">${getProdPrefix(p)}</span>
           <input class="ci" style="width:54px;letter-spacing:.1em;font-family:var(--mono);font-size:12px;text-transform:uppercase;border-radius:0 4px 4px 0;border-left:none;padding:3px 6px" maxlength="4" value="${row.prod_suffix||''}" placeholder="0001" onchange="_up('${col}','${row.id}','prod_suffix',this.value.toUpperCase())">
         </div>
+      </td>
+      <td style="text-align:center;min-width:60px">
+        ${row.past_sig
+          ? `<img src="${row.past_sig}" style="height:30px;vertical-align:middle;opacity:.95" title="${row.past_by||''}">`
+          : `<button class="sig-btn" onclick="stampSig('${col}','${row.id}','past_sig','${p}')" title="เซ็นชื่อ">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>
+              </svg>
+            </button>`}
       </td>
       <td>${statText}</td>`;
     tbody.appendChild(tr);
