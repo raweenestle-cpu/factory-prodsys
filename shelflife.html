@@ -104,6 +104,18 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;heigh
   .shelf-stats{grid-template-columns:1fr 1fr}
   .expire-date{font-size:18px}
 }
+
+/* TANK HEADER */
+.tank-header{background:linear-gradient(135deg,rgba(0,212,255,.08),rgba(0,212,255,.02));border:1.5px solid rgba(0,212,255,.3);border-radius:16px;padding:20px 24px;margin-bottom:16px;display:flex;align-items:center;gap:20px}
+.tank-number{font-family:'DM Mono',monospace;font-size:42px;font-weight:800;color:var(--cyan);line-height:1;letter-spacing:-.02em;text-shadow:0 0 30px rgba(0,212,255,.4)}
+.tank-info{flex:1}
+.tank-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--t2);letter-spacing:.12em;text-transform:uppercase;margin-bottom:4px}
+.tank-product{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:var(--text)}
+.tank-sub{font-family:'DM Mono',monospace;font-size:12px;color:var(--t2);margin-top:4px}
+.tank-status-badge{padding:6px 14px;border-radius:20px;font-family:'DM Mono',monospace;font-size:11px;font-weight:700}
+/* SIG */
+.sig-img{height:32px;vertical-align:middle;opacity:.9;margin-left:6px}
+.sig-by{font-family:'DM Mono',monospace;font-size:10px;color:var(--t2)}
 </style>
 </head>
 <body>
@@ -259,8 +271,26 @@ function renderAll(rows,po,productType){
 
   let html='';
 
+  // ── 0. TANK HEADER ─────────────────────────────────────────────────
+  const agingTank = r.aging_tank || rows.find(x=>x.aging_tank)?.aging_tank || '—';
+  const tankDisplay = agingTank !== '—' ? agingTank : 'N/A';
+  const statusColor = {
+    pending:'var(--t3)', mixing:'var(--yellow)', pasteurising:'var(--cyan)',
+    past_done:'var(--green)', ready:'var(--green)', sent_filling:'var(--orange)'
+  }[r.status] || 'var(--t2)';
+
+  html+=`<div class="tank-header">
+    <div class="tank-number">${tankDisplay}</div>
+    <div class="tank-info">
+      <div class="tank-label">Aging Tank — Process Order ${po}</div>
+      <div class="tank-product">${r.mix_name||'—'}</div>
+      <div class="tank-sub">${r.date?new Date(r.date).toLocaleDateString('th-TH',{day:'2-digit',month:'short',year:'numeric'}):'—'} · Vol รวม ${totalVol.toLocaleString()} L · Batch ${r.batch_no||'—'}</div>
+    </div>
+    <div class="tank-status-badge" style="background:${statusColor}22;color:${statusColor};border:1px solid ${statusColor}44">${statusTxt}</div>
+  </div>\`;
+
   // ── 1. HEADER INFO ──────────────────────────────────────────────────
-  html+=`<div class="card">
+  html+=\`<div class="card">
     <div class="card-hd">📋 ข้อมูลทั่วไป — Process Order ${po}</div>
     <div class="info-grid">
       <div class="info-item"><div class="info-label">Process Order</div><div class="info-val accent">${po}</div></div>
@@ -292,6 +322,7 @@ function renderAll(rows,po,productType){
         <div class="info-item"><div class="info-label">กะเริ่ม (Leadman)</div><div class="info-val">${r.start_time||'—'}</div></div>
         <div class="info-item"><div class="info-label">เริ่ม Mix</div><div class="info-val ${r.mix_start_time?'green':''}">${r.mix_start_time||'— ยังไม่เริ่ม'}</div></div>
         <div class="info-item"><div class="info-label">Mix เสร็จ</div><div class="info-val ${r.mix_end_time?'green':''}">${r.mix_end_time||'— ยังไม่เสร็จ'}</div></div>
+        ${r.mix_sig?`<div class="info-item" style="grid-column:1/-1"><div class="info-label">✍️ ลายเซ็น Mixing</div><div style="display:flex;align-items:center;gap:8px"><img src="${r.mix_sig}" class="sig-img"><span class="sig-by">${r.mix_by||''} ${r.mix_sig_time||''}</span></div></div>`:''}
         ${r.mix_start_time&&r.mix_end_time?`<div class="info-item"><div class="info-label">ระยะเวลา Mix</div><div class="info-val">${calcDuration(r.mix_start_time,r.mix_end_time)}</div></div>`:''}
       </div>
     </div>
@@ -331,6 +362,7 @@ function renderAll(rows,po,productType){
         <div class="info-item"><div class="info-label">Homo Stage 1</div><div class="info-val">${r.homo_stage1?r.homo_stage1+' psi':'—'}</div></div>
         <div class="info-item"><div class="info-label">Homo Stage 2</div><div class="info-val">${r.homo_stage2?r.homo_stage2+' psi':'—'}</div></div>
         <div class="info-item"><div class="info-label">Efficiency</div><div class="info-val" style="color:${effCol}">${effTxt}</div></div>
+        ${r.past_sig?`<div class="info-item" style="grid-column:1/-1"><div class="info-label">✍️ ลายเซ็น Pasteurise</div><div style="display:flex;align-items:center;gap:8px"><img src="${r.past_sig}" class="sig-img"><span class="sig-by">${r.past_by||''}</span></div></div>`:''}
         <div class="info-item"><div class="info-label">Aging Tank</div><div class="info-val accent">${r.aging_tank||'—'}</div></div>
         <div class="info-item"><div class="info-label">Current Vol</div><div class="info-val">${r.current_vol!=null?Number(r.current_vol).toLocaleString()+' L':'—'}</div></div>
       </div>
