@@ -237,6 +237,7 @@ onAuthStateChanged(auth,async u=>{
     snap.docs.forEach(d=>{tankStates[d.id]={id:d.id,...d.data()};});
     renderAll();
   });
+});
 
 window.doLogout=async()=>{await signOut(auth);location.href='index.html';};
 
