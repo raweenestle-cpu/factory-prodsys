@@ -229,8 +229,9 @@ onAuthStateChanged(auth,async u=>{
   ps.docs.forEach(d=>{const p={id:d.id,...d.data()};if(p.mix_code)productMap[p.mix_code]=p;});
   const ls=await getDocs(collection(db,'lines'));
   lines=ls.docs.map(d=>({id:d.id,...d.data()}));
+  renderAll(); // render ถังทันทีหลัง lines โหลดเสร็จ
 
-  // aging_tank_states เป็น single source of truth
+  // aging_tank_states — อัปเดต realtime
   onSnapshot(collection(db,'aging_tank_states'),snap=>{
     tankStates={};
     snap.docs.forEach(d=>{tankStates[d.id]={id:d.id,...d.data()};});
