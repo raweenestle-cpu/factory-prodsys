@@ -1,339 +1,121 @@
-
 <!DOCTYPE html>
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-  
-  <meta name="theme-color" content="#1e40af">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="PROD.SYS">
-  <link rel="apple-touch-icon" href="icons/icon-192.png">
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Aging Tank — PROD.SYS</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;700&family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;600;700&family=Sarabun:wght@400;500;600;700&display=swap');
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#07090f;--s1:#0e1118;--s2:#141820;--s3:#1a2030;--b1:#1e2535;--b2:#2a3348;
+  --bg:#07090f;--s1:#0e1118;--s2:#141820;--s3:#1a2030;
+  --b1:#1e2535;--b2:#2a3348;
   --text:#dde3f0;--t2:#7a8499;--t3:#3d4560;
-  --blue:#3b82f6;--blue2:#60a5fa;--green:#22c55e;--yellow:#eab308;
+  --blue:#3b82f6;--green:#22c55e;--yellow:#eab308;
   --red:#ef4444;--cyan:#06b6d4;--orange:#f97316;--purple:#a855f7;
   --mono:'DM Mono',monospace;--sans:'Sarabun',sans-serif;
 }
-html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:var(--sans)}
-::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-thumb{background:var(--b2);border-radius:3px}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13px;min-height:100vh}
 
-nav{display:flex;align-items:center;height:52px;background:var(--s1);border-bottom:1px solid var(--b1);
-  position:sticky;top:0;z-index:200;padding:0 14px;gap:8px}
-.nav-logo{font-family:var(--mono);font-size:14px;font-weight:700;flex-shrink:0}
-.nav-logo b{color:var(--blue)}.nav-logo span{color:var(--t2)}
-.ntab{font-size:12px;font-weight:600;padding:6px 14px;border-radius:7px;border:none;
+/* NAV */
+nav{position:sticky;top:0;z-index:100;background:rgba(7,9,15,.95);border-bottom:1px solid var(--b1);
+  backdrop-filter:blur(10px);display:flex;align-items:center;height:48px;padding:0 14px;gap:8px;overflow-x:auto}
+.nav-logo{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--cyan);white-space:nowrap}
+.ntab{font-size:11px;font-weight:600;padding:5px 11px;border-radius:6px;border:none;
   background:none;color:var(--t2);cursor:pointer;white-space:nowrap}
+.ntab:hover{color:var(--text);background:var(--s3)}
 .ntab.on{color:var(--cyan);background:rgba(6,182,212,.12)}
-.nav-r{display:flex;align-items:center;gap:8px;margin-left:auto}
-.nbtn{font-size:11px;padding:5px 10px;border-radius:6px;border:1px solid var(--b2);
-  background:none;color:var(--t2);cursor:pointer;text-decoration:none;font-family:var(--mono)}
-
-.page{display:none;padding:14px}
-.page.on{display:block}
-
-/* LINE GROUP */
-.line-group{margin-bottom:18px}
-.line-title{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--orange);
-  letter-spacing:.06em;padding:6px 10px;background:rgba(255,140,66,.06);
-  border:1px solid rgba(255,140,66,.2);border-radius:8px;margin-bottom:10px;
-  display:flex;align-items:center;gap:6px}
-
-/* TANK GRID */
-.tank-grid{display:flex;flex-wrap:wrap;gap:8px}
-
-/* TANK CARD */
-.tc{width:200px;border-radius:10px;overflow:hidden;border:1.5px solid var(--b1);
-  background:var(--s1);cursor:pointer;transition:all .15s;flex-shrink:0}
-.tc:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,.4)}
-
-/* TANK NUMBER */
-.tn{font-family:var(--mono);font-size:11px;font-weight:700;text-align:center;
-  padding:4px 2px;border-bottom:1px solid var(--b1);letter-spacing:.05em}
-
-/* SVG WRAP */
-.tsw{position:relative;padding:4px 6px 2px;display:flex;justify-content:center;flex-shrink:0}
-.tsw svg{display:block}
-.tov{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-  text-align:center;pointer-events:none;width:85%}
-.tv{font-family:var(--mono);font-size:11px;font-weight:800;color:#fff;
-  text-shadow:0 1px 6px rgba(0,0,0,1);line-height:1.3}
-.tp{font-family:var(--mono);font-size:10px;color:rgba(255,255,255,.9);
-  text-shadow:0 1px 4px rgba(0,0,0,1);line-height:1.3}
-
-/* STATUS BAR */
-.tsb{font-family:var(--mono);font-size:11px;font-weight:700;text-align:center;
-  padding:5px 4px;letter-spacing:.04em}
-
-/* STATUS COLORS */
-.st-filling{border-color:rgba(34,197,94,.5)!important;background:rgba(34,197,94,.05)!important}
-.st-pasteurising{border-color:rgba(59,130,246,.5)!important;background:rgba(59,130,246,.05)!important}
-.st-curing{border-color:rgba(249,115,22,.5)!important;background:rgba(249,115,22,.05)!important}
-.st-cleaned{border-color:rgba(34,197,94,.5)!important;background:rgba(34,197,94,.05)!important}
-.st-empty{border-color:rgba(234,179,8,.5)!important;background:rgba(234,179,8,.05)!important}
-.st-cleaned{border-color:rgba(240,240,240,.4)!important;background:rgba(240,240,240,.03)!important}
+.nav-r{margin-left:auto;display:flex;align-items:center;gap:8px;flex-shrink:0}
+.nbtn{font-family:var(--mono);font-size:11px;padding:5px 12px;border-radius:6px;
+  border:1px solid var(--b2);background:none;color:var(--t2);cursor:pointer;text-decoration:none;white-space:nowrap}
+.nbtn:hover{color:var(--text);border-color:var(--cyan)}
 
 /* LEGEND */
-.legend{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px;padding:8px 12px;
-  background:var(--s1);border-radius:8px;border:1px solid var(--b1)}
-.leg-item{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:10px;color:var(--t2)}
-.leg-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+.legend{display:flex;align-items:center;gap:12px;padding:8px 14px;font-size:11px;flex-wrap:wrap}
+.leg-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:4px}
+
+/* PAGE */
+.page{display:none;padding:12px 14px}.page.on{display:block}
+
+/* LINE GROUP */
+.line-group{margin-bottom:20px}
+.line-title{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--t2);
+  letter-spacing:.1em;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--b1)}
+.tank-grid{display:flex;flex-wrap:wrap;gap:10px}
+
+/* TANK CARD */
+.tc{background:var(--s1);border:1.5px solid var(--b1);border-radius:12px;
+  padding:8px;cursor:pointer;transition:all .2s;width:140px;flex-shrink:0}
+.tc:hover{border-color:var(--b2);transform:translateY(-2px)}
+.tn{font-family:var(--mono);font-size:13px;font-weight:800;text-align:center;
+  padding:3px 8px;border-radius:6px;border:1px solid;margin-bottom:6px}
+.tm{font-family:var(--mono);font-size:11px;font-weight:700;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tb{font-family:var(--mono);font-size:10px;color:var(--t2);margin-bottom:6px}
+.tvol{font-family:var(--mono);font-size:12px;font-weight:700;margin-bottom:2px}
+.tpct{font-family:var(--mono);font-size:10px;color:var(--t2)}
+.tsb{font-family:var(--mono);font-size:10px;font-weight:700;text-align:center;padding:3px;border-radius:6px;margin-top:5px}
+
+/* STAGE RING */
+.stage-ring{display:flex;align-items:center;justify-content:center;gap:3px;padding:4px 2px}
+.sd{width:10px;height:10px;border-radius:50%;border:2px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);flex-shrink:0;transition:all .3s}
+.sd.done{background:#22c55e;border-color:#22c55e;box-shadow:0 0 5px rgba(34,197,94,.4)}
+.sd.active{background:#22c55e;border-color:#22c55e;animation:sp 1s ease-in-out infinite}
+@keyframes sp{0%,100%{box-shadow:0 0 3px rgba(34,197,94,.3)}50%{box-shadow:0 0 12px rgba(34,197,94,.9)}}
+.sl{width:5px;height:1.5px;background:rgba(255,255,255,.08);flex-shrink:0;border-radius:1px}
+.sl.done{background:#22c55e}
+
+/* EXPIRE */
+.tc-temp-row{display:flex;align-items:center;gap:5px;margin-top:5px;padding-top:5px;border-top:1px solid rgba(255,255,255,.06)}
+.tc-temp-sel{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--cyan);
+  background:rgba(6,182,212,.08);border:1px solid rgba(6,182,212,.2);border-radius:5px;
+  padding:2px 5px;cursor:pointer;outline:none}
+.tc-expire{font-family:var(--mono);font-size:9px;font-weight:700;margin-top:2px}
+
+/* DATE INFO */
+.tdate{font-family:var(--mono);font-size:10px;margin-top:4px;display:flex;flex-direction:column;gap:2px}
+.tdr{display:flex;gap:4px;align-items:center}
+.tdl{color:rgba(255,255,255,.4);min-width:48px;font-size:9px}
+.tdv{color:#e2e8f0;font-weight:700}
+
+/* ALERT */
+@keyframes aw{0%,100%{box-shadow:0 0 0 0 rgba(255,208,64,0)}50%{box-shadow:0 0 0 5px rgba(255,208,64,.2)}}
+@keyframes ac{0%,100%{box-shadow:0 0 0 0 rgba(255,140,66,0)}50%{box-shadow:0 0 0 7px rgba(255,140,66,.3)}}
+@keyframes ae{0%,100%{box-shadow:0 0 0 0 rgba(255,69,96,0)}50%{box-shadow:0 0 0 8px rgba(255,69,96,.35)}}
+.tc.warn-soon{border-color:#ffd040!important;animation:aw 2s ease-in-out infinite}
+.tc.warn-crit{border-color:#ff8c42!important;animation:ac 1.2s ease-in-out infinite}
+.tc.warn-exp{border-color:#ff4560!important;animation:ae .8s ease-in-out infinite}
 
 /* MODAL */
-.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:999;
-  align-items:center;justify-content:center;padding:16px}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;align-items:center;justify-content:center}
 .modal-bg.show{display:flex}
-.modal{background:var(--s1);border:1px solid var(--b1);border-radius:16px;
-  padding:22px 20px;width:100%;max-width:340px}
-.modal-title{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px}
-.modal-sub{font-size:12px;color:var(--t2);margin-bottom:16px}
-.stat-btns{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
-.stat-btn{padding:11px 16px;border-radius:10px;border:1.5px solid var(--b2);
-  background:var(--s2);color:var(--t2);font-family:var(--mono);font-size:12px;
-  font-weight:700;cursor:pointer;text-align:left;display:flex;align-items:center;gap:8px}
-.stat-btn:hover{border-color:var(--cyan);color:var(--text)}
-.stat-btn.active-past{border-color:rgba(59,130,246,.5);color:var(--blue);background:rgba(59,130,246,.08)}
-.stat-btn.active-fill{border-color:rgba(34,197,94,.5);color:var(--green);background:rgba(34,197,94,.08)}
-.stat-btn.active-cure{border-color:rgba(249,115,22,.5);color:var(--orange);background:rgba(249,115,22,.08)}
-.stat-btn.active-clean{border-color:rgba(34,197,94,.5);color:var(--green);background:rgba(34,197,94,.08)}
-.stat-btn.active-empty{border-color:var(--b2);color:var(--t2)}
-.modal-close{width:100%;padding:10px;border-radius:8px;border:1px solid var(--b2);
-  background:none;color:var(--t2);font-family:var(--mono);cursor:pointer;font-size:12px}
+.modal{background:var(--s1);border:1px solid var(--b1);border-radius:16px;padding:24px;width:340px;max-width:95vw}
+.modal-title{font-family:var(--mono);font-size:15px;font-weight:700;margin-bottom:14px}
+.stat-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.stat-btn{font-family:var(--mono);font-size:11px;padding:8px;border-radius:8px;border:1px solid var(--b2);
+  background:var(--s2);color:var(--text);cursor:pointer;font-weight:700;transition:all .2s}
+.stat-btn:hover{border-color:var(--cyan);color:var(--cyan)}
+.ci{font-family:var(--mono);font-size:12px;background:var(--s2);border:1px solid var(--b1);
+  border-radius:6px;color:var(--text);padding:6px 10px;outline:none;width:100%}
+.ci:focus{border-color:var(--cyan)}
+.btn{font-family:var(--mono);font-size:12px;padding:7px 16px;border-radius:7px;border:none;cursor:pointer;font-weight:700}
+.btn-b{background:var(--blue);color:#fff}.btn-b:hover{opacity:.85}
+.btn-r{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+.btn-s{background:var(--s3);color:var(--t2);border:1px solid var(--b2)}
 
+/* TOAST */
 #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);
-  padding:10px 22px;border-radius:10px;font-size:12px;opacity:0;transition:all .3s;
-  z-index:9999;pointer-events:none;font-family:var(--mono);color:#fff}
+  padding:9px 20px;border-radius:9px;font-size:12px;opacity:0;transition:all .3s;
+  z-index:9999;pointer-events:none;font-family:var(--mono);color:#fff;font-weight:700}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
-@media(max-width:768px){
-  .tc{width:180px}
-  .tn{font-size:10px}
-  .tv{font-size:10px}.tp{font-size:9px}.tsb{font-size:10px}
-}
-
-@keyframes statusPulse{0%,100%{opacity:1}50%{opacity:.45}}
-.status-blink{animation:statusPulse 1.4s ease-in-out infinite}
-
-.tdate{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,.85);margin-top:4px;display:flex;flex-direction:column;gap:1px}
-.tdate .td-row{display:flex;align-items:center;gap:4px}
-.tdate .td-label{color:rgba(255,255,255,.5);min-width:52px;font-size:10px}
-.tdate .td-val{color:#e2e8f0;font-weight:700;font-size:11px}
-.tdate .td-expire{color:#ffd040;font-weight:800;font-size:12px}
-
-@keyframes alertWarn{0%,100%{box-shadow:0 0 0 0 rgba(255,208,64,0)}50%{box-shadow:0 0 0 6px rgba(255,208,64,.25)}}
-@keyframes alertCrit{0%,100%{box-shadow:0 0 0 0 rgba(255,140,66,0)}50%{box-shadow:0 0 0 8px rgba(255,140,66,.35)}}
-@keyframes alertExp{0%,100%{box-shadow:0 0 0 0 rgba(255,69,96,0)}50%{box-shadow:0 0 0 10px rgba(255,69,96,.4)}}
-.tc.warn-soon{border-color:#ffd040!important;animation:alertWarn 2s ease-in-out infinite}
-.tc.warn-crit{border-color:#ff8c42!important;animation:alertCrit 1.2s ease-in-out infinite}
-.tc.warn-exp{border-color:#ff4560!important;animation:alertExp 0.8s ease-in-out infinite}
-
-.temp-sel{display:flex;align-items:center;gap:6px;background:rgba(0,212,255,.08);border:1.5px solid rgba(0,212,255,.3);border-radius:10px;padding:5px 12px;cursor:pointer;user-select:none}
-.temp-sel-num{font-family:'DM Mono',monospace;font-size:18px;font-weight:800;color:#00d4ff;line-height:1}
-.temp-sel-unit{font-family:'DM Mono',monospace;font-size:11px;color:rgba(0,212,255,.7)}
-.temp-dropdown{position:absolute;top:calc(100%+6px);right:0;background:#0d1525;border:1.5px solid rgba(0,212,255,.3);border-radius:12px;padding:8px;display:none;z-index:999;min-width:120px}
-.temp-dropdown.open{display:block}
-.temp-opt{font-family:'DM Mono',monospace;font-size:13px;padding:7px 14px;border-radius:7px;cursor:pointer;color:#e2e8f0;display:flex;justify-content:space-between}
-.temp-opt:hover{background:rgba(0,212,255,.1);color:#00d4ff}
-.temp-opt.active{background:rgba(0,212,255,.15);color:#00d4ff;font-weight:700}
-
-/* PROGRESS RING */
-.stage-ring{display:flex;align-items:center;justify-content:center;gap:4px;padding:5px 4px;flex-wrap:nowrap}
-.stage-dot{width:11px;height:11px;border-radius:50%;border:2px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);flex-shrink:0;transition:all .3s;position:relative}
-.stage-dot.done{background:#22c55e;border-color:#22c55e;box-shadow:0 0 6px rgba(34,197,94,.4)}
-.stage-dot.active{background:#22c55e;border-color:#22c55e;box-shadow:0 0 10px rgba(34,197,94,.6);animation:stagePulse 1s ease-in-out infinite}
-@keyframes stagePulse{0%,100%{box-shadow:0 0 4px rgba(34,197,94,.4)}50%{box-shadow:0 0 14px rgba(34,197,94,.9)}}
-.stage-line{width:6px;height:2px;background:rgba(255,255,255,.1);flex-shrink:0;border-radius:1px}
-.stage-line.done{background:#22c55e}
-
-.temp-sel{display:flex;align-items:center;gap:5px;background:rgba(0,212,255,.08);border:1.5px solid rgba(0,212,255,.3);border-radius:8px;padding:4px 10px;cursor:pointer;user-select:none;margin-right:6px}
-.temp-num{font-family:'DM Mono',monospace;font-size:16px;font-weight:800;color:#00d4ff;line-height:1}
-.temp-unit{font-family:'DM Mono',monospace;font-size:10px;color:rgba(0,212,255,.7)}
-.temp-drop{position:absolute;top:calc(100% + 4px);right:0;background:#0d1525;border:1.5px solid rgba(0,212,255,.3);border-radius:10px;padding:6px;display:none;z-index:999;min-width:90px}
-.temp-drop.open{display:block}
-.temp-opt{font-family:'DM Mono',monospace;font-size:12px;padding:5px 12px;border-radius:6px;cursor:pointer;color:#e2e8f0}
-.temp-opt:hover{background:rgba(0,212,255,.1);color:#00d4ff}
-.temp-opt.active{color:#00d4ff;font-weight:700}
-
-.tc-temp{display:flex;align-items:center;gap:6px;margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,.08);flex-wrap:wrap}
-.tc-temp-label{font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,.4)}
-.tc-temp-sel{font-family:'DM Mono',monospace;font-size:12px;font-weight:700;color:#00d4ff;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.25);border-radius:6px;padding:2px 6px;cursor:pointer;outline:none}
-.tc-expire{font-family:'DM Mono',monospace;font-size:11px;font-weight:700}
+/* SVG */
+.tsw{width:54px;flex-shrink:0;position:relative;margin:0 auto 4px}
 </style>
 </head>
 <body>
+
 <nav>
-  <div class="nav-logo">PROD<b>.</b>SYS <span>/ AGING TANK</span></div>
-  <button class="ntab on" onclick="showTab('bangchan',this)">🏭 Bangchan (34)</button>
-  <button class="ntab" onclick="showTab('twin',this)">🏭 Twin (16)</button>
-  <div class="nav-r">
-    <div style="position:relative;margin-right:10px" id="temp-wrap">
-  <div class="temp-sel" onclick="document.getElementById('temp-drop').classList.toggle('open')">
-    <span>🌡️</span><span class="temp-sel-num" id="temp-nav-num">5</span><span class="temp-sel-unit">°C</span>
-  </div>
-  <div class="temp-dropdown" id="temp-drop"><div class="temp-opt" onclick="setTemp(0)">0°C</div><div class="temp-opt" onclick="setTemp(1)">1°C</div><div class="temp-opt" onclick="setTemp(2)">2°C</div><div class="temp-opt" onclick="setTemp(3)">3°C</div><div class="temp-opt" onclick="setTemp(4)">4°C</div><div class="temp-opt" onclick="setTemp(5)">5°C</div><div class="temp-opt" onclick="setTemp(6)">6°C</div><div class="temp-opt" onclick="setTemp(7)">7°C</div><div class="temp-opt" onclick="setTemp(8)">8°C</div><div class="temp-opt" onclick="setTemp(9)">9°C</div><div class="temp-opt" onclick="setTemp(10)">10°C</div></div>
-</div>
-html>
-<html lang="th">
-<head>
-<meta charset="UTF-8">
-  
-  <meta name="theme-color" content="#1e40af">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="PROD.SYS">
-  <link rel="apple-touch-icon" href="icons/icon-192.png">
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Aging Tank — PROD.SYS</title>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;600;700&family=Sarabun:wght@400;500;600;700&display=swap');
-*{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#07090f;--s1:#0e1118;--s2:#141820;--s3:#1a2030;--b1:#1e2535;--b2:#2a3348;
-  --text:#dde3f0;--t2:#7a8499;--t3:#3d4560;
-  --blue:#3b82f6;--blue2:#60a5fa;--green:#22c55e;--yellow:#eab308;
-  --red:#ef4444;--cyan:#06b6d4;--orange:#f97316;--purple:#a855f7;
-  --mono:'DM Mono',monospace;--sans:'Sarabun',sans-serif;
-}
-html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:var(--sans)}
-::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-thumb{background:var(--b2);border-radius:3px}
-
-nav{display:flex;align-items:center;height:52px;background:var(--s1);border-bottom:1px solid var(--b1);
-  position:sticky;top:0;z-index:200;padding:0 14px;gap:8px}
-.nav-logo{font-family:var(--mono);font-size:14px;font-weight:700;flex-shrink:0}
-.nav-logo b{color:var(--blue)}.nav-logo span{color:var(--t2)}
-.ntab{font-size:12px;font-weight:600;padding:6px 14px;border-radius:7px;border:none;
-  background:none;color:var(--t2);cursor:pointer;white-space:nowrap}
-.ntab.on{color:var(--cyan);background:rgba(6,182,212,.12)}
-.nav-r{display:flex;align-items:center;gap:8px;margin-left:auto}
-.nbtn{font-size:11px;padding:5px 10px;border-radius:6px;border:1px solid var(--b2);
-  background:none;color:var(--t2);cursor:pointer;text-decoration:none;font-family:var(--mono)}
-
-.page{display:none;padding:14px}
-.page.on{display:block}
-
-/* LINE GROUP */
-.line-group{margin-bottom:18px}
-.line-title{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--orange);
-  letter-spacing:.06em;padding:6px 10px;background:rgba(255,140,66,.06);
-  border:1px solid rgba(255,140,66,.2);border-radius:8px;margin-bottom:10px;
-  display:flex;align-items:center;gap:6px}
-
-/* TANK GRID */
-.tank-grid{display:flex;flex-wrap:wrap;gap:8px}
-
-/* TANK CARD */
-.tc{width:200px;border-radius:10px;overflow:hidden;border:1.5px solid var(--b1);
-  background:var(--s1);cursor:pointer;transition:all .15s;flex-shrink:0}
-.tc:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,.4)}
-
-/* TANK NUMBER */
-.tn{font-family:var(--mono);font-size:11px;font-weight:700;text-align:center;
-  padding:4px 2px;border-bottom:1px solid var(--b1);letter-spacing:.05em}
-
-/* SVG WRAP */
-.tsw{position:relative;padding:4px 6px 2px;display:flex;justify-content:center;flex-shrink:0}
-.tsw svg{display:block}
-.tov{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-  text-align:center;pointer-events:none;width:85%}
-.tv{font-family:var(--mono);font-size:11px;font-weight:800;color:#fff;
-  text-shadow:0 1px 6px rgba(0,0,0,1);line-height:1.3}
-.tp{font-family:var(--mono);font-size:10px;color:rgba(255,255,255,.9);
-  text-shadow:0 1px 4px rgba(0,0,0,1);line-height:1.3}
-
-/* STATUS BAR */
-.tsb{font-family:var(--mono);font-size:11px;font-weight:700;text-align:center;
-  padding:5px 4px;letter-spacing:.04em}
-
-/* STATUS COLORS */
-.st-filling{border-color:rgba(34,197,94,.5)!important;background:rgba(34,197,94,.05)!important}
-.st-pasteurising{border-color:rgba(59,130,246,.5)!important;background:rgba(59,130,246,.05)!important}
-.st-curing{border-color:rgba(249,115,22,.5)!important;background:rgba(249,115,22,.05)!important}
-.st-cleaned{border-color:rgba(34,197,94,.5)!important;background:rgba(34,197,94,.05)!important}
-.st-empty{border-color:rgba(234,179,8,.5)!important;background:rgba(234,179,8,.05)!important}
-.st-cleaned{border-color:rgba(240,240,240,.4)!important;background:rgba(240,240,240,.03)!important}
-
-/* LEGEND */
-.legend{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px;padding:8px 12px;
-  background:var(--s1);border-radius:8px;border:1px solid var(--b1)}
-.leg-item{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:10px;color:var(--t2)}
-.leg-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
-
-/* MODAL */
-.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:999;
-  align-items:center;justify-content:center;padding:16px}
-.modal-bg.show{display:flex}
-.modal{background:var(--s1);border:1px solid var(--b1);border-radius:16px;
-  padding:22px 20px;width:100%;max-width:340px}
-.modal-title{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px}
-.modal-sub{font-size:12px;color:var(--t2);margin-bottom:16px}
-.stat-btns{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
-.stat-btn{padding:11px 16px;border-radius:10px;border:1.5px solid var(--b2);
-  background:var(--s2);color:var(--t2);font-family:var(--mono);font-size:12px;
-  font-weight:700;cursor:pointer;text-align:left;display:flex;align-items:center;gap:8px}
-.stat-btn:hover{border-color:var(--cyan);color:var(--text)}
-.stat-btn.active-past{border-color:rgba(59,130,246,.5);color:var(--blue);background:rgba(59,130,246,.08)}
-.stat-btn.active-fill{border-color:rgba(34,197,94,.5);color:var(--green);background:rgba(34,197,94,.08)}
-.stat-btn.active-cure{border-color:rgba(249,115,22,.5);color:var(--orange);background:rgba(249,115,22,.08)}
-.stat-btn.active-clean{border-color:rgba(34,197,94,.5);color:var(--green);background:rgba(34,197,94,.08)}
-.stat-btn.active-empty{border-color:var(--b2);color:var(--t2)}
-.modal-close{width:100%;padding:10px;border-radius:8px;border:1px solid var(--b2);
-  background:none;color:var(--t2);font-family:var(--mono);cursor:pointer;font-size:12px}
-
-#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);
-  padding:10px 22px;border-radius:10px;font-size:12px;opacity:0;transition:all .3s;
-  z-index:9999;pointer-events:none;font-family:var(--mono);color:#fff}
-#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-
-@media(max-width:768px){
-  .tc{width:180px}
-  .tn{font-size:10px}
-  .tv{font-size:10px}.tp{font-size:9px}.tsb{font-size:10px}
-}
-
-@keyframes statusPulse{0%,100%{opacity:1}50%{opacity:.45}}
-.status-blink{animation:statusPulse 1.4s ease-in-out infinite}
-
-.tdate{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,.85);margin-top:4px;display:flex;flex-direction:column;gap:1px}
-.tdate .td-row{display:flex;align-items:center;gap:4px}
-.tdate .td-label{color:rgba(255,255,255,.5);min-width:52px;font-size:10px}
-.tdate .td-val{color:#e2e8f0;font-weight:700;font-size:11px}
-.tdate .td-expire{color:#ffd040;font-weight:800;font-size:12px}
-
-@keyframes alertWarn{0%,100%{box-shadow:0 0 0 0 rgba(255,208,64,0)}50%{box-shadow:0 0 0 6px rgba(255,208,64,.25)}}
-@keyframes alertCrit{0%,100%{box-shadow:0 0 0 0 rgba(255,140,66,0)}50%{box-shadow:0 0 0 8px rgba(255,140,66,.35)}}
-@keyframes alertExp{0%,100%{box-shadow:0 0 0 0 rgba(255,69,96,0)}50%{box-shadow:0 0 0 10px rgba(255,69,96,.4)}}
-.tc.warn-soon{border-color:#ffd040!important;animation:alertWarn 2s ease-in-out infinite}
-.tc.warn-crit{border-color:#ff8c42!important;animation:alertCrit 1.2s ease-in-out infinite}
-.tc.warn-exp{border-color:#ff4560!important;animation:alertExp 0.8s ease-in-out infinite}
-
-.temp-sel{display:flex;align-items:center;gap:6px;background:rgba(0,212,255,.08);border:1.5px solid rgba(0,212,255,.3);border-radius:10px;padding:5px 12px;cursor:pointer;user-select:none}
-.temp-sel-num{font-family:'DM Mono',monospace;font-size:18px;font-weight:800;color:#00d4ff;line-height:1}
-.temp-sel-unit{font-family:'DM Mono',monospace;font-size:11px;color:rgba(0,212,255,.7)}
-.temp-dropdown{position:absolute;top:calc(100%+6px);right:0;background:#0d1525;border:1.5px solid rgba(0,212,255,.3);border-radius:12px;padding:8px;display:none;z-index:999;min-width:120px}
-.temp-dropdown.open{display:block}
-.temp-opt{font-family:'DM Mono',monospace;font-size:13px;padding:7px 14px;border-radius:7px;cursor:pointer;color:#e2e8f0;display:flex;justify-content:space-between}
-.temp-opt:hover{background:rgba(0,212,255,.1);color:#00d4ff}
-.temp-opt.active{background:rgba(0,212,255,.15);color:#00d4ff;font-weight:700}
-
-/* PROGRESS RING */
-.stage-ring{display:flex;align-items:center;justify-content:center;gap:4px;padding:5px 4px;flex-wrap:nowrap}
-.stage-dot{width:11px;height:11px;border-radius:50%;border:2px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);flex-shrink:0;transition:all .3s;position:relative}
-.stage-dot.done{background:#22c55e;border-color:#22c55e;box-shadow:0 0 6px rgba(34,197,94,.4)}
-.stage-dot.active{background:#22c55e;border-color:#22c55e;box-shadow:0 0 10px rgba(34,197,94,.6);animation:stagePulse 1s ease-in-out infinite}
-@keyframes stagePulse{0%,100%{box-shadow:0 0 4px rgba(34,197,94,.4)}50%{box-shadow:0 0 14px rgba(34,197,94,.9)}}
-.stage-line{width:6px;height:2px;background:rgba(255,255,255,.1);flex-shrink:0;border-radius:1px}
-.stage-line.done{background:#22c55e}
-</style>
-</head>
-<body>
-<nav>
-  <div class="nav-logo">PROD<b>.</b>SYS <span>/ AGING TANK</span></div>
+  <div class="nav-logo">PROD.SYS / AGING TANK</div>
   <button class="ntab on" onclick="showTab('bangchan',this)">🏭 Bangchan (34)</button>
   <button class="ntab" onclick="showTab('twin',this)">🏭 Twin (16)</button>
   <div class="nav-r">
@@ -342,51 +124,24 @@ nav{display:flex;align-items:center;height:52px;background:var(--s1);border-bott
   </div>
 </nav>
 
-<!-- BANGCHAN PAGE -->
-<div class="page on" id="page-bangchan">
-  <div class="legend">
-    <div class="leg-item"><div class="leg-dot" style="background:#3b82f6"></div>🔵 กำลัง Pasteurize</div>
-    <div class="leg-item"><div class="leg-dot" style="background:#22c55e"></div>🟢 กำลัง Filling</div>
-    <div class="leg-item"><div class="leg-dot" style="background:#f97316"></div>🟠 กำลังบ่ม</div>
-    <div class="leg-item"><div class="leg-dot" style="background:#eab308"></div>🟡 รอล้าง</div>
-    <div class="leg-item"><div class="leg-dot" style="background:#e0e0e0"></div>⚪ ล้างแล้ว พร้อมใช้</div>
-  </div>
-  <div id="bangchan-grid"></div>
+<!-- LEGEND -->
+<div class="legend">
+  <span><span class="leg-dot" style="background:var(--cyan)"></span>กำลัง Pasteurize</span>
+  <span><span class="leg-dot" style="background:var(--green)"></span>กำลัง Filling</span>
+  <span><span class="leg-dot" style="background:var(--orange)"></span>Curing</span>
+  <span><span class="leg-dot" style="background:var(--t2)"></span>ว่าง</span>
+  <span><span class="leg-dot" style="background:var(--purple)"></span>พร้อมส่ง</span>
 </div>
 
-<!-- TWIN PAGE -->
-<div class="page" id="page-twin">
-  <div class="legend">
-    <div class="leg-item"><div class="leg-dot" style="background:#3b82f6"></div>🔵 กำลัง Pasteurize</div>
-    <div class="leg-item"><div class="leg-dot" style="background:#22c55e"></div>🟢 กำลัง Filling</div>
-    <div class="leg-item"><div class="leg-dot" style="background:#f97316"></div>🟠 กำลังบ่ม</div>
-    <div class="leg-item"><div class="leg-dot" style="background:#eab308"></div>🟡 รอล้าง</div>
-    <div class="leg-item"><div class="leg-dot" style="background:#e0e0e0"></div>⚪ ล้างแล้ว พร้อมใช้</div>
-  </div>
-  <div id="twin-grid"></div>
-</div>
+<!-- PAGES -->
+<div class="page on" id="page-bangchan"><div id="bangchan-grid"></div></div>
+<div class="page" id="page-twin"><div id="twin-grid"></div></div>
 
-<!-- TANK MODAL -->
-<div class="modal-bg" id="tank-modal" onclick="if(event.target===this)closeModal()">
+<!-- MODAL -->
+<div class="modal-bg" id="tank-modal">
   <div class="modal">
-    <div class="modal-title" id="modal-tank-num">ถัง T01</div>
-    <div class="modal-sub" id="modal-tank-info">กำลัง Filling — Milo 3,000 L</div>
-
-    <!-- ปรับปริมาตร -->
-    <div style="margin:12px 0;padding:12px;background:rgba(6,182,212,.06);border:1px solid rgba(6,182,212,.2);border-radius:10px">
-      <div style="font-family:'DM Mono',monospace;font-size:11px;color:#06b6d4;font-weight:700;margin-bottom:8px;letter-spacing:.04em">📊 ปรับปริมาตรจริงในถัง (L)</div>
-      <div style="display:flex;align-items:center;gap:8px">
-        <input id="modal-vol-input" type="number" min="0" step="100"
-          style="flex:1;padding:8px 10px;border-radius:7px;border:1.5px solid rgba(6,182,212,.4);background:#060a14;color:white;font-family:'DM Mono',monospace;font-size:14px;font-weight:700;text-align:right"
-          placeholder="กรอก volume L">
-        <button onclick="saveCurrentVol()"
-          style="padding:8px 16px;border-radius:7px;border:none;background:#06b6d4;color:#060a14;font-family:'DM Mono',monospace;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap">
-          ✅ บันทึก
-        </button>
-      </div>
-      <div id="modal-vol-hint" style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,.4);margin-top:6px"></div>
-    </div>
-
+    <div class="modal-title" id="modal-title">ถัง —</div>
+    <div class="modal-info" id="modal-info" style="font-size:12px;color:var(--t2);margin-bottom:12px"></div>
     <div class="stat-btns">
       <button class="stat-btn" onclick="setTankStatus('cip_done')">🧹 CIP Done</button>
       <button class="stat-btn" onclick="setTankStatus('sanitized')">✨ Sanitized</button>
@@ -394,650 +149,350 @@ nav{display:flex;align-items:center;height:52px;background:var(--s1);border-bott
       <button class="stat-btn" onclick="setTankStatus('aging')">⏳ Aging</button>
       <button class="stat-btn" onclick="setTankStatus('ready')">✅ Ready</button>
       <button class="stat-btn" onclick="setTankStatus('filling')">🟢 Filling</button>
-      <button class="stat-btn" onclick="setTankStatus('empty')">⚪ Empty</button>
+      <button class="stat-btn" onclick="setTankStatus('empty')" style="grid-column:1/-1;color:var(--t2)">⚪ Empty (Reset)</button>
     </div>
-    <button class="modal-close" onclick="closeModal()">✕ ปิด</button>
-    <button onclick="clearTank()" style="width:100%;margin-top:10px;padding:10px;border-radius:8px;border:1.5px dashed rgba(239,68,68,.5);background:rgba(239,68,68,.08);color:#ef4444;font-family:'DM Mono',monospace;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:.04em">🗑️ เคลียร์ถัง — ลบข้อมูลทั้งหมดออก</button>
+    <div style="margin-bottom:10px">
+      <div style="font-size:11px;color:var(--t2);margin-bottom:4px">Vol ปัจจุบัน (L)</div>
+      <input id="modal-vol" class="ci" type="number" placeholder="กรอก volume">
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-b" onclick="saveCurrentVol()">บันทึก Vol</button>
+      <button class="btn btn-r" onclick="clearTank()">🗑 เคลียร์ถัง</button>
+      <button class="btn btn-s" onclick="closeModal()" style="margin-left:auto">ปิด</button>
+    </div>
   </div>
 </div>
 
 <div id="toast"></div>
 
 <script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import{getAuth,signOut,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import{getFirestore,collection,query,where,onSnapshot,doc,setDoc,getDocs}
+  from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-
-
-import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"; import{getAuth,signOut,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"; import{getFirestore,collection,doc,onSnapshot,setDoc,getDocs,query,where,deleteDoc,updateDoc,addDoc} from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import {resolveStatus,statusLabel,statusColor,statusBlink,statusBadge} from "./shared.js";
-const app=initializeApp({apiKey:"AIzaSyC3f6jMuhugE6BNfRfkpOA9BMrIKWR9YgQ",authDomain:"production-filling.firebaseapp.com",projectId:"production-filling",storageBucket:"production-filling.firebasestorage.app",messagingSenderId:"89098393458",appId:"1:89098393458:web:b723f2886e8a341935afeb"});
-const auth=getAuth(app),db=getFirestore(app);
-
-let tankStates={},lines=[],planRows=[],selectedTank=null,productMap={};
-const $=id=>document.getElementById(id);
-function toast(msg,t='blue'){const el=$('toast');el.textContent=msg;el.style.background=t==='green'?'#15803d':t==='red'?'#991b1b':'#1d4ed8';el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2500);}
-
-// TWIN TANKS — ดึงจาก LINE master เหมือน Bangchan
-const TWIN_ALL=['T61','T62','T63','T64','T65','T66','T67','T68','T71','T72','T73','T74','T75','T76','T77','T78'];
-
-onAuthStateChanged(auth,async user=>{
-  if(!user){location.href='index.html';return;}
-  await init();
+const app=initializeApp({
+  apiKey:"AIzaSyC3f6jMuhugE6BNfRfkpOA9BMrIKWR9YgQ",
+  authDomain:"production-filling.firebaseapp.com",
+  projectId:"production-filling",
+  storageBucket:"production-filling.firebasestorage.app",
+  messagingSenderId:"89098393458",
+  appId:"1:89098393458:web:b723f2886e8a341935afeb"
 });
+const auth=getAuth(app);
+const db=getFirestore(app);
+const $=id=>document.getElementById(id);
+
+// State
+let planRows=[],tankStates={},lines=[],productMap={};
+let selectedTank=null;
+const tankTemps={};
+
+// SHELF TABLE ที่ 5°C default
+const SHELF_TABLE={
+  'Ice Cream':[96,96,96,96,92,76,62,51,43,37,32],
+  'Water Ice':[96,96,96,96,96,96,96,93,81,71,63],
+  'Jelly':    [24,24,24,24,24,24,24,24,24,24,24]
+};
+
+// STAGES
+const STAGES=['cip_done','sanitized','pasteurising','aging','ready','filling','empty'];
+const STATUS_STAGE={cip_done:0,cleaned:0,sanitized:1,pasteurising:2,past_done:3,aging:3,curing:3,ready:4,filling:5,sent_filling:5,empty:6,pending:6};
+
+function toast(msg,t='blue'){
+  const el=$('toast');el.textContent=msg;
+  el.style.background=t==='green'?'#15803d':t==='red'?'#991b1b':'#1d4ed8';
+  el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2500);
+}
+
+// Tanks
+const BC_TANKS=Array.from({length:34},(_,i)=>'T'+String(i+1).padStart(2,'0'));
+const TWIN_LINES=[
+  {name:'Hoyer',   tanks:['T65','T75','T66','T76'],color:'#f97316'},
+  {name:'Extru 3', tanks:['T67','T77','T68','T78'],color:'#a855f7'},
+  {name:'Glacé',   tanks:['T63','T73','T64','T74'],color:'#06b6d4'},
+  {name:'Scooping',tanks:['T61','T71','T62','T72'],color:'#22c55e'},
+];
+
+function getTankCapacity(tid){
+  const n=parseInt(tid.replace('T',''));
+  if(n>=1&&n<=34) return 3000;
+  if(n>=61&&n<=64||n>=71&&n<=74) return 10000;
+  if(n>=65&&n<=68||n>=75&&n<=78) return 8000;
+  return 5000;
+}
+
+// Auth
+onAuthStateChanged(auth,async u=>{
+  if(!u){location.href='index.html';return;}
+  const ps=await getDocs(collection(db,'products'));
+  ps.docs.forEach(d=>{const p={id:d.id,...d.data()};if(p.mix_code)productMap[p.mix_code]=p;});
+  const ls=await getDocs(collection(db,'lines'));
+  lines=ls.docs.map(d=>({id:d.id,...d.data()}));
+
+  let r1=[],r2=[];
+  onSnapshot(query(collection(db,'production_plans'),where('status','in',['pasteurising','past_done','ready'])),snap=>{
+    r1=snap.docs.map(d=>({id:d.id,...d.data(),_col:'production_plans'}));
+    planRows=[...r1,...r2];renderAll();
+  });
+  onSnapshot(query(collection(db,'production_plans_m2'),where('status','in',['pasteurising','past_done','ready'])),snap=>{
+    r2=snap.docs.map(d=>({id:d.id,...d.data(),_col:'production_plans_m2'}));
+    planRows=[...r1,...r2];renderAll();
+  });
+  onSnapshot(collection(db,'aging_tank_states'),snap=>{
+    tankStates={};snap.docs.forEach(d=>{tankStates[d.id]={id:d.id,...d.data()};});renderAll();
+  });
+});
+
 window.doLogout=async()=>{await signOut(auth);location.href='index.html';};
 
-async function init(){
-  // โหลด lines
-  const lSnap=await getDocs(collection(db,'lines'));
-  lines=lSnap.docs.map(d=>({id:d.id,...d.data()}));
+// ── RENDER ────────────────────────────────────────────────────────────
+function renderAll(){renderBangchan();renderTwin();}
 
-  // โหลด products เพื่อดึงสี
-  const pSnap=await getDocs(collection(db,'products'));
-  pSnap.docs.forEach(d=>{
-    const p=d.data();
-    if(p.mix_code) productMap[p.mix_code]={color:p.color||'#3b82f6',...p};
-  });
-
-  // listen planRows real-time ทั้งสอง collection พร้อมกัน
-  let rows1=[],rows2=[];
-  onSnapshot(
-    query(collection(db,'production_plans'),where('status','in',['pasteurising','past_done','ready'])),
-    snap=>{
-      rows1=snap.docs.map(d=>({...d.data(),id:d.id,_col:'production_plans'}));
-      planRows=[...rows1,...rows2];
-      renderAll();
-    }
-  );
-  onSnapshot(
-    query(collection(db,'production_plans_m2'),where('status','in',['pasteurising','past_done','ready'])),
-    snap=>{
-      rows2=snap.docs.map(d=>({...d.data(),id:d.id,_col:'production_plans_m2'}));
-      planRows=[...rows1,...rows2];
-      renderAll();
-    }
-  );
-
-  // listen tank states
-  onSnapshot(collection(db,'aging_tank_states'),snap=>{
-    tankStates={};
-    snap.docs.forEach(d=>{tankStates[d.id]={id:d.id,...d.data()};});
-    renderAll();
-  });
-}
-
-const BANGCHAN_TANKS=Array.from({length:34},(_,i)=>`T${String(i+1).padStart(2,'0')}`);
-
-function getLineGroups(group,allTanks){
-  // ดึง LINE ที่มี aging_tanks กำหนดไว้
-  const grpLines=lines.filter(l=>(l.group||'bangchan')===group&&(l.aging_tanks||[]).length>0)
+function renderBangchan(){
+  const el=$('bangchan-grid');el.innerHTML='';
+  // group by line
+  const grpLines=lines.filter(l=>(l.group||'bangchan')==='bangchan'&&(l.aging_tanks||[]).length>0)
     .sort((a,b)=>(a.seq||0)-(b.seq||0));
   const assigned=grpLines.flatMap(l=>l.aging_tanks||[]);
-  const unassigned=allTanks.filter(t=>!assigned.includes(t));
+  const unassigned=BC_TANKS.filter(t=>!assigned.includes(t));
   const groups=grpLines.map(l=>({name:l.name,tanks:l.aging_tanks||[]}));
-  if(unassigned.length)groups.push({name:'ยังไม่ได้กำหนด LINE',tanks:unassigned});
-  if(!groups.length)return[{name:`${group==='bangchan'?'Bangchan':'Twin'} (ทั้งหมด)`,tanks:allTanks}];
-  return groups;
+  if(unassigned.length) groups.push({name:'ยังไม่ได้กำหนด LINE',tanks:unassigned});
+  if(!groups.length) groups.push({name:'Bangchan (ทั้งหมด)',tanks:BC_TANKS});
+
+  groups.forEach(g=>{
+    const div=document.createElement('div');div.className='line-group';
+    div.innerHTML='<div class="line-title">🏭 '+g.name+'</div>';
+    const grid=document.createElement('div');grid.className='tank-grid';
+    g.tanks.forEach(t=>grid.appendChild(makeTankCard(t)));
+    div.appendChild(grid);el.appendChild(div);
+  });
 }
 
-function renderAll(){
-  // BANGCHAN
-  const bc=$('bangchan-grid');bc.innerHTML='';
-  getLineGroups('bangchan',BANGCHAN_TANKS).forEach(g=>{
-    const div=document.createElement('div');div.className='line-group';
-    div.innerHTML=`<div class="line-title">🏭 ${g.name}</div>`;
-    const grid=document.createElement('div');grid.className='tank-grid';
-    g.tanks.forEach(t=>grid.appendChild(tankCard(t)));
-    div.appendChild(grid);bc.appendChild(div);
-  });
-
-  // TWIN — hardcode layout 2×2 ตามตำแหน่งจริง
-  const tw=$('twin-grid');tw.innerHTML='';
-
-  const TWIN_LINES=[
-    {name:'Hoyer',   tanks:['T65','T75','T66','T76'], color:'#f97316', icon:'🍦'},
-    {name:'Extru 3', tanks:['T67','T77','T68','T78'], color:'#a855f7', icon:'🍧'},
-    {name:'Glacé',   tanks:['T63','T73','T64','T74'], color:'#06b6d4', icon:'🧊'},
-    {name:'Scooping',tanks:['T61','T71','T62','T72'], color:'#22c55e', icon:'🍨'},
-  ];
-
-  // แถวบน: Hoyer + Extru 3
-  // แถวล่าง: Glacé + Scooping
+function renderTwin(){
+  const el=$('twin-grid');el.innerHTML='';
   const rows2=[[TWIN_LINES[0],TWIN_LINES[1]],[TWIN_LINES[2],TWIN_LINES[3]]];
   rows2.forEach(rowLines=>{
     const rowDiv=document.createElement('div');
     rowDiv.style.cssText='display:flex;gap:12px;margin-bottom:14px;flex-wrap:wrap';
     rowLines.forEach(line=>{
-      const lineDiv=document.createElement('div');
-      lineDiv.style.cssText=`flex:1;min-width:0;border:2px solid ${line.color}44;border-radius:12px;padding:8px 10px;background:${line.color}08`;
-      lineDiv.innerHTML=`<div style="font-family:'DM Mono',monospace;font-size:12px;font-weight:800;color:${line.color};letter-spacing:.06em;padding:0 0 8px 0;display:flex;align-items:center;gap:6px;border-bottom:1px solid ${line.color}30;margin-bottom:8px">
-        <span>${line.icon}</span><span>${line.name}</span>
-      </div>`;
-      const grid=document.createElement('div');
-      grid.style.cssText='display:flex;gap:8px;flex-wrap:wrap';
-      line.tanks.forEach(t=>grid.appendChild(tankCard(t)));
-      lineDiv.appendChild(grid);
-      rowDiv.appendChild(lineDiv);
+      const ld=document.createElement('div');
+      ld.style.cssText='flex:1;min-width:0;border:2px solid '+line.color+'44;border-radius:12px;padding:8px';
+      ld.innerHTML='<div style="font-family:var(--mono);font-size:11px;font-weight:800;color:'+line.color+';margin-bottom:8px">'+line.name+'</div>';
+      const grid=document.createElement('div');grid.style.cssText='display:flex;gap:8px;flex-wrap:wrap';
+      line.tanks.forEach(t=>grid.appendChild(makeTankCard(t)));
+      ld.appendChild(grid);rowDiv.appendChild(ld);
     });
-    tw.appendChild(rowDiv);
+    el.appendChild(rowDiv);
   });
 }
 
-// CAPACITY ของแต่ละถัง
-function getTankCapacity(tankId){
-  const num=parseInt(tankId.replace('T',''));
-  if(num>=1&&num<=34)return 3000;   // Bangchan
-  if(num>=61&&num<=64)return 10000; // Twin Laser/Scoopy
-  if(num>=65&&num<=68)return 8000;  // Twin Hoyal/Laser
-  if(num>=71&&num<=74)return 10000; // Twin Laser/Scoopy
-  if(num>=75&&num<=78)return 8000;  // Twin Hoyal/Laser
-  return 3000;
-}
+function makeTankCard(tankId){
+  const ts=tankStates[tankId]||{};
+  const status=ts.status||'empty';
+  const isEmpty=status==='empty'||status==='pending';
 
-function getTankInfo(tankId){
-  const allRows=planRows.filter(r=>r.aging_tank===tankId);
-  const row=allRows[0]||null;
+  // หา rows ที่ process_order และ aging_tank ตรงกัน
+  const tankRows=planRows.filter(r=>r.aging_tank===tankId);
+  // group by process_order
+  const poMap={};
+  tankRows.forEach(r=>{
+    const key=r.process_order||r.id;
+    if(!poMap[key]) poMap[key]=[];
+    poMap[key].push(r);
+  });
+  const groups=Object.values(poMap);
+  const group=groups[0]||[];
 
-  let status='empty';
-  if(row){
-    if(row.status==='pasteurising')status='pasteurising';
-    else if(row.status==='past_done')status='curing';
-    else if(row.status==='ready')status='filling';
-    else status='pasteurising';
-  } else {
-    status=tankStates[tankId]?.status||'empty';
+  // หา row ที่ active
+  const row=group.find(r=>r.status==='pasteurising')
+    ||group.find(r=>r.status==='past_done')
+    ||group.find(r=>r.status==='ready')
+    ||group[0]||null;
+
+  const prod=row?.mix_code?productMap[row.mix_code]||{}:{};
+  const col=prod.color||(status==='empty'?'#3d4560':status==='pasteurising'?'#06b6d4':status==='filling'?'#22c55e':status==='ready'?'#3b82f6':'#7a8499');
+
+  // Volume
+  const totalVol=group.reduce((s,r)=>s+(+(r.volume_liter||0)),0);
+  const currentVol=ts.current_vol!=null?+ts.current_vol:0;
+  const cap=getTankCapacity(tankId);
+  const pct=cap>0?Math.min(100,(currentVol||totalVol)/cap*100):0;
+  const wave=status==='pasteurising'||status==='filling';
+
+  // Expiry
+  const activeRow=group.find(r=>r.past_end_time)||null;
+  const exp=calcExpiry(activeRow,tankId);
+  const alertCls=getAlertClass(exp);
+
+  // Stage ring
+  const stageHtml=renderStageRing(status,isEmpty);
+
+  // Status color
+  const stColor={pasteurising:'var(--cyan)',filling:'var(--green)',ready:'var(--purple)',
+    curing:'var(--orange)',aging:'var(--yellow)',cip_done:'var(--blue)',
+    sanitized:'#10b981',empty:'var(--t3)'}[status]||'var(--t2)';
+
+  // Date info
+  let dateHtml='';
+  if(activeRow&&!isEmpty){
+    const exp2=calcExpiry(activeRow,tankId);
+    const expColor=exp2?(exp2.isExpired?'#ff4560':exp2.isCritical?'#ff8c42':exp2.isWarning?'#ffd040':'#00e87a'):'var(--t2)';
+    const expIcon=exp2?(exp2.isExpired?'❌':exp2.isCritical?'⚠️':exp2.isWarning?'🟡':'✅'):'';
+    dateHtml='<div class="tdate">'
+      +(activeRow.date?'<div class="tdr"><span class="tdl">วันผลิต</span><span class="tdv">'+activeRow.date.slice(5)+'</span></div>':'')
+      +(activeRow.past_start_time?'<div class="tdr"><span class="tdl">เริ่ม Past.</span><span class="tdv">'+activeRow.past_start_time+'</span></div>':'')
+      +(activeRow.past_end_time?'<div class="tdr"><span class="tdl">Past.เสร็จ</span><span class="tdv">'+activeRow.past_end_time+'</span></div>':'')
+      +(exp2?'<div class="tdr"><span class="tdl">หมดอายุ</span><span class="tdv" style="color:'+expColor+'">'+expIcon+' '+exp2.date+' '+exp2.time+'</span></div>':'')
+      +'</div>';
   }
 
-  // กรอง rows ที่เป็น process_order + mix_code + date + filling_line เดียวกัน
-  const sameGroup=row
-    ? allRows.filter(r=>
-        r.mix_code===row.mix_code &&
-        r.date===row.date &&
-        r.filling_line===row.filling_line &&
-        (!row.process_order || r.process_order===row.process_order)
-      )
-    : [];
-
-  // เช็คว่า batch_no ต่อเนื่องกัน เช่น 4/1, 4/2, 4/3
-  // รูปแบบ batch: "4/1", "4/2" หรือ "4-1", "4-2" หรือ "1","2","3"
-  function parseBatch(b){
-    if(!b) return null;
-    const m=String(b).match(/^(\d+)[\/\-](\d+)$/);
-    if(m) return{prefix:+m[1],sub:+m[2]};
-    const n=String(b).match(/^(\d+)$/);
-    if(n) return{prefix:0,sub:+n[1]};
-    return null;
-  }
-
-  function isSequential(rows){
-    if(rows.length<=1) return true;
-    const parsed=rows.map(r=>parseBatch(r.batch_no)).filter(Boolean);
-    if(parsed.length!==rows.length) return false;
-    // ต้อง prefix เดียวกัน
-    const prefix=parsed[0].prefix;
-    if(!parsed.every(p=>p.prefix===prefix)) return false;
-    // เรียง sub ascending
-    const subs=parsed.map(p=>p.sub).sort((a,b)=>a-b);
-    // เช็คว่าต่อเนื่อง ไม่มีช่องว่าง
-    for(let i=1;i<subs.length;i++){
-      if(subs[i]-subs[i-1]!==1) return false;
-    }
-    return true;
-  }
-
-  const rows=isSequential(sameGroup)?sameGroup:(row?[row]:[]);
-
-  const totalVolume=rows.reduce((sum,r)=>sum+(+(r.volume_liter||0)),0);
-
-  // current_vol — ใช้ค่า cumulative จาก active batch (Pasteurize เขียนค่า cumulative ไว้แล้ว)
-  // หา batch ที่กำลัง pasteurising อยู่ก่อน ถ้าไม่มีให้ใช้ batch ล่าสุดที่มี current_vol
-  // รวม volume ของ batch ที่ past_done แล้ว
-  const doneVol=rows
-    .filter(r=>r.status==='past_done'||r.status==='ready')
-    .reduce((s,r)=>s+(+(r.volume_liter||0)),0);
-  // batch ที่กำลัง pasteurising อยู่
-  const activeRow=rows.find(r=>r.status==='pasteurising'&&r.current_vol!=null);
-  // flow จริงของ batch ปัจจุบัน = current_vol - doneVol (เพราะ current_vol เป็น cumulative)
-  const activeBatchVol=activeRow
-    ? Math.min(+(activeRow.volume_liter||0), Math.max(0, +activeRow.current_vol - doneVol))
-    : 0;
-  // totalCurrentVol = done batches + flow จริงของ batch ปัจจุบัน
-  const totalCurrentVol = rows.some(r=>r.status==='past_done'||r.status==='ready'||r.status==='pasteurising')
-    ? doneVol + activeBatchVol
-    : totalVolume;
-
-  return{status,row,rows,totalVolume,totalCurrentVol};
-}
-
-
-
-
-function calcVolume(row,totalCurrentVol,totalVolume){
-  if(!row)return 0;
-  const vol=totalVolume||+(row.volume_liter||0);
-  if(row.status==='past_done'||row.status==='ready')return vol;
-  if(!row.past_start_time)return 0;
-  if(totalCurrentVol!=null)return Math.min(vol,totalCurrentVol);
-  return 0;
-}
-
-function statusPct(status,row,tankId,totalVolume,totalCurrentVol){
-  if(status==='cleaned'||status==='empty')return 0;
-  const capacity=getTankCapacity(tankId);
-  const vol=totalVolume||+(row?.volume_liter||0);
-  if(status==='curing')return Math.min(100,Math.round((vol/capacity)*100));
-  if(status==='pasteurising'){
-    const cv=calcVolume(row,totalCurrentVol,totalVolume);
-    return Math.min(100,Math.round((cv/capacity)*100));
-  }
-  if(status==='filling')return Math.min(100,Math.round((vol/capacity)*100));
-  return 0;
-}
-
-function rgba(h,a){const r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return`rgba(${r},${g},${b},${a})`;}
-function dk(h){return'#'+[1,3,5].map(i=>Math.max(0,parseInt(h.slice(i,i+2),16)-55).toString(16).padStart(2,'0')).join('');}
-
-
-
-function tankSVG(tid,pct,col,wave=false,hasLiq=false){
-  const W=80,H=165;
-  const bX=8,bY=22,bW=W-16,bH=H-52;
-  const _pct=Math.min(pct,100);
-  const maxFillH=(bH-6)*0.92;
-  const fillH=Math.max(0,(_pct/100)*maxFillH);
-  const fillY=bY+bH-3-fillH;
-  const uid='ag'+tid.replace(/\D/g,'');
-  const gid='g'+uid,cid='c'+uid,wid='w'+uid,w2id='w2'+uid;
-
-  const legCol=hasLiq?col:'#4a5568';
-  const legFill=hasLiq?rgba(col,.35):'#1e2535';
-  const motorFill=hasLiq?'#16a34a':'#060a14';
-  const motorStroke=hasLiq?'#22c55e':'#1e2d4a';
-
-  if(_pct<=0)return`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
-    <rect x="${bX+1}" y="${bY+4}" width="${bW}" height="${bH}" rx="8" fill="rgba(0,0,0,.5)"/>
-    <rect x="${bX}" y="${bY}" width="${bW}" height="${bH}" rx="8" fill="#060a14" stroke="#1e2d4a" stroke-width="1.5"/>
-    <rect x="${bX+(bW-18)/2}" y="${bY-9}" width="18" height="11" rx="3" fill="#060a14" stroke="#1e2d4a" stroke-width="1.5"/>
-    <rect x="${bX+(bW-24)/2}" y="${bY-14}" width="24" height="6" rx="3" fill="#08101a" stroke="#1e2d4a" stroke-width="1.5"/>
-    <rect x="${bX+5}" y="${bY+bH}" width="8" height="12" rx="2.5" fill="#1e2535" stroke="#4a5568" stroke-width="1.5"/>
-    <rect x="${bX+bW-13}" y="${bY+bH}" width="8" height="12" rx="2.5" fill="#1e2535" stroke="#4a5568" stroke-width="1.5"/>
-    <rect x="${bX+2}" y="${bY+bH+11}" width="${bW-4}" height="4" rx="2" fill="#1e2535" stroke="#4a5568" stroke-width="1.5"/>
-  </svg>`;
-
-  const waveAmp=wave?12:2;
-  const waveDur=wave?'1s':'3s';
-  const waveW=bW*2;
-
-  return`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="${col}" stop-opacity=".95"/>
-      <stop offset="100%" stop-color="${dk(col)}" stop-opacity="1"/>
-    </linearGradient>
-    <linearGradient id="${gid}2" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="${col}" stop-opacity=".4"/>
-      <stop offset="100%" stop-color="${col}" stop-opacity=".15"/>
-    </linearGradient>
-    <clipPath id="${cid}"><rect x="${bX+2}" y="${bY+2}" width="${bW-4}" height="${bH-4}" rx="6"/></clipPath>
-    <path id="${wid}" d="M0,${waveAmp} C${bW*.3},${-waveAmp} ${bW*.7},${-waveAmp} ${bW},${waveAmp} C${bW*1.3},${waveAmp*3} ${bW*1.7},${waveAmp*3} ${waveW},${waveAmp} L${waveW},${fillH+10} L0,${fillH+10} Z"/>
-    <path id="${w2id}" d="M0,${waveAmp*1.5} C${bW*.4},${-waveAmp*1.5} ${bW*.6},${-waveAmp*1.5} ${bW},${waveAmp} C${bW*1.4},${waveAmp*2.5} ${bW*1.6},${waveAmp*2.5} ${waveW},${waveAmp*1.5} L${waveW},${fillH+10} L0,${fillH+10} Z"/>
-  </defs>
-
-  <!-- shadow -->
-  <rect x="${bX+2}" y="${bY+4}" width="${bW}" height="${bH}" rx="8" fill="rgba(0,0,0,.7)"/>
-  <!-- body -->
-  <rect x="${bX}" y="${bY}" width="${bW}" height="${bH}" rx="8" fill="#060a14" stroke="${rgba(col,.5)}" stroke-width="2"/>
-
-  <!-- liquid fill -->
-  <g clip-path="url(#${cid})">
-    <rect x="${bX+2}" y="${fillY+waveAmp+2}" width="${bW-4}" height="${fillH+4}" fill="url(#${gid})"/>
-    <!-- wave 1 -->
-    <g transform="translate(${bX+2},${fillY})">
-      <use href="#${wid}" fill="url(#${gid})">
-        <animateTransform attributeName="transform" type="translate" from="0,0" to="${-bW},0" dur="${waveDur}" repeatCount="indefinite"/>
-      </use>
-      <use href="#${wid}" fill="url(#${gid})" transform="translate(${bW},0)">
-        <animateTransform attributeName="transform" type="translate" from="${bW},0" to="0,0" dur="${waveDur}" repeatCount="indefinite"/>
-      </use>
-    </g>
-    <!-- wave 2 overlay -->
-    <g transform="translate(${bX+2},${fillY-1})">
-      <use href="#${w2id}" fill="url(#${gid}2)">
-        <animateTransform attributeName="transform" type="translate" from="${-bW*.5},0" to="${bW*.5},0" dur="${wave?'2.5s':'5s'}" repeatCount="indefinite"/>
-      </use>
-    </g>
-    ${wave?`<g transform="translate(${bX+2},${fillY+2})">
-      <path d="M0,${waveAmp*.8} C${bW*.35},${-waveAmp*.8} ${bW*.65},${-waveAmp*.8} ${bW},${waveAmp*.8} L${waveW},${fillH+10} L0,${fillH+10} Z" fill="rgba(255,255,255,.1)">
-        <animateTransform attributeName="transform" type="translate" from="${-bW*.3},0" to="${bW*.7},0" dur="3.2s" repeatCount="indefinite"/>
-      </path>
-    </g>`:''}
-    <!-- shine -->
-    <rect x="${bX+4}" y="${fillY+waveAmp+5}" width="4" height="${Math.max(0,fillH*.35)}" rx="2" fill="rgba(255,255,255,.07)"/>
-  </g>
-
-  <!-- level line -->
-  <line x1="${bX+bW+2}" y1="${fillY+waveAmp}" x2="${bX+bW+7}" y2="${fillY+waveAmp}" stroke="${col}" stroke-width="1.5" stroke-linecap="round"/>
-  <!-- border overlay -->
-  <rect x="${bX}" y="${bY}" width="${bW}" height="${bH}" rx="8" fill="none" stroke="${rgba(col,.5)}" stroke-width="2"/>
-  <!-- neck/motor สีเขียวเมื่อมีของ -->
-  <rect x="${bX+(bW-18)/2}" y="${bY-9}" width="18" height="11" rx="3" fill="${motorFill}" stroke="${motorStroke}" stroke-width="2"/>
-  <rect x="${bX+(bW-24)/2}" y="${bY-14}" width="24" height="6" rx="3" fill="${motorFill}" stroke="${motorStroke}" stroke-width="2"/>
-  ${hasLiq?`<circle cx="${bX+bW/2}" cy="${bY-9}" r="3.5" fill="#22c55e"/>
-  <circle cx="${bX+bW/2}" cy="${bY-9}" r="3.5" fill="none" stroke="#22c55e" stroke-width="1.5" opacity="0">
-    <animate attributeName="r" from="3.5" to="9" dur="1.5s" repeatCount="indefinite"/>
-    <animate attributeName="opacity" from="0.7" to="0" dur="1.5s" repeatCount="indefinite"/>
-  </circle>`:''}
-  <!-- legs สีชัดเจน -->
-  <rect x="${bX+5}" y="${bY+bH}" width="8" height="12" rx="2.5" fill="${legFill}" stroke="${legCol}" stroke-width="1.8"/>
-  <rect x="${bX+bW-13}" y="${bY+bH}" width="8" height="12" rx="2.5" fill="${legFill}" stroke="${legCol}" stroke-width="1.8"/>
-  <!-- ฐาน -->
-  <rect x="${bX+2}" y="${bY+bH+11}" width="${bW-4}" height="4" rx="2" fill="${legFill}" stroke="${legCol}" stroke-width="1.8"/>
-</svg>`;
-
-}
-
-function tankCard(tankId){
-  const{status,row,rows,totalVolume,totalCurrentVol}=getTankInfo(tankId);
-  const capacity=getTankCapacity(tankId);
-  const pct=statusPct(status,row,tankId,totalVolume,totalCurrentVol);
-  const stClass=`st-${status==='empty'?'empty':status==='filling'?'filling':status==='pasteurising'?'pasteurising':status==='curing'?'curing':'cleaned'}`;
-
-  const prodCol=row?.mix_code?productMap[row.mix_code]?.color:null;
-  const col=prodCol||statusColor(status);
-
-  const mixCode=row?.mix_code||'';
-  const mixName=row?.mix_name||'';
-  const batchNo=row?.batch_no||'';
-  const prodSuffix=row?.prod_suffix||'';
-  const volTxt=totalVolume>0?`${Math.round(totalVolume).toLocaleString()} L`:'';
-  const isWave=status==='pasteurising'||status==='filling';
-  const hasLiq=pct>0;
-
-  // รหัสผลิต 10 ตัว
-  const yr=new Date().getFullYear().toString().slice(-1);
-  const unit=row?._col==='production_plans_m2'?'2':'1';
-  const prefix=yr+'0522'+unit;
-  const prodCode=prodSuffix?(prefix+prodSuffix):'—';
-
-  // batch วงกลม — เลขหลังสุดจาก batch_no
-  const batchNum=batchNo?batchNo.replace(/.*?(\d+)$/,'$1'):'';
+  // Temp selector
+  const temp=tankTemps[tankId]??5;
+  const tempOpts=[0,1,2,3,4,5,6,7,8,9,10].map(t=>'<option value="'+t+'"'+(t===temp?' selected':'')+'>'+t+'°C</option>').join('');
 
   const div=document.createElement('div');
-  div.className=`tc ${stClass} ${getAlertClass(row)}`;
+  div.className='tc '+alertCls;
   div.onclick=()=>openModal(tankId);
-  div.innerHTML=`
-    <div class="tn" style="color:${col};border-color:${rgba(col,.2)};background:${rgba(col,.08)}">${tankId}</div>
-    <div style="display:flex;align-items:center;padding:6px 8px 4px 4px;gap:6px">
+  div.innerHTML=
+    '<div class="tn" style="color:'+col+';border-color:'+hexAlpha(col,.2)+';background:'+hexAlpha(col,.08)+'">'+tankId+'</div>'
+    +'<div class="tsw">'+tankSVG(tankId,pct,col,wave)+'</div>'
+    +(row&&!isEmpty
+      ?'<div class="tm" style="color:'+col+'">'+(row.mix_code||'—')+'</div>'
+       +'<div class="tb">'+(row.mix_name||'—')+'</div>'
+       +'<div class="tvol" style="color:'+col+'">'+(currentVol||totalVol).toFixed(0)+' L</div>'
+       +'<div class="tpct">'+pct.toFixed(1)+'% / '+(cap/1000).toFixed(0)+'k L</div>'
+      :'<div style="font-family:var(--mono);font-size:10px;color:var(--t3);text-align:center;padding:4px 0">— ว่าง —</div>')
+    +dateHtml
+    +'<div class="tc-temp-row" onclick="event.stopPropagation()">'
+    +'<span style="font-family:var(--mono);font-size:10px;color:var(--t2)">🌡️</span>'
+    +'<select class="tc-temp-sel" onchange="window.setTankTemp(\''+tankId+'\',this.value)">'+tempOpts+'</select>'
+    +'</div>'
+    +stageHtml
+    +'<div class="tsb" style="color:'+stColor+';background:'+hexAlpha(stColor,.1)+'">'+statusLabel(status)+'</div>';
 
-      <!-- ถัง SVG -->
-      <div class="tsw" style="padding:2px 2px;flex-shrink:0;position:relative">
-        ${tankSVG(tankId,pct,col,isWave,hasLiq)}
-        <div class="tov">
-          ${volTxt?`<div class="tp" style="color:${col};font-size:9px;font-weight:800">${volTxt}</div>`:''}
-          ${pct>0?`<div class="tp" style="color:rgba(255,255,255,.8);font-size:8px">${pct}%</div>`:''}
-        </div>
-      </div>
-
-      <!-- ข้อมูลขวา -->
-      <div style="flex:1;display:flex;flex-direction:column;gap:4px;min-width:0">
-
-        <!-- Mix Code -->
-        ${mixCode
-          ?`<div style="font-family:'DM Mono',monospace;font-size:13px;font-weight:800;color:${col};letter-spacing:.04em">${mixCode}</div>`
-          :`<div style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,.2)">— ว่าง —</div>`}
-
-        <!-- Mix Name + batch วงกลม แถวเดียวกัน -->
-        ${mixName||batchNum?`<div style="display:flex;align-items:center;gap:5px;flex-wrap:nowrap">
-          ${mixName?`<div style="font-family:'DM Mono',monospace;font-size:12px;color:white;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${mixName}</div>`:''}
-          ${batchNum?`<div style="width:20px;height:20px;border-radius:50%;background:${col};display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:11px;font-weight:900;color:black;flex-shrink:0">${batchNum}</div>`:''}
-        </div>`:''}
-
-        <!-- รหัสผลิต 10 ตัว -->
-        ${prodSuffix?`<div style="font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,.75);letter-spacing:.08em;white-space:nowrap">${prodCode}</div>`:''}
-
-      </div>
-    </div>
-    <!-- วันพาสและวันหมดอายุ -->
-    ${row?.date||row?.past_start_time?(()=>{
-      const exp=calcExpiryForTank(row,tankId);
-      return `<div class="tdate">
-        ${row?.date?`<div class="td-row"><span class="td-label">วันผลิต</span><span class="td-val">${new Date(row.date).toLocaleDateString('th-TH',{day:'2-digit',month:'short'})}</span></div>`:''}
-        ${row?.past_start_time?`<div class="td-row"><span class="td-label">Past.เริ่ม</span><span class="td-val">${row.past_start_time}</span></div>`:''}
-        ${row?.past_end_time?`<div class="td-row"><span class="td-label">Past.เสร็จ</span><span class="td-val">${row.past_end_time}</span></div>`:''}
-        ${exp?`<div class="td-row"><span class="td-label">หมดอายุ</span><span style="color:${exp.isExpired?'#ff4560':exp.isCritical?'#ff8c42':'#ffd040'};font-weight:700">${exp.isExpired?'❌ ':exp.isCritical?'⚠️ ':'⏰ '}${exp.date} ${exp.time}</span></div>`:''}
-      </div>`;
-    <div class="tc-temp">
-      <span class="tc-temp-label">🌡️ อุณหภูมิ:</span>
-      <select class="tc-temp-sel" onchange="setTankTemp('${tankId}',this.value)">
-        ${[0,1,2,3,4,5,6,7,8,9,10].map(t=>'<option value="'+t+'"'+((tankTemps[tankId]??5)===t?' selected':'')+'>'+t+'°C</option>').join('')}
-      </select>
-      ${exp?('<span class="tc-expire" style="color:'+(exp.isExpired?'#ff4560':exp.isCritical?'#ff8c42':exp.isWarning?'#ffd040':'#00e87a')+'">'+(exp.isExpired?'❌':exp.isCritical?'⚠️':exp.isWarning?'🟡':'✅')+' '+exp.date+' '+exp.time+'</span>'):''}
-    </div>
-    })():''}
-    ${renderStageRing(status)}
-    <div class="tsb" style="color:${col};background:${rgba(col,.1)}">${statusBadge(resolveStatus(row)||status)}</div>`;
   return div;
 }
 
-// MODAL
-window.openModal=(tankId)=>{
-  selectedTank=tankId;
-  const{status,row,rows,totalVolume,totalCurrentVol}=getTankInfo(tankId);
-  const capacity=getTankCapacity(tankId);
-  const vol=calcVolume(row,totalCurrentVol,totalVolume);
-  const pct=statusPct(status,row,tankId,totalVolume,totalCurrentVol);
-  $('modal-tank-num').textContent=`ถัง ${tankId} — capacity ${capacity.toLocaleString()} L`;
-  const batchInfo=rows.length>1?` (${rows.length} batches รวม ${Math.round(totalVolume).toLocaleString()} L)`:'';
-  const info=row
-    ?`${statusLabel(status)} — ${row.mix_name||''}${batchInfo} ${pct>0?'('+pct+'%)':''}`
-    :`${statusLabel(status)}`;
-  $('modal-tank-info').textContent=info;
-
-  // แสดง current_vol ปัจจุบันใน input
-  const volInput=$('modal-vol-input');
-  const volHint=$('modal-vol-hint');
-  if(volInput){
-    volInput.value=totalCurrentVol!=null?Math.round(totalCurrentVol):'';
-    volInput.max=capacity;
-    if(totalVolume>0){
-      volHint.textContent=`ระบบแสดง: ${Math.round(totalCurrentVol||0).toLocaleString()} L จาก ${Math.round(totalVolume).toLocaleString()} L (capacity ${capacity.toLocaleString()} L)`;
-    } else {
-      volHint.textContent=`capacity ถัง: ${capacity.toLocaleString()} L`;
-    }
-  }
-
-  // highlight active
-  document.querySelectorAll('.stat-btn').forEach(b=>{
-    b.className='stat-btn';
-    if(b.textContent.includes('Pasteurize')&&status==='pasteurising')b.classList.add('active-past');
-    if(b.textContent.includes('Filling')&&status==='filling')b.classList.add('active-fill');
-    if(b.textContent.includes('Curing')&&status==='curing')b.classList.add('active-cure');
-    if(b.textContent.includes('ล้างแล้ว')&&status==='cleaned')b.classList.add('active-clean');
-    if(b.textContent.includes('ว่าง')&&status==='empty')b.classList.add('active-empty');
-  });
-  $('tank-modal').classList.add('show');
-};
-
-window.saveCurrentVol=async()=>{
-  if(!selectedTank)return;
-  const volInput=$('modal-vol-input');
-  const newVol=+(volInput?.value||0);
-  if(isNaN(newVol)||newVol<0){toast('กรุณากรอกตัวเลขที่ถูกต้อง','red');return;}
-  const capacity=getTankCapacity(selectedTank);
-  if(newVol>capacity){toast(`เกิน capacity ถัง (${capacity.toLocaleString()} L)`,'red');return;}
-
-  // อัปเดต current_vol ใน row ล่าสุดของถังนั้น
-  const tankRows=planRows.filter(r=>r.aging_tank===selectedTank);
-  if(!tankRows.length){toast('ไม่พบข้อมูลในถังนี้','red');return;}
-
-  try{
-    // อัปเดตทุก row ที่ผูกกับถังนี้ให้ current_vol รวมเท่ากับ newVol
-    const updates=tankRows.map(r=>
-      updateDoc(doc(db,r._col,r.id),{current_vol:newVol})
-    );
-    await Promise.all(updates);
-    toast(`✅ อัปเดต volume ถัง ${selectedTank} → ${newVol.toLocaleString()} L`,'green');
-    const hint=$('modal-vol-hint');
-    if(hint) hint.textContent=`บันทึกแล้ว: ${newVol.toLocaleString()} L`;
-  }catch(e){toast('บันทึกไม่สำเร็จ: '+e.message,'red');}
-};
-
-window.clearTank=async()=>{
-  if(!selectedTank)return;
-  const confirm1=window.confirm(`⚠️ เคลียร์ถัง ${selectedTank}\n\nข้อมูลจะถูก archive ไปใน past_history ก่อน แล้วค่อยลบออกจากระบบ\nสามารถดูย้อนหลังได้จากแท็บ 📋 ประวัติ ใน pasteurize\n\nยืนยันหรือไม่?`);
-  if(!confirm1)return;
-  try{
-    const tankRows=planRows.filter(r=>r.aging_tank===selectedTank);
-    const now=new Date();
-    const archiveDate=now.toISOString().slice(0,10);
-    const archiveTime=now.toTimeString().slice(0,5);
-
-    // archive ทุก row ไปใน past_history ก่อน
-    const archives=tankRows.map(r=>
-      addDoc(collection(db,'past_history'),{
-        ...r,
-        archived_at:archiveTime,
-        archived_date:archiveDate,
-        archived_by:'clear_tank',
-        mixing_unit:r._col==='production_plans_m2'?'p2':'p1',
-      })
-    );
-    await Promise.all(archives);
-
-    // แล้วค่อยลบออกจาก production_plans
-    const deletes=tankRows.map(r=>deleteDoc(doc(db,r._col,r.id)));
-    await Promise.all(deletes);
-
-    // reset aging_tank_states
-    await setDoc(doc(db,'aging_tank_states',selectedTank),{
-      status:'empty',updated_at:now.toISOString()
-    },{merge:true});
-
-    toast(`🗑️ เคลียร์ถัง ${selectedTank} แล้ว — archive ${tankRows.length} รายการ`,'green');
-    closeModal();
-  }catch(e){toast('เคลียร์ไม่สำเร็จ: '+e.message,'red');}
-};
-
-window.closeModal=()=>{$('tank-modal').classList.remove('show');selectedTank=null;};
-
-window.setTankStatus=async(status)=>{
-  if(!selectedTank)return;
-  try{
-    await setDoc(doc(db,'aging_tank_states',selectedTank),{
-      status,updated_at:new Date().toISOString()
-    },{merge:true});
-    const labels={cip_done:'🧹 CIP Done',sanitized:'✨ Sanitized',pasteurising:'🔵 Pasteurizing',aging:'⏳ Aging',ready:'✅ Ready',filling:'🟢 Filling',empty:'⚪ Empty'};
-    toast(`${selectedTank} → ${labels[status]}`,'green');
-    closeModal();
-  }catch(e){toast('บันทึกไม่สำเร็จ','red');}
-};
-
-window.showTab=(tab,btn)=>{
-  document.querySelectorAll('.page').forEach(el=>el.classList.remove('on'));
-  document.querySelectorAll('.ntab').forEach(el=>el.classList.remove('on'));
-  $(`page-${tab}`).classList.add('on');btn.classList.add('on');
-};
-
-
-
-
-
-const SHELF_TABLE={'Ice Cream':[96,96,96,96,92,76,62,51,43,37,32],'Water Ice':[96,96,96,96,96,96,96,93,81,71,63],'Jelly':[24,24,24,24,24,24,24,24,24,24,24]};
-let currentTemp=5;
-function setTemp(t){
-  currentTemp=t;
-  document.getElementById('temp-nav-num').textContent=t;
-  document.getElementById('temp-drop').classList.remove('open');
-  document.querySelectorAll('.temp-opt').forEach((el,i)=>el.classList.toggle('active',i===t));
-  renderTanks();
-}
-document.addEventListener('click',e=>{
-  const w=document.getElementById('temp-wrap');
-  if(w&&!w.contains(e.target)) document.getElementById('temp-drop').classList.remove('open');
-});
-function calcExpiry(row,productMap){
-  if(!row?.past_end_time||!row?.date)return null;
-  const hours=getShelfHours(row);
-  if(!hours)return null;
-  const[h,m]=row.past_end_time.split(':').map(Number);
-  const base=new Date(row.date);
-  base.setHours(h||0,m||0,0,0);
-  const expire=new Date(base.getTime()+hours*3600*1000);
-  const now=new Date();
-  const rem=(expire-now)/3600000;
-  return{date:expire.toLocaleDateString('th-TH',{day:'2-digit',month:'short',year:'numeric'}),time:expire.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'}),hours,isExpired:rem<=0,isCritical:rem>0&&rem<=6,isWarning:rem>6&&rem<=12,remaining:Math.abs(rem).toFixed(1)};
-}
-function getAlertClass(row){
-  const exp=calcExpiry(row,productMap);
-  if(!exp)return'';
-  if(exp.isExpired)return'warn-exp';
-  if(exp.isCritical)return'warn-crit';
-  if(exp.isWarning)return'warn-soon';
-  return'';
-}
-setTimeout(()=>{document.querySelectorAll('.temp-opt')[5]?.classList.add('active');},300);
-
-
-// ── PROGRESS RING STAGES ──────────────────────────────────
-const STAGES = [
-  {key:'cip_done',    label:'CIP Done',     icon:'🧹'},
-  {key:'sanitized',   label:'Sanitized',    icon:'✨'},
-  {key:'pasteurising',label:'Pasteurizing', icon:'🔵'},
-  {key:'aging',       label:'Aging',        icon:'⏳'},
-  {key:'ready',       label:'Ready',        icon:'✅'},
-  {key:'filling',     label:'Filling',      icon:'🟢'},
-  {key:'empty',       label:'Empty',        icon:'⚪'},
-];
-
-// status ของระบบ → index ใน STAGES
-const STATUS_STAGE = {
-  'cip_done':0, 'cleaned':0,
-  'sanitized':1,
-  'pasteurising':2, 'past_done':3,
-  'aging':3, 'curing':3,
-  'ready':4,
-  'filling':5, 'sent_filling':5,
-  'empty':6, 'pending':6,
-};
-
-function getStageIndex(status){
-  return STATUS_STAGE[status] ?? -1;
+function tankSVG(id,pct,col,wave){
+  const W=54,H=80,bX=4,bY=4,bW=46,bH=68,rx=5;
+  const fillH=Math.max(0,(bH-4)*(pct/100));
+  const fillY=bY+2+(bH-4)-fillH;
+  const a=(opacity)=>hexAlpha(col,opacity);
+  const wc=wave
+    ?('<path d="M'+bX+','+(fillY+4)+' C'+(bX+bW*.3)+','+(fillY)+' '+(bX+bW*.7)+','+(fillY)+' '+(bX+bW)+','+(fillY+4)+'\" fill="'+a(.5)+'"><animateTransform attributeName="transform" type="translate" from="0,0" to="'+(-bW)+',0" dur="1.5s" repeatCount="indefinite"/></path>')
+    :(fillH>0?'<rect x="'+(bX+1)+'" y="'+(fillY+1)+'" width="'+(bW-2)+'" height="3" rx="1" fill="'+a(.5)+'"/>':'');
+  return'<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">'
+    +'<defs><linearGradient id="g'+id+'" x1="0" y1="0" x2="0" y2="1">'
+    +'<stop offset="0%" stop-color="'+col+'" stop-opacity=".9"/>'
+    +'<stop offset="100%" stop-color="'+col+'" stop-opacity=".4"/>'
+    +'</linearGradient></defs>'
+    +'<rect x="'+bX+'" y="'+bY+'" width="'+bW+'" height="'+bH+'" rx="'+rx+'" fill="rgba(0,0,0,.4)" stroke="'+a(.3)+'" stroke-width="1.5"/>'
+    +(fillH>0
+      ?'<clipPath id="cp'+id+'"><rect x="'+(bX+1)+'" y="'+fillY+'" width="'+(bW-2)+'" height="'+(fillH+2)+'" rx="'+rx+'"/></clipPath>'
+       +'<rect x="'+(bX+1)+'" y="'+fillY+'" width="'+(bW-2)+'" height="'+fillH+'" rx="3" fill="url(#g'+id+')" opacity=".85" clip-path="url(#cp'+id+')"/>'
+       +'<g clip-path="url(#cp'+id+')">'+wc+'</g>'
+      :'')
+    +'</svg>';
 }
 
-function renderStageRing(status){
-  const cur = getStageIndex(status);
-  const isEmpty = status === 'empty' || status === 'pending' || !status;
-  let html = '<div class="stage-ring">';
+function hexAlpha(hex,a){
+  if(!hex||hex.startsWith('var(')) return'rgba(100,116,139,'+a+')';
+  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  return'rgba('+r+','+g+','+b+','+a+')';
+}
+
+function statusLabel(s){
+  return{pasteurising:'🔵 Pasteurizing',filling:'🟢 Filling',ready:'✅ Ready',
+    curing:'🟠 Curing',aging:'⏳ Aging',cip_done:'🧹 CIP Done',
+    sanitized:'✨ Sanitized',empty:'⚪ Empty',past_done:'✅ Done'}[s]||s||'—';
+}
+
+function renderStageRing(status,isEmpty){
+  const cur=STATUS_STAGE[status]??-1;
+  let html='<div class="stage-ring">';
   STAGES.forEach((s,i)=>{
-    const isDone = !isEmpty && cur >= 0 && i < cur;
-    const isActive = !isEmpty && i === cur;
-    html += `<div class="stage-dot ${isDone?'done':''} ${isActive?'active':''}" title="${s.label}"></div>`;
-    if(i < STAGES.length-1) html += `<div class="stage-line ${isDone||isActive?'done':''}"></div>`;
+    const isDone=!isEmpty&&cur>=0&&i<cur;
+    const isActive=!isEmpty&&i===cur;
+    html+='<div class="sd '+(isDone?'done':'')+(isActive?' active':'')+'" title="'+s+'"></div>';
+    if(i<STAGES.length-1) html+='<div class="sl '+(isDone||isActive?'done':'')+'"></div>';
   });
-  html += '</div>';
-  return html;
+  return html+'</div>';
 }
 
-
-
-
-const SHELF_TABLE_TC={'Ice Cream':[96,96,96,96,92,76,62,51,43,37,32],'Water Ice':[96,96,96,96,96,96,96,93,81,71,63],'Jelly':[24,24,24,24,24,24,24,24,24,24,24]};
-const tankTemps={};
-window.setTankTemp=function(tid,t){tankTemps[tid]=+t;renderTanks();};
-function calcExpiryForTank(row,tid){
-  if(!row||!row.past_end_time||!row.date)return null;
-  const temp=tankTemps[tid]??5;
+// EXPIRY
+function calcExpiry(row,tankId){
+  if(!row?.past_end_time||!row?.date) return null;
+  const temp=tankTemps[tankId]??5;
   const prod=productMap[row.mix_code||'']||{};
   const pt=(prod.product_type||'').toLowerCase();
   const type=pt.includes('water ice')?'Water Ice':pt.includes('jelly')?'Jelly':'Ice Cream';
-  const hours=SHELF_TABLE_TC[type]?.[temp]||null;
-  if(!hours)return null;
+  const hours=SHELF_TABLE[type]?.[temp]||null;
+  if(!hours) return null;
   const[h,m]=row.past_end_time.split(':').map(Number);
-  const base=new Date(row.date);
-  base.setHours(h||0,m||0,0,0);
+  const base=new Date(row.date);base.setHours(h||0,m||0,0,0);
   const expire=new Date(base.getTime()+hours*3600000);
-  const now=new Date();
-  const rem=(expire-now)/3600000;
-  return{date:expire.toLocaleDateString('th-TH',{day:'2-digit',month:'short',year:'numeric'}),time:expire.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'}),hours,temp,isExpired:rem<=0,isCritical:rem>0&&rem<=6,isWarning:rem>6&&rem<=12};
+  const now=new Date();const rem=(expire-now)/3600000;
+  return{
+    date:expire.toLocaleDateString('th-TH',{day:'2-digit',month:'short',year:'numeric'}),
+    time:expire.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'}),
+    hours,isExpired:rem<=0,isCritical:rem>0&&rem<=6,isWarning:rem>6&&rem<=12
+  };
 }
+
+function getAlertClass(exp){
+  if(!exp) return'';
+  if(exp.isExpired) return'warn-exp';
+  if(exp.isCritical) return'warn-crit';
+  if(exp.isWarning) return'warn-soon';
+  return'';
+}
+
+// ── MODAL ─────────────────────────────────────────────────────────────
+window.openModal=(tankId)=>{
+  selectedTank=tankId;
+  $('modal-title').textContent='ถัง '+tankId;
+  const ts=tankStates[tankId]||{};
+  $('modal-info').textContent='Status: '+statusLabel(ts.status||'empty');
+  $('modal-vol').value=ts.current_vol||'';
+  $('tank-modal').classList.add('show');
+};
+window.closeModal=()=>{$('tank-modal').classList.remove('show');selectedTank=null;};
+window.setTankStatus=async(status)=>{
+  if(!selectedTank)return;
+  const isReset=status==='empty';
+  const upd=isReset?{status:'empty',current_vol:0,updated_at:new Date().toISOString()}
+    :{status,updated_at:new Date().toISOString()};
+  try{
+    await setDoc(doc(db,'aging_tank_states',selectedTank),upd,{merge:!isReset});
+    toast(statusLabel(status),'green');
+    closeModal();
+  }catch(e){toast('ไม่สำเร็จ','red');}
+};
+window.saveCurrentVol=async()=>{
+  if(!selectedTank)return;
+  const vol=+($('modal-vol').value||0);
+  try{
+    await setDoc(doc(db,'aging_tank_states',selectedTank),{current_vol:vol,updated_at:new Date().toISOString()},{merge:true});
+    toast('บันทึก Vol '+vol+' L','green');closeModal();
+  }catch(e){toast('ไม่สำเร็จ','red');}
+};
+window.clearTank=async()=>{
+  if(!selectedTank||!confirm('เคลียร์ถัง '+selectedTank+'?'))return;
+  try{
+    await setDoc(doc(db,'aging_tank_states',selectedTank),{status:'empty',current_vol:0,updated_at:new Date().toISOString()});
+    toast('เคลียร์ถัง '+selectedTank+' แล้ว','green');closeModal();
+  }catch(e){toast('ไม่สำเร็จ','red');}
+};
+
+window.showTab=(tab,btn)=>{
+  document.querySelectorAll('.ntab').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  $('page-'+tab).classList.add('on');
+};
+
+window.setTankTemp=(tid,t)=>{tankTemps[tid]=+t;renderAll();};
 
 </script>
 </body>

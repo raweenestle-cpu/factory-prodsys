@@ -985,6 +985,11 @@ async function confirmEmpty(){
     aging_tank:st.aging_tank||'—',freezer:st.fz_A||'—',pipe:st.pp_A||'—',
   });
   try{await updateDoc(doc(db,col,planId),{status:'sent_filling',sent_filling_at:nowHHMM()});}catch{}
+  // Reset aging_tank_states current_vol เมื่อถังออกไป
+  const agTank=st.aging_tank||'';
+  if(agTank){
+    try{await setDoc(doc(db,'aging_tank_states',agTank),{current_vol:0,updated_at:new Date().toISOString()},{merge:true});}catch{}
+  }
   await setDoc(doc(db,'cip_line_states',lineId),{running:false,start_ts:null,start_vol:0,aging_tank:'',curing_done:false},{merge:true});
   toast('บันทึกแล้ว ✅','green');window.closeEmpty();
 }
