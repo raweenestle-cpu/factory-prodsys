@@ -231,12 +231,12 @@ onAuthStateChanged(auth,async u=>{
   lines=ls.docs.map(d=>({id:d.id,...d.data()}));
 
   let r1=[],r2=[];
-  onSnapshot(query(collection(db,'production_plans'),where('status','in',['pasteurising','past_done','ready'])),snap=>{
-    r1=snap.docs.map(d=>({id:d.id,...d.data(),_col:'production_plans'}));
+  onSnapshot(collection(db,'production_plans'),snap=>{
+    r1=snap.docs.map(d=>({id:d.id,...d.data(),_col:'production_plans'})).filter(r=>r.aging_tank);
     planRows=[...r1,...r2];renderAll();
   });
   onSnapshot(query(collection(db,'production_plans_m2'),where('status','in',['pasteurising','past_done','ready'])),snap=>{
-    r2=snap.docs.map(d=>({id:d.id,...d.data(),_col:'production_plans_m2'}));
+    r2=snap.docs.map(d=>({id:d.id,...d.data(),_col:'production_plans_m2'})).filter(r=>r.aging_tank);
     planRows=[...r1,...r2];renderAll();
   });
   onSnapshot(collection(db,'aging_tank_states'),snap=>{
