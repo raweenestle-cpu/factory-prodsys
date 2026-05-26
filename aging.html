@@ -230,20 +230,12 @@ onAuthStateChanged(auth,async u=>{
   const ls=await getDocs(collection(db,'lines'));
   lines=ls.docs.map(d=>({id:d.id,...d.data()}));
 
-  let r1=[],r2=[];
-  const today=new Date().toISOString().slice(0,10);
-  onSnapshot(query(collection(db,'production_plans'),where('date','==',today)),snap=>{
-    r1=snap.docs.map(d=>({id:d.id,...d.data(),_col:'production_plans'})).filter(r=>r.aging_tank);
-    planRows=[...r1,...r2];renderAll();
-  });
-    onSnapshot(query(collection(db,'production_plans_m2'),where('date','==',today)),snap=>
-    r2=snap.docs.map(d=>({id:d.id,...d.data(),_col:'production_plans_m2'})).filter(r=>r.aging_tank);
-    planRows=[...r1,...r2];renderAll();
-  });
+  // aging_tank_states เป็น single source of truth
   onSnapshot(collection(db,'aging_tank_states'),snap=>{
-    tankStates={};snap.docs.forEach(d=>{tankStates[d.id]={id:d.id,...d.data()};});renderAll();
+    tankStates={};
+    snap.docs.forEach(d=>{tankStates[d.id]={id:d.id,...d.data()};});
+    renderAll();
   });
-});
 
 window.doLogout=async()=>{await signOut(auth);location.href='index.html';};
 
@@ -293,37 +285,22 @@ function makeTankCard(tankId){
   const status=ts.status||'empty';
   const isEmpty=status==='empty'||status==='pending';
 
-  // หา rows ที่ process_order และ aging_tank ตรงกัน
-  const tankRows=planRows.filter(r=>r.aging_tank===tankId);
-  // group by process_order
-  const poMap={};
-  tankRows.forEach(r=>{
-    const key=r.process_order||r.id;
-    if(!poMap[key]) poMap[key]=[];
-    poMap[key].push(r);
-  });
-  const groups=Object.values(poMap);
-  const group=groups[0]||[];
-
-  // หา row ที่ active
-  const row=group.find(r=>r.status==='pasteurising')
-    ||group.find(r=>r.status==='past_done')
-    ||group.find(r=>r.status==='ready')
-    ||group[0]||null;
-
-  const prod=row?.mix_code?productMap[row.mix_code]||{}:{};
+  // ดึงข้อมูลจาก aging_tank_states โดยตรง
+  const tdata=tankStates[tankId]||{};
+  const prod=tdata.mix_code?productMap[tdata.mix_code]||{}:{};
+  const row=tdata.mix_code?tdata:null;
   const col=prod.color||(status==='empty'?'#3d4560':status==='pasteurising'?'#06b6d4':status==='filling'?'#22c55e':status==='ready'?'#3b82f6':'#7a8499');
 
   // Volume
-  const totalVol=group.reduce((s,r)=>s+(+(r.volume_liter||0)),0);
-  const currentVol=ts.current_vol!=null?+ts.current_vol:0;
+  const totalVol=+(tdata.volume_liter||tdata.total_vol||0);
+  const currentVol=tdata.current_vol!=null?+tdata.current_vol:0;
   const cap=getTankCapacity(tankId);
   const pct=cap>0?Math.min(100,(currentVol||totalVol)/cap*100):0;
   const wave=status==='pasteurising'||status==='filling';
   const stLabel=statusLabel(status);
 
   // Expiry
-  const activeRow=group.find(r=>r.past_end_time)||null;
+  const activeRow=tdata.past_end_time?tdata:null;
   const exp=calcExpiry(activeRow,tankId);
   const alertCls=getAlertClass(exp);
 
@@ -359,9 +336,9 @@ function makeTankCard(tankId){
   div.innerHTML=
     '<div class="tn" style="color:'+col+';border-color:'+hexAlpha(col,.2)+';background:'+hexAlpha(col,.08)+'">'+tankId+'</div>'
     +'<div class="tsw">'+tankSVG(tankId,pct,col,wave,stLabel,col)+'</div>'
-    +(row&&!isEmpty
-      ?'<div class="tm" style="color:'+col+'">'+(row.mix_code||'—')+'</div>'
-       +'<div class="tb">'+(row.mix_name||'—')+'</div>'
+    +(tdata.mix_code&&!isEmpty
+      ?'<div class="tm" style="color:'+col+'">'+(tdata.mix_code||'—')+'</div>'
+       +'<div class="tb">'+(tdata.mix_name||'—')+'</div>'
        +'<div class="tvol" style="color:'+col+'">'+(currentVol||totalVol).toFixed(0)+' L</div>'
        +'<div class="tpct">'+pct.toFixed(1)+'% / '+(cap/1000).toFixed(0)+'k L</div>'
       :'<div style="font-family:var(--mono);font-size:10px;color:var(--t3);text-align:center;padding:4px 0">— ว่าง —</div>')
