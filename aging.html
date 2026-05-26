@@ -251,13 +251,13 @@ function renderAll(){renderBangchan();renderTwin();}
 
 function renderBangchan(){
   const el=$('bangchan-grid');el.innerHTML='';
-  // group by line
-  const grpLines=lines.filter(l=>(l.group||'bangchan')==='bangchan'&&(l.aging_tanks||[]).length>0)
+  // group by line — รองรับทั้ง lines ที่มีและไม่มี group field
+  const grpLines=lines.filter(l=>(l.aging_tanks||[]).length>0)
     .sort((a,b)=>(a.seq||0)-(b.seq||0));
   const assigned=grpLines.flatMap(l=>l.aging_tanks||[]);
   const unassigned=BC_TANKS.filter(t=>!assigned.includes(t));
-  const groups=grpLines.map(l=>({name:l.name,tanks:l.aging_tanks||[]}));
-  if(unassigned.length) groups.push({name:'ยังไม่ได้กำหนด LINE',tanks:unassigned});
+  const groups=grpLines.map(l=>({name:l.name||l.id,tanks:l.aging_tanks||[]}));
+  if(unassigned.length) groups.push({name:'ถังทั้งหมด',tanks:unassigned});
   if(!groups.length) groups.push({name:'Bangchan (ทั้งหมด)',tanks:BC_TANKS});
 
   groups.forEach(g=>{
