@@ -379,14 +379,14 @@ function tankSVG(uid,pct,col,run,statusTxt="",statusCol="#fff"){
     </radialGradient>
     <clipPath id="${cid}"><rect x="${bX+3}" y="${bY+3}" width="${bW-6}" height="${bH-6}" rx="10"/></clipPath>
   </defs>
-  ${run&&pct>0?`<ellipse cx="${bX+bW/2}" cy="${bY+bH*.6}" rx="${bW*.4}" ry="${bH*.25}" fill="url(#${lid})"/>`:''}
+  ${run&&pct>0?('<ellipse cx="'+(bX+bW/2)+'" cy="'+(bY+bH*.6)+'" rx="'+(bW*.4)+'" ry="'+(bH*.25)+'" fill="url(#'+lid+')"/>'):(''}
   <rect x="${bX+2}" y="${bY+4}" width="${bW}" height="${bH+2}" rx="12" fill="rgba(0,0,0,.5)"/>
   <rect x="${bX}" y="${bY}" width="${bW}" height="${bH}" rx="12" fill="#080c18" stroke="#1e2d4a" stroke-width="2"/>
   ${pct>0?`<g clip-path="url(#${cid})">
-    <!-- base fill -->
+    
     <rect x="${bX+3}" y="${fillY+wAmp+2}" width="${bW-6}" height="${fillH}" fill="url(#${gid})"/>
     ${run?`
-    <!-- wave 1 — SVG animateTransform -->
+    
     <g>
       <path d="M${bX+3},${fillY+wAmp} C${bX+3+bW*.3},${fillY} ${bX+3+bW*.7},${fillY} ${bX+3+bW},${fillY+wAmp} C${bX+3+bW*1.3},${fillY+wAmp*2} ${bX+3+bW*1.7},${fillY+wAmp*2} ${bX+3+waveW},${fillY+wAmp} L${bX+3+waveW},${fillY+fillH+10} L${bX+3},${fillY+fillH+10} Z" fill="${rgba(col,.55)}">
         <animateTransform attributeName="transform" type="translate" from="0,0" to="${-bW},0" dur="2.8s" repeatCount="indefinite"/>
@@ -395,13 +395,13 @@ function tankSVG(uid,pct,col,run,statusTxt="",statusCol="#fff"){
         <animateTransform attributeName="transform" type="translate" from="${bW},0" to="0,0" dur="2.8s" repeatCount="indefinite"/>
       </path>
     </g>
-    <!-- wave 2 -->
+    
     <g>
       <path d="M${bX+3},${fillY+wAmp*.8} C${bX+3+bW*.35},${fillY-wAmp*.5} ${bX+3+bW*.65},${fillY-wAmp*.5} ${bX+3+bW},${fillY+wAmp*.8} C${bX+3+bW*1.35},${fillY+wAmp*2} ${bX+3+bW*1.65},${fillY+wAmp*2} ${bX+3+waveW},${fillY+wAmp*.8} L${bX+3+waveW},${fillY+fillH+10} L${bX+3},${fillY+fillH+10} Z" fill="${rgba(col,.25)}">
         <animateTransform attributeName="transform" type="translate" from="${-bW*.4},0" to="${bW*.6},0" dur="3.8s" repeatCount="indefinite"/>
       </path>
     </g>
-    <!-- bubbles -->
+    
     <circle cx="${bX+30}" cy="${fillY+fillH*.4}" r="3" fill="${rgba(col,.5)}" style="animation:rise 2.8s ease-in infinite;animation-delay:.3s"/>
     <circle cx="${bX+bW*.65}" cy="${fillY+fillH*.55}" r="2.5" fill="${rgba(col,.4)}" style="animation:rise 2.2s ease-in infinite;animation-delay:.9s"/>
     <circle cx="${bX+bW*.35}" cy="${fillY+fillH*.7}" r="2" fill="${rgba(col,.35)}" style="animation:rise 3.2s ease-in infinite;animation-delay:1.5s"/>`
