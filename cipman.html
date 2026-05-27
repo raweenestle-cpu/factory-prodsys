@@ -1045,21 +1045,7 @@ window.showPage=(p,btn)=>{
 
 </script>
 
-window.forceClearTank=async(lineId,agTank)=>{
-  if(!agTank){toast('ไม่มี Aging Tank ที่กำหนด','red');return;}
-  if(!confirm('Force Clear ถัง '+agTank+'?\nข้อมูลใน aging_tank_states จะถูก reset เป็น empty'))return;
-  try{
-    await setDoc(doc(db,'aging_tank_states',agTank),{
-      status:'empty',current_vol:0,
-      mix_code:'',mix_name:'',batch_no:'',
-      product_code:'',prod_suffix:'',
-      date:'',past_start_time:'',past_end_time:'',
-      volume_liter:0,process_order:'',
-      updated_at:new Date().toISOString()
-    });
-    toast('✅ Force Clear ถัง '+agTank+' แล้ว','green');
-  }catch(e){toast('ไม่สำเร็จ: '+e.message,'red');}
-};
+
 
 
 window.forceClearTank=async(agTank)=>{
