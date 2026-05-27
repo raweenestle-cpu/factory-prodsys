@@ -187,7 +187,7 @@ import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-ap
 import {resolveStatus,statusLabel,statusColor,statusBlink,statusBadge} from "./shared.js";
 const app=initializeApp({apiKey:"AIzaSyC3f6jMuhugE6BNfRfkpOA9BMrIKWR9YgQ",authDomain:"production-filling.firebaseapp.com",projectId:"production-filling",storageBucket:"production-filling.firebasestorage.app",messagingSenderId:"89098393458",appId:"1:89098393458:web:b723f2886e8a341935afeb"});
 const auth=getAuth(app),db=getFirestore(app);
-let lineNames=[],lineMap={},lineStates={},planRows=[],productMap={},selectedLine='all';
+let lineNames=[],lineMap={},lineStates={},planRows=[],productMap={},selectedLine='all',agingStates={};
 let tickTimer,u1,u2,u3,u4;
 
 const today=()=>new Date().toISOString().slice(0,10);
@@ -240,6 +240,9 @@ async function init(){
   });
   u2=onSnapshot(collection(db,'cip_line_states'),snap=>{
     lineStates={};snap.docs.forEach(d=>{lineStates[d.id]={id:d.id,...d.data()};});renderAll();
+  });
+  onSnapshot(collection(db,'aging_tank_states'),snap=>{
+    agingStates={};snap.docs.forEach(d=>{agingStates[d.id]={id:d.id,...d.data()};});renderAll();
   });
   u3=onSnapshot(query(collection(db,'production_plans'),where('status','in',['pasteurising','past_done','ready','sent_filling'])),snap=>{
     planRows=planRows.filter(x=>x._col!=='production_plans').concat(snap.docs.map(x=>({id:x.id,_col:'production_plans',...x.data()})));renderAll();
@@ -368,12 +371,19 @@ function calcVol(row){
   const group=row._group||[row];
   const capacity=getTankCapacity(row.aging_tank||'');
 
-  // ใช้ค่า current_vol สูงสุดในกลุ่ม (cumulative ล่าสุด)
+  // ดึง current_vol จาก aging_tank_states ก่อน (single source of truth)
+  const atsCv=row.aging_tank&&agingStates[row.aging_tank]&&agingStates[row.aging_tank].current_vol!=null
+    ?+agingStates[row.aging_tank].current_vol:-1;
+  if(atsCv>=0){
+    const filled=Math.min(totalVol,atsCv);
+    const pct=capacity>0?(filled/capacity)*100:0;
+    return{filled,pct,totalVol};
+  }
+  // fallback: ใช้จาก production_plans
   const maxCv=group.reduce((max,r)=>{
     const cv=r.current_vol!=null?+r.current_vol:-1;
     return cv>max?cv:max;
   },-1);
-
   if(maxCv>=0){
     const filled=Math.min(totalVol,maxCv);
     const pct=capacity>0?(filled/capacity)*100:0;

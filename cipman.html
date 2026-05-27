@@ -347,7 +347,7 @@ const auth=getAuth(app);
 const db=getFirestore(app);
 
 let ME=null,ROLE=null;
-let lines=[],lineStates={},productMap={},planRows=[];
+let lines=[],lineStates={},productMap={},planRows=[],agingStates={};
 let cipSL='all';
 window.cipSel=(name,btn)=>{cipSL=name;document.querySelectorAll('#cip-lsb .lsel-btn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderAll();};
 let freezers=[],pipes=[],hwState={};
@@ -443,6 +443,10 @@ async function init(){
   });
   unsubStates=onSnapshot(collection(db,'cip_line_states'),snap=>{
     lineStates={};snap.docs.forEach(d=>{lineStates[d.id]={...d.data()};});
+    renderAll();
+  });
+  onSnapshot(collection(db,'aging_tank_states'),snap=>{
+    agingStates={};snap.docs.forEach(d=>{agingStates[d.id]={id:d.id,...d.data()};});
     renderAll();
   });
 
@@ -744,22 +748,11 @@ function buildCard(line){
 
   // ใช้ current_vol แบบ cumulative — ถ้ามี process_order ให้ดึงจาก active batch
   const _totalVol=+(current.volume_liter||0);
-  let agVol=_totalVol; // default = totalVol (แสดงตามจริง เหมือน aging.html)
-  if(current.process_order&&current.aging_tank){
-    const allPlanRows=planRows;
-    const activeRow=allPlanRows.find(r=>
-      r.process_order===current.process_order&&
-      r.aging_tank===current.aging_tank&&
-      r.status==='pasteurising'&&r.current_vol!=null
-    )||allPlanRows.slice().reverse().find(r=>
-      r.process_order===current.process_order&&
-      r.aging_tank===current.aging_tank&&
-      r.current_vol!=null
-    );
-    agVol=activeRow?.current_vol!=null?+activeRow.current_vol:_totalVol;
-  } else {
-    agVol=current.current_vol!==undefined&&current.current_vol!==null?+current.current_vol:_totalVol;
-  }
+  // ดึง current_vol จาก aging_tank_states (single source of truth)
+  const _atsKey=st.aging_tank||current.aging_tank||'';
+  const _atsCv=_atsKey&&agingStates[_atsKey]&&agingStates[_atsKey].current_vol!=null
+    ?+agingStates[_atsKey].current_vol:-1;
+  let agVol=_atsCv>=0?_atsCv:_totalVol;
   const sv=st.start_vol||agVol;
   // ก่อน Start → แสดง agVol ตรงๆ / หลัง Start → countdown จาก start_vol
   const rem=isRunning?Math.max(0,(st.start_vol||agVol)-((Date.now()-(st.start_ts||0))/3600000*(st.flow_rate||line.flow_rate||300))):agVol;
@@ -781,7 +774,10 @@ function buildCard(line){
     const rpc=row.prod_suffix?(ryr+'0522'+runit+row.prod_suffix):'—';
     const dot=p.color||'#60a5fa';
     const qVol=+(row.volume_liter||0);
-    const qRem=row.current_vol!==undefined&&row.current_vol!==null?+row.current_vol:qVol;
+    const _qatsKey=row.aging_tank||'';
+    const _qatsCv=_qatsKey&&agingStates[_qatsKey]&&agingStates[_qatsKey].current_vol!=null
+      ?+agingStates[_qatsKey].current_vol:-1;
+    const qRem=_qatsCv>=0?_qatsCv:(row.current_vol!=null?+row.current_vol:qVol);
     const _capQ=getTankCapacity(row.aging_tank||'');
     const qPct=_capQ>0?(qRem/_capQ)*100:0;
     let stTxt='—',stC='var(--t2)';
