@@ -343,6 +343,36 @@ function getTanks(name){
   });
   return grouped;
 }
+// หา product ที่ตรงกับ mix_code จาก LINE Master
+function getProductForMix(lineName, mixCode){
+  const l=lineMap[lineName];
+  if(!l||!l.products)return null;
+  return l.products.find(p=>(p.mix_codes||[]).find(m=>m.code===mixCode))||null;
+}
+
+// group rows ที่เป็น product เดียวกัน (multi-mix)
+function groupByProduct(rows){
+  const groups=[];const seen=new Set();
+  rows.forEach(row=>{
+    if(seen.has(row.id))return;
+    const prod=getProductForMix(row.filling_line,row.mix_code);
+    const mixCodes=(prod?.mix_codes||[]).map(m=>m.code);
+    if(mixCodes.length<=1){
+      seen.add(row.id);
+      groups.push([row]);
+      return;
+    }
+    const grp=rows.filter(r=>r.process_order===row.process_order&&mixCodes.includes(r.mix_code));
+    grp.forEach(r=>seen.add(r.id));
+    groups.push(grp);
+  });
+  return groups;
+}
+
+function isGroupReady(grp){
+  return grp.every(r=>(r.status==='past_done'||r.status==='ready')&&r.past_end_time);
+}
+
 function getCurrentTank(tanks){
   // กำลังผลิต = past_done + บ่มครบแล้ว หรือ ready
   return tanks.find(r=>(r.status==='past_done'||r.status==='ready')&&isCuringDone(r)&&r.status!=='sent_filling')||null;
@@ -400,56 +430,35 @@ function svg(uid,pct,col,run){
   const W=140,H=195;
   const bX=18,bY=22,bW=W-36,bH=H-50;
   const _pct=Math.min(pct,100);
-  const maxFillH=(bH-6)*0.92; // 100% = 92% ของถัง
+  const maxFillH=(bH-6)*0.92;
   const fillH=Math.max(0,(_pct/100)*maxFillH);
   const fillY=bY+bH-3-fillH;
-  const gid='g'+uid,cid='c'+uid,wid='wc'+uid;
-  const bc=pct>50?'#1fd17a':pct>20?'#f5c842':'#f04f5e';
-  return`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto">
-<defs>
-  <linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1">
-    <stop offset="0%" stop-color="${col}" stop-opacity=".95"/>
-    <stop offset="100%" stop-color="${dk(col)}" stop-opacity="1"/>
-  </linearGradient>
-  <clipPath id="${cid}"><rect x="${bX+2}" y="${bY+2}" width="${bW-4}" height="${bH-4}" rx="6"/></clipPath>
-</defs>
-<!-- shadow -->
-<rect x="${bX+2}" y="${bY+4}" width="${bW}" height="${bH}" rx="8" fill="rgba(0,0,0,.7)"/>
-<!-- body -->
-<rect x="${bX}" y="${bY}" width="${bW}" height="${bH}" rx="8" fill="#060a14" stroke="${rgba(col,.5)}" stroke-width="2"/>
-${_pct>0?`
-<g clip-path="url(#${cid})">
-  <!-- base fill -->
-  <rect x="${bX+2}" y="${fillY+4}" width="${bW-4}" height="${fillH+4}" fill="url(#${gid})"/>
-  ${run?`
-  <!-- wave 1 -->
-  <g style="animation:wave 2.5s linear infinite">
-    <path d="M${bX+2},${fillY+3} q${bW*.2},-6 ${bW*.4},0 q${bW*.2},6 ${bW*.4},0 q${bW*.2},-6 ${bW*.4},0 q${bW*.2},6 ${bW*.4},0 v${fillH+6} h-${bW*3} z" fill="${rgba(col,.55)}"/>
-  </g>
-  <!-- wave 2 -->
-  <g style="animation:wave2 3.5s linear infinite">
-    <path d="M${bX+2},${fillY+2} q${bW*.25},-4 ${bW*.5},0 q${bW*.25},4 ${bW*.5},0 q${bW*.25},-4 ${bW*.5},0 v${fillH+5} h-${bW*3} z" fill="${rgba(col,.25)}"/>
-  </g>
-  <!-- bubbles -->
-  <circle cx="${bX+14}" cy="${fillY+fillH*.4}" r="2" fill="${rgba(col,.5)}" style="animation:rise 2.5s ease-in infinite"/>
-  <circle cx="${bX+bW*.65}" cy="${fillY+fillH*.55}" r="1.7" fill="${rgba(col,.4)}" style="animation:rise 2s ease-in infinite;animation-delay:.8s"/>
-  `:`<rect x="${bX+2}" y="${fillY+2}" width="${bW-4}" height="4" rx="2" fill="${rgba(col,.5)}"/>`}
-  <!-- shine -->
-  <rect x="${bX+4}" y="${fillY+6}" width="6" height="${Math.max(0,fillH*.35)}" rx="3" fill="rgba(255,255,255,.07)"/>
-</g>
-<!-- level line -->
-<line x1="${bX+bW+2}" y1="${fillY+3}" x2="${bX+bW+9}" y2="${fillY+3}" stroke="${bc}" stroke-width="2.5" stroke-linecap="round"/>`:''}
-<!-- border overlay -->
-<rect x="${bX}" y="${bY}" width="${bW}" height="${bH}" rx="8" fill="none" stroke="${_pct>0?rgba(col,.6):'#1e2d4a'}" stroke-width="2"/>
-<!-- neck -->
-<rect x="${bX+(bW-28)/2}" y="${bY-8}" width="28" height="10" rx="3" fill="#060a14" stroke="#1e2d4a" stroke-width="1.5"/>
-<!-- cap -->
-<rect x="${bX+(bW-36)/2}" y="${bY-13}" width="36" height="6" rx="3" fill="#08101a" stroke="#1e2d4a" stroke-width="1.5"/>
-<!-- legs -->
-<rect x="${bX+8}" y="${bY+bH}" width="7" height="10" rx="2" fill="#060a14" stroke="#1e2d4a" stroke-width="1.5"/>
-<rect x="${bX+bW-15}" y="${bY+bH}" width="7" height="10" rx="2" fill="#060a14" stroke="#1e2d4a" stroke-width="1.5"/>
-<rect x="${bX+3}" y="${bY+bH+9}" width="${bW-6}" height="3" rx="1.5" fill="#060a14" stroke="#1e2d4a" stroke-width="1.5"/>
-</svg>`;
+  const gid='g'+uid,cid='c'+uid;
+  const wAmp=5;
+  let s="";
+  s+='<svg width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;height:auto">';
+  s+='<defs>';
+  s+='<linearGradient id="'+gid+'" x1="0" y1="0" x2="0" y2="1">';
+  s+='<stop offset="0%" stop-color="'+col+'" stop-opacity=".7"/>';
+  s+='<stop offset="100%" stop-color="'+col+'" stop-opacity=".95"/>';
+  s+='</linearGradient>';
+  s+='<clipPath id="'+cid+'"><rect x="'+( bX+2)+'" y="'+( bY+2)+'" width="'+( bW-4)+'" height="'+( bH-4)+'" rx="6"/></clipPath>';
+  s+='</defs>';
+  s+='<rect x="'+bX+'" y="'+bY+'" width="'+bW+'" height="'+bH+'" rx="8" fill="rgba(255,255,255,.15)" stroke="'+col+'" stroke-width="2" stroke-opacity=".4"/>';
+  if(_pct>0){
+    s+='<g clip-path="url(#'+cid+')">';
+    s+='<rect x="'+( bX+2)+'" y="'+( fillY+wAmp+2)+'" width="'+( bW-4)+'" height="'+fillH+'" fill="url(#'+gid+')"/>';
+    s+='<path d="M'+( bX+2)+','+( fillY+wAmp)+' C'+( bX+2+bW*.25)+','+fillY+' '+( bX+2+bW*.5)+','+( fillY+wAmp*2)+' '+( bX+2+bW*.75)+','+fillY+' S'+( bX+2+bW*1.25)+','+( fillY+wAmp*2)+' '+( bX+2+bW*1.5)+','+fillY+'" fill="'+col+'" fill-opacity=".5"><animateTransform attributeName="transform" type="translate" from="0,0" to="'+(-bW)+',0" dur="2s" repeatCount="indefinite"/></path>';
+    s+='<ellipse cx="'+( bX+bW*.35)+'" cy="'+( fillY+3)+'" rx="'+( bW*.2)+'" ry="2" fill="white" fill-opacity=".25"/>';
+    s+='</g>';
+  }
+  s+='<rect x="'+bX+'" y="'+bY+'" width="'+bW+'" height="'+bH+'" rx="8" fill="none" stroke="'+col+'" stroke-width="2" stroke-opacity=".6"/>';
+  s+='<rect x="'+( bX+(bW-28)/2)+'" y="'+( bY-8)+'" width="28" height="10" rx="3" fill="rgba(255,255,255,.2)" stroke="'+col+'" stroke-width="1.5" stroke-opacity=".4"/>';
+  s+='<rect x="'+( bX+(bW-36)/2)+'" y="'+( bY-13)+'" width="36" height="6" rx="3" fill="rgba(255,255,255,.2)" stroke="'+col+'" stroke-width="1.5" stroke-opacity=".4"/>';
+  s+='<rect x="'+( bX+8)+'" y="'+( bY+bH)+'" width="7" height="10" rx="2" fill="rgba(255,255,255,.2)" stroke="'+col+'" stroke-width="1" stroke-opacity=".4"/>';
+  s+='<rect x="'+( bX+bW-15)+'" y="'+( bY+bH)+'" width="7" height="10" rx="2" fill="rgba(255,255,255,.2)" stroke="'+col+'" stroke-width="1" stroke-opacity=".4"/>';
+  s+='</svg>';
+  return s;
 }
 
 function card(row,isCur,isSingle=false){
@@ -486,9 +495,9 @@ function card(row,isCur,isSingle=false){
       <span class="ch-code">${row.mix_name||'—'}</span>
     </div>
     <div class="ch-batch">Batch ${row.batch_no||'—'}</div>
-    <div class="ch-rp">${rp}</div>
+    <div class="ch-rp"><span style="font-size:10px;color:var(--t2);font-weight:600">รหัสผลิต: </span>${rp}</div>
   </div>
-  <div class="ab">${at}</div>
+  <div class="ab">${at} <span style="font-size:10px;color:var(--t2);font-weight:600">(${(getTankCapacity(at)).toLocaleString()} ลิตร)</span></div>
   <div class="sw">
     ${svg(uid,pct,col,isActive)}
     <div class="so">
@@ -534,15 +543,16 @@ function renderAll(){
   visibleLines.forEach(name=>{
     const tanks=getTanks(name);
     if(!tanks.length)return;
-    const cur=getCurrentTank(tanks);
-    const queue=getQueueTanks(tanks,cur);
+    const groups=groupByProduct(tanks);
+    const curGroups=groups.filter(g=>isGroupReady(g));
+    const queGroups=groups.filter(g=>!isGroupReady(g));
     const curW=isSingle?'width:280px':'';
     html+='<div class="ls"><div class="ls-title">'+name.toUpperCase()+'</div>';
     html+='<div class="pr"><div class="cur-wrap" style="'+curW+'">';
     html+='<div class="sec-hd"><span class="dot-g"></span><span style="color:var(--green)">กำลังผลิตอยู่</span></div>';
-    html+=cur?card(cur,true,isSingle):'<div style="font-family:var(--mono);font-size:12px;color:var(--t3);padding:30px;text-align:center">⏳ รอบ่มเสร็จก่อน</div>';
-    html+='</div><div class="que-wrap"><div class="sec-hd"><span class="dot-q"></span><span style="color:var(--t2)">คิวรอผลิตถัดไป</span></div><div class="que-inner">';
-    html+=queue.length?queue.map(t=>card(t,false,isSingle)).join(''):'<div style="font-family:var(--mono);font-size:12px;color:var(--t3);padding:20px">ไม่มีคิว</div>';
+    html+=curGroups.length?curGroups.map(g=>g.map(r=>card(r,true,isSingle)).join('')).join(''):'<div style="font-family:var(--mono);font-size:12px;color:var(--t3);padding:12px">ไม่มีถังที่พร้อมผลิต</div>';
+    html+='</div><div class="que-wrap"><div class="sec-hd"><span class="dot-q"></span><span style="color:var(--yellow)">คิวถัดไป</span></div>';
+    html+=queGroups.length?queGroups.map(g=>g.map(r=>card(r,false,isSingle)).join('')).join(''):'<div style="font-family:var(--mono);font-size:12px;color:var(--t3);padding:12px">ไม่มีคิว</div>';
     html+='</div></div></div></div>';
   });
   $('mg').innerHTML=html||'<div style="padding:80px;text-align:center;color:var(--t3);font-family:var(--mono)">📋 ไม่มีข้อมูลการผลิต</div>';
@@ -552,8 +562,11 @@ function tick(){
   lineNames.forEach(name=>{
     const tanks=getTanks(name);
     if(!tanks.length)return;
-    const cur=getCurrentTank(tanks);
-    const queue=getQueueTanks(tanks,cur);
+    const _grps=groupByProduct(tanks);
+    const _curGrps=_grps.filter(g=>isGroupReady(g));
+    const _queGrps=_grps.filter(g=>!isGroupReady(g));
+    const cur=_curGrps[0]?_curGrps[0][0]:null;
+    const queue=_queGrps.flatMap(g=>g);
     // อัปเดตทุก tank ที่กำลัง pasteurising
     tanks.forEach(row=>{
       if(row.status!=='pasteurising'||!row.past_start_time)return;
