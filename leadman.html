@@ -353,7 +353,8 @@ let rows = { m1:[], m2:[] };
 let unsub = { m1:null, m2:null };
 let prefix = { 1:"", 2:"" };
 let dragSrc = null;
-
+let dragSrc = null;
+let agingStates = {};
 // ── UTILS ──────────────────────────────────────────────────────────────
 const today  = () => new Date().toISOString().slice(0,10);
 const $      = id => document.getElementById(id);
@@ -538,6 +539,23 @@ window._del = async(col,id,m) => {
 const SC = {pending:'#1f2937',mixing:'#78350f',waiting_past:'#1e3a5f',pasteurising:'#1e3a8a',past_done:'#14532d',ready:'#14532d',sent_filling:'#4a1d96',filling:'#14532d',curing:'#7c2d12',empty:'#713f12',cleaned:'#374151'};
 const ST = {pending:'#6b7280',mixing:'#fbbf24',waiting_past:'#60a5fa',pasteurising:'#3b82f6',past_done:'#22c55e',ready:'#4ade80',sent_filling:'#c084fc',filling:'#22c55e',curing:'#f97316',empty:'#eab308',cleaned:'#e5e7eb'};
 const SA = {pending:"none",mixing:"none",pasteurising:"blink 0.7s infinite",past_done:"none",ready:"none"};
+
+// ── AGING TANK SELECT ──────────────────────────────────────────────────
+function agingTankSelect(col,row){
+  var cl=lines.find(function(l){return l.name===row.filling_line;});
+  var agTanks=cl&&cl.aging_tanks?cl.aging_tanks:[];
+  if(!agTanks.length) return '<span style="font-size:10px;color:#6b7280">—</span>';
+  var stMap={empty:'⚫ ว่าง',cip:'🔵 CIP',cip_done:'🔵 CIP เสร็จ',san:'🟢 San.',san_done:'🟢 San.เสร็จ'};
+  var opts='<option value="">— เลือกถัง —</option>';
+  agTanks.forEach(function(tid){
+    var st=(agingStates[tid]&&agingStates[tid].status)||'empty';
+    var lbl=stMap[st]||st;
+    var sel=row.aging_tank===tid?' selected':'';
+    opts+='<option value="'+tid+'"'+sel+'>'+tid+' — '+lbl+'</option>';
+  });
+  return '<select class="ci" style="width:140px" onchange="_up(''+col+'',''+row.id+'','aging_tank',this.value)">'+opts+'</select>';
+}
+
 
 function renderPlan(m){
   const col  = planCol(m);
