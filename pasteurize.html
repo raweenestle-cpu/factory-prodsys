@@ -435,6 +435,7 @@ const planCol=(p)=>p==="p1"?"production_plans":"production_plans_m2";
 const today  = ()=>new Date().toISOString().slice(0,10);
 const $      = id=>document.getElementById(id);
 const nowHHMM= ()=>{const d=new Date();return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");};
+const nowHHMMSS=()=>{const d=new Date();return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0")+":"+String(d.getSeconds()).padStart(2,"0");};
 
 function toast(msg,t="blue"){
   const el=$("toast");el.textContent=msg;
@@ -540,9 +541,11 @@ setInterval(async()=>{
       const speed=p==='p1'?+(prod.speed_m1||prod.speed||0):+(prod.speed_m2||prod.speed||0);
       if(!speed||!totalVol){console.warn('SKIP',p,agRow.mix_code,'speed:',speed,'vol:',totalVol,'prod:',JSON.stringify(prod));continue;}
       const totalMin=(totalVol*density*60)/speed;
-      const[h,mm]=agRow.past_start_time.split(':').map(Number);
-      const start=new Date((agRow.date||new Date().toISOString().slice(0,10))+'T'+String(h).padStart(2,'0')+':'+String(mm).padStart(2,'0')+':00');
-      const elapsedMin=Math.max(0,(Date.now()-start)/60000);
+      const _tParts=agRow.past_start_time.split(':').map(Number);
+      const[h,mm,ss]=[ _tParts[0]||0, _tParts[1]||0, _tParts[2]||0 ];
+      const start=new Date((agRow.date||new Date().toISOString().slice(0,10))+'T'+String(h).padStart(2,'0')+':'+String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0'));
+      const elapsedSec2=Math.max(0,(Date.now()-start)/1000);
+      const elapsedMin=elapsedSec2/60;
       const agVol=totalMin>0?Math.min(totalVol,(elapsedMin/totalMin)*totalVol):0;
 
       // รวม current_vol จาก batch อื่นที่ process_order + aging_tank เดียวกัน (past_done แล้ว)
@@ -591,8 +594,11 @@ setInterval(async()=>{
         const key=agRow.id;
         if(!_autoStamping.has(key)){
           _autoStamping.add(key);
-          const endTime=nowHHMM();
-          const eff=totalMin>0?(totalMin/elapsedMin)*100:0;
+          const endTime=nowHHMMSS();
+          // คำนวณ elapsed เป็นวินาที
+          const elapsedSec=Math.max(1,(Date.now()-start)/1000);
+          const totalSec=totalMin*60;
+          const eff=totalSec>0?(totalSec/elapsedSec)*100:0;
 
           // คำนวณ Eff%
           const effOk=eff>=97&&eff<=100;
@@ -1302,7 +1308,7 @@ async function checkAndArchive(p){
 
 // ── STAMP ─────────────────────────────────────────────────────────────
 window.stampTime=async(col,id,field,p)=>{
-  const now=nowHHMM();
+  const now=field==="past_end_time"?nowHHMMSS():nowHHMMSS();
   const upd={[field]:now};
 
   if(field==="past_start_time") upd.status="pasteurising";
@@ -1317,12 +1323,14 @@ window.stampTime=async(col,id,field,p)=>{
       const totalVol=+(row.volume_liter||0);
       const reqMin=(totalVol*density*60)/speed;
 
-      const[sh,sm]=row.past_start_time.split(':').map(Number);
-      const[eh,em]=now.split(':').map(Number);
-      let actualMin=(eh*60+em)-(sh*60+sm);
-      if(actualMin<0) actualMin+=1440;
-
-      const eff=actualMin>0?(reqMin/actualMin)*100:0;
+      const _sp=row.past_start_time.split(':').map(Number);
+      const _ep=now.split(':').map(Number);
+      const startSec=(_sp[0]||0)*3600+(_sp[1]||0)*60+(_sp[2]||0);
+      const endSec=(_ep[0]||0)*3600+(_ep[1]||0)*60+(_ep[2]||0);
+      let actualSec=endSec-startSec;
+      if(actualSec<0) actualSec+=86400;
+      const actualMin=actualSec/60;
+      const eff=actualSec>0?(reqMin*60/actualSec)*100:0;
       upd.eff=Math.round(eff*10)/10;
 
       if(eff<97||eff>100){
@@ -1347,10 +1355,10 @@ window.stampTime=async(col,id,field,p)=>{
 
 // ── EDIT / DELETE TIME ────────────────────────────────────────────────
 window.editTimePrompt=async(col,id,field,current)=>{
-  const val=prompt("แก้ไขเวลา (HH:MM) :",current||"");
+  const val=prompt("แก้ไขเวลา (HH:MM หรือ HH:MM:SS) :",current||"");
   if(val===null)return;
   const clean=val.trim();
-  if(!/^\d{2}:\d{2}$/.test(clean)){toast("รูปแบบ HH:MM เท่านั้น","red");return;}
+  if(!/^\d{2}:\d{2}(:\d{2})?$/.test(clean)){toast("รูปแบบ HH:MM หรือ HH:MM:SS เท่านั้น","red");return;}
   const upd={[field]:clean};
   if(field==="past_start_time"&&clean) upd.status="pasteurising";
   if(field==="past_end_time"&&clean)   upd.status="pasteurising";
@@ -1394,10 +1402,10 @@ window.submitPast=async(col,id,p,eff,warn)=>{
 
 // ── EDIT / DELETE TIME ────────────────────────────────────────────────
 window.editTimePrompt=async(col,id,field,current)=>{
-  const val=prompt("แก้ไขเวลา (HH:MM) :",current||"");
+  const val=prompt("แก้ไขเวลา (HH:MM หรือ HH:MM:SS) :",current||"");
   if(val===null)return;
   const clean=val.trim();
-  if(!/^\d{2}:\d{2}$/.test(clean)){toast("รูปแบบ HH:MM เท่านั้น","red");return;}
+  if(!/^\d{2}:\d{2}(:\d{2})?$/.test(clean)){toast("รูปแบบ HH:MM หรือ HH:MM:SS เท่านั้น","red");return;}
   const upd={[field]:clean};
   if(field==="past_start_time"&&clean) upd.status="pasteurising";
   if(field==="past_end_time"&&clean)   upd.status="past_done";
@@ -1433,7 +1441,7 @@ function renderPlan(p){
     // เวลาที่ต้องใช้ Past. (นาที)
     const reqMin=vol>0&&speed>0?Math.round(vol*density*60/speed):0;
     // คาดเสร็จ
-    function addMin(t,m){if(!t||!m)return"—";const[h,mn]=t.split(":").map(Number);const tot=h*60+mn+m;return String(Math.floor(tot/60)%24).padStart(2,"0")+":"+String(tot%60).padStart(2,"0");}
+    function addMin(t,m){if(!t||!m)return"—";const _p=t.split(":").map(Number);const totSec=(_p[0]||0)*3600+(_p[1]||0)*60+(_p[2]||0)+m*60;const th=Math.floor(totSec/3600)%24;const tmn=Math.floor((totSec%3600)/60);const ts=Math.round(totSec%60);return String(th).padStart(2,"0")+":"+String(tmn).padStart(2,"0")+":"+String(ts).padStart(2,"0");}
     const estFinish=row.past_start_time?addMin(row.past_start_time,reqMin):"—";
     // Efficiency — แสดง real-time ระหว่าง past. และหลัง stamp เสร็จ
     let effHTML="—";
