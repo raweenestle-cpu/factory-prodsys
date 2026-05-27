@@ -598,22 +598,7 @@ function renderPlan(m){
           })()}
         </select>
       </td>
-      <td id="ag-td-${row.id}">
-        ${(()=>{
-          const cl=lines.find(l=>l.name===row.filling_line);
-          const agTanks=cl&&cl.aging_tanks?cl.aging_tanks:[];
-          if(!agTanks.length) return '<span style="font-size:10px;color:var(--t3)">—</span>';
-          let opts='<option value="">— เลือกถัง —</option>';
-          agTanks.forEach(tid=>{
-            const st=(agingStates[tid]&&agingStates[tid].status)||'empty';
-            const stMap={empty:'⚫ ว่าง',cip:'🔵 CIP',cip_done:'🔵 CIP เสร็จ',san:'🟢 San.',san_done:'🟢 San.เสร็จ'};
-            const lbl=stMap[st]||st;
-            const sel=row.aging_tank===tid?' selected':'';
-            opts+='<option value="'+tid+'"'+sel+'>'+tid+' — '+lbl+'</option>';
-          });
-          return '<select class="ci" style="width:140px" onchange="_up(\'${col}\',\'${row.id}\',\'aging_tank\',this.value)">'+opts+'</select>';
-        })()}
-      </td>
+      <td>${agingTankSelect(col,row)}</td>
       <td><input class="ci" style="width:72px;text-align:center;letter-spacing:.08em;font-family:var(--mono)" type="text" inputmode="numeric" maxlength="5" value="${row.start_time||""}" placeholder="0800" oninput="
         let v=this.value.replace(/\D/g,'').slice(0,4);
         if(v.length>=3)this.value=v.slice(0,2)+':'+v.slice(2);
