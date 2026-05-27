@@ -406,21 +406,6 @@ function tankSVG(uid,pct,col,run,statusTxt,statusCol){
   s+='</svg>';
   return s;
 }
-    s+='</g>';
-  }
-  s+='<rect x="'+bX+'" y="'+bY+'" width="'+bW+'" height="'+bH+'" rx="12" fill="none" stroke="'+( pct>0?rgba(col,.35):"#1e2d4a")+'" stroke-width="1.5"/>';
-  if(pct>0) s+='<line x1="'+( bX+bW+3)+'" y1="'+( fillY+wAmp)+'" x2="'+( bX+bW+10)+'" y2="'+( fillY+wAmp)+'" stroke="'+barC+'" stroke-width="1.5" stroke-linecap="round"/>';
-  s+='<rect x="'+nX+'" y="'+( bY-nH)+'" width="'+nW+'" height="'+( nH+5)+'" rx="4" fill="#080c18" stroke="#1e2d4a" stroke-width="1"/>';
-  s+='<rect x="'+cX+'" y="'+( bY-nH-cH)+'" width="'+cW+'" height="'+( cH+3)+'" rx="4" fill="#0c1020" stroke="#1e2d4a" stroke-width="1"/>';
-  s+='<rect x="'+( bX+8)+'" y="'+( bY+bH)+'" width="8" height="11" rx="2" fill="#080c18" stroke="#1e2d4a" stroke-width="1"/>';
-  s+='<rect x="'+( bX+bW-16)+'" y="'+( bY+bH)+'" width="8" height="11" rx="2" fill="#080c18" stroke="#1e2d4a" stroke-width="1"/>';
-  if(statusTxt){
-    s+='<rect x="'+( bX+3)+'" y="'+( bY+bH-22)+'" width="'+( bW-6)+'" height="15" rx="5" fill="rgba(0,0,0,.65)"/>';
-    s+='<text x="'+( bX+bW/2)+'" y="'+( bY+bH-11)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="'+statusCol+'" font-weight="700">'+statusTxt+'</text>';
-  }
-  s+='</svg>';
-  return s;
-}
 
 function hexAlpha(hex,a){
   if(!hex||hex.startsWith('var(')) return'rgba(100,116,139,'+a+')';
