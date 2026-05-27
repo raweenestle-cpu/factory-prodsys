@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-  <link rel="manifest" href="manifest.json">
+  
   <meta name="theme-color" content="#db2777">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -14,8 +14,8 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;600;700&family=Sarabun:wght@400;500;600;700&display=swap');
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#0d0810;--s1:#130d18;--s2:#1a1020;--s3:#221428;--b1:#2d1a38;--b2:#3d2450;
-  --text:#f0e8f5;--t2:#9b7ab0;--t3:#4a2d60;
+  --bg:#f8fafc;--s1:#ffffff;--s2:#f1f5f9;--s3:#e2e8f0;--b1:#cbd5e1;--b2:#94a3b8;
+  --text:#0f172a;--t2:#334155;--t3:#64748b;
   --pink:#f472b6;--pink2:#ec4899;--pink3:#db2777;
   --rose:#fda4af;--lilac:#c084fc;--lavender:#a78bfa;
   --green:#4ade80;--yellow:#fbbf24;--red:#f87171;--cyan:#67e8f9;--orange:#fb923c;
@@ -167,7 +167,7 @@ tbody tr:hover td{background:rgba(244,114,182,.04)!important}
   background:linear-gradient(135deg,var(--pink),var(--lilac));
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px}
 .sig-sub{font-size:12px;color:var(--t2);margin-bottom:16px}
-#sig-canvas{width:100%;height:160px;background:#fff5f8;border-radius:12px;
+#sig-canvas{width:100%;height:160px;background:rgba(255,255,255,0.05);border-radius:12px;
   border:2px solid rgba(244,114,182,.4);cursor:crosshair;touch-action:none;display:block}
 .sig-btns{display:flex;gap:8px;margin-top:14px}
 .sig-btn{flex:1;padding:11px;border-radius:12px;border:none;font-family:var(--mono);
@@ -850,7 +850,9 @@ function initCanvas(){
   const canvas=$('sig-canvas');
   const ctx=canvas.getContext('2d');
   ctx.clearRect(0,0,canvas.width,canvas.height);
-  ctx.strokeStyle='#1fd17a';
+  ctx.strokeStyle='#ffffff';
+  ctx.shadowColor='#60a5fa';
+  ctx.shadowBlur=6;
   ctx.lineWidth=2.5;
   ctx.lineCap='round';
   ctx.lineJoin='round';
@@ -890,14 +892,6 @@ async function initIdleTimeout(){
   }catch(e){console.warn('idle:',e);}
 }
 </script>
-<script>
-if('serviceWorker' in navigator){
-  window.addEventListener('load',()=>{
-    navigator.serviceWorker.register('sw.js')
-      .then(r=>console.log('SW registered'))
-      .catch(e=>console.warn('SW failed:',e));
-  });
-}
-</script>
+
 </body>
 </html>
