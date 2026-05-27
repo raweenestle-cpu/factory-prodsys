@@ -548,8 +548,11 @@ function renderAll(){
     const tanks=getTanks(name);
     if(!tanks.length)return;
     const groups=groupByProduct(tanks);
-    const curGroups=groups.filter(g=>isGroupReady(g));
-    const queGroups=groups.filter(g=>!isGroupReady(g));
+    const readyGroups=groups.filter(g=>isGroupReady(g));
+    const notReadyGroups=groups.filter(g=>!isGroupReady(g));
+    // แสดงกำลังผลิตแค่กลุ่มแรก ส่วนที่เหลือรอคิว
+    const curGroups=readyGroups.slice(0,1);
+    const queGroups=[...readyGroups.slice(1),...notReadyGroups];
     const curW=isSingle?'width:280px':'';
     html+='<div class="ls"><div class="ls-title">'+name.toUpperCase()+'</div>';
     html+='<div class="pr"><div class="cur-wrap" style="'+curW+'">';
