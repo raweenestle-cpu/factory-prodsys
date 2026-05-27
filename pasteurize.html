@@ -22,7 +22,7 @@
   --b1:#b0bac8;--b2:#8896aa;
   --text:#111827;--t2:#374151;--t3:#6b7280;
   --blue:#2563eb;--blue2:#3b82f6;
-  --green:#15803d;--yellow:#92400e;--red:#b91c1c;--cyan:#0e7490;--orange:#c2410c;
+  --green:#1d4ed8;--yellow:#ca8a04;--red:#dc2626;--cyan:#0891b2;--orange:#ea580c;
   --mono:'DM Mono',monospace;--sans:'Sarabun',sans-serif;
 }
 body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13px;min-height:100vh;font-weight:500}
@@ -57,7 +57,7 @@ thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap
 .row-past{background:rgba(249,115,22,.08)!important;border-left:3px solid var(--orange)}
 .row-past td{background:rgba(249,115,22,.08)!important}
 .row-past td *:not(.stamp-btn):not(.stat-badge):not(.ci){color:var(--orange)!important}
-.row-done{background:rgba(34,197,94,.13)!important;border-left:3px solid #22c55e}
+.row-done{background:rgba(34,197,94,.13)!important;border-left:3px solid #1d4ed8}
 .row-done td{background:rgba(34,197,94,.13)!important}
 .row-done td *:not(.stamp-btn):not(.stat-badge):not(.ci){color:#4ade80!important}
 .row-wait{background:rgba(234,179,8,.07)!important;border-left:3px solid var(--yellow)}
@@ -277,7 +277,7 @@ thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap
 /* Real-time Shift Chart — แนวตั้ง */
 .shift-chart-card{background:linear-gradient(135deg,#080d1a,#0d1525);border:1px solid #1e2535;border-radius:12px;padding:12px 10px;height:100%;box-sizing:border-box;display:flex;flex-direction:column;}
 .shift-chart-title{font-family:'DM Mono',monospace;font-size:10px;color:#60a5fa;font-weight:700;letter-spacing:1px;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
-.shift-live-dot{width:8px;height:8px;background:#22c55e;border-radius:50%;animation:livePulse 1.2s ease-in-out infinite;}
+.shift-live-dot{width:8px;height:8px;background:#1d4ed8;border-radius:50%;animation:livePulse 1.2s ease-in-out infinite;}
 @keyframes livePulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(34,197,94,.4)}50%{opacity:.7;box-shadow:0 0 0 6px rgba(34,197,94,0)}}
 .shift-bars-wrap{display:flex;align-items:flex-end;gap:8px;height:100%;padding:0 4px;}
 .shift-bar-col{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;}
@@ -518,7 +518,7 @@ setInterval(()=>{
       const actualMin=(now.getHours()*60+now.getMinutes())-(sh*60+sm);
       if(actualMin<=0) return;
       const eff=reqMin/actualMin*100;
-      const effColor=eff>=97&&eff<=100?"#22c55e":eff>100?"#f97316":"#ef4444";
+      const effColor=eff>=97&&eff<=100?"#1d4ed8":eff>100?"#f97316":"#ef4444";
       const effLabel=eff>=97&&eff<=100?"✅":eff>100?"⚠️":"❌";
       const el=document.getElementById("eff-rt-"+row.id);
       if(el) el.innerHTML=`<span style="font-family:var(--mono);font-size:12px;font-weight:700;color:${effColor}">${effLabel} ${eff.toFixed(1)}%</span>`;
@@ -833,7 +833,7 @@ function renderTankVisual(m,rows){
     if(st==='mixing')                          return{txt:'🔄 กำลังผสม',     col:'#eab308',tankCol:'#eab308',tankCol2:'#78350f'};
     if(st==='pasteurising'&&!hasStartTime)     return{txt:'🔵 รอ Pasteurise',      col:'#eab308',tankCol:'#eab308',tankCol2:'#78350f'};
     if(st==='pasteurising'&&hasStartTime)      return{txt:'🔵 กำลัง Pasteurise',  col:'#f97316',tankCol:'#f97316',tankCol2:'#9a3412'};
-    if(st==='past_done'||st==='ready')         return{txt:'✅ Past.เสร็จ',   col:'#22c55e',tankCol:'#22c55e',tankCol2:'#14532d'};
+    if(st==='past_done'||st==='ready')         return{txt:'✅ Past.เสร็จ',   col:'#1d4ed8',tankCol:'#1d4ed8',tankCol2:'#14532d'};
     return{txt:'—',col:'#374151',tankCol:'#374151',tankCol2:'#1f2937'};
   }
 
@@ -866,11 +866,11 @@ function renderTankVisual(m,rows){
   const mx1=mixTankVol(t1Row,t1Total,t1Active,t1Done);
   const mx2=mixTankVol(t2Row,t2Total,t2Active,t2Done);
   const sAg={txt:isFlowing?'♨️ รับของ':agVol>0?'✅ เต็ม':'⚪ ว่าง',
-             col:isFlowing?'#f97316':agVol>0?'#22c55e':'#374151',
-             tankCol:isFlowing?'#f97316':agVol>0?'#22c55e':'#374151',
+             col:isFlowing?'#f97316':agVol>0?'#1d4ed8':'#374151',
+             tankCol:isFlowing?'#f97316':agVol>0?'#1d4ed8':'#374151',
              tankCol2:isFlowing?'#9a3412':agVol>0?'#14532d':'#1f2937'};
 
-  const ac=isFlowing?'#22c55e':'#374151';
+  const ac=isFlowing?'#1d4ed8':'#374151';
   const pc=isFlowing?'#06b6d4':'#1e2535';
   const pf=isFlowing?'.85':'.25';
 
@@ -911,7 +911,7 @@ function renderTankVisual(m,rows){
   function drawTank(tx,ty,tw,th,vol,total,label,sublabel,status,gid,cid,c1,c2,wave){
     const hasLiq=vol>0&&total>0;
     const borderCol=wave?rgba(c1,.7):hasLiq?rgba(c1,.4):'#1e2535';
-    const motorCol=hasLiq?'#22c55e':'#1e2535'; // สีเขียวเมื่อมีของ
+    const motorCol=hasLiq?'#1d4ed8':'#1e2535'; // สีเขียวเมื่อมีของ
     const motorFill=hasLiq?'rgba(34,197,94,.25)':'#060a14';
     const gf=wave?`filter="url(#gfx${m})"`:'' ;
     return`<g transform="translate(${tx},${ty})">
@@ -926,10 +926,10 @@ function renderTankVisual(m,rows){
       <!-- border overlay -->
       <rect x="0" y="0" width="${tw}" height="${th}" rx="10" fill="none" stroke="${borderCol}" stroke-width="2"/>
       <!-- neck/motor top — สีเขียวเมื่อมีของ (มอเตอร์กวน) -->
-      <rect x="${tw/2-13}" y="-10" width="26" height="12" rx="3" fill="${hasLiq?'#16a34a':'#060a14'}" stroke="${hasLiq?'#22c55e':borderCol}" stroke-width="2"/>
-      <rect x="${tw/2-17}" y="-18" width="34" height="9" rx="3" fill="${hasLiq?'#16a34a':'#060a14'}" stroke="${hasLiq?'#22c55e':borderCol}" stroke-width="2"/>
-      ${hasLiq?`<circle cx="${tw/2}" cy="-13" r="4" fill="#22c55e" opacity=".9"/>
-      <circle cx="${tw/2}" cy="-13" r="4" fill="none" stroke="#22c55e" stroke-width="1.5" opacity="0">
+      <rect x="${tw/2-13}" y="-10" width="26" height="12" rx="3" fill="${hasLiq?'#16a34a':'#060a14'}" stroke="${hasLiq?'#1d4ed8':borderCol}" stroke-width="2"/>
+      <rect x="${tw/2-17}" y="-18" width="34" height="9" rx="3" fill="${hasLiq?'#16a34a':'#060a14'}" stroke="${hasLiq?'#1d4ed8':borderCol}" stroke-width="2"/>
+      ${hasLiq?`<circle cx="${tw/2}" cy="-13" r="4" fill="#1d4ed8" opacity=".9"/>
+      <circle cx="${tw/2}" cy="-13" r="4" fill="none" stroke="#1d4ed8" stroke-width="1.5" opacity="0">
         <animate attributeName="r" from="4" to="10" dur="1.5s" repeatCount="indefinite"/>
         <animate attributeName="opacity" from="0.6" to="0" dur="1.5s" repeatCount="indefinite"/>
       </circle>`:''}
@@ -964,7 +964,7 @@ function renderTankVisual(m,rows){
   }
 
   function pump(x,y,run){
-    const col=run?'#22c55e':'#2d3748';
+    const col=run?'#1d4ed8':'#2d3748';
     const anim=run?'pumpPulse 1s ease-in-out infinite':'none';
     return`<circle cx="${x}" cy="${y}" r="22" fill="#06101e" stroke="${col}" stroke-width="2.5" style="animation:${anim}"/>
     <circle cx="${x}" cy="${y}" r="14" fill="${run?'#052e16':'#0a0f1e'}" stroke="${col}66" stroke-width="1.5"/>
@@ -1009,7 +1009,7 @@ function renderTankVisual(m,rows){
   <div class="flow-wrap" style="padding:8px 14px;margin-bottom:0">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
     <span class="flow-title" style="margin:0">⚗️ PROCESS FLOW — ${m.toUpperCase()}</span>
-    <span style="font-family:var(--mono);font-size:10px;color:${isFlowing?'#22c55e':'var(--t3)'}">
+    <span style="font-family:var(--mono);font-size:10px;color:${isFlowing?'#1d4ed8':'var(--t3)'}">
       ${isFlowing?`🟢 Pasteurising · ${agTime}`:'⚪ Standby'}
     </span>
   </div>
@@ -1452,7 +1452,7 @@ function renderPlan(p){
       let actualMin=(eh*60+em)-(sh*60+sm);
       if(actualMin<0)actualMin+=1440;
       const eff=actualMin>0?(reqMin/actualMin*100):0;
-      const effColor=eff>=97&&eff<=100?"#22c55e":eff>100?"#f97316":"#ef4444";
+      const effColor=eff>=97&&eff<=100?"#1d4ed8":eff>100?"#f97316":"#ef4444";
       const effLabel=eff>=97&&eff<=100?"✅":eff>100?"⚠️":"❌";
       effHTML=`<span style="font-family:var(--mono);font-size:12px;font-weight:700;color:${effColor}">${effLabel} ${eff.toFixed(1)}%</span>`;
     }
@@ -1513,11 +1513,14 @@ function renderPlan(p){
               const den2=+(prod2.density||1.1);
               const vol2=+(row.volume_liter||0);
               const req2=vol2>0&&spd2>0?Math.round(vol2*den2*60/spd2):0;
-              const[sh2,sm2]=(row.past_start_time||'00:00').split(':').map(Number);
-              const[eh2,em2]=row.past_end_time.split(':').map(Number);
-              let act2=(eh2*60+em2)-(sh2*60+sm2);
-              if(act2<0)act2+=1440;
-              const eff2=act2>0?(req2/act2)*100:0;
+              const _sp2=(row.past_start_time||'00:00').split(':').map(Number);
+              const _ep2=row.past_end_time.split(':').map(Number);
+              const startSec2=(_sp2[0]||0)*3600+(_sp2[1]||0)*60+(_sp2[2]||0);
+              const endSec2=(_ep2[0]||0)*3600+(_ep2[1]||0)*60+(_ep2[2]||0);
+              let actSec2=endSec2-startSec2;
+              if(actSec2<0)actSec2+=86400;
+              const act2=actSec2/60;
+              const eff2=actSec2>0?(req2*60/actSec2)*100:0;
               if(eff2>100){
                 return `<div style="display:flex;flex-direction:column;gap:4px">
                   <button disabled style="width:100%;padding:5px 8px;border-radius:8px;font-family:var(--mono);font-size:11px;font-weight:700;border:1px solid rgba(240,79,94,.3);background:rgba(240,79,94,.08);color:#ef4444;cursor:not-allowed">🔒 ส่งไม่ได้ (${eff2.toFixed(1)}%)</button>
@@ -1680,7 +1683,7 @@ async function loadHistory(){
     el.innerHTML=snap.docs.map(d=>{
       const r=d.data();
       const eff=r.eff||0;
-      const effColor=eff>=97&&eff<=100?"#22c55e":eff>100?"#f97316":eff>0?"#ef4444":"var(--t3)";
+      const effColor=eff>=97&&eff<=100?"#1d4ed8":eff>100?"#f97316":eff>0?"#ef4444":"var(--t3)";
       const effLabel=eff>=97&&eff<=100?"✅":eff>100?"⚠️":eff>0?"❌":"—";
       return`<tr>
         <td style="font-family:var(--mono);font-size:11px;color:var(--t2)">${r.archived_date||'—'}</td>
