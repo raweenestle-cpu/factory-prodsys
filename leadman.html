@@ -241,7 +241,7 @@ tbody td{padding:5px 6px;vertical-align:middle;font-weight:600}
           <th colspan="2" style="text-align:center;background:#1a0f1a;color:#d8b4fe;border-bottom:1px solid var(--b2)">♻️ REWORK</th>
           <th rowspan="2" style="white-space:nowrap">Filling Line</th>
           <th rowspan="2" style="color:var(--cyan)">ผลิตภัณฑ์</th>
-          <th rowspan="2" style="color:var(--green)">🧊 Aging Tank</th>
+          <th rowspan="2" style="color:#15803d">🧊 Aging Tank</th>
           <th rowspan="2">Start</th>
           <th rowspan="2" style="color:var(--t2)">คาดจบ</th>
           <th rowspan="2">Status</th>
@@ -353,8 +353,8 @@ let rows = { m1:[], m2:[] };
 let unsub = { m1:null, m2:null };
 let prefix = { 1:"", 2:"" };
 let dragSrc = null;
-let dragSrc = null;
 let agingStates = {};
+
 // ── UTILS ──────────────────────────────────────────────────────────────
 const today  = () => new Date().toISOString().slice(0,10);
 const $      = id => document.getElementById(id);
@@ -445,11 +445,7 @@ async function loadMaster(){
 
   const lSnap = await getDocs(collection(db,"lines"));
   lines = lSnap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.seq||0)-(b.seq||0));
-  // โหลด aging_tank_states
-  try{
-    const aSnap = await getDocs(collection(db,'aging_tank_states'));
-    aSnap.docs.forEach(d=>{agingStates[d.id]={id:d.id,...d.data()};});
-  }catch(e){console.warn('aging_tank_states:',e);}
+  try{const aSnap=await getDocs(collection(db,"aging_tank_states"));aSnap.docs.forEach(d=>{agingStates[d.id]={id:d.id,...d.data()};});}catch(e){}
 }
 
 // ── PREFIX ─────────────────────────────────────────────────────────────
@@ -540,7 +536,6 @@ const SC = {pending:'#1f2937',mixing:'#78350f',waiting_past:'#1e3a5f',pasteurisi
 const ST = {pending:'#6b7280',mixing:'#fbbf24',waiting_past:'#60a5fa',pasteurising:'#3b82f6',past_done:'#22c55e',ready:'#4ade80',sent_filling:'#c084fc',filling:'#22c55e',curing:'#f97316',empty:'#eab308',cleaned:'#e5e7eb'};
 const SA = {pending:"none",mixing:"none",pasteurising:"blink 0.7s infinite",past_done:"none",ready:"none"};
 
-// ── AGING TANK SELECT ──────────────────────────────────────────────────
 function agingTankSelect(col,row){
   var cl=lines.find(function(l){return l.name===row.filling_line;});
   var agTanks=cl&&cl.aging_tanks?cl.aging_tanks:[];
@@ -555,7 +550,6 @@ function agingTankSelect(col,row){
   });
   return '<select class="ci" style="width:140px" onchange="_up(''+col+'',''+row.id+'','aging_tank',this.value)">'+opts+'</select>';
 }
-
 
 function renderPlan(m){
   const col  = planCol(m);
