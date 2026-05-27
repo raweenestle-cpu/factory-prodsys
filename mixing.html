@@ -576,7 +576,7 @@ function renderMixTanks(m, rows){
   const t1Row=rows.find(r=>(r.mixing_tank==='Tank 1'||r.mixing_tank==='T1')&&activeStatus.includes(r.status))||null;
   const t2Row=rows.find(r=>(r.mixing_tank==='Tank 2'||r.mixing_tank==='T2')&&activeStatus.includes(r.status))||null;
 
-function tankSVG(row,label,cap){cap=cap||3000;
+  function tankSVG(row,label,cap){cap=cap||3000;
     const st=row?.status||'';
     const vol=+(row?.volume_liter||0);
     const prod=productMap[row?.mix_code||'']||{};
@@ -615,6 +615,19 @@ function tankSVG(row,label,cap){cap=cap||3000;
       s+='<ellipse cx="'+(bX+bW*.35)+'" cy="'+(fillY+3)+'" rx="'+(bW*.12)+'" ry="2" fill="white" fill-opacity=".2"/>';
       s+='</g>';
     }
+    s+='<rect x="'+bX+'" y="'+bY+'" width="'+bW+'" height="'+bH+'" rx="10" fill="none" stroke="'+col+'" stroke-width="2" stroke-opacity=".7"/>';
+    s+='<rect x="'+(bX+(bW-32)/2)+'" y="'+(bY-10)+'" width="32" height="12" rx="3" fill="rgba(255,255,255,.2)" stroke="'+col+'" stroke-width="1.5" stroke-opacity=".5"/>';
+    s+='<rect x="'+(bX+(bW-44)/2)+'" y="'+(bY-16)+'" width="44" height="8" rx="3" fill="rgba(255,255,255,.2)" stroke="'+col+'" stroke-width="1.5" stroke-opacity=".5"/>';
+    s+='<rect x="'+(bX+8)+'" y="'+(bY+bH)+'" width="16" height="14" rx="3" fill="rgba(255,255,255,.2)" stroke="'+col+'" stroke-width="1" stroke-opacity=".4"/>';
+    s+='<rect x="'+(bX+bW-24)+'" y="'+(bY+bH)+'" width="16" height="14" rx="3" fill="rgba(255,255,255,.2)" stroke="'+col+'" stroke-width="1" stroke-opacity=".4"/>';
+    const ty1=pct>0?fillY-14:bY+40;
+    s+='<text x="'+(bX+bW/2)+'" y="'+ty1+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="'+col+'" font-weight="700" opacity=".9">'+name+'</text>';
+    s+='<text x="'+(bX+bW/2)+'" y="'+(ty1+18)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="20" fill="'+col+'" font-weight="900">'+dispVol+'</text>';
+    s+='<text x="'+(bX+bW/2)+'" y="'+(ty1+31)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="10" fill="'+col+'" opacity=".7">ลิตร</text>';
+    s+='<rect x="'+(bX+16)+'" y="'+(bY+bH-24)+'" width="'+(bW-32)+'" height="16" rx="6" fill="'+col+'" fill-opacity=".12" stroke="'+col+'" stroke-width="1" stroke-opacity=".4"/>';
+    s+='<text x="'+(bX+bW/2)+'" y="'+(bY+bH-13)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="'+col+'" font-weight="800">'+statusTxt+'</text>';
+    s+='</svg></div>';
+    return s;
   }
 
   el.innerHTML=`<div style="display:flex;gap:24px;padding:12px 16px;background:var(--s1);border:1px solid var(--b1);border-radius:12px;margin-bottom:4px;align-items:flex-start">
