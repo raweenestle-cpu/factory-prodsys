@@ -350,27 +350,31 @@ function getProductForMix(lineName, mixCode){
   return l.products.find(p=>(p.mix_codes||[]).find(m=>m.code===mixCode))||null;
 }
 
-// group rows ที่เป็น product เดียวกัน (multi-mix)
+// group rows ที่เป็น product เดียวกัน (multi-mix) โดยดูจาก LINE Master
 function groupByProduct(rows){
   const groups=[];const seen=new Set();
   rows.forEach(row=>{
     if(seen.has(row.id))return;
     const prod=getProductForMix(row.filling_line,row.mix_code);
-    const mixCodes=(prod?.mix_codes||[]).map(m=>m.code);
-    if(mixCodes.length<=1){
+    if(prod&&(prod.mix_codes||[]).length>1){
+      // multi-mix: หา rows ที่ filling_line เดียวกัน และ mix_code อยู่ใน product เดียวกัน
+      const mixCodes=(prod.mix_codes||[]).map(m=>m.code);
+      const grp=rows.filter(r=>r.filling_line===row.filling_line&&mixCodes.includes(r.mix_code));
+      grp.forEach(r=>seen.add(r.id));
+      groups.push(grp);
+    } else {
+      // single-mix: แสดงเดี่ยว
       seen.add(row.id);
       groups.push([row]);
-      return;
     }
-    const grp=rows.filter(r=>r.process_order===row.process_order&&mixCodes.includes(r.mix_code));
-    grp.forEach(r=>seen.add(r.id));
-    groups.push(grp);
   });
   return groups;
 }
 
 function isGroupReady(grp){
-  return grp.every(r=>(r.status==='past_done'||r.status==='ready')&&r.past_end_time);
+  // ต้องครบทุก row ใน group และทุกตัวต้อง past_done/ready แล้ว
+  if(!grp.length) return false;
+  return grp.every(r=>(r.status==='past_done'||r.status==='ready')&&!!r.past_end_time);
 }
 
 function getCurrentTank(tanks){
