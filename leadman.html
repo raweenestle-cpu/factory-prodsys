@@ -234,7 +234,7 @@ tbody td{padding:5px 6px;vertical-align:middle;font-weight:600}
           <th rowspan="2">Batch</th>
           <th rowspan="2">Volume (L)</th>
           <th rowspan="2" style="text-align:center;background:var(--s2);color:var(--text)">🍬 Glucose (kg)</th>
-          <th rowspan="2" style="text-align:center;background:#10181a;color:#6ad4f5">🧂 Sugar (kg)</th>
+          <th rowspan="2" style="text-align:center;background:var(--s2);color:var(--text)">🧂 Sugar (kg)</th>
           <th rowspan="2" style="text-align:center;background:var(--s2);color:var(--text)">🌴 Palm Oil (kg)</th>
           <th rowspan="2" style="text-align:center;background:var(--s2);color:var(--text)">🛢️ Oil Mix (kg)</th>
           <th rowspan="2" style="text-align:center;background:var(--s2);color:var(--text)">🥛 Fat Milk (kg)</th>
@@ -249,8 +249,8 @@ tbody td{padding:5px 6px;vertical-align:middle;font-weight:600}
         </tr>
         <tr>
 
-          <th style="background:#130a13;color:#9d5aad;font-size:9px">น้ำหนัก (kg)</th>
-          <th style="background:#130a13;color:#d8b4fe;font-size:9px;border-right:1px solid var(--b2)">จำนวนถัง</th>
+          <th style="background:var(--s2);color:var(--text);font-size:9px">น้ำหนัก (kg)</th>
+          <th style="background:var(--s2);color:#d8b4fe;font-size:9px;border-right:1px solid var(--b2)">จำนวนถัง</th>
         </tr>
       </thead>
       <tbody id="tbody-m1"></tbody>
@@ -293,7 +293,7 @@ tbody td{padding:5px 6px;vertical-align:middle;font-weight:600}
           <th rowspan="2">Batch</th>
           <th rowspan="2">Volume (L)</th>
           <th rowspan="2" style="text-align:center;background:var(--s2);color:var(--text)">🍬 Glucose (kg)</th>
-          <th rowspan="2" style="text-align:center;background:#10181a;color:#6ad4f5">🧂 Sugar (kg)</th>
+          <th rowspan="2" style="text-align:center;background:var(--s2);color:var(--text)">🧂 Sugar (kg)</th>
           <th rowspan="2" style="text-align:center;background:var(--s2);color:var(--text)">🌴 Palm Oil (kg)</th>
           <th rowspan="2" style="text-align:center;background:var(--s2);color:var(--text)">🛢️ Oil Mix (kg)</th>
           <th rowspan="2" style="text-align:center;background:var(--s2);color:var(--text)">🥛 Fat Milk (kg)</th>
@@ -308,8 +308,8 @@ tbody td{padding:5px 6px;vertical-align:middle;font-weight:600}
         </tr>
         <tr>
 
-          <th style="background:#130a13;color:#9d5aad;font-size:9px">น้ำหนัก (kg)</th>
-          <th style="background:#130a13;color:#d8b4fe;font-size:9px;border-right:1px solid var(--b2)">จำนวนถัง</th>
+          <th style="background:var(--s2);color:var(--text);font-size:9px">น้ำหนัก (kg)</th>
+          <th style="background:var(--s2);color:#d8b4fe;font-size:9px;border-right:1px solid var(--b2)">จำนวนถัง</th>
         </tr>
       </thead>
       <tbody id="tbody-m2"></tbody>
@@ -573,13 +573,13 @@ function renderPlan(m){
       <td><span class="ca" style="min-width:110px">${row.mix_name||"—"}</span></td>
       <td><input class="ci" style="width:66px" value="${row.batch_no||""}" placeholder="B001" onchange="_up('${col}','${row.id}','batch_no',this.value)"></td>
       <td><input class="ci" style="width:66px;text-align:right" type="number" value="${row.volume_liter||""}" onchange="_up('${col}','${row.id}','volume_liter',+this.value)"></td>
-      <td style="background:var(--s1)">${setInput(col,row.id,"glc_set","var(--b1)","#a3c65a44",row.glc_set)}</td>
-      <td style="background:var(--s1)">${setInput(col,row.id,"sgr_set","var(--b1)","#06b6d444",row.sgr_set)}</td>
-      <td style="background:var(--s1)">${setInput(col,row.id,"plm_set","var(--b1)","#f9731644",row.plm_set)}</td>
-      <td style="background:var(--s1)">${setInput(col,row.id,"oil_mix_set","#0d1a1a22","#34d39944",row.oil_mix_set)}</td>
-      <td style="background:var(--s1)">${setInput(col,row.id,"fat_milk_set","#1a0d1a22","#f9a8d444",row.fat_milk_set)}</td>
-      <td style="background:#130a13">${setInput(col,row.id,"rework_kg","#130a1322","#9d5aad44",row.rework_kg)}</td>
-      <td style="background:#130a13">${setInput(col,row.id,"rework_tanks","#130a1322","#d8b4fe44",row.rework_tanks)}</td>
+      <td style="background:var(--s1)">${setInput(col,row.id,"glc_set","var(--b1)","var(--b1)",row.glc_set)}</td>
+      <td style="background:var(--s1)">${setInput(col,row.id,"sgr_set","var(--b1)","var(--b1)",row.sgr_set)}</td>
+      <td style="background:var(--s1)">${setInput(col,row.id,"plm_set","var(--b1)","var(--b1)",row.plm_set)}</td>
+      <td style="background:var(--s1)">${setInput(col,row.id,"oil_mix_set","var(--s2)","var(--b1)",row.oil_mix_set)}</td>
+      <td style="background:var(--s1)">${setInput(col,row.id,"fat_milk_set","var(--s2)","var(--b1)",row.fat_milk_set)}</td>
+      <td style="background:var(--s2)">${setInput(col,row.id,"rework_kg","var(--s2)","var(--b1)",row.rework_kg)}</td>
+      <td style="background:var(--s2)">${setInput(col,row.id,"rework_tanks","var(--s2)","var(--b1)",row.rework_tanks)}</td>
       <td><select class="ci" style="width:110px" onchange="_up('${col}','${row.id}','filling_line',this.value);renderPlan('${m}')">
         <option value="">— เลือก —</option>${lineOpts}
       </select></td>
