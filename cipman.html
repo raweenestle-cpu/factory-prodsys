@@ -881,8 +881,7 @@ function buildCard(line){
           ${!isRunning?'disabled':''} onclick="stopLine('${line.id}')">⏸ Stop</button>
         <button style="width:100%;padding:10px;border-radius:10px;font-family:var(--mono);font-size:13px;font-weight:700;border:none;cursor:pointer;background:rgba(234,179,8,.1);color:var(--yellow);border:1px solid rgba(234,179,8,.3)"
           onclick="resetLine('${line.id}')">↺ Reset</button>
-        <button style="width:100%;padding:8px;border-radius:10px;font-family:var(--mono);font-size:11px;font-weight:700;background:rgba(239,68,68,.08);color:#f87171;border:1px solid rgba(239,68,68,.2);cursor:pointer"
-          onclick="forceClearTank('${line.id}','${current.aging_tank||''}')">🗑 Force Clear ${current.aging_tank||'—'}</button>
+        ${current.aging_tank?`<button style="width:100%;margin-top:4px;padding:7px;border-radius:10px;font-family:var(--mono);font-size:11px;font-weight:700;background:rgba(239,68,68,.08);color:#f87171;border:1px solid rgba(239,68,68,.2);cursor:pointer" onclick="forceClearTank('${current.aging_tank}')">🗑 Force Clear ${current.aging_tank}</button>`:''}
         <button style="width:100%;padding:8px;border-radius:10px;font-family:var(--mono);font-size:11px;font-weight:700;background:rgba(239,68,68,.1);color:#f87171;border:1px solid rgba(239,68,68,.3);cursor:pointer"
           onclick="forceClearTank('${line.id}','${current.aging_tank||''}')">🗑 Force Clear Tank</button>
 
@@ -1068,22 +1067,20 @@ window.forceClearTank=async(lineId,agTank)=>{
 };
 
 
-window.forceClearTank=async(lineId,agTank)=>{
-  if(!agTank){toast('ไม่มี Aging Tank ที่กำหนด','red');return;}
+window.forceClearTank=async(agTank)=>{
+  if(!agTank){toast('ไม่มี Aging Tank','red');return;}
   if(!confirm('Force Clear ถัง '+agTank+'?'))return;
   try{
     await setDoc(doc(db,'aging_tank_states',agTank),{
-      status:'empty',current_vol:0,
-      mix_code:'',mix_name:'',batch_no:'',
-      product_code:'',prod_suffix:'',
+      status:'empty',current_vol:0,mix_code:'',mix_name:'',
+      batch_no:'',product_code:'',prod_suffix:'',
       date:'',past_start_time:'',past_end_time:'',
       volume_liter:0,process_order:'',
       updated_at:new Date().toISOString()
     });
-    toast('✅ Force Clear ถัง '+agTank+' แล้ว','green');
-  }catch(e){toast('ไม่สำเร็จ: '+e.message,'red');}
+    toast('✅ Clear ถัง '+agTank+' แล้ว','green');
+  }catch(e){toast('ไม่สำเร็จ','red');}
 };
-
 </script>
 </body>
 </html>
