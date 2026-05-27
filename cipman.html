@@ -820,8 +820,6 @@ function buildCard(line){
       </label>
     </div>
   </div>
-  '<div style="padding:4px 12px 10px"><button onclick="event.stopPropagation();forceClearTank(\'${line.id}\',\'${row.aging_tank||\"\"}\')"'
-  +' style="width:100%;padding:5px;border-radius:7px;font-family:var(--mono);font-size:10px;font-weight:700;background:rgba(239,68,68,.08);color:#f87171;border:1px solid rgba(239,68,68,.2);cursor:pointer">🗑 Force Clear '+row.aging_tank+'</button></div>'
 </div>`;
   }
 
@@ -1046,9 +1044,6 @@ window.showPage=(p,btn)=>{
 
 
 </script>
-<script>
-;
-}
 
 window.forceClearTank=async(lineId,agTank)=>{
   if(!agTank){toast('ไม่มี Aging Tank ที่กำหนด','red');return;}
