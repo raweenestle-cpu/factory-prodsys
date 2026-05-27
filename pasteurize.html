@@ -54,12 +54,12 @@ thead th{border-right:1px solid var(--b2)!important}
 thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1px solid var(--b1);vertical-align:middle}
 
 /* ROW HIGHLIGHT — ทั้งแถวสีเดียวกัน */
-.row-past{background:rgba(29,78,216,.1)!important;border-left:4px solid #1d4ed8}
-.row-past td{background:rgba(29,78,216,.08)!important;font-weight:800!important;color:#0f172a!important}
-.row-past td *:not(.stamp-btn):not(.stat-badge):not(.ci){color:var(--orange)!important}
-.row-done{background:rgba(21,128,61,.08)!important;border-left:4px solid #1d4ed8}
-.row-done td{background:rgba(21,128,61,.06)!important;font-weight:700!important;color:#0f172a!important}
-.row-done td *:not(.stamp-btn):not(.stat-badge):not(.ci){color:#4ade80!important}
+.row-past{background:rgba(29,78,216,.08)!important;border-left:4px solid #1d4ed8}
+.row-past td{background:rgba(29,78,216,.08)!important;font-weight:800!important}
+
+.row-done{background:rgba(21,128,61,.06)!important;border-left:4px solid #15803d}
+.row-done td{background:rgba(21,128,61,.06)!important;font-weight:700!important}
+
 .row-wait{background:rgba(234,179,8,.07)!important;border-left:3px solid var(--yellow)}
 .row-wait td{background:rgba(234,179,8,.07)!important}
 .row-wait td *:not(.stamp-btn):not(.stat-badge):not(.ci){color:var(--yellow)!important}
@@ -118,7 +118,7 @@ thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap
 
 /* TANK VISUAL */
 .tank-row{display:block;margin-bottom:14px}
-.tank-card{background:#ffffff;border:1.5px solid var(--b1);border-radius:12px;padding:14px;text-align:center;position:relative;overflow:hidden}
+.tank-card{background:#ffffff;border:1.5px solid var(--b1);border-radius:14px;padding:14px;flex:1;min-width:160px;box-shadow:0 2px 8px rgba(0,0,0,.07);text-align:center}
 .tank-card-title{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}
 .tank-card-name{font-family:var(--mono);font-size:11px;color:var(--blue2);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tank-card-vol{font-family:var(--mono);font-size:14px;font-weight:700;margin-top:4px}
@@ -168,8 +168,8 @@ thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap
     background:var(--s1);border:1px solid var(--b1);border-radius:12px;
     margin-bottom:12px;padding:12px;position:relative;
   }
-  tbody tr.row-past{background:rgba(29,78,216,.1)!important;border-left:4px solid #1d4ed8}
-  tbody tr.row-done{background:rgba(21,128,61,.08)!important;border-left:4px solid #1d4ed8}
+  tbody tr.row-past{background:rgba(29,78,216,.08)!important;border-left:4px solid #1d4ed8}
+  tbody tr.row-done{background:rgba(21,128,61,.06)!important;border-left:4px solid #15803d}
   tbody tr.row-wait{border-left:4px solid var(--yellow)!important;background:rgba(234,179,8,.06)!important}
   tbody td{border:none!important;padding:3px 0;display:flex;align-items:center;gap:8px;font-size:13px}
 
@@ -249,7 +249,7 @@ thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap
 
 /* TANK VISUAL */
 .tank-row{display:block;margin-bottom:14px}
-.tank-card{background:#ffffff;border:1.5px solid var(--b1);border-radius:12px;padding:14px;text-align:center;position:relative;overflow:hidden}
+.tank-card{background:#ffffff;border:1.5px solid var(--b1);border-radius:14px;padding:14px;flex:1;min-width:160px;box-shadow:0 2px 8px rgba(0,0,0,.07);text-align:center}
 .tank-card-title{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}
 .tank-card-name{font-family:var(--mono);font-size:11px;color:var(--blue2);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tank-card-vol{font-family:var(--mono);font-size:14px;font-weight:700;margin-top:4px}
@@ -723,6 +723,14 @@ function pastTankSVG(uid,pct,col,animate){
     s+='<ellipse cx="'+( bX+bW*.35)+'" cy="'+( fillY+3)+'" rx="'+( bW*.15)+'" ry="1.5" fill="white" fill-opacity=".2"/>';
     s+='</g>';
   }
+  s+='<rect x="'+bX+'" y="'+bY+'" width="'+bW+'" height="'+bH+'" rx="8" fill="none" stroke="'+col+'" stroke-width="1.5" stroke-opacity=".7"/>';
+  s+='<rect x="'+( bX+(bW-18)/2)+'" y="'+( bY-6)+'" width="18" height="8" rx="2" fill="rgba(255,255,255,.2)" stroke="'+col+'" stroke-width="1" stroke-opacity=".4"/>';
+  s+='<rect x="'+( bX+(bW-24)/2)+'" y="'+( bY-10)+'" width="24" height="5" rx="2" fill="rgba(255,255,255,.2)" stroke="'+col+'" stroke-width="1" stroke-opacity=".4"/>';
+  s+='<rect x="'+( bX+6)+'" y="'+( bY+bH)+'" width="5" height="6" rx="1.5" fill="rgba(255,255,255,.2)" stroke="'+col+'" stroke-width="1" stroke-opacity=".4"/>';
+  s+='<rect x="'+( bX+bW-11)+'" y="'+( bY+bH)+'" width="5" height="6" rx="1.5" fill="rgba(255,255,255,.2)" stroke="'+col+'" stroke-width="1" stroke-opacity=".4"/>';
+  s+='</svg>';
+  return s;
+}
   s+='<rect x="'+bX+'" y="'+bY+'" width="'+bW+'" height="'+bH+'" rx="8" fill="none" stroke="'+col+'" stroke-width="1.5" stroke-opacity=".7"/>';
   s+='<rect x="'+( bX+(bW-18)/2)+'" y="'+( bY-6)+'" width="18" height="8" rx="2" fill="rgba(255,255,255,.2)" stroke="'+col+'" stroke-width="1" stroke-opacity=".4"/>';
   s+='<rect x="'+( bX+(bW-24)/2)+'" y="'+( bY-10)+'" width="24" height="5" rx="2" fill="rgba(255,255,255,.2)" stroke="'+col+'" stroke-width="1" stroke-opacity=".4"/>';
