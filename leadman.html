@@ -548,7 +548,8 @@ function agingTankSelect(col,row){
     var sel=row.aging_tank===tid?' selected':'';
     opts+='<option value="'+tid+'"'+sel+'>'+tid+' — '+lbl+'</option>';
   });
-  return '<select class="ci" style="width:140px" onchange="_up(''+col+'',''+row.id+'','aging_tank',this.value)">'+opts+'</select>';
+  var onch='_up("'+col+'","'+row.id+'","aging_tank",this.value)';
+  return '<select class="ci" style="width:140px" onchange="'+onch+'">'+opts+'</select>';
 }
 
 function renderPlan(m){
