@@ -241,6 +241,7 @@ tbody td{padding:5px 6px;vertical-align:middle;font-weight:600}
           <th colspan="2" style="text-align:center;background:#1a0f1a;color:#d8b4fe;border-bottom:1px solid var(--b2)">♻️ REWORK</th>
           <th rowspan="2" style="white-space:nowrap">Filling Line</th>
           <th rowspan="2" style="color:var(--cyan)">ผลิตภัณฑ์</th>
+          <th rowspan="2" style="color:var(--green)">🧊 Aging Tank</th>
           <th rowspan="2">Start</th>
           <th rowspan="2" style="color:var(--t2)">คาดจบ</th>
           <th rowspan="2">Status</th>
@@ -443,6 +444,11 @@ async function loadMaster(){
 
   const lSnap = await getDocs(collection(db,"lines"));
   lines = lSnap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.seq||0)-(b.seq||0));
+  // โหลด aging_tank_states
+  try{
+    const aSnap = await getDocs(collection(db,'aging_tank_states'));
+    aSnap.docs.forEach(d=>{agingStates[d.id]={id:d.id,...d.data()};});
+  }catch(e){console.warn('aging_tank_states:',e);}
 }
 
 // ── PREFIX ─────────────────────────────────────────────────────────────
@@ -506,7 +512,7 @@ window.addRow = async(m) => {
       date:d, seq:maxSeq+1, mixing_unit:m,
       mix_code:"", mix_name:"", batch_no:"", volume_liter:"",
       glc_set:"", sgr_set:"", plm_set:"", oil_mix_set:"", fat_milk_set:"",
-      filling_line:"", product_code:"", start_time:st,
+      filling_line:"", product_code:"", aging_tank:"", start_time:st,
       rework_kg:"", rework_tanks:"", note:"",
       status:"pending", createdBy:ME?.email||"leadman", createdAt:new Date().toISOString()
     });
@@ -591,6 +597,20 @@ function renderPlan(m){
             return (cl?.products||[]).map(p=>`<option value="${p.name}"${row.product_name===p.name?' selected':''}>${p.name}</option>`).join('');
           })()}
         </select>
+      </td>
+      <td>
+        ${(()=>{
+          const cl=lines.find(l=>l.name===row.filling_line);
+          const agTanks=(cl?.aging_tanks||[]);
+          if(!agTanks.length) return '<span style="font-size:10px;color:var(--t3)">—</span>';
+          const opts=agTanks.map(tid=>{
+            const st=agingStates[tid]?.status||'empty';
+            const stMap={empty:'⚫ ว่าง',cip:'🔵 CIP',cip_done:'🔵 CIP เสร็จ',san:'🟢 San.',san_done:'🟢 San.เสร็จ'};
+            const label=stMap[st]||st;
+            return '<option value="'+tid+'"'+(row.aging_tank===tid?' selected':'')+'>'+tid+' — '+label+'</option>';
+          }).join('');
+          return '<select class="ci" style="width:140px" onchange="_up(''+col+'',''+row.id+'','aging_tank',this.value)"><option value="">— เลือกถัง —</option>'+opts+'</select>';
+        })()}
       </td>
       <td><input class="ci" style="width:72px;text-align:center;letter-spacing:.08em;font-family:var(--mono)" type="text" inputmode="numeric" maxlength="5" value="${row.start_time||""}" placeholder="0800" oninput="
         let v=this.value.replace(/\D/g,'').slice(0,4);
