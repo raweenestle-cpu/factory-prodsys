@@ -587,7 +587,7 @@ function renderMixTanks(m, rows){
 
     if(!st||st==='pending'){
       return`<div style="display:flex;flex-direction:column;align-items:center;gap:6px;min-width:140px">
-        <span style="font-family:'DM Mono',monospace;font-size:11px;font-weight:800;color:white">${label}</span>
+        <span style="font-family:'DM Mono',monospace;font-size:11px;font-weight:800;color:var(--text)">${label}</span>
         <svg width="130" height="160" viewBox="0 0 130 160">
           <rect x="12" y="14" width="110" height="140" rx="10" fill="rgba(0,0,0,.3)"/>
           <rect x="10" y="10" width="110" height="140" rx="10" fill="var(--bg)" stroke="rgba(255,255,255,.5)" stroke-width="2"/>
@@ -652,21 +652,16 @@ function renderMixTanks(m, rows){
     }
 
     return`<div style="display:flex;flex-direction:column;align-items:center;gap:6px;min-width:140px">
-      <span style="font-family:'DM Mono',monospace;font-size:11px;font-weight:800;color:white">${label}</span>
+      <span style="font-family:'DM Mono',monospace;font-size:11px;font-weight:800;color:var(--text)">${label}</span>
       <svg width="130" height="175" viewBox="0 0 130 175">
         ${waveSVG}
-        <!-- shadow -->
-        <rect x="12" y="14" width="110" height="140" rx="10" fill="rgba(0,0,0,.4)"/>
+
         <!-- body -->
-        <rect x="10" y="10" width="110" height="140" rx="10" fill="none" stroke="${borderCol}" stroke-width="2"/>
+        <rect x="10" y="10" width="110" height="140" rx="10" fill="rgba(255,255,255,.12)" stroke="${borderCol}" stroke-width="2"/>
         <!-- neck/motor top — สีเขียวเมื่อมีของ (มอเตอร์กวน) -->
         <rect x="49" y="0" width="32" height="12" rx="3" fill="${pct>0?'#16a34a':'var(--bg)'}" stroke="${pct>0?'#22c55e':borderCol}" stroke-width="${pct>0?2:1.2}"/>
         <rect x="44" y="-6" width="42" height="7" rx="3" fill="${pct>0?'#16a34a':'var(--bg)'}" stroke="${pct>0?'#22c55e':borderCol}" stroke-width="${pct>0?2:1.2}"/>
-        ${pct>0?`<circle cx="65" cy="-3" r="4" fill="#22c55e" opacity=".9"/>
-        <circle cx="65" cy="-3" r="4" fill="none" stroke="#22c55e" stroke-width="1.5" opacity="0">
-          <animate attributeName="r" from="4" to="10" dur="1.5s" repeatCount="indefinite"/>
-          <animate attributeName="opacity" from="0.6" to="0" dur="1.5s" repeatCount="indefinite"/>
-        </circle>`:''}
+        ${pct>0?'<circle cx="65" cy="-3" r="4" fill="#22c55e" opacity=".9"/><circle cx="65" cy="-3" r="4" fill="none" stroke="#22c55e" stroke-width="1.5" opacity="0"><animate attributeName="r" from="4" to="10" dur="1.5s" repeatCount="indefinite"/><animate attributeName="opacity" from="0.6" to="0" dur="1.5s" repeatCount="indefinite"/></circle>':''}
         <!-- ขาถัง -->
         <rect x="18" y="150" width="16" height="14" rx="3" fill="var(--bg)" stroke="${borderCol}" stroke-width="1.2"/>
         <rect x="96" y="150" width="16" height="14" rx="3" fill="var(--bg)" stroke="${borderCol}" stroke-width="1.2"/>
@@ -682,7 +677,7 @@ function renderMixTanks(m, rows){
         <rect x="33" y="118" width="64" height="16" rx="5" fill="rgba(0,0,0,.55)"/>
         <text x="65" y="129" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="${statusCol}" font-weight="700">
           ${statusTxt}
-          ${st==='pasteurising'?`<animate attributeName="opacity" values="1;0.15;1" dur="1.5s" repeatCount="indefinite"/>`:''}
+          ${st==='pasteurising'?'<animate attributeName="opacity" values="1;0.15;1" dur="1.5s" repeatCount="indefinite"/>':''}
         </text>
       </svg>
     </div>`;
@@ -721,7 +716,7 @@ function renderPlan(m){
             onclick="stampTime('${col}','${row.id}','${field}','${m}')">
             ⏱ ${hasTime?time:label}
           </button>
-          ${hasTime?`<button style="flex-shrink:0;font-size:10px;padding:4px 6px;border-radius:5px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:var(--t2);cursor:pointer" onclick="editTimePrompt('${col}','${row.id}','${field}','${time}')">✏️</button>`:""}
+          ${hasTime?('<button style="flex-shrink:0;font-size:10px;padding:4px 6px;border-radius:5px;border:1px solid var(--b1);background:var(--s2);color:var(--t2);cursor:pointer" onclick="editTimePrompt(\'${col}\',\'${row.id}\',\'${field}\',\'${time}\')">✏️</button>'):""}
         </div>
       </td>`;
     };
@@ -755,7 +750,7 @@ function renderPlan(m){
         <div style="display:flex;align-items:center;gap:3px">
           <input class="act-input" style="border-color:var(--b1)" type="number" step="0.1" value="${row.glc_actual||""}" placeholder="0"
             onchange="saveActual('${col}','${row.id}','glc_actual',this.value,'${m}')">
-          ${row.glc_comment?`<span title="${row.glc_comment}" style="cursor:help;font-size:12px">⚠️</span>`:""}
+          ${row.glc_comment?('<span title="'+row.glc_comment+'" style="cursor:help;font-size:12px">⚠️</span>'):""}
         </div>
       </td>
       <td style="background:var(--s1)">
@@ -765,7 +760,7 @@ function renderPlan(m){
         <div style="display:flex;align-items:center;gap:3px">
           <input class="act-input" style="background:rgba(6,182,212,.06);border-color:rgba(6,182,212,.3);color:var(--text)" type="number" step="0.1" value="${row.sgr_actual||""}" placeholder="0"
             onchange="saveActual('${col}','${row.id}','sgr_actual',this.value,'${m}')">
-          ${row.sgr_comment?`<span title="${row.sgr_comment}" style="cursor:help;font-size:12px">⚠️</span>`:""}
+          ${row.sgr_comment?('<span title="'+row.sgr_comment+'" style="cursor:help;font-size:12px">⚠️</span>'):""}
         </div>
       </td>
       <td style="background:var(--s1)">
@@ -775,7 +770,7 @@ function renderPlan(m){
         <div style="display:flex;align-items:center;gap:3px">
           <input class="act-input" style="background:rgba(249,115,22,.06);border-color:rgba(249,115,22,.3);color:var(--text)" type="number" step="0.1" value="${row.plm_actual||""}" placeholder="0"
             onchange="saveActual('${col}','${row.id}','plm_actual',this.value,'${m}')">
-          ${row.plm_comment?`<span title="${row.plm_comment}" style="cursor:help;font-size:12px">⚠️</span>`:""}
+          ${row.plm_comment?('<span title="'+row.plm_comment+'" style="cursor:help;font-size:12px">⚠️</span>'):""}
           
         </div>
       </td>
@@ -970,8 +965,8 @@ async function renderChart(m){
     options:{
       plugins:{legend:{labels:{color:"#7a8499",font:{family:"DM Mono",size:11}}}},
       scales:{
-        x:{stacked:true,ticks:{color:"#3d4560",font:{size:10}},grid:{color:"#1e2535"}},
-        y:{stacked:true,ticks:{color:"#3d4560",font:{size:10}},grid:{color:"#1e2535"},title:{display:true,text:"kg",color:"#3d4560"}}
+        x:{stacked:true,ticks:{color:"#374151",font:{size:10}},grid:{color:"#e0e4ea"}},
+        y:{stacked:true,ticks:{color:"#374151",font:{size:10}},grid:{color:"#e0e4ea"},title:{display:true,text:"kg",color:"#374151"}}
       },
       responsive:true,maintainAspectRatio:false
     }
