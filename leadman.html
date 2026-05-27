@@ -147,9 +147,9 @@ tbody td{padding:5px 6px;vertical-align:middle;font-weight:600}
   tbody td:nth-child(8){display:none}  /* Glc Set */
   tbody td:nth-child(10){display:none} /* Sgr Set */
   tbody td:nth-child(12){display:none} /* Plm Set */
-  tbody td:nth-child(9)::before{content:"🍬 Glc: ";font-size:11px;color:#86efac;font-family:var(--mono);flex-shrink:0}
-  tbody td:nth-child(11)::before{content:"🧂 Sgr: ";font-size:11px;color:#67e8f9;font-family:var(--mono);flex-shrink:0}
-  tbody td:nth-child(13)::before{content:"🌴 Plm: ";font-size:11px;color:#fdba74;font-family:var(--mono);flex-shrink:0}
+  tbody td:nth-child(9)::before{content:"🍬 Glc: ";font-size:11px;color:var(--text);font-family:var(--mono);flex-shrink:0}
+  tbody td:nth-child(11)::before{content:"🧂 Sgr: ";font-size:11px;color:var(--text);font-family:var(--mono);flex-shrink:0}
+  tbody td:nth-child(13)::before{content:"🌴 Plm: ";font-size:11px;color:var(--text);font-family:var(--mono);flex-shrink:0}
 
   /* Rework */
   tbody td:nth-child(14)::before{content:"♻️ RW kg: ";font-size:11px;color:var(--t2);font-family:var(--mono);flex-shrink:0}
@@ -233,11 +233,11 @@ tbody td{padding:5px 6px;vertical-align:middle;font-weight:600}
           <th rowspan="2">Mix Name</th>
           <th rowspan="2">Batch</th>
           <th rowspan="2">Volume (L)</th>
-          <th rowspan="2" style="text-align:center;background:#1a1f10;color:#a3c65a">🍬 Glucose (kg)</th>
+          <th rowspan="2" style="text-align:center;background:var(--s2);color:var(--text)">🍬 Glucose (kg)</th>
           <th rowspan="2" style="text-align:center;background:#10181a;color:#6ad4f5">🧂 Sugar (kg)</th>
-          <th rowspan="2" style="text-align:center;background:#1a1510;color:#f59e6a">🌴 Palm Oil (kg)</th>
-          <th rowspan="2" style="text-align:center;background:#0d1a1a;color:#34d399">🛢️ Oil Mix (kg)</th>
-          <th rowspan="2" style="text-align:center;background:#1a0d1a;color:#f9a8d4">🥛 Fat Milk (kg)</th>
+          <th rowspan="2" style="text-align:center;background:var(--s2);color:var(--text)">🌴 Palm Oil (kg)</th>
+          <th rowspan="2" style="text-align:center;background:var(--s2);color:var(--text)">🛢️ Oil Mix (kg)</th>
+          <th rowspan="2" style="text-align:center;background:var(--s2);color:var(--text)">🥛 Fat Milk (kg)</th>
           <th colspan="2" style="text-align:center;background:#1a0f1a;color:#d8b4fe;border-bottom:1px solid var(--b2)">♻️ REWORK</th>
           <th rowspan="2" style="white-space:nowrap">Filling Line</th>
           <th rowspan="2" style="color:var(--cyan)">ผลิตภัณฑ์</th>
@@ -292,11 +292,11 @@ tbody td{padding:5px 6px;vertical-align:middle;font-weight:600}
           <th rowspan="2">Mix Name</th>
           <th rowspan="2">Batch</th>
           <th rowspan="2">Volume (L)</th>
-          <th rowspan="2" style="text-align:center;background:#1a1f10;color:#a3c65a">🍬 Glucose (kg)</th>
+          <th rowspan="2" style="text-align:center;background:var(--s2);color:var(--text)">🍬 Glucose (kg)</th>
           <th rowspan="2" style="text-align:center;background:#10181a;color:#6ad4f5">🧂 Sugar (kg)</th>
-          <th rowspan="2" style="text-align:center;background:#1a1510;color:#f59e6a">🌴 Palm Oil (kg)</th>
-          <th rowspan="2" style="text-align:center;background:#0d1a1a;color:#34d399">🛢️ Oil Mix (kg)</th>
-          <th rowspan="2" style="text-align:center;background:#1a0d1a;color:#f9a8d4">🥛 Fat Milk (kg)</th>
+          <th rowspan="2" style="text-align:center;background:var(--s2);color:var(--text)">🌴 Palm Oil (kg)</th>
+          <th rowspan="2" style="text-align:center;background:var(--s2);color:var(--text)">🛢️ Oil Mix (kg)</th>
+          <th rowspan="2" style="text-align:center;background:var(--s2);color:var(--text)">🥛 Fat Milk (kg)</th>
           <th colspan="2" style="text-align:center;background:#1a0f1a;color:#d8b4fe;border-bottom:1px solid var(--b2)">♻️ REWORK</th>
           <th rowspan="2" style="white-space:nowrap">Filling Line</th>
           <th rowspan="2" style="color:var(--cyan)">ผลิตภัณฑ์</th>
@@ -573,11 +573,11 @@ function renderPlan(m){
       <td><span class="ca" style="min-width:110px">${row.mix_name||"—"}</span></td>
       <td><input class="ci" style="width:66px" value="${row.batch_no||""}" placeholder="B001" onchange="_up('${col}','${row.id}','batch_no',this.value)"></td>
       <td><input class="ci" style="width:66px;text-align:right" type="number" value="${row.volume_liter||""}" onchange="_up('${col}','${row.id}','volume_liter',+this.value)"></td>
-      <td style="background:#0d1108">${setInput(col,row.id,"glc_set","#1a2a0a22","#a3c65a44",row.glc_set)}</td>
-      <td style="background:#060f12">${setInput(col,row.id,"sgr_set","#06101422","#06b6d444",row.sgr_set)}</td>
-      <td style="background:#110c06">${setInput(col,row.id,"plm_set","#1a100622","#f9731644",row.plm_set)}</td>
-      <td style="background:#0d1a1a">${setInput(col,row.id,"oil_mix_set","#0d1a1a22","#34d39944",row.oil_mix_set)}</td>
-      <td style="background:#1a0d1a">${setInput(col,row.id,"fat_milk_set","#1a0d1a22","#f9a8d444",row.fat_milk_set)}</td>
+      <td style="background:var(--s1)">${setInput(col,row.id,"glc_set","var(--b1)","#a3c65a44",row.glc_set)}</td>
+      <td style="background:var(--s1)">${setInput(col,row.id,"sgr_set","var(--b1)","#06b6d444",row.sgr_set)}</td>
+      <td style="background:var(--s1)">${setInput(col,row.id,"plm_set","var(--b1)","#f9731644",row.plm_set)}</td>
+      <td style="background:var(--s1)">${setInput(col,row.id,"oil_mix_set","#0d1a1a22","#34d39944",row.oil_mix_set)}</td>
+      <td style="background:var(--s1)">${setInput(col,row.id,"fat_milk_set","#1a0d1a22","#f9a8d444",row.fat_milk_set)}</td>
       <td style="background:#130a13">${setInput(col,row.id,"rework_kg","#130a1322","#9d5aad44",row.rework_kg)}</td>
       <td style="background:#130a13">${setInput(col,row.id,"rework_tanks","#130a1322","#d8b4fe44",row.rework_tanks)}</td>
       <td><select class="ci" style="width:110px" onchange="_up('${col}','${row.id}','filling_line',this.value);renderPlan('${m}')">
