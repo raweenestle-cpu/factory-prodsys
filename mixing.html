@@ -578,60 +578,117 @@ function renderMixTanks(m, rows){
 
   function tankSVG(row,label,cap){cap=cap||3000;
     const st=row?.status||'';
+    const name=(row?.mix_name||'').slice(0,14);
     const vol=+(row?.volume_liter||0);
     const prod=productMap[row?.mix_code||'']||{};
     const col=prod.color||'#3b82f6';
-    const uid='m'+label.replace(' ','');
-    const gid='g'+uid,cid='c'+uid;
-    const W=130,H=175,bX=10,bY=10,bW=110,bH=140,wAmp=6;
-    let pct=0;
-    if(st==='mixing') pct=Math.min(100,(vol*0.5/cap)*100);
-    else if(st==='pasteurising'){
-      const cv=row?.current_vol!=null?+row.current_vol:0;
-      pct=row?.past_start_time&&cv>0?Math.max(0,((vol-cv)/cap)*100):Math.min(100,(vol/cap)*100);
-    } else if(st==='past_done'||st==='ready') pct=Math.min(100,(vol/cap)*100);
-    const statusMap={'':'⬜ รอ Leadman',pending:'⬜ รอ Leadman',mixing:'🔄 ผสม',
-      pasteurising:'🔵 Past.',past_done:'✅ เสร็จ',ready:'✅ พร้อม'};
-    const statusTxt=statusMap[st]||st;
-    const fillH=Math.max(0,(pct/100)*(bH-4)*0.92);
-    const fillY=bY+bH-2-fillH;
-    const name=(row?.mix_name||'—').slice(0,14);
-    const dispVol=st==='pasteurising'&&row?.past_start_time&&row?.current_vol!=null
-      ?Math.max(0,vol-+row.current_vol).toLocaleString():vol.toLocaleString();
-    let s='';
-    s+='<div style="display:flex;flex-direction:column;align-items:center;gap:6px;min-width:140px">';
-    s+='<span style="font-family:DM Mono,monospace;font-size:12px;font-weight:800;color:var(--text)">'+label+'</span>';
-    s+='<svg width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" style="display:block">';
-    s+='<defs><linearGradient id="'+gid+'" x1="0" y1="0" x2="0" y2="1">';
-    s+='<stop offset="0%" stop-color="'+col+'" stop-opacity=".65"/>';
-    s+='<stop offset="100%" stop-color="'+col+'" stop-opacity=".9"/>';
-    s+='</linearGradient>';
-    s+='<clipPath id="'+cid+'"><rect x="'+(bX+1)+'" y="'+(bY+1)+'" width="'+(bW-2)+'" height="'+(bH-2)+'" rx="9"/></clipPath>';
-    s+='</defs>';
-    s+='<rect x="'+bX+'" y="'+bY+'" width="'+bW+'" height="'+bH+'" rx="10" fill="rgba(255,255,255,.15)" stroke="'+col+'" stroke-width="2" stroke-opacity=".45"/>';
-    if(pct>0){
-      s+='<g clip-path="url(#'+cid+')">';
-      s+='<rect x="'+(bX+1)+'" y="'+(fillY+wAmp+1)+'" width="'+(bW-2)+'" height="'+fillH+'" fill="url(#'+gid+')"/>';
-      s+='<path d="M'+(bX+1)+','+(fillY+wAmp)+' C'+(bX+1+bW*.3)+','+fillY+' '+(bX+1+bW*.7)+','+fillY+' '+(bX+1+bW)+','+(fillY+wAmp)+'" fill="'+col+'" fill-opacity=".5"><animateTransform attributeName="transform" type="translate" from="0,0" to="'+(-bW)+',0" dur="2s" repeatCount="indefinite"/></path>';
-      s+='<ellipse cx="'+(bX+bW*.35)+'" cy="'+(fillY+3)+'" rx="'+(bW*.15)+'" ry="1.5" fill="white" fill-opacity=".2"/>';
-      s+='</g>';
+
+    let pct=0, waveSVG='', statusTxt='⬜ รอ Leadman', statusCol='#3d4560', borderCol='#1e2535', fillCol='none';
+
+    if(!st||st==='pending'){
+      return`<div style="display:flex;flex-direction:column;align-items:center;gap:6px;min-width:140px">
+        <span style="font-family:'DM Mono',monospace;font-size:11px;font-weight:800;color:var(--text)">${label}</span>
+        <svg width="130" height="160" viewBox="0 0 130 160">
+          <rect x="12" y="14" width="110" height="140" rx="10" fill="rgba(0,0,0,.3)"/>
+          <rect x="10" y="10" width="110" height="140" rx="10" fill="var(--bg)" stroke="rgba(255,255,255,.5)" stroke-width="2"/>
+          <rect x="49" y="0" width="22" height="12" rx="3" fill="var(--bg)" stroke="rgba(255,255,255,.4)" stroke-width="1.5"/>
+          <rect x="44" y="-6" width="32" height="7" rx="3" fill="var(--bg)" stroke="rgba(255,255,255,.4)" stroke-width="1.5"/>
+          <rect x="8" y="150" width="16" height="5" rx="2" fill="var(--bg)" stroke="rgba(255,255,255,.3)" stroke-width="1.2"/>
+          <rect x="86" y="150" width="16" height="5" rx="2" fill="var(--bg)" stroke="rgba(255,255,255,.3)" stroke-width="1.2"/>
+        </svg>
+      </div>`;
     }
-    s+='<rect x="'+bX+'" y="'+bY+'" width="'+bW+'" height="'+bH+'" rx="10" fill="none" stroke="'+col+'" stroke-width="2" stroke-opacity=".7"/>';
-    s+='<rect x="'+(bX+(bW-32)/2)+'" y="'+(bY-10)+'" width="32" height="12" rx="3" fill="rgba(255,255,255,.2)" stroke="'+col+'" stroke-width="1.5" stroke-opacity=".5"/>';
-    s+='<rect x="'+(bX+(bW-42)/2)+'" y="'+(bY-16)+'" width="42" height="7" rx="3" fill="rgba(255,255,255,.2)" stroke="'+col+'" stroke-width="1.5" stroke-opacity=".5"/>';
-    s+='<rect x="'+(bX+8)+'" y="'+(bY+bH)+'" width="16" height="14" rx="3" fill="rgba(255,255,255,.2)" stroke="'+col+'" stroke-width="1" stroke-opacity=".4"/>';
-    s+='<rect x="'+(bX+bW-24)+'" y="'+(bY+bH)+'" width="16" height="14" rx="3" fill="rgba(255,255,255,.2)" stroke="'+col+'" stroke-width="1" stroke-opacity=".4"/>';
-    s+='<text x="65" y="55" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="'+col+'" font-weight="700" opacity=".9">'+name+'</text>';
-    s+='<text x="65" y="82" text-anchor="middle" font-family="DM Mono,monospace" font-size="20" fill="'+col+'" font-weight="900">'+dispVol+'</text>';
-    s+='<text x="65" y="97" text-anchor="middle" font-family="DM Mono,monospace" font-size="10" fill="'+col+'" opacity=".7">ลิตร</text>';
-    s+='<rect x="33" y="116" width="64" height="18" rx="6" fill="'+col+'" fill-opacity=".12" stroke="'+col+'" stroke-width="1" stroke-opacity=".4"/>';
-    s+='<text x="65" y="128" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="'+col+'" font-weight="800">'+statusTxt+'</text>';
-    s+='</svg></div>';
-    return s;
+
+    if(st==='mixing'){ pct=Math.min(100,(vol*0.5/cap)*100); statusTxt='🔄 กำลังผสม'; statusCol='#eab308'; borderCol=col;
+      waveSVG=`<defs><linearGradient id="wg${label.replace(' ','')}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${col}" stop-opacity=".9"/><stop offset="100%" stop-color="${col}" stop-opacity=".5"/></linearGradient></defs>
+      <clipPath id="wc${label.replace(' ','')}"><rect x="12" y="${10+140*(1-pct/100)}" width="106" height="${140*pct/100}" rx="6"/></clipPath>
+      <g clip-path="url(#wc${label.replace(' ','')})">
+        <rect x="12" y="10" width="106" height="140" fill="url(#wg${label.replace(' ','')})"/>
+        <!-- layer 1 หลัก -->
+        <path d="M12,${10+140*(1-pct/100)} q26,-14 53,0 t53,0 t53,0 v200 h-212 z" fill="${col}" opacity=".75">
+          <animateTransform attributeName="transform" type="translate" from="0,0" to="-53,0" dur="0.9s" repeatCount="indefinite"/>
+        </path>
+        <!-- layer 2 ตาม -->
+        <path d="M12,${10+140*(1-pct/100)+4} q26,-10 53,0 t53,0 t53,0 v200 h-212 z" fill="${col}" opacity=".4">
+          <animateTransform attributeName="transform" type="translate" from="26,0" to="-27,0" dur="1.2s" repeatCount="indefinite"/>
+        </path>
+        <!-- layer 3 ฟองขาวสวนทาง -->
+        <path d="M12,${10+140*(1-pct/100)+7} q26,-8 53,0 t53,0 t53,0 v200 h-212 z" fill="rgba(255,255,255,.13)">
+          <animateTransform attributeName="transform" type="translate" from="-10,0" to="43,0" dur="1.6s" repeatCount="indefinite"/>
+        </path>
+      </g>`;
+    } else if(st==='pasteurising'){
+      // ถ้ากำลัง Past. อยู่ — ดึง current_vol มาคำนวณ % ที่เหลือ
+      const totalVol=vol||1;
+      const currentVol=row?.current_vol!==undefined&&row?.current_vol!==null?+row.current_vol:0;
+      if(row?.past_start_time&&currentVol>0){
+        // กำลัง Past. — volume ลดลง
+        pct=Math.max(0,((totalVol-currentVol)/cap)*100);
+        statusTxt='🔵 กำลัง Pasteurise'; statusCol='#f97316'; borderCol=col;
+        waveSVG=`<defs><linearGradient id="wg${label.replace(' ','')}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${col}" stop-opacity=".9"/><stop offset="100%" stop-color="${col}" stop-opacity=".6"/></linearGradient></defs>
+        <clipPath id="wc${label.replace(' ','')}"><rect x="12" y="${10+140*(1-pct/100)}" width="106" height="${140*pct/100}" rx="6"/></clipPath>
+        <g clip-path="url(#wc${label.replace(' ','')})">
+          <rect x="12" y="10" width="106" height="140" fill="url(#wg${label.replace(' ','')})"/>
+          <!-- layer 1 หลัก -->
+          <path d="M12,${10+140*(1-pct/100)} q26,-14 53,0 t53,0 t53,0 v200 h-212 z" fill="${col}" opacity=".75">
+            <animateTransform attributeName="transform" type="translate" from="0,0" to="-53,0" dur="0.9s" repeatCount="indefinite"/>
+          </path>
+          <!-- layer 2 ตาม -->
+          <path d="M12,${10+140*(1-pct/100)+4} q26,-10 53,0 t53,0 t53,0 v200 h-212 z" fill="${col}" opacity=".4">
+            <animateTransform attributeName="transform" type="translate" from="26,0" to="-27,0" dur="1.2s" repeatCount="indefinite"/>
+          </path>
+          <!-- layer 3 ฟองขาวสวนทาง -->
+          <path d="M12,${10+140*(1-pct/100)+7} q26,-8 53,0 t53,0 t53,0 v200 h-212 z" fill="rgba(255,255,255,.13)">
+            <animateTransform attributeName="transform" type="translate" from="-10,0" to="43,0" dur="1.6s" repeatCount="indefinite"/>
+          </path>
+        </g>`;
+      } else {
+        // รอ Past. — 100% ผสมเสร็จแล้ว รอส่งออก
+        pct=Math.min(100,(vol/cap)*100); statusTxt='🔵 รอ Pasteurise'; statusCol='#60a5fa'; borderCol=col;
+        waveSVG=`<defs><linearGradient id="wg${label.replace(' ','')}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${col}" stop-opacity=".9"/><stop offset="100%" stop-color="${col}" stop-opacity=".6"/></linearGradient></defs>
+        <clipPath id="wc${label.replace(' ','')}"><rect x="12" y="10" width="106" height="140" rx="6"/></clipPath>
+        <g clip-path="url(#wc${label.replace(' ','')})"><rect x="12" y="10" width="106" height="140" fill="url(#wg${label.replace(' ','')})"/></g>`;
+      }
+    }
+
+    return`<div style="display:flex;flex-direction:column;align-items:center;gap:6px;min-width:140px">
+      <span style="font-family:'DM Mono',monospace;font-size:11px;font-weight:800;color:var(--text)">${label}</span>
+      <svg width="130" height="175" viewBox="0 0 130 175">
+        ${waveSVG}
+
+        <!-- body -->
+        <rect x="10" y="10" width="110" height="140" rx="10" fill="rgba(255,255,255,.12)" stroke="${borderCol}" stroke-width="2"/>
+        <!-- neck/motor top — สีเขียวเมื่อมีของ (มอเตอร์กวน) -->
+        <rect x="49" y="0" width="32" height="12" rx="3" fill="${pct>0?'#16a34a':'var(--bg)'}" stroke="${pct>0?'#22c55e':borderCol}" stroke-width="${pct>0?2:1.2}"/>
+        <rect x="44" y="-6" width="42" height="7" rx="3" fill="${pct>0?'#16a34a':'var(--bg)'}" stroke="${pct>0?'#22c55e':borderCol}" stroke-width="${pct>0?2:1.2}"/>
+        ${pct>0?'<circle cx="65" cy="-3" r="4" fill="#22c55e" opacity=".9"/><circle cx="65" cy="-3" r="4" fill="none" stroke="#22c55e" stroke-width="1.5" opacity="0"><animate attributeName="r" from="4" to="10" dur="1.5s" repeatCount="indefinite"/><animate attributeName="opacity" from="0.6" to="0" dur="1.5s" repeatCount="indefinite"/></circle>':''}
+        <!-- ขาถัง -->
+        <rect x="18" y="150" width="16" height="14" rx="3" fill="var(--bg)" stroke="${borderCol}" stroke-width="1.2"/>
+        <rect x="96" y="150" width="16" height="14" rx="3" fill="var(--bg)" stroke="${borderCol}" stroke-width="1.2"/>
+        <!-- ฐาน -->
+        <rect x="12" y="163" width="106" height="5" rx="2" fill="var(--bg)" stroke="${borderCol}" stroke-width="1.2"/>
+        <text x="65" y="55" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="white" font-weight="700">${name}</text>
+        <text x="65" y="85" text-anchor="middle" font-family="DM Mono,monospace" font-size="18" fill="white" font-weight="700">${
+          st==='pasteurising'&&row?.past_start_time&&row?.current_vol!=null
+            ? Math.max(0,vol-+row.current_vol).toLocaleString(undefined,{maximumFractionDigits:1})
+            : vol.toLocaleString()
+        }</text>
+        <text x="65" y="100" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="rgba(255,255,255,.6)">L</text>
+        <rect x="33" y="118" width="64" height="16" rx="5" fill="rgba(0,0,0,.55)"/>
+        <text x="65" y="129" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="${statusCol}" font-weight="700">
+          ${statusTxt}
+          ${st==='pasteurising'?'<animate attributeName="opacity" values="1;0.15;1" dur="1.5s" repeatCount="indefinite"/>':''}
+        </text>
+      </svg>
+    </div>`;
   }
 
-
+  el.innerHTML=`<div style="display:flex;gap:24px;padding:12px 16px;background:var(--s1);border:1px solid var(--b1);border-radius:12px;margin-bottom:4px;align-items:flex-start">
+    ${tankSVG(t1Row,'Mixing 1',3000)}
+    ${tankSVG(t2Row,'Mixing 2',3500)}
+  </div>`;
 }
+
 function renderPlan(m){
   const col=planCol(m);
   const tbody=$(`tbody-${m}`);
