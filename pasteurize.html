@@ -54,11 +54,11 @@ thead th{border-right:1px solid var(--b2)!important}
 thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1px solid var(--b1);vertical-align:middle}
 
 /* ROW HIGHLIGHT — ทั้งแถวสีเดียวกัน */
-.row-past{background:rgba(29,78,216,.08)!important;border-left:3px solid #1d4ed8}
-.row-past td{background:rgba(29,78,216,.08)!important;font-weight:700;color:#0f172a}
+.row-past{background:rgba(29,78,216,.1)!important;border-left:4px solid #1d4ed8}
+.row-past td{background:rgba(29,78,216,.08)!important;font-weight:800!important;color:#0f172a!important}
 .row-past td *:not(.stamp-btn):not(.stat-badge):not(.ci){color:var(--orange)!important}
-.row-done{background:rgba(21,128,61,.08)!important;border-left:3px solid #15803d}
-.row-done td{background:rgba(21,128,61,.06)!important;font-weight:700;color:#0f172a}
+.row-done{background:rgba(21,128,61,.08)!important;border-left:4px solid #1d4ed8}
+.row-done td{background:rgba(21,128,61,.06)!important;font-weight:700!important;color:#0f172a!important}
 .row-done td *:not(.stamp-btn):not(.stat-badge):not(.ci){color:#4ade80!important}
 .row-wait{background:rgba(234,179,8,.07)!important;border-left:3px solid var(--yellow)}
 .row-wait td{background:rgba(234,179,8,.07)!important}
@@ -118,7 +118,7 @@ thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap
 
 /* TANK VISUAL */
 .tank-row{display:block;margin-bottom:14px}
-.tank-card{background:var(--s1);border:1px solid var(--b1);border-radius:12px;padding:14px;text-align:center;position:relative;overflow:hidden}
+.tank-card{background:#ffffff;border:1.5px solid var(--b1);border-radius:12px;padding:14px;text-align:center;position:relative;overflow:hidden}
 .tank-card-title{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}
 .tank-card-name{font-family:var(--mono);font-size:11px;color:var(--blue2);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tank-card-vol{font-family:var(--mono);font-size:14px;font-weight:700;margin-top:4px}
@@ -168,8 +168,8 @@ thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap
     background:var(--s1);border:1px solid var(--b1);border-radius:12px;
     margin-bottom:12px;padding:12px;position:relative;
   }
-  tbody tr.row-past{border-left:4px solid #1d4ed8!important;background:rgba(29,78,216,.08)!important}
-  tbody tr.row-done{border-left:4px solid #15803d!important;background:rgba(21,128,61,.06)!important}
+  tbody tr.row-past{background:rgba(29,78,216,.1)!important;border-left:4px solid #1d4ed8}
+  tbody tr.row-done{background:rgba(21,128,61,.08)!important;border-left:4px solid #1d4ed8}
   tbody tr.row-wait{border-left:4px solid var(--yellow)!important;background:rgba(234,179,8,.06)!important}
   tbody td{border:none!important;padding:3px 0;display:flex;align-items:center;gap:8px;font-size:13px}
 
@@ -249,7 +249,7 @@ thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap
 
 /* TANK VISUAL */
 .tank-row{display:block;margin-bottom:14px}
-.tank-card{background:var(--s1);border:1px solid var(--b1);border-radius:12px;padding:14px;text-align:center;position:relative;overflow:hidden}
+.tank-card{background:#ffffff;border:1.5px solid var(--b1);border-radius:12px;padding:14px;text-align:center;position:relative;overflow:hidden}
 .tank-card-title{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}
 .tank-card-name{font-family:var(--mono);font-size:11px;color:var(--blue2);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tank-card-vol{font-family:var(--mono);font-size:14px;font-weight:700;margin-top:4px}
@@ -439,7 +439,7 @@ const nowHHMMSS=()=>{const d=new Date();return String(d.getHours()).padStart(2,"
 
 function toast(msg,t="blue"){
   const el=$("toast");el.textContent=msg;
-  el.style.background=t==="green"?"#15803d":t==="red"?"#991b1b":"#1d4ed8";
+  el.style.background=t==="green"?"#1d4ed8":t==="red"?"#991b1b":"#1d4ed8";
   el.classList.add("show");setTimeout(()=>el.classList.remove("show"),2500);
 }
 
@@ -889,7 +889,7 @@ function renderTankVisual(m,rows){
     const hasLiq=vol>0&&total>0;
     const borderCol=wave?rgba(c1,.7):hasLiq?rgba(c1,.4):'#1e2535';
     const motorCol=hasLiq?'#1d4ed8':'#1e2535'; // สีเขียวเมื่อมีของ
-    const motorFill=hasLiq?'rgba(34,197,94,.25)':'#060a14';
+    const motorFill=hasLiq?'rgba(34,197,94,.25)':'rgba(255,255,255,.1)';
     const gf=wave?`filter="url(#gfx${m})"`:'' ;
     return`<g transform="translate(${tx},${ty})">
       <!-- label outside top — ขยับขึ้นสูงกว่าเดิม -->
@@ -897,27 +897,27 @@ function renderTankVisual(m,rows){
       <!-- shadow -->
       <rect x="2" y="4" width="${tw}" height="${th}" rx="10" fill="rgba(0,0,0,.45)"/>
       <!-- body -->
-      <rect x="0" y="0" width="${tw}" height="${th}" rx="10" fill="#060a14" stroke="${borderCol}" stroke-width="2" ${gf}/>
+      <rect x="0" y="0" width="${tw}" height="${th}" rx="10" fill="rgba(255,255,255,.1)" stroke="${borderCol}" stroke-width="2" ${gf}/>
       <!-- fill -->
       ${tankFill(vol,total,gid,cid,tw,th,c1,c2,wave)}
       <!-- border overlay -->
       <rect x="0" y="0" width="${tw}" height="${th}" rx="10" fill="none" stroke="${borderCol}" stroke-width="2"/>
       <!-- neck/motor top — สีเขียวเมื่อมีของ (มอเตอร์กวน) -->
-      <rect x="${tw/2-13}" y="-10" width="26" height="12" rx="3" fill="${hasLiq?'#16a34a':'#060a14'}" stroke="${hasLiq?'#1d4ed8':borderCol}" stroke-width="2"/>
-      <rect x="${tw/2-17}" y="-18" width="34" height="9" rx="3" fill="${hasLiq?'#16a34a':'#060a14'}" stroke="${hasLiq?'#1d4ed8':borderCol}" stroke-width="2"/>
+      <rect x="${tw/2-13}" y="-10" width="26" height="12" rx="3" fill="${hasLiq?'#1d4ed8':'rgba(255,255,255,.1)'}" stroke="${hasLiq?'#1d4ed8':borderCol}" stroke-width="2"/>
+      <rect x="${tw/2-17}" y="-18" width="34" height="9" rx="3" fill="${hasLiq?'#1d4ed8':'rgba(255,255,255,.1)'}" stroke="${hasLiq?'#1d4ed8':borderCol}" stroke-width="2"/>
       ${hasLiq?`<circle cx="${tw/2}" cy="-13" r="4" fill="#1d4ed8" opacity=".9"/>
       <circle cx="${tw/2}" cy="-13" r="4" fill="none" stroke="#1d4ed8" stroke-width="1.5" opacity="0">
         <animate attributeName="r" from="4" to="10" dur="1.5s" repeatCount="indefinite"/>
         <animate attributeName="opacity" from="0.6" to="0" dur="1.5s" repeatCount="indefinite"/>
       </circle>`:''}
       <!-- bottom outlet -->
-      <rect x="${tw/2-5}" y="${th}" width="10" height="12" rx="2" fill="#060a14" stroke="${wave?rgba(c1,.5):borderCol}" stroke-width="1.2"/>
+      <rect x="${tw/2-5}" y="${th}" width="10" height="12" rx="2" fill="rgba(255,255,255,.1)" stroke="${wave?rgba(c1,.5):borderCol}" stroke-width="1.2"/>
       <!-- ขาถัง ซ้าย -->
-      <rect x="8" y="${th+10}" width="14" height="14" rx="3" fill="#060a14" stroke="${borderCol}" stroke-width="1.2"/>
+      <rect x="8" y="${th+10}" width="14" height="14" rx="3" fill="rgba(255,255,255,.1)" stroke="${borderCol}" stroke-width="1.2"/>
       <!-- ขาถัง ขวา -->
-      <rect x="${tw-22}" y="${th+10}" width="14" height="14" rx="3" fill="#060a14" stroke="${borderCol}" stroke-width="1.2"/>
+      <rect x="${tw-22}" y="${th+10}" width="14" height="14" rx="3" fill="rgba(255,255,255,.1)" stroke="${borderCol}" stroke-width="1.2"/>
       <!-- ฐานแท่ง -->
-      <rect x="4" y="${th+23}" width="${tw-8}" height="5" rx="2" fill="#060a14" stroke="${borderCol}" stroke-width="1.2"/>
+      <rect x="4" y="${th+23}" width="${tw-8}" height="5" rx="2" fill="rgba(255,255,255,.1)" stroke="${borderCol}" stroke-width="1.2"/>
       <!-- mix name inside tank (top area) — ขาวชัดเจน -->
       <text x="${tw/2}" y="20" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="white" font-weight="700">${sublabel}</text>
       <!-- volume (center) -->
@@ -931,7 +931,7 @@ function renderTankVisual(m,rows){
 
   function valve(x,y,open){
     const c=open?ac:'#2d3748';
-    return`<circle cx="${x}" cy="${y}" r="9" fill="#060a14" stroke="${c}" stroke-width="2"/>
+    return`<circle cx="${x}" cy="${y}" r="9" fill="rgba(255,255,255,.1)" stroke="${c}" stroke-width="2"/>
     <path d="M${x-6},${y} L${x},${y-6} L${x+6},${y} L${x},${y+6} Z" fill="${c}" opacity="${open?.9:.45}"/>
     <line x1="${x}" y1="${y-9}" x2="${x}" y2="${y+9}" stroke="${c}" stroke-width="2.2"/>
     ${open?`<circle cx="${x}" cy="${y}" r="12" fill="none" stroke="${c}" stroke-width="1" opacity="0">
@@ -1002,24 +1002,24 @@ function renderTankVisual(m,rows){
     ${mx1.show?(()=>{const p1=productMap[t1Row?.mix_code||'']||{};const c1=t1Done?'#374151':(p1.color||s1.tankCol);const c1d=c1+'88';return drawTank(T1X,TOP,TW,TH,mx1.vol,t1Total,'Mixing 1',(t1Row?.mix_name||'—').slice(0,12),s1,'g1t'+m,'c1t'+m,c1,c1d,mx1.wave);})():`<g transform="translate(${T1X},${TOP})">
   <text x="${TW/2}" y="-32" text-anchor="middle" font-family="DM Mono,monospace" font-size="14" fill="rgba(255,255,255,.6)" font-weight="800">Mixing 1</text>
   <rect x="2" y="4" width="${TW}" height="${TH}" rx="10" fill="rgba(0,0,0,.3)"/>
-  <rect x="0" y="0" width="${TW}" height="${TH}" rx="10" fill="#060a14" stroke="rgba(255,255,255,.5)" stroke-width="2"/>
-  <rect x="${TW/2-13}" y="-10" width="26" height="12" rx="3" fill="#060a14" stroke="rgba(255,255,255,.4)" stroke-width="1.5"/>
-  <rect x="${TW/2-17}" y="-16" width="34" height="7" rx="3" fill="#060a14" stroke="rgba(255,255,255,.4)" stroke-width="1.5"/>
-  <rect x="${TW/2-5}" y="${TH}" width="10" height="12" rx="2" fill="#060a14" stroke="rgba(255,255,255,.3)" stroke-width="1.2"/>
-  <rect x="8" y="${TH+10}" width="16" height="5" rx="2" fill="#060a14" stroke="rgba(255,255,255,.3)" stroke-width="1.2"/>
-  <rect x="${TW-24}" y="${TH+10}" width="16" height="5" rx="2" fill="#060a14" stroke="rgba(255,255,255,.3)" stroke-width="1.2"/>
+  <rect x="0" y="0" width="${TW}" height="${TH}" rx="10" fill="rgba(255,255,255,.1)" stroke="rgba(255,255,255,.5)" stroke-width="2"/>
+  <rect x="${TW/2-13}" y="-10" width="26" height="12" rx="3" fill="rgba(255,255,255,.1)" stroke="rgba(255,255,255,.4)" stroke-width="1.5"/>
+  <rect x="${TW/2-17}" y="-16" width="34" height="7" rx="3" fill="rgba(255,255,255,.1)" stroke="rgba(255,255,255,.4)" stroke-width="1.5"/>
+  <rect x="${TW/2-5}" y="${TH}" width="10" height="12" rx="2" fill="rgba(255,255,255,.1)" stroke="rgba(255,255,255,.3)" stroke-width="1.2"/>
+  <rect x="8" y="${TH+10}" width="16" height="5" rx="2" fill="rgba(255,255,255,.1)" stroke="rgba(255,255,255,.3)" stroke-width="1.2"/>
+  <rect x="${TW-24}" y="${TH+10}" width="16" height="5" rx="2" fill="rgba(255,255,255,.1)" stroke="rgba(255,255,255,.3)" stroke-width="1.2"/>
 </g>`}
 
     <!-- ══ MIX TANK 2 ══ -->
     ${mx2.show?(()=>{const p2=productMap[t2Row?.mix_code||'']||{};const c2=t2Done?'#374151':(p2.color||s2.tankCol);const c2d=c2+'88';return drawTank(T2X,TOP,TW,TH,mx2.vol,t2Total,'Mixing 2',(t2Row?.mix_name||'—').slice(0,12),s2,'g2t'+m,'c2t'+m,c2,c2d,mx2.wave);})():`<g transform="translate(${T2X},${TOP})">
   <text x="${TW/2}" y="-32" text-anchor="middle" font-family="DM Mono,monospace" font-size="14" fill="rgba(255,255,255,.6)" font-weight="800">Mixing 2</text>
   <rect x="2" y="4" width="${TW}" height="${TH}" rx="10" fill="rgba(0,0,0,.3)"/>
-  <rect x="0" y="0" width="${TW}" height="${TH}" rx="10" fill="#060a14" stroke="rgba(255,255,255,.5)" stroke-width="2"/>
-  <rect x="${TW/2-13}" y="-10" width="26" height="12" rx="3" fill="#060a14" stroke="rgba(255,255,255,.4)" stroke-width="1.5"/>
-  <rect x="${TW/2-17}" y="-16" width="34" height="7" rx="3" fill="#060a14" stroke="rgba(255,255,255,.4)" stroke-width="1.5"/>
-  <rect x="${TW/2-5}" y="${TH}" width="10" height="12" rx="2" fill="#060a14" stroke="rgba(255,255,255,.3)" stroke-width="1.2"/>
-  <rect x="8" y="${TH+10}" width="16" height="5" rx="2" fill="#060a14" stroke="rgba(255,255,255,.3)" stroke-width="1.2"/>
-  <rect x="${TW-24}" y="${TH+10}" width="16" height="5" rx="2" fill="#060a14" stroke="rgba(255,255,255,.3)" stroke-width="1.2"/>
+  <rect x="0" y="0" width="${TW}" height="${TH}" rx="10" fill="rgba(255,255,255,.1)" stroke="rgba(255,255,255,.5)" stroke-width="2"/>
+  <rect x="${TW/2-13}" y="-10" width="26" height="12" rx="3" fill="rgba(255,255,255,.1)" stroke="rgba(255,255,255,.4)" stroke-width="1.5"/>
+  <rect x="${TW/2-17}" y="-16" width="34" height="7" rx="3" fill="rgba(255,255,255,.1)" stroke="rgba(255,255,255,.4)" stroke-width="1.5"/>
+  <rect x="${TW/2-5}" y="${TH}" width="10" height="12" rx="2" fill="rgba(255,255,255,.1)" stroke="rgba(255,255,255,.3)" stroke-width="1.2"/>
+  <rect x="8" y="${TH+10}" width="16" height="5" rx="2" fill="rgba(255,255,255,.1)" stroke="rgba(255,255,255,.3)" stroke-width="1.2"/>
+  <rect x="${TW-24}" y="${TH+10}" width="16" height="5" rx="2" fill="rgba(255,255,255,.1)" stroke="rgba(255,255,255,.3)" stroke-width="1.2"/>
 </g>`}
 
     <!-- ══ AGING TANK ══ -->
