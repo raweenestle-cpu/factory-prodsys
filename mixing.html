@@ -611,7 +611,7 @@ function renderMixTanks(m, rows){
       return d+` L${bX+bW*2},${bY+bH} L${bX-bW},${bY+bH} Z`;
     }
     let s=`<svg width="${sw}" height="${sh}" viewBox="0 0 ${sw} ${sh}" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto">`;
-    s+=`<defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${col}" stop-opacity=".5"/><stop offset="100%" stop-color="${col}" stop-opacity=".85"/></linearGradient><clipPath id="${cid}"><rect x="${bX}" y="${bY}" width="${bW}" height="${bH}" rx="12"/></clipPath></defs>`;
+    s+=`<defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${col}" stop-opacity=".5"/><stop offset="100%" stop-color="${col}" stop-opacity=".85"/></linearGradient><clipPath id="${cid}"><rect x="${bX-1}" y="${bY-1}" width="${bW+2}" height="${bH+2}" rx="13"/></clipPath></defs>`;
     s+=`<text x="${sw/2}" y="${bY-nH-cH-18}" text-anchor="middle" font-family="DM Mono,monospace" font-size="10" fill="${tc}" font-weight="800">${mixName}</text>`;
     s+=`<rect x="${nX}" y="${bY-nH}" width="${nW}" height="${nH+5}" rx="4" fill="${hasLiq?'#16a34a':'rgba(255,255,255,.12)'}" stroke="${bodyStroke}" stroke-width="1.5" stroke-opacity=".6"/>`;
     s+=`<rect x="${cX}" y="${bY-nH-cH}" width="${cW}" height="${cH+3}" rx="4" fill="${hasLiq?'#16a34a':'rgba(255,255,255,.12)'}" stroke="${bodyStroke}" stroke-width="1.5" stroke-opacity=".5"/>`;
