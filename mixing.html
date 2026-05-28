@@ -775,7 +775,7 @@ function renderPlan(m){
   });
 
   // KPI — Diff by shift
-  $(`${m}-total`).textContent=rows[m].length;
+  const _tel=$(`${m}-total`); if(_tel) _tel.textContent=rows[m].length;
 
   // กะ: เช้า 06:00-14:00, บ่าย 14:00-22:00, ดึก 22:00-06:00(+1)
   function getShift(timeStr){
