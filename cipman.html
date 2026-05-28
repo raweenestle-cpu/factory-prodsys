@@ -573,39 +573,46 @@ function fpPanel(lineId,tank){
 // ถังเล็กสำหรับ queue card
 function tankSVGSm(uid,pct,col,run){
   const sw=90,sh=155;
-  const bX=10,bY=14,bW=sw-20,bH=sh-45;
-  const maxFillH=(bH-4)*0.92;
+  const bX=10,bY=30,bW=sw-20,bH=sh-45;
+  const nW=16,nH=7,cW=22,cH=4;
+  const nX=bX+(bW-nW)/2,cX=bX+(bW-cW)/2;
+  const hasLiq=pct>0;
+  const maxFillH=(bH-6)*0.92;
   const fillH=Math.max(0,(pct/100)*maxFillH);
-  const fillY=bY+bH-2-fillH;
+  const wy=bY+bH-fillH;
+  const A=4;
   const gid='gs'+uid,cid='cs'+uid;
-  const waveW=bW*2;const wAmp=12;
-  return`<svg width="${sw}" height="${sh}" viewBox="0 0 ${sw} ${sh}" style="display:block">
-  <defs>
-    <linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="${col}" stop-opacity=".95"/>
-      <stop offset="100%" stop-color="${col}" stop-opacity=".6"/>
-    </linearGradient>
-    <clipPath id="${cid}"><rect x="${bX+2}" y="${bY+2}" width="${bW-4}" height="${bH-4}" rx="6"/></clipPath>
-  </defs>
-  <rect x="${bX+1}" y="${bY+2}" width="${bW}" height="${bH+1}" rx="7" fill="rgba(0,0,0,.4)"/>
-  <rect x="${bX}" y="${bY}" width="${bW}" height="${bH}" rx="7" fill="#080c18" stroke="#1e2d4a" stroke-width="1.5"/>
-  ${pct>0?`<g clip-path="url(#${cid})">
-    <rect x="${bX+2}" y="${fillY+wAmp}" width="${bW-4}" height="${fillH}" fill="url(#${gid})"/>
-    ${run?`<path d="M${bX+2},${fillY+wAmp} C${bX+2+bW*.3},${fillY} ${bX+2+bW*.7},${fillY} ${bX+2+bW},${fillY+wAmp} C${bX+2+bW*1.3},${fillY+wAmp*2} ${bX+2+bW*1.7},${fillY+wAmp*2} ${bX+2+waveW},${fillY+wAmp} L${bX+2+waveW},${fillY+fillH+10} L${bX+2},${fillY+fillH+10} Z" fill="${col}" opacity=".4">
-      <animateTransform attributeName="transform" type="translate" from="0,0" to="${-bW},0" dur="2.8s" repeatCount="indefinite"/>
-    </path>`:''}
-  </g>`:''}
-  <rect x="${bX}" y="${bY}" width="${bW}" height="${bH}" rx="7" fill="none" stroke="${pct>0?col+'66':'#1e2d4a'}" stroke-width="1.5"/>
-  <!-- หัวถัง -->
-  <rect x="${bX+(bW-16)/2}" y="${bY-7}" width="16" height="8" rx="3" fill="#080c18" stroke="#1e2d4a" stroke-width="1"/>
-  <rect x="${bX+(bW-22)/2}" y="${bY-11}" width="22" height="5" rx="3" fill="#0c1020" stroke="#1e2d4a" stroke-width="1"/>
-  <!-- ขาถัง ซ้าย -->
-  <rect x="${bX+7}" y="${bY+bH-1}" width="5" height="12" rx="2" fill="#080c18" stroke="#1e2d4a" stroke-width="1"/>
-  <!-- ขาถัง ขวา -->
-  <rect x="${bX+bW-12}" y="${bY+bH-1}" width="5" height="12" rx="2" fill="#080c18" stroke="#1e2d4a" stroke-width="1"/>
-  <!-- ฐาน -->
-  <rect x="${bX+3}" y="${bY+bH+10}" width="${bW-6}" height="4" rx="2" fill="#080c18" stroke="#1e2d4a" stroke-width="1"/>
-</svg>`;
+  const bodyFill=hasLiq?'rgba(255,255,255,.12)':'rgba(176,186,200,.25)';
+  const bodyStroke=hasLiq?col:'#94a3b8';
+  function waveD(yBase,amp,nc){
+    const W=bW*2,segW=W/(nc*2);
+    let d='M'+bX+','+yBase;
+    for(let i=0;i<nc*2;i++){
+      const x1=bX+i*segW,x2=bX+(i+1)*segW;
+      const cy=i%2===0?yBase-amp:yBase+amp;
+      d+=' C'+(x1+segW*.4)+','+cy+' '+(x2-segW*.4)+','+cy+' '+x2+','+yBase;
+    }
+    return d+' L'+(bX+W)+','+(bY+bH)+' L'+bX+','+(bY+bH)+' Z';
+  }
+  let s='<svg width="'+sw+'" height="'+sh+'" viewBox="0 0 '+sw+' '+sh+'" style="display:block">';
+  s+='<defs><linearGradient id="'+gid+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="'+col+'" stop-opacity=".5"/><stop offset="100%" stop-color="'+col+'" stop-opacity=".85"/></linearGradient>';
+  s+='<clipPath id="'+cid+'"><rect x="'+bX+'" y="'+bY+'" width="'+bW+'" height="'+bH+'" rx="10"/></clipPath></defs>';
+  s+='<rect x="'+nX+'" y="'+(bY-nH)+'" width="'+nW+'" height="'+(nH+4)+'" rx="3" fill="'+(hasLiq?'#16a34a':'rgba(255,255,255,.12)')+'" stroke="'+bodyStroke+'" stroke-width="1.5" stroke-opacity=".6"/>';
+  s+='<rect x="'+cX+'" y="'+(bY-nH-cH)+'" width="'+cW+'" height="'+(cH+3)+'" rx="3" fill="'+(hasLiq?'#16a34a':'rgba(255,255,255,.12)')+'" stroke="'+bodyStroke+'" stroke-width="1.5" stroke-opacity=".5"/>';
+  s+='<rect x="'+bX+'" y="'+bY+'" width="'+bW+'" height="'+bH+'" rx="10" fill="'+bodyFill+'" stroke="'+bodyStroke+'" stroke-width="1.5" stroke-opacity="'+(hasLiq?'.4':'.6')+'"/>';
+  if(hasLiq){
+    s+='<g clip-path="url(#'+cid+')">';
+    s+='<rect x="'+bX+'" y="'+(wy+A)+'" width="'+(bW*2)+'" height="'+(bY+bH-(wy+A))+'" fill="url(#'+gid+')"/>';
+    s+='<path d="'+waveD(wy,A,3)+'" fill="'+col+'" fill-opacity=".55"><animateTransform attributeName="transform" type="translate" from="0,0" to="'+(-bW)+',0" dur="2.8s" repeatCount="indefinite"/></path>';
+    s+='<path d="'+waveD(wy,A*.6,4)+'" fill="'+col+'" fill-opacity=".3"><animateTransform attributeName="transform" type="translate" from="'+(bW*.5)+',0" to="'+(-bW*.5)+',0" dur="4s" repeatCount="indefinite"/></path>';
+    s+='</g>';
+  }
+  s+='<rect x="'+bX+'" y="'+bY+'" width="'+bW+'" height="'+bH+'" rx="10" fill="none" stroke="'+bodyStroke+'" stroke-width="2.5" stroke-opacity="'+(hasLiq?'.8':'.6')+'"/>';
+  s+='<rect x="'+(bX+5)+'" y="'+(bY+bH)+'" width="6" height="10" rx="2" fill="rgba(255,255,255,.15)" stroke="'+bodyStroke+'" stroke-width="1" stroke-opacity=".6"/>';
+  s+='<rect x="'+(bX+bW-11)+'" y="'+(bY+bH)+'" width="6" height="10" rx="2" fill="rgba(255,255,255,.15)" stroke="'+bodyStroke+'" stroke-width="1" stroke-opacity=".6"/>';
+  s+='<rect x="'+(bX+2)+'" y="'+(bY+bH+9)+'" width="'+(bW-4)+'" height="4" rx="2" fill="rgba(255,255,255,.12)" stroke="'+bodyStroke+'" stroke-width="1" stroke-opacity=".5"/>';
+  s+='</svg>';
+  return s;
 }
 
 function tankSVG(uid,pct,col,run,statusTxt,statusCol,sw,sh){
