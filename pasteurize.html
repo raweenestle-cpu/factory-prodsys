@@ -903,7 +903,7 @@ function renderTankVisual(m,rows){
     const gf=wave?`filter="url(#gfx${m})"`:'' ;
     return`<g transform="translate(${tx},${ty})">
       <!-- label outside top — ขยับขึ้นสูงกว่าเดิม -->
-      <text x="${tw/2}" y="-32" text-anchor="middle" font-family="DM Mono,monospace" font-size="14" fill="white" font-weight="800" letter-spacing="0.5">${label}</text>
+      <text x="${tw/2}" y="-32" text-anchor="middle" font-family="DM Mono,monospace" font-size="14" fill="${c1}" font-weight="800" letter-spacing="0.5">${label}</text>
       <!-- shadow -->
       <rect x="2" y="4" width="${tw}" height="${th}" rx="10" fill="none"/>
       <!-- body -->
@@ -929,9 +929,9 @@ function renderTankVisual(m,rows){
       <!-- ฐานแท่ง -->
       <rect x="4" y="${th+23}" width="${tw-8}" height="5" rx="2" fill="rgba(255,255,255,.12)" stroke="${borderCol}" stroke-width="1.2"/>
       <!-- mix name inside tank (top area) — ขาวชัดเจน -->
-      <text x="${tw/2}" y="20" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="white" font-weight="700">${sublabel}</text>
+      <text x="${tw/2}" y="20" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="${c1}" font-weight="700">${sublabel}</text>
       <!-- volume (center) -->
-      <text x="${tw/2}" y="${th/2+8}" text-anchor="middle" font-family="DM Mono,monospace" font-size="16" fill="white" font-weight="700">${vol.toLocaleString(undefined,{minimumFractionDigits:1,maximumFractionDigits:1})}</text>
+      <text x="${tw/2}" y="${th/2+8}" text-anchor="middle" font-family="DM Mono,monospace" font-size="16" fill="${c1}" font-weight="700">${vol.toLocaleString(undefined,{minimumFractionDigits:1,maximumFractionDigits:1})}</text>
       <text x="${tw/2}" y="${th/2+22}" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="rgba(255,255,255,.65)">/ ${total.toLocaleString(undefined,{minimumFractionDigits:1,maximumFractionDigits:1})} L</text>
       <!-- status (bottom inside) -->
       <rect x="${tw/2-32}" y="${th-22}" width="64" height="16" rx="5" fill="rgba(0,0,0,.55)"/>
@@ -1074,12 +1074,12 @@ function renderTankVisual(m,rows){
         <!-- Stage 1 บนถัง -->
         <rect x="${HX-60}" y="${HY-R-60}" width="120" height="28" rx="5" fill="rgba(0,0,0,.9)" stroke="${hc}" stroke-width="1.5"/>
         <text x="${HX-36}" y="${HY-R-41}" text-anchor="middle" font-family="DM Mono,monospace" font-size="10" fill="${hcBright}" font-weight="700">St.1</text>
-        <text x="${HX+18}" y="${HY-R-41}" text-anchor="middle" font-family="DM Mono,monospace" font-size="13" fill="white" font-weight="800">${h1?h1+' psi':'— psi'}</text>
+        <text x="${HX+18}" y="${HY-R-41}" text-anchor="middle" font-family="DM Mono,monospace" font-size="13" fill="${col}" font-weight="800">${h1?h1+' psi':'— psi'}</text>
 
         <!-- Stage 2 บนถัง -->
         <rect x="${HX-60}" y="${HY-R-30}" width="120" height="28" rx="5" fill="rgba(0,0,0,.9)" stroke="${hc}" stroke-width="1.5"/>
         <text x="${HX-36}" y="${HY-R-11}" text-anchor="middle" font-family="DM Mono,monospace" font-size="10" fill="${hcBright}" font-weight="700">St.2</text>
-        <text x="${HX+18}" y="${HY-R-11}" text-anchor="middle" font-family="DM Mono,monospace" font-size="13" fill="white" font-weight="800">${h2?h2+' psi':'— psi'}</text>
+        <text x="${HX+18}" y="${HY-R-11}" text-anchor="middle" font-family="DM Mono,monospace" font-size="13" fill="${col}" font-weight="800">${h2?h2+' psi':'— psi'}</text>
 
         <!-- กรอบ HOMO วงกลม -->
         <circle cx="${HX}" cy="${HY}" r="${R+6}" fill="rgba(0,0,0,.4)" />
@@ -1100,7 +1100,7 @@ function renderTankVisual(m,rows){
         </circle>`:''}
         <!-- label -->
         <rect x="${HX-52}" y="${HY+R+6}" width="104" height="20" rx="4" fill="rgba(0,0,0,.85)" stroke="${hc}" stroke-width="1"/>
-        <text x="${HX}" y="${HY+R+20}" text-anchor="middle" font-family="DM Mono,monospace" font-size="12" font-weight="800" fill="white" letter-spacing="0.5">HOMOGENIZER</text>
+        <text x="${HX}" y="${HY+R+20}" text-anchor="middle" font-family="DM Mono,monospace" font-size="12" font-weight="800" fill="${col}" letter-spacing="0.5">HOMOGENIZER</text>
       </g>`;
     })()}
     <!-- homogenizer → aging -->
