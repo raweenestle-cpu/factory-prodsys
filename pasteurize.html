@@ -645,7 +645,7 @@ setInterval(async()=>{
               r.mix_code===agRow.mix_code&&
               r.date===agRow.date&&
               r.filling_line===agRow.filling_line&&
-              r.status==='pasteurising'&&
+              (r.status==='pasteurising'||r.status==='pending')&&
               !r.past_start_time
             );
             if(nextRow){
