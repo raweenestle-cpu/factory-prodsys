@@ -39,10 +39,10 @@ nav{display:flex;align-items:center;height:52px;background:var(--s1);border-bott
 .nav-logo b{color:var(--blue)}
 .nav-tab{font-size:12px;font-weight:600;padding:6px 12px;border-radius:7px;border:none;background:none;color:var(--t2);cursor:pointer;white-space:nowrap}
 .nav-tab:hover{color:var(--text);background:var(--s3)}
-.nav-tab.on{color:var(--blue);background:rgba(59,130,246,.12)}
+.nav-tab.on{color:var(--blue);background:var(--s2)}
 .nav-right{display:flex;align-items:center;gap:8px;margin-left:auto}
 .nav-user{font-family:var(--mono);font-size:11px;color:var(--t2)}
-.nav-role{font-size:10px;font-family:var(--mono);padding:2px 8px;border-radius:4px;background:rgba(6,182,212,.15);color:var(--cyan);border:1px solid rgba(6,182,212,.3)}
+.nav-role{font-size:10px;font-family:var(--mono);padding:2px 8px;border-radius:4px;background:var(--s2);color:var(--cyan);border:1px solid rgba(6,182,212,.3)}
 .btn-logout{font-size:11px;padding:5px 10px;border-radius:6px;border:1px solid var(--b2);background:none;color:var(--t2);cursor:pointer}
 .btn-logout:hover{color:var(--red);border-color:var(--red)}
 
@@ -59,28 +59,28 @@ tr:hover td{background:#e0e7ff!important}
 thead th{background:var(--s2);padding:8px 10px;text-align:left;white-space:nowrap;font-family:var(--mono);font-size:11px;color:var(--text);font-weight:800;border-bottom:2px solid var(--b1);vertical-align:middle}
 
 /* STATUS ROW COLORS */
-.row-mixing td{background:rgba(234,179,8,.08)!important}
+.row-mixing td{background:var(--s2)!important}
 .row-mixing td:first-child{border-left:3px solid var(--yellow)!important}
-.row-past td{background:rgba(234,179,8,.08)!important}
+.row-past td{background:var(--s2)!important}
 .row-past td:first-child{border-left:3px solid var(--yellow)!important}
-.row-done td{background:rgba(34,197,94,.08)!important}
+.row-done td{background:var(--s2)!important}
 .row-done td:first-child{border-left:3px solid var(--green)!important}
 
 /* INPUTS */
 .ci{background:var(--s2);border:1px solid var(--b1);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:12px;padding:5px 7px;outline:none}
 .ci:focus{border-color:var(--blue)}
 .ca{font-family:var(--mono);font-size:12px;color:var(--t2);white-space:nowrap}
-.cr{font-family:var(--mono);font-size:11px;font-weight:700;color:#fff;background:#1e3a5f;border:2px solid #3b82f6;border-radius:50%;width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;}
+.cr{font-family:var(--mono);font-size:11px;font-weight:700;color:#fff;background:var(--blue);border:2px solid #3b82f6;border-radius:50%;width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;}
 
 /* STAMP BUTTON */
 .stamp-btn{display:flex;align-items:center;gap:4px;background:var(--s3);border:1px solid var(--b2);border-radius:6px;color:var(--t2);font-size:11px;font-family:var(--mono);padding:4px 8px;cursor:pointer;white-space:nowrap}
 .stamp-btn:hover{border-color:var(--blue);color:var(--blue2)}
-.stamp-btn.stamped{background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.4);color:var(--green)}
+.stamp-btn.stamped{background:var(--s2);border-color:var(--b1);color:var(--green)}
 .stamp-time{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--text)}
 .stamp-wrap{display:flex;flex-direction:column;gap:3px;min-width:110px}
 
 /* ACTUAL INPUT */
-.act-input{background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.3);border-radius:6px;color:var(--green);font-family:var(--mono);font-size:12px;padding:5px 7px;outline:none;width:72px;text-align:right}
+.act-input{background:var(--s2);border:1px solid rgba(34,197,94,.3);border-radius:6px;color:var(--green);font-family:var(--mono);font-size:12px;padding:5px 7px;outline:none;width:72px;text-align:right}
 .act-input:focus{border-color:var(--green)}
 
 /* STATUS BADGE */
@@ -108,7 +108,7 @@ thead th{background:var(--s2);padding:8px 10px;text-align:left;white-space:nowra
 /* PERIOD BTNS */
 .period-row{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
 .period-btn{font-size:11px;padding:4px 12px;border-radius:6px;border:1px solid var(--b2);background:none;color:var(--t2);cursor:pointer;font-family:var(--mono)}
-.period-btn.on{background:rgba(59,130,246,.15);border-color:var(--blue);color:var(--blue2)}
+.period-btn.on{background:var(--s2);border-color:var(--blue);color:var(--blue2)}
 
 /* TOOLBAR */
 .toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px;flex-wrap:wrap;gap:8px}
@@ -145,8 +145,8 @@ thead th{background:var(--s2);padding:8px 10px;text-align:left;white-space:nowra
     padding:12px;
     position:relative;
   }
-  tbody tr.row-mixing{border-left:4px solid var(--yellow)!important;background:rgba(234,179,8,.06)!important}
-  tbody tr.row-done{border-left:4px solid var(--green)!important;background:rgba(34,197,94,.06)!important}
+  tbody tr.row-mixing{border-left:4px solid var(--yellow)!important;background:var(--s2)!important}
+  tbody tr.row-done{border-left:4px solid var(--green)!important;background:var(--s2)!important}
   tbody tr.row-past{border-left:4px solid var(--yellow)!important}
   tbody td{
     border:none!important;
@@ -224,7 +224,7 @@ thead th{background:var(--s2);padding:8px 10px;text-align:left;white-space:nowra
 .status-blink{animation:statusPulse 1.4s ease-in-out infinite}
 
 .sig-btn{background:none;border:none;cursor:pointer;padding:4px 6px;border-radius:6px;transition:background .15s;display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#64748b;}
-.sig-btn:hover{background:rgba(99,102,241,.15);color:#818cf8;}
+.sig-btn:hover{background:var(--s2);color:#818cf8;}
 .sig-btn svg{width:18px;height:18px;}
 .sig-preview{height:28px;filter:invert(1) brightness(2);vertical-align:middle;opacity:.9;}
 </style>
@@ -261,24 +261,24 @@ thead th{background:var(--s2);padding:8px 10px;text-align:left;white-space:nowra
         <th rowspan="2">Batch</th><th rowspan="2">Vol (L)</th><th rowspan="2">Tank</th>
         <th rowspan="2" style="color:var(--yellow)">⏱ เริ่มผสม</th>
         <th rowspan="2" style="color:var(--green)">✅ ผสมเสร็จ</th>
-        <th colspan="2" style="text-align:center;background:#141a0c;color:#a3c65a;border-bottom:1px solid var(--b2)">🍬 GLUCOSE (kg)</th>
-        <th colspan="2" style="text-align:center;background:#081014;color:#6ad4f5;border-bottom:1px solid var(--b2)">🧂 SUGAR (kg)</th>
-        <th colspan="2" style="text-align:center;background:#120f08;color:#f59e6a;border-bottom:1px solid var(--b2)">🌴 PALM OIL (kg)</th>
-        <th colspan="2" style="text-align:center;background:#0d1a1a;color:#34d399;border-bottom:1px solid var(--b2)">🛢️ OIL MIX (kg)</th>
-        <th colspan="2" style="text-align:center;background:#1a0d1a;color:#f9a8d4;border-bottom:1px solid var(--b2)">🥛 FAT MILK (kg)</th>
+        <th colspan="2" style="text-align:center;background:var(--s2);color:var(--text);border-bottom:1px solid var(--b2)">🍬 GLUCOSE (kg)</th>
+        <th colspan="2" style="text-align:center;background:var(--s2);color:var(--text);border-bottom:1px solid var(--b2)">🧂 SUGAR (kg)</th>
+        <th colspan="2" style="text-align:center;background:var(--s2);color:var(--text);border-bottom:1px solid var(--b2)">🌴 PALM OIL (kg)</th>
+        <th colspan="2" style="text-align:center;background:var(--s2);color:var(--text);border-bottom:1px solid var(--b2)">🛢️ OIL MIX (kg)</th>
+        <th colspan="2" style="text-align:center;background:var(--s2);color:var(--text);border-bottom:1px solid var(--b2)">🥛 FAT MILK (kg)</th>
         <th rowspan="2">Status</th>
       </tr>
       <tr>
-        <th style="background:#141a0c;color:#6b8c3a;font-size:9px">Set</th>
-        <th style="background:#141a0c;color:#86efac;font-size:9px;border-right:1px solid var(--b2)">Actual ✅</th>
-        <th style="background:#081014;color:#1e5f7a;font-size:9px">Set</th>
-        <th style="background:#081014;color:#67e8f9;font-size:9px;border-right:1px solid var(--b2)">Actual ✅</th>
-        <th style="background:#120f08;color:#6b5530;font-size:9px">Set</th>
-        <th style="background:#120f08;color:#fdba74;font-size:9px;border-right:1px solid var(--b2)">Actual ✅</th>
-        <th style="background:#0d1a1a;color:#1e6b5a;font-size:9px">Set</th>
-        <th style="background:#0d1a1a;color:#34d399;font-size:9px;border-right:1px solid var(--b2)">Actual ✅</th>
-        <th style="background:#1a0d1a;color:#7a3a7a;font-size:9px">Set</th>
-        <th style="background:#1a0d1a;color:#f9a8d4;font-size:9px;border-right:1px solid var(--b2)">Actual ✅</th>
+        <th style="background:var(--s2);color:var(--text);font-size:9px">Set</th>
+        <th style="background:var(--s2);color:var(--text);font-size:9px;border-right:1px solid var(--b2)">Actual ✅</th>
+        <th style="background:var(--s2);color:var(--text);font-size:9px">Set</th>
+        <th style="background:var(--s2);color:var(--text);font-size:9px;border-right:1px solid var(--b2)">Actual ✅</th>
+        <th style="background:var(--s2);color:var(--text);font-size:9px">Set</th>
+        <th style="background:var(--s2);color:var(--text);font-size:9px;border-right:1px solid var(--b2)">Actual ✅</th>
+        <th style="background:var(--s1);color:var(--text);font-size:9px">Set</th>
+        <th style="background:var(--s2);color:var(--text);font-size:9px;border-right:1px solid var(--b2)">Actual ✅</th>
+        <th style="background:var(--s2);color:var(--text);font-size:9px">Set</th>
+        <th style="background:var(--s2);color:var(--text);font-size:9px;border-right:1px solid var(--b2)">Actual ✅</th>
       </tr>
     </thead>
     <tbody id="tbody-m1"></tbody>
@@ -301,24 +301,24 @@ thead th{background:var(--s2);padding:8px 10px;text-align:left;white-space:nowra
         <th rowspan="2">Batch</th><th rowspan="2">Vol (L)</th><th rowspan="2">Tank</th>
         <th rowspan="2" style="color:var(--yellow)">⏱ เริ่มผสม</th>
         <th rowspan="2" style="color:var(--green)">✅ ผสมเสร็จ</th>
-        <th colspan="2" style="text-align:center;background:#141a0c;color:#a3c65a;border-bottom:1px solid var(--b2)">🍬 GLUCOSE (kg)</th>
-        <th colspan="2" style="text-align:center;background:#081014;color:#6ad4f5;border-bottom:1px solid var(--b2)">🧂 SUGAR (kg)</th>
-        <th colspan="2" style="text-align:center;background:#120f08;color:#f59e6a;border-bottom:1px solid var(--b2)">🌴 PALM OIL (kg)</th>
-        <th colspan="2" style="text-align:center;background:#0d1a1a;color:#34d399;border-bottom:1px solid var(--b2)">🛢️ OIL MIX (kg)</th>
-        <th colspan="2" style="text-align:center;background:#1a0d1a;color:#f9a8d4;border-bottom:1px solid var(--b2)">🥛 FAT MILK (kg)</th>
+        <th colspan="2" style="text-align:center;background:var(--s2);color:var(--text);border-bottom:1px solid var(--b2)">🍬 GLUCOSE (kg)</th>
+        <th colspan="2" style="text-align:center;background:var(--s2);color:var(--text);border-bottom:1px solid var(--b2)">🧂 SUGAR (kg)</th>
+        <th colspan="2" style="text-align:center;background:var(--s2);color:var(--text);border-bottom:1px solid var(--b2)">🌴 PALM OIL (kg)</th>
+        <th colspan="2" style="text-align:center;background:var(--s2);color:var(--text);border-bottom:1px solid var(--b2)">🛢️ OIL MIX (kg)</th>
+        <th colspan="2" style="text-align:center;background:var(--s2);color:var(--text);border-bottom:1px solid var(--b2)">🥛 FAT MILK (kg)</th>
         <th rowspan="2">Status</th>
       </tr>
       <tr>
-        <th style="background:#141a0c;color:#6b8c3a;font-size:9px">Set</th>
-        <th style="background:#141a0c;color:#86efac;font-size:9px;border-right:1px solid var(--b2)">Actual ✅</th>
-        <th style="background:#081014;color:#1e5f7a;font-size:9px">Set</th>
-        <th style="background:#081014;color:#67e8f9;font-size:9px;border-right:1px solid var(--b2)">Actual ✅</th>
-        <th style="background:#120f08;color:#6b5530;font-size:9px">Set</th>
-        <th style="background:#120f08;color:#fdba74;font-size:9px;border-right:1px solid var(--b2)">Actual ✅</th>
-        <th style="background:#0d1a1a;color:#1e6b5a;font-size:9px">Set</th>
-        <th style="background:#0d1a1a;color:#34d399;font-size:9px;border-right:1px solid var(--b2)">Actual ✅</th>
-        <th style="background:#1a0d1a;color:#7a3a7a;font-size:9px">Set</th>
-        <th style="background:#1a0d1a;color:#f9a8d4;font-size:9px;border-right:1px solid var(--b2)">Actual ✅</th>
+        <th style="background:var(--s2);color:var(--text);font-size:9px">Set</th>
+        <th style="background:var(--s2);color:var(--text);font-size:9px;border-right:1px solid var(--b2)">Actual ✅</th>
+        <th style="background:var(--s2);color:var(--text);font-size:9px">Set</th>
+        <th style="background:var(--s2);color:var(--text);font-size:9px;border-right:1px solid var(--b2)">Actual ✅</th>
+        <th style="background:var(--s2);color:var(--text);font-size:9px">Set</th>
+        <th style="background:var(--s2);color:var(--text);font-size:9px;border-right:1px solid var(--b2)">Actual ✅</th>
+        <th style="background:var(--s1);color:var(--text);font-size:9px">Set</th>
+        <th style="background:var(--s2);color:var(--text);font-size:9px;border-right:1px solid var(--b2)">Actual ✅</th>
+        <th style="background:var(--s2);color:var(--text);font-size:9px">Set</th>
+        <th style="background:var(--s2);color:var(--text);font-size:9px;border-right:1px solid var(--b2)">Actual ✅</th>
       </tr>
     </thead>
     <tbody id="tbody-m2"></tbody>
@@ -687,7 +687,7 @@ function renderPlan(m){
             onclick="stampTime('${col}','${row.id}','${field}','${m}')">
             ⏱ ${hasTime?time:label}
           </button>
-          ${hasTime?`<button style="flex-shrink:0;font-size:10px;padding:4px 6px;border-radius:5px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:var(--t2);cursor:pointer" onclick="editTimePrompt('${col}','${row.id}','${field}','${time}')">✏️</button>`:""}
+          ${hasTime?`<button style="flex-shrink:0;font-size:10px;padding:4px 6px;border-radius:5px;border:1px solid rgba(255,255,255,.1);background:var(--s2);color:var(--t2);cursor:pointer" onclick="editTimePrompt('${col}','${row.id}','${field}','${time}')">✏️</button>`:""}
         </div>
       </td>`;
     };
@@ -705,7 +705,7 @@ function renderPlan(m){
       <td><span class="cr">${row.batch_no||"—"}</span></td>
       <td><span style="font-family:var(--mono);color:var(--cyan)">${row.volume_liter||"—"}</span></td>
       <td>
-        <select style="font-family:var(--mono);font-size:12px;padding:4px 8px;border-radius:6px;background:rgba(6,182,212,.1);color:var(--cyan);border:1px solid rgba(6,182,212,.3);cursor:pointer"
+        <select style="font-family:var(--mono);font-size:12px;padding:4px 8px;border-radius:6px;background:var(--s2);color:var(--cyan);border:1px solid rgba(6,182,212,.3);cursor:pointer"
           onchange="_up('${col}','${row.id}','mixing_tank',this.value)">
           <option value="">— เลือกถัง —</option>
           <option value="Tank 1" ${row.mixing_tank==="Tank 1"?"selected":""}>Tank 1</option>
@@ -714,48 +714,48 @@ function renderPlan(m){
       </td>
       ${stampCell("mix_start_time",row.mix_start_time,"Stamp เริ่ม","yellow")}
       ${stampCell("mix_end_time",row.mix_end_time,"Stamp เสร็จ","green")}
-      <td style="background:#0d1108">
-        <span style="font-family:var(--mono);font-size:11px;color:#6b8c3a;padding:2px 6px;min-width:66px;display:inline-block;text-align:right;font-family:var(--mono)">${row.glc_set||"—"}</span>
+      <td>
+        <span style="font-family:var(--mono);font-size:11px;color:var(--text);padding:2px 6px;min-width:66px;display:inline-block;text-align:right;font-family:var(--mono)">${row.glc_set||"—"}</span>
       </td>
-      <td style="background:#0d1108">
+      <td>
         <div style="display:flex;align-items:center;gap:3px">
-          <input class="act-input" style="border-color:rgba(166,200,90,.4)" type="number" step="0.1" value="${row.glc_actual||""}" placeholder="0"
+          <input class="act-input" style="border-color:var(--b1)" type="number" step="0.1" value="${row.glc_actual||""}" placeholder="0"
             onchange="saveActual('${col}','${row.id}','glc_actual',this.value,'${m}')">
           ${row.glc_comment?`<span title="${row.glc_comment}" style="cursor:help;font-size:12px">⚠️</span>`:""}
         </div>
       </td>
-      <td style="background:#060f12">
-        <span style="font-family:var(--mono);font-size:11px;color:#1e5f7a;padding:2px 6px;min-width:66px;display:inline-block;text-align:right;font-family:var(--mono)">${row.sgr_set||"—"}</span>
+      <td>
+        <span style="font-family:var(--mono);font-size:11px;color:var(--text);padding:2px 6px;min-width:66px;display:inline-block;text-align:right;font-family:var(--mono)">${row.sgr_set||"—"}</span>
       </td>
-      <td style="background:#060f12">
+      <td>
         <div style="display:flex;align-items:center;gap:3px">
-          <input class="act-input" style="background:rgba(6,182,212,.06);border-color:rgba(6,182,212,.3);color:#67e8f9" type="number" step="0.1" value="${row.sgr_actual||""}" placeholder="0"
+          <input class="act-input" style="background:var(--s2);border-color:var(--b1);color:var(--text)" type="number" step="0.1" value="${row.sgr_actual||""}" placeholder="0"
             onchange="saveActual('${col}','${row.id}','sgr_actual',this.value,'${m}')">
           ${row.sgr_comment?`<span title="${row.sgr_comment}" style="cursor:help;font-size:12px">⚠️</span>`:""}
         </div>
       </td>
-      <td style="background:#110c06">
+      <td>
         <span style="font-family:var(--mono);font-size:11px;color:#6b5530;padding:2px 6px;min-width:66px;display:inline-block;text-align:right;font-family:var(--mono)">${row.plm_set||"—"}</span>
       </td>
-      <td style="background:#110c06">
+      <td>
         <div style="display:flex;align-items:center;gap:3px">
-          <input class="act-input" style="background:rgba(249,115,22,.06);border-color:rgba(249,115,22,.3);color:#fdba74" type="number" step="0.1" value="${row.plm_actual||""}" placeholder="0"
+          <input class="act-input" style="background:var(--s2);border-color:var(--b1);color:var(--text)" type="number" step="0.1" value="${row.plm_actual||""}" placeholder="0"
             onchange="saveActual('${col}','${row.id}','plm_actual',this.value,'${m}')">
           ${row.plm_comment?`<span title="${row.plm_comment}" style="cursor:help;font-size:12px">⚠️</span>`:""}
           
         </div>
       </td>
       <!-- OIL MIX -->
-      <td style="background:#0a1a16"><span style="font-family:var(--mono);font-size:11px;color:#1e6b5a;padding:2px 6px;min-width:60px;display:inline-block;text-align:right">${row.oil_mix_set||"—"}</span></td>
-      <td style="background:#0d1a1a"><div style="display:flex;align-items:center;gap:3px">
-        <input class="act-input" style="background:rgba(52,211,153,.06);border-color:rgba(52,211,153,.3);color:#34d399" type="number" step="0.1" value="${row.oil_mix_actual||""}" placeholder="0"
+      <td><span style="font-family:var(--mono);font-size:11px;color:var(--text);padding:2px 6px;min-width:60px;display:inline-block;text-align:right">${row.oil_mix_set||"—"}</span></td>
+      <td><div style="display:flex;align-items:center;gap:3px">
+        <input class="act-input" style="background:var(--s2);border-color:var(--b1);color:var(--text)" type="number" step="0.1" value="${row.oil_mix_actual||""}" placeholder="0"
           onchange="saveActual('${col}','${row.id}','oil_mix_actual',this.value,'${m}')">
         
       </div></td>
       <!-- FAT MILK -->
-      <td style="background:#160a16"><span style="font-family:var(--mono);font-size:11px;color:#7a3a7a;padding:2px 6px;min-width:60px;display:inline-block;text-align:right">${row.fat_milk_set||"—"}</span></td>
-      <td style="background:#1a0d1a"><div style="display:flex;align-items:center;gap:3px">
-        <input class="act-input" style="background:rgba(249,168,212,.06);border-color:rgba(249,168,212,.3);color:#f9a8d4" type="number" step="0.1" value="${row.fat_milk_actual||""}" placeholder="0"
+      <td><span style="font-family:var(--mono);font-size:11px;color:var(--text);padding:2px 6px;min-width:60px;display:inline-block;text-align:right">${row.fat_milk_set||"—"}</span></td>
+      <td><div style="display:flex;align-items:center;gap:3px">
+        <input class="act-input" style="background:var(--s2);border-color:var(--b1);color:var(--text)" type="number" step="0.1" value="${row.fat_milk_actual||""}" placeholder="0"
           onchange="saveActual('${col}','${row.id}','fat_milk_actual',this.value,'${m}')">
         
       </div></td>
