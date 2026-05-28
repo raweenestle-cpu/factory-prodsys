@@ -431,36 +431,49 @@ function calcVol(row){
 
 // SVG — ถังผอม สูง
 function svg(uid,pct,col,run){
-  const W=140,H=195;
-  const bX=18,bY=22,bW=W-36,bH=H-50;
+  const W=140,H=220;
+  const bX=18,bY=40,bW=W-36,bH=H-55;
+  const nW=24,nH=10,cW=34,cH=6;
+  const nX=bX+(bW-nW)/2,cX=bX+(bW-cW)/2;
   const _pct=Math.min(pct,100);
+  const hasLiq=_pct>0;
   const maxFillH=(bH-6)*0.92;
   const fillH=Math.max(0,(_pct/100)*maxFillH);
-  const fillY=bY+bH-3-fillH;
+  const wy=bY+bH-fillH;
+  const A=5;
   const gid='g'+uid,cid='c'+uid;
-  const wAmp=5;
-  let s="";
-  s+='<svg width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;height:auto">';
-  s+='<defs>';
-  s+='<linearGradient id="'+gid+'" x1="0" y1="0" x2="0" y2="1">';
-  s+='<stop offset="0%" stop-color="'+col+'" stop-opacity=".7"/>';
-  s+='<stop offset="100%" stop-color="'+col+'" stop-opacity=".95"/>';
-  s+='</linearGradient>';
-  s+='<clipPath id="'+cid+'"><rect x="'+( bX+2)+'" y="'+( bY+2)+'" width="'+( bW-4)+'" height="'+( bH-4)+'" rx="6"/></clipPath>';
-  s+='</defs>';
-  s+='<rect x="'+bX+'" y="'+bY+'" width="'+bW+'" height="'+bH+'" rx="8" fill="rgba(255,255,255,.15)" stroke="'+col+'" stroke-width="2" stroke-opacity=".4"/>';
-  if(_pct>0){
+  const bodyFill=hasLiq?'rgba(255,255,255,.12)':'rgba(176,186,200,.25)';
+  const bodyStroke=hasLiq?col:'#94a3b8';
+  function waveD(yBase,amp,nc){
+    const Ww=bW*2,segW=Ww/(nc*2);
+    let d='M'+bX+','+yBase;
+    for(let i=0;i<nc*2;i++){
+      const x1=bX+i*segW,x2=bX+(i+1)*segW;
+      const cy=i%2===0?yBase-amp:yBase+amp;
+      d+=' C'+(x1+segW*.4)+','+cy+' '+(x2-segW*.4)+','+cy+' '+x2+','+yBase;
+    }
+    return d+' L'+(bX+Ww)+','+(bY+bH)+' L'+bX+','+(bY+bH)+' Z';
+  }
+  let s='';
+  s+='<svg width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" style="display:block">';
+  s+='<defs><linearGradient id="'+gid+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="'+col+'" stop-opacity=".5"/><stop offset="100%" stop-color="'+col+'" stop-opacity=".85"/></linearGradient>';
+  s+='<clipPath id="'+cid+'"><rect x="'+bX+'" y="'+bY+'" width="'+bW+'" height="'+bH+'" rx="12"/></clipPath></defs>';
+  s+='<rect x="'+nX+'" y="'+(bY-nH)+'" width="'+nW+'" height="'+(nH+5)+'" rx="4" fill="'+(hasLiq?'#16a34a':'rgba(255,255,255,.12)')+'" stroke="'+bodyStroke+'" stroke-width="1.5" stroke-opacity=".6"/>';
+  s+='<rect x="'+cX+'" y="'+(bY-nH-cH)+'" width="'+cW+'" height="'+(cH+3)+'" rx="4" fill="'+(hasLiq?'#16a34a':'rgba(255,255,255,.12)')+'" stroke="'+bodyStroke+'" stroke-width="1.5" stroke-opacity=".5"/>';
+  if(hasLiq) s+='<circle cx="'+(W/2)+'" cy="'+(bY-nH-2)+'" r="4" fill="#22c55e" opacity=".9"/><circle cx="'+(W/2)+'" cy="'+(bY-nH-2)+'" r="4" fill="none" stroke="#22c55e" stroke-width="1.5" opacity="0"><animate attributeName="r" from="4" to="10" dur="1.5s" repeatCount="indefinite"/><animate attributeName="opacity" from="0.6" to="0" dur="1.5s" repeatCount="indefinite"/></circle>';
+  s+='<rect x="'+bX+'" y="'+bY+'" width="'+bW+'" height="'+bH+'" rx="12" fill="'+bodyFill+'" stroke="'+bodyStroke+'" stroke-width="1.5" stroke-opacity="'+(hasLiq?'.4':'.6')+'"/>';
+  if(hasLiq){
     s+='<g clip-path="url(#'+cid+')">';
-    s+='<rect x="'+( bX+2)+'" y="'+( fillY+wAmp+2)+'" width="'+( bW-4)+'" height="'+fillH+'" fill="url(#'+gid+')"/>';
-    s+='<path d="M'+( bX+2)+','+( fillY+wAmp)+' C'+( bX+2+bW*.25)+','+fillY+' '+( bX+2+bW*.5)+','+( fillY+wAmp*2)+' '+( bX+2+bW*.75)+','+fillY+' S'+( bX+2+bW*1.25)+','+( fillY+wAmp*2)+' '+( bX+2+bW*1.5)+','+fillY+'" fill="'+col+'" fill-opacity=".5"><animateTransform attributeName="transform" type="translate" from="0,0" to="'+(-bW)+',0" dur="2s" repeatCount="indefinite"/></path>';
-    s+='<ellipse cx="'+( bX+bW*.35)+'" cy="'+( fillY+3)+'" rx="'+( bW*.2)+'" ry="2" fill="white" fill-opacity=".25"/>';
+    s+='<rect x="'+bX+'" y="'+(wy+A)+'" width="'+(bW*2)+'" height="'+(bY+bH-(wy+A))+'" fill="url(#'+gid+')"/>';
+    s+='<path d="'+waveD(wy,A,3)+'" fill="'+col+'" fill-opacity=".55"><animateTransform attributeName="transform" type="translate" from="0,0" to="'+(-bW)+',0" dur="2.8s" repeatCount="indefinite"/></path>';
+    s+='<path d="'+waveD(wy,A*.6,4)+'" fill="'+col+'" fill-opacity=".3"><animateTransform attributeName="transform" type="translate" from="'+(bW*.5)+',0" to="'+(-bW*.5)+',0" dur="4s" repeatCount="indefinite"/></path>';
+    s+='<ellipse cx="'+(bX+bW*.35)+'" cy="'+(wy-2)+'" rx="'+(bW*.12)+'" ry="2.5" fill="white" fill-opacity=".3"/>';
     s+='</g>';
   }
-  s+='<rect x="'+bX+'" y="'+bY+'" width="'+bW+'" height="'+bH+'" rx="8" fill="none" stroke="'+col+'" stroke-width="2" stroke-opacity=".6"/>';
-  s+='<rect x="'+( bX+(bW-28)/2)+'" y="'+( bY-8)+'" width="28" height="10" rx="3" fill="rgba(255,255,255,.2)" stroke="'+col+'" stroke-width="1.5" stroke-opacity=".4"/>';
-  s+='<rect x="'+( bX+(bW-36)/2)+'" y="'+( bY-13)+'" width="36" height="6" rx="3" fill="rgba(255,255,255,.2)" stroke="'+col+'" stroke-width="1.5" stroke-opacity=".4"/>';
-  s+='<rect x="'+( bX+8)+'" y="'+( bY+bH)+'" width="7" height="10" rx="2" fill="rgba(255,255,255,.2)" stroke="'+col+'" stroke-width="1" stroke-opacity=".4"/>';
-  s+='<rect x="'+( bX+bW-15)+'" y="'+( bY+bH)+'" width="7" height="10" rx="2" fill="rgba(255,255,255,.2)" stroke="'+col+'" stroke-width="1" stroke-opacity=".4"/>';
+  s+='<rect x="'+bX+'" y="'+bY+'" width="'+bW+'" height="'+bH+'" rx="12" fill="none" stroke="'+bodyStroke+'" stroke-width="2.5" stroke-opacity="'+(hasLiq?'.8':'.6')+'"/>';
+  s+='<rect x="'+(bX+8)+'" y="'+(bY+bH)+'" width="8" height="14" rx="2" fill="rgba(255,255,255,.15)" stroke="'+bodyStroke+'" stroke-width="1" stroke-opacity=".6"/>';
+  s+='<rect x="'+(bX+bW-16)+'" y="'+(bY+bH)+'" width="8" height="14" rx="2" fill="rgba(255,255,255,.15)" stroke="'+bodyStroke+'" stroke-width="1" stroke-opacity=".6"/>';
+  s+='<rect x="'+(bX+3)+'" y="'+(bY+bH+13)+'" width="'+(bW-6)+'" height="5" rx="2" fill="rgba(255,255,255,.12)" stroke="'+bodyStroke+'" stroke-width="1" stroke-opacity=".5"/>';
   s+='</svg>';
   return s;
 }
