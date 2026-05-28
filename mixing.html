@@ -584,51 +584,72 @@ function renderMixTanks(m, rows){
     const vol=+(row?.volume_liter||0);
     const prod=productMap[row?.mix_code||'']||{};
     const col=prod.color||'#3b82f6';
-    const uid='m'+label.replace(/ /g,'');
+    const r2=parseInt(col.slice(1,3),16),g2=parseInt(col.slice(3,5),16),b2=parseInt(col.slice(5,7),16);
+    const rgba=(a)=>'rgba('+r2+','+g2+','+b2+','+a+')';
+    const uid='mx'+label.replace(/ /g,'');
     const gid='g'+uid,cid='c'+uid;
-    const W=110,H=160,bX=8,bY=13,bW=94,bH=120,wAmp=6;
+    const W=120,H=190,tw=100,th=130,wAmp=5;
     let pct=0;
     if(st==='mixing') pct=Math.min(100,(vol*0.5/cap)*100);
     else if(st==='pasteurising'){
       const cv=row?.current_vol!=null?+row.current_vol:0;
       pct=row?.past_start_time&&cv>0?Math.max(0,((vol-cv)/cap)*100):Math.min(100,(vol/cap)*100);
     } else if(st==='past_done'||st==='ready') pct=Math.min(100,(vol/cap)*100);
-    const statusMap={'':'⬜ รอ',pending:'⬜ รอ',mixing:'🔄 กำลังผสม',
-      pasteurising:'🔵 กำลัง Past.',past_done:'✅ เสร็จ',ready:'✅ พร้อม'};
+    const hasLiq=pct>0;
+    const wave=st==='mixing'||st==='pasteurising';
+    const borderCol=wave?rgba(.8):hasLiq?rgba(.6):rgba(.3);
+    const motorCol=hasLiq?col:'#b0bac8';
+    const statusMap={'':'⬜ รอ',pending:'⬜ รอ',mixing:'🔄 กำลังผสม',pasteurising:'🔵 Past.',past_done:'✅ เสร็จ',ready:'✅ พร้อม'};
     const statusTxt=statusMap[st]||st;
-    const fillH=Math.max(0,(pct/100)*(bH-4)*0.92);
-    const fillY=bY+bH-2-fillH;
-    const name=(row?.mix_name||'—').slice(0,14);
+    const name=(row?.mix_name||'—').slice(0,13);
     const dispVol=st==='pasteurising'&&row?.past_start_time&&row?.current_vol!=null
       ?Math.max(0,vol-+row.current_vol).toLocaleString():vol.toLocaleString();
+    const fillH=Math.max(0,(pct/100)*(th-4)*0.92);
+    const fillY=th-2-fillH;
     let s='';
-    s+='<div style="display:flex;flex-direction:column;align-items:center;gap:6px">';
-    s+='<svg width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;height:auto">';
+    s+='<div style="display:flex;flex-direction:column;align-items:center;gap:4px">';
+    s+='<span style="font-family:DM Mono,monospace;font-size:11px;font-weight:800;color:var(--text)">'+label+'</span>';
+    s+='<svg width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" style="display:block">';
     s+='<defs><linearGradient id="'+gid+'" x1="0" y1="0" x2="0" y2="1">';
     s+='<stop offset="0%" stop-color="'+col+'" stop-opacity=".65"/>';
     s+='<stop offset="100%" stop-color="'+col+'" stop-opacity=".9"/>';
     s+='</linearGradient>';
-    s+='<clipPath id="'+cid+'"><rect x="'+(bX+1)+'" y="'+(bY+1)+'" width="'+(bW-2)+'" height="'+(bH-2)+'" rx="9"/></clipPath>';
+    s+='<clipPath id="'+cid+'"><rect x="11" y="11" width="'+(tw-2)+'" height="'+(th-2)+'" rx="9"/></clipPath>';
+    if(wave) s+='<filter id="gfx'+uid+'"><feGaussianBlur stdDeviation="1.5"/></filter>';
     s+='</defs>';
-    s+='<rect x="'+bX+'" y="'+bY+'" width="'+bW+'" height="'+bH+'" rx="10" fill="rgba(255,255,255,.15)" stroke="'+col+'" stroke-width="2" stroke-opacity=".45"/>';
-    if(pct>0){
+    s+='<g transform="translate(10,20)">';
+    // label top
+    s+='<text x="'+(tw/2)+'" y="-32" text-anchor="middle" font-family="DM Mono,monospace" font-size="13" fill="'+col+'" font-weight="800">'+name+'</text>';
+    // body
+    s+='<rect x="0" y="0" width="'+tw+'" height="'+th+'" rx="10" fill="rgba(255,255,255,.12)" stroke="'+borderCol+'" stroke-width="2"/>';
+    // fill
+    if(hasLiq){
       s+='<g clip-path="url(#'+cid+')">';
-      s+='<rect x="'+(bX+1)+'" y="'+(fillY+wAmp+1)+'" width="'+(bW-2)+'" height="'+fillH+'" fill="url(#'+gid+')"/>';
-      s+='<path d="M'+(bX+1)+','+(fillY+wAmp)+' C'+(bX+1+bW*.3)+','+fillY+' '+(bX+1+bW*.7)+','+fillY+' '+(bX+1+bW)+','+(fillY+wAmp)+'" fill="'+col+'" fill-opacity=".5"><animateTransform attributeName="transform" type="translate" from="0,0" to="'+(-bW)+',0" dur="2s" repeatCount="indefinite"/></path>';
-      s+='<ellipse cx="'+(bX+bW*.35)+'" cy="'+(fillY+3)+'" rx="'+(bW*.12)+'" ry="2" fill="white" fill-opacity=".2"/>';
+      s+='<rect x="1" y="'+(fillY+wAmp+1)+'" width="'+(tw-2)+'" height="'+fillH+'" fill="url(#'+gid+')"'+(wave?' filter="url(#gfx'+uid+')"':'')+'/>';
+      s+='<path d="M1,'+(fillY+wAmp)+' C'+(1+tw*.3)+','+fillY+' '+(1+tw*.7)+','+fillY+' '+(1+tw)+','+(fillY+wAmp)+'" fill="'+col+'" fill-opacity=".5"><animateTransform attributeName="transform" type="translate" from="0,0" to="'+(-tw)+',0" dur="'+(wave?'1.5s':'3s')+'" repeatCount="indefinite"/></path>';
+      s+='<ellipse cx="'+(tw*.3)+'" cy="'+(fillY+3)+'" rx="'+(tw*.12)+'" ry="2" fill="white" fill-opacity=".2"/>';
       s+='</g>';
     }
-    s+='<rect x="'+bX+'" y="'+bY+'" width="'+bW+'" height="'+bH+'" rx="10" fill="none" stroke="'+col+'" stroke-width="2" stroke-opacity=".7"/>';
-    s+='<rect x="'+(bX+(bW-32)/2)+'" y="'+(bY-10)+'" width="32" height="12" rx="3" fill="rgba(255,255,255,.2)" stroke="'+col+'" stroke-width="1.5" stroke-opacity=".5"/>';
-    s+='<rect x="'+(bX+(bW-44)/2)+'" y="'+(bY-16)+'" width="44" height="8" rx="3" fill="rgba(255,255,255,.2)" stroke="'+col+'" stroke-width="1.5" stroke-opacity=".5"/>';
-    s+='<rect x="'+(bX+8)+'" y="'+(bY+bH)+'" width="16" height="14" rx="3" fill="rgba(255,255,255,.2)" stroke="'+col+'" stroke-width="1" stroke-opacity=".4"/>';
-    s+='<rect x="'+(bX+bW-24)+'" y="'+(bY+bH)+'" width="16" height="14" rx="3" fill="rgba(255,255,255,.2)" stroke="'+col+'" stroke-width="1" stroke-opacity=".4"/>';
-    const ty1=pct>0?fillY-14:bY+40;
-    s+='<text x="'+(bX+bW/2)+'" y="'+ty1+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="'+col+'" font-weight="700" opacity=".9">'+name+'</text>';
-    s+='<text x="'+(bX+bW/2)+'" y="'+(ty1+18)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="20" fill="'+col+'" font-weight="900">'+dispVol+'</text>';
-    s+='<text x="'+(bX+bW/2)+'" y="'+(ty1+31)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="10" fill="'+col+'" opacity=".7">ลิตร</text>';
-    s+='<rect x="'+(bX+16)+'" y="'+(bY+bH-24)+'" width="'+(bW-32)+'" height="16" rx="6" fill="'+col+'" fill-opacity=".12" stroke="'+col+'" stroke-width="1" stroke-opacity=".4"/>';
-    s+='<text x="'+(bX+bW/2)+'" y="'+(bY+bH-13)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="'+col+'" font-weight="800">'+statusTxt+'</text>';
+    // border overlay
+    s+='<rect x="0" y="0" width="'+tw+'" height="'+th+'" rx="10" fill="none" stroke="'+borderCol+'" stroke-width="2" stroke-opacity=".7"/>';
+    // motor top
+    s+='<rect x="'+(tw/2-13)+'" y="-10" width="26" height="12" rx="3" fill="'+(hasLiq?'#16a34a':'rgba(255,255,255,.12)')+'" stroke="'+motorCol+'" stroke-width="1.5" stroke-opacity=".7"/>';
+    s+='<rect x="'+(tw/2-17)+'" y="-18" width="34" height="9" rx="3" fill="'+(hasLiq?'#16a34a':'rgba(255,255,255,.12)')+'" stroke="'+motorCol+'" stroke-width="1.5" stroke-opacity=".7"/>';
+    if(hasLiq) s+='<circle cx="'+(tw/2)+'" cy="-13" r="4" fill="#22c55e" opacity=".9"/><circle cx="'+(tw/2)+'" cy="-13" r="4" fill="none" stroke="#22c55e" stroke-width="1.5" opacity="0"><animate attributeName="r" from="4" to="10" dur="1.5s" repeatCount="indefinite"/><animate attributeName="opacity" from="0.6" to="0" dur="1.5s" repeatCount="indefinite"/></circle>';
+    // bottom outlet
+    s+='<rect x="'+(tw/2-5)+'" y="'+th+'" width="10" height="12" rx="2" fill="rgba(255,255,255,.12)" stroke="'+borderCol+'" stroke-width="1.5" stroke-opacity=".6"/>';
+    // legs
+    s+='<rect x="8" y="'+(th+10)+'" width="14" height="14" rx="3" fill="rgba(255,255,255,.12)" stroke="'+borderCol+'" stroke-width="1" stroke-opacity=".5"/>';
+    s+='<rect x="'+(tw-22)+'" y="'+(th+10)+'" width="14" height="14" rx="3" fill="rgba(255,255,255,.12)" stroke="'+borderCol+'" stroke-width="1" stroke-opacity=".5"/>';
+    s+='<rect x="4" y="'+(th+23)+'" width="'+(tw-8)+'" height="5" rx="2" fill="rgba(255,255,255,.12)" stroke="'+borderCol+'" stroke-width="1" stroke-opacity=".5"/>';
+    // text inside
+    s+='<text x="'+(tw/2)+'" y="22" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="white" opacity=".9" font-weight="700">'+name+'</text>';
+    s+='<text x="'+(tw/2)+'" y="'+(th/2+8)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="18" fill="white" font-weight="900">'+dispVol+'</text>';
+    s+='<text x="'+(tw/2)+'" y="'+(th/2+22)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="white" opacity=".6">ลิตร</text>';
+    // status badge
+    s+='<rect x="'+(tw/2-32)+'" y="'+(th-22)+'" width="64" height="16" rx="5" fill="rgba(0,0,0,.45)"/>';
+    s+='<text x="'+(tw/2)+'" y="'+(th-11)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="white" font-weight="800">'+statusTxt+'</text>';
+    s+='</g>';
     s+='</svg></div>';
     return s;
   }
