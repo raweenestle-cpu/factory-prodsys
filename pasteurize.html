@@ -696,12 +696,12 @@ function pastTankSVG(uid,pct,col,animate){
   const dk2='#'+[1,3,5].map(i=>Math.max(0,parseInt(col.slice(i,i+2),16)-55).toString(16).padStart(2,'0')).join('');
   if(pct<=0)return`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
     <rect x="${bX+1}" y="${bY+3}" width="${bW}" height="${bH}" rx="8" fill="rgba(0,0,0,.5)"/>
-    <rect x="${bX}" y="${bY}" width="${bW}" height="${bH}" rx="8" fill="#060a14" stroke="#1e2d4a" stroke-width="1.5"/>
-    <rect x="${bX+(bW-18)/2}" y="${bY-6}" width="18" height="8" rx="2" fill="#060a14" stroke="#1e2d4a" stroke-width="1.2"/>
+    <rect x="${bX}" y="${bY}" width="${bW}" height="${bH}" rx="8" fill="rgba(255,255,255,.12)" stroke="#1e2d4a" stroke-width="1.5"/>
+    <rect x="${bX+(bW-18)/2}" y="${bY-6}" width="18" height="8" rx="2" fill="rgba(255,255,255,.12)" stroke="#1e2d4a" stroke-width="1.2"/>
     <rect x="${bX+(bW-24)/2}" y="${bY-10}" width="24" height="5" rx="2" fill="#08101a" stroke="#1e2d4a" stroke-width="1.2"/>
-    <rect x="${bX+6}" y="${bY+bH}" width="5" height="6" rx="1.5" fill="#060a14" stroke="#1e2d4a" stroke-width="1.2"/>
-    <rect x="${bX+bW-11}" y="${bY+bH}" width="5" height="6" rx="1.5" fill="#060a14" stroke="#1e2d4a" stroke-width="1.2"/>
-    <rect x="${bX+2}" y="${bY+bH+5}" width="${bW-4}" height="3" rx="1.5" fill="#060a14" stroke="#1e2d4a" stroke-width="1.2"/>
+    <rect x="${bX+6}" y="${bY+bH}" width="5" height="6" rx="1.5" fill="rgba(255,255,255,.12)" stroke="#1e2d4a" stroke-width="1.2"/>
+    <rect x="${bX+bW-11}" y="${bY+bH}" width="5" height="6" rx="1.5" fill="rgba(255,255,255,.12)" stroke="#1e2d4a" stroke-width="1.2"/>
+    <rect x="${bX+2}" y="${bY+bH+5}" width="${bW-4}" height="3" rx="1.5" fill="rgba(255,255,255,.12)" stroke="#1e2d4a" stroke-width="1.2"/>
   </svg>`;
   return`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
   <defs>
@@ -712,7 +712,7 @@ function pastTankSVG(uid,pct,col,animate){
     <clipPath id="${cid}"><rect x="${bX+1}" y="${bY+1}" width="${bW-2}" height="${bH-2}" rx="7"/></clipPath>
   </defs>
   <rect x="${bX+1}" y="${bY+3}" width="${bW}" height="${bH}" rx="8" fill="rgba(0,0,0,.5)"/>
-  <rect x="${bX}" y="${bY}" width="${bW}" height="${bH}" rx="8" fill="#060a14" stroke="${rgba2(.4)}" stroke-width="1.5"/>
+  <rect x="${bX}" y="${bY}" width="${bW}" height="${bH}" rx="8" fill="rgba(255,255,255,.12)" stroke="${rgba2(.4)}" stroke-width="1.5"/>
   <g clip-path="url(#${cid})">
     <rect x="${bX+1}" y="${fillY+wAmp+1}" width="${bW-2}" height="${fillH}" fill="url(#${gid})"/>
     ${animate?`
@@ -734,11 +734,11 @@ function pastTankSVG(uid,pct,col,animate){
   </g>
   <line x1="${bX+bW+2}" y1="${fillY+wAmp}" x2="${bX+bW+7}" y2="${fillY+wAmp}" stroke="${col}" stroke-width="1.5" stroke-linecap="round"/>
   <rect x="${bX}" y="${bY}" width="${bW}" height="${bH}" rx="8" fill="none" stroke="${rgba2(.45)}" stroke-width="1.5"/>
-  <rect x="${bX+(bW-18)/2}" y="${bY-6}" width="18" height="8" rx="2" fill="#060a14" stroke="#1e2d4a" stroke-width="1.2"/>
+  <rect x="${bX+(bW-18)/2}" y="${bY-6}" width="18" height="8" rx="2" fill="rgba(255,255,255,.12)" stroke="#1e2d4a" stroke-width="1.2"/>
   <rect x="${bX+(bW-24)/2}" y="${bY-10}" width="24" height="5" rx="2" fill="#08101a" stroke="#1e2d4a" stroke-width="1.2"/>
-  <rect x="${bX+6}" y="${bY+bH}" width="5" height="6" rx="1.5" fill="#060a14" stroke="#1e2d4a" stroke-width="1.2"/>
-  <rect x="${bX+bW-11}" y="${bY+bH}" width="5" height="6" rx="1.5" fill="#060a14" stroke="#1e2d4a" stroke-width="1.2"/>
-  <rect x="${bX+2}" y="${bY+bH+5}" width="${bW-4}" height="3" rx="1.5" fill="#060a14" stroke="#1e2d4a" stroke-width="1.2"/>
+  <rect x="${bX+6}" y="${bY+bH}" width="5" height="6" rx="1.5" fill="rgba(255,255,255,.12)" stroke="#1e2d4a" stroke-width="1.2"/>
+  <rect x="${bX+bW-11}" y="${bY+bH}" width="5" height="6" rx="1.5" fill="rgba(255,255,255,.12)" stroke="#1e2d4a" stroke-width="1.2"/>
+  <rect x="${bX+2}" y="${bY+bH+5}" width="${bW-4}" height="3" rx="1.5" fill="rgba(255,255,255,.12)" stroke="#1e2d4a" stroke-width="1.2"/>
 </svg>`;
 }
 
@@ -907,27 +907,27 @@ function renderTankVisual(m,rows){
       <!-- shadow -->
       <rect x="2" y="4" width="${tw}" height="${th}" rx="10" fill="none"/>
       <!-- body -->
-      <rect x="0" y="0" width="${tw}" height="${th}" rx="10" fill="#060a14" stroke="${borderCol}" stroke-width="2" ${gf}/>
+      <rect x="0" y="0" width="${tw}" height="${th}" rx="10" fill="rgba(255,255,255,.12)" stroke="${borderCol}" stroke-width="2" ${gf}/>
       <!-- fill -->
       ${tankFill(vol,total,gid,cid,tw,th,c1,c2,wave)}
       <!-- border overlay -->
       <rect x="0" y="0" width="${tw}" height="${th}" rx="10" fill="none" stroke="${borderCol}" stroke-width="2"/>
       <!-- neck/motor top — สีเขียวเมื่อมีของ (มอเตอร์กวน) -->
-      <rect x="${tw/2-13}" y="-10" width="26" height="12" rx="3" fill="${hasLiq?'#16a34a':'#060a14'}" stroke="${hasLiq?'#22c55e':borderCol}" stroke-width="2"/>
-      <rect x="${tw/2-17}" y="-18" width="34" height="9" rx="3" fill="${hasLiq?'#16a34a':'#060a14'}" stroke="${hasLiq?'#22c55e':borderCol}" stroke-width="2"/>
+      <rect x="${tw/2-13}" y="-10" width="26" height="12" rx="3" fill="${hasLiq?'#16a34a':'rgba(255,255,255,.12)'}" stroke="${hasLiq?'#22c55e':borderCol}" stroke-width="2"/>
+      <rect x="${tw/2-17}" y="-18" width="34" height="9" rx="3" fill="${hasLiq?'#16a34a':'rgba(255,255,255,.12)'}" stroke="${hasLiq?'#22c55e':borderCol}" stroke-width="2"/>
       ${hasLiq?`<circle cx="${tw/2}" cy="-13" r="4" fill="#22c55e" opacity=".9"/>
       <circle cx="${tw/2}" cy="-13" r="4" fill="none" stroke="#22c55e" stroke-width="1.5" opacity="0">
         <animate attributeName="r" from="4" to="10" dur="1.5s" repeatCount="indefinite"/>
         <animate attributeName="opacity" from="0.6" to="0" dur="1.5s" repeatCount="indefinite"/>
       </circle>`:''}
       <!-- bottom outlet -->
-      <rect x="${tw/2-5}" y="${th}" width="10" height="12" rx="2" fill="#060a14" stroke="${wave?rgba(c1,.5):borderCol}" stroke-width="1.2"/>
+      <rect x="${tw/2-5}" y="${th}" width="10" height="12" rx="2" fill="rgba(255,255,255,.12)" stroke="${wave?rgba(c1,.5):borderCol}" stroke-width="1.2"/>
       <!-- ขาถัง ซ้าย -->
-      <rect x="8" y="${th+10}" width="14" height="14" rx="3" fill="#060a14" stroke="${borderCol}" stroke-width="1.2"/>
+      <rect x="8" y="${th+10}" width="14" height="14" rx="3" fill="rgba(255,255,255,.12)" stroke="${borderCol}" stroke-width="1.2"/>
       <!-- ขาถัง ขวา -->
-      <rect x="${tw-22}" y="${th+10}" width="14" height="14" rx="3" fill="#060a14" stroke="${borderCol}" stroke-width="1.2"/>
+      <rect x="${tw-22}" y="${th+10}" width="14" height="14" rx="3" fill="rgba(255,255,255,.12)" stroke="${borderCol}" stroke-width="1.2"/>
       <!-- ฐานแท่ง -->
-      <rect x="4" y="${th+23}" width="${tw-8}" height="5" rx="2" fill="#060a14" stroke="${borderCol}" stroke-width="1.2"/>
+      <rect x="4" y="${th+23}" width="${tw-8}" height="5" rx="2" fill="rgba(255,255,255,.12)" stroke="${borderCol}" stroke-width="1.2"/>
       <!-- mix name inside tank (top area) — ขาวชัดเจน -->
       <text x="${tw/2}" y="20" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="white" font-weight="700">${sublabel}</text>
       <!-- volume (center) -->
@@ -941,7 +941,7 @@ function renderTankVisual(m,rows){
 
   function valve(x,y,open){
     const c=open?ac:'#2d3748';
-    return`<circle cx="${x}" cy="${y}" r="9" fill="#060a14" stroke="${c}" stroke-width="2"/>
+    return`<circle cx="${x}" cy="${y}" r="9" fill="rgba(255,255,255,.12)" stroke="${c}" stroke-width="2"/>
     <path d="M${x-6},${y} L${x},${y-6} L${x+6},${y} L${x},${y+6} Z" fill="${c}" opacity="${open?.9:.45}"/>
     <line x1="${x}" y1="${y-9}" x2="${x}" y2="${y+9}" stroke="${c}" stroke-width="2.2"/>
     ${open?`<circle cx="${x}" cy="${y}" r="12" fill="none" stroke="${c}" stroke-width="1" opacity="0">
@@ -953,7 +953,7 @@ function renderTankVisual(m,rows){
   function pump(x,y,run){
     const col=run?'#22c55e':'#2d3748';
     const anim=run?'pumpPulse 1s ease-in-out infinite':'none';
-    return`<circle cx="${x}" cy="${y}" r="22" fill="#06101e" stroke="${col}" stroke-width="2.5" style="animation:${anim}"/>
+    return`<circle cx="${x}" cy="${y}" r="22" fill="rgba(255,255,255,.12)" stroke="${col}" stroke-width="2.5" style="animation:${anim}"/>
     <circle cx="${x}" cy="${y}" r="14" fill="${run?'#052e16':'#0a0f1e'}" stroke="${col}66" stroke-width="1.5"/>
     <circle cx="${x}" cy="${y}" r="7" fill="${col}" opacity="${run?'0.9':'0.3'}"/>
     <text x="${x}" y="${y+4}" text-anchor="middle" font-size="8" fill="${col}" font-family="DM Mono" font-weight="700">PUMP</text>`;
@@ -1012,24 +1012,24 @@ function renderTankVisual(m,rows){
     ${mx1.show?(()=>{const p1=productMap[t1Row?.mix_code||'']||{};const c1=t1Done?'#374151':(p1.color||s1.tankCol);const c1d=c1+'88';return drawTank(T1X,TOP,TW,TH,mx1.vol,t1Total,'Mixing 1',(t1Row?.mix_name||'—').slice(0,12),s1,'g1t'+m,'c1t'+m,c1,c1d,mx1.wave);})():`<g transform="translate(${T1X},${TOP})">
   <text x="${TW/2}" y="-32" text-anchor="middle" font-family="DM Mono,monospace" font-size="14" fill="rgba(255,255,255,.6)" font-weight="800">Mixing 1</text>
   <rect x="2" y="4" width="${TW}" height="${TH}" rx="10" fill="rgba(0,0,0,.3)"/>
-  <rect x="0" y="0" width="${TW}" height="${TH}" rx="10" fill="#060a14" stroke="rgba(255,255,255,.5)" stroke-width="2"/>
-  <rect x="${TW/2-13}" y="-10" width="26" height="12" rx="3" fill="#060a14" stroke="rgba(255,255,255,.4)" stroke-width="1.5"/>
-  <rect x="${TW/2-17}" y="-16" width="34" height="7" rx="3" fill="#060a14" stroke="rgba(255,255,255,.4)" stroke-width="1.5"/>
-  <rect x="${TW/2-5}" y="${TH}" width="10" height="12" rx="2" fill="#060a14" stroke="rgba(255,255,255,.3)" stroke-width="1.2"/>
-  <rect x="8" y="${TH+10}" width="16" height="5" rx="2" fill="#060a14" stroke="rgba(255,255,255,.3)" stroke-width="1.2"/>
-  <rect x="${TW-24}" y="${TH+10}" width="16" height="5" rx="2" fill="#060a14" stroke="rgba(255,255,255,.3)" stroke-width="1.2"/>
+  <rect x="0" y="0" width="${TW}" height="${TH}" rx="10" fill="rgba(255,255,255,.12)" stroke="rgba(255,255,255,.5)" stroke-width="2"/>
+  <rect x="${TW/2-13}" y="-10" width="26" height="12" rx="3" fill="rgba(255,255,255,.12)" stroke="rgba(255,255,255,.4)" stroke-width="1.5"/>
+  <rect x="${TW/2-17}" y="-16" width="34" height="7" rx="3" fill="rgba(255,255,255,.12)" stroke="rgba(255,255,255,.4)" stroke-width="1.5"/>
+  <rect x="${TW/2-5}" y="${TH}" width="10" height="12" rx="2" fill="rgba(255,255,255,.12)" stroke="rgba(255,255,255,.3)" stroke-width="1.2"/>
+  <rect x="8" y="${TH+10}" width="16" height="5" rx="2" fill="rgba(255,255,255,.12)" stroke="rgba(255,255,255,.3)" stroke-width="1.2"/>
+  <rect x="${TW-24}" y="${TH+10}" width="16" height="5" rx="2" fill="rgba(255,255,255,.12)" stroke="rgba(255,255,255,.3)" stroke-width="1.2"/>
 </g>`}
 
     <!-- ══ MIX TANK 2 ══ -->
     ${mx2.show?(()=>{const p2=productMap[t2Row?.mix_code||'']||{};const c2=t2Done?'#374151':(p2.color||s2.tankCol);const c2d=c2+'88';return drawTank(T2X,TOP,TW,TH,mx2.vol,t2Total,'Mixing 2',(t2Row?.mix_name||'—').slice(0,12),s2,'g2t'+m,'c2t'+m,c2,c2d,mx2.wave);})():`<g transform="translate(${T2X},${TOP})">
   <text x="${TW/2}" y="-32" text-anchor="middle" font-family="DM Mono,monospace" font-size="14" fill="rgba(255,255,255,.6)" font-weight="800">Mixing 2</text>
   <rect x="2" y="4" width="${TW}" height="${TH}" rx="10" fill="rgba(0,0,0,.3)"/>
-  <rect x="0" y="0" width="${TW}" height="${TH}" rx="10" fill="#060a14" stroke="rgba(255,255,255,.5)" stroke-width="2"/>
-  <rect x="${TW/2-13}" y="-10" width="26" height="12" rx="3" fill="#060a14" stroke="rgba(255,255,255,.4)" stroke-width="1.5"/>
-  <rect x="${TW/2-17}" y="-16" width="34" height="7" rx="3" fill="#060a14" stroke="rgba(255,255,255,.4)" stroke-width="1.5"/>
-  <rect x="${TW/2-5}" y="${TH}" width="10" height="12" rx="2" fill="#060a14" stroke="rgba(255,255,255,.3)" stroke-width="1.2"/>
-  <rect x="8" y="${TH+10}" width="16" height="5" rx="2" fill="#060a14" stroke="rgba(255,255,255,.3)" stroke-width="1.2"/>
-  <rect x="${TW-24}" y="${TH+10}" width="16" height="5" rx="2" fill="#060a14" stroke="rgba(255,255,255,.3)" stroke-width="1.2"/>
+  <rect x="0" y="0" width="${TW}" height="${TH}" rx="10" fill="rgba(255,255,255,.12)" stroke="rgba(255,255,255,.5)" stroke-width="2"/>
+  <rect x="${TW/2-13}" y="-10" width="26" height="12" rx="3" fill="rgba(255,255,255,.12)" stroke="rgba(255,255,255,.4)" stroke-width="1.5"/>
+  <rect x="${TW/2-17}" y="-16" width="34" height="7" rx="3" fill="rgba(255,255,255,.12)" stroke="rgba(255,255,255,.4)" stroke-width="1.5"/>
+  <rect x="${TW/2-5}" y="${TH}" width="10" height="12" rx="2" fill="rgba(255,255,255,.12)" stroke="rgba(255,255,255,.3)" stroke-width="1.2"/>
+  <rect x="8" y="${TH+10}" width="16" height="5" rx="2" fill="rgba(255,255,255,.12)" stroke="rgba(255,255,255,.3)" stroke-width="1.2"/>
+  <rect x="${TW-24}" y="${TH+10}" width="16" height="5" rx="2" fill="rgba(255,255,255,.12)" stroke="rgba(255,255,255,.3)" stroke-width="1.2"/>
 </g>`}
 
     <!-- ══ AGING TANK ══ -->
@@ -1519,19 +1519,19 @@ function renderPlan(p){
       <td style="background:#141a0c;padding:5px 6px">
         <div style="display:flex;align-items:center;gap:4px">
           <input class="ci" style="width:58px;text-align:right;background:var(--s2);border-color:var(--b1);color:var(--text)" type="number" step="0.1" value="${row.glc_actual||""}" placeholder="0" onchange="_up('${col}','${row.id}','glc_actual',+this.value)">
-          <input type="checkbox" title="แจ้งใช้เสร็จ" style="width:16px;height:16px;accent-color:#86efac;cursor:pointer;flex-shrink:0" ${row.glc_confirmed?"checked":""} onchange="_up('${col}','${row.id}','glc_confirmed',this.checked)">
+          <input type="checkbox" title="แจ้งใช้เสร็จ" style="width:16px;height:16px;accent-color:var(--green);cursor:pointer;flex-shrink:0" ${row.glc_confirmed?"checked":""} onchange="_up('${col}','${row.id}','glc_confirmed',this.checked)">
         </div>
       </td>
       <td style="background:#081014;padding:5px 6px">
         <div style="display:flex;align-items:center;gap:4px">
           <input class="ci" style="width:58px;text-align:right;background:var(--s2);border-color:var(--b1);color:var(--text)" type="number" step="0.1" value="${row.sgr_actual||""}" placeholder="0" onchange="_up('${col}','${row.id}','sgr_actual',+this.value)">
-          <input type="checkbox" title="แจ้งใช้เสร็จ" style="width:16px;height:16px;accent-color:#67e8f9;cursor:pointer;flex-shrink:0" ${row.sgr_confirmed?"checked":""} onchange="_up('${col}','${row.id}','sgr_confirmed',this.checked)">
+          <input type="checkbox" title="แจ้งใช้เสร็จ" style="width:16px;height:16px;accent-color:var(--cyan);cursor:pointer;flex-shrink:0" ${row.sgr_confirmed?"checked":""} onchange="_up('${col}','${row.id}','sgr_confirmed',this.checked)">
         </div>
       </td>
       <td style="background:#120f08;padding:5px 6px">
         <div style="display:flex;align-items:center;gap:4px">
           <input class="ci" style="width:58px;text-align:right;background:var(--s2);border-color:var(--b1);color:var(--text)" type="number" step="0.1" value="${row.plm_actual||""}" placeholder="0" onchange="_up('${col}','${row.id}','plm_actual',+this.value)">
-          <input type="checkbox" title="แจ้งใช้เสร็จ" style="width:16px;height:16px;accent-color:#fdba74;cursor:pointer;flex-shrink:0" ${row.plm_confirmed?"checked":""} onchange="_up('${col}','${row.id}','plm_confirmed',this.checked)">
+          <input type="checkbox" title="แจ้งใช้เสร็จ" style="width:16px;height:16px;accent-color:var(--orange);cursor:pointer;flex-shrink:0" ${row.plm_confirmed?"checked":""} onchange="_up('${col}','${row.id}','plm_confirmed',this.checked)">
         </div>
       </td>
       <td style="padding:4px 6px">
