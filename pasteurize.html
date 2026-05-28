@@ -908,14 +908,14 @@ function renderTankVisual(m,rows){
     const ST={mixing:'🔄 ผสม',pasteurising:'🔵 Past.',past_done:'✅ เสร็จ',busy:'มีของ',ready:'✅ พร้อม',pending:'รอ'};
     const stTxt=ST[status]||`${Math.round(pct)}%`;
     function waveD(yBase,amp,nc){
-      const W=tw*3,sw2=W/(nc*2);
-      let d=`M${-tw},${yBase}`;
+      const W=tw*2,segW=W/(nc*2);
+      let d=`M0,${yBase}`;
       for(let i=0;i<nc*2;i++){
-        const x1=-tw+i*sw2,x2=-tw+(i+1)*sw2;
+        const x1=i*segW,x2=(i+1)*segW;
         const cy=i%2===0?yBase-amp:yBase+amp;
-        d+=` C${x1+sw2*.4},${cy} ${x2-sw2*.4},${cy} ${x2},${yBase}`;
+        d+=` C${x1+segW*.4},${cy} ${x2-segW*.4},${cy} ${x2},${yBase}`;
       }
-      return d+` L${tw*2},${th} L${-tw},${th} Z`;
+      return d+` L${W},${th} L0,${th} Z`;
     }
     return`<g transform="translate(${tx},${ty})">
       <defs>
@@ -931,8 +931,8 @@ function renderTankVisual(m,rows){
       ${hasLiq?`<circle cx="${tw/2}" cy="-13" r="4" fill="#22c55e" opacity=".9"/><circle cx="${tw/2}" cy="-13" r="4" fill="none" stroke="#22c55e" stroke-width="1.5" opacity="0"><animate attributeName="r" from="4" to="10" dur="1.5s" repeatCount="indefinite"/><animate attributeName="opacity" from="0.6" to="0" dur="1.5s" repeatCount="indefinite"/></circle>`:''}
       <rect x="0" y="0" width="${tw}" height="${th}" rx="10" fill="${bodyFill}" stroke="${bodyStroke}" stroke-width="1.5" stroke-opacity="${hasLiq?'.4':'.6'}"/>
       ${hasLiq?`<g clip-path="url(#${cid})">
-        <rect x="0" y="${wy+A}" width="${tw}" height="${th-(wy+A)}" fill="url(#${gid})"/>
-        <path d="${waveD(wy,A,3)}" fill="${c1}" fill-opacity=".55"><animateTransform attributeName="transform" type="translate" from="0,0" to="${tw},0" dur="2.8s" repeatCount="indefinite"/></path>
+        <rect x="0" y="${wy+A}" width="${tw*2}" height="${th-(wy+A)}" fill="url(#${gid})"/>
+        <path d="${waveD(wy,A,3)}" fill="${c1}" fill-opacity=".55"><animateTransform attributeName="transform" type="translate" from="0,0" to="${-tw},0" dur="2.8s" repeatCount="indefinite"/></path>
         <path d="${waveD(wy,A*.6,4)}" fill="${c1}" fill-opacity=".3"><animateTransform attributeName="transform" type="translate" from="${tw*.5},0" to="${-tw*.5},0" dur="4s" repeatCount="indefinite"/></path>
         <ellipse cx="${tw*.35}" cy="${wy-2}" rx="${tw*.12}" ry="2.5" fill="white" fill-opacity=".3"/>
       </g>`:''}

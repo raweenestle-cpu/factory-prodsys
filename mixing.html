@@ -601,14 +601,14 @@ function renderMixTanks(m, rows){
     const stTxt=ST[st]||`${Math.round(pct)}%`;
     const mixName=(row?.mix_name||'—').slice(0,14);
     function waveD(yBase,amp,nc){
-      const W=bW*3,segW=W/(nc*2);
-      let d=`M${bX-bW},${yBase}`;
+      const W=bW*2,segW=W/(nc*2);
+      let d=`M${bX},${yBase}`;
       for(let i=0;i<nc*2;i++){
-        const x1=bX-bW+i*segW,x2=bX-bW+(i+1)*segW;
+        const x1=bX+i*segW,x2=bX+(i+1)*segW;
         const cy=i%2===0?yBase-amp:yBase+amp;
         d+=` C${x1+segW*.4},${cy} ${x2-segW*.4},${cy} ${x2},${yBase}`;
       }
-      return d+` L${bX+bW*2},${bY+bH} L${bX-bW},${bY+bH} Z`;
+      return d+` L${bX+W},${bY+bH} L${bX},${bY+bH} Z`;
     }
     let s=`<svg width="${sw}" height="${sh}" viewBox="0 0 ${sw} ${sh}" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto">`;
     s+=`<defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${col}" stop-opacity=".5"/><stop offset="100%" stop-color="${col}" stop-opacity=".85"/></linearGradient><clipPath id="${cid}"><rect x="${bX-1}" y="${bY-1}" width="${bW+2}" height="${bH+2}" rx="13"/></clipPath></defs>`;
@@ -619,8 +619,8 @@ function renderMixTanks(m, rows){
     s+=`<rect x="${bX}" y="${bY}" width="${bW}" height="${bH}" rx="12" fill="${bodyFill}" stroke="${bodyStroke}" stroke-width="1.5" stroke-opacity="${hasLiq?'.4':'.6'}"/>`;
     if(hasLiq){
       s+=`<g clip-path="url(#${cid})">`;
-      s+=`<rect x="${bX}" y="${wy+A}" width="${bW}" height="${bY+bH-(wy+A)}" fill="url(#${gid})"/>`;
-      s+=`<path d="${waveD(wy,A,3)}" fill="${col}" fill-opacity=".55"><animateTransform attributeName="transform" type="translate" from="0,0" to="${bW},0" dur="2.8s" repeatCount="indefinite"/></path>`;
+      s+=`<rect x="${bX}" y="${wy+A}" width="${bW*2}" height="${bY+bH-(wy+A)}" fill="url(#${gid})"/>`;
+      s+=`<path d="${waveD(wy,A,3)}" fill="${col}" fill-opacity=".55"><animateTransform attributeName="transform" type="translate" from="0,0" to="${-bW},0" dur="2.8s" repeatCount="indefinite"/></path>`;
       s+=`<path d="${waveD(wy,A*.6,4)}" fill="${col}" fill-opacity=".3"><animateTransform attributeName="transform" type="translate" from="${bW*.5},0" to="${-bW*.5},0" dur="4s" repeatCount="indefinite"/></path>`;
       s+=`<ellipse cx="${bX+bW*.35}" cy="${wy-2}" rx="${bW*.12}" ry="2.5" fill="white" fill-opacity=".3"/></g>`;
     }
