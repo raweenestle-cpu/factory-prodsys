@@ -585,7 +585,8 @@ setInterval(async()=>{
 
       // ── AUTO STAMP ──────────────────────────────────────────
       // ถ้าถึงเวลา ETA และยังไม่มี past_end_time
-      if(!agRow.past_end_time && totalMin>0 && elapsedMin>=totalMin){
+      const totalSec2=totalMin*60;
+      if(!agRow.past_end_time && totalSec2>0 && elapsedSec2>=totalSec2){
         // ต้องมี aging_tank ก่อนถึง auto stamp ได้
         if(!agRow.aging_tank){
           toast(`⚠️ Auto Stamp หยุด — กรุณาเลือก Aging Tank ก่อน`,"red");
@@ -595,21 +596,7 @@ setInterval(async()=>{
         if(!_autoStamping.has(key)){
           _autoStamping.add(key);
           const endTime=nowHHMMSS();
-          // คำนวณ elapsed เป็นวินาที
-          const elapsedSec=Math.max(1,(Date.now()-start)/1000);
-          const totalSec=totalMin*60;
-          const eff=totalSec>0?(totalSec/elapsedSec)*100:0;
-
-          // คำนวณ Eff%
-          const effOk=eff>=97&&eff<=100;
-          const effOver=eff>100;
-
-          if(effOver){
-            // Eff > 100% → หยุด รอ Manual
-            toast(`⚠️ Auto Stamp หยุด — Eff% ${eff.toFixed(1)}% เกิน 100% กรุณา Stamp Manual`,"red");
-            _autoStamping.delete(key);
-            continue;
-          }
+          const eff=100; // auto stamp พอดีเวลา ETA → Eff=100% เสมอ
 
           // Stamp Past.เสร็จ — current_vol = cumulative รวม batch ก่อนหน้าด้วย
           const donePrevVol=allRows
@@ -675,7 +662,7 @@ setInterval(async()=>{
       }
     }catch(e){console.error('auto stamp error:',e);_autoStamping.delete(agRow?.id);}
   }
-},3000);
+},1000);
 window.doLogout=async()=>{
   if(unsub.p1)unsub.p1();
   if(unsub.p2)unsub.p2();
