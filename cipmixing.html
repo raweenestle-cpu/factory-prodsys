@@ -2,152 +2,146 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="mobile-web-app-capable" content="yes">
 <title>CIP Mixing — PROD.SYS</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;700&family=Sarabun:wght@400;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;700&family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
   --bg:#e8ecf0;--s1:#f2f4f7;--s2:#e0e4ea;--s3:#d0d6de;
   --b1:#b0bac8;--b2:#8896aa;
   --text:#111827;--t2:#374151;--t3:#6b7280;
-  --blue:#3b82f6;--blue2:#60a5fa;
-  --green:#22c55e;--yellow:#eab308;--red:#ef4444;
-  --cyan:#06b6d4;--purple:#a855f7;--orange:#f97316;
+  --blue:#1d4ed8;--green:#15803d;--cyan:#0e7490;--orange:#c2410c;--red:#b91c1c;
   --mono:'DM Mono',monospace;--sans:'Sarabun',sans-serif;
 }
-body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13px;min-height:100vh;font-weight:500}
-body::before{content:'';position:fixed;inset:0;background-image:
-  linear-gradient(rgba(6,182,212,.03) 1px,transparent 1px),
-  linear-gradient(90deg,rgba(6,182,212,.03) 1px,transparent 1px);
-  background-size:40px 40px;pointer-events:none;z-index:0}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13px;font-weight:500;min-height:100vh}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.15}}
 
 /* NAV */
-nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;height:52px;
-  background:rgba(7,9,15,.92);border-bottom:1px solid var(--b1);padding:0 16px;gap:12px;
-  backdrop-filter:blur(10px)}
-.nav-logo{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;color:var(--cyan);letter-spacing:.02em}
-.nav-title{font-family:var(--mono);font-size:11px;color:var(--t2)}
-.nav-back{margin-left:auto;font-family:var(--mono);font-size:11px;padding:5px 12px;
-  border-radius:6px;border:1px solid var(--b2);color:var(--t2);text-decoration:none;
-  transition:all .2s}
-.nav-back:hover{color:var(--text);border-color:var(--cyan)}
+nav{background:#fff;border-bottom:2px solid var(--b1);padding:0 14px;height:52px;
+  display:flex;align-items:center;gap:10px;box-shadow:0 2px 6px rgba(0,0,0,.07);
+  position:sticky;top:0;z-index:100}
+.nav-logo{font-family:var(--mono);font-size:14px;font-weight:800;color:var(--cyan)}
+.nav-r{margin-left:auto;display:flex;gap:8px;align-items:center}
+.nbtn{font-family:var(--mono);font-size:11px;padding:5px 12px;border-radius:6px;
+  border:1.5px solid var(--b1);background:none;color:var(--t2);cursor:pointer;font-weight:700;text-decoration:none}
 
-main{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:20px 16px 60px}
+main{padding:14px}
 
-/* DATE SELECTOR */
-.date-row{display:flex;align-items:center;gap:10px;margin-bottom:20px}
-.date-row input{background:var(--s1);border:1.5px solid var(--b1);border-radius:8px;
-  color:var(--text);font-family:var(--mono);font-size:13px;padding:8px 12px}
-.date-row input:focus{outline:none;border-color:var(--cyan)}
+/* DATE ROW */
+.date-row{display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+.date-input{font-family:var(--mono);font-size:12px;background:#fff;border:1.5px solid var(--b1);
+  border-radius:7px;color:var(--text);padding:6px 10px;outline:none;font-weight:700}
+.date-input:focus{border-color:var(--blue)}
+.load-btn{font-family:var(--mono);font-size:12px;font-weight:800;padding:7px 16px;
+  border-radius:7px;border:none;background:var(--blue);color:#fff;cursor:pointer}
+.load-btn:hover{opacity:.85}
 
-/* SECTION HEADER */
-.sec-hd{display:flex;align-items:center;gap:10px;margin-bottom:14px}
-.sec-hd-line{flex:1;height:1px;background:var(--b1)}
-.sec-hd-title{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.1em;
-  text-transform:uppercase;padding:0 4px;white-space:nowrap}
+/* LEGEND */
+.legend{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;padding:10px 14px;
+  background:#fff;border-radius:10px;border:1.5px solid var(--b1)}
+.leg{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:var(--t2)}
+.leg-dot{width:13px;height:13px;border-radius:50%;flex-shrink:0}
 
-/* LINE CARD */
-.line-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;margin-bottom:28px}
-.line-card{background:var(--s1);border:1.5px solid var(--b1);border-radius:14px;
-  padding:16px;transition:border-color .2s}
-.line-card:hover{border-color:var(--b2)}
+/* ORDER GROUP */
+.order-group{margin-bottom:14px}
+.group-hd{display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:0 2px}
+.seq-badge{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-family:var(--mono);font-size:13px;font-weight:900;color:#fff;flex-shrink:0}
+.group-line-name{font-family:var(--mono);font-size:13px;font-weight:800}
+.group-prod{font-size:11px;color:var(--t2);font-weight:600}
+.hd-chips{margin-left:auto;display:flex;gap:4px;flex-wrap:wrap}
+.chip{font-family:var(--mono);font-size:10px;font-weight:700;padding:2px 8px;
+  border-radius:8px;background:var(--s2);color:var(--t2);border:1px solid var(--b1)}
+.chip-hi{background:rgba(29,78,216,.08);color:var(--blue);border-color:rgba(29,78,216,.3)}
 
-.line-name{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--text);margin-bottom:4px}
-.line-info{font-family:var(--mono);font-size:11px;color:var(--t2);margin-bottom:12px}
+/* TANK ROWS */
+.tank-list{display:flex;flex-direction:column;gap:6px}
+.tank-row{background:#fff;border:1.5px solid var(--b1);border-radius:12px;
+  padding:10px 14px;display:flex;align-items:center;gap:12px;
+  box-shadow:0 1px 4px rgba(0,0,0,.06)}
 
-/* TANK CHIPS */
-.tank-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
-.tank-chip{padding:5px 12px;border-radius:20px;font-family:var(--mono);font-size:11px;
-  font-weight:700;border:1.5px solid;cursor:pointer;transition:all .2s;user-select:none}
-.tank-chip.cip-able{border-color:var(--cyan);color:var(--cyan);background:rgba(6,182,212,.08)}
-.tank-chip.cip-able:hover{background:rgba(6,182,212,.18)}
-.tank-chip.cip-done{border-color:var(--green);color:var(--green);background:rgba(34,197,94,.08)}
-.tank-chip.sanitize-able{border-color:var(--purple);color:var(--purple);background:rgba(168,85,247,.08);cursor:pointer}
-.tank-chip.sanitize-able:hover{background:rgba(168,85,247,.18)}
-.tank-chip.disabled{border-color:var(--b2);color:var(--t3);cursor:not-allowed}
+/* STATUS CIRCLE */
+.st-circle{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-family:var(--mono);font-size:9px;font-weight:800;
+  color:#fff;flex-shrink:0}
+.st-circle.pulse{animation:blink 1.2s ease-in-out infinite}
 
-/* CIP PANEL */
-.cip-panel{background:var(--s2);border:1px solid var(--b1);border-radius:10px;padding:12px 14px;margin-bottom:10px}
-.cip-panel-title{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--cyan);
-  margin-bottom:10px;display:flex;align-items:center;gap:6px}
-.stamp-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
-.stamp-label{font-family:var(--mono);font-size:11px;color:var(--t2);min-width:70px}
-.stamp-time{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--text);min-width:50px}
-.stamp-sig{height:24px;vertical-align:middle;opacity:.9}
-.stamp-by{font-family:var(--mono);font-size:10px;color:var(--t2)}
+/* TANK INFO */
+.t-info{flex:1;min-width:0}
+.t-id{font-family:var(--mono);font-size:14px;font-weight:900}
+.t-line{font-size:10px;color:var(--t2);font-weight:600;margin-left:6px}
+.t-mix{font-size:11px;color:var(--t2);font-weight:600;margin-top:2px}
+.t-status-txt{font-family:var(--mono);font-size:11px;font-weight:800;margin-top:2px}
 
-/* BUTTONS */
-.btn{padding:8px 16px;border-radius:8px;border:none;font-family:var(--mono);font-size:12px;
-  font-weight:700;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
-.btn-cip{background:rgba(6,182,212,.15);color:var(--cyan);border:1.5px solid rgba(6,182,212,.4)}
-.btn-cip:hover{background:rgba(6,182,212,.28)}
-.btn-san{background:rgba(168,85,247,.15);color:var(--purple);border:1.5px solid rgba(168,85,247,.4)}
-.btn-san:hover{background:rgba(168,85,247,.28)}
-.btn-stop{background:rgba(239,68,68,.12);color:var(--red);border:1.5px solid rgba(239,68,68,.35)}
-.btn-stop:hover{background:rgba(239,68,68,.25)}
-.btn-done{background:rgba(34,197,94,.12);color:var(--green);border:1.5px solid rgba(34,197,94,.35)}
-.btn:disabled{opacity:.35;cursor:not-allowed}
+/* CIP GROUP SELECT */
+.grp-sel{font-family:var(--mono);font-size:11px;background:var(--s2);
+  border:1.5px solid var(--b1);border-radius:7px;color:var(--text);
+  padding:6px 8px;outline:none;font-weight:700;width:88px;cursor:pointer;flex-shrink:0}
+.grp-sel:focus{border-color:var(--blue)}
 
-/* PLAN TABLE (mini) */
-.plan-mini{font-family:var(--mono);font-size:11px;color:var(--t2);
-  background:var(--s3);border-radius:8px;padding:8px 10px;margin-bottom:10px}
-.plan-mini-row{display:flex;justify-content:space-between;padding:2px 0}
-.plan-mini-row span:last-child{color:var(--text);font-weight:700}
+/* ACTION BUTTONS */
+.t-btns{display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap}
+.tb{font-family:var(--mono);font-size:11px;font-weight:800;padding:7px 12px;
+  border-radius:8px;border:none;cursor:pointer;white-space:nowrap}
+.tb-cip{background:var(--blue);color:#fff}
+.tb-san{background:var(--green);color:#fff}
+.tb-stop{background:var(--red);color:#fff}
+.tb:hover{opacity:.85}
 
-/* EMPTY STATE */
-.empty-state{text-align:center;padding:40px;color:var(--t3);font-family:var(--mono);font-size:13px}
-.empty-state .ico{font-size:32px;margin-bottom:10px}
+/* EMPTY */
+.empty-state{text-align:center;padding:40px;color:var(--t3);font-size:13px}
+.empty-state .ico{font-size:36px;margin-bottom:8px}
 
 /* TOAST */
 #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);
-  padding:10px 22px;border-radius:10px;font-size:12px;opacity:0;transition:all .3s;
+  padding:9px 20px;border-radius:9px;font-size:12px;opacity:0;transition:all .3s;
   z-index:9999;pointer-events:none;font-family:var(--mono);color:#fff;font-weight:700}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 </style>
 </head>
 <body>
 <nav>
-  <div class="nav-logo">PROD<span style="color:var(--t3)">.</span>SYS</div>
-  <div class="nav-title">/ CIP Mixing</div>
-  <a href="index.html" class="nav-back">← Home</a>
+  <div class="nav-logo">CIP MIXING</div>
+  <div class="nav-r">
+    <a href="index.html" class="nbtn">🏠 Home</a>
+    <button class="nbtn" onclick="doLogout()">ออกจากระบบ</button>
+  </div>
 </nav>
-<main>
 
+<main>
   <!-- DATE -->
   <div class="date-row">
-    <span style="font-family:var(--mono);font-size:12px;color:var(--t2)">วันที่</span>
-    <input type="date" id="inp-date">
-    <button class="btn btn-cip" onclick="loadAll()">🔄 โหลด</button>
+    <input type="date" class="date-input" id="inp-date">
+    <button class="load-btn" onclick="loadAll()">🔄 โหลด</button>
+    <span style="font-family:var(--mono);font-size:11px;color:var(--t2)" id="emp-name"></span>
   </div>
 
-  <!-- CIP SECTION -->
-  <div class="sec-hd">
-    <div class="sec-hd-line"></div>
-    <div class="sec-hd-title" style="color:var(--cyan)">🧹 CIP — ล้างถัง Mixing</div>
-    <div class="sec-hd-line"></div>
+  <!-- LEGEND -->
+  <div class="legend">
+    <div class="leg"><div class="leg-dot" style="background:#94a3b8"></div>ว่าง</div>
+    <div class="leg"><div class="leg-dot" style="background:#3b82f6;animation:blink 1.2s infinite"></div>กำลัง CIP</div>
+    <div class="leg"><div class="leg-dot" style="background:#3b82f6"></div>CIP เสร็จ</div>
+    <div class="leg"><div class="leg-dot" style="background:#22c55e;animation:blink 1.2s infinite"></div>กำลัง San.</div>
+    <div class="leg"><div class="leg-dot" style="background:#22c55e"></div>San. เสร็จ</div>
+    <div class="leg"><div class="leg-dot" style="background:#ef4444;animation:blink 1.2s infinite"></div>กำลัง Past.</div>
+    <div class="leg"><div class="leg-dot" style="background:#ef4444"></div>มีของ</div>
+    <div class="leg"><div class="leg-dot" style="background:#f97316;animation:blink 1.2s infinite"></div>กำลัง Fill.</div>
   </div>
-  <div id="cip-area">
+
+  <!-- MAIN LIST -->
+  <div id="main-list">
     <div class="empty-state"><div class="ico">📅</div>เลือกวันที่แล้วกดโหลด</div>
   </div>
-
-  <!-- SANITIZE SECTION -->
-  <div class="sec-hd" style="margin-top:10px">
-    <div class="sec-hd-line"></div>
-    <div class="sec-hd-title" style="color:var(--purple)">✨ Sanitize — ฆ่าเชื้อถัง</div>
-    <div class="sec-hd-line"></div>
-  </div>
-  <div id="san-area">
-    <div class="empty-state"><div class="ico">⏳</div>รอโหลดข้อมูล CIP ก่อน</div>
-  </div>
-
 </main>
+
 <div id="toast"></div>
 
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import{getAuth,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import{getFirestore,collection,query,where,getDocs,onSnapshot,doc,setDoc,updateDoc,addDoc}
+import{getAuth,onAuthStateChanged,signOut}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import{getFirestore,collection,query,where,getDocs,onSnapshot,doc,setDoc,updateDoc}
   from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const app=initializeApp({
@@ -163,9 +157,8 @@ const db=getFirestore(app);
 
 const $=id=>document.getElementById(id);
 const today=()=>new Date().toISOString().slice(0,10);
-const nowHHMM=()=>{const n=new Date();return n.getHours().toString().padStart(2,'0')+':'+n.getMinutes().toString().padStart(2,'0');};
+const nowHHMMSS=()=>{const n=new Date();return[n.getHours(),n.getMinutes(),n.getSeconds()].map(x=>x.toString().padStart(2,'0')).join(':');};
 
-// Employee from sessionStorage
 const _empName=sessionStorage.getItem('emp_name')||'';
 const _empSig=sessionStorage.getItem('emp_sig')||'';
 
@@ -176,233 +169,136 @@ function toast(msg,col='blue'){
   setTimeout(()=>el.classList.remove('show'),2500);
 }
 
-// State
-let lines=[],tankStates={},planRows={m1:[],m2:[]};
-let unsubTankStates=null;
+let linesData=[],tankStates={},planRows=[],unsubTankStates=null;
 
-// Set default date
 $('inp-date').value=today();
+if(_empName) $('emp-name').textContent='👤 '+_empName;
 
-// Auth
 onAuthStateChanged(auth,u=>{
   if(!u){window.location.href='index.html';return;}
   initTankStates();
-  loadAll();
 });
 
-// Listen aging_tank_states realtime
 function initTankStates(){
-  if(unsubTankStates)unsubTankStates();
+  if(unsubTankStates) unsubTankStates();
   unsubTankStates=onSnapshot(collection(db,'aging_tank_states'),snap=>{
-    tankStates={};
     snap.docs.forEach(d=>{tankStates[d.id]={id:d.id,...d.data()};});
-    renderAll();
+    renderMain();
   });
 }
 
-// Load lines + plans
 window.loadAll=async()=>{
   const d=$('inp-date').value||today();
-  // load lines
   const lSnap=await getDocs(collection(db,'lines'));
-  lines=lSnap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.seq||0)-(b.seq||0));
-  // load plans M1
+  linesData=lSnap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.seq||0)-(b.seq||0));
   const q1=query(collection(db,'production_plans'),where('date','==',d));
   const q2=query(collection(db,'production_plans_m2'),where('date','==',d));
   const[s1,s2]=await Promise.all([getDocs(q1),getDocs(q2)]);
-  planRows.m1=s1.docs.map(d=>({...d.data(),id:d.id,_col:'production_plans'})).sort((a,b)=>(a.seq||0)-(b.seq||0));
-  planRows.m2=s2.docs.map(d=>({...d.data(),id:d.id,_col:'production_plans_m2'})).sort((a,b)=>(a.seq||0)-(b.seq||0));
-  renderAll();
+  const r1=s1.docs.map(d=>({...d.data(),id:d.id,_col:'production_plans'}));
+  const r2=s2.docs.map(d=>({...d.data(),id:d.id,_col:'production_plans_m2'}));
+  planRows=[...r1,...r2].sort((a,b)=>(a.seq||0)-(b.seq||0));
+  renderMain();
 };
 
-function renderAll(){
-  renderCIP();
-  renderSanitize();
+const ST={
+  empty:       {color:'#94a3b8',label:'ว่าง',       pulse:false, text:'ว่าง — รอ CIP'},
+  cip:         {color:'#3b82f6',label:'CIP',         pulse:true,  text:'กำลัง CIP...'},
+  cip_done:    {color:'#3b82f6',label:'CIP✓',        pulse:false, text:'CIP เสร็จ — รอ Sanitize'},
+  san:         {color:'#22c55e',label:'San.',         pulse:true,  text:'กำลัง Sanitize...'},
+  san_done:    {color:'#22c55e',label:'San.✓',        pulse:false, text:'✅ Sanitize เสร็จ'},
+  pasteurising:{color:'#ef4444',label:'Past.',        pulse:true,  text:'กำลัง Pasteurise'},
+  busy:        {color:'#ef4444',label:'มีของ',       pulse:false, text:'มีของบ่มอยู่'},
+  filling:     {color:'#f97316',label:'Fill.',        pulse:true,  text:'กำลัง Filling'},
+};
+
+function grpSel(tid,grp){
+  var o='<option value="">Grp...</option>';
+  ['A','B','C','D','E'].forEach(function(g){
+    o+='<option value="'+g+'"'+(grp===g?' selected':'')+'>'+g+'</option>';
+  });
+  return '<select class="grp-sel" data-tid="'+tid+'" onchange="setGroup(this.dataset.tid,this.value)">'+o+'</select>';
 }
 
-// ── CIP RENDER ─────────────────────────────────────────────────────────
-function renderCIP(){
-  const cipEl=$('cip-area');
-  // รวม plans ทั้ง m1 และ m2
-  const allPlans=[...planRows.m1,...planRows.m2];
-  // group by aging_tank
-  const tankPlanMap={};
-  allPlans.forEach(r=>{
-    if(r.aging_tank) tankPlanMap[r.aging_tank]=r;
-  });
-
-  // หา lines ที่มี aging_tanks
-  const lineCards=lines.filter(l=>(l.aging_tanks||[]).length>0);
-  if(!lineCards.length){
-    cipEl.innerHTML='<div class="empty-state"><div class="ico">📭</div>ไม่พบ Line ที่มีถัง Aging กำหนดไว้</div>';
+function renderMain(){
+  const el=$('main-list');
+  if(!planRows.length){
+    el.innerHTML='<div class="empty-state"><div class="ico">📭</div>ไม่มีงานในวันที่เลือก</div>';
     return;
   }
 
-  let html='<div class="line-grid">';
-  lineCards.forEach(line=>{
-    const tanks=line.aging_tanks||[];
-    // แสดงเฉพาะถังที่ status = empty หรือยังไม่มี state
-    const cipTanks=tanks.filter(t=>{
-      const st=tankStates[t]?.status||'empty';
-      return st==='empty'||st==='pending'||!tankStates[t];
-    });
-    const cipDoneTanks=tanks.filter(t=>tankStates[t]?.status==='cip_done');
+  // group ตาม aging_tank — แต่ละ row ที่มี aging_tank
+  const seen=new Set();
+  let html='';
 
-    html+=`<div class="line-card">
-      <div class="line-name">📍 ${line.name||line.id}</div>
-      <div class="line-info">ถัง Aging: ${tanks.join(', ')||'—'}</div>`;
+  planRows.forEach((row,idx)=>{
+    if(!row.aging_tank) return;
+    const tankId=row.aging_tank;
+    if(seen.has(tankId)) return;
+    seen.add(tankId);
 
-    // ถังที่ทำ CIP ได้ (empty)
-    if(cipTanks.length){
-      html+=`<div style="font-family:var(--mono);font-size:10px;color:var(--t2);margin-bottom:6px">🔵 พร้อม CIP</div>
-      <div class="tank-chips">`;
-      cipTanks.forEach(t=>{
-        const plan=tankPlanMap[t];
-        const ts=tankStates[t]||{};
-        html+=`<div class="tank-chip cip-able" onclick="openCIPPanel('${t}','${line.id}')">${t}</div>`;
-      });
-      html+='</div>';
-    }
+    const ts=tankStates[tankId]||{};
+    const st=ts.status||'empty';
+    const sc=ST[st]||ST.empty;
+    const group=ts.cip_group||'';
 
-    // ถังที่ CIP เสร็จแล้ว
-    if(cipDoneTanks.length){
-      html+=`<div style="font-family:var(--mono);font-size:10px;color:var(--green);margin-bottom:6px;margin-top:4px">✅ CIP เสร็จแล้ว</div>
-      <div class="tank-chips">`;
-      cipDoneTanks.forEach(t=>{
-        html+=`<div class="tank-chip cip-done">${t} ✓</div>`;
-      });
-      html+='</div>';
-    }
+    // lineColor
+    const line=linesData.find(l=>l.name===row.filling_line);
+    const lineColor=line?.color||'#6b7280';
 
-    // Panel CIP ของถังที่เลือก
-    tanks.forEach(t=>{
-      const ts=tankStates[t]||{};
-      const st=ts.status||'empty';
-      if((st==='empty'||st==='pending'||!tankStates[t])&&ts._cipPanelOpen){
-        html+=renderCIPPanel(t,ts);
-      }
-    });
+    // ปุ่มตาม status
+    let btns='';
+    if(st==='empty')
+      btns=`<button class="tb tb-cip" onclick="doAction('${tankId}','start_cip')">▶ CIP</button>`;
+    else if(st==='cip')
+      btns=`<button class="tb tb-stop" onclick="doAction('${tankId}','stop_cip')">⏹ CIP เสร็จ</button>`;
+    else if(st==='cip_done')
+      btns=`<button class="tb tb-cip" style="opacity:.7;font-size:10px" onclick="doAction('${tankId}','start_cip')">↺ CIP อีก</button>
+            <button class="tb tb-san" onclick="doAction('${tankId}','start_san')">▶ Sanitize</button>`;
+    else if(st==='san')
+      btns=`<button class="tb tb-stop" onclick="doAction('${tankId}','stop_san')">⏹ San. เสร็จ</button>`;
 
-    html+=`</div>`;
-  });
-  html+='</div>';
-  cipEl.innerHTML=html;
-}
-
-function renderCIPPanel(tankId,ts){
-  const cipStart=ts.cip_start_time||'';
-  const cipEnd=ts.cip_stop_time||'';
-  return `<div class="cip-panel" id="panel-cip-${tankId}">
-    <div class="cip-panel-title">🧹 CIP — ถัง ${tankId}</div>
-
-    <!-- Start CIP -->
-    <div class="stamp-row">
-      <span class="stamp-label">เริ่ม CIP</span>
-      <span class="stamp-time">${cipStart||'—'}</span>
-      ${ts.cip_start_sig?`<img src="${ts.cip_start_sig}" class="stamp-sig"><span class="stamp-by">${ts.cip_start_by||''}</span>`:''}
-      ${!cipStart?`<button class="btn btn-cip" onclick="stampCIP('${tankId}','start')">▶ Start CIP</button>`:''}
-    </div>
-
-    <!-- Stop CIP -->
-    <div class="stamp-row">
-      <span class="stamp-label">หยุด CIP</span>
-      <span class="stamp-time">${cipEnd||'—'}</span>
-      ${ts.cip_stop_sig?`<img src="${ts.cip_stop_sig}" class="stamp-sig"><span class="stamp-by">${ts.cip_stop_by||''}</span>`:''}
-      ${cipStart&&!cipEnd?`<button class="btn btn-stop" onclick="stampCIP('${tankId}','stop')">⏹ Stop CIP</button>`:''}
-      ${cipEnd?`<span style="font-family:var(--mono);font-size:10px;color:var(--green)">✅ CIP เสร็จแล้ว</span>`:''}
-    </div>
-  </div>`;
-}
-
-// ── SANITIZE RENDER ────────────────────────────────────────────────────
-function renderSanitize(){
-  const sanEl=$('san-area');
-  // หาถังที่ status = cip_done เท่านั้น
-  const sanTanks=Object.values(tankStates).filter(t=>t.status==='cip_done');
-
-  if(!sanTanks.length){
-    sanEl.innerHTML='<div class="empty-state"><div class="ico">✨</div>ยังไม่มีถังที่พร้อม Sanitize<br><span style="font-size:11px">ต้องทำ CIP เสร็จก่อน</span></div>';
-    return;
-  }
-
-  let html='<div class="line-grid">';
-  sanTanks.forEach(ts=>{
-    const t=ts.id;
-    const sanStart=ts.san_start_time||'';
-    const sanEnd=ts.san_stop_time||'';
-
-    html+=`<div class="line-card" style="border-color:rgba(168,85,247,.3)">
-      <div class="line-name" style="color:var(--purple)">✨ ถัง ${t}</div>
-      <div class="line-info" style="color:var(--green)">✅ CIP เสร็จแล้ว — พร้อม Sanitize</div>
-
-      <div class="cip-panel" style="border-color:rgba(168,85,247,.2)">
-        <div class="cip-panel-title" style="color:var(--purple)">✨ Sanitize — ถัง ${t}</div>
-
-        <!-- Start Sanitize -->
-        <div class="stamp-row">
-          <span class="stamp-label">เริ่ม San.</span>
-          <span class="stamp-time">${sanStart||'—'}</span>
-          ${ts.san_start_sig?`<img src="${ts.san_start_sig}" class="stamp-sig"><span class="stamp-by">${ts.san_start_by||''}</span>`:''}
-          ${!sanStart?`<button class="btn btn-san" onclick="stampSanitize('${t}','start')">▶ Start Sanitize</button>`:''}
+    html+=`<div class="tank-row">
+      <div class="st-circle ${sc.pulse?'pulse':''}" style="background:${sc.color}">${sc.label}</div>
+      <div class="t-info">
+        <div style="display:flex;align-items:center">
+          <span class="t-id" style="color:${lineColor}">${tankId}</span>
+          <span class="t-line">${row.filling_line||'—'}</span>
         </div>
-
-        <!-- Stop Sanitize -->
-        <div class="stamp-row">
-          <span class="stamp-label">หยุด San.</span>
-          <span class="stamp-time">${sanEnd||'—'}</span>
-          ${ts.san_stop_sig?`<img src="${ts.san_stop_sig}" class="stamp-sig"><span class="stamp-by">${ts.san_stop_by||''}</span>`:''}
-          ${sanStart&&!sanEnd?`<button class="btn btn-stop" onclick="stampSanitize('${t}','stop')">⏹ Stop Sanitize</button>`:''}
-          ${sanEnd?`<span style="font-family:var(--mono);font-size:10px;color:var(--green)">✅ Sanitize เสร็จแล้ว</span>`:''}
-        </div>
+        <div class="t-mix"><span style="font-family:var(--mono);font-weight:800">${row.mix_code||'—'}</span> ${row.mix_name||''}</div>
+        <div class="t-status-txt" style="color:${sc.color}">${sc.text}</div>
       </div>
+      ${grpSel(tankId,group)}
+      <div class="t-btns">${btns}</div>
     </div>`;
   });
-  html+='</div>';
-  sanEl.innerHTML=html;
+
+  el.innerHTML=html||'<div class="empty-state"><div class="ico">✅</div>ไม่มีถังที่ต้อง CIP</div>';
 }
 
-// ── STAMP FUNCTIONS ────────────────────────────────────────────────────
-window.openCIPPanel=async(tankId,lineId)=>{
-  if(!_empSig){toast('กรุณา login ด้วย PIN ก่อน','red');return;}
-  if(!tankStates[tankId]) tankStates[tankId]={id:tankId};
-  tankStates[tankId]._cipPanelOpen=true;
-  renderCIP();
-};
-
-window.stampCIP=async(tankId,type)=>{
-  if(!_empSig){toast('กรุณา login ด้วย PIN ก่อน','red');return;}
-  const time=nowHHMM();
-  let upd={};
-  if(type==='start'){
-    upd={cip_start_time:time,cip_start_by:_empName,cip_start_sig:_empSig};
-    toast(`▶ Start CIP ถัง ${tankId} — ${time}`,'blue');
-  } else {
-    upd={cip_stop_time:time,cip_stop_by:_empName,cip_stop_sig:_empSig,
-         status:'cip_done',updated_at:new Date().toISOString()};
-    toast(`✅ CIP เสร็จ ถัง ${tankId}`,'green');
-  }
+window.doAction=async(tankId,act)=>{
+  const statusMap={start_cip:'cip',stop_cip:'cip_done',start_san:'san',stop_san:'san_done'};
+  const newStatus=statusMap[act];
+  if(!newStatus) return;
   try{
+    const now=nowHHMMSS();
+    const upd={status:newStatus,updated_at:new Date().toISOString()};
+    if(act==='start_cip') upd.cip_start_time=now;
+    if(act==='stop_cip')  upd.cip_stop_time=now;
+    if(act==='start_san') upd.san_start_time=now;
+    if(act==='stop_san')  upd.san_stop_time=now;
     await setDoc(doc(db,'aging_tank_states',tankId),upd,{merge:true});
-  }catch(e){toast('บันทึกไม่สำเร็จ','red');}
+    const labels={start_cip:'▶ CIP เริ่ม',stop_cip:'✅ CIP เสร็จ',start_san:'▶ Sanitize เริ่ม',stop_san:'✅ Sanitize เสร็จ'};
+    toast(labels[act]+' ถัง '+tankId,'green');
+  }catch(e){toast('เกิดข้อผิดพลาด: '+e.message,'red');}
 };
 
-window.stampSanitize=async(tankId,type)=>{
-  if(!_empSig){toast('กรุณา login ด้วย PIN ก่อน','red');return;}
-  const time=nowHHMM();
-  let upd={};
-  if(type==='start'){
-    upd={san_start_time:time,san_start_by:_empName,san_start_sig:_empSig};
-    toast(`▶ Start Sanitize ถัง ${tankId} — ${time}`,'blue');
-  } else {
-    upd={san_stop_time:time,san_stop_by:_empName,san_stop_sig:_empSig,
-         status:'sanitized',updated_at:new Date().toISOString()};
-    toast(`✅ Sanitize เสร็จ ถัง ${tankId}`,'green');
-  }
+window.setGroup=async(tankId,val)=>{
   try{
-    await setDoc(doc(db,'aging_tank_states',tankId),upd,{merge:true});
-  }catch(e){toast('บันทึกไม่สำเร็จ','red');}
+    await setDoc(doc(db,'aging_tank_states',tankId),{cip_group:val,updated_at:new Date().toISOString()},{merge:true});
+  }catch(e){console.warn(e);}
 };
 
+window.doLogout=async()=>{await signOut(auth);location.href='index.html';};
 </script>
 </body>
 </html>
