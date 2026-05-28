@@ -226,17 +226,17 @@ function renderMain(){
     return;
   }
 
-  // group ตาม aging_tank — แต่ละ row ที่มี aging_tank
   const seen=new Set();
   let html='';
 
   planRows.forEach((row,idx)=>{
-    if(!row.aging_tank) return;
-    const tankId=row.aging_tank;
-    if(seen.has(tankId)) return;
-    seen.add(tankId);
+    // แสดงทุก row เรียงตาม seq
+    const tankId=row.aging_tank||'';
+    const dupKey=tankId||('row-'+row.id);
+    if(seen.has(dupKey)) return;
+    seen.add(dupKey);
 
-    const ts=tankStates[tankId]||{};
+    const ts=tankId?tankStates[tankId]||{}:{};
     const st=ts.status||'empty';
     const sc=ST[st]||ST.empty;
     const group=ts.cip_group||'';
@@ -247,7 +247,9 @@ function renderMain(){
 
     // ปุ่มตาม status
     let btns='';
-    if(st==='empty')
+    if(!tankId){
+      btns='<span style="font-family:var(--mono);font-size:10px;color:#b45309;background:rgba(180,83,9,.1);border:1px solid rgba(180,83,9,.3);padding:3px 10px;border-radius:8px">⚠️ ยังไม่กำหนดถัง</span>';
+    } else if(st==='empty')
       btns=`<button class="tb tb-cip" onclick="doAction('${tankId}','start_cip')">▶ CIP</button>`;
     else if(st==='cip')
       btns=`<button class="tb tb-stop" onclick="doAction('${tankId}','stop_cip')">⏹ CIP เสร็จ</button>`;
@@ -261,7 +263,8 @@ function renderMain(){
       <div class="st-circle ${sc.pulse?'pulse':''}" style="background:${sc.color}">${sc.label}</div>
       <div class="t-info">
         <div style="display:flex;align-items:center">
-          <span class="t-id" style="color:${lineColor}">${tankId}</span>
+          <span class="t-id" style="color:${lineColor}">${tankId||'—'}</span>
+          <span style="font-family:var(--mono);font-size:10px;font-weight:800;background:${lineColor}18;color:${lineColor};border:1px solid ${lineColor}44;padding:1px 7px;border-radius:8px;margin-left:6px">#${row.seq||idx+1}</span>
           <span class="t-line">${row.filling_line||'—'}</span>
         </div>
         <div class="t-mix"><span style="font-family:var(--mono);font-weight:800">${row.mix_code||'—'}</span> ${row.mix_name||''}</div>
