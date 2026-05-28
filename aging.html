@@ -214,6 +214,28 @@ const TWIN_LINES=[
   {name:'Scooping',tanks:['T61','T71','T62','T72'],color:'#22c55e'},
 ];
 
+
+function expireBox(expireAt){
+  if(!expireAt) return '';
+  var ed=new Date(expireAt);
+  var now=new Date();
+  var rh=(ed-now)/3600000;
+  var isExp=rh<0;
+  var isCrit=!isExp&&rh<24;
+  var isWarn=!isExp&&rh<48;
+  var bg=isExp?'rgba(185,28,28,.12)':isCrit?'rgba(185,28,28,.08)':isWarn?'rgba(194,65,12,.08)':'rgba(21,128,61,.08)';
+  var bc=isExp?'#b91c1c':isCrit?'#b91c1c':isWarn?'#c2410c':'#15803d';
+  var ic=isExp?'❌':isCrit?'⚠️':isWarn?'🟡':'✅';
+  var dateStr=ed.toLocaleDateString('th-TH',{weekday:'short',day:'2-digit',month:'short'});
+  var timeStr=ed.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+  var remStr=isExp?'หมดอายุแล้ว':rh<1?Math.round(rh*60)+' นาที':rh<24?rh.toFixed(1)+' ชม.':Math.floor(rh/24)+' วัน '+Math.round(rh%24)+' ชม.';
+  return '<div style="background:'+bg+';border:2px solid '+bc+';border-radius:8px;padding:6px 10px;margin-top:6px;font-family:DM Mono,monospace">'
+    +'<div style="font-size:10px;font-weight:800;color:'+bc+';letter-spacing:.06em">'+ic+' วันหมดอายุ</div>'
+    +'<div style="font-size:13px;font-weight:900;color:'+bc+';margin-top:2px">'+dateStr+' '+timeStr+'</div>'
+    +'<div style="font-size:10px;font-weight:700;color:'+bc+';opacity:.8;margin-top:1px">เหลือ '+remStr+'</div>'
+    +'</div>';
+}
+
 function getTankCapacity(tid){
   const n=parseInt(tid.replace('T',''));
   if(n>=1&&n<=34) return 3000;
@@ -324,8 +346,7 @@ function makeTankCard(tankId){
       +(activeRow.date?'<div class="tdr"><span class="tdl">วันผลิต</span><span class="tdv">'+activeRow.date.slice(5)+'</span></div>':'')
       +(activeRow.past_start_time?'<div class="tdr"><span class="tdl">เริ่ม Past.</span><span class="tdv">'+activeRow.past_start_time+'</span></div>':'')
       +(activeRow.past_end_time?'<div class="tdr"><span class="tdl">Past.เสร็จ</span><span class="tdv">'+activeRow.past_end_time+'</span></div>':'')
-      +(exp2?'<div class="tdr"><span class="tdl">หมดอายุ</span><span class="tdv" style="color:'+expColor+'">'+expIcon+' '+exp2.date+' '+exp2.time+'</span></div>':'')
-      +'</div>';
+      +(agingStates[tankId]&&agingStates[tankId].expire_at?expireBox(agingStates[tankId].expire_at):exp2?'<div style="font-family:DM Mono,monospace;font-size:11px;color:'+expC+'">⏰ '+exp2+'</div>':'');
   }
 
   // Temp selector
