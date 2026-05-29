@@ -306,7 +306,7 @@ function renderTwin(){
     rowDiv.style.cssText='display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap';
     rowLines.forEach(line=>{
       const ld=document.createElement('div');
-      ld.style.cssText='flex:1;min-width:140px;max-width:220px;border:2px solid '+line.color+'44;border-radius:12px;padding:10px;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.07)';
+      ld.style.cssText='flex:1;min-width:300px;border:2px solid '+line.color+'44;border-radius:12px;padding:10px;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.07)';
       ld.innerHTML='<div style="font-family:var(--mono);font-size:14px;font-weight:900;color:'+line.color+';margin-bottom:10px;letter-spacing:.04em;border-bottom:2px solid '+line.color+'33;padding-bottom:6px">🏭 '+line.name+'</div>';
       const grid=document.createElement('div');grid.style.cssText='display:flex;flex-wrap:wrap;gap:12px';
       line.tanks.forEach(t=>grid.appendChild(makeTankCard(t)));
