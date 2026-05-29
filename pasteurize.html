@@ -768,8 +768,6 @@ function renderTankVisual(m,rows){
 
   const t1Total=+(t1Row?.volume_liter||0);
   const t2Total=+(t2Row?.volume_liter||0);
-  const t1TankId=t1Row?.mixing_tank||'Mixing 1';
-  const t2TankId=t2Row?.mixing_tank||'Mixing 2';
   const t1Status=t1Row?.status||'';
   const t2Status=t2Row?.status||'';
 
@@ -855,10 +853,6 @@ function renderTankVisual(m,rows){
   }
   const mx1=mixTankVol(t1Row,t1Total,t1Active,t1Done);
   const mx2=mixTankVol(t2Row,t2Total,t2Active,t2Done);
-  // สีสินค้า — ใช้จาก row ที่กำลัง active
-  const _activeRow=t1Active?t1Row:(t2Active?t2Row:agRow);
-  const _prod=productMap[_activeRow?.mix_code||'']||{};
-  const prodColor=_prod.color||pc||'#0e7490';
   const sAg={txt:isFlowing?'♨️ รับของ':agVol>0?'✅ เต็ม':'⚪ ว่าง',
              col:isFlowing?'#f97316':agVol>0?'#22c55e':'#374151',
              tankCol:isFlowing?'#f97316':agVol>0?'#22c55e':'#374151',
@@ -941,8 +935,7 @@ function autoTextColor(hex){
         </linearGradient>
         <clipPath id="${cid}"><rect x="-1" y="-1" width="${tw+2}" height="${th+2}" rx="11"/></clipPath>
       </defs>
-      <rect x="2" y="-36" width="${tw-4}" height="20" rx="10" fill="${hasLiq?c1+'22':'rgba(176,186,200,.2)'}" stroke="${hasLiq?c1+'66':'#94a3b8'}" stroke-width="1.5"/>
-      <text x="${tw/2}" y="-22" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="${tc}" font-weight="900">${sublabel}</text>
+      <text x="${tw/2}" y="-22" text-anchor="middle" font-family="DM Mono,monospace" font-size="12" fill="${tc}" font-weight="800">${sublabel}</text>
       <rect x="${tw/2-13}" y="-10" width="26" height="12" rx="3" fill="${hasLiq?'#16a34a':'rgba(255,255,255,.12)'}" stroke="${bodyStroke}" stroke-width="1.5" stroke-opacity=".6"/>
       <rect x="${tw/2-17}" y="-18" width="34" height="9" rx="3" fill="${hasLiq?'#16a34a':'rgba(255,255,255,.12)'}" stroke="${bodyStroke}" stroke-width="1.5" stroke-opacity=".5"/>
       ${hasLiq?`<circle cx="${tw/2}" cy="-13" r="4" fill="#22c55e" opacity=".9"/><circle cx="${tw/2}" cy="-13" r="4" fill="none" stroke="#22c55e" stroke-width="1.5" opacity="0"><animate attributeName="r" from="4" to="10" dur="1.5s" repeatCount="indefinite"/><animate attributeName="opacity" from="0.6" to="0" dur="1.5s" repeatCount="indefinite"/></circle>`:''}
@@ -984,13 +977,14 @@ function autoTextColor(hex){
     <text x="${x}" y="${y+4}" text-anchor="middle" font-size="8" fill="${col}" font-family="DM Mono" font-weight="700">PUMP</text>`;
   }
 
-  function pipe(d,on,pipeCol){
-    if(!pipeCol) pipeCol=pc||'#94a3b8';
-    if(!on) return`<path d="${d}" fill="none" stroke="#b0bac8" stroke-width="6" stroke-linecap="round" opacity=".3"/>`;
-    return`<path d="${d}" fill="none" stroke="${pipeCol}" stroke-width="7" stroke-linecap="round" opacity=".3"/>
-    <path d="${d}" fill="none" stroke="${pipeCol}" stroke-width="4" stroke-linecap="round" opacity=".8" stroke-dasharray="7,5">
-      <animate attributeName="stroke-dashoffset" from="24" to="0" dur="0.7s" repeatCount="indefinite"/>
-    </path>`;
+  function pipe(d,on){
+    const gf=on?`filter="url(#gfx${m})"`:'' ;
+    const ptcl=on?`<path d="${d}" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 16" opacity=".9">
+      <animate attributeName="stroke-dashoffset" from="24" to="0" dur="0.65s" repeatCount="indefinite"/>
+    </path>`:'';
+    return`<path d="${d}" fill="none" stroke="#08111e" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="${d}" fill="none" stroke="${pc}" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity="${pf}" ${gf}/>
+    ${ptcl}`;
   }
 
   const el=document.getElementById('tank-visual-'+m);
@@ -1024,7 +1018,7 @@ function autoTextColor(hex){
       ${isFlowing?`🟢 Pasteurising · ${agTime}`:'⚪ Standby'}
     </span>
   </div>
-  <svg viewBox="0 0 1060 340" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;max-height:260px">
+  <svg viewBox="0 -50 1060 400" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;max-height:280px">
     <defs>
       <filter id="gfx${m}" x="-40%" y="-40%" width="180%" height="180%">
         <feGaussianBlur stdDeviation="2.5" result="b"/>
@@ -1034,8 +1028,8 @@ function autoTextColor(hex){
 
     <!-- ══ MIX TANK 1 ══ -->
     ${mx1.show?(()=>{const p1=productMap[t1Row?.mix_code||'']||{};const c1=t1Done?'#374151':(p1.color||s1.tankCol);const c1d=c1+'88';return drawTank(T1X,TOP,TW,TH,mx1.vol,t1Total,'Mixing 1',(t1Row?.mix_name||'—').slice(0,12),s1,'g1t'+m,'c1t'+m,c1,c1d,mx1.wave);})():`<g transform="translate(${T1X},${TOP})">
-  <rect x="2" y="-42" width="${TW-4}" height="20" rx="10" fill="${c1}22" stroke="${c1}66" stroke-width="1.5"/>
-  <text x="${TW/2}" y="-28" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="${c1}" font-weight="900">Mixing ${t1TankId}</text>
+  <rect x="2" y="-46" width="${TW-4}" height="20" rx="10" fill="${c1}22" stroke="${c1}66" stroke-width="1.5"/>
+  <text x="${TW/2}" y="-32" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="${c1}" font-weight="900">Mixing ${t1Row?.mixing_tank||'T1'}</text>
   <rect x="2" y="4" width="${TW}" height="${TH}" rx="10" fill="rgba(176,186,200,.1)"/>
   <rect x="0" y="0" width="${TW}" height="${TH}" rx="10" fill="rgba(176,186,200,.2)" stroke="#94a3b8" stroke-width="2"/>
   <rect x="${TW/2-13}" y="-10" width="26" height="12" rx="3" fill="rgba(176,186,200,.2)" stroke="#94a3b8" stroke-width="1.5"/>
@@ -1047,8 +1041,8 @@ function autoTextColor(hex){
 
     <!-- ══ MIX TANK 2 ══ -->
     ${mx2.show?(()=>{const p2=productMap[t2Row?.mix_code||'']||{};const c2=t2Done?'#374151':(p2.color||s2.tankCol);const c2d=c2+'88';return drawTank(T2X,TOP,TW,TH,mx2.vol,t2Total,'Mixing 2',(t2Row?.mix_name||'—').slice(0,12),s2,'g2t'+m,'c2t'+m,c2,c2d,mx2.wave);})():`<g transform="translate(${T2X},${TOP})">
-  <rect x="2" y="-42" width="${TW-4}" height="20" rx="10" fill="${c2}22" stroke="${c2}66" stroke-width="1.5"/>
-  <text x="${TW/2}" y="-28" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="${c2}" font-weight="900">Mixing ${t2TankId}</text>
+  <rect x="2" y="-46" width="${TW-4}" height="20" rx="10" fill="${c2}22" stroke="${c2}66" stroke-width="1.5"/>
+  <text x="${TW/2}" y="-32" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="${c2}" font-weight="900">Mixing ${t2Row?.mixing_tank||'T2'}</text>
   <rect x="2" y="4" width="${TW}" height="${TH}" rx="10" fill="rgba(176,186,200,.1)"/>
   <rect x="0" y="0" width="${TW}" height="${TH}" rx="10" fill="rgba(176,186,200,.2)" stroke="#94a3b8" stroke-width="2"/>
   <rect x="${TW/2-13}" y="-10" width="26" height="12" rx="3" fill="rgba(176,186,200,.2)" stroke="#94a3b8" stroke-width="1.5"/>
@@ -1059,7 +1053,7 @@ function autoTextColor(hex){
 </g>`}
 
     <!-- ══ AGING TANK ══ -->
-    ${drawTank(AGX,TOP,TW,TH,agVol,getTankCapacity(agTank),'Aging '+agTank,agName,sAg,'gag'+m,'cag'+m,prodColor,prodColor+'88',isFlowing)}
+    ${drawTank(AGX,TOP,TW,TH,agVol,getTankCapacity(agTank),'Aging '+agTank,agName,sAg,'gag'+m,'cag'+m,sAg.tankCol,sAg.tankCol2,isFlowing)}
 
     <!-- ══ VERTICAL PIPES from tank bottoms ══ -->
     <!-- T1 bottom → down to horizontal -->
@@ -1075,10 +1069,10 @@ function autoTextColor(hex){
     ${valve(AGCX,TBOT+28,isFlowing)}
 
     <!-- ══ HORIZONTAL COLLECTOR PIPE ══ -->
-    <!-- inactive ก่อน (วาดใต้ active) -->
-    ${!t1Active?`<path d="M ${T1CX},${HPIPE} L ${PUMPX-22},${HPIPE}" fill="none" stroke="#b0bac8" stroke-width="5" stroke-linecap="round" opacity=".35"/>`:''}
-    ${!t2Active?`<path d="M ${T2CX},${HPIPE} L ${PUMPX-22},${HPIPE}" fill="none" stroke="#b0bac8" stroke-width="5" stroke-linecap="round" opacity=".35"/>`:''}
-    <!-- active ทีหลัง (วาดทับ) -->
+    <!-- inactive ก่อน (ใต้ active) -->
+    ${!t1Active?`<path d="M ${T1CX},${HPIPE} L ${PUMPX-22},${HPIPE}" fill="none" stroke="#b0bac8" stroke-width="6" stroke-linecap="round"/>`:'' }
+    ${!t2Active?`<path d="M ${T2CX},${HPIPE} L ${PUMPX-22},${HPIPE}" fill="none" stroke="#b0bac8" stroke-width="6" stroke-linecap="round"/>`:'' }
+    <!-- active ทีหลัง (ทับ inactive) -->
     ${t1Active?pipe(`M ${T1CX},${HPIPE} L ${PUMPX-22},${HPIPE}`,true):''}
     ${t2Active?pipe(`M ${T2CX},${HPIPE} L ${PUMPX-22},${HPIPE}`,true):''}
     <!-- ══ PUMP ══ -->
