@@ -51,14 +51,14 @@ nav{display:flex;align-items:center;height:52px;background:#ffffff;border-bottom
 table{width:100%;border-collapse:collapse;font-size:12px}
 tbody td{border-right:1px solid var(--b1);border-bottom:1px solid var(--b1)}
 thead th{border-right:1px solid var(--b2)!important}
-thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1px solid var(--b1);vertical-align:middle}
+thead th{background:var(--s2);padding:8px 10px;text-align:left;white-space:nowrap;font-family:var(--mono);font-size:12px;font-weight:800;color:var(--text);border-bottom:2px solid var(--b1);vertical-align:middle}
 
 /* ROW HIGHLIGHT — ทั้งแถวสีเดียวกัน */
 .row-past{background:rgba(249,115,22,.08)!important;border-left:3px solid var(--orange)}
 .row-past td{background:rgba(249,115,22,.08)!important}
 .row-past td *:not(.stamp-btn):not(.stat-badge):not(.ci){color:var(--orange)!important}
-.row-done{background:rgba(34,197,94,.13)!important;border-left:3px solid #22c55e}
-.row-done td{background:rgba(34,197,94,.13)!important}
+.row-done{background:var(--s2)!important;border-left:3px solid var(--green)}
+.row-done td{background:var(--s2)!important;color:var(--text)!important}
 .row-done td *:not(.stamp-btn):not(.stat-badge):not(.ci){color:#4ade80!important}
 .row-wait{background:rgba(234,179,8,.07)!important;border-left:3px solid var(--yellow)}
 .row-wait td{background:rgba(234,179,8,.07)!important}
@@ -169,7 +169,7 @@ thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap
     margin-bottom:12px;padding:12px;position:relative;
   }
   tbody tr.row-past{border-left:4px solid var(--orange)!important;background:rgba(249,115,22,.06)!important}
-  tbody tr.row-done{border-left:4px solid var(--green)!important;background:rgba(34,197,94,.08)!important}
+  tbody tr.row-done{border-left:4px solid var(--green)!important;background:var(--s2)!important}
   tbody tr.row-wait{border-left:4px solid var(--yellow)!important;background:rgba(234,179,8,.06)!important}
   tbody td{border:none!important;padding:3px 0;display:flex;align-items:center;gap:8px;font-size:13px}
 
@@ -266,11 +266,11 @@ thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap
 @keyframes statusPulse{0%,100%{opacity:1}50%{opacity:.45}}
 .status-blink{animation:statusPulse 1.4s ease-in-out infinite}
 
-.info-card{background:linear-gradient(135deg,#0d1f35,#0a1628);border:1px solid #1e3a5f;border-radius:12px;padding:12px 16px;margin-top:10px;font-family:'DM Mono',monospace;}
-.info-card .card-title{font-size:10px;color:#60a5fa;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;border-bottom:1px solid #1e3a5f;padding-bottom:6px;}
-.info-card .card-row{display:flex;justify-content:space-between;align-items:center;margin:4px 0;font-size:11px;}
+.info-card{background:#fff;border:1.5px solid var(--b1);border-radius:12px;padding:12px 16px;margin-top:10px;font-family:'DM Mono',monospace;box-shadow:0 2px 6px rgba(0,0,0,.07);}
+.info-card .card-title{font-size:10px;color:#60a5fa;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;border-bottom:2px solid var(--b1);padding-bottom:6px;}
+.info-card .card-row{display:flex;justify-content:space-between;align-items:center;margin:4px 0;font-size:11px;color:var(--text);}
 .info-card .card-label{color:#64748b;}
-.info-card .card-value{color:#e2e8f0;font-weight:700;}
+.info-card .card-value{color:var(--text);font-weight:700;}
 .info-card .card-value.highlight{color:#60a5fa;font-size:13px;}
 .info-cards-wrap{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:4px 0 8px;}
 
@@ -1132,8 +1132,8 @@ function autoTextColor(hex){
       const totalVol=agRow.process_order?allRows.filter(r=>r.process_order===agRow.process_order).reduce((s,r)=>s+(+(r.volume_liter||0)),0):+(agRow.volume_liter||0);
       const totalKg=Math.round(totalVol*dens);
       return`<foreignObject x="750" y="10" width="295" height="310">
-        <div xmlns="http://www.w3.org/1999/xhtml" style="background:linear-gradient(135deg,#0d1f35,#0a1628);border:1.5px solid #1e3a5f;border-radius:12px;padding:14px 18px;font-family:DM Mono,monospace;font-size:13px;color:#e2e8f0;box-sizing:border-box;">
-          <div style="color:#60a5fa;font-weight:700;border-bottom:1px solid #1e3a5f;padding-bottom:6px;margin-bottom:10px;font-size:13px;">🧊 กำลัง PASTEURISE</div>
+        <div xmlns="http://www.w3.org/1999/xhtml" style="background:linear-gradient(135deg,#0d1f35,#0a1628);border:1.5px solid #1e3a5f;border-radius:12px;padding:14px 18px;font-family:DM Mono,monospace;font-size:13px;color:var(--text);box-sizing:border-box;">
+          <div style="color:#60a5fa;font-weight:700;border-bottom:2px solid var(--b1);padding-bottom:6px;margin-bottom:10px;font-size:13px;">🧊 กำลัง PASTEURISE</div>
           <div style="display:flex;justify-content:space-between;margin:7px 0"><span>Mix Name</span><span style="font-weight:700">${agRow.mix_name||'—'}</span></div>
           <div style="display:flex;justify-content:space-between;margin:7px 0"><span>Batch</span><span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:#1e3a5f;border:2px solid #3b82f6;font-weight:700">${(agRow.batch_no||'—').toString().split('/')[0]}</span></div>
           <div style="display:flex;justify-content:space-between;margin:7px 0"><span>Vol รวม PO</span><span style="font-weight:700">${totalVol.toLocaleString()} L</span></div>
@@ -1229,7 +1229,7 @@ function renderShiftChart(p){
         </div>`;
       }).join('')}
     </div>
-    <div class="shift-total">รวมวันนี้ <b style="color:#e2e8f0">${totalKg.toLocaleString()} kg</b></div>
+    <div class="shift-total">รวมวันนี้ <b style="color:var(--text)">${totalKg.toLocaleString()} kg</b></div>
   </div>`;
 }
 
@@ -1348,9 +1348,6 @@ window.stampTime=async(col,id,field,p)=>{
     upd.status="past_done";
     upd.mix_start_time="";
     upd.mix_end_time="";
-    upd.glc_actual="";
-    upd.sgr_actual="";
-    upd.plm_actual="";
   }
 
   await updateDoc(doc(db,col,id),upd);
