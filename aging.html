@@ -269,11 +269,13 @@ function renderAll(){renderBangchan();renderTwin();}
 function renderBangchan(){
   const el=$('bangchan-grid');el.innerHTML='';
   // group by line — รองรับทั้ง lines ที่มีและไม่มี group field
-  // Twin tanks — ไม่ให้ติดมาใน BC
+  // Twin tanks — กรอง Twin ออกจาก BC ทุกจุด
   const twinTanks=TWIN_LINES.flatMap(l=>l.tanks||[]);
-  const grpLines=lines.filter(l=>(l.aging_tanks||[]).length>0)
+  const grpLines=lines.filter(l=>(l.aging_tanks||[]).filter(t=>!twinTanks.includes(t)).length>0)
     .sort((a,b)=>(a.seq||0)-(b.seq||0));
-  const assigned=grpLines.flatMap(l=>l.aging_tanks||[]).filter(t=>!twinTanks.includes(t));
+  // แต่ละ group ให้แสดงเฉพาะ BC tanks (ไม่ใช่ Twin)
+  const grpLinesCleaned=grpLines.map(l=>({...l,aging_tanks:(l.aging_tanks||[]).filter(t=>!twinTanks.includes(t))}));
+  const assigned=grpLinesCleaned.flatMap(l=>l.aging_tanks||[]);
   const unassigned=BC_TANKS.filter(t=>!assigned.includes(t));
   let groups=[];
   if(!grpLines.length){
@@ -281,7 +283,7 @@ function renderBangchan(){
     groups=[{name:'Bangchan (ทั้งหมด)',tanks:BC_TANKS}];
   } else {
     // มีบาง line กำหนด aging_tanks → แสดงตาม line + ถังที่เหลือ
-    groups=grpLines.map(l=>({name:l.name||l.id,tanks:l.aging_tanks||[]}));
+    groups=grpLinesCleaned.map(l=>({name:l.name||l.id,tanks:l.aging_tanks||[]}));
     // ถังที่ไม่ได้กำหนดใน line ไหนเลย → แสดงรวมเป็นกลุ่ม Bangchan
     if(unassigned.length>0) groups.push({name:'Bangchan (ที่เหลือ)',tanks:unassigned});
   }
