@@ -1212,20 +1212,37 @@ function renderShiftChart(p){
   const SHIFT_LBL=['เช้า','บ่าย','ดึก'];
   const canvasId='sc-'+p;
 
-  el.innerHTML='<div style="background:#fff;border:1.5px solid var(--b1);border-radius:10px;padding:10px;height:100%;display:flex;flex-direction:column;gap:6px">'
-    +'<div style="font-family:var(--mono);font-size:10px;font-weight:800;color:var(--t2)">📊 ผลผลิตตามกะ</div>'
-    +'<div style="display:flex;gap:4px">'
-    +[0,1,2].map(i=>'<div style="flex:1;text-align:center;border-radius:6px;padding:4px;border:1.5px solid '+SHIFT_COL[i]+'44;background:'+SHIFT_COL[i]+'11">'
-      +'<div style="font-family:var(--mono);font-size:11px;font-weight:900;color:'+SHIFT_COL[i]+'">'+(kgs[i]/1000).toFixed(1)+'k</div>'
-      +'<div style="font-family:var(--mono);font-size:8px;color:var(--t3)">'+SHIFT_LBL[i]+'</div>'
-      +'</div>').join('')
-    +'</div>'
-    +'<canvas id="'+canvasId+'" style="flex:1;min-height:0"></canvas>'
-    +'<div style="font-family:var(--mono);font-size:10px;color:var(--t2);text-align:right">รวม <b>'+total.toLocaleString()+'</b> L</div>'
-    +'</div>';
+  // ถ้ายังไม่มี DOM ให้สร้างครั้งเดียว
+  if(!document.getElementById(canvasId)){
+    el.innerHTML='<div style="background:#fff;border:1.5px solid var(--b1);border-radius:10px;padding:10px;width:190px;flex-shrink:0;flex-grow:0;display:flex;flex-direction:column;gap:6px">'
+      +'<div style="font-family:var(--mono);font-size:10px;font-weight:800;color:var(--t2)">📊 ผลผลิตตามกะ</div>'
+      +'<div id="chips-'+p+'" style="display:flex;gap:4px"></div>'
+      +'<div style="width:170px;height:110px;flex-shrink:0"><canvas id="'+canvasId+'" width="170" height="110"></canvas></div>'
+      +'<div id="total-'+p+'" style="font-family:var(--mono);font-size:10px;color:var(--t2);text-align:right"></div>'
+      +'</div>';
+  }
 
+  // อัพเดท chips
+  const chipsEl=document.getElementById('chips-'+p);
+  if(chipsEl) chipsEl.innerHTML=[0,1,2].map(i=>'<div style="flex:1;text-align:center;border-radius:6px;padding:4px;border:1.5px solid '+SHIFT_COL[i]+'44;background:'+SHIFT_COL[i]+'11">'
+    +'<div style="font-family:var(--mono);font-size:11px;font-weight:900;color:'+SHIFT_COL[i]+'">'+(kgs[i]/1000).toFixed(1)+'k</div>'
+    +'<div style="font-family:var(--mono);font-size:8px;color:var(--t3)">'+SHIFT_LBL[i]+'</div>'
+    +'</div>').join('');
+
+  // อัพเดท total
+  const totalEl=document.getElementById('total-'+p);
+  if(totalEl) totalEl.innerHTML='รวม <b>'+total.toLocaleString()+'</b> L';
+
+  // อัพเดท chart data ถ้ามีอยู่แล้ว
+  if(window['_c_'+p]){
+    window['_c_'+p].data.datasets[0].backgroundColor=SHIFT_COL.map((col,i)=>i===curShift?col+'cc':col+'44');
+    window['_c_'+p].data.datasets[0].data=kgs;
+    window['_c_'+p].update('none');
+    return;
+  }
+
+  // สร้าง chart ใหม่
   setTimeout(()=>{
-    if(window['_c_'+p]) window['_c_'+p].destroy();
     const ctx=document.getElementById(canvasId);
     if(!ctx) return;
     window['_c_'+p]=new Chart(ctx,{
@@ -1242,8 +1259,9 @@ function renderShiftChart(p){
         }]
       },
       options:{
-        responsive:true,
+        responsive:false,
         maintainAspectRatio:false,
+        animation:{duration:400},
         plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.raw.toLocaleString()+' L'}}},
         scales:{
           x:{grid:{display:false},ticks:{font:{family:'DM Mono',size:9},color:'#374151',maxRotation:0}},
@@ -1255,10 +1273,7 @@ function renderShiftChart(p){
 }
 
 // อัปเดตกราฟทุก 3 วินาที
-setInterval(()=>{
-  renderShiftChart('p1');
-  renderShiftChart('p2');
-}, 3000);
+// renderShiftChart ถูกเรียกใน onSnapshot แล้ว
 
 window.loadPlan=(p)=>{
   const d=$(p==="p1"?"date-p1":"date-p2").value||today();
@@ -1270,6 +1285,7 @@ window.loadPlan=(p)=>{
       .sort((a,b)=>(a.seq||0)-(b.seq||0));
     window._rows[p]=rows[p]; // sync global สำหรับ interval
     renderPlan(p);
+    renderShiftChart(p); // update กราฟ real-time
   });
 };
 
