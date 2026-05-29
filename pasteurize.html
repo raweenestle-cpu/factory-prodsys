@@ -834,7 +834,7 @@ function renderTankVisual(m,rows){
   function mixTankVol(tRow,tTotal,tActive,tDone){
     const st=tRow?.status||'';
     const cap=3000;
-    if(!st||st==='pending') return{vol:0,pct:0,show:false,wave:false};
+    if(!st||st==='pending') return{vol:0,pct:0,show:true,wave:false};
     if(st==='mixing'){
       const vol=tTotal*0.5;
       const pct=Math.min(100,(vol/cap)*100);
@@ -1028,25 +1028,25 @@ function autoTextColor(hex){
     <!-- ══ MIX TANK 1 ══ -->
     ${mx1.show?(()=>{const p1=productMap[t1Row?.mix_code||'']||{};const c1=t1Done?'#374151':(p1.color||s1.tankCol);const c1d=c1+'88';return drawTank(T1X,TOP,TW,TH,mx1.vol,t1Total,'Mixing 1',(t1Row?.mix_name||'—').slice(0,12),s1,'g1t'+m,'c1t'+m,c1,c1d,mx1.wave);})():`<g transform="translate(${T1X},${TOP})">
   <text x="${TW/2}" y="-32" text-anchor="middle" font-family="DM Mono,monospace" font-size="14" fill="${autoTextColor(c1)}" font-weight="800">Mixing 1</text>
-  <rect x="2" y="4" width="${TW}" height="${TH}" rx="10" fill="rgba(0,0,0,.3)"/>
-  <rect x="0" y="0" width="${TW}" height="${TH}" rx="10" fill="#060a14" stroke="rgba(255,255,255,.5)" stroke-width="2"/>
-  <rect x="${TW/2-13}" y="-10" width="26" height="12" rx="3" fill="#060a14" stroke="rgba(255,255,255,.4)" stroke-width="1.5"/>
-  <rect x="${TW/2-17}" y="-16" width="34" height="7" rx="3" fill="#060a14" stroke="rgba(255,255,255,.4)" stroke-width="1.5"/>
-  <rect x="${TW/2-5}" y="${TH}" width="10" height="12" rx="2" fill="#060a14" stroke="rgba(255,255,255,.3)" stroke-width="1.2"/>
-  <rect x="8" y="${TH+10}" width="16" height="5" rx="2" fill="#060a14" stroke="rgba(255,255,255,.3)" stroke-width="1.2"/>
-  <rect x="${TW-24}" y="${TH+10}" width="16" height="5" rx="2" fill="#060a14" stroke="rgba(255,255,255,.3)" stroke-width="1.2"/>
+  <rect x="2" y="4" width="${TW}" height="${TH}" rx="10" fill="rgba(176,186,200,.1)"/>
+  <rect x="0" y="0" width="${TW}" height="${TH}" rx="10" fill="rgba(176,186,200,.2)" stroke="#94a3b8" stroke-width="2"/>
+  <rect x="${TW/2-13}" y="-10" width="26" height="12" rx="3" fill="rgba(176,186,200,.2)" stroke="#94a3b8" stroke-width="1.5"/>
+  <rect x="${TW/2-17}" y="-16" width="34" height="7" rx="3" fill="rgba(176,186,200,.2)" stroke="#94a3b8" stroke-width="1.5"/>
+  <rect x="${TW/2-5}" y="${TH}" width="10" height="12" rx="2" fill="rgba(176,186,200,.2)" stroke="#94a3b8" stroke-width="1.2"/>
+  <rect x="8" y="${TH+10}" width="16" height="5" rx="2" fill="rgba(176,186,200,.2)" stroke="#94a3b8" stroke-width="1.2"/>
+  <rect x="${TW-24}" y="${TH+10}" width="16" height="5" rx="2" fill="rgba(176,186,200,.2)" stroke="#94a3b8" stroke-width="1.2"/>
 </g>`}
 
     <!-- ══ MIX TANK 2 ══ -->
     ${mx2.show?(()=>{const p2=productMap[t2Row?.mix_code||'']||{};const c2=t2Done?'#374151':(p2.color||s2.tankCol);const c2d=c2+'88';return drawTank(T2X,TOP,TW,TH,mx2.vol,t2Total,'Mixing 2',(t2Row?.mix_name||'—').slice(0,12),s2,'g2t'+m,'c2t'+m,c2,c2d,mx2.wave);})():`<g transform="translate(${T2X},${TOP})">
   <text x="${TW/2}" y="-32" text-anchor="middle" font-family="DM Mono,monospace" font-size="14" fill="${autoTextColor(c2)}" font-weight="800">Mixing 2</text>
-  <rect x="2" y="4" width="${TW}" height="${TH}" rx="10" fill="rgba(0,0,0,.3)"/>
-  <rect x="0" y="0" width="${TW}" height="${TH}" rx="10" fill="#060a14" stroke="rgba(255,255,255,.5)" stroke-width="2"/>
-  <rect x="${TW/2-13}" y="-10" width="26" height="12" rx="3" fill="#060a14" stroke="rgba(255,255,255,.4)" stroke-width="1.5"/>
-  <rect x="${TW/2-17}" y="-16" width="34" height="7" rx="3" fill="#060a14" stroke="rgba(255,255,255,.4)" stroke-width="1.5"/>
-  <rect x="${TW/2-5}" y="${TH}" width="10" height="12" rx="2" fill="#060a14" stroke="rgba(255,255,255,.3)" stroke-width="1.2"/>
-  <rect x="8" y="${TH+10}" width="16" height="5" rx="2" fill="#060a14" stroke="rgba(255,255,255,.3)" stroke-width="1.2"/>
-  <rect x="${TW-24}" y="${TH+10}" width="16" height="5" rx="2" fill="#060a14" stroke="rgba(255,255,255,.3)" stroke-width="1.2"/>
+  <rect x="2" y="4" width="${TW}" height="${TH}" rx="10" fill="rgba(176,186,200,.1)"/>
+  <rect x="0" y="0" width="${TW}" height="${TH}" rx="10" fill="rgba(176,186,200,.2)" stroke="#94a3b8" stroke-width="2"/>
+  <rect x="${TW/2-13}" y="-10" width="26" height="12" rx="3" fill="rgba(176,186,200,.2)" stroke="#94a3b8" stroke-width="1.5"/>
+  <rect x="${TW/2-17}" y="-16" width="34" height="7" rx="3" fill="rgba(176,186,200,.2)" stroke="#94a3b8" stroke-width="1.5"/>
+  <rect x="${TW/2-5}" y="${TH}" width="10" height="12" rx="2" fill="rgba(176,186,200,.2)" stroke="#94a3b8" stroke-width="1.2"/>
+  <rect x="8" y="${TH+10}" width="16" height="5" rx="2" fill="rgba(176,186,200,.2)" stroke="#94a3b8" stroke-width="1.2"/>
+  <rect x="${TW-24}" y="${TH+10}" width="16" height="5" rx="2" fill="rgba(176,186,200,.2)" stroke="#94a3b8" stroke-width="1.2"/>
 </g>`}
 
     <!-- ══ AGING TANK ══ -->
