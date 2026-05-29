@@ -46,6 +46,7 @@ nav{display:flex;align-items:center;height:52px;background:var(--s1);border-bott
 .page.on{display:block}
 
 /* KPI */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
 .kpi{background:var(--s1);border:1px solid var(--b1);border-radius:10px;padding:12px 14px}
 .kpi-label{font-size:10px;color:var(--t3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
 .kpi-val{font-size:22px;font-weight:700;font-family:var(--mono)}
@@ -178,13 +179,13 @@ tbody td{padding:5px 6px;vertical-align:middle;font-weight:600}
   .btn{min-height:40px;font-size:13px}
 
   /* KPI */
-  }
+  .kpi-row{grid-template-columns:repeat(2,1fr)!important;gap:8px}
+}
 
 @keyframes statusPulse{0%,100%{opacity:1}50%{opacity:.45}}
 .status-blink{animation:statusPulse 1.4s ease-in-out infinite}
 
-/* Line Status Cards */
-#line-cards{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding:10px 0;margin-bottom:10px}
+.line-cards-wrap{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding:8px 0 10px}
 .lsc{background:#fff;border:1.5px solid var(--b1);border-radius:12px;padding:10px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
 .lsc-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;padding-bottom:6px;border-bottom:1.5px solid var(--s2)}
 .lsc-name{font-family:var(--mono);font-size:11px;font-weight:900;color:var(--text)}
@@ -200,7 +201,7 @@ tbody td{padding:5px 6px;vertical-align:middle;font-weight:600}
 .lsc-lbl{font-family:var(--mono);font-size:8px;color:var(--t3);font-weight:700}
 .lsc-val{font-family:var(--mono);font-size:10px;font-weight:900;color:var(--text)}
 .lsc-q{margin-top:5px;padding-top:5px;border-top:1px solid var(--s2)}
-.lsc-qlbl{font-family:var(--mono);font-size:8px;font-weight:800;color:var(--t3);letter-spacing:.05em;margin-bottom:3px}
+.lsc-qlbl{font-family:var(--mono);font-size:8px;font-weight:800;color:var(--t3);margin-bottom:3px}
 .lsc-qrow{display:flex;align-items:center;gap:4px;margin-bottom:2px}
 .lsc-qcode{font-family:var(--mono);font-size:9px;font-weight:800;color:var(--text);flex:1}
 .lsc-qvol{font-family:var(--mono);font-size:9px;font-weight:900;color:var(--cyan)}
@@ -224,7 +225,7 @@ tbody td{padding:5px 6px;vertical-align:middle;font-weight:600}
 
 <!-- PAGE M1 -->
 <div class="page on" id="page-m1">
-  <div id="line-cards"></div>
+  <div class="line-cards-wrap" id="lcw-m1"></div>
   <div class="toolbar">
     <div class="toolbar-left">
       <span style="font-family:var(--mono);font-size:10px;color:var(--t3)">DATE</span>
@@ -239,7 +240,11 @@ tbody td{padding:5px 6px;vertical-align:middle;font-weight:600}
       <button class="btn btn-b btn-s" onclick="addRow('m1');addRow('m1')">+ Add Row</button>
     </div>
   </div>
-
+  <div class="kpi-row">
+    <div class="kpi"><div class="kpi-label">Batches</div><div class="kpi-val" id="m1-total" style="color:var(--blue2)">0</div></div>
+    <div class="kpi"><div class="kpi-label">Volume</div><div class="kpi-val" id="m1-vol" style="color:var(--cyan)">0 L</div></div>
+    <div class="kpi"><div class="kpi-label">Mixing</div><div class="kpi-val" id="m1-mixing" style="color:var(--yellow)">0</div></div>
+    <div class="kpi"><div class="kpi-label">Done</div><div class="kpi-val" id="m1-done" style="color:var(--green)">0</div></div>
   </div>
   <div class="tw">
     <table>
@@ -281,6 +286,7 @@ tbody td{padding:5px 6px;vertical-align:middle;font-weight:600}
 
 <!-- PAGE M2 -->
 <div class="page" id="page-m2">
+  <div class="line-cards-wrap" id="lcw-m2"></div>
   <div class="toolbar">
     <div class="toolbar-left">
       <span style="font-family:var(--mono);font-size:10px;color:var(--t3)">DATE</span>
@@ -295,7 +301,11 @@ tbody td{padding:5px 6px;vertical-align:middle;font-weight:600}
       <button class="btn btn-b btn-s" onclick="addRow('m2');addRow('m2')">+ Add Row</button>
     </div>
   </div>
-
+  <div class="kpi-row">
+    <div class="kpi"><div class="kpi-label">Batches</div><div class="kpi-val" id="m2-total" style="color:var(--blue2)">0</div></div>
+    <div class="kpi"><div class="kpi-label">Volume</div><div class="kpi-val" id="m2-vol" style="color:var(--cyan)">0 L</div></div>
+    <div class="kpi"><div class="kpi-label">Mixing</div><div class="kpi-val" id="m2-mixing" style="color:var(--yellow)">0</div></div>
+    <div class="kpi"><div class="kpi-label">Done</div><div class="kpi-val" id="m2-done" style="color:var(--green)">0</div></div>
   </div>
   <div class="tw">
     <table>
@@ -481,89 +491,51 @@ window.savePrefix = async(n,v) => {
 function planCol(m){ return m==="m1"?"production_plans":"production_plans_m2"; }
 
 
-// ── LINE STATUS CARDS ──────────────────────────────────────────────
-let lineStatesData={}, linesData=[], planRowsAll=[], agingStatesData={};
-
-function fmtHr(hr){
-  if(hr<=0) return '< 1m';
-  const h=Math.floor(hr), m=Math.round((hr-h)*60);
-  return h+'h '+(m<10?'0':'')+m+'m';
+let _lcStates={},_lcLines=[],_lcRows={};
+function _lcFmtHr(hr){if(hr<=0)return'<1m';const h=Math.floor(hr),m=Math.round((hr-h)*60);return h+'h '+(m<10?'0':'')+m+'m';}
+function _lcRem(st,fr){if(!st||!st.running||!st.start_ts)return+(st&&st.start_vol||0);return Math.max(0,(+(st.start_vol||0))-(((Date.now()-st.start_ts)/3600000)*(fr||300)));}
+function _lcEnd(v,fr){if(!fr||v<=0)return null;const hr=v/fr,e=new Date(Date.now()+hr*3600000);return{hr,label:e.toLocaleDateString('th-TH',{weekday:'short',day:'2-digit',month:'short'})+' '+e.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})};}
+function _lcCard(line){
+  const st=_lcStates[line.id]||{};
+  const fr=+(st.flow_rate||line.flow_rate||300);
+  const isRun=!!st.running;
+  const rv=Math.round(_lcRem(st,fr));
+  const sv=+(st.start_vol||0);
+  const pct=sv>0?Math.min(100,(rv/sv)*100):0;
+  const pc=pct>40?'#15803d':pct>15?'#b45309':'#b91c1c';
+  const ei=isRun?_lcEnd(rv,fr):null;
+  const cc=st.mix_code||'';
+  const cp=cc?(typeof productMap!=='undefined'&&productMap[cc])||{}:{};
+  const pCol=cp.color||'#374151';
+  const allR=[...(_lcRows['m1']||[]),...(_lcRows['m2']||[])];
+  const q=allR.filter(r=>r.filling_line===line.name&&(r.status==='past_done'||r.status==='ready')&&!r.sent_filling_at);
+  const tq=q.reduce((s,r)=>s+(+(r.volume_liter||0)),0);
+  const sc=isRun?'lsc-run':q.length>0?'lsc-wait':'lsc-idle';
+  const sl=isRun?'<span class="live-d"></span>เดินอยู่':q.length>0?'⏳ รอ Start':'○ ว่าง';
+  const hc=ei?(ei.hr<2?'var(--red)':ei.hr<4?'var(--orange)':'#15803d'):'#374151';
+  return '<div class="lsc">'
+    +'<div class="lsc-head"><span class="lsc-name">'+line.name+'</span><span class="lsc-st '+sc+'">'+sl+'</span></div>'
+    +(isRun&&cc?'<div class="lsc-prod" style="color:'+pCol+'">'+cc+'</div>':'')
+    +(isRun?'<div class="lsc-vol" style="color:'+pc+'">'+rv.toLocaleString()+' <span style="font-size:10px;color:var(--t3)">L</span></div>'
+      +'<div class="lsc-vbar"><div class="lsc-vfill" style="width:'+pct+'%;background:'+pc+'"></div></div>'
+      +'<div class="lsc-row"><span class="lsc-lbl">เหลือ</span><span class="lsc-val" style="color:'+hc+'">'+(ei?_lcFmtHr(ei.hr):'—')+'</span></div>'
+      +'<div class="lsc-row"><span class="lsc-lbl">เสร็จ~</span><span class="lsc-val" style="font-size:9px">'+(ei?ei.label:'—')+'</span></div>':'')
+    +(q.length>0?'<div class="lsc-q"><div class="lsc-qlbl">📦 '+tq.toLocaleString()+' L</div>'
+      +q.slice(0,2).map(r=>'<div class="lsc-qrow"><span class="lsc-qcode">'+(r.mix_code||'—')+' B.'+(r.batch_no||'?')+'</span><span class="lsc-qvol">'+(+(r.volume_liter||0)).toLocaleString()+'L</span></div>').join('')
+      +(q.length>2?'<div style="font-size:8px;color:var(--t3)">+'+(q.length-2)+' อีก...</div>':'')+'</div>':'')
+    +(!isRun&&!q.length?'<div style="font-family:var(--mono);font-size:10px;color:var(--t3);text-align:center;padding:6px 0">— ว่าง —</div>':'')
+    +'</div>';
 }
-function calcRemVol(st,fr){
-  if(!st||!st.running||!st.start_ts) return +(st&&st.start_vol||0);
-  const elapsed=(Date.now()-st.start_ts)/3600000;
-  return Math.max(0,(+(st.start_vol||0))-(elapsed*(fr||300)));
+function _lcRender(){
+  const lines=_lcLines.filter(l=>l.name&&l.id).sort((a,b)=>(a.seq||0)-(b.seq||0));
+  const html=lines.map(_lcCard).join('');
+  ['m1','m2'].forEach(function(m){const el=document.getElementById('lcw-'+m);if(el)el.innerHTML=html;});
 }
-function calcEndTime(remVol,fr){
-  if(!fr||remVol<=0) return null;
-  const hr=remVol/fr;
-  const end=new Date(Date.now()+hr*3600000);
-  return {hr,label:end.toLocaleDateString('th-TH',{weekday:'short',day:'2-digit',month:'short'})+' '+end.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})};
-}
-
-function renderLineCards(){
-  const el=document.getElementById('line-cards');
-  if(!el||!linesData.length) return;
-  const sorted=linesData.filter(l=>l.name&&l.id).sort((a,b)=>(a.seq||0)-(b.seq||0));
-  const html=sorted.map(line=>{
-    const st=lineStatesData[line.id]||{};
-    const fr=+(st.flow_rate||line.flow_rate||300);
-    const isRunning=!!st.running;
-    const remVol=Math.round(calcRemVol(st,fr));
-    const startVol=+(st.start_vol||0);
-    const pct=startVol>0?Math.min(100,(remVol/startVol)*100):0;
-    const pctCol=pct>40?'#15803d':pct>15?'#b45309':'#b91c1c';
-    const endInfo=isRunning?calcEndTime(remVol,fr):null;
-    const curCode=st.mix_code||'';
-    const curProd=curCode?(productMap&&productMap[curCode])||{}:{};
-    const prodCol=curProd.color||'#374151';
-    const queue=planRowsAll.filter(r=>r.filling_line===line.name&&(r.status==='past_done'||r.status==='ready')&&!r.sent_filling_at);
-    const totalQ=queue.reduce((s,r)=>s+(+(r.volume_liter||0)),0);
-    const stCls=isRunning?'lsc-run':queue.length>0?'lsc-wait':'lsc-idle';
-    const stLbl=isRunning?'<span class="live-d"></span>เดินอยู่':queue.length>0?'⏳ รอ Start':'○ ว่าง';
-    const hrCol=endInfo?(endInfo.hr<2?'var(--red)':endInfo.hr<4?'var(--orange)':'#15803d'):'#374151';
-    const qHtml=queue.length>0
-      ?'<div class="lsc-q"><div class="lsc-qlbl">📦 QUEUE '+totalQ.toLocaleString()+' L</div>'
-        +queue.slice(0,3).map(r=>'<div class="lsc-qrow"><span class="lsc-qcode">'+(r.mix_code||'—')+' B.'+(r.batch_no||'?')+'</span><span class="lsc-qvol">'+(+(r.volume_liter||0)).toLocaleString()+'L</span></div>').join('')
-        +(queue.length>3?'<div style="font-family:var(--mono);font-size:8px;color:var(--t3)">+'+(queue.length-3)+' อีก...</div>':'')
-        +'</div>'
-      :'';
-    return '<div class="lsc">'
-      +'<div class="lsc-head"><span class="lsc-name">🏭 '+line.name+'</span><span class="lsc-st '+stCls+'">'+stLbl+'</span></div>'
-      +(isRunning&&curCode?'<div class="lsc-prod" style="color:'+prodCol+'">'+curCode+'</div>':'')
-      +(isRunning?'<div class="lsc-vol" style="color:'+pctCol+'">'+remVol.toLocaleString()+' <span style="font-size:10px;color:var(--t3)">L</span></div>'
-        +'<div class="lsc-vbar"><div class="lsc-vfill" style="width:'+pct+'%;background:'+pctCol+'"></div></div>'
-        +'<div class="lsc-row"><span class="lsc-lbl">เหลือเดิน</span><span class="lsc-val" style="color:'+hrCol+'">'+(endInfo?fmtHr(endInfo.hr):'—')+'</span></div>'
-        +'<div class="lsc-row"><span class="lsc-lbl">เสร็จ ~</span><span class="lsc-val" style="font-size:9px">'+(endInfo?endInfo.label:'—')+'</span></div>'
-        :'')
-      +qHtml
-      +(!isRunning&&!queue.length?'<div style="font-family:var(--mono);font-size:10px;color:var(--t3);text-align:center;padding:8px 0">— ไม่มีผลิต —</div>':'')
-      +'</div>';
-  }).join('');
-  el.innerHTML=html;
-}
-
-onSnapshot(collection(db,'lines'),snap=>{
-  linesData=snap.docs.map(d=>({id:d.id,...d.data()}));
-  renderLineCards();
-});
-onSnapshot(collection(db,'cip_line_states'),snap=>{
-  lineStatesData={};
-  snap.docs.forEach(d=>{lineStatesData[d.id]={id:d.id,...d.data()};});
-  renderLineCards();
-});
-onSnapshot(collection(db,'production_plans'),snap=>{
-  const m1=snap.docs.map(d=>({id:d.id,_col:'production_plans',...d.data()}));
-  planRowsAll=planRowsAll.filter(r=>r._col!=='production_plans').concat(m1);
-  renderLineCards();
-});
-onSnapshot(collection(db,'production_plans_m2'),snap=>{
-  const m2=snap.docs.map(d=>({id:d.id,_col:'production_plans_m2',...d.data()}));
-  planRowsAll=planRowsAll.filter(r=>r._col!=='production_plans_m2').concat(m2);
-  renderLineCards();
-});
-setInterval(renderLineCards,30000);
-
+onSnapshot(collection(db,'lines'),snap=>{_lcLines=snap.docs.map(d=>({id:d.id,...d.data()}));_lcRender();});
+onSnapshot(collection(db,'cip_line_states'),snap=>{_lcStates={};snap.docs.forEach(d=>{_lcStates[d.id]={id:d.id,...d.data()};});_lcRender();});
+onSnapshot(collection(db,'production_plans'),snap=>{_lcRows['m1']=snap.docs.map(d=>({id:d.id,...d.data()}));_lcRender();});
+onSnapshot(collection(db,'production_plans_m2'),snap=>{_lcRows['m2']=snap.docs.map(d=>({id:d.id,...d.data()}));_lcRender();});
+setInterval(_lcRender,30000);
 window.loadPlan = (m) => {
   const d = $(m==="m1"?"date-m1":"date-m2").value || today();
   if(unsub[m]) unsub[m]();
