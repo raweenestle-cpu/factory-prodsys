@@ -614,7 +614,6 @@ setInterval(async()=>{
             status:'past_done',
             current_vol:finalCumVol,
             mix_start_time:"",mix_end_time:"",
-            glc_actual:"",sgr_actual:"",plm_actual:"",
           });
           if(agRow.aging_tank){
             try{await setDoc(doc(db,'aging_tank_states',agRow.aging_tank),{
@@ -630,33 +629,46 @@ setInterval(async()=>{
             toast(`✅ Auto Stamp Past.เสร็จ เวลา ${endTime}`,"green");
           }
 
-          // เช็ค batch ถัดไปที่ต่อเนื่อง (batch_no +1)
-          function parseBatch(b){
-            const m=String(b||'').match(/^(\d+)[\/\-](\d+)$/);
-            if(m)return{prefix:+m[1],sub:+m[2]};
-            const n=String(b||'').match(/^(\d+)$/);
-            if(n)return{prefix:0,sub:+n[1]};
-            return null;
-          }
-          const cur=parseBatch(agRow.batch_no);
-          if(cur){
-            const nextBatch=cur.prefix>0?`${cur.prefix}/${cur.sub+1}`:`${cur.sub+1}`;
-            const nextRow=pRows.find(r=>
-              r.batch_no===nextBatch&&
-              r.mix_code===agRow.mix_code&&
-              r.date===agRow.date&&
-              r.filling_line===agRow.filling_line&&
-              (r.status==='pasteurising'||r.status==='pending')&&
-              !r.past_start_time
-            );
+          // หา batch ถัดไปจาก process_order + aging_tank เดียวกัน
+          if(agRow.process_order&&agRow.aging_tank){
+            const nextRow=allRows
+              .filter(r=>
+                r.process_order===agRow.process_order&&
+                r.aging_tank===agRow.aging_tank&&
+                r.id!==agRow.id&&
+                !r.past_start_time&&
+                (r.status==='pending'||r.status==='mixing'||r.status==='pasteurising')
+              )
+              .sort((a,b)=>(a.seq||0)-(b.seq||0))[0];
             if(nextRow){
-              // Auto Stamp เริ่ม Past. batch ถัดไป
+              // คำนวณ prevVol สะสมจาก batch ที่ past_done แล้ว
+              const prevCumVol=allRows
+                .filter(r=>
+                  r.process_order===nextRow.process_order&&
+                  r.aging_tank===nextRow.aging_tank&&
+                  (r.status==='past_done'||r.status==='ready')
+                )
+                .reduce((s,r)=>s+(+(r.volume_liter||0)),0);
               await updateDoc(doc(db,planCol(p),nextRow.id),{
                 past_start_time:endTime,
                 status:'pasteurising',
                 past_end_time:null,
               });
-              toast(`🔄 Auto เริ่ม Past. Batch ${nextBatch} ต่อเนื่อง`,"green");
+              // sync aging_tank_states ต่อเนื่อง
+              if(nextRow.aging_tank){
+                try{await setDoc(doc(db,'aging_tank_states',nextRow.aging_tank),{
+                  current_vol:prevCumVol,
+                  mix_code:nextRow.mix_code||'',
+                  mix_name:nextRow.mix_name||'',
+                  batch_no:nextRow.batch_no||'',
+                  process_order:nextRow.process_order||'',
+                  past_start_time:endTime,
+                  past_end_time:null,
+                  status:'pasteurising',
+                  updated_at:new Date().toISOString()
+                },{merge:true});}catch{}
+              }
+              toast(`🔄 Auto เริ่ม Past. Batch ${nextRow.batch_no} (${nextRow.mixing_tank||''}) ต่อเนื่อง`,"green");
             }
           }
         }
