@@ -736,7 +736,7 @@ function autoTextColor(hex){
   }
 
   // หา active row เพื่อแสดง flow bar
-  const activeRow=rows.find(r=>r.status==='mixing'||r.status==='pasteurising'||r.status==='waiting_past');
+  const activeRow=rows.find(r=>r.status==='mixing'&&!r.mix_end_time);
   const flowHtml=activeRow?`<div style="flex:1;min-width:0;border-left:2px solid var(--b1);padding-left:14px;display:flex;flex-direction:column;justify-content:center">
     <div style="font-family:var(--mono);font-size:10px;font-weight:800;color:var(--t2);margin-bottom:8px">📋 Mixing Flow — Batch ${activeRow.batch_no||''}</div>
     ${renderFlowBar(activeRow,planCol(m),activeRow.id)}
