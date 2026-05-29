@@ -110,6 +110,7 @@ nav{position:sticky;top:0;z-index:100;background:rgba(7,9,15,.95);border-bottom:
 
 /* SVG */
 .tsw{width:100%;flex-shrink:0;position:relative;margin:0 auto 4px;display:flex;justify-content:center}
+#twin-grid .tc{width:130px}
 </style>
 </head>
 <body>
@@ -302,12 +303,12 @@ function renderTwin(){
   const rows2=[[TWIN_LINES[0],TWIN_LINES[1]],[TWIN_LINES[2],TWIN_LINES[3]]];
   rows2.forEach(rowLines=>{
     const rowDiv=document.createElement('div');
-    rowDiv.style.cssText='display:flex;gap:12px;margin-bottom:14px;flex-wrap:wrap';
+    rowDiv.style.cssText='display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap';
     rowLines.forEach(line=>{
       const ld=document.createElement('div');
-      ld.style.cssText='flex:1;min-width:0;border:2px solid '+line.color+'44;border-radius:12px;padding:8px';
-      ld.innerHTML='<div style="font-family:var(--mono);font-size:11px;font-weight:800;color:'+line.color+';margin-bottom:8px">'+line.name+'</div>';
-      const grid=document.createElement('div');grid.style.cssText='display:flex;gap:8px;flex-wrap:wrap';
+      ld.style.cssText='flex:1;min-width:140px;max-width:220px;border:2px solid '+line.color+'44;border-radius:12px;padding:10px;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.07)';
+      ld.innerHTML='<div style="font-family:var(--mono);font-size:14px;font-weight:900;color:'+line.color+';margin-bottom:10px;letter-spacing:.04em;border-bottom:2px solid '+line.color+'33;padding-bottom:6px">🏭 '+line.name+'</div>';
+      const grid=document.createElement('div');grid.style.cssText='display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-start';
       line.tanks.forEach(t=>grid.appendChild(makeTankCard(t)));
       ld.appendChild(grid);rowDiv.appendChild(ld);
     });
