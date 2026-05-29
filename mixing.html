@@ -80,7 +80,7 @@ thead th{background:var(--s2);padding:8px 10px;text-align:left;white-space:nowra
 .stamp-wrap{display:flex;flex-direction:column;gap:3px;min-width:110px}
 
 /* ACTUAL INPUT */
-.act-input{background:#fff;border:1.5px solid var(--b1);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:12px;padding:5px 8px;outline:none;width:80px;text-align:right;position:relative;z-index:10}
+.act-input{background:#fff;border:1.5px solid var(--b1);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:12px;padding:5px 8px;outline:none;width:80px;text-align:right;position:relative;z-index:20}
 .act-input:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(29,78,216,.15)}
 .act-input:focus{border-color:var(--green)}
 
@@ -273,8 +273,8 @@ thead th{background:var(--s2);padding:8px 10px;text-align:left;white-space:nowra
       <input type="date" id="date-m1" class="ci" style="width:140px" onchange="loadPlan('m1')">
     </div>
   </div>
-  <div id="tank-visual-m1" style="margin-bottom:12px"></div>
-  <div class="tw"><table>
+  <div id="tank-visual-m1" style="margin-bottom:12px;overflow:hidden;position:relative;z-index:1"></div>
+  <div class="tw" style="position:relative;z-index:2"><table>
     <thead>
       <tr>
         <th rowspan="2">#</th><th rowspan="2">Mix Code</th><th rowspan="2" style="color:var(--cyan)">🔗 Process</th><th rowspan="2">Mix Name</th>
@@ -313,8 +313,8 @@ thead th{background:var(--s2);padding:8px 10px;text-align:left;white-space:nowra
       <input type="date" id="date-m2" class="ci" style="width:140px" onchange="loadPlan('m2')">
     </div>
   </div>
-  <div id="tank-visual-m2" style="margin-bottom:12px"></div>
-  <div class="tw"><table>
+  <div id="tank-visual-m2" style="margin-bottom:12px;overflow:hidden;position:relative;z-index:1"></div>
+  <div class="tw" style="position:relative;z-index:2"><table>
     <thead>
       <tr>
         <th rowspan="2">#</th><th rowspan="2">Mix Code</th><th rowspan="2" style="color:var(--cyan)">🔗 Process</th><th rowspan="2">Mix Name</th>
@@ -786,7 +786,7 @@ function renderPlan(m){
       <td><span class="cr">${row.batch_no||"—"}</span></td>
       <td><span style="font-family:var(--mono);color:var(--cyan)">${row.volume_liter||"—"}</span></td>
       <td>
-        <select style="font-family:var(--mono);font-size:12px;padding:4px 8px;border-radius:6px;background:var(--s2);color:var(--cyan);border:1px solid rgba(6,182,212,.3);cursor:pointer"
+        <select style="font-family:var(--mono);font-size:12px;padding:4px 8px;border-radius:6px;position:relative;z-index:10;background:var(--s2);color:var(--cyan);border:1px solid rgba(6,182,212,.3);cursor:pointer"
           onchange="_up('${col}','${row.id}','mixing_tank',this.value)">
           <option value="">— เลือกถัง —</option>
           <option value="Tank 1" ${row.mixing_tank==="Tank 1"?"selected":""}>Tank 1</option>
