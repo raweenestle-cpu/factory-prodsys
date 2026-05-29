@@ -294,6 +294,7 @@ thead th{background:var(--s2);padding:8px 10px;text-align:left;white-space:nowra
 .sig-btn svg{width:18px;height:18px;}
 .sig-preview{height:28px;filter:invert(1) brightness(2);vertical-align:middle;opacity:.9;}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 </head>
 <body>
 
@@ -322,7 +323,7 @@ thead th{background:var(--s2);padding:8px 10px;text-align:left;white-space:nowra
   </div>
   <div style="display:flex;align-items:stretch;gap:12px;margin-bottom:12px">
     <div class="tank-row" id="tank-visual-p1" style="flex:1;min-width:0"></div>
-    <div id="chart-area-p1" style="width:160px;flex-shrink:0"></div>
+    <div id="chart-area-p1" style="width:220px;flex-shrink:0"></div>
   </div>
   <div class="tw"><table>
     <thead>
@@ -365,7 +366,7 @@ thead th{background:var(--s2);padding:8px 10px;text-align:left;white-space:nowra
   </div>
   <div style="display:flex;align-items:stretch;gap:12px;margin-bottom:12px">
     <div class="tank-row" id="tank-visual-p2" style="flex:1;min-width:0"></div>
-    <div id="chart-area-p2" style="width:160px;flex-shrink:0"></div>
+    <div id="chart-area-p2" style="width:220px;flex-shrink:0"></div>
   </div>
   <div class="tw"><table>
     <thead>
@@ -1202,35 +1203,62 @@ function calcShiftKg(p, shiftIdx){
 }
 
 function renderShiftChart(p){
-  const el = document.getElementById(`chart-area-${p}`);
+  const el=document.getElementById('chart-area-'+p);
   if(!el) return;
-  const curShift = getCurrentShift();
-  const kgs = [0,1,2].map(i=>calcShiftKg(p,i));
-  const maxKg = Math.max(...kgs, 1);
-  const totalKg = kgs.reduce((s,v)=>s+v,0);
+  const kgs=[0,1,2].map(i=>calcShiftKg(p,i));
+  const total=kgs.reduce((s,v)=>s+v,0);
+  const curShift=getCurrentShift();
+  const SHIFT_COL=['#f59e0b','#f97316','#6366f1'];
+  const SHIFT_LBL=['เช้า 06-14','บ่าย 14-22','ดึก 22-06'];
+  const mainCol=p==='p1'?'#0e7490':'#f97316';
+  const chipStyle=[
+    'background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.4);color:#92400e',
+    'background:rgba(249,115,22,.08);border-color:rgba(249,115,22,.4);color:#9a3412',
+    'background:rgba(99,102,241,.08);border-color:rgba(99,102,241,.4);color:#3730a3'
+  ];
 
-  el.innerHTML = `<div class="shift-chart-card">
-    <div class="shift-chart-title">
-      <span class="shift-live-dot"></span>
-      📊 ผลผลิตสะสมตามกะ — วันนี้ (kg)
-    </div>
-    <div class="shift-bars-wrap">
-      ${[0,1,2].map(i=>{
-        const kg = kgs[i];
-        const pct = maxKg>0?(kg/maxKg*100):0;
-        const isActive = i===curShift;
-        const col = SHIFT_COLORS[i];
-        return `<div class="shift-bar-col">
-          <div class="shift-bar-kg-v" style="color:${isActive?col:'#4a5568'};font-size:${isActive?'13px':'11px'}">${kg>0?kg.toLocaleString():'—'}</div>
-          <div class="shift-bar-track-v">
-            <div class="shift-bar-fill-v${isActive?' active':''}" style="height:${pct}%;background:${isActive?`linear-gradient(0deg,${col}88,${col})`:`${col}44`};color:${col}"></div>
-          </div>
-          <div class="shift-bar-label" style="color:${isActive?col:'#4a5568'}">${SHIFT_LABELS[i]}</div>
-        </div>`;
-      }).join('')}
-    </div>
-    <div class="shift-total">รวมวันนี้ <b style="color:var(--text)">${totalKg.toLocaleString()} kg</b></div>
-  </div>`;
+  const canvasId='shiftchart-'+p;
+  el.innerHTML='<div class="shift-chart-card">'
+    +'<div class="shift-chart-title"><span class="shift-live-dot"></span>📊 ผลผลิตตามกะ (L)</div>'
+    +'<div class="shift-chip-row">'
+    +[0,1,2].map(i=>'<div class="shift-chip-sm" style="'+chipStyle[i]+'">'
+      +'<div class="sv">'+(kgs[i]/1000).toFixed(1)+'k</div>'
+      +'<div class="sl">'+SHIFT_LBL[i].split(' ')[0]+'</div>'
+      +'</div>').join('')
+    +'</div>'
+    +'<canvas id="'+canvasId+'" style="flex:1"></canvas>'
+    +'<div style="font-family:var(--mono);font-size:10px;color:var(--t2);text-align:right;margin-top:4px">รวม <b>'+total.toLocaleString()+'</b> L</div>'
+    +'</div>';
+
+  if(window['_sc_'+canvasId]) window['_sc_'+canvasId].destroy();
+  const ctx=document.getElementById(canvasId);
+  if(!ctx) return;
+  window['_sc_'+canvasId]=new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels:SHIFT_LBL,
+      datasets:[{
+        data:kgs,
+        backgroundColor:SHIFT_COL.map((col,i)=>i===curShift?col+'cc':col+'55'),
+        borderColor:SHIFT_COL,
+        borderWidth:2,
+        borderRadius:6,
+        borderSkipped:false,
+      }]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:ctx=>ctx.raw.toLocaleString()+' L'}}
+      },
+      scales:{
+        x:{grid:{display:false},ticks:{font:{family:'DM Mono',size:9},color:'#374151',maxRotation:0}},
+        y:{grid:{color:'rgba(0,0,0,.06)'},ticks:{font:{family:'DM Mono',size:9},color:'#6b7280',callback:v=>(v/1000).toFixed(1)+'k'},beginAtZero:true}
+      }
+    }
+  });
 }
 
 // อัปเดตกราฟทุก 3 วินาที
