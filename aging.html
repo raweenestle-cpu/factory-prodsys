@@ -275,10 +275,13 @@ function renderBangchan(){
   const unassigned=BC_TANKS.filter(t=>!assigned.includes(t));
   let groups=[];
   if(!grpLines.length){
+    // ไม่มี line ไหนกำหนด aging_tanks เลย → แสดง BC ทั้งหมด
     groups=[{name:'Bangchan (ทั้งหมด)',tanks:BC_TANKS}];
   } else {
+    // มีบาง line กำหนด aging_tanks → แสดงตาม line + ถังที่เหลือ
     groups=grpLines.map(l=>({name:l.name||l.id,tanks:l.aging_tanks||[]}));
-    if(unassigned.length>0) groups.push({name:'ถังที่ยังไม่กำหนด LINE',tanks:unassigned});
+    // ถังที่ไม่ได้กำหนดใน line ไหนเลย → แสดงรวมเป็นกลุ่ม Bangchan
+    if(unassigned.length>0) groups.push({name:'Bangchan (ที่เหลือ)',tanks:unassigned});
   }
 
   groups.forEach(g=>{
