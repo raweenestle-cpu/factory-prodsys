@@ -575,9 +575,9 @@ function renderMixTanks(m, rows){
   const el=document.getElementById(`tank-visual-${m}`);
   if(!el)return;
 
-  const activeStatus=['mixing','pasteurising'];
-  const t1Row=rows.find(r=>(r.mixing_tank==='Tank 1'||r.mixing_tank==='T1')&&activeStatus.includes(r.status))||null;
-  const t2Row=rows.find(r=>(r.mixing_tank==='Tank 2'||r.mixing_tank==='T2')&&activeStatus.includes(r.status))||null;
+  const activeStatus=['mixing','pasteurising','past_done','waiting_past','ready','busy'];
+  const t1Row=rows.find(r=>(r.mixing_tank==='Tank 1'||r.mixing_tank==='T1'||r.mixing_tank==='1')&&+(r.volume_liter||0)>0)||rows.find(r=>(r.mixing_tank==='Tank 1'||r.mixing_tank==='T1'||r.mixing_tank==='1'))||null;
+  const t2Row=rows.find(r=>(r.mixing_tank==='Tank 2'||r.mixing_tank==='T2'||r.mixing_tank==='2')&&+(r.volume_liter||0)>0)||rows.find(r=>(r.mixing_tank==='Tank 2'||r.mixing_tank==='T2'||r.mixing_tank==='2'))||null;
 
   function tankSVG(row,label,cap){cap=cap||3000;
     const st=row?.status||'';
