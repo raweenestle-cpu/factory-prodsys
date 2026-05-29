@@ -1075,12 +1075,12 @@ function autoTextColor(hex){
     ${valve(AGCX,TBOT+28,isFlowing)}
 
     <!-- ══ HORIZONTAL COLLECTOR PIPE ══ -->
-    <!-- T1→pump หรือ T2→pump (แล้วแต่ถังที่ active) -->
+    <!-- inactive ก่อน (วาดใต้ active) -->
+    ${!t1Active?`<path d="M ${T1CX},${HPIPE} L ${PUMPX-22},${HPIPE}" fill="none" stroke="#b0bac8" stroke-width="5" stroke-linecap="round" opacity=".35"/>`:''}
+    ${!t2Active?`<path d="M ${T2CX},${HPIPE} L ${PUMPX-22},${HPIPE}" fill="none" stroke="#b0bac8" stroke-width="5" stroke-linecap="round" opacity=".35"/>`:''}
+    <!-- active ทีหลัง (วาดทับ) -->
     ${t1Active?pipe(`M ${T1CX},${HPIPE} L ${PUMPX-22},${HPIPE}`,true):''}
     ${t2Active?pipe(`M ${T2CX},${HPIPE} L ${PUMPX-22},${HPIPE}`,true):''}
-    <!-- เส้นที่ไม่ active แสดงเป็นเทา -->
-    ${!t1Active?`<path d="M ${T1CX},${HPIPE} L ${PUMPX-22},${HPIPE}" fill="none" stroke="#b0bac8" stroke-width="6" stroke-linecap="round"/>`:'' }
-    ${!t2Active?`<path d="M ${T2CX},${HPIPE} L ${PUMPX-22},${HPIPE}" fill="none" stroke="#b0bac8" stroke-width="6" stroke-linecap="round"/>`:'' }
     <!-- ══ PUMP ══ -->
     ${pump(PUMPX,PUMPY,isFlowing)}
     <text x="${PUMPX}" y="${PUMPY+36}" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" font-weight="700" fill="${isFlowing?ac:'#3d4560'}">PUMP</text>
