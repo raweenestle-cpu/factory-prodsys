@@ -853,6 +853,10 @@ function renderTankVisual(m,rows){
   }
   const mx1=mixTankVol(t1Row,t1Total,t1Active,t1Done);
   const mx2=mixTankVol(t2Row,t2Total,t2Active,t2Done);
+  // สีสินค้า — ใช้จาก row ที่กำลัง active
+  const _activeRow=t1Active?t1Row:(t2Active?t2Row:agRow);
+  const _prod=productMap[_activeRow?.mix_code||'']||{};
+  const prodColor=_prod.color||pc||'#0e7490';
   const sAg={txt:isFlowing?'♨️ รับของ':agVol>0?'✅ เต็ม':'⚪ ว่าง',
              col:isFlowing?'#f97316':agVol>0?'#22c55e':'#374151',
              tankCol:isFlowing?'#f97316':agVol>0?'#22c55e':'#374151',
@@ -935,7 +939,8 @@ function autoTextColor(hex){
         </linearGradient>
         <clipPath id="${cid}"><rect x="-1" y="-1" width="${tw+2}" height="${th+2}" rx="11"/></clipPath>
       </defs>
-      <text x="${tw/2}" y="-22" text-anchor="middle" font-family="DM Mono,monospace" font-size="12" fill="${tc}" font-weight="800">${sublabel}</text>
+      <rect x="2" y="-36" width="${tw-4}" height="20" rx="10" fill="${hasLiq?c1+'22':'rgba(176,186,200,.2)'}" stroke="${hasLiq?c1+'66':'#94a3b8'}" stroke-width="1.5"/>
+      <text x="${tw/2}" y="-22" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="${tc}" font-weight="900">${sublabel}</text>
       <rect x="${tw/2-13}" y="-10" width="26" height="12" rx="3" fill="${hasLiq?'#16a34a':'rgba(255,255,255,.12)'}" stroke="${bodyStroke}" stroke-width="1.5" stroke-opacity=".6"/>
       <rect x="${tw/2-17}" y="-18" width="34" height="9" rx="3" fill="${hasLiq?'#16a34a':'rgba(255,255,255,.12)'}" stroke="${bodyStroke}" stroke-width="1.5" stroke-opacity=".5"/>
       ${hasLiq?`<circle cx="${tw/2}" cy="-13" r="4" fill="#22c55e" opacity=".9"/><circle cx="${tw/2}" cy="-13" r="4" fill="none" stroke="#22c55e" stroke-width="1.5" opacity="0"><animate attributeName="r" from="4" to="10" dur="1.5s" repeatCount="indefinite"/><animate attributeName="opacity" from="0.6" to="0" dur="1.5s" repeatCount="indefinite"/></circle>`:''}
@@ -959,7 +964,7 @@ function autoTextColor(hex){
 
   function valve(x,y,open){
     const c=open?ac:'#2d3748';
-    return`<circle cx="${x}" cy="${y}" r="9" fill="#060a14" stroke="${c}" stroke-width="2"/>
+    return`<circle cx="${x}" cy="${y}" r="9" fill="white" stroke="${c}" stroke-width="2"/>
     <path d="M${x-6},${y} L${x},${y-6} L${x+6},${y} L${x},${y+6} Z" fill="${c}" opacity="${open?.9:.45}"/>
     <line x1="${x}" y1="${y-9}" x2="${x}" y2="${y+9}" stroke="${c}" stroke-width="2.2"/>
     ${open?`<circle cx="${x}" cy="${y}" r="12" fill="none" stroke="${c}" stroke-width="1" opacity="0">
@@ -977,14 +982,13 @@ function autoTextColor(hex){
     <text x="${x}" y="${y+4}" text-anchor="middle" font-size="8" fill="${col}" font-family="DM Mono" font-weight="700">PUMP</text>`;
   }
 
-  function pipe(d,on){
-    const gf=on?`filter="url(#gfx${m})"`:'' ;
-    const ptcl=on?`<path d="${d}" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 16" opacity=".9">
-      <animate attributeName="stroke-dashoffset" from="24" to="0" dur="0.65s" repeatCount="indefinite"/>
-    </path>`:'';
-    return`<path d="${d}" fill="none" stroke="#08111e" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="${d}" fill="none" stroke="${pc}" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity="${pf}" ${gf}/>
-    ${ptcl}`;
+  function pipe(d,on,pipeCol){
+    if(!pipeCol) pipeCol=pc||'#94a3b8';
+    if(!on) return`<path d="${d}" fill="none" stroke="#b0bac8" stroke-width="6" stroke-linecap="round" opacity=".3"/>`;
+    return`<path d="${d}" fill="none" stroke="${pipeCol}" stroke-width="7" stroke-linecap="round" opacity=".3"/>
+    <path d="${d}" fill="none" stroke="${pipeCol}" stroke-width="4" stroke-linecap="round" opacity=".8" stroke-dasharray="7,5">
+      <animate attributeName="stroke-dashoffset" from="24" to="0" dur="0.7s" repeatCount="indefinite"/>
+    </path>`;
   }
 
   const el=document.getElementById('tank-visual-'+m);
@@ -1051,7 +1055,7 @@ function autoTextColor(hex){
 </g>`}
 
     <!-- ══ AGING TANK ══ -->
-    ${drawTank(AGX,TOP,TW,TH,agVol,getTankCapacity(agTank),'Aging '+agTank,agName,sAg,'gag'+m,'cag'+m,sAg.tankCol,sAg.tankCol2,isFlowing)}
+    ${drawTank(AGX,TOP,TW,TH,agVol,getTankCapacity(agTank),'Aging '+agTank,agName,sAg,'gag'+m,'cag'+m,prodColor,prodColor+'88',isFlowing)}
 
     <!-- ══ VERTICAL PIPES from tank bottoms ══ -->
     <!-- T1 bottom → down to horizontal -->
