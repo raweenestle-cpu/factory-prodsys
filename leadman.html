@@ -490,6 +490,90 @@ window.savePrefix = async(n,v) => {
 // ── PLAN ───────────────────────────────────────────────────────────────
 function planCol(m){ return m==="m1"?"production_plans":"production_plans_m2"; }
 
+
+// ── LINE STATUS CARDS ──────────────────────────────────────────────
+let lineStatesData={}, linesData=[], planRowsAll=[], agingStatesData={};
+
+function fmtHr(hr){
+  if(hr<=0) return '< 1m';
+  const h=Math.floor(hr), m=Math.round((hr-h)*60);
+  return h+'h '+(m<10?'0':'')+m+'m';
+}
+function calcRemVol(st,fr){
+  if(!st||!st.running||!st.start_ts) return +(st&&st.start_vol||0);
+  const elapsed=(Date.now()-st.start_ts)/3600000;
+  return Math.max(0,(+(st.start_vol||0))-(elapsed*(fr||300)));
+}
+function calcEndTime(remVol,fr){
+  if(!fr||remVol<=0) return null;
+  const hr=remVol/fr;
+  const end=new Date(Date.now()+hr*3600000);
+  return {hr,label:end.toLocaleDateString('th-TH',{weekday:'short',day:'2-digit',month:'short'})+' '+end.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})};
+}
+
+function renderLineCards(){
+  const el=document.getElementById('line-cards');
+  if(!el||!linesData.length) return;
+  const sorted=linesData.filter(l=>l.name&&l.id).sort((a,b)=>(a.seq||0)-(b.seq||0));
+  const html=sorted.map(line=>{
+    const st=lineStatesData[line.id]||{};
+    const fr=+(st.flow_rate||line.flow_rate||300);
+    const isRunning=!!st.running;
+    const remVol=Math.round(calcRemVol(st,fr));
+    const startVol=+(st.start_vol||0);
+    const pct=startVol>0?Math.min(100,(remVol/startVol)*100):0;
+    const pctCol=pct>40?'#15803d':pct>15?'#b45309':'#b91c1c';
+    const endInfo=isRunning?calcEndTime(remVol,fr):null;
+    const curCode=st.mix_code||'';
+    const curProd=curCode?(productMap&&productMap[curCode])||{}:{};
+    const prodCol=curProd.color||'#374151';
+    const queue=planRowsAll.filter(r=>r.filling_line===line.name&&(r.status==='past_done'||r.status==='ready')&&!r.sent_filling_at);
+    const totalQ=queue.reduce((s,r)=>s+(+(r.volume_liter||0)),0);
+    const stCls=isRunning?'lsc-run':queue.length>0?'lsc-wait':'lsc-idle';
+    const stLbl=isRunning?'<span class="live-d"></span>เดินอยู่':queue.length>0?'⏳ รอ Start':'○ ว่าง';
+    const hrCol=endInfo?(endInfo.hr<2?'var(--red)':endInfo.hr<4?'var(--orange)':'#15803d'):'#374151';
+    const qHtml=queue.length>0
+      ?'<div class="lsc-q"><div class="lsc-qlbl">📦 QUEUE '+totalQ.toLocaleString()+' L</div>'
+        +queue.slice(0,3).map(r=>'<div class="lsc-qrow"><span class="lsc-qcode">'+(r.mix_code||'—')+' B.'+(r.batch_no||'?')+'</span><span class="lsc-qvol">'+(+(r.volume_liter||0)).toLocaleString()+'L</span></div>').join('')
+        +(queue.length>3?'<div style="font-family:var(--mono);font-size:8px;color:var(--t3)">+'+(queue.length-3)+' อีก...</div>':'')
+        +'</div>'
+      :'';
+    return '<div class="lsc">'
+      +'<div class="lsc-head"><span class="lsc-name">🏭 '+line.name+'</span><span class="lsc-st '+stCls+'">'+stLbl+'</span></div>'
+      +(isRunning&&curCode?'<div class="lsc-prod" style="color:'+prodCol+'">'+curCode+'</div>':'')
+      +(isRunning?'<div class="lsc-vol" style="color:'+pctCol+'">'+remVol.toLocaleString()+' <span style="font-size:10px;color:var(--t3)">L</span></div>'
+        +'<div class="lsc-vbar"><div class="lsc-vfill" style="width:'+pct+'%;background:'+pctCol+'"></div></div>'
+        +'<div class="lsc-row"><span class="lsc-lbl">เหลือเดิน</span><span class="lsc-val" style="color:'+hrCol+'">'+(endInfo?fmtHr(endInfo.hr):'—')+'</span></div>'
+        +'<div class="lsc-row"><span class="lsc-lbl">เสร็จ ~</span><span class="lsc-val" style="font-size:9px">'+(endInfo?endInfo.label:'—')+'</span></div>'
+        :'')
+      +qHtml
+      +(!isRunning&&!queue.length?'<div style="font-family:var(--mono);font-size:10px;color:var(--t3);text-align:center;padding:8px 0">— ไม่มีผลิต —</div>':'')
+      +'</div>';
+  }).join('');
+  el.innerHTML=html;
+}
+
+onSnapshot(collection(db,'lines'),snap=>{
+  linesData=snap.docs.map(d=>({id:d.id,...d.data()}));
+  renderLineCards();
+});
+onSnapshot(collection(db,'cip_line_states'),snap=>{
+  lineStatesData={};
+  snap.docs.forEach(d=>{lineStatesData[d.id]={id:d.id,...d.data()};});
+  renderLineCards();
+});
+onSnapshot(collection(db,'production_plans'),snap=>{
+  const m1=snap.docs.map(d=>({id:d.id,_col:'production_plans',...d.data()}));
+  planRowsAll=planRowsAll.filter(r=>r._col!=='production_plans').concat(m1);
+  renderLineCards();
+});
+onSnapshot(collection(db,'production_plans_m2'),snap=>{
+  const m2=snap.docs.map(d=>({id:d.id,_col:'production_plans_m2',...d.data()}));
+  planRowsAll=planRowsAll.filter(r=>r._col!=='production_plans_m2').concat(m2);
+  renderLineCards();
+});
+setInterval(renderLineCards,30000);
+
 window.loadPlan = (m) => {
   const d = $(m==="m1"?"date-m1":"date-m2").value || today();
   if(unsub[m]) unsub[m]();
