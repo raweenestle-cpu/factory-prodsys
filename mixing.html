@@ -811,7 +811,7 @@ function renderPlan(m){
       <td>
         <div style="display:flex;align-items:center;gap:3px">
           <input class="act-input" style="border-color:var(--b1)" type="number" step="0.1" value="${row.glc_actual||""}" placeholder="0"
-            onchange="saveActual('${col}','${row.id}','glc_actual',this.value,'${m}')">
+            onblur="saveActual('${col}','${row.id}','glc_actual',this.value,'${m}')">
           ${row.glc_comment?`<span title="${row.glc_comment}" style="cursor:help;font-size:12px">⚠️</span>`:""}
         </div>
       </td>
@@ -820,8 +820,8 @@ function renderPlan(m){
       </td>
       <td>
         <div style="display:flex;align-items:center;gap:3px">
-          <input class="act-input" style="background:var(--s2);border-color:var(--b1);color:var(--text)" type="number" step="0.1" value="${row.sgr_actual||""}" placeholder="0"
-            onchange="saveActual('${col}','${row.id}','sgr_actual',this.value,'${m}')">
+          <input class="act-input" style="background:#fff;border-color:var(--b1);color:var(--text)" type="number" step="0.1" value="${row.sgr_actual||""}" placeholder="0"
+            onblur="saveActual('${col}','${row.id}','sgr_actual',this.value,'${m}')">
           ${row.sgr_comment?`<span title="${row.sgr_comment}" style="cursor:help;font-size:12px">⚠️</span>`:""}
         </div>
       </td>
@@ -830,8 +830,8 @@ function renderPlan(m){
       </td>
       <td>
         <div style="display:flex;align-items:center;gap:3px">
-          <input class="act-input" style="background:var(--s2);border-color:var(--b1);color:var(--text)" type="number" step="0.1" value="${row.plm_actual||""}" placeholder="0"
-            onchange="saveActual('${col}','${row.id}','plm_actual',this.value,'${m}')">
+          <input class="act-input" style="background:#fff;border-color:var(--b1);color:var(--text)" type="number" step="0.1" value="${row.plm_actual||""}" placeholder="0"
+            onblur="saveActual('${col}','${row.id}','plm_actual',this.value,'${m}')">
           ${row.plm_comment?`<span title="${row.plm_comment}" style="cursor:help;font-size:12px">⚠️</span>`:""}
           
         </div>
@@ -839,15 +839,15 @@ function renderPlan(m){
       <!-- OIL MIX -->
       <td><span style="font-family:var(--mono);font-size:11px;color:var(--text);padding:2px 6px;min-width:60px;display:inline-block;text-align:right">${row.oil_mix_set||"—"}</span></td>
       <td><div style="display:flex;align-items:center;gap:3px">
-        <input class="act-input" style="background:var(--s2);border-color:var(--b1);color:var(--text)" type="number" step="0.1" value="${row.oil_mix_actual||""}" placeholder="0"
-          onchange="saveActual('${col}','${row.id}','oil_mix_actual',this.value,'${m}')">
+        <input class="act-input" style="background:#fff;border-color:var(--b1);color:var(--text)" type="number" step="0.1" value="${row.oil_mix_actual||""}" placeholder="0"
+          onblur="saveActual('${col}','${row.id}','oil_mix_actual',this.value,'${m}')">
         
       </div></td>
       <!-- FAT MILK -->
       <td><span style="font-family:var(--mono);font-size:11px;color:var(--text);padding:2px 6px;min-width:60px;display:inline-block;text-align:right">${row.fat_milk_set||"—"}</span></td>
       <td><div style="display:flex;align-items:center;gap:3px">
-        <input class="act-input" style="background:var(--s2);border-color:var(--b1);color:var(--text)" type="number" step="0.1" value="${row.fat_milk_actual||""}" placeholder="0"
-          onchange="saveActual('${col}','${row.id}','fat_milk_actual',this.value,'${m}')">
+        <input class="act-input" style="background:#fff;border-color:var(--b1);color:var(--text)" type="number" step="0.1" value="${row.fat_milk_actual||""}" placeholder="0"
+          onblur="saveActual('${col}','${row.id}','fat_milk_actual',this.value,'${m}')">
         
       </div></td>
       <!-- SIGNATURE -->
