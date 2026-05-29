@@ -58,7 +58,7 @@ td.sep{border-right:2px solid var(--b1)}
 #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);padding:9px 20px;border-radius:9px;font-size:12px;opacity:0;transition:all .3s;z-index:9999;pointer-events:none;font-family:var(--mono);color:#fff;font-weight:700}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
-.shift-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;padding:16px 0 20px;border-bottom:2px solid var(--b1);margin-bottom:16px}
+.shift-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;padding:16px 16px 16px;border-bottom:2px solid var(--b1);margin-bottom:0}
 .ss-card{background:#fff;border:1.5px solid var(--b1);border-radius:14px;padding:16px 20px;box-shadow:0 2px 8px rgba(0,0,0,.07)}
 .ss-title{font-family:var(--mono);font-size:13px;font-weight:900;color:var(--t2);margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid var(--s2);letter-spacing:.04em}
 .ss-morning{border-top:4px solid #f59e0b}
@@ -93,28 +93,8 @@ td.sep{border-right:2px solid var(--b1)}
 </style>
 </head>
 <body>
-<nav>
-  <div class="nav-logo">CIP MIXING</div>
-  <div class="nav-r">
-    <span id="nav-user" style="font-family:var(--mono);font-size:11px;color:var(--t2)"></span>
-    <a href="index.html" class="nbtn">Home</a>
-    <button class="nbtn" onclick="doLogout()">ออก</button>
-  </div>
-</nav>
-<main>
-<div class="date-row">
-  <input type="date" class="date-input" id="inp-date">
-  <button class="load-btn" onclick="loadAll()">🔄 โหลด</button>
-  <span id="emp-name" style="font-family:var(--mono);font-size:11px;color:var(--t2)"></span>
-</div>
-<div class="sum-row" id="sum-row"></div>
-<div class="tabs">
-  <button class="tab on" id="tab-m1" onclick="showTab('m1',this)">🔴 Mixing 1</button>
-  <button class="tab" id="tab-m2" onclick="showTab('m2',this)">🔴 Mixing 2</button>
-  <button class="tab" id="tab-temp" onclick="showTab('temp',this)">🌡️ อุณหภูมิถัง</button>
-  <button class="tab" id="tab-rec" onclick="showTab('rec',this)">📋 CIP Records</button>
-</div>
-<div class="page on" id="page-m1">
+
+<div style="padding:0 0 4px">
   <div class="shift-summary" id="shift-summary">
     <!-- กะเช้า -->
     <div class="ss-card ss-morning">
@@ -159,6 +139,29 @@ td.sep{border-right:2px solid var(--b1)}
       </div>
     </div>
   </div>
+</div>
+<nav>
+  <div class="nav-logo">CIP MIXING</div>
+  <div class="nav-r">
+    <span id="nav-user" style="font-family:var(--mono);font-size:11px;color:var(--t2)"></span>
+    <a href="index.html" class="nbtn">Home</a>
+    <button class="nbtn" onclick="doLogout()">ออก</button>
+  </div>
+</nav>
+<main>
+<div class="date-row">
+  <input type="date" class="date-input" id="inp-date">
+  <button class="load-btn" onclick="loadAll()">🔄 โหลด</button>
+  <span id="emp-name" style="font-family:var(--mono);font-size:11px;color:var(--t2)"></span>
+</div>
+<div class="sum-row" id="sum-row"></div>
+<div class="tabs">
+  <button class="tab on" id="tab-m1" onclick="showTab('m1',this)">🔴 Mixing 1</button>
+  <button class="tab" id="tab-m2" onclick="showTab('m2',this)">🔴 Mixing 2</button>
+  <button class="tab" id="tab-temp" onclick="showTab('temp',this)">🌡️ อุณหภูมิถัง</button>
+  <button class="tab" id="tab-rec" onclick="showTab('rec',this)">📋 CIP Records</button>
+</div>
+<div class="page on" id="page-m1">
 
   <div class="tw"><table><thead><tr><th>#</th><th>Mix Code</th><th>Mix Name</th><th>Batch</th><th>Vol รวม</th><th>LINE</th><th>Aging Tank</th><th>CIP Group</th><th>เวลา</th><th>Action</th></tr></thead><tbody id="m1-tbody"></tbody></table></div>
 </div>
