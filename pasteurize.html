@@ -1132,7 +1132,7 @@ function autoTextColor(hex){
       const totalVol=agRow.process_order?allRows.filter(r=>r.process_order===agRow.process_order).reduce((s,r)=>s+(+(r.volume_liter||0)),0):+(agRow.volume_liter||0);
       const totalKg=Math.round(totalVol*dens);
       return`<foreignObject x="750" y="10" width="295" height="310">
-        <div xmlns="http://www.w3.org/1999/xhtml" style="background:linear-gradient(135deg,#0d1f35,#0a1628);border:1.5px solid #1e3a5f;border-radius:12px;padding:14px 18px;font-family:DM Mono,monospace;font-size:13px;color:var(--text);box-sizing:border-box;">
+        <div xmlns="http://www.w3.org/1999/xhtml" style="background:#fff;border:1.5px solid var(--b1);border-radius:12px;padding:14px 18px;font-family:DM Mono,monospace;font-size:13px;color:var(--text);box-sizing:border-box;">
           <div style="color:#60a5fa;font-weight:700;border-bottom:2px solid var(--b1);padding-bottom:6px;margin-bottom:10px;font-size:13px;">🧊 กำลัง PASTEURISE</div>
           <div style="display:flex;justify-content:space-between;margin:7px 0"><span>Mix Name</span><span style="font-weight:700">${agRow.mix_name||'—'}</span></div>
           <div style="display:flex;justify-content:space-between;margin:7px 0"><span>Batch</span><span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:#1e3a5f;border:2px solid #3b82f6;font-weight:700">${(agRow.batch_no||'—').toString().split('/')[0]}</span></div>
