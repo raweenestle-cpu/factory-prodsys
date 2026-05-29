@@ -768,6 +768,8 @@ function renderTankVisual(m,rows){
 
   const t1Total=+(t1Row?.volume_liter||0);
   const t2Total=+(t2Row?.volume_liter||0);
+  const t1TankId=t1Row?.mixing_tank||'Mixing 1';
+  const t2TankId=t2Row?.mixing_tank||'Mixing 2';
   const t1Status=t1Row?.status||'';
   const t2Status=t2Row?.status||'';
 
@@ -1032,7 +1034,8 @@ function autoTextColor(hex){
 
     <!-- ══ MIX TANK 1 ══ -->
     ${mx1.show?(()=>{const p1=productMap[t1Row?.mix_code||'']||{};const c1=t1Done?'#374151':(p1.color||s1.tankCol);const c1d=c1+'88';return drawTank(T1X,TOP,TW,TH,mx1.vol,t1Total,'Mixing 1',(t1Row?.mix_name||'—').slice(0,12),s1,'g1t'+m,'c1t'+m,c1,c1d,mx1.wave);})():`<g transform="translate(${T1X},${TOP})">
-  <text x="${TW/2}" y="-32" text-anchor="middle" font-family="DM Mono,monospace" font-size="14" fill="${autoTextColor(c1)}" font-weight="800">Mixing 1</text>
+  <rect x="2" y="-42" width="${TW-4}" height="20" rx="10" fill="${c1}22" stroke="${c1}66" stroke-width="1.5"/>
+  <text x="${TW/2}" y="-28" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="${c1}" font-weight="900">Mixing ${t1TankId}</text>
   <rect x="2" y="4" width="${TW}" height="${TH}" rx="10" fill="rgba(176,186,200,.1)"/>
   <rect x="0" y="0" width="${TW}" height="${TH}" rx="10" fill="rgba(176,186,200,.2)" stroke="#94a3b8" stroke-width="2"/>
   <rect x="${TW/2-13}" y="-10" width="26" height="12" rx="3" fill="rgba(176,186,200,.2)" stroke="#94a3b8" stroke-width="1.5"/>
@@ -1044,7 +1047,8 @@ function autoTextColor(hex){
 
     <!-- ══ MIX TANK 2 ══ -->
     ${mx2.show?(()=>{const p2=productMap[t2Row?.mix_code||'']||{};const c2=t2Done?'#374151':(p2.color||s2.tankCol);const c2d=c2+'88';return drawTank(T2X,TOP,TW,TH,mx2.vol,t2Total,'Mixing 2',(t2Row?.mix_name||'—').slice(0,12),s2,'g2t'+m,'c2t'+m,c2,c2d,mx2.wave);})():`<g transform="translate(${T2X},${TOP})">
-  <text x="${TW/2}" y="-32" text-anchor="middle" font-family="DM Mono,monospace" font-size="14" fill="${autoTextColor(c2)}" font-weight="800">Mixing 2</text>
+  <rect x="2" y="-42" width="${TW-4}" height="20" rx="10" fill="${c2}22" stroke="${c2}66" stroke-width="1.5"/>
+  <text x="${TW/2}" y="-28" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="${c2}" font-weight="900">Mixing ${t2TankId}</text>
   <rect x="2" y="4" width="${TW}" height="${TH}" rx="10" fill="rgba(176,186,200,.1)"/>
   <rect x="0" y="0" width="${TW}" height="${TH}" rx="10" fill="rgba(176,186,200,.2)" stroke="#94a3b8" stroke-width="2"/>
   <rect x="${TW/2-13}" y="-10" width="26" height="12" rx="3" fill="rgba(176,186,200,.2)" stroke="#94a3b8" stroke-width="1.5"/>
@@ -1075,8 +1079,8 @@ function autoTextColor(hex){
     ${t1Active?pipe(`M ${T1CX},${HPIPE} L ${PUMPX-22},${HPIPE}`,true):''}
     ${t2Active?pipe(`M ${T2CX},${HPIPE} L ${PUMPX-22},${HPIPE}`,true):''}
     <!-- เส้นที่ไม่ active แสดงเป็นเทา -->
-    ${!t1Active?`<path d="M ${T1CX},${HPIPE} L ${PUMPX-22},${HPIPE}" fill="none" stroke="#1e2535" stroke-width="6" stroke-linecap="round"/>`:'' }
-    ${!t2Active?`<path d="M ${T2CX},${HPIPE} L ${PUMPX-22},${HPIPE}" fill="none" stroke="#1e2535" stroke-width="6" stroke-linecap="round"/>`:'' }
+    ${!t1Active?`<path d="M ${T1CX},${HPIPE} L ${PUMPX-22},${HPIPE}" fill="none" stroke="#b0bac8" stroke-width="6" stroke-linecap="round"/>`:'' }
+    ${!t2Active?`<path d="M ${T2CX},${HPIPE} L ${PUMPX-22},${HPIPE}" fill="none" stroke="#b0bac8" stroke-width="6" stroke-linecap="round"/>`:'' }
     <!-- ══ PUMP ══ -->
     ${pump(PUMPX,PUMPY,isFlowing)}
     <text x="${PUMPX}" y="${PUMPY+36}" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" font-weight="700" fill="${isFlowing?ac:'#3d4560'}">PUMP</text>
