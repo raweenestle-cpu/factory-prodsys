@@ -184,7 +184,7 @@ const db=getFirestore(app);
 const $=id=>document.getElementById(id);
 
 // State
-let planRows=[],tankStates={},agingStates={},lines=[],productMap={};
+let planRows=[],tankStates={},lines=[],productMap={};
 let selectedTank=null;
 const tankTemps={};
 
@@ -273,7 +273,6 @@ function renderBangchan(){
     .sort((a,b)=>(a.seq||0)-(b.seq||0));
   const assigned=grpLines.flatMap(l=>l.aging_tanks||[]);
   const unassigned=BC_TANKS.filter(t=>!assigned.includes(t));
-  // ถ้า lines ไม่มี aging_tanks เลย → แสดง BC ทั้งหมด
   let groups=[];
   if(!grpLines.length){
     groups=[{name:'Bangchan (ทั้งหมด)',tanks:BC_TANKS}];
@@ -351,7 +350,7 @@ function makeTankCard(tankId){
       +(activeRow.date?'<div class="tdr"><span class="tdl">วันผลิต</span><span class="tdv">'+activeRow.date.slice(5)+'</span></div>':'')
       +(activeRow.past_start_time?'<div class="tdr"><span class="tdl">เริ่ม Past.</span><span class="tdv">'+activeRow.past_start_time+'</span></div>':'')
       +(activeRow.past_end_time?'<div class="tdr"><span class="tdl">Past.เสร็จ</span><span class="tdv">'+activeRow.past_end_time+'</span></div>':'')
-      +(agingStates[tankId]&&agingStates[tankId].expire_at?expireBox(agingStates[tankId].expire_at):exp2?'<div style="font-family:DM Mono,monospace;font-size:11px;color:'+expC+'">⏰ '+exp2+'</div>':'');
+      +(tankStates[tankId]&&tankStates[tankId].expire_at?expireBox(tankStates[tankId].expire_at):exp2?'<div style="font-family:DM Mono,monospace;font-size:11px;color:'+expC+'">⏰ '+exp2+'</div>':'');
   }
 
   // Temp selector
