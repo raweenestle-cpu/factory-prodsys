@@ -86,6 +86,10 @@ td.sep{border-right:2px solid var(--b1)}
 #temp-table-wrap td.sticky-col2{position:sticky;left:60px;z-index:3;background:#fff;border-right:2px solid var(--b1)}
 #temp-table-wrap thead th.sticky-col,
 #temp-table-wrap thead th.sticky-col2{z-index:4;background:var(--s2)}
+
+.f-btn{font-family:var(--mono);font-size:10px;font-weight:800;padding:5px 12px;border-radius:7px;border:1.5px solid var(--b1);background:var(--s2);color:var(--t2);cursor:pointer}
+.f-btn.on{background:var(--blue2,#1d4ed8);color:#fff;border-color:var(--blue2,#1d4ed8)}
+.rec-table-row:hover{background:var(--s1)}
 </style>
 </head>
 <body>
@@ -108,6 +112,7 @@ td.sep{border-right:2px solid var(--b1)}
   <button class="tab on" id="tab-m1" onclick="showTab('m1',this)">🔴 Mixing 1</button>
   <button class="tab" id="tab-m2" onclick="showTab('m2',this)">🔴 Mixing 2</button>
   <button class="tab" id="tab-temp" onclick="showTab('temp',this)">🌡️ อุณหภูมิถัง</button>
+  <button class="tab" id="tab-rec" onclick="showTab('rec',this)">📋 CIP Records</button>
 </div>
 <div class="page on" id="page-m1">
   <div class="shift-summary" id="shift-summary">
@@ -253,9 +258,157 @@ function fmtDay(d,idx){return 'วันที่ '+(idx+1);}
 function renderTemp(){const cr=getNowRound();const nr=getNextRound(cr);const days=getDays();const td=today();$('cur-round').textContent='รอบปัจจุบัน: '+cr;$('next-round').textContent='ถัดไป: '+nr;const active=Object.values(tankStates).filter(t=>t.status&&!['empty','san_done'].includes(t.status));$('tank-count').textContent='มีของ: '+active.length+' ถัง';if(!active.length){$('temp-table').innerHTML='<tr><td style="text-align:center;padding:30px;color:var(--t3)">ไม่มีถังที่มีของ</td></tr>';return;}let h='<thead><tr><th class="th-fix" rowspan="2">ถัง</th><th class="th-fix" rowspan="2" style="min-width:130px;position:sticky;left:80px;z-index:4;border-right:2px solid var(--b1)">สินค้า</th>';days.forEach((d,i)=>{const isT=d===td;h+='<th class="th-date'+(isT?' today':'')+'" colspan="6">'+fmtDay(d,i)+(isT?' ★':'')+'</th>';});h+='</tr><tr>';days.forEach(d=>{TEMP_TIMES.forEach((t,ti)=>{const isN=d===td&&t===cr;const sep=ti===5?'border-right:2px solid var(--b1)':'';h+='<th class="th-time'+(isN?' now-col':'')+'" style="'+sep+'">'+t+'</th>';});});h+='</tr></thead><tbody>';active.sort((a,b)=>a.id.localeCompare(b.id)).forEach(tank=>{const sc=ST[tank.status]||ST.empty;h+='<tr><td class="sep" style="position:sticky;left:0;z-index:3;background:#fff"><div style="display:flex;align-items:center;gap:5px"><span class="st-dot" style="background:'+sc.color+'"></span><span style="font-family:var(--mono);font-weight:900;color:'+sc.color+'">'+tank.id+'</span></div></td><td class="sep" style="position:sticky;left:80px;z-index:3;background:#fff;border-right:2px solid var(--b1)"><div class="badge badge-cyan" style="margin-bottom:2px">'+(tank.mix_code||'—')+'</div><div style="font-size:11px;color:var(--t2)">'+(tank.mix_name||'—')+'</div></td>';days.forEach(d=>{TEMP_TIMES.forEach((t,ti)=>{const isN=d===td&&t===cr;const isPast=d<td||(d===td&&t<=cr);const sep=ti===5?'border-right:2px solid var(--b1)':'';const key=d+'_'+t.replace(':','');const val=tank.temps?tank.temps[key]:null;const filled=val!==null&&val!==undefined&&val!=='';const newTemp2=filled?+val:0;const maxT2=tank.max_temp!=null?+tank.max_temp:-1;const isHot=filled&&newTemp2>maxT2;const cls='ti'+(filled?(isHot?' hot':' ok'):'')+(isN&&!filled?' cur-slot':'');const selOpts='<option value="">'+(filled?'':'—')+'</option>'+[0,1,2,3,4,5,6,7,8,9,10].map(v=>'<option value="'+v+'"'+(filled&&+val===v?' selected':'')+'>'+v+'°</option>').join('');h+='<td style="'+(isN?'background:rgba(29,78,216,.03)':'')+sep+'"><select class="'+cls+'"'+(isPast?'':' disabled')+' onchange="setTempVal(\''+tank.id+'\',\''+key+'\',this.value)">'+selOpts+'</select></td>';});});h+='</tr>';});h+='</tbody>';$('temp-table').innerHTML=h;}
 window.setTempVal=async(tid,key,val)=>{if(!val||isNaN(+val))return;const newTemp=+val;const ts=tankStates[tid]||{};try{const upd={updated_at:new Date().toISOString()};upd['temps.'+key]=newTemp;const oldMax=ts.max_temp!=null?+ts.max_temp:-1;if(newTemp>oldMax){upd.max_temp=newTemp;const pType=ts.product_type||'Ice Cream';const shelfHr=SHELF[pType]?SHELF[pType][Math.max(0,Math.min(10,Math.round(newTemp)))]:96;const pastEnd=ts.past_end_time||null;if(pastEnd){const ed=new Date(pastEnd);ed.setHours(ed.getHours()+shelfHr);upd.expire_at=ed.toISOString();upd.shelf_hr=shelfHr;}toast('⬆️ อุณหภูมิสูงขึ้น '+newTemp+'°C — คำนวณ Expire ใหม่','red');}await setDoc(doc(db,'aging_tank_states',tid),upd,{merge:true});}catch(e){console.warn(e);}};
 window.saveTemp=async()=>{const cr=getNowRound();const td=today();const key=td+'_'+cr.replace(':','');const active=Object.values(tankStates).filter(t=>t.status&&!['empty','san_done'].includes(t.status));const miss=active.filter(t=>!t.temps||t.temps[key]===null||t.temps[key]===undefined||t.temps[key]==='');if(miss.length)return toast('⚠️ ยังไม่กรอก: '+miss.map(t=>t.id).join(', '),'red');toast('✅ บันทึกอุณหภูมิรอบ '+cr+' สำเร็จ','green');};
-window.showTab=(id,btn)=>{document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));btn.classList.add('on');document.getElementById('page-'+id).classList.add('on');curTab=id;if(id==='m1')renderPlans('m1');else if(id==='m2')renderPlans('m2');else if(id==='temp')renderTemp();};
+
+// ── CIP RECORDS ────────────────────────────────────────────────────
+let _recData = [];
+let _recFilter = 'all';
+
+function _buildRecords(){
+  _recData = [];
+  const today = new Date().toISOString().split('T')[0];
+  Object.values(tankStates).forEach(ts=>{
+    const tid = ts.id;
+    // CIP record — ดึง mix info จาก cip_line_states (cipman กดจบการผลิต)
+    if(ts.cip_start_time){
+      // หา line ที่ใช้ถังนี้ล่าสุดจาก lineStatesForRec
+      const lineInfo = _getLineInfoForTank(tid,'cip');
+      _recData.push({
+        id: tid+'_cip',
+        type: 'cip',
+        tank: tid,
+        start: ts.cip_start_time||'—',
+        stop: ts.cip_stop_time||null,
+        mix_code: lineInfo.mix_code||'—',
+        mix_name: lineInfo.mix_name||'—',
+        vol: lineInfo.vol||0,
+        line: lineInfo.line||'—',
+        src: 'cipman',
+        sign: ts.cip_sign||null,
+        sort_key: ts.cip_start_time||'',
+      });
+    }
+    // Sanitize record — ดึง mix info จาก production_plans leadman (batch ถัดไป)
+    if(ts.san_start_time){
+      const nextInfo = _getNextPlanForTank(tid);
+      _recData.push({
+        id: tid+'_san',
+        type: 'san',
+        tank: tid,
+        start: ts.san_start_time||'—',
+        stop: ts.san_stop_time||null,
+        mix_code: nextInfo.mix_code||'—',
+        mix_name: nextInfo.mix_name||'—',
+        vol: nextInfo.vol||0,
+        line: nextInfo.line||'—',
+        src: 'leadman',
+        sign: ts.san_sign||null,
+        sort_key: ts.san_start_time||'',
+      });
+    }
+  });
+  _recData.sort((a,b)=>b.sort_key.localeCompare(a.sort_key));
+}
+
+function _getLineInfoForTank(tid, type){
+  // หาจาก cip_line_states ที่มี aging_tank ตรงกัน
+  const lineState = Object.values(lineStatesForRec||{}).find(ls=>ls.aging_tank===tid||ls.last_aging_tank===tid);
+  if(lineState) return {
+    mix_code: lineState.mix_code||lineState.last_mix_code||'—',
+    mix_name: lineState.mix_name||lineState.last_mix_name||'—',
+    vol: +(lineState.start_vol||lineState.last_vol||0),
+    line: lineState.line_name||lineState.id||'—',
+  };
+  return {};
+}
+
+function _getNextPlanForTank(tid){
+  // หาจาก production_plans ที่ aging_tank ตรงกันและยังรอผลิต
+  const allRows = [...(planRows.m1||[]),...(planRows.m2||[])];
+  const next = allRows.find(r=>r.aging_tank===tid&&(r.status==='pending'||r.status==='ready'));
+  if(next) return {
+    mix_code: next.mix_code||'—',
+    mix_name: next.mix_name||'—',
+    vol: +(next.volume_liter||0),
+    line: next.filling_line||'—',
+  };
+  return {};
+}
+
+let lineStatesForRec = {};
+onSnapshot(collection(db,'cip_line_states'),snap=>{
+  lineStatesForRec={};
+  snap.docs.forEach(d=>{lineStatesForRec[d.id]={id:d.id,...d.data()};});
+  if(curTab==='rec') renderRecords();
+});
+
+function renderRecords(){
+  _buildRecords();
+  const filtered = _recFilter==='all' ? _recData : _recData.filter(r=>r.type===_recFilter);
+  document.getElementById('rec-count').textContent = filtered.length + ' records';
+  document.getElementById('rec-body').innerHTML = filtered.map(r=>{
+    const typeBadge = r.type==='cip'
+      ? '<span style="font-family:var(--mono);font-size:10px;font-weight:900;padding:3px 10px;border-radius:6px;background:rgba(29,78,216,.1);color:#1d4ed8;border:1px solid rgba(29,78,216,.25)">CIP</span>'
+      : '<span style="font-family:var(--mono);font-size:10px;font-weight:900;padding:3px 10px;border-radius:6px;background:rgba(21,128,61,.1);color:#15803d;border:1px solid rgba(21,128,61,.25)">Sanitize</span>';
+    const srcTag = r.src==='cipman'
+      ? '<span style="font-family:var(--mono);font-size:9px;font-weight:800;padding:2px 6px;border-radius:4px;background:rgba(14,116,144,.1);color:#0e7490">cipman</span>'
+      : '<span style="font-family:var(--mono);font-size:9px;font-weight:800;padding:2px 6px;border-radius:4px;background:rgba(180,83,9,.1);color:#b45309">leadman</span>';
+    const stopCell = r.stop||'<span style="font-size:10px;color:var(--orange)">กำลังทำ...</span>';
+    const signCell = r.sign
+      ? '<span style="font-family:var(--mono);font-size:12px;font-weight:800;color:#15803d">✅ '+r.sign+'</span>'
+      : '<button style="font-size:16px;cursor:pointer;opacity:.45;background:none;border:none;padding:2px 4px" title="ยังไม่เปิดใช้">✏️</button>';
+    return '<tr style="border-bottom:1px solid var(--s2)">'
+      +'<td style="padding:9px 12px;white-space:nowrap;color:var(--t2)">'+r.start+'</td>'
+      +'<td style="padding:9px 12px;white-space:nowrap;color:var(--t2)">'+stopCell+'</td>'
+      +'<td style="padding:9px 12px">'+typeBadge+'</td>'
+      +'<td style="padding:9px 12px;font-weight:900">'+r.tank+'</td>'
+      +'<td style="padding:9px 12px;font-weight:900;color:#0e7490">'+r.mix_code+'</td>'
+      +'<td style="padding:9px 12px;color:var(--t2)">'+r.mix_name+'</td>'
+      +'<td style="padding:9px 12px;font-weight:900;color:#0e7490">'+(r.vol>0?r.vol.toLocaleString()+' L':'—')+'</td>'
+      +'<td style="padding:9px 12px;font-weight:800;color:#c2410c">'+r.line+'</td>'
+      +'<td style="padding:9px 12px">'+srcTag+'</td>'
+      +'<td style="padding:9px 12px">'+signCell+'</td>'
+      +'</tr>';
+  }).join('');
+}
+
+window._recFilter = function(f, btn){
+  _recFilter = f;
+  document.querySelectorAll('.f-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  renderRecords();
+};
+
+window.showTab=(id,btn)=>{document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));btn.classList.add('on');document.getElementById('page-'+id).classList.add('on');curTab=id;if(id==='m1')renderPlans('m1');else if(id==='m2')renderPlans('m2');else if(id==='temp')renderTemp();else if(id==='rec')renderRecords();};
 function toast(msg,col='blue'){const el=$('toast');el.textContent=msg;el.style.background=col==='green'?'#15803d':col==='red'?'#991b1b':'#1d4ed8';el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2500);}
 window.doLogout=async()=>{await signOut(auth);location.href='index.html';};
 </script>
+
+<div class="page" id="page-rec">
+  <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center">
+    <button class="f-btn on" id="rbf-all" onclick="_recFilter('all',this)">ทั้งหมด</button>
+    <button class="f-btn" id="rbf-cip" onclick="_recFilter('cip',this)">CIP เท่านั้น</button>
+    <button class="f-btn" id="rbf-san" onclick="_recFilter('san',this)">Sanitize เท่านั้น</button>
+    <span id="rec-count" style="font-family:var(--mono);font-size:10px;color:var(--t3);margin-left:auto"></span>
+  </div>
+  <div style="overflow-x:auto">
+    <table style="width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12px" id="rec-table">
+      <thead>
+        <tr>
+          <th style="background:var(--s2);padding:10px 12px;text-align:left;font-weight:800;font-size:11px;color:var(--t2);border-bottom:2px solid var(--b1);white-space:nowrap">Start</th>
+          <th style="background:var(--s2);padding:10px 12px;text-align:left;font-weight:800;font-size:11px;color:var(--t2);border-bottom:2px solid var(--b1);white-space:nowrap">Stop</th>
+          <th style="background:var(--s2);padding:10px 12px;text-align:left;font-weight:800;font-size:11px;color:var(--t2);border-bottom:2px solid var(--b1);white-space:nowrap">ประเภท</th>
+          <th style="background:var(--s2);padding:10px 12px;text-align:left;font-weight:800;font-size:11px;color:var(--t2);border-bottom:2px solid var(--b1);white-space:nowrap">ถัง</th>
+          <th style="background:var(--s2);padding:10px 12px;text-align:left;font-weight:800;font-size:11px;color:var(--t2);border-bottom:2px solid var(--b1);white-space:nowrap">Mix Code</th>
+          <th style="background:var(--s2);padding:10px 12px;text-align:left;font-weight:800;font-size:11px;color:var(--t2);border-bottom:2px solid var(--b1);white-space:nowrap">Mix Name</th>
+          <th style="background:var(--s2);padding:10px 12px;text-align:left;font-weight:800;font-size:11px;color:var(--t2);border-bottom:2px solid var(--b1);white-space:nowrap">Volume</th>
+          <th style="background:var(--s2);padding:10px 12px;text-align:left;font-weight:800;font-size:11px;color:var(--t2);border-bottom:2px solid var(--b1);white-space:nowrap">Line</th>
+          <th style="background:var(--s2);padding:10px 12px;text-align:left;font-weight:800;font-size:11px;color:var(--t2);border-bottom:2px solid var(--b1);white-space:nowrap">แหล่งข้อมูล</th>
+          <th style="background:var(--s2);padding:10px 12px;text-align:left;font-weight:800;font-size:11px;color:var(--t2);border-bottom:2px solid var(--b1);white-space:nowrap">✏️ ลายเซ็น</th>
+        </tr>
+      </thead>
+      <tbody id="rec-body"></tbody>
+    </table>
+  </div>
+</div>
 </body>
 </html>
