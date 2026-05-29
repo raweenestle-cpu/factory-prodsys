@@ -46,7 +46,6 @@ nav{display:flex;align-items:center;height:52px;background:var(--s1);border-bott
 .page.on{display:block}
 
 /* KPI */
-.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
 .kpi{background:var(--s1);border:1px solid var(--b1);border-radius:10px;padding:12px 14px}
 .kpi-label{font-size:10px;color:var(--t3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
 .kpi-val{font-size:22px;font-weight:700;font-family:var(--mono)}
@@ -179,8 +178,7 @@ tbody td{padding:5px 6px;vertical-align:middle;font-weight:600}
   .btn{min-height:40px;font-size:13px}
 
   /* KPI */
-  .kpi-row{grid-template-columns:repeat(2,1fr)!important;gap:8px}
-}
+  }
 
 @keyframes statusPulse{0%,100%{opacity:1}50%{opacity:.45}}
 .status-blink{animation:statusPulse 1.4s ease-in-out infinite}
@@ -241,11 +239,7 @@ tbody td{padding:5px 6px;vertical-align:middle;font-weight:600}
       <button class="btn btn-b btn-s" onclick="addRow('m1');addRow('m1')">+ Add Row</button>
     </div>
   </div>
-  <div class="kpi-row">
-    <div class="kpi"><div class="kpi-label">Batches</div><div class="kpi-val" id="m1-total" style="color:var(--blue2)">0</div></div>
-    <div class="kpi"><div class="kpi-label">Volume</div><div class="kpi-val" id="m1-vol" style="color:var(--cyan)">0 L</div></div>
-    <div class="kpi"><div class="kpi-label">Mixing</div><div class="kpi-val" id="m1-mixing" style="color:var(--yellow)">0</div></div>
-    <div class="kpi"><div class="kpi-label">Done</div><div class="kpi-val" id="m1-done" style="color:var(--green)">0</div></div>
+
   </div>
   <div class="tw">
     <table>
@@ -301,11 +295,7 @@ tbody td{padding:5px 6px;vertical-align:middle;font-weight:600}
       <button class="btn btn-b btn-s" onclick="addRow('m2');addRow('m2')">+ Add Row</button>
     </div>
   </div>
-  <div class="kpi-row">
-    <div class="kpi"><div class="kpi-label">Batches</div><div class="kpi-val" id="m2-total" style="color:var(--blue2)">0</div></div>
-    <div class="kpi"><div class="kpi-label">Volume</div><div class="kpi-val" id="m2-vol" style="color:var(--cyan)">0 L</div></div>
-    <div class="kpi"><div class="kpi-label">Mixing</div><div class="kpi-val" id="m2-mixing" style="color:var(--yellow)">0</div></div>
-    <div class="kpi"><div class="kpi-label">Done</div><div class="kpi-val" id="m2-done" style="color:var(--green)">0</div></div>
+
   </div>
   <div class="tw">
     <table>
