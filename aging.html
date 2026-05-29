@@ -184,7 +184,7 @@ const db=getFirestore(app);
 const $=id=>document.getElementById(id);
 
 // State
-let planRows=[],tankStates={},lines=[],productMap={};
+let planRows=[],tankStates={},agingStates={},lines=[],productMap={};
 let selectedTank=null;
 const tankTemps={};
 
@@ -273,11 +273,13 @@ function renderBangchan(){
     .sort((a,b)=>(a.seq||0)-(b.seq||0));
   const assigned=grpLines.flatMap(l=>l.aging_tanks||[]);
   const unassigned=BC_TANKS.filter(t=>!assigned.includes(t));
-  const groups=grpLines.map(l=>({name:l.name||l.id,tanks:l.aging_tanks||[]}));
+  // ถ้า lines ไม่มี aging_tanks เลย → แสดง BC ทั้งหมด
+  let groups=[];
   if(!grpLines.length){
-    groups.push({name:'Bangchan (ทั้งหมด)',tanks:BC_TANKS});
-  } else if(unassigned.length>0){
-    groups.push({name:'ถังที่ยังไม่กำหนด LINE',tanks:unassigned});
+    groups=[{name:'Bangchan (ทั้งหมด)',tanks:BC_TANKS}];
+  } else {
+    groups=grpLines.map(l=>({name:l.name||l.id,tanks:l.aging_tanks||[]}));
+    if(unassigned.length>0) groups.push({name:'ถังที่ยังไม่กำหนด LINE',tanks:unassigned});
   }
 
   groups.forEach(g=>{
