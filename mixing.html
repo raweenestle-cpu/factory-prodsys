@@ -80,7 +80,8 @@ thead th{background:var(--s2);padding:8px 10px;text-align:left;white-space:nowra
 .stamp-wrap{display:flex;flex-direction:column;gap:3px;min-width:110px}
 
 /* ACTUAL INPUT */
-.act-input{background:var(--s2);border:1px solid rgba(34,197,94,.3);border-radius:6px;color:var(--green);font-family:var(--mono);font-size:12px;padding:5px 7px;outline:none;width:72px;text-align:right}
+.act-input{background:#fff;border:1.5px solid var(--b1);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:12px;padding:5px 8px;outline:none;width:80px;text-align:right;position:relative;z-index:10}
+.act-input:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(29,78,216,.15)}
 .act-input:focus{border-color:var(--green)}
 
 /* STATUS BADGE */
@@ -592,10 +593,13 @@ function autoTextColor(hex){
 
   function tankSVG(row,label,cap){cap=cap||3000;
     const st=row?.status||'';
-    const vol=+(row?.volume_liter||0);
+    const totalVol=+(row?.volume_liter||0);
+    const flowed=st==='pasteurising'||st==='past_done'?+(row?.current_vol||0):0;
+    const vol=st==='pasteurising'?Math.max(0,totalVol-flowed):totalVol;
     const prod=productMap[row?.mix_code||'']||{};
     const col=prod.color||'#3b82f6';
-    const pct=vol>0?Math.min(100,(vol/cap)*100):0;
+    const isActive=['mixing','pasteurising','past_done','waiting_past','ready','busy'].includes(st);
+    const pct=isActive&&vol>0?Math.min(100,(vol/cap)*100):0;
     const hasLiq=pct>0;
     const sw=130,sh=290,bX=12,bY=50,bW=sw-24,bH=180;
     const nW=22,nH=9,cW=30,cH=5;
@@ -609,7 +613,7 @@ function autoTextColor(hex){
     const r2=parseInt(col.slice(1,3),16),g2=parseInt(col.slice(3,5),16),b2=parseInt(col.slice(5,7),16);
     const bodyFill=hasLiq?'rgba('+r2+','+g2+','+b2+',.08)':'rgba(176,186,200,.25)';
     const bodyStroke=hasLiq?col:'#94a3b8';
-    const tc=hasLiq?autoTextColor(col):'#6b7280';
+    const tc='#111827';
     // ถ้า col เป็น default และ hasLiq ให้ใช้สีน้ำเงินเข้มมองเห็นชัด
     const colEff=hasLiq&&col==='#3b82f6'&&!prod.color?'#3b82f6':col;
     const ST={mixing:'🔄 กำลังผสม',pasteurising:'🔵 Past.',past_done:'✅ เสร็จ',pending:'รอ'};
