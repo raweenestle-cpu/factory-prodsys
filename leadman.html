@@ -548,9 +548,18 @@ function agingTankSelect(col,row){
     var sel=row.aging_tank===tid?' selected':'';
     opts+='<option value="'+tid+'"'+sel+'>'+tid+' — '+lbl+'</option>';
   });
-  var onch='_up("'+col+'","'+row.id+'","aging_tank",this.value)';
-  return '<select class="ci" style="width:140px" onchange="'+onch+'">'+opts+'</select>';
+  return '<select class="ci" style="width:140px" data-col="'+col+'" data-id="'+row.id+'" onchange="window._upAgTank(this)">'+opts+'</select>';
 }
+
+window._upAgTank=async function(el){
+  var col=el.dataset.col;
+  var id=el.dataset.id;
+  var val=el.value;
+  if(!col||!id) return;
+  try{
+    await updateDoc(doc(db,col,id),{aging_tank:val});
+  }catch(e){console.warn('aging_tank save error:',e);}
+};
 
 function renderPlan(m){
   const col  = planCol(m);
