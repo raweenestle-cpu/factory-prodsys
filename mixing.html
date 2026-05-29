@@ -592,7 +592,7 @@ function renderMixTanks(m, rows){
     const fillH=Math.max(0,(pct/100)*(bH-6)*0.92);
     const wy=bY+bH-fillH;
     const A=6,midY=bY+bH/2;
-    const uid='mx'+label.replace(/ /g,'');
+    const uid='mx'+label.replace(/ /g,'')+(row?.mix_code||'').replace(/[^a-z0-9]/gi,'');
     const gid='g'+uid,cid='c'+uid;
     const bodyFill=hasLiq?'rgba(255,255,255,.12)':'rgba(176,186,200,.25)';
     const bodyStroke=hasLiq?col:'#94a3b8';
