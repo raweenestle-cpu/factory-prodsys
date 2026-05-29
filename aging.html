@@ -110,7 +110,7 @@ nav{position:sticky;top:0;z-index:100;background:rgba(7,9,15,.95);border-bottom:
 
 /* SVG */
 .tsw{width:100%;flex-shrink:0;position:relative;margin:0 auto 4px;display:flex;justify-content:center}
-#twin-grid .tc{width:130px}
+#twin-grid .tc{width:160px}
 </style>
 </head>
 <body>
@@ -308,7 +308,7 @@ function renderTwin(){
       const ld=document.createElement('div');
       ld.style.cssText='flex:1;min-width:140px;max-width:220px;border:2px solid '+line.color+'44;border-radius:12px;padding:10px;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.07)';
       ld.innerHTML='<div style="font-family:var(--mono);font-size:14px;font-weight:900;color:'+line.color+';margin-bottom:10px;letter-spacing:.04em;border-bottom:2px solid '+line.color+'33;padding-bottom:6px">🏭 '+line.name+'</div>';
-      const grid=document.createElement('div');grid.style.cssText='display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-start';
+      const grid=document.createElement('div');grid.style.cssText='display:flex;flex-wrap:wrap;gap:12px';
       line.tanks.forEach(t=>grid.appendChild(makeTankCard(t)));
       ld.appendChild(grid);rowDiv.appendChild(ld);
     });
