@@ -184,6 +184,30 @@ tbody td{padding:5px 6px;vertical-align:middle;font-weight:600}
 
 @keyframes statusPulse{0%,100%{opacity:1}50%{opacity:.45}}
 .status-blink{animation:statusPulse 1.4s ease-in-out infinite}
+
+/* Line Status Cards */
+#line-cards{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding:10px 0;margin-bottom:10px}
+.lsc{background:#fff;border:1.5px solid var(--b1);border-radius:12px;padding:10px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.lsc-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;padding-bottom:6px;border-bottom:1.5px solid var(--s2)}
+.lsc-name{font-family:var(--mono);font-size:11px;font-weight:900;color:var(--text)}
+.lsc-st{font-family:var(--mono);font-size:9px;font-weight:900;padding:2px 7px;border-radius:5px}
+.lsc-run{background:rgba(21,128,61,.1);color:#15803d;border:1px solid rgba(21,128,61,.25)}
+.lsc-idle{background:var(--s2);color:var(--t3);border:1px solid var(--b1)}
+.lsc-wait{background:rgba(180,83,9,.08);color:#b45309;border:1px solid rgba(180,83,9,.2)}
+.lsc-prod{font-family:var(--mono);font-size:11px;font-weight:900;margin-bottom:4px}
+.lsc-vol{font-family:var(--mono);font-size:18px;font-weight:900;line-height:1;margin-bottom:2px}
+.lsc-vbar{height:5px;background:var(--s2);border-radius:3px;overflow:hidden;margin-bottom:5px}
+.lsc-vfill{height:100%;border-radius:3px;transition:width .5s}
+.lsc-row{display:flex;justify-content:space-between;margin-bottom:2px}
+.lsc-lbl{font-family:var(--mono);font-size:8px;color:var(--t3);font-weight:700}
+.lsc-val{font-family:var(--mono);font-size:10px;font-weight:900;color:var(--text)}
+.lsc-q{margin-top:5px;padding-top:5px;border-top:1px solid var(--s2)}
+.lsc-qlbl{font-family:var(--mono);font-size:8px;font-weight:800;color:var(--t3);letter-spacing:.05em;margin-bottom:3px}
+.lsc-qrow{display:flex;align-items:center;gap:4px;margin-bottom:2px}
+.lsc-qcode{font-family:var(--mono);font-size:9px;font-weight:800;color:var(--text);flex:1}
+.lsc-qvol{font-family:var(--mono);font-size:9px;font-weight:900;color:var(--cyan)}
+@keyframes ldot{0%,100%{opacity:1}50%{opacity:.2}}
+.live-d{display:inline-block;width:6px;height:6px;border-radius:50%;background:#15803d;margin-right:3px;animation:ldot 1s infinite;vertical-align:middle}
 </style>
 </head>
 <body>
@@ -202,6 +226,7 @@ tbody td{padding:5px 6px;vertical-align:middle;font-weight:600}
 
 <!-- PAGE M1 -->
 <div class="page on" id="page-m1">
+  <div id="line-cards"></div>
   <div class="toolbar">
     <div class="toolbar-left">
       <span style="font-family:var(--mono);font-size:10px;color:var(--t3)">DATE</span>
