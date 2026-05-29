@@ -90,6 +90,17 @@ td.sep{border-right:2px solid var(--b1)}
 .f-btn{font-family:var(--mono);font-size:10px;font-weight:800;padding:5px 12px;border-radius:7px;border:1.5px solid var(--b1);background:var(--s2);color:var(--t2);cursor:pointer}
 .f-btn.on{background:var(--blue2,#1d4ed8);color:#fff;border-color:var(--blue2,#1d4ed8)}
 .rec-table-row:hover{background:var(--s1)}
+
+.sign-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;align-items:center;justify-content:center}
+.sign-modal-overlay.show{display:flex}
+.sign-modal{background:#fff;border-radius:16px;padding:28px 32px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.18);min-width:280px}
+.sign-modal-icon{font-size:48px;margin-bottom:8px}
+.sign-modal-title{font-family:var(--mono);font-size:14px;font-weight:900;color:var(--text);margin-bottom:4px}
+.sign-modal-sub{font-family:var(--mono);font-size:11px;color:var(--t3);margin-bottom:20px}
+.sign-modal-btns{display:flex;gap:10px;justify-content:center}
+.sign-modal-btn{font-family:var(--mono);font-size:12px;font-weight:900;padding:9px 24px;border-radius:9px;border:none;cursor:pointer}
+.sign-modal-skip{background:var(--s2);color:var(--t2);border:1.5px solid var(--b1)}
+.sign-modal-confirm{background:var(--blue2,#1d4ed8);color:#fff}
 </style>
 </head>
 <body>
@@ -189,6 +200,37 @@ td.sep{border-right:2px solid var(--b1)}
 </main>
 <div id="toast"></div>
 <script type="module">
+let _pendingAct = null;
+
+window._signSkip = function(){
+  document.getElementById('sign-modal-overlay').classList.remove('show');
+  if(_pendingAct) _doActReal(_pendingAct.tid, _pendingAct.act);
+  _pendingAct = null;
+};
+
+window._signConfirm = function(){
+  document.getElementById('sign-modal-overlay').classList.remove('show');
+  if(_pendingAct) _doActReal(_pendingAct.tid, _pendingAct.act);
+  _pendingAct = null;
+};
+
+async function _doActReal(tid, act){
+  const map={start_cip:'cip',stop_cip:'cip_done',start_san:'san',stop_san:'san_done'};
+  const newSt=map[act];if(!newSt)return;
+  const n=nowHMS();
+  const upd={status:newSt,updated_at:new Date().toISOString()};
+  if(act==='start_cip')upd.cip_start_time=n;
+  if(act==='stop_cip')upd.cip_stop_time=n;
+  if(act==='start_san')upd.san_start_time=n;
+  if(act==='stop_san')upd.san_stop_time=n;
+  try{
+    await setDoc(doc(db,'aging_tank_states',tid),upd,{merge:true});
+    const lb={start_cip:'▶ CIP เริ่ม',stop_cip:'✅ CIP เสร็จ',start_san:'▶ San เริ่ม',stop_san:'✅ San เสร็จ'};
+    toast(lb[act]+' ถัง '+tid,'green');
+  }catch(e){toast('Error: '+e.message,'red');}
+}
+
+
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import{getAuth,onAuthStateChanged,signOut}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import{getFirestore,collection,query,where,getDocs,onSnapshot,doc,setDoc}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -224,7 +266,13 @@ window._editTime=async(tid,field,val)=>{
   }catch(e){toast('Error: '+e.message,'red');}
 };
 
-window.doAct=async(tid,act)=>{const map={start_cip:'cip',stop_cip:'cip_done',start_san:'san',stop_san:'san_done'};const newSt=map[act];if(!newSt)return;const n=nowHMS();const upd={status:newSt,updated_at:new Date().toISOString()};if(act==='start_cip')upd.cip_start_time=n;if(act==='stop_cip')upd.cip_stop_time=n;if(act==='start_san')upd.san_start_time=n;if(act==='stop_san')upd.san_stop_time=n;try{await setDoc(doc(db,'aging_tank_states',tid),upd,{merge:true});const lb={start_cip:'▶ CIP เริ่ม',stop_cip:'✅ CIP เสร็จ',start_san:'▶ San เริ่ม',stop_san:'✅ San เสร็จ'};toast(lb[act]+' ถัง '+tid,'green');}catch(e){toast('Error: '+e.message,'red');}};
+window.doAct=(tid,act)=>{
+  // เปิด modal ลายเซ็นก่อนทุกครั้ง
+  const labels={start_cip:'Start CIP',stop_cip:'Stop CIP',start_san:'Start Sanitize',stop_san:'Stop Sanitize'};
+  _pendingAct={tid,act};
+  document.getElementById('sign-modal-title').textContent=(labels[act]||act)+' — ถัง '+tid;
+  document.getElementById('sign-modal-overlay').classList.add('show');
+};
 window.setGroup=async(tid,val)=>{try{await setDoc(doc(db,'aging_tank_states',tid),{cip_group:val,updated_at:new Date().toISOString()},{merge:true});}catch(e){console.warn(e);}};
 
 function getShift(timeStr){
@@ -421,6 +469,18 @@ window.doLogout=async()=>{await signOut(auth);location.href='index.html';};
       </thead>
       <tbody id="rec-body"></tbody>
     </table>
+  </div>
+</div>
+
+<div class="sign-modal-overlay" id="sign-modal-overlay">
+  <div class="sign-modal">
+    <div class="sign-modal-icon">✏️</div>
+    <div class="sign-modal-title" id="sign-modal-title">ลายเซ็นพนักงาน</div>
+    <div class="sign-modal-sub">ระบบลายเซ็นจะเปิดใช้เมื่อ Interlock พร้อม</div>
+    <div class="sign-modal-btns">
+      <button class="sign-modal-btn sign-modal-skip" onclick="_signSkip()">ข้าม</button>
+      <button class="sign-modal-btn sign-modal-confirm" onclick="_signConfirm()">✅ ยืนยัน</button>
+    </div>
   </div>
 </div>
 </body>
