@@ -269,9 +269,11 @@ function renderAll(){renderBangchan();renderTwin();}
 function renderBangchan(){
   const el=$('bangchan-grid');el.innerHTML='';
   // group by line — รองรับทั้ง lines ที่มีและไม่มี group field
+  // Twin tanks — ไม่ให้ติดมาใน BC
+  const twinTanks=TWIN_LINES.flatMap(l=>l.tanks||[]);
   const grpLines=lines.filter(l=>(l.aging_tanks||[]).length>0)
     .sort((a,b)=>(a.seq||0)-(b.seq||0));
-  const assigned=grpLines.flatMap(l=>l.aging_tanks||[]);
+  const assigned=grpLines.flatMap(l=>l.aging_tanks||[]).filter(t=>!twinTanks.includes(t));
   const unassigned=BC_TANKS.filter(t=>!assigned.includes(t));
   let groups=[];
   if(!grpLines.length){
