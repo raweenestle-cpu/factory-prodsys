@@ -353,7 +353,7 @@ function makeTankCard(tankId){
       +(activeRow.date?'<div class="tdr"><span class="tdl">วันผลิต</span><span class="tdv">'+activeRow.date.slice(5)+'</span></div>':'')
       +(activeRow.past_start_time?'<div class="tdr"><span class="tdl">เริ่ม Past.</span><span class="tdv">'+activeRow.past_start_time+'</span></div>':'')
       +(activeRow.past_end_time?'<div class="tdr"><span class="tdl">Past.เสร็จ</span><span class="tdv">'+activeRow.past_end_time+'</span></div>':'')
-      +(tankStates[tankId]&&tankStates[tankId].expire_at?expireBox(tankStates[tankId].expire_at):exp2?'<div style="font-family:DM Mono,monospace;font-size:11px;color:'+expC+'">⏰ '+exp2+'</div>':'');
+      +(tankStates[tankId]&&tankStates[tankId].expire_at?expireBox(tankStates[tankId].expire_at):exp2?'<div style="font-family:DM Mono,monospace;font-size:11px;color:'+expColor+'">⏰ '+exp2+'</div>':'');
   }
 
   // Temp selector
