@@ -262,6 +262,9 @@ main{position:relative;z-index:1;padding:10px 12px;}
 .sig-btn{background:none;border:none;cursor:pointer;padding:4px 6px;border-radius:6px;transition:background .15s;display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#64748b;}
 .sig-btn:hover{background:rgba(99,102,241,.15);color:#818cf8;}
 .sig-preview{height:28px;vertical-align:middle;opacity:.95;}
+@keyframes blink-st{0%,100%{opacity:1}50%{opacity:.3}}
+.cq-tc input[type="checkbox"]{width:20px;height:20px;cursor:pointer;accent-color:var(--green)}
+.cq-tc label{padding:4px 0}
 </style>
 </head>
 <body>
@@ -389,6 +392,26 @@ function expireBox(expireAt){
     +'<div style="font-size:13px;font-weight:900;color:'+bc+';margin-top:2px">'+dateStr+' '+timeStr+'</div>'
     +'<div style="font-size:10px;font-weight:700;color:'+bc+';opacity:.8;margin-top:1px">เหลือ '+remStr+'</div>'
     +'</div>';
+}
+
+
+function calcCuringEnd(pastEnd,agingHr){
+  if(!pastEnd||!agingHr)return null;
+  const [h,m]=(pastEnd||'0:0').split(':').map(Number);
+  const base=new Date();base.setHours(h,m,0,0);
+  return new Date(base.getTime()+agingHr*3600000);
+}
+function calcAgingCountdown(pastEnd,agingHr){
+  if(!pastEnd)return null;
+  const [h,m]=(pastEnd||'0:0').split(':').map(Number);
+  const base=new Date();base.setHours(h,m,0,0);
+  const endTs=base.getTime()+(agingHr||4)*3600000;
+  const rem=endTs-Date.now();
+  if(rem<=0)return'✅ บ่มเสร็จ';
+  const rh=Math.floor(rem/3600000);
+  const rm=Math.floor((rem%3600000)/60000);
+  const rs=Math.floor((rem%60000)/1000);
+  return rh+'h '+String(rm).padStart(2,'0')+'m '+String(rs).padStart(2,'0')+'s';
 }
 
 function getTankCapacity(tankId){
@@ -588,6 +611,7 @@ function fpPanel(lineId,tank){
         <span style="font-family:var(--mono);font-size:11px;color:${cipOk?'var(--green)':'var(--t2)'}">⭐ CIP แล้ว</span>
       </label>
     </div>
+  </div>
   </div>`;
 }
 
@@ -806,18 +830,27 @@ function buildCard(line){
     const _capQ=getTankCapacity(row.aging_tank||'');
     const qPct=_capQ>0?(qRem/_capQ)*100:0;
     let stTxt='—',stC='var(--t2)';
+    const agHr=+(productMap[row.mix_code]?.aging_time||4);
+    const cdTxt=row.past_end_time?calcAgingCountdown(row.past_end_time,agHr):null;
     if(row.status==='pasteurising'&&!row.past_end_time){stTxt='♨️ Past.';stC='var(--orange)';}
     else if(row.status==='past_done'||row.status==='pasteurising'){stTxt='🌡️ บ่มอยู่';stC='var(--yellow)';}
-    if(row.past_end_time&&curingEnd!=='—'){stTxt+=` → ${curingEnd}`;}
+    if(row.past_end_time&&curingEnd!=='—'){stTxt=cdTxt||curingEnd;}
     const hotOk=(lineStates[line.id]||{})[`hot_q${idx}`]||false;
     const cipOk=(lineStates[line.id]||{})[`cip_q${idx}`]||false;
     const pctC=qPct>50?'#1fd17a':qPct>20?'#f5c842':'#f04f5e';
-    return`<div class="cq-tc">
+    return`<div class="cq-tc" style="flex-shrink:0;min-width:180px;max-width:200px">
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 8px 0;font-family:var(--mono);font-size:10px;color:var(--t3)">
+    <span style="font-weight:900">#${idx}</span>
+    <div style="display:flex;gap:4px">
+      ${idx>2?`<button onclick="swapQueue('${line.id}',${idx},${idx-1})" style="font-size:11px;padding:2px 6px;border-radius:5px;border:1px solid var(--b1);background:var(--s2);cursor:pointer">◀</button>`:''}
+      <button onclick="swapQueue('${line.id}',${idx},${idx+1})" style="font-size:11px;padding:2px 6px;border-radius:5px;border:1px solid var(--b1);background:var(--s2);cursor:pointer">▶</button>
+    </div>
+  </div>
   <!-- body: ถัง + ข้อมูล+checkbox -->
   <div style="display:flex;gap:10px;padding:10px 12px;align-items:flex-start">
     <!-- ถัง + เลขถังบนหัว + status ใต้ถัง -->
     <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px">
-      <div style="font-family:var(--mono);font-size:13px;font-weight:800;color:var(--cyan);background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.3);border-radius:6px;padding:2px 10px">${row.aging_tank||'—'}</div>
+      <div style="font-family:var(--mono);font-size:13px;font-weight:900;color:#111827;background:rgba(176,186,200,.2);border:1px solid rgba(6,182,212,.3);border-radius:6px;padding:2px 10px">${row.aging_tank||'—'}</div>
       <div style="position:relative">
         ${tankSVGSm('Q'+line.id+idx,qPct,dot,true)}
         <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;width:90%">
@@ -852,14 +885,14 @@ function buildCard(line){
     <div style="padding:10px 14px;border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between;gap:8px">
       <div style="min-width:0;flex:1">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
-          <span style="font-family:var(--mono);font-size:14px;font-weight:800;color:var(--orange)">${line.name.toUpperCase()}</span>
+          <span style="font-family:var(--mono);font-size:16px;font-weight:900;color:#111827">${line.name.toUpperCase()}</span>
           <span class="spill ${pm[cardStatus]}" style="font-family:var(--mono);font-size:10px">${(()=>{
             const matched=(line.products||[]).find(p=>(p.mix_codes||[]).some(m=>m.code===current.mix_code));
             return matched?matched.name:pt[cardStatus];
           })()}</span>
         </div>
         <div style="font-family:var(--mono);font-size:13px;font-weight:700;color:${col};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
-          ${current.mix_name||'—'} &nbsp;·&nbsp; Batch ${current.batch_no||'—'} &nbsp;·&nbsp; ${(+(current.volume_liter||0)).toLocaleString()} L
+          ${productMap[current.mix_code]?.name||current.mix_name||'—'} &nbsp;·&nbsp; Batch ${current.batch_no||'—'} &nbsp;·&nbsp; ${(+(current.volume_liter||0)).toLocaleString()} L
         </div>
         <div style="font-family:var(--mono);font-size:12px;color:var(--purple);font-weight:700;margin-top:2px">รหัส: ${prodCodeLabel||prodCode}</div>
       </div>
@@ -874,7 +907,7 @@ function buildCard(line){
 
       <!-- ถัง SVG — status อยู่ในถัง -->
       <div style="flex-shrink:0;width:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 8px;border-right:1px solid var(--b1);background:rgba(0,0,0,.15)">
-        <div style="font-family:var(--mono);font-size:12px;color:var(--cyan);font-weight:800;margin-bottom:4px;text-align:center;background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.2);border-radius:6px;padding:2px 10px">${agingTank}</div>
+        <div style="font-family:var(--mono);font-size:13px;color:#111827;font-weight:900;margin-bottom:4px;text-align:center;background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.2);border-radius:6px;padding:2px 10px">${agingTank}</div>
         <div style="position:relative;display:flex;justify-content:center;align-items:center">
           ${tankSVG('S'+line.id, pct, col, hasLiquid,
             current.status==='pasteurising'?'🔵 กำลัง Pasteurise':curing.done?'✅ บ่มเสร็จ':'🌡️ กำลังบ่ม',
@@ -888,11 +921,26 @@ function buildCard(line){
         </div>
       </div>
 
+      <!-- Flow diagram ข้อ 9 -->
+      </div>
+      <div style="flex-shrink:0;width:100%;padding:4px 12px 0;border-bottom:1px solid var(--b1)">
+        ${buildFlowDiagram(line.id, agingTank, col, isRunning)}
+      </div>
+      <div style="display:flex;align-items:stretch">
       <!-- Controls — เรียงแนวตั้ง ไม่ล้น -->
       <div style="flex-shrink:0;width:200px;padding:12px;display:flex;flex-direction:column;gap:8px;border-right:1px solid var(--b1)">
 
         ${fpPanel(line.id,'A')}
 
+        <!-- Start time + editable -->
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px">
+          <span style="font-family:var(--mono);font-size:10px;color:var(--t3);min-width:36px">Start</span>
+          <input type="time" value="${st.start_time||''}" style="font-family:var(--mono);font-size:11px;border:1px solid var(--b1);border-radius:5px;padding:2px 6px;flex:1" onchange="_editLineTime('${line.id}','start_time',this.value)">
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+          <span style="font-family:var(--mono);font-size:10px;color:var(--t3);min-width:36px">Stop</span>
+          <input type="time" value="${st.stop_time||''}" style="font-family:var(--mono);font-size:11px;border:1px solid var(--b1);border-radius:5px;padding:2px 6px;flex:1" onchange="_editLineTime('${line.id}','stop_time',this.value)">
+        </div>
         <!-- Start / Stop / Reset — เต็มความกว้าง -->
         <button style="width:100%;padding:10px;border-radius:10px;font-family:var(--mono);font-size:13px;font-weight:700;border:none;cursor:pointer;background:${isRunning||!curing.done?'rgba(255,255,255,.05)':'rgba(31,209,122,.15)'};color:${isRunning||!curing.done?'var(--t3)':'var(--green)'};border:1px solid ${isRunning||!curing.done?'rgba(255,255,255,.08)':'rgba(31,209,122,.3)'}"
           ${isRunning||!curing.done?'disabled':''} onclick="startLine('${line.id}',${sv},${fr})">▶ Start</button>
@@ -911,7 +959,7 @@ function buildCard(line){
       <!-- Queue — card เหมือน Filling -->
       <div style="flex:1;padding:10px 12px;overflow-y:auto;max-height:340px;border:1px solid rgba(6,182,212,.2);border-radius:12px;background:rgba(6,182,212,.03)">
         <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--cyan);letter-spacing:.1em;margin-bottom:8px">⏳ คิวรอผลิต</div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;align-content:flex-start">
+        <div style="display:flex;gap:10px;flex-wrap:nowrap;overflow-x:auto;align-items:flex-start;padding-bottom:4px">
           ${queue.length?queue.map((r,i)=>queueItem(r,i+2)).join('')
             :'<div style="font-family:var(--mono);font-size:12px;color:var(--t3);padding:20px;text-align:center">ไม่มีคิวถัดไป</div>'}
         </div>
@@ -971,11 +1019,147 @@ function renderQueuePage(){
 const _empName = sessionStorage.getItem('emp_name')||'';
 const _empSig  = sessionStorage.getItem('emp_sig')||'';
 
+
+let _pendingCipAct=null;
+window._signSkip=function(){
+  document.getElementById('sign-modal-overlay').style.display='none';
+  if(_pendingCipAct){_pendingCipAct();_pendingCipAct=null;}
+};
+window._signConfirm=function(){
+  document.getElementById('sign-modal-overlay').style.display='none';
+  if(_pendingCipAct){_pendingCipAct();_pendingCipAct=null;}
+};
+function showSignModal(title,cb){
+  document.getElementById('sign-modal-title').textContent=title;
+  document.getElementById('sign-modal-overlay').style.display='flex';
+  _pendingCipAct=cb;
+}
+
+
+
+
+function buildFlowDiagram(lineId, agingTank, col, isRunning){
+  const st=lineStates[lineId]||{};
+  const fz=st.fz_A||'FZ';
+  const pp=st.pp_A||'Pipe';
+  const ac=isRunning?col:'#6b7280';
+  const anim=isRunning?'<animate attributeName="stroke-dashoffset" from="24" to="0" dur=".6s" repeatCount="indefinite"/>':'';
+  return `<svg width="100%" height="64" viewBox="0 0 420 64" xmlns="http://www.w3.org/2000/svg" style="margin:6px 0">
+    <!-- Aging Tank (ขวา) -->
+    <rect x="340" y="10" width="70" height="44" rx="8" fill="${ac}22" stroke="${ac}" stroke-width="2"/>
+    <text x="375" y="30" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="${ac}" font-weight="800">${agingTank||'Aging'}</text>
+    <text x="375" y="46" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="${ac}" opacity=".7">Tank</text>
+    <!-- ท่อ Tank→Pump -->
+    <line x1="340" y1="32" x2="290" y2="32" stroke="${ac}" stroke-width="4" stroke-linecap="round" opacity="${isRunning?'.3':'1'}" stroke-dasharray="${isRunning?'0':'4,4'}"/>
+    ${isRunning?`<line x1="340" y1="32" x2="290" y2="32" stroke="${ac}" stroke-width="2.5" stroke-dasharray="8,5" stroke-linecap="round">${anim}</line>`:''}
+    <!-- Pump -->
+    <circle cx="272" cy="32" r="18" fill="white" stroke="${ac}" stroke-width="2.5"/>
+    <text x="272" y="37" text-anchor="middle" font-family="DM Mono,monospace" font-size="14" fill="${ac}" font-weight="900">⚙</text>
+    <!-- ท่อ Pump→Freezer -->
+    <line x1="254" y1="32" x2="190" y2="32" stroke="${ac}" stroke-width="4" stroke-linecap="round" opacity="${isRunning?'.3':'1'}" stroke-dasharray="${isRunning?'0':'4,4'}"/>
+    ${isRunning?`<line x1="254" y1="32" x2="190" y2="32" stroke="${ac}" stroke-width="2.5" stroke-dasharray="8,5" stroke-linecap="round">${anim}</line>`:''}
+    <!-- Freezer -->
+    <rect x="120" y="10" width="70" height="44" rx="8" fill="${ac}22" stroke="${ac}" stroke-width="2"/>
+    <text x="155" y="28" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="${ac}" font-weight="800">🧊</text>
+    <text x="155" y="42" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="${ac}" font-weight="800">${fz}</text>
+    <!-- ท่อ Freezer→Line -->
+    <line x1="120" y1="32" x2="60" y2="32" stroke="${ac}" stroke-width="4" stroke-linecap="round" opacity="${isRunning?'.3':'1'}" stroke-dasharray="${isRunning?'0':'4,4'}"/>
+    ${isRunning?`<line x1="120" y1="32" x2="60" y2="32" stroke="${ac}" stroke-width="2.5" stroke-dasharray="8,5" stroke-linecap="round">${anim}</line>`:''}
+    <!-- Line Output -->
+    <rect x="0" y="10" width="60" height="44" rx="8" fill="${ac}22" stroke="${ac}" stroke-width="2"/>
+    <text x="30" y="30" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="${ac}" font-weight="800">🏭</text>
+    <text x="30" y="44" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="${ac}" font-weight="800">Line</text>
+  </svg>`;
+}
+
+window._editLineTime=async(lineId,field,val)=>{
+  if(!lineId||!val)return;
+  try{
+    await setDoc(doc(db,'cip_line_states',lineId),{[field]:val,updated_at:new Date().toISOString()},{merge:true});
+    toast('✅ แก้ไขเวลา '+field+' → '+val,'green');
+  }catch(e){toast('Error: '+e.message,'red');}
+};
+
+window.swapQueue=async(lineId,idxA,idxB)=>{
+  const tanks=getTanksForLine(lines.find(l=>l.id===lineId)?.name||'');
+  const rowA=tanks[idxA-1], rowB=tanks[idxB-1];
+  if(!rowA||!rowB){toast('ไม่พบถังที่จะสลับ','red');return;}
+  // สลับ seq หรือ queue_order
+  const seqA=+(rowA.queue_order||rowA.seq||idxA);
+  const seqB=+(rowB.queue_order||rowB.seq||idxB);
+  try{
+    await updateDoc(doc(db,rowA._col,rowA.id),{queue_order:seqB,updated_at:new Date().toISOString()});
+    await updateDoc(doc(db,rowB._col,rowB.id),{queue_order:seqA,updated_at:new Date().toISOString()});
+    toast('✅ สลับลำดับแล้ว','green');
+  }catch(e){toast('Error: '+e.message,'red');}
+};
+
+window.startLine=(lineId,sv,fr)=>{showSignModal('▶ Start — '+lineId,()=>_startLineReal(lineId,sv,fr));};
+
+
+
+function buildFlowDiagram(lineId, agingTank, col, isRunning){
+  const st=lineStates[lineId]||{};
+  const fz=st.fz_A||'FZ';
+  const pp=st.pp_A||'Pipe';
+  const ac=isRunning?col:'#6b7280';
+  const anim=isRunning?'<animate attributeName="stroke-dashoffset" from="24" to="0" dur=".6s" repeatCount="indefinite"/>':'';
+  return `<svg width="100%" height="64" viewBox="0 0 420 64" xmlns="http://www.w3.org/2000/svg" style="margin:6px 0">
+    <!-- Aging Tank (ขวา) -->
+    <rect x="340" y="10" width="70" height="44" rx="8" fill="${ac}22" stroke="${ac}" stroke-width="2"/>
+    <text x="375" y="30" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="${ac}" font-weight="800">${agingTank||'Aging'}</text>
+    <text x="375" y="46" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="${ac}" opacity=".7">Tank</text>
+    <!-- ท่อ Tank→Pump -->
+    <line x1="340" y1="32" x2="290" y2="32" stroke="${ac}" stroke-width="4" stroke-linecap="round" opacity="${isRunning?'.3':'1'}" stroke-dasharray="${isRunning?'0':'4,4'}"/>
+    ${isRunning?`<line x1="340" y1="32" x2="290" y2="32" stroke="${ac}" stroke-width="2.5" stroke-dasharray="8,5" stroke-linecap="round">${anim}</line>`:''}
+    <!-- Pump -->
+    <circle cx="272" cy="32" r="18" fill="white" stroke="${ac}" stroke-width="2.5"/>
+    <text x="272" y="37" text-anchor="middle" font-family="DM Mono,monospace" font-size="14" fill="${ac}" font-weight="900">⚙</text>
+    <!-- ท่อ Pump→Freezer -->
+    <line x1="254" y1="32" x2="190" y2="32" stroke="${ac}" stroke-width="4" stroke-linecap="round" opacity="${isRunning?'.3':'1'}" stroke-dasharray="${isRunning?'0':'4,4'}"/>
+    ${isRunning?`<line x1="254" y1="32" x2="190" y2="32" stroke="${ac}" stroke-width="2.5" stroke-dasharray="8,5" stroke-linecap="round">${anim}</line>`:''}
+    <!-- Freezer -->
+    <rect x="120" y="10" width="70" height="44" rx="8" fill="${ac}22" stroke="${ac}" stroke-width="2"/>
+    <text x="155" y="28" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="${ac}" font-weight="800">🧊</text>
+    <text x="155" y="42" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="${ac}" font-weight="800">${fz}</text>
+    <!-- ท่อ Freezer→Line -->
+    <line x1="120" y1="32" x2="60" y2="32" stroke="${ac}" stroke-width="4" stroke-linecap="round" opacity="${isRunning?'.3':'1'}" stroke-dasharray="${isRunning?'0':'4,4'}"/>
+    ${isRunning?`<line x1="120" y1="32" x2="60" y2="32" stroke="${ac}" stroke-width="2.5" stroke-dasharray="8,5" stroke-linecap="round">${anim}</line>`:''}
+    <!-- Line Output -->
+    <rect x="0" y="10" width="60" height="44" rx="8" fill="${ac}22" stroke="${ac}" stroke-width="2"/>
+    <text x="30" y="30" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="${ac}" font-weight="800">🏭</text>
+    <text x="30" y="44" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="${ac}" font-weight="800">Line</text>
+  </svg>`;
+}
+
+window._editLineTime=async(lineId,field,val)=>{
+  if(!lineId||!val)return;
+  try{
+    await setDoc(doc(db,'cip_line_states',lineId),{[field]:val,updated_at:new Date().toISOString()},{merge:true});
+    toast('✅ แก้ไขเวลา '+field+' → '+val,'green');
+  }catch(e){toast('Error: '+e.message,'red');}
+};
+
+window.swapQueue=async(lineId,idxA,idxB)=>{
+  const tanks=getTanksForLine(lines.find(l=>l.id===lineId)?.name||'');
+  const rowA=tanks[idxA-1], rowB=tanks[idxB-1];
+  if(!rowA||!rowB){toast('ไม่พบถังที่จะสลับ','red');return;}
+  // สลับ seq หรือ queue_order
+  const seqA=+(rowA.queue_order||rowA.seq||idxA);
+  const seqB=+(rowB.queue_order||rowB.seq||idxB);
+  try{
+    await updateDoc(doc(db,rowA._col,rowA.id),{queue_order:seqB,updated_at:new Date().toISOString()});
+    await updateDoc(doc(db,rowB._col,rowB.id),{queue_order:seqA,updated_at:new Date().toISOString()});
+    toast('✅ สลับลำดับแล้ว','green');
+  }catch(e){toast('Error: '+e.message,'red');}
+};
+
 window.startLine=async(lineId,sv,fr)=>{
   if(!_empSig){toast('กรุณา login ด้วย PIN ก่อน','red');return;}
   await setDoc(doc(db,'cip_line_states',lineId),{running:true,start_ts:Date.now(),start_vol:sv,flow_rate:fr,started_by:_empName,start_sig:_empSig,started_at:nowHHMM(),started_by:ME.email},{merge:true});
   toast('▶ Start แล้ว','green');
 };
+window.stopLine=(lineId)=>{showSignModal('⏸ Stop — '+lineId,()=>_stopLineReal(lineId));};
 window.stopLine=async(lineId)=>{
   const st=lineStates[lineId]||{};
   const elapsed=st.start_ts?(Date.now()-st.start_ts)/3600000:0;
@@ -1081,5 +1265,17 @@ window.forceClearTank=async(agTank)=>{
 
 </script>
 </script>
+
+<div class="sign-modal-overlay" id="sign-modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:16px;padding:28px 32px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.18);min-width:280px">
+    <div style="font-size:48px;margin-bottom:8px">✏️</div>
+    <div id="sign-modal-title" style="font-family:var(--mono);font-size:14px;font-weight:900;color:#111827;margin-bottom:4px">ลายเซ็นพนักงาน</div>
+    <div style="font-family:var(--mono);font-size:11px;color:var(--t3);margin-bottom:20px">ระบบลายเซ็นจะเปิดใช้เมื่อ Interlock พร้อม</div>
+    <div style="display:flex;gap:10px;justify-content:center">
+      <button onclick="_signSkip()" style="font-family:var(--mono);font-size:12px;font-weight:900;padding:9px 24px;border-radius:9px;border:1.5px solid var(--b1);background:var(--s2);color:var(--t2);cursor:pointer">ข้าม</button>
+      <button onclick="_signConfirm()" style="font-family:var(--mono);font-size:12px;font-weight:900;padding:9px 24px;border-radius:9px;border:none;background:#1d4ed8;color:#fff;cursor:pointer">✅ ยืนยัน</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
