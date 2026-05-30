@@ -524,9 +524,8 @@ function calcCuringEnd(pastEnd,agingHr){
   return String(Math.floor(tot/60)%24).padStart(2,'0')+':'+String(tot%60).padStart(2,'0');
 }
 
-// ── NEW FUNCTIONS ──────────────────────────────────────────────────
+// ── ADDED FUNCTIONS ────────────────────────────────────────────────
 
-// ข้อ 3: Aging countdown
 function calcAgingCountdown(pastEnd,agingHr){
   if(!pastEnd)return null;
   const[h,m]=pastEnd.split(':').map(Number);
@@ -534,23 +533,20 @@ function calcAgingCountdown(pastEnd,agingHr){
   const endTs=base.getTime()+(agingHr||4)*3600000;
   const rem=endTs-Date.now();
   if(rem<=0)return'✅ บ่มเสร็จ';
-  const rh=Math.floor(rem/3600000),rm=Math.floor((rem%3600000)/60000),rs=Math.floor((rem%60000)/1000);
-  return rh+'h '+String(rm).padStart(2,'0')+'m '+String(rs).padStart(2,'0')+'s';
+  const rh=Math.floor(rem/3600000),rm2=Math.floor((rem%3600000)/60000),rs=Math.floor((rem%60000)/1000);
+  return rh+'h '+String(rm2).padStart(2,'0')+'m '+String(rs).padStart(2,'0')+'s';
 }
 
-// ข้อ 4: modal
 let _pendingCipAct=null;
 window._signSkip=function(){document.getElementById('sign-modal-overlay').style.display='none';if(_pendingCipAct){_pendingCipAct();_pendingCipAct=null;}};
 window._signConfirm=function(){document.getElementById('sign-modal-overlay').style.display='none';if(_pendingCipAct){_pendingCipAct();_pendingCipAct=null;}};
 function showSignModal(title,cb){document.getElementById('sign-modal-title').textContent=title;document.getElementById('sign-modal-overlay').style.display='flex';_pendingCipAct=cb;}
 
-// ข้อ 4: edit time
 window._editLineTime=async(lineId,field,val)=>{
   if(!lineId||!val)return;
   try{await setDoc(doc(db,'cip_line_states',lineId),{[field]:val,updated_at:new Date().toISOString()},{merge:true});toast('✅ แก้ไขเวลา '+field+' → '+val,'green');}catch(e){toast('Error: '+e.message,'red');}
 };
 
-// ข้อ 5: swap queue
 window.swapQueue=async(lineId,idxA,idxB)=>{
   const ln=lines.find(l=>l.id===lineId);
   const tanks=getTanksForLine(ln?.name||'');
@@ -564,165 +560,56 @@ window.swapQueue=async(lineId,idxA,idxB)=>{
   }catch(e){toast('Error: '+e.message,'red');}
 };
 
-// ข้อ 9: flow diagram
 function buildFlowDiagram(lineId,agingTank,col,isRunning){
-  const line=lines.find(l=>l.id===lineId)||{};
-  const curRow=(getTanksForLine(line.name)||[])[0]||{};
+  const lineObj=lines.find(l=>l.id===lineId)||{};
+  const curRow=(getTanksForLine(lineObj.name)||[])[0]||{};
   const mixCode=curRow.mix_code||'';
-  const lineProd=(line.products||[]).find(p=>(p.mix_codes||[]).some(m=>m.code===mixCode));
-  const fr=lineProd?.flow_rate||(lineStates[lineId]||{}).flow_rate||line.flow_rate||300;
+  const lineProd=(lineObj.products||[]).find(p=>(p.mix_codes||[]).some(m=>m.code===mixCode));
+  const fr=lineProd?.flow_rate||(lineStates[lineId]||{}).flow_rate||lineObj.flow_rate||300;
   const fz=(lineStates[lineId]||{}).fz_A||'Freezer';
   const ac=isRunning?col:'#94a3b8';
   const bg=isRunning?col+'18':'rgba(176,186,200,.15)';
   const anim='<animate attributeName="stroke-dashoffset" from="24" to="0" dur=".55s" repeatCount="indefinite"/>';
-
-  // tankSVG ใหญ่: sw=160 sh=280 bX=14 bY=18 bW=132 bH=235
-  // center x ของถัง = 80, ก้นถัง y = 253
-  // SVG นี้วางใต้ถัง — ท่อเริ่มจาก x=80 y=0 (top)
-  const TANK_CX=80; // ตรงกับ center ของถัง SVG ด้านบน
-  const W=500, H=120;
-  const PIPY=55; // y ท่อแนวนอน
-  // pump
-  const PX=380, PY=PIPY;
-  // flow meter — ห่างจาก pump
-  const FMX=245, FMY=PIPY-30, FMW=95, FMH=58;
-  // freezer
-  const FZX=105, FZY=8, FZW=75, FZH=85;
-  const FZCX=FZX+FZW/2;
-  // line out
-  const LOX=0, LOY=22, LOW=60, LOH=60;
-
+  const TANK_CX=80;
+  const W=500,H=120,PIPY=55,PX=380,PY=PIPY;
+  const FMX=245,FMY=PIPY-30,FMW=95,FMH=58;
+  const FZX=105,FZY=8,FZW=75,FZH=85,FZCX=FZX+FZW/2;
+  const LOX=0,LOY=22,LOW=60,LOH=60;
   function pipe(x1,y1,x2,y2){
     return isRunning
       ?'<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+ac+'" stroke-width="7" stroke-linecap="round" opacity=".2"/>'
        +'<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+ac+'" stroke-width="3.5" stroke-dasharray="8,5" stroke-linecap="round">'+anim+'</line>'
       :'<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="#b0bac8" stroke-width="5" stroke-linecap="round" opacity=".4"/>';
   }
-
-  let s='<svg width="100%" height="'+H+'" viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" style="display:block;margin-top:0">';
-
-  // nozzle ที่ก้นถัง (x=TANK_CX ตรงกับถังพอดี)
+  let s='<svg width="100%" height="'+H+'" viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" style="display:block">';
   s+='<rect x="'+(TANK_CX-5)+'" y="0" width="10" height="14" rx="3" fill="'+ac+'" opacity="'+(isRunning?'.8':'.3')+'"/>';
   s+='<circle cx="'+TANK_CX+'" cy="16" r="7" fill="white" stroke="'+ac+'" stroke-width="2"/>';
   s+='<circle cx="'+TANK_CX+'" cy="16" r="3" fill="'+ac+'" opacity="'+(isRunning?'.7':'.3')+'"/>';
-  // pipe ลง nozzle → elbow
   s+=pipe(TANK_CX,22,TANK_CX,PIPY);
-  // elbow
   s+='<circle cx="'+TANK_CX+'" cy="'+PIPY+'" r="6" fill="'+ac+'" opacity="'+(isRunning?'.5':'.2')+'"/>';
-  // pipe แนวนอน → pump (ซ้าย elbow ไปขวาหา pump)
-  // เปลี่ยนทิศ: ถัง center x=80 → pump x=380 (ขวาไปซ้าย → นับจากขวา)
-  // ปรับ: pipe จาก TANK_CX ไป PX
   s+=pipe(TANK_CX,PIPY,PX-22,PIPY);
-  // pump
   s+='<circle cx="'+PX+'" cy="'+PY+'" r="21" fill="white" stroke="'+ac+'" stroke-width="2.5"/>';
   s+='<text x="'+PX+'" y="'+(PY+6)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="16" fill="'+ac+'" font-weight="900">⚙</text>';
   s+='<text x="'+PX+'" y="'+(PY+34)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="'+ac+'">Pump</text>';
-  // pipe pump → flow meter (ห่าง)
   s+=pipe(PX-22,PIPY,FMX+FMW,PIPY);
-  // flow meter
   s+='<rect x="'+FMX+'" y="'+FMY+'" width="'+FMW+'" height="'+FMH+'" rx="8" fill="'+bg+'" stroke="'+ac+'" stroke-width="2"/>';
   s+='<text x="'+(FMX+FMW/2)+'" y="'+(FMY+14)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="'+ac+'" font-weight="900">⚡ FLOW METER</text>';
   s+='<text x="'+(FMX+FMW/2)+'" y="'+(FMY+33)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="15" fill="'+ac+'" font-weight="900">'+fr.toLocaleString()+'</text>';
   s+='<text x="'+(FMX+FMW/2)+'" y="'+(FMY+49)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="'+ac+'" opacity=".8">L/hr</text>';
-  // pipe flow meter → freezer
   s+=pipe(FMX,PIPY,FZCX,PIPY);
-  // elbow freezer
   s+='<circle cx="'+FZCX+'" cy="'+PIPY+'" r="6" fill="'+ac+'" opacity="'+(isRunning?'.5':'.2')+'"/>';
-  // pipe ขึ้น freezer
   s+=pipe(FZCX,PIPY,FZCX,FZY+FZH);
-  // freezer
   s+='<rect x="'+FZX+'" y="'+FZY+'" width="'+FZW+'" height="'+FZH+'" rx="8" fill="'+bg+'" stroke="'+ac+'" stroke-width="2"/>';
   s+='<text x="'+FZCX+'" y="'+(FZY+22)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="17">🧊</text>';
   s+='<text x="'+FZCX+'" y="'+(FZY+40)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="'+ac+'" font-weight="900">'+fz+'</text>';
   s+='<text x="'+FZCX+'" y="'+(FZY+56)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="'+ac+'" opacity=".7">Freezer</text>';
-  // pipe freezer → line out
   s+=pipe(FZX,FZY+FZH/2,LOX+LOW,FZY+FZH/2);
-  // line out
   s+='<rect x="'+LOX+'" y="'+LOY+'" width="'+LOW+'" height="'+LOH+'" rx="8" fill="'+bg+'" stroke="'+ac+'" stroke-width="2"/>';
   s+='<text x="'+(LOX+LOW/2)+'" y="'+(LOY+22)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="16">🏭</text>';
-  s+='<text x="'+(LOX+LOW/2)+'" y="'+(LOY+40)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="'+ac+'" font-weight="900">'+(line.name||'Line')+'</text>';
-  s+='<text x="'+(LOX+LOW/2)+'" y="'+(LOY+52)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="7" fill="'+ac+'" opacity=".7">Line Out</text>';
-
+  s+='<text x="'+(LOX+LOW/2)+'" y="'+(LOY+38)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="'+ac+'" font-weight="900">'+(lineObj.name||'Line')+'</text>';
   s+='</svg>';
   return s;
 }
-  // ดึง flow rate จาก line.products ตาม mix_code
-  const line=lines.find(l=>l.id===lineId)||{};
-  const curRow=(getTanksForLine(line.name)||[])[0]||{};
-  const mixCode=curRow.mix_code||'';
-  const lineProd=(line.products||[]).find(p=>(p.mix_codes||[]).some(m=>m.code===mixCode));
-  const fr=lineProd?.flow_rate||(lineStates[lineId]||{}).flow_rate||line.flow_rate||300;
-  const fz=(lineStates[lineId]||{}).fz_A||'Freezer';
-  const ac=isRunning?col:'#94a3b8';
-  const anim='<animate attributeName="stroke-dashoffset" from="24" to="0" dur=".55s" repeatCount="indefinite"/>';
-
-  function pipe(x1,y1,x2,y2){
-    return isRunning
-      ?'<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+ac+'" stroke-width="7" stroke-linecap="round" opacity=".2"/>'
-       +'<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+ac+'" stroke-width="3.5" stroke-dasharray="8,5" stroke-linecap="round">'+anim+'</line>'
-      :'<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="#b0bac8" stroke-width="5" stroke-linecap="round" opacity=".5"/>';
-  }
-
-  // SVG dimensions — เชื่อมจากก้นถัง (ถัง SVG อยู่บน)
-  // viewBox กว้าง 380 สูง 110 เรียงขวา→ซ้าย: (ก้นถัง)nozzle→pipe→pump→pipe→flowmeter→pipe→freezer→pipe→line
-  var W=380,H=110;
-  // จุดเริ่มต้นท่อ (nozzle ก้นถัง อยู่ตรงกลางซ้าย-ขวา ของ SVG = x:190 top)
-  var NX=330,NY=0; // nozzle ออกจากบนสุด (เพราะถัง SVG อยู่ด้านบน)
-  var PIPY=55; // y ของท่อแนวนอน
-  // Pump
-  var PX=270,PY=PIPY;
-  // Flow Meter
-  var FMX=175,FMY=PIPY-28,FMW=80,FMH=56;
-  // Freezer
-  var FZX=75,FZY=10,FZW=70,FZH=80;
-  var FZCX=FZX+FZW/2;
-  // Line Out
-  var LOX=0,LOY=25,LOW=55,LOH=55;
-
-  var s='<svg width="100%" height="'+H+'" viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" style="display:block;margin-top:-2px">';
-
-  // nozzle เชื่อมจากก้นถัง (บนสุดของ SVG นี้)
-  s+='<rect x="'+(NX-5)+'" y="0" width="10" height="12" rx="3" fill="'+ac+'" opacity="'+(isRunning?'.8':'.35')+'"/>';
-  s+='<circle cx="'+NX+'" cy="14" r="7" fill="white" stroke="'+ac+'" stroke-width="2" opacity="'+(isRunning?'.9':'.4')+'"/>';
-  s+='<circle cx="'+NX+'" cy="14" r="3" fill="'+ac+'" opacity="'+(isRunning?'.7':'.3')+'"/>';
-  // pipe ลงจาก nozzle → bend
-  s+=pipe(NX,20,NX,PIPY);
-  // elbow
-  s+='<circle cx="'+NX+'" cy="'+PIPY+'" r="5" fill="'+ac+'" opacity="'+(isRunning?'.5':'.25')+'"/>';
-  // pipe แนวนอน nozzle→pump
-  s+=pipe(NX,PIPY,PX+22,PIPY);
-  // Pump
-  s+='<circle cx="'+PX+'" cy="'+PY+'" r="20" fill="white" stroke="'+ac+'" stroke-width="2.5"/>';
-  s+='<text x="'+PX+'" y="'+(PY+5)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="15" fill="'+ac+'" font-weight="900">⚙</text>';
-  s+='<text x="'+PX+'" y="'+(PY+32)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="'+ac+'">Pump</text>';
-  // pipe pump→flow meter
-  s+=pipe(PX-22,PIPY,FMX+FMW,PIPY);
-  // Flow Meter box
-  s+='<rect x="'+FMX+'" y="'+FMY+'" width="'+FMW+'" height="'+FMH+'" rx="8" fill="'+ac+'15" stroke="'+ac+'" stroke-width="2"/>';
-  s+='<text x="'+(FMX+FMW/2)+'" y="'+(FMY+13)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="'+ac+'" font-weight="800">⚡ FLOW</text>';
-  s+='<text x="'+(FMX+FMW/2)+'" y="'+(FMY+30)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="14" fill="'+ac+'" font-weight="900">'+fr.toLocaleString()+'</text>';
-  s+='<text x="'+(FMX+FMW/2)+'" y="'+(FMY+44)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="'+ac+'" opacity=".8">L/hr</text>';
-  // pipe flowmeter→freezer
-  s+=pipe(FMX,PIPY,FZCX,PIPY);
-  // elbow freezer
-  s+='<circle cx="'+FZCX+'" cy="'+PIPY+'" r="5" fill="'+ac+'" opacity="'+(isRunning?'.5':'.25')+'"/>';
-  // pipe ขึ้น freezer
-  s+=pipe(FZCX,PIPY,FZCX,FZY+FZH);
-  // Freezer box
-  s+='<rect x="'+FZX+'" y="'+FZY+'" width="'+FZW+'" height="'+FZH+'" rx="8" fill="rgba(147,197,253,.12)" stroke="'+ac+'" stroke-width="2"/>';
-  s+='<text x="'+FZCX+'" y="'+(FZY+22)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="16">🧊</text>';
-  s+='<text x="'+FZCX+'" y="'+(FZY+40)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="'+ac+'" font-weight="900">'+fz+'</text>';
-  s+='<text x="'+FZCX+'" y="'+(FZY+56)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="'+ac+'" opacity=".7">Freezer</text>';
-  // pipe freezer→line out
-  s+=pipe(FZX,FZY+FZH/2,LOX+LOW,FZY+FZH/2);
-  // Line Out
-  s+='<rect x="'+LOX+'" y="'+LOY+'" width="'+LOW+'" height="'+LOH+'" rx="8" fill="'+ac+'15" stroke="'+ac+'" stroke-width="2"/>';
-  s+='<text x="'+(LOX+LOW/2)+'" y="'+(LOY+22)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="14">🏭</text>';
-  s+='<text x="'+(LOX+LOW/2)+'" y="'+(LOY+38)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="'+ac+'" font-weight="900" style="word-break:break-all">'+(line.name||'Line')+'</text>';
-  s+='</svg>';
-  return s;
-
-// ──────────────────────────────────────────────────────────────────
 
 function getCuringInfo(row,lineId){
   if(!row||!row.past_end_time)return{done:false,endTime:'—'};
@@ -1017,12 +904,12 @@ function buildCard(line){
     const hotOk=(lineStates[line.id]||{})[`hot_q${idx}`]||false;
     const cipOk=(lineStates[line.id]||{})[`cip_q${idx}`]||false;
     const pctC=qPct>50?'#1fd17a':qPct>20?'#f5c842':'#f04f5e';
-    return`<div class="cq-tc" style="flex-shrink:0;min-width:140px;max-width:160px">
+    return`<div class="cq-tc" style="flex-shrink:0;min-width:150px;max-width:170px">
   <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 8px 0">
     <span style="font-family:var(--mono);font-size:10px;font-weight:900;color:var(--t3)">#${idx}</span>
     <div style="display:flex;gap:4px">
-      ${idx>2?`<button onclick="swapQueue('${line.id}',${idx},${idx-1})" style="font-size:11px;padding:2px 6px;border-radius:5px;border:1px solid var(--b1);background:var(--s2);cursor:pointer">◀</button>`:''}
-      <button onclick="swapQueue('${line.id}',${idx},${idx+1})" style="font-size:11px;padding:2px 6px;border-radius:5px;border:1px solid var(--b1);background:var(--s2);cursor:pointer">▶</button>
+      ${idx>2?`<button onclick="swapQueue('${line.id}',${idx},${idx-1})" style="font-size:10px;padding:2px 6px;border-radius:5px;border:1px solid var(--b1);background:var(--s2);cursor:pointer">◀</button>`:''}
+      <button onclick="swapQueue('${line.id}',${idx},${idx+1})" style="font-size:10px;padding:2px 6px;border-radius:5px;border:1px solid var(--b1);background:var(--s2);cursor:pointer">▶</button>
     </div>
   </div>
   <!-- body: ถัง + ข้อมูล+checkbox -->
@@ -1040,16 +927,16 @@ function buildCard(line){
     </div>
     <!-- ข้อมูล + checkbox -->
     <div style="flex:1;display:flex;flex-direction:column;gap:6px;padding-top:4px">
-      <div style="font-family:var(--mono);font-size:12px;font-weight:700;color:${dot};line-height:1.4">${row.mix_name||'—'}</div>
-      <div style="font-family:var(--mono);font-size:11px;color:${dot};opacity:.9">Batch ${row.batch_no||'—'} · ${qVol.toLocaleString()} L</div>
-      <div style="font-family:var(--mono);font-size:10px;color:var(--purple);font-weight:700">รหัส: ${rpc}</div>
+      <div style="font-family:var(--mono);font-size:13px;font-weight:700;color:${dot};line-height:1.5">${row.mix_name||'—'}</div>
+      <div style="font-family:var(--mono);font-size:12px;color:${dot};opacity:.9">Batch ${row.batch_no||'—'} · ${qVol.toLocaleString()} L</div>
+      <div style="font-family:var(--mono);font-size:12px;color:var(--purple);font-weight:700">รหัส: ${rpc}</div>
       <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-top:6px">
         <input type="checkbox" ${hotOk?'checked':''} onchange="setFP('${line.id}','q${idx}','hot_q${idx}',this.checked)" style="width:16px;height:16px;accent-color:var(--green)">
-        <span style="font-family:var(--mono);font-size:11px;font-weight:700;color:${hotOk?'var(--green)':'var(--t2)'}">⭐ น้ำร้อน</span>
+        <span style="font-family:var(--mono);font-size:13px;font-weight:700;color:${hotOk?'var(--green)':'var(--t2)'}">⭐ น้ำร้อน</span>
       </label>
       <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
         <input type="checkbox" ${cipOk?'checked':''} onchange="setFP('${line.id}','q${idx}','cip_q${idx}',this.checked)" style="width:16px;height:16px;accent-color:var(--green)">
-        <span style="font-family:var(--mono);font-size:11px;font-weight:700;color:${cipOk?'var(--green)':'var(--t2)'}">⭐ CIP</span>
+        <span style="font-family:var(--mono);font-size:13px;font-weight:700;color:${cipOk?'var(--green)':'var(--t2)'}">⭐ CIP</span>
       </label>
     </div>
   </div>
@@ -1084,9 +971,9 @@ function buildCard(line){
     <!-- BODY -->
     <div style="display:flex;align-items:stretch">
 
-      <!-- ซ้าย: ถัง SVG + Flow Diagram เชื่อมกัน -->
-      <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;min-width:150px">
-      <!-- ถัง SVG — status อยู่ในถัง -->
+      <!-- ซ้าย: ถัง + diagram -->
+      <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center">
+      <!-- ถัง SVG -->
       <div style="flex-shrink:0;width:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 8px;border-right:1px solid var(--b1);background:rgba(0,0,0,.15)">
         <div style="font-family:var(--mono);font-size:13px;color:#111827;font-weight:900;margin-bottom:4px;text-align:center;background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.2);border-radius:6px;padding:2px 10px">${agingTank}</div>
         <div style="position:relative;display:flex;justify-content:center;align-items:center">
@@ -1102,14 +989,12 @@ function buildCard(line){
         </div>
       </div>
 
-      <div style="width:100%">${buildFlowDiagram(line.id,agingTank,col,isRunning)}</div>
-      </div>
       <!-- Controls — เรียงแนวตั้ง ไม่ล้น -->
       <div style="flex-shrink:0;width:200px;padding:12px;display:flex;flex-direction:column;gap:8px;border-right:1px solid var(--b1)">
 
         ${fpPanel(line.id,'A')}
 
-        <!-- time inputs -->
+        <!-- time -->
         <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px">
           <span style="font-family:var(--mono);font-size:10px;color:var(--t3);min-width:36px">Start</span>
           <input type="time" value="${st.start_time||''}" style="font-family:var(--mono);font-size:11px;border:1px solid var(--b1);border-radius:5px;padding:2px 6px;flex:1" onchange="_editLineTime('${line.id}','start_time',this.value)">
@@ -1134,7 +1019,7 @@ function buildCard(line){
       </div>
 
       <!-- Queue — card เหมือน Filling -->
-      <div style="flex:1;padding:10px 12px;overflow-y:hidden;border:1px solid rgba(6,182,212,.2);border-radius:12px;background:rgba(6,182,212,.03)">
+      <div style="flex:1;padding:10px 12px;overflow-y:auto;max-height:340px;border:1px solid rgba(6,182,212,.2);border-radius:12px;background:rgba(6,182,212,.03)">
         <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--cyan);letter-spacing:.1em;margin-bottom:8px">⏳ คิวรอผลิต</div>
         <div style="display:flex;gap:10px;flex-wrap:nowrap;overflow-x:auto;align-items:flex-start;padding-bottom:4px">
           ${queue.length?queue.map((r,i)=>queueItem(r,i+2)).join('')
