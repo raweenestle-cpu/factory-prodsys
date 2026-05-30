@@ -476,12 +476,12 @@ async function init(){
   const d=today();
   unsubP1=onSnapshot(query(collection(db,'production_plans'),where('status','in',['pasteurising','past_done','ready'])),snap=>{
     const rp1=snap.docs.map(d=>({id:d.id,_col:'production_plans',...d.data()}));const cs1=(new Date(Date.now()-2*864e5)).toISOString().slice(0,10);const rf1=rp1.filter(x=>x.status==='pasteurising'||x.status==='ready'||(x.date||'')>=cs1);
-    planRows=planRows.filter(x=>x._col!=='production_plans').concat(rf1);window._pr=planRows;renderAll();
+    planRows=planRows.filter(x=>x._col!=='production_plans').concat(rf1);renderAll();
 window._planRows=planRows;
   });
   unsubP2=onSnapshot(query(collection(db,'production_plans_m2'),where('status','in',['pasteurising','past_done','ready'])),snap=>{
     const rp2=snap.docs.map(d=>({id:d.id,_col:'production_plans_m2',...d.data()}));const cs2=(new Date(Date.now()-2*864e5)).toISOString().slice(0,10);const rf2=rp2.filter(x=>x.status==='pasteurising'||x.status==='ready'||(x.date||'')>=cs2);
-    planRows=planRows.filter(x=>x._col!=='production_plans_m2').concat(rf2);window._pr=planRows;renderAll();
+    planRows=planRows.filter(x=>x._col!=='production_plans_m2').concat(rf2);renderAll();
 window._planRows=planRows;
   });
 
@@ -489,7 +489,6 @@ window._planRows=planRows;
 }
 
 // HELPERS
-window._getTanks=function(n){return getTanksForLine(n);};
 function getTanksForLine(lineName){
   const raw=planRows
     .filter(r=>r.filling_line===lineName&&(r.status==='ready'||r.status==='past_done'||r.status==='pasteurising'))
@@ -675,7 +674,7 @@ function tankSVGSm(uid,pct,col,run){
   return s;
 }
 
-function tankSVG(uid,pct,col,run,statusTxt,statusCol,sw,sh){
+function tankSVG(uid,pct,col,run,statusTxt,statusCol,sw,sh,volL){
   statusCol=statusCol||col;
   sw=sw||160; sh=sh||280;
   const bX=14,bY=18,bW=sw-28,bH=sh-45;
@@ -732,10 +731,10 @@ function tankSVG(uid,pct,col,run,statusTxt,statusCol,sw,sh){
   s+='<rect x="'+(bX+3)+'" y="'+(bY+bH+13)+'" width="'+(bW-6)+'" height="5" rx="2" fill="rgba(255,255,255,.12)" stroke="'+bodyStroke+'" stroke-width="1" stroke-opacity=".5"/>';
   // text
   const tc='#111827';
-  s+='<text x="'+(sw/2)+'" y="'+(midY-4)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="20" font-weight="900" fill="#15803d">'+(hasLiq?Math.round(pct)+'%':'ว่าง')+'</text>';
+  s+='<text x="'+(sw/2)+'" y="'+(midY-4)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="20" font-weight="900" fill="#15803d">'+(volL!=null?Math.round(volL).toLocaleString()+' L':(hasLiq?Math.round(pct)+'%':'ว่าง'))+'</text>';
   if(hasLiq){
-    s+='<rect x="'+(bX+4)+'" y="'+(midY+8)+'" width="'+(bW-8)+'" height="22" rx="11" fill="rgba(0,0,0,.55)"/>';
-    s+='<text x="'+(sw/2)+'" y="'+(midY+23)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" font-weight="900" fill="#ffffff">'+statusTxt+'</text>';
+    s+='<rect x="'+(bX+4)+'" y="'+(midY+6)+'" width="'+(bW-8)+'" height="22" rx="11" fill="rgba(0,0,0,.55)"/>';
+    s+='<text x="'+(sw/2)+'" y="'+(midY+21)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" font-weight="900" fill="#ffffff">'+statusTxt+'</text>';
   }
   s+='</svg>';
   return s;
@@ -847,14 +846,12 @@ function buildCard(line){
     let stTxt='—',stC='var(--t2)';
     if(row.status==='pasteurising'&&!row.past_end_time){stTxt='♨️ Past.';stC='var(--orange)';}
     else if(row.status==='past_done'||row.status==='pasteurising'){
-      const _p=productMap[row.mix_code];
-      const _agHr=+((_p?.aging_time)||0);
-      const _endTs=_agHr===0?new Date(Date.now()-1000):calcCuringEndTs(row.past_end_time,_agHr,row.date||null);
-      const _curingDone=_endTs?Date.now()>=_endTs.getTime():false;
-      if(_curingDone){stTxt='✅ บ่มเสร็จ';stC='var(--green)';}
-      else{stTxt='🌡️ บ่มอยู่';stC='var(--yellow)';}
+      const _p2=productMap[row.mix_code];const _agHr2=+((_p2?.aging_time)||0);
+      const _eTs=_agHr2===0?new Date(Date.now()-1000):calcCuringEndTs(row.past_end_time,_agHr2,row.date||null);
+      const _cd=_eTs?Date.now()>=_eTs.getTime():false;
+      if(_cd){stTxt='✅ บ่มเสร็จ';stC='var(--green)';}else{stTxt='🌡️ บ่มอยู่';stC='var(--yellow)';}
     }
-    if(row.past_end_time&&curingEnd!=='—'&&stTxt==='🌡️ บ่มอยู่'){stTxt+=` → ${curingEnd}`;}
+    if(row.past_end_time&&curingEnd!=='—'){stTxt+=` → ${curingEnd}`;}
     const hotOk=(lineStates[line.id]||{})[`hot_q${idx}`]||false;
     const cipOk=(lineStates[line.id]||{})[`cip_q${idx}`]||false;
     const pctC=qPct>50?'#1fd17a':qPct>20?'#f5c842':'#f04f5e';
@@ -925,8 +922,14 @@ function buildCard(line){
         <div style="position:relative;display:flex;justify-content:center;align-items:center">
           ${tankSVG('S'+line.id, pct, col, hasLiquid,
             current.status==='pasteurising'?'🔵 กำลัง Pasteurise':curing.done?'✅ บ่มเสร็จ':'🌡️ กำลังบ่ม',
-            current.status==='pasteurising'?'#fb923c':curing.done?'#4ade80':'#fde047'
+            current.status==='pasteurising'?'#fb923c':curing.done?'#4ade80':'#fde047',
+            undefined,undefined,sv
           )}
+          <div style="position:absolute;top:38%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;width:90%">
+            <div id="vol-S${line.id}" style="font-family:var(--mono);font-size:13px;font-weight:700;color:${pctC};text-shadow:0 2px 8px rgba(0,0,0,1)">${fmtL(rem)} L</div>
+            <div id="pct-S${line.id}" style="font-family:var(--mono);font-size:11px;color:${pctC};text-shadow:0 1px 6px rgba(0,0,0,1)">${pct.toFixed(1)}%</div>
+            <div id="eta-S${line.id}" style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,.8)">${getEtaStr(rem,fr,isRunning)}</div>
+          </div>
         </div>
       </div>
 
