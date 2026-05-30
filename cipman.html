@@ -635,7 +635,7 @@ function fpPanel(lineId,tank){
 // SVG TANK
 // ถังเล็กสำหรับ queue card
 function tankSVGSm(uid,pct,col,run){
-  const sw=150,sh=260;
+  const sw=120,sh=200;
   const bX=10,bY=30,bW=sw-20,bH=sh-45;
   const nW=16,nH=7,cW=22,cH=4;
   const nX=bX+(bW-nW)/2,cX=bX+(bW-cW)/2;
@@ -657,7 +657,7 @@ function tankSVGSm(uid,pct,col,run){
     }
     return d+' L'+(bX+W)+','+(bY+bH)+' L'+bX+','+(bY+bH)+' Z';
   }
-  let s='<svg width="'+sw+'" height="'+sh+'" viewBox="0 0 '+sw+' '+sh+'" style="display:block">';
+  let s='<svg width="100%" height="'+sh+'" viewBox="0 0 '+sw+' '+sh+'" style="display:block">';
   s+='<defs><linearGradient id="'+gid+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="'+col+'" stop-opacity=".5"/><stop offset="100%" stop-color="'+col+'" stop-opacity=".85"/></linearGradient>';
   s+='<clipPath id="'+cid+'"><rect x="'+bX+'" y="'+bY+'" width="'+bW+'" height="'+bH+'" rx="10"/></clipPath></defs>';
   s+='<rect x="'+nX+'" y="'+(bY-nH)+'" width="'+nW+'" height="'+(nH+4)+'" rx="3" fill="'+(hasLiq?'#16a34a':'rgba(255,255,255,.12)')+'" stroke="'+bodyStroke+'" stroke-width="1.5" stroke-opacity=".6"/>';
