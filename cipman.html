@@ -332,15 +332,6 @@ main{position:relative;z-index:1;padding:10px 12px;}
 <div id="toast"></div>
 
 <script type="module">
-let _pendingCipAct=null;
-window._signSkip=function(){document.getElementById('sign-modal-overlay').style.display='none';if(_pendingCipAct){_pendingCipAct();_pendingCipAct=null;}};
-window._signConfirm=function(){document.getElementById('sign-modal-overlay').style.display='none';if(_pendingCipAct){_pendingCipAct();_pendingCipAct=null;}};
-function showSignModal(title,cb){document.getElementById('sign-modal-title').textContent=title;document.getElementById('sign-modal-overlay').style.display='flex';_pendingCipAct=cb;}
-window._editLineTime=async(lineId,field,val)=>{
-  if(!lineId||!val)return;
-  try{await setDoc(doc(db,'cip_line_states',lineId),{[field]:val,updated_at:new Date().toISOString()},{merge:true});toast('✅ แก้ไขเวลา '+field+' → '+val,'green');}catch(e){toast('Error: '+e.message,'red');}
-};
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import {resolveStatus,statusLabel,statusColor,statusBlink,statusBadge} from "./shared.js";
@@ -533,6 +524,9 @@ function calcCuringEnd(pastEnd,agingHr){
   return String(Math.floor(tot/60)%24).padStart(2,'0')+':'+String(tot%60).padStart(2,'0');
 }
 
+// ── NEW FUNCTIONS ──────────────────────────────────────────────────
+
+// ข้อ 3: Aging countdown
 function calcAgingCountdown(pastEnd,agingHr){
   if(!pastEnd)return null;
   const[h,m]=pastEnd.split(':').map(Number);
@@ -540,11 +534,63 @@ function calcAgingCountdown(pastEnd,agingHr){
   const endTs=base.getTime()+(agingHr||4)*3600000;
   const rem=endTs-Date.now();
   if(rem<=0)return'✅ บ่มเสร็จ';
-  const rh=Math.floor(rem/3600000);
-  const rm=Math.floor((rem%3600000)/60000);
-  const rs=Math.floor((rem%60000)/1000);
+  const rh=Math.floor(rem/3600000),rm=Math.floor((rem%3600000)/60000),rs=Math.floor((rem%60000)/1000);
   return rh+'h '+String(rm).padStart(2,'0')+'m '+String(rs).padStart(2,'0')+'s';
 }
+
+// ข้อ 4: modal
+let _pendingCipAct=null;
+window._signSkip=function(){document.getElementById('sign-modal-overlay').style.display='none';if(_pendingCipAct){_pendingCipAct();_pendingCipAct=null;}};
+window._signConfirm=function(){document.getElementById('sign-modal-overlay').style.display='none';if(_pendingCipAct){_pendingCipAct();_pendingCipAct=null;}};
+function showSignModal(title,cb){document.getElementById('sign-modal-title').textContent=title;document.getElementById('sign-modal-overlay').style.display='flex';_pendingCipAct=cb;}
+
+// ข้อ 4: edit time
+window._editLineTime=async(lineId,field,val)=>{
+  if(!lineId||!val)return;
+  try{await setDoc(doc(db,'cip_line_states',lineId),{[field]:val,updated_at:new Date().toISOString()},{merge:true});toast('✅ แก้ไขเวลา '+field+' → '+val,'green');}catch(e){toast('Error: '+e.message,'red');}
+};
+
+// ข้อ 5: swap queue
+window.swapQueue=async(lineId,idxA,idxB)=>{
+  const ln=lines.find(l=>l.id===lineId);
+  const tanks=getTanksForLine(ln?.name||'');
+  const rowA=tanks[idxA-1],rowB=tanks[idxB-1];
+  if(!rowA||!rowB){toast('ไม่พบถังที่จะสลับ','red');return;}
+  const seqA=+(rowA.queue_order||rowA.seq||idxA),seqB=+(rowB.queue_order||rowB.seq||idxB);
+  try{
+    await updateDoc(doc(db,rowA._col,rowA.id),{queue_order:seqB,updated_at:new Date().toISOString()});
+    await updateDoc(doc(db,rowB._col,rowB.id),{queue_order:seqA,updated_at:new Date().toISOString()});
+    toast('✅ สลับลำดับแล้ว','green');
+  }catch(e){toast('Error: '+e.message,'red');}
+};
+
+// ข้อ 9: flow diagram
+function buildFlowDiagram(lineId,agingTank,col,isRunning){
+  const st=lineStates[lineId]||{};
+  const fz=st.fz_A||'FZ';
+  const ac=isRunning?col:'#6b7280';
+  const anim='<animate attributeName="stroke-dashoffset" from="24" to="0" dur=".6s" repeatCount="indefinite"/>';
+  const pipe=(x1,y1,x2,y2)=>isRunning
+    ?'<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+ac+'" stroke-width="5" stroke-linecap="round" opacity=".25"/><line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+ac+'" stroke-width="2.5" stroke-dasharray="8,5" stroke-linecap="round">'+anim+'</line>'
+    :'<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+ac+'" stroke-width="4" stroke-linecap="round" opacity=".4"/>';
+  return '<svg width="100%" height="60" viewBox="0 0 440 60" xmlns="http://www.w3.org/2000/svg" style="margin:4px 0">'
+    +'<rect x="370" y="8" width="65" height="44" rx="8" fill="'+ac+'22" stroke="'+ac+'" stroke-width="2"/>'
+    +'<text x="402" y="27" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="'+ac+'" font-weight="900">'+(agingTank||'Aging')+'</text>'
+    +'<text x="402" y="44" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="'+ac+'">Tank</text>'
+    +pipe(370,30,300,30)
+    +'<circle cx="283" cy="30" r="17" fill="white" stroke="'+ac+'" stroke-width="2.5"/>'
+    +'<text x="283" y="35" text-anchor="middle" font-family="DM Mono,monospace" font-size="13" fill="'+ac+'" font-weight="900">⚙</text>'
+    +pipe(266,30,200,30)
+    +'<rect x="130" y="8" width="70" height="44" rx="8" fill="'+ac+'22" stroke="'+ac+'" stroke-width="2"/>'
+    +'<text x="165" y="27" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="'+ac+'" font-weight="900">🧊 '+fz+'</text>'
+    +'<text x="165" y="44" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="'+ac+'">Freezer</text>'
+    +pipe(130,30,65,30)
+    +'<rect x="0" y="8" width="65" height="44" rx="8" fill="'+ac+'22" stroke="'+ac+'" stroke-width="2"/>'
+    +'<text x="32" y="27" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="'+ac+'" font-weight="900">🏭 Line</text>'
+    +'</svg>';
+}
+
+// ──────────────────────────────────────────────────────────────────
 
 function getCuringInfo(row,lineId){
   if(!row||!row.past_end_time)return{done:false,endTime:'—'};
@@ -1015,89 +1061,7 @@ function renderQueuePage(){
 const _empName = sessionStorage.getItem('emp_name')||'';
 const _empSig  = sessionStorage.getItem('emp_sig')||'';
 
-
-
-function buildFlowDiagram(lineId,agingTank,col,isRunning){
-  const st=lineStates[lineId]||{};
-  const fz=st.fz_A||'FZ';
-  const ac=isRunning?col:'#6b7280';
-  const dash='stroke-dasharray="8,5" stroke-linecap="round"';
-  const anim='<animate attributeName="stroke-dashoffset" from="24" to="0" dur=".6s" repeatCount="indefinite"/>';
-  const pipe=(x1,y1,x2,y2)=>isRunning
-    ?`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${ac}" stroke-width="5" stroke-linecap="round" opacity=".25"/><line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${ac}" stroke-width="2.5" ${dash}>${anim}</line>`
-    :`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${ac}" stroke-width="4" stroke-linecap="round" opacity=".4"/>`;
-  return `<svg width="100%" height="60" viewBox="0 0 440 60" xmlns="http://www.w3.org/2000/svg" style="margin:4px 0">
-    <rect x="370" y="8" width="65" height="44" rx="8" fill="${ac}22" stroke="${ac}" stroke-width="2"/>
-    <text x="402" y="27" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="${ac}" font-weight="900">${agingTank||'Aging'}</text>
-    <text x="402" y="44" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="${ac}">Tank</text>
-    ${pipe(370,30,300,30)}
-    <circle cx="283" cy="30" r="17" fill="white" stroke="${ac}" stroke-width="2.5"/>
-    <text x="283" y="35" text-anchor="middle" font-family="DM Mono,monospace" font-size="13" fill="${ac}" font-weight="900">⚙</text>
-    ${pipe(266,30,200,30)}
-    <rect x="130" y="8" width="70" height="44" rx="8" fill="${ac}22" stroke="${ac}" stroke-width="2"/>
-    <text x="165" y="27" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="${ac}" font-weight="900">🧊 ${fz}</text>
-    <text x="165" y="44" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="${ac}">Freezer</text>
-    ${pipe(130,30,65,30)}
-    <rect x="0" y="8" width="65" height="44" rx="8" fill="${ac}22" stroke="${ac}" stroke-width="2"/>
-    <text x="32" y="27" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="${ac}" font-weight="900">🏭 Line</text>
-  </svg>`;
-}
-
-window.swapQueue=async(lineId,idxA,idxB)=>{
-  const ln=lines.find(l=>l.id===lineId);
-  const tanks=getTanksForLine(ln?.name||'');
-  const rowA=tanks[idxA-1],rowB=tanks[idxB-1];
-  if(!rowA||!rowB){toast('ไม่พบถังที่จะสลับ','red');return;}
-  const seqA=+(rowA.queue_order||rowA.seq||idxA),seqB=+(rowB.queue_order||rowB.seq||idxB);
-  try{
-    await updateDoc(doc(db,rowA._col,rowA.id),{queue_order:seqB,updated_at:new Date().toISOString()});
-    await updateDoc(doc(db,rowB._col,rowB.id),{queue_order:seqA,updated_at:new Date().toISOString()});
-    toast('✅ สลับลำดับแล้ว','green');
-  }catch(e){toast('Error: '+e.message,'red');}
-};
-
 window.startLine=(lineId,sv,fr)=>{showSignModal('▶ Start — '+lineId,()=>_startLineReal(lineId,sv,fr));};
-
-
-function buildFlowDiagram(lineId,agingTank,col,isRunning){
-  const st=lineStates[lineId]||{};
-  const fz=st.fz_A||'FZ';
-  const ac=isRunning?col:'#6b7280';
-  const dash='stroke-dasharray="8,5" stroke-linecap="round"';
-  const anim='<animate attributeName="stroke-dashoffset" from="24" to="0" dur=".6s" repeatCount="indefinite"/>';
-  const pipe=(x1,y1,x2,y2)=>isRunning
-    ?`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${ac}" stroke-width="5" stroke-linecap="round" opacity=".25"/><line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${ac}" stroke-width="2.5" ${dash}>${anim}</line>`
-    :`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${ac}" stroke-width="4" stroke-linecap="round" opacity=".4"/>`;
-  return `<svg width="100%" height="60" viewBox="0 0 440 60" xmlns="http://www.w3.org/2000/svg" style="margin:4px 0">
-    <rect x="370" y="8" width="65" height="44" rx="8" fill="${ac}22" stroke="${ac}" stroke-width="2"/>
-    <text x="402" y="27" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="${ac}" font-weight="900">${agingTank||'Aging'}</text>
-    <text x="402" y="44" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="${ac}">Tank</text>
-    ${pipe(370,30,300,30)}
-    <circle cx="283" cy="30" r="17" fill="white" stroke="${ac}" stroke-width="2.5"/>
-    <text x="283" y="35" text-anchor="middle" font-family="DM Mono,monospace" font-size="13" fill="${ac}" font-weight="900">⚙</text>
-    ${pipe(266,30,200,30)}
-    <rect x="130" y="8" width="70" height="44" rx="8" fill="${ac}22" stroke="${ac}" stroke-width="2"/>
-    <text x="165" y="27" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="${ac}" font-weight="900">🧊 ${fz}</text>
-    <text x="165" y="44" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="${ac}">Freezer</text>
-    ${pipe(130,30,65,30)}
-    <rect x="0" y="8" width="65" height="44" rx="8" fill="${ac}22" stroke="${ac}" stroke-width="2"/>
-    <text x="32" y="27" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="${ac}" font-weight="900">🏭 Line</text>
-  </svg>`;
-}
-
-ndow.swapQueue=async(lineId,idxA,idxB)=>{
-  const ln=lines.find(l=>l.id===lineId);
-  const tanks=getTanksForLine(ln?.name||'');
-  const rowA=tanks[idxA-1],rowB=tanks[idxB-1];
-  if(!rowA||!rowB){toast('ไม่พบถังที่จะสลับ','red');return;}
-  const seqA=+(rowA.queue_order||rowA.seq||idxA),seqB=+(rowB.queue_order||rowB.seq||idxB);
-  try{
-    await updateDoc(doc(db,rowA._col,rowA.id),{queue_order:seqB,updated_at:new Date().toISOString()});
-    await updateDoc(doc(db,rowB._col,rowB.id),{queue_order:seqA,updated_at:new Date().toISOString()});
-    toast('✅ สลับลำดับแล้ว','green');
-  }catch(e){toast('Error: '+e.message,'red');}
-};
-
 window.startLine=async(lineId,sv,fr)=>{
   if(!_empSig){toast('กรุณา login ด้วย PIN ก่อน','red');return;}
   await setDoc(doc(db,'cip_line_states',lineId),{running:true,start_ts:Date.now(),start_vol:sv,flow_rate:fr,started_by:_empName,start_sig:_empSig,started_at:nowHHMM(),started_by:ME.email},{merge:true});
