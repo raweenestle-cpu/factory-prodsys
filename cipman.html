@@ -927,11 +927,6 @@ function buildCard(line){
             current.status==='pasteurising'?'🔵 กำลัง Pasteurise':curing.done?'✅ บ่มเสร็จ':'🌡️ กำลังบ่ม',
             current.status==='pasteurising'?'#fb923c':curing.done?'#4ade80':'#fde047'
           )}
-          <div style="position:absolute;top:38%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;width:90%">
-            <div id="vol-S${line.id}" style="font-family:var(--mono);font-size:13px;font-weight:700;color:${pctC};text-shadow:0 2px 8px rgba(0,0,0,1)">${fmtL(rem)} L</div>
-            <div id="pct-S${line.id}" style="font-family:var(--mono);font-size:11px;color:${pctC};text-shadow:0 1px 6px rgba(0,0,0,1)">${pct.toFixed(1)}%</div>
-            <div id="eta-S${line.id}" style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,.8)">${getEtaStr(rem,fr,isRunning)}</div>
-          </div>
         </div>
       </div>
 
