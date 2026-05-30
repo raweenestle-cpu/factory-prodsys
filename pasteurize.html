@@ -1424,14 +1424,20 @@ window.submitPast=async(col,id,p,eff,warn)=>{
 };
 
 // ── EDIT / DELETE TIME ────────────────────────────────────────────────
-window.editTimePrompt=async(col,id,field,current)=>{
+window.editTimePrompt=async(col,id,field,current,rowDate)=>{
   const val=prompt("แก้ไขเวลา (HH:MM หรือ HH:MM:SS) :",current||"");
   if(val===null)return;
   const clean=val.trim();
   if(!/^\d{2}:\d{2}(:\d{2})?$/.test(clean)){toast("รูปแบบ HH:MM หรือ HH:MM:SS เท่านั้น","red");return;}
   const upd={[field]:clean};
   if(field==="past_start_time"&&clean) upd.status="pasteurising";
-  if(field==="past_end_time"&&clean)   upd.status="past_done";
+  if(field==="past_end_time"&&clean){
+    upd.status="past_done";
+    // เพิ่ม ISO timestamp สำหรับคำนวณ aging
+    const _d=rowDate||new Date().toISOString().slice(0,10);
+    const _t=clean.length===5?clean+':00':clean;
+    try{upd.past_end_at=new Date(_d+'T'+_t).toISOString();}catch{}
+  }
   await updateDoc(doc(db,col,id),upd);
   toast("แก้ไขเวลาแล้ว","green");
 };
@@ -1544,7 +1550,7 @@ function renderPlan(p){
               if(eff2>100){
                 return `<div style="display:flex;flex-direction:column;gap:4px">
                   <button disabled style="width:100%;padding:5px 8px;border-radius:8px;font-family:var(--mono);font-size:11px;font-weight:700;border:1px solid rgba(240,79,94,.3);background:rgba(240,79,94,.08);color:#ef4444;cursor:not-allowed">🔒 ส่งไม่ได้ (${eff2.toFixed(1)}%)</button>
-                  <button onclick="editTimePrompt('${col}','${row.id}','past_end_time','${row.past_end_time}')" style="width:100%;padding:5px 8px;border-radius:8px;font-family:var(--mono);font-size:11px;font-weight:700;border:1px solid rgba(234,179,8,.4);background:rgba(234,179,8,.08);color:#fde047;cursor:pointer">✏️ แก้เวลาเสร็จ</button>
+                  <button onclick="editTimePrompt('${col}','${row.id}','past_end_time','${row.past_end_time}','${row.date||""}')" style="width:100%;padding:5px 8px;border-radius:8px;font-family:var(--mono);font-size:11px;font-weight:700;border:1px solid rgba(234,179,8,.4);background:rgba(234,179,8,.08);color:#fde047;cursor:pointer">✏️ แก้เวลาเสร็จ</button>
                 </div>`;
               }
               const warn=eff2<97;

@@ -518,16 +518,48 @@ function getTanksForLine(lineName){
 }
 function calcCuringEnd(pastEnd,agingHr){
   if(!pastEnd||!agingHr)return'—';
-  const[h,m]=pastEnd.split(':').map(Number);const tot=h*60+m+(+agingHr)*60;
-  return String(Math.floor(tot/60)%24).padStart(2,'0')+':'+String(tot%60).padStart(2,'0');
+  // ใช้วันปัจจุบันเป็น base แล้วบวก agingHr
+  const[h,m]=pastEnd.split(':').map(Number);
+  const base=new Date();
+  base.setHours(h,m,0,0);
+  // ถ้าเวลา past_end_time > เวลาปัจจุบัน → น่าจะเป็นวันก่อนหน้า ให้ลบ 1 วัน
+  // แต่ถ้าน้อยกว่า → วันนี้
+  // เพื่อความปลอดภัย ใช้ base ตามที่ set แล้วบวก aging hours ไปเลย
+  const endTs=new Date(base.getTime()+(+agingHr)*3600000);
+  const dStr=endTs.toLocaleDateString('th-TH',{weekday:'short',day:'2-digit',month:'short'});
+  const tStr=endTs.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+  return dStr+' '+tStr;
+}
+function calcCuringEndTs(pastEnd,agingHr,dateStr){
+  // คำนวณ timestamp จริงจาก past_end_date + past_end_time + agingHr
+  if(!pastEnd||!agingHr)return null;
+  const[h,m]=pastEnd.split(':').map(Number);
+  // ถ้ามี dateStr ใช้วันนั้น ไม่งั้นใช้วันนี้
+  let base;
+  if(dateStr){
+    base=new Date(dateStr);
+    base.setHours(h,m,0,0);
+  } else {
+    base=new Date();
+    base.setHours(h,m,0,0);
+    // ถ้าเวลา past_end ผ่านมานานแล้วในวันนี้ ก็ถือวันนี้
+  }
+  return new Date(base.getTime()+(+agingHr)*3600000);
 }
 function getCuringInfo(row,lineId){
   if(!row||!row.past_end_time)return{done:false,endTime:'—'};
   const p=productMap[row.mix_code];const agingHr=+(p?.aging_time||4);
-  const endTime=calcCuringEnd(row.past_end_time,agingHr);
-  const[eh,em]=endTime.split(':').map(Number);
-  const nowMin=new Date().getHours()*60+new Date().getMinutes();
-  return{done:(eh*60+em)<=nowMin||(lineStates[lineId]||{}).curing_done||false,endTime};
+  // ใช้ past_end_at (ISO) ถ้ามี ไม่งั้น fallback ใช้ date+past_end_time
+  let endTs=null;
+  if(row.past_end_at){
+    const base=new Date(row.past_end_at);
+    endTs=new Date(base.getTime()+agingHr*3600000);
+  } else {
+    endTs=calcCuringEndTs(row.past_end_time,agingHr,row.date||null);
+  }
+  const endTime=endTs?endTs.toLocaleDateString('th-TH',{weekday:'short',day:'2-digit',month:'short'})+' '+endTs.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'}):'—';
+  const done=endTs?Date.now()>=endTs.getTime():false;
+  return{done:done||(lineStates[lineId]||{}).curing_done||false,endTime};
 }
 function getEtaStr(rem,flow,run){
   if(!run||rem<=0)return'';
