@@ -111,6 +111,19 @@ nav{position:sticky;top:0;z-index:100;background:rgba(7,9,15,.95);border-bottom:
 /* SVG */
 .tsw{width:100%;flex-shrink:0;position:relative;margin:0 auto 4px;display:flex;justify-content:center}
 #twin-grid .tc{width:160px}
+
+.line-group{border-radius:18px;padding:16px;margin-bottom:18px;
+  box-shadow:0 4px 16px rgba(0,0,0,.08);
+  border:2px solid var(--lc,#b0bac8);
+  background:linear-gradient(160deg,rgba(var(--lr,176,186,200),.10) 0%,rgba(var(--lr,176,186,200),.03) 100%);
+  position:relative;overflow:hidden}
+.line-group::before{content:'';position:absolute;left:0;top:0;bottom:0;width:6px;
+  background:var(--lc,#b0bac8);border-radius:18px 0 0 18px}
+.line-title{font-family:var(--mono);font-size:20px;font-weight:900;letter-spacing:.04em;
+  color:var(--lc,var(--text));margin-bottom:14px;padding-left:14px;
+  display:flex;align-items:center;gap:8px;border-bottom:none}
+.line-badge{font-family:var(--mono);font-size:10px;font-weight:800;padding:3px 10px;
+  border-radius:6px;background:var(--lc,#b0bac8);color:#fff;letter-spacing:.08em}
 </style>
 </head>
 <body>
@@ -265,6 +278,27 @@ onAuthStateChanged(auth,async u=>{
 window.doLogout=async()=>{await signOut(auth);location.href='index.html';};
 
 // ── RENDER ────────────────────────────────────────────────────────────
+
+const _LC={'hoyer':{h:'#ea580c',r:'234,88,12'},'glace':{h:'#2563eb',r:'37,99,235'},
+  'glacé':{h:'#2563eb',r:'37,99,235'},'scoop':{h:'#16a34a',r:'22,163,74'},
+  'extru':{h:'#7c3aed',r:'124,58,237'},'polo 12a':{h:'#0891b2',r:'8,145,178'},
+  'polo 12b':{h:'#0e7490',r:'14,116,144'},'comet':{h:'#b45309',r:'180,83,9'},
+  'mach':{h:'#be185d',r:'190,24,93'},'sandwich':{h:'#4f46e5',r:'79,70,229'}};
+function _glc(name){
+  if(!name)return{h:'#6b7280',r:'107,114,128'};
+  const k=Object.keys(_LC).find(k=>name.toLowerCase().includes(k));
+  return k?_LC[k]:{h:'#0891b2',r:'8,145,178'};
+}
+function _makeSection(name){
+  const lc=_glc(name);
+  const d=document.createElement('div');
+  d.className='line-group';
+  d.style.setProperty('--lc',lc.h);
+  d.style.setProperty('--lr',lc.r);
+  d.innerHTML='<div class="line-title">🏭 '+name+'<span class="line-badge">LINE</span></div>';
+  return d;
+}
+
 function renderAll(){renderBangchan();renderTwin();}
 
 function renderBangchan(){
@@ -290,8 +324,7 @@ function renderBangchan(){
   }
 
   groups.forEach(g=>{
-    const div=document.createElement('div');div.className='line-group';
-    div.innerHTML='<div class="line-title">🏭 '+g.name+'</div>';
+    const div=_makeSection(g.name);
     const grid=document.createElement('div');grid.className='tank-grid';
     g.tanks.forEach(t=>grid.appendChild(makeTankCard(t)));
     div.appendChild(grid);el.appendChild(div);
@@ -306,8 +339,12 @@ function renderTwin(){
     rowDiv.style.cssText='display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap';
     rowLines.forEach(line=>{
       const ld=document.createElement('div');
-      ld.style.cssText='flex:1;min-width:300px;border:2px solid '+line.color+'44;border-radius:12px;padding:10px;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.07)';
-      ld.innerHTML='<div style="font-family:var(--mono);font-size:14px;font-weight:900;color:'+line.color+';margin-bottom:10px;letter-spacing:.04em;border-bottom:2px solid '+line.color+'33;padding-bottom:6px">🏭 '+line.name+'</div>';
+      const _tlc=_glc(line.name);
+      ld.className='line-group';
+      ld.style.cssText='flex:1;min-width:300px';
+      ld.style.setProperty('--lc',_tlc.h);
+      ld.style.setProperty('--lr',_tlc.r);
+      ld.innerHTML='<div class="line-title">🏭 '+line.name+'<span class="line-badge">LINE</span></div>';
       const grid=document.createElement('div');grid.style.cssText='display:flex;flex-wrap:wrap;gap:12px';
       line.tanks.forEach(t=>grid.appendChild(makeTankCard(t)));
       ld.appendChild(grid);rowDiv.appendChild(ld);
