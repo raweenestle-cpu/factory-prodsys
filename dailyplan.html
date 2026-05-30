@@ -106,7 +106,7 @@ tr:hover td{background:var(--s1)}
   </div>
 
   <!-- Column Mapping Panel -->
-  <div class="map-panel" id="mapPanel">
+  <div class="map-panel" id="mapPanel" style="display:none!important">
     <div class="map-title">📋 กำหนด Column ของ Excel</div>
     <div class="map-grid" id="mapGrid"></div>
     <div style="margin-top:14px;display:flex;gap:8px">
@@ -223,13 +223,63 @@ window.handleFile=async(file)=>{
     const XLSX=await import('https://cdn.sheetjs.com/xlsx-0.20.0/package/xlsx.mjs');
     const ab=await file.arrayBuffer();
     const wb=XLSX.read(ab,{type:'array'});
-    const ws=wb.Sheets[wb.SheetNames[0]];
-    const json=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
-    if(json.length<2){toast('ไฟล์ว่างหรือไม่มีข้อมูล','red');return;}
-    headers=json[0].map(h=>String(h).trim());
-    rawData=json.slice(1).filter(row=>row.some(c=>c!==''));
-    toast(`✅ อ่านได้ ${rawData.length} แถว`,  'green');
-    showMappingPanel();
+    // Column index (0-based): J=9,K=10,AA=26,AB=27,AC=28,AK=36,AL=37,AIS=40
+    const COL={line:9,item:10,start_time:26,end_time:27,product:28,ak:36,volume:37,remark:40};
+    // fuzzy match line name
+    function fuzzyLine(raw){
+      if(!raw)return'';
+      const r=String(raw).toLowerCase().replace(/[\s\-_]/g,'');
+      const lineNames=['Polo 12A','Polo 12B','Comet','Auto pint','Mochi','Sandwich','Hoyer','Extrud 3','Glacier','Scooping'];
+      let best='',bestScore=0;
+      lineNames.forEach(ln=>{
+        const l=ln.toLowerCase().replace(/[\s\-_]/g,'');
+        let score=0;
+        for(let i=0;i<Math.min(r.length,l.length);i++){if(r[i]===l[i])score++;}
+        if(r.includes(l)||l.includes(r))score+=10;
+        if(score>bestScore){bestScore=score;best=ln;}
+      });
+      return bestScore>2?best:String(raw);
+    }
+    // parse AK: "Milo Magma (ML07) B.16" → {mix_name, mix_code, batch_no}
+    function parseAK(ak){
+      const s=String(ak||'');
+      const codeM=s.match(/\(([^)]+)\)/);
+      const batchM=s.match(/B\.?(\d+)/i);
+      const mix_code=codeM?codeM[1].trim():'';
+      const batch_no=batchM?batchM[1]:'';
+      const mix_name=s.replace(/\([^)]+\)/,'').replace(/B\.?\d+/i,'').trim();
+      return{mix_name,mix_code,batch_no};
+    }
+    let allRows=[];let totalSheets=0;
+    wb.SheetNames.forEach(sheetName=>{
+      const ws=wb.Sheets[sheetName];
+      const json=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+      if(json.length<2)return;
+      totalSheets++;
+      json.slice(1).forEach(row=>{
+        const lineRaw=row[COL.line];
+        if(!lineRaw)return;
+        const ak=parseAK(row[COL.ak]);
+        allRows.push({
+          plan_date:sheetName,
+          filling_line:fuzzyLine(lineRaw),
+          product_name:String(row[COL.product]||row[COL.item]||'').trim(),
+          mix_name:ak.mix_name,
+          mix_code:ak.mix_code,
+          batch_no:ak.batch_no,
+          volume_liter:+String(row[COL.volume]).replace(/,/g,'')||0,
+          start_time:String(row[COL.start_time]||'').trim(),
+          end_time:String(row[COL.end_time]||'').trim(),
+          remark:String(row[COL.remark]||'').trim(),
+          _raw_line:String(lineRaw),
+        });
+      });
+    });
+    const valid=allRows.filter(r=>r.filling_line&&r.volume_liter>0);
+    if(!valid.length){toast('ไม่พบข้อมูลที่ใช้งานได้','red');return;}
+    mappedData=valid;
+    toast('✅ อ่านได้ '+valid.length+' รายการ จาก '+totalSheets+' Sheet','green');
+    renderTable();renderSummary();
   }catch(e){
     toast('Error: '+e.message,'red');
   }
@@ -248,7 +298,7 @@ function showMappingPanel(){
       const hl=h.toLowerCase();
       return hl.includes(f.key.toLowerCase())||
         hl.includes(f.label.toLowerCase())||
-        (f.key==='plan_date'&&(hl.includes('date')||hl.includes('วัน')))||
+        (f.key==='plan_date'&&h==='_plan_date')||(f.key==='plan_date'&&(hl.includes('date')||hl.includes('วัน')))||
         (f.key==='filling_line'&&(hl.includes('line')||hl.includes('ไลน์')))||
         (f.key==='product_name'&&(hl.includes('product')||hl.includes('สินค้า')))||
         (f.key==='volume_liter'&&(hl.includes('vol')||hl.includes('ปริมาณ')))||
@@ -271,7 +321,7 @@ function showMappingPanel(){
   });
 }
 
-window.applyMapping=()=>{
+window.applyMapping=()=>{if(mappedData.length){renderTable();renderSummary();return;}
   // อ่าน mapping จาก select
   REQUIRED_FIELDS.forEach(f=>{
     const el=document.getElementById('map_'+f.key);
@@ -309,33 +359,33 @@ function renderTable(){
 
   thead.innerHTML=`
     <th>#</th>
-    <th>วันที่</th>
+    <th>วันผลิต</th>
     <th>Line</th>
     <th>Product</th>
+    <th>Mix Name</th>
     <th>Mix Code</th>
-    <th>Volume (L)</th>
-    <th>Start</th>
     <th>Batch</th>
-    <th>Color Rank</th>
-    <th>Aging (hr)</th>
+    <th>Volume (L)</th>
+    <th>Start~</th>
+    <th>End~</th>
     <th>หมายเหตุ</th>`;
 
   tbody.innerHTML=mappedData.map((r,i)=>{
-    const cr=+r.color_rank||0;
-    const crColor=['','#f8fafc','#fef9c3','#fef3c7','#fce7f3','#d1fae5','#fef2f2','#1f2937'][Math.min(cr,7)];
-    const crLabel=cr?['','ขาว','เหลืองอ่อน','เหลือง','ชมพู','เขียว','แดง','ดำ'][Math.min(cr,7)]:'—';
-    return `<tr>
+    const hasRemark=r.remark&&r.remark.length>0;
+    return `<tr ${hasRemark?'style="background:rgba(245,158,11,.06)"':''}>
       <td style="color:var(--t3)">${i+1}</td>
-      <td>${r.plan_date||'—'}</td>
+      <td style="font-family:var(--mono);font-size:11px;font-weight:700">${r.plan_date||'—'}</td>
       <td><span class="badge" style="background:#111827;color:#fff">${r.filling_line||'—'}</span></td>
-      <td style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.product_name||'—'}</td>
-      <td>${r.mix_code||'—'}</td>
-      <td style="color:var(--blue)">${(+r.volume_liter||0).toLocaleString()}</td>
-      <td>${r.start_time||'—'}</td>
-      <td>${r.batch_no||'—'}</td>
-      <td>${cr?`<span class="color-dot" style="background:${crColor}"></span>${crLabel}`:'—'}</td>
-      <td>${r.aging_time||'—'}</td>
-      <td style="color:var(--t3)">${r.remark||'—'}</td>
+      <td style="max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11px">${r.product_name||'—'}</td>
+      <td style="max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11px">${r.mix_name||'—'}</td>
+      <td style="font-family:var(--mono);font-size:11px">${r.mix_code||'—'}</td>
+      <td style="font-family:var(--mono);font-size:11px">B.${r.batch_no||'—'}</td>
+      <td style="color:var(--blue);font-family:var(--mono);font-weight:900">${(+r.volume_liter||0).toLocaleString()}</td>
+      <td style="font-family:var(--mono);font-size:11px;color:var(--green)">${r.start_time||'—'}</td>
+      <td style="font-family:var(--mono);font-size:11px;color:var(--t2)">${r.end_time||'—'}</td>
+      <td style="font-size:11px;color:${hasRemark?'var(--yellow)':'var(--t3)'}">
+        ${hasRemark?'⚠️ '+r.remark:'—'}
+      </td>
     </tr>`;
   }).join('');
 }
