@@ -681,7 +681,7 @@ function tankSVGSm(uid,pct,col,run){
   return s;
 }
 
-function tankSVG(uid,pct,col,run,statusTxt,statusCol,sw,sh,volL){
+function tankSVG(uid,pct,col,run,statusTxt,statusCol,sw,sh){
   statusCol=statusCol||col;
   sw=sw||160; sh=sh||280;
   const bX=14,bY=18,bW=sw-28,bH=sh-45;
@@ -738,7 +738,7 @@ function tankSVG(uid,pct,col,run,statusTxt,statusCol,sw,sh,volL){
   s+='<rect x="'+(bX+3)+'" y="'+(bY+bH+13)+'" width="'+(bW-6)+'" height="5" rx="2" fill="rgba(255,255,255,.12)" stroke="'+bodyStroke+'" stroke-width="1" stroke-opacity=".5"/>';
   // text
   const tc='#111827';
-  s+='<text x="'+(sw/2)+'" y="'+(midY-4)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="20" font-weight="900" fill="#15803d">'+(volL!=null?Math.round(volL).toLocaleString()+' L':(hasLiq?Math.round(pct)+'%':'ว่าง'))+'</text>';
+
   if(hasLiq){
     s+='<rect x="'+(bX+4)+'" y="'+(midY+6)+'" width="'+(bW-8)+'" height="22" rx="11" fill="rgba(0,0,0,.55)"/>';
     s+='<text x="'+(sw/2)+'" y="'+(midY+21)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" font-weight="900" fill="#ffffff">'+statusTxt+'</text>';
@@ -930,8 +930,11 @@ function buildCard(line){
           ${tankSVG('S'+line.id, pct, col, hasLiquid,
             current.status==='pasteurising'?'🔵 กำลัง Pasteurise':curing.done?'✅ บ่มเสร็จ':'🌡️ กำลังบ่ม',
             current.status==='pasteurising'?'#fb923c':curing.done?'#4ade80':'#fde047',
-            undefined,undefined,sv
           )}
+          <div style="position:absolute;top:38%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;width:90%">
+            <div id="vol-S${line.id}" style="font-family:var(--mono);font-size:24px;font-weight:900;color:#ffffff;text-shadow:0 0 8px rgba(0,0,0,1),0 2px 4px rgba(0,0,0,1);line-height:1;letter-spacing:.02em">${fmtL(rem)} L</div>
+            <div id="eta-S${line.id}" style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,.9);text-shadow:0 1px 4px rgba(0,0,0,1);margin-top:2px"></div>
+          </div>
         </div>
       </div>
 
