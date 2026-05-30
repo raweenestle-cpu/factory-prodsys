@@ -551,7 +551,7 @@ function calcCuringEndTs(pastEnd,agingHr,dateStr){
 }
 function getCuringInfo(row,lineId){
   if(!row||!row.past_end_time)return{done:false,endTime:'—'};
-  const p=productMap[row.mix_code];const agingHr=+(p?.aging_time||4);
+  const p=productMap[row.mix_code];const agingHr=+(p?.aging_time)||4;
   // ใช้ past_end_at (ISO) ถ้ามี ไม่งั้น fallback ใช้ date+past_end_time
   let endTs=null;
   if(row.past_end_at){
