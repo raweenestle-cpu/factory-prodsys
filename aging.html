@@ -268,6 +268,14 @@ onAuthStateChanged(auth,async u=>{
   renderAll(); // render ถังทันทีหลัง lines โหลดเสร็จ
 
   // aging_tank_states — อัปเดต realtime
+  // ฟัง cip_line_states เพื่อคำนวณ current_vol real-time
+  let cipLineStates={};
+  onSnapshot(collection(db,'cip_line_states'),snap=>{
+    cipLineStates={};
+    snap.docs.forEach(d=>{cipLineStates[d.id]={id:d.id,...d.data()};});
+    renderAll();
+  });
+
   onSnapshot(collection(db,'aging_tank_states'),snap=>{
     tankStates={};
     snap.docs.forEach(d=>{tankStates[d.id]={id:d.id,...d.data()};});
@@ -331,6 +339,24 @@ setInterval(()=>{
       const el=document.getElementById('cl-'+tankId);
       if(el){el.textContent=_curingLabel(ts,productMap)||'✅ บ่มเสร็จ';}
     }
+  });
+},1000);
+
+
+// tick อัปเดต volume ทุก 1 วินาที
+setInterval(()=>{
+  Object.values(cipLineStates||{}).forEach(st=>{
+    if(!st.running||!st.start_ts||!st.aging_tank)return;
+    const elapsed=(Date.now()-st.start_ts)/3600000;
+    const fr=st.flow_rate||300;
+    const rem=Math.max(0,(st.start_vol||0)-(elapsed*fr));
+    const cap=getTankCapacity(st.aging_tank);
+    const pct=cap>0?Math.min(100,rem/cap*100):0;
+    // หา element ใน DOM
+    const volEl=document.querySelector('[data-tank-vol="'+st.aging_tank+'"]');
+    const pctEl=document.querySelector('[data-tank-pct="'+st.aging_tank+'"]');
+    if(volEl)volEl.textContent=rem.toFixed(0)+' L';
+    if(pctEl)pctEl.textContent=pct.toFixed(1)+'% / '+(cap/1000).toFixed(0)+'k L';
   });
 },1000);
 
@@ -401,9 +427,18 @@ function makeTankCard(tankId){
 
   // Volume
   const totalVol=+(tdata.volume_liter||tdata.total_vol||0);
-  const currentVol=tdata.current_vol!=null?+tdata.current_vol:0;
+  // คำนวณ current_vol จาก cip_line_states ถ้ากำลัง running
+  const _lineState=Object.values(cipLineStates||{}).find(s=>s.aging_tank===tankId&&s.running&&s.start_ts);
+  let currentVol;
+  if(_lineState){
+    const _elapsed=(Date.now()-_lineState.start_ts)/3600000;
+    const _fr=_lineState.flow_rate||300;
+    currentVol=Math.max(0,(_lineState.start_vol||0)-(_elapsed*_fr));
+  } else {
+    currentVol=tdata.current_vol!=null?+tdata.current_vol:totalVol;
+  }
   const cap=getTankCapacity(tankId);
-  const pct=cap>0?Math.min(100,(currentVol!=null&&currentVol>=0?currentVol:totalVol)/cap*100):0;
+  const pct=cap>0?Math.min(100,currentVol/cap*100):0;
   const wave=status==='pasteurising'||status==='filling';
   const _cl2=(status==='past_done'||status==='curing')?_curingLabel(tdata,productMap):null;
   const stLabel=_cl2||statusLabel(status);
@@ -447,8 +482,8 @@ function makeTankCard(tankId){
     +(tdata.mix_code&&!isEmpty
       ?'<div class="tm" style="color:'+col+'">'+(tdata.mix_code||'—')+'</div>'
        +'<div class="tb">'+(tdata.mix_name||'—')+'</div>'
-       +'<div class="tvol" style="color:'+col+'">'+(currentVol!=null&&currentVol>=0?currentVol:totalVol).toFixed(0)+' L</div>'
-       +'<div class="tpct">'+pct.toFixed(1)+'% / '+(cap/1000).toFixed(0)+'k L</div>'
+       +'<div class="tvol" data-tank-vol="'+tankId+'" style="color:'+col+'">'+currentVol.toFixed(0)+' L</div>'
+       +'<div class="tpct" data-tank-pct="'+tankId+'">'+pct.toFixed(1)+'% / '+(cap/1000).toFixed(0)+'k L</div>'
       :'<div style="font-family:var(--mono);font-size:10px;color:var(--t3);text-align:center;padding:4px 0">— ว่าง —</div>')
     +dateHtml
     +'<div class="tc-temp-row" onclick="event.stopPropagation()">'
