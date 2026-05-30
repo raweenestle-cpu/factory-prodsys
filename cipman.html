@@ -476,12 +476,12 @@ async function init(){
   const d=today();
   unsubP1=onSnapshot(query(collection(db,'production_plans'),where('status','in',['pasteurising','past_done','ready'])),snap=>{
     const rp1=snap.docs.map(d=>({id:d.id,_col:'production_plans',...d.data()}));const cs1=(new Date(Date.now()-2*864e5)).toISOString().slice(0,10);const rf1=rp1.filter(x=>x.status==='pasteurising'||x.status==='ready'||(x.date||'')>=cs1);
-    planRows=planRows.filter(x=>x._col!=='production_plans').concat(rf1);renderAll();
+    planRows=planRows.filter(x=>x._col!=='production_plans').concat(rf1);window._pr=planRows;renderAll();
 window._planRows=planRows;
   });
   unsubP2=onSnapshot(query(collection(db,'production_plans_m2'),where('status','in',['pasteurising','past_done','ready'])),snap=>{
     const rp2=snap.docs.map(d=>({id:d.id,_col:'production_plans_m2',...d.data()}));const cs2=(new Date(Date.now()-2*864e5)).toISOString().slice(0,10);const rf2=rp2.filter(x=>x.status==='pasteurising'||x.status==='ready'||(x.date||'')>=cs2);
-    planRows=planRows.filter(x=>x._col!=='production_plans_m2').concat(rf2);renderAll();
+    planRows=planRows.filter(x=>x._col!=='production_plans_m2').concat(rf2);window._pr=planRows;renderAll();
 window._planRows=planRows;
   });
 
@@ -489,10 +489,11 @@ window._planRows=planRows;
 }
 
 // HELPERS
+window._getTanks=function(n){return getTanksForLine(n);};
 function getTanksForLine(lineName){
   const raw=planRows
     .filter(r=>r.filling_line===lineName&&(r.status==='ready'||r.status==='past_done'||r.status==='pasteurising'))
-    .sort((a,b)=>(a.seq||0)-(b.seq||0));
+    .sort((a,b)=>{const dd=(b.date||'').localeCompare(a.date||'');return dd!==0?dd:(a.seq||0)-(b.seq||0);});
 
   // Group rows ที่ process_order + aging_tank เดียวกัน → รวมเป็น row เดียว
   const grouped=[];
@@ -535,7 +536,8 @@ function calcCuringEnd(pastEnd,agingHr){
 }
 function calcCuringEndTs(pastEnd,agingHr,dateStr){
   // คำนวณ timestamp จริงจาก past_end_date + past_end_time + agingHr
-  if(!pastEnd||!agingHr)return null;
+  if(!pastEnd)return null;
+  if(!agingHr||+agingHr===0)return new Date(Date.now()-1000);
   const[h,m]=pastEnd.split(':').map(Number);
   // ถ้ามี dateStr ใช้วันนั้น ไม่งั้นใช้วันนี้
   let base;
@@ -551,7 +553,8 @@ function calcCuringEndTs(pastEnd,agingHr,dateStr){
 }
 function getCuringInfo(row,lineId){
   if(!row||!row.past_end_time)return{done:false,endTime:'—'};
-  const p=productMap[row.mix_code];const agingHr=+(p?.aging_time)||4;
+  const p=productMap[row.mix_code];const agingHr=+(p?.aging_time||0);
+  if(agingHr===0)return{done:true,endTime:'✅ ไม่ต้องบ่ม'};
   // ใช้ past_end_at (ISO) ถ้ามี ไม่งั้น fallback ใช้ date+past_end_time
   let endTs=null;
   if(row.past_end_at){
@@ -731,8 +734,8 @@ function tankSVG(uid,pct,col,run,statusTxt,statusCol,sw,sh){
   const tc='#111827';
   s+='<text x="'+(sw/2)+'" y="'+(midY-4)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="17" font-weight="900" fill="'+tc+'" font-weight="900">'+(hasLiq?Math.round(pct)+'%':'ว่าง')+'</text>';
   if(hasLiq){
-    s+='<rect x="'+(bX+8)+'" y="'+(midY+8)+'" width="'+(bW-16)+'" height="18" rx="9" fill="'+col+'" fill-opacity=".15" stroke="'+col+'" stroke-width="1.5" stroke-opacity=".4"/>';
-    s+='<text x="'+(sw/2)+'" y="'+(midY+21)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="'+col+'" font-weight="900">'+statusTxt+'</text>';
+    s+='<rect x="'+(bX+4)+'" y="'+(midY+6)+'" width="'+(bW-8)+'" height="22" rx="11" fill="#111827"/>';
+    s+='<text x="'+(sw/2)+'" y="'+(midY+21)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" font-weight="900" fill="#ffffff">'+statusTxt+'</text>';
   }
   s+='</svg>';
   return s;
