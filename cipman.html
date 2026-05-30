@@ -612,6 +612,13 @@ function fpPanel(lineId,tank){
         <option value="">— เลือก —</option>${ppO}
       </select>
     </div>
+    <!-- Flow Rate -->
+    <div>
+      <div style="font-family:var(--mono);font-size:9px;color:var(--cyan);margin-bottom:4px">⚡ FLOW RATE (L/hr)</div>
+      <input type="number" value="${st.flow_rate||300}" min="50" max="2000" step="10"
+        style="width:100%;background:rgba(6,182,212,.08);border:1px solid rgba(6,182,212,.3);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:12px;font-weight:700;padding:5px 8px;outline:none"
+        onchange="setFP('${lineId}','${tank}','flow_rate',+this.value)">
+    </div>
     <!-- Checkbox น้ำร้อน + CIP -->
     <div style="display:flex;flex-direction:column;gap:5px;padding-top:4px;border-top:1px solid rgba(6,182,212,.15)">
       <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
@@ -641,7 +648,7 @@ function tankSVGSm(uid,pct,col,run){
   const wy=bY+bH-fillH;
   const A=4;
   const gid='gs'+uid,cid='cs'+uid;
-  const bodyFill=hasLiq?'rgba(255,255,255,.12)':'rgba(176,186,200,.25)';
+  const bodyFill=hasLiq?col+'18':'rgba(176,186,200,.15)';
   const bodyStroke=hasLiq?col:'#94a3b8';
   function waveD(yBase,amp,nc){
     const W=bW*2,segW=W/(nc*2);
@@ -685,7 +692,7 @@ function tankSVG(uid,pct,col,run,statusTxt,statusCol,sw,sh,volL){
   const wy=bY+bH-fillH;
   const A=6,midY=bY+bH/2;
   const hasLiq=pct>0;
-  const bodyFill=hasLiq?'rgba(255,255,255,.12)':'rgba(176,186,200,.25)';
+  const bodyFill=hasLiq?col+'18':'rgba(176,186,200,.15)';
   const bodyStroke=hasLiq?col:'#94a3b8';
   const gid='g'+uid,cid='cl'+uid;
   const r=parseInt(col.slice(1,3),16),g=parseInt(col.slice(3,5),16),b=parseInt(col.slice(5,7),16);
@@ -860,7 +867,7 @@ function buildCard(line){
   <div style="display:flex;gap:10px;padding:10px 12px;align-items:flex-start">
     <!-- ถัง + เลขถังบนหัว + status ใต้ถัง -->
     <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px">
-      <div style="font-family:var(--mono);font-size:13px;font-weight:800;color:var(--cyan);background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.3);border-radius:6px;padding:2px 10px">${row.aging_tank||'—'}</div>
+      <div style="font-family:var(--mono);font-size:13px;font-weight:900;color:#111827;background:rgba(176,186,200,.282,212,.1);border:1px solid rgba(6,182,212,.3);border-radius:6px;padding:2px 10px">${row.aging_tank||'—'}</div>
       <div style="position:relative">
         ${tankSVGSm('Q'+line.id+idx,qPct,dot,true)}
         <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;width:90%">
@@ -925,11 +932,6 @@ function buildCard(line){
             current.status==='pasteurising'?'#fb923c':curing.done?'#4ade80':'#fde047',
             undefined,undefined,sv
           )}
-          <div style="position:absolute;top:38%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;width:90%">
-            <div id="vol-S${line.id}" style="font-family:var(--mono);font-size:13px;font-weight:700;color:${pctC};text-shadow:0 2px 8px rgba(0,0,0,1)">${fmtL(rem)} L</div>
-            <div id="pct-S${line.id}" style="font-family:var(--mono);font-size:11px;color:${pctC};text-shadow:0 1px 6px rgba(0,0,0,1)">${pct.toFixed(1)}%</div>
-            <div id="eta-S${line.id}" style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,.8)">${getEtaStr(rem,fr,isRunning)}</div>
-          </div>
         </div>
       </div>
 
@@ -1029,8 +1031,14 @@ function buildFlowDiagram(lineId,agingTank,col,isRunning){
   // pipe → Pump
   s+=pipe(NCX,PIPY,PX-22,PIPY);
   // Pump
-  s+='<circle cx="'+PX+'" cy="'+PY+'" r="21" fill="white" stroke="'+ac+'" stroke-width="2.5"/>';
+  const pumpFill=isRunning?'#15803d':'white';
+  const pumpStroke=isRunning?'#15803d':ac;
+  const pumpIcon=isRunning?'⚙':'⚙';
+  const spinAnim=isRunning?'<animateTransform attributeName="transform" type="rotate" from="0 '+PX+' '+PY+'" to="360 '+PX+' '+PY+'" dur="1s" repeatCount="indefinite"/>':'';
+  s+='<circle cx="'+PX+'" cy="'+PY+'" r="21" fill="'+pumpFill+'" stroke="'+pumpStroke+'" stroke-width="2.5"/>';
+  s+='<g>'+spinAnim;
   s+='<text x="'+PX+'" y="'+(PY+6)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="16" fill="'+ac+'" font-weight="900">⚙</text>';
+  s+='</g>';
   s+='<text x="'+PX+'" y="'+(PY+34)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="'+ac+'">Pump</text>';
   // pipe → FlowMeter
   s+=pipe(PX+22,PIPY,FMX,PIPY);
