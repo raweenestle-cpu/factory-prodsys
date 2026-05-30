@@ -648,7 +648,7 @@ function tankSVGSm(uid,pct,col,run){
   const wy=bY+bH-fillH;
   const A=4;
   const gid='gs'+uid,cid='cs'+uid;
-  const bodyFill=hasLiq?col+'22':'rgba(176,186,200,.12)';
+  const bodyFill=hasLiq?col+'22':'#f8fafc';
   const bodyStroke=hasLiq?col:'#b0bac8';
   function waveD(yBase,amp,nc){
     const W=bW*2,segW=W/(nc*2);
@@ -1055,7 +1055,7 @@ function buildFlowDiagram(lineId,agingTank,col,isRunning){
   // pipe → Freezer
   s+=pipe(FMX+FMW,PIPY,FZCX,PIPY);
   s+='<circle cx="'+FZCX+'" cy="'+PIPY+'" r="6" fill="'+ac+'" opacity="'+(isRunning?'.5':'.2')+'"/>';
-  s+=pipe(FZCX,PIPY,FZCX,FZY+FZH);
+  s+=pipe(FZCX,PIPY,FZX,PIPY);s+=pipe(FZX,PIPY,FZX,FZY+FZH/2);
   // Freezer
   s+='<rect x="'+FZX+'" y="'+FZY+'" width="'+FZW+'" height="'+FZH+'" rx="8" fill="'+bg+'" stroke="'+ac+'" stroke-width="2"/>';
   s+='<text x="'+FZCX+'" y="'+(FZY+22)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="17">🧊</text>';
