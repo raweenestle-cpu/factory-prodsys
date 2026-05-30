@@ -846,8 +846,15 @@ function buildCard(line){
     const qPct=_capQ>0?(qRem/_capQ)*100:0;
     let stTxt='—',stC='var(--t2)';
     if(row.status==='pasteurising'&&!row.past_end_time){stTxt='♨️ Past.';stC='var(--orange)';}
-    else if(row.status==='past_done'||row.status==='pasteurising'){stTxt='🌡️ บ่มอยู่';stC='var(--yellow)';}
-    if(row.past_end_time&&curingEnd!=='—'){stTxt+=` → ${curingEnd}`;}
+    else if(row.status==='past_done'||row.status==='pasteurising'){
+      const _p=productMap[row.mix_code];
+      const _agHr=+((_p?.aging_time)||0);
+      const _endTs=_agHr===0?new Date(Date.now()-1000):calcCuringEndTs(row.past_end_time,_agHr,row.date||null);
+      const _curingDone=_endTs?Date.now()>=_endTs.getTime():false;
+      if(_curingDone){stTxt='✅ บ่มเสร็จ';stC='var(--green)';}
+      else{stTxt='🌡️ บ่มอยู่';stC='var(--yellow)';}
+    }
+    if(row.past_end_time&&curingEnd!=='—'&&stTxt==='🌡️ บ่มอยู่'){stTxt+=` → ${curingEnd}`;}
     const hotOk=(lineStates[line.id]||{})[`hot_q${idx}`]||false;
     const cipOk=(lineStates[line.id]||{})[`cip_q${idx}`]||false;
     const pctC=qPct>50?'#1fd17a':qPct>20?'#f5c842':'#f04f5e';
