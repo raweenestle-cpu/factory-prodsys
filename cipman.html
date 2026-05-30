@@ -866,7 +866,7 @@ function buildCard(line){
   <div style="display:flex;gap:10px;padding:10px 12px;align-items:flex-start">
     <!-- ถัง + เลขถังบนหัว + status ใต้ถัง -->
     <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px">
-      <div style="font-family:var(--mono);font-size:14px;font-weight:900;color:#111827;background:rgba(176,186,200,.2582,212,.1);border:1px solid rgba(6,182,212,.3);border-radius:6px;padding:2px 10px">${row.aging_tank||'—'}</div>
+      <div style="font-family:var(--mono);font-size:14px;font-weight:900;color:#111827;background:var(--s1);border:1px solid var(--b1);border-radius:6px;padding:2px 10px">${row.aging_tank||'—'}</div>
       <div style="position:relative">
         ${tankSVGSm('Q'+line.id+idx,qPct,dot,true)}
         <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;width:90%">
@@ -924,7 +924,7 @@ function buildCard(line){
       <!-- ซ้าย: ถัง SVG + Flow Diagram -->
       <div style="flex-shrink:0;min-width:550px;display:flex;flex-direction:column">
       <div style="flex-shrink:0;width:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 8px;border-right:1px solid var(--b1);background:rgba(0,0,0,.15)">
-        <div style="font-family:var(--mono);font-size:14px;color:#111827;font-weight:900;margin-bottom:4px;text-align:center;background:rgba(176,186,200,.25);border:1px solid #b0bac8;border-radius:6px;padding:2px 10px">${agingTank}</div>
+        <div style="font-family:var(--mono);font-size:14px;color:#111827;font-weight:900;margin-bottom:4px;text-align:center;background:var(--s1);border:1px solid var(--b1);border-radius:6px;padding:2px 10px">${agingTank}</div>
         <div style="position:relative;display:flex;justify-content:center;align-items:center">
           ${tankSVG('S'+line.id, pct, col, hasLiquid,
             current.status==='pasteurising'?'🔵 Pasteurise':isRunning?'🔵 Filling':curing.done?'✅ พร้อม':'🌡️ กำลังบ่ม',
@@ -957,7 +957,7 @@ function buildCard(line){
         <button style="width:100%;padding:8px;border-radius:10px;font-family:var(--mono);font-size:11px;font-weight:700;background:rgba(239,68,68,.08);color:#f87171;border:1px solid rgba(239,68,68,.2);cursor:pointer"
           onclick="forceClearTank('${current.aging_tank||""}')">🗑 Force Clear ${current.aging_tank||'—'}</button>
 
-        <div style="background:var(--s2);border-radius:8px;padding:8px 10px;font-family:var(--mono);font-size:10px;line-height:1.9">
+        <div style="background:var(--s1);border:1px solid var(--b1);border-radius:8px;padding:8px 10px;font-family:var(--mono);font-size:10px;line-height:1.9">
           <div style="display:flex;justify-content:space-between"><span style="color:var(--t3);font-weight:700">▶ START</span><span style="color:#111827;font-weight:900">${st.started_at||'—'}</span></div>
           <div style="display:flex;justify-content:space-between"><span style="color:var(--t3)">โดย</span><span style="color:var(--blue);font-weight:800">${st.started_by||'—'}</span></div>
           <div style="display:flex;justify-content:space-between;margin-top:4px;padding-top:4px;border-top:1px solid var(--b1)"><span style="color:var(--t3);font-weight:700">⏸ STOP</span><span style="color:#111827;font-weight:900">${st.stopped_at||'—'}</span></div>
@@ -1014,7 +1014,7 @@ function buildFlowDiagram(lineId,agingTank,col,isRunning){
   const anim='<animate attributeName="stroke-dashoffset" from="24" to="0" dur=".55s" repeatCount="indefinite"/>';
   // ซ้ายไปขวา: Nozzle(ก้นถัง) → Pump → FlowMeter → Freezer → Line
   const W=550,H=120,PIPY=60;
-  const NCX=40; // nozzle center x
+  const NCX=40,NOZZLE_Y=14; // nozzle center x, ออกจากก้นถัง
   const PX=120,PY=PIPY;
   const FMX=195,FMY=PIPY-30,FMW=100,FMH=58;
   const FZX=345,FZY=10,FZW=80,FZH=85,FZCX=FZX+FZW/2;
@@ -1055,7 +1055,7 @@ function buildFlowDiagram(lineId,agingTank,col,isRunning){
   // pipe → Freezer
   s+=pipe(FMX+FMW,PIPY,FZCX,PIPY);
   s+='<circle cx="'+FZCX+'" cy="'+PIPY+'" r="6" fill="'+ac+'" opacity="'+(isRunning?'.5':'.2')+'"/>';
-  s+=pipe(FZCX,PIPY,FZX,PIPY);s+=pipe(FZX,PIPY,FZX,FZY+FZH/2);
+  s+=pipe(FZCX,PIPY,FZCX,FZY);
   // Freezer
   s+='<rect x="'+FZX+'" y="'+FZY+'" width="'+FZW+'" height="'+FZH+'" rx="8" fill="'+bg+'" stroke="'+ac+'" stroke-width="2"/>';
   s+='<text x="'+FZCX+'" y="'+(FZY+22)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="17">🧊</text>';
