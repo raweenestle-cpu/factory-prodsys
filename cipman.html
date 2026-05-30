@@ -552,6 +552,7 @@ function getCuringInfo(row,lineId){
   // ใช้ past_end_at (ISO) ถ้ามี ไม่งั้น fallback ใช้ date+past_end_time
   let endTs=null;
   if(row.past_end_at){
+console.log('[CURING]',row.id,'past_end_time:',row.past_end_time,'past_end_at:',row.past_end_at,'date:',row.date,'agingHr:',agingHr,'status:',row.status);
     const base=new Date(row.past_end_at);
     endTs=new Date(base.getTime()+agingHr*3600000);
   } else {
