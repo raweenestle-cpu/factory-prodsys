@@ -893,6 +893,11 @@ function buildCard(line){
       <input type="checkbox" ${cipOk?'checked':''} onchange="setFP('${line.id}','q${idx}','cip_q${idx}',this.checked)" style="width:18px;height:18px;accent-color:#15803d;cursor:pointer;flex-shrink:0">
       <span style="font-family:var(--mono);font-size:12px;font-weight:800;color:${cipOk?'#15803d':'#374151'}">🧹 CIP แล้ว</span>
     </label>
+    <!-- status -->
+    <div style="margin-top:6px;padding:8px;border-radius:10px;background:#111827;text-align:center">
+      <div style="font-family:var(--mono);font-size:14px;font-weight:900;color:#fff;line-height:1.3">${stTxt}</div>
+      ${curingEnd&&curingEnd!=='—'?'<div style="font-family:var(--mono);font-size:12px;font-weight:700;color:rgba(255,255,255,.8);margin-top:3px">'+curingEnd+'</div>':''}
+    </div>
   </div>
 </div>`
   }
