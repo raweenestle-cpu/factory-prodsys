@@ -461,7 +461,7 @@ async function init(){
   });
 
   unsubLines=onSnapshot(collection(db,'lines'),snap=>{
-    lines=snap.docs.map(d=>({id:d.id,...d.data()})).filter(l=>l.type==='Filling').sort((a,b)=>(a.seq||0)-(b.seq||0));
+    lines=snap.docs.map(d=>({id:d.id,...d.data()})).filter(l=>l.type==='Filling').sort((a,b)=>{const dd=(b.date||'').localeCompare(a.date||'');return dd!==0?dd:(a.seq||0)-(b.seq||0);});
     renderAll();
   });
   unsubStates=onSnapshot(collection(db,'cip_line_states'),snap=>{
@@ -782,7 +782,6 @@ function queueList(q,accent,lineId){
 function buildCard(line){
   const tanks=getTanksForLine(line.name);
   const current=tanks[0]||null;
-console.log('[CARD]',line.name,'tanks:',tanks.length,'planRows:',planRows.filter(r=>r.filling_line===line.name).map(r=>({id:r.id,status:r.status,past_end_time:r.past_end_time,past_end_at:r.past_end_at})));
   const queue=tanks.slice(1);
   const st=lineStates[line.id]||{};
   const isRunning=st.running&&!!st.start_ts;
@@ -1138,6 +1137,19 @@ $('m-manage').addEventListener('click',e=>{if(e.target===$('m-manage'))window.cl
 
 // TICK
 function tickCountdowns(){
+  // ตรวจ curing เสร็จ → re-render
+  let needRender=false;
+  lines.forEach(line=>{
+    const tanks=getTanksForLine(line.name);
+    const cur=tanks[0];
+    if(cur&&cur.status==='past_done'&&cur.past_end_time){
+      const p=productMap[cur.mix_code];
+      const agHr=+(p?.aging_time||4);
+      const endTs=calcCuringEndTs(cur.past_end_time,agHr,cur.date||null);
+      if(endTs&&Date.now()>=endTs.getTime()) needRender=true;
+    }
+  });
+  if(needRender) renderAll();
   lines.forEach(line=>{
     const st=lineStates[line.id];if(!st?.running||!st?.start_ts)return;
     const elapsed=(Date.now()-st.start_ts)/3600000;
