@@ -783,9 +783,10 @@ function buildCard(line){
   const st=lineStates[line.id]||{};
   const isRunning=st.running&&!!st.start_ts;
   const hasLiquid=!!current&&+(current.volume_liter||0)>0; // wave ทุกครั้งที่มีของ
-  const isPasteurising=current&&(current.status==='pasteurising'||current.status==='past_done');
-  const curing=current&&!isPasteurising?getCuringInfo(current,line.id):{done:false,endTime:'—'};
-  const cardStatus=isRunning?'running':isPasteurising?'curing':current&&!curing.done?'curing':current?'stopped':'empty';
+  const isPasteurising=current&&current.status==='pasteurising';
+  const isPastDone=current&&current.status==='past_done';
+  const curing=current&&(isPastDone||(!isPasteurising&&current.past_end_time))?getCuringInfo(current,line.id):{done:false,endTime:'—'};
+  const cardStatus=isRunning?'running':isPasteurising?'curing':(isPastDone&&!curing.done)?'curing':current&&!curing.done?'curing':current?'stopped':'empty';
   const pm={running:'sp-run',curing:'sp-cur',stopped:'sp-stp',empty:'sp-emp'};
   const pt={running:'● กำลังเดิน',curing:'⏳',stopped:'⏸ หยุด',empty:'○ ว่าง'};
 
