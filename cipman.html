@@ -540,7 +540,7 @@ function calcCuringEndTs(pastEnd,agingHr,dateStr){
   // ถ้ามี dateStr ใช้วันนั้น ไม่งั้นใช้วันนี้
   let base;
   if(dateStr){
-    base=new Date(dateStr);
+    base=new Date(dateStr+'T00:00:00');
     base.setHours(h,m,0,0);
   } else {
     base=new Date();
@@ -555,7 +555,6 @@ function getCuringInfo(row,lineId){
   // ใช้ past_end_at (ISO) ถ้ามี ไม่งั้น fallback ใช้ date+past_end_time
   let endTs=null;
   if(row.past_end_at){
-console.log('[CURING]',row.id,'past_end_time:',row.past_end_time,'past_end_at:',row.past_end_at,'date:',row.date,'agingHr:',agingHr,'status:',row.status);
     const base=new Date(row.past_end_at);
     endTs=new Date(base.getTime()+agingHr*3600000);
   } else {
