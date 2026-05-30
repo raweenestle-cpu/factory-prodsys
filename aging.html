@@ -268,14 +268,6 @@ onAuthStateChanged(auth,async u=>{
   renderAll(); // render ถังทันทีหลัง lines โหลดเสร็จ
 
   // aging_tank_states — อัปเดต realtime
-  // ฟัง cip_line_states เพื่อคำนวณ current_vol real-time
-  let cipLineStates={};
-  onSnapshot(collection(db,'cip_line_states'),snap=>{
-    cipLineStates={};
-    snap.docs.forEach(d=>{cipLineStates[d.id]={id:d.id,...d.data()};});
-    renderAll();
-  });
-
   onSnapshot(collection(db,'aging_tank_states'),snap=>{
     tankStates={};
     snap.docs.forEach(d=>{tankStates[d.id]={id:d.id,...d.data()};});
@@ -306,59 +298,6 @@ function _makeSection(name){
   d.innerHTML='<div class="line-title">🏭 '+name+'<span class="line-badge">LINE</span></div>';
   return d;
 }
-
-
-function _curingLabel(row,productMap){
-  if(!row||!row.past_end_time)return null;
-  const p=(productMap&&productMap[row.mix_code])||{};
-  const agHr=+(p.aging_time||0);
-  let endTs=null;
-  if(row.past_end_at){
-    endTs=new Date(new Date(row.past_end_at).getTime()+agHr*3600000);
-  } else {
-    const d=row.date||new Date().toISOString().slice(0,10);
-    const parts=row.past_end_time.split(':').map(Number);
-    const base=new Date(d+'T00:00:00');
-    base.setHours(parts[0],parts[1],0,0);
-    endTs=new Date(base.getTime()+agHr*3600000);
-  }
-  if(!endTs)return null;
-  const rem=endTs.getTime()-Date.now();
-  if(rem<=0)return'✅ บ่มเสร็จ';
-  const rh=Math.floor(rem/3600000);
-  const rm=Math.floor((rem%3600000)/60000);
-  const rs=Math.floor((rem%60000)/1000);
-  return'🌡️ '+(rh>0?rh+'h ':'')+String(rm).padStart(2,'0')+'m '+String(rs).padStart(2,'0')+'s';
-}
-
-
-setInterval(()=>{
-  Object.keys(tankStates||{}).forEach(tankId=>{
-    const ts=tankStates[tankId]||{};
-    if((ts.status==='past_done'||ts.status==='curing')&&ts.past_end_time){
-      const el=document.getElementById('cl-'+tankId);
-      if(el){el.textContent=_curingLabel(ts,productMap)||'✅ บ่มเสร็จ';}
-    }
-  });
-},1000);
-
-
-// tick อัปเดต volume ทุก 1 วินาที
-setInterval(()=>{
-  Object.values(cipLineStates||{}).forEach(st=>{
-    if(!st.running||!st.start_ts||!st.aging_tank)return;
-    const elapsed=(Date.now()-st.start_ts)/3600000;
-    const fr=st.flow_rate||300;
-    const rem=Math.max(0,(st.start_vol||0)-(elapsed*fr));
-    const cap=getTankCapacity(st.aging_tank);
-    const pct=cap>0?Math.min(100,rem/cap*100):0;
-    // หา element ใน DOM
-    const volEl=document.querySelector('[data-tank-vol="'+st.aging_tank+'"]');
-    const pctEl=document.querySelector('[data-tank-pct="'+st.aging_tank+'"]');
-    if(volEl)volEl.textContent=rem.toFixed(0)+' L';
-    if(pctEl)pctEl.textContent=pct.toFixed(1)+'% / '+(cap/1000).toFixed(0)+'k L';
-  });
-},1000);
 
 function renderAll(){renderBangchan();renderTwin();}
 
@@ -427,21 +366,11 @@ function makeTankCard(tankId){
 
   // Volume
   const totalVol=+(tdata.volume_liter||tdata.total_vol||0);
-  // คำนวณ current_vol จาก cip_line_states ถ้ากำลัง running
-  const _lineState=Object.values(cipLineStates||{}).find(s=>s.aging_tank===tankId&&s.running&&s.start_ts);
-  let currentVol;
-  if(_lineState){
-    const _elapsed=(Date.now()-_lineState.start_ts)/3600000;
-    const _fr=_lineState.flow_rate||300;
-    currentVol=Math.max(0,(_lineState.start_vol||0)-(_elapsed*_fr));
-  } else {
-    currentVol=tdata.current_vol!=null?+tdata.current_vol:totalVol;
-  }
+  const currentVol=tdata.current_vol!=null?+tdata.current_vol:0;
   const cap=getTankCapacity(tankId);
-  const pct=cap>0?Math.min(100,currentVol/cap*100):0;
+  const pct=cap>0?Math.min(100,(currentVol||totalVol)/cap*100):0;
   const wave=status==='pasteurising'||status==='filling';
-  const _cl2=(status==='past_done'||status==='curing')?_curingLabel(tdata,productMap):null;
-  const stLabel=_cl2||statusLabel(status);
+  const stLabel=statusLabel(status);
 
   // Expiry
   const activeRow=tdata.past_end_time?tdata:null;
@@ -482,8 +411,8 @@ function makeTankCard(tankId){
     +(tdata.mix_code&&!isEmpty
       ?'<div class="tm" style="color:'+col+'">'+(tdata.mix_code||'—')+'</div>'
        +'<div class="tb">'+(tdata.mix_name||'—')+'</div>'
-       +'<div class="tvol" data-tank-vol="'+tankId+'" style="color:'+col+'">'+currentVol.toFixed(0)+' L</div>'
-       +'<div class="tpct" data-tank-pct="'+tankId+'">'+pct.toFixed(1)+'% / '+(cap/1000).toFixed(0)+'k L</div>'
+       +'<div class="tvol" style="color:'+col+'">'+(currentVol||totalVol).toFixed(0)+' L</div>'
+       +'<div class="tpct">'+pct.toFixed(1)+'% / '+(cap/1000).toFixed(0)+'k L</div>'
       :'<div style="font-family:var(--mono);font-size:10px;color:var(--t3);text-align:center;padding:4px 0">— ว่าง —</div>')
     +dateHtml
     +'<div class="tc-temp-row" onclick="event.stopPropagation()">'
