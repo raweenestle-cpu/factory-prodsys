@@ -90,8 +90,7 @@ main{padding:14px;display:flex;flex-direction:column;gap:14px}
 
 /* TANK SVG WRAP */
 .sw{position:relative;margin:8px 10px 4px}
-.so{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-  text-align:center;pointer-events:none;width:90%}
+.so{display:none}
 /* font เดียวกัน */
 .sv{font-family:var(--mono);font-size:24px;font-weight:900;color:#111827;
   text-shadow:0 1px 3px rgba(255,255,255,.8);line-height:1.2}
@@ -99,9 +98,8 @@ main{padding:14px;display:flex;flex-direction:column;gap:14px}
   text-shadow:0 1px 3px rgba(255,255,255,.8);line-height:1.2}
 
 /* STATUS */
-.st{text-align:center;padding:8px 12px 12px}
-.stb{font-family:var(--mono);font-size:13px;font-weight:800;
-  padding:6px 16px;border-radius:999px;display:inline-block;letter-spacing:.04em}
+.st{display:none}
+.stb{display:none}
 
 #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);
   padding:10px 22px;border-radius:10px;font-size:12px;opacity:0;transition:all .3s;
@@ -517,51 +515,46 @@ function card(row,isCur,isSingle=false){
   const p=productMap[row.mix_code]||{};
   const col=p.color||'#60a5fa';
   const{filled,pct,totalVol}=calcVol(row);
-  const pctC=pct>50?'#1fd17a':pct>20?'#f5c842':'#f04f5e';
-  const isActive=!!row.past_start_time; // wave ทุก status ที่มีของอยู่
-
-  const curingRem=getCuringRemain(row);
-  const hasVol=+(row.volume_liter||0)>0;
-  const stBadge=statusBadge(resolveStatus(row));
-
-  const at=row.aging_tank||'—';
+  const pctC=pct>50?'#15803d':pct>20?'#b45309':'#b91c1c';
+  const isActive=!!row.past_start_time;
+  const at=row.aging_tank||'\u2014';
   const agSt=agingStates&&row.aging_tank?agingStates[row.aging_tank]||{}:{};
   const expHtml=expireBox(agSt.expire_at||null);
-  // รหัสผลิต 10 ตัว — คำนวณ prefix จากปี+0522+unit แล้วต่อ suffix 4 ตัว
   const yr=new Date().getFullYear().toString().slice(-1);
   const unit=row._col==='production_plans_m2'?'2':'1';
-  const prefix=yr+'0522'+unit; // เช่น 605221
-  const rp=row.prod_suffix?(prefix+row.prod_suffix):'—';
-
+  const rp=row.prod_suffix?(yr+'0522'+unit+row.prod_suffix):'\u2014';
   const uid=(isCur?'C':'Q')+row.id.slice(-8);
-  return`<div class="tc ${isCur?'cur':'que'}">
-  <div class="ch">
-    <div class="ch-top" style="margin-bottom:4px">
-      <span class="ch-line">${row.filling_line||'—'}</span>
-      <span style="font-family:var(--mono);font-size:10px;font-weight:800;padding:2px 8px;border-radius:5px;background:${isCur?'#ea580c':'#6b7280'};color:#fff;margin-left:4px">${isCur?'● เดิน':'○ คิว'}</span>
-    </div>
-    <div class="ch-prod">${row.product_name||'—'}</div>
-    <div style="display:flex;align-items:baseline;gap:5px;margin-top:3px;flex-wrap:wrap">
-      <span class="ch-code">${row.mix_code||'—'}</span>
-      <span class="ch-code" style="opacity:.6">|</span>
-      <span class="ch-code">${row.mix_name||'—'}</span>
-    </div>
-    <div class="ch-batch">Batch ${row.batch_no||'—'}</div>
-    <div class="ch-rp"><span style="font-size:10px;color:var(--t2);font-weight:600">รหัสผลิต: </span>${rp}</div>
-  </div>
-  <div class="ab">${at} <span style="font-size:10px;color:var(--t2);font-weight:600">(${(getTankCapacity(at)).toLocaleString()} ลิตร)</span></div>
-  <div class="sw">
-    ${svg(uid,pct,col,isActive)}
-    <div class="so">
-      <div class="sv" id="vol-${uid}" style="color:${pctC}">${filled.toFixed(1)} L</div>
-      <div class="sp" id="pct-${uid}" style="color:${pctC}">${pct.toFixed(1)}%</div>
-    </div>
-  </div>
-  <div class="st">
-    ${stBadge}
-  </div>
-  ${expHtml}
-</div>`;
+  const statusRaw=resolveStatus(row);
+  const stMap={pending:'\u23f3 \u0e23\u0e2d\u0e1c\u0e2a\u0e21',mixing:'\ud83d\udd35 Mixing',pasteurising:'\ud83c\udf21\ufe0f Pasteurise',past_done:'\u2705 Past Done',filling:'\ud83d\udd35 Filling',ready:'\u2705 \u0e1e\u0e23\u0e49\u0e2d\u0e21',cip:'\ud83d\udfe3 CIP',waiting:'\u23f3 \u0e23\u0e2d'};
+  const stLabel=stMap[statusRaw]||statusRaw;
+  return '<div class="tc '+(isCur?'cur':'que')+'">'
+    +'<div class="ch">'
+      +'<div class="ch-top" style="margin-bottom:4px">'
+        +'<span class="ch-line">'+(row.filling_line||'\u2014')+'</span>'
+        +'<span style="font-family:var(--mono);font-size:10px;font-weight:800;padding:2px 8px;border-radius:5px;background:'+(isCur?'#ea580c':'#6b7280')+';color:#fff;margin-left:6px">'+(isCur?'\u25cf \u0e40\u0e14\u0e34\u0e19':'\u25cb \u0e04\u0e34\u0e27')+'</span>'
+      +'</div>'
+      +'<div class="ch-prod">'+(row.product_name||'\u2014')+'</div>'
+      +'<div style="display:flex;align-items:baseline;gap:5px;margin-top:3px;flex-wrap:wrap">'
+        +'<span class="ch-code">'+(row.mix_code||'\u2014')+'</span>'
+        +'<span class="ch-code" style="opacity:.5">|</span>'
+        +'<span class="ch-code">'+(row.mix_name||'\u2014')+'</span>'
+      +'</div>'
+    +'</div>'
+    +'<div class="ab">'+at+' <span style="font-size:10px;color:#374151;font-weight:700">('+getTankCapacity(at).toLocaleString()+' L)</span></div>'
+    +'<div style="position:relative;display:flex;justify-content:center;margin:10px 0 0">'
+      +svg(uid,pct,col,isActive)
+      +'<div style="position:absolute;bottom:22px;left:50%;transform:translateX(-50%);background:#111827;color:#fff;font-family:var(--mono);font-size:12px;font-weight:800;padding:5px 14px;border-radius:999px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.3);letter-spacing:.04em;pointer-events:none">'+stLabel+'</div>'
+    +'</div>'
+    +'<div style="text-align:center;padding:8px 12px 4px">'
+      +'<div id="vol-'+uid+'" style="font-family:var(--mono);font-size:26px;font-weight:900;color:'+pctC+';line-height:1">'+filled.toFixed(1)+' <span style="font-size:14px;font-weight:700;color:#6b7280">L</span></div>'
+      +'<div id="pct-'+uid+'" style="font-family:var(--mono);font-size:16px;font-weight:800;color:'+pctC+';margin-top:2px">'+pct.toFixed(1)+'%</div>'
+    +'</div>'
+    +'<div style="padding:6px 12px 10px;border-top:1px solid var(--s2);margin-top:6px">'
+      +'<div class="ch-batch" style="margin-bottom:3px">Batch '+(row.batch_no||'\u2014')+'</div>'
+      +'<div class="ch-rp"><span style="font-size:10px;color:#6b7280;font-weight:600">\u0e23\u0e2b\u0e31\u0e2a\u0e1c\u0e25\u0e34\u0e15: </span>'+rp+'</div>'
+    +'</div>'
+    +expHtml
+    +'</div>';
 }
 
 window.selectLine=(name,btn)=>{
