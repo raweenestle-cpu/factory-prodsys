@@ -552,6 +552,31 @@ function calcCuringEndTs(pastEnd,agingHr,dateStr){
   }
   return new Date(base.getTime()+(+agingHr)*3600000);
 }
+
+function _curingLabel(row,productMap){
+  const p=productMap[row.mix_code]||{};
+  const agHr=+(p.aging_time||0);
+  if(!row.past_end_time)return null;
+  // คำนวณ endTs
+  let endTs=null;
+  if(row.past_end_at){
+    endTs=new Date(new Date(row.past_end_at).getTime()+agHr*3600000);
+  } else {
+    const d=row.date||new Date().toISOString().slice(0,10);
+    const[h,m]=row.past_end_time.split(':').map(Number);
+    const base=new Date(d+'T00:00:00');
+    base.setHours(h,m,0,0);
+    endTs=new Date(base.getTime()+agHr*3600000);
+  }
+  if(!endTs)return null;
+  const rem=endTs.getTime()-Date.now();
+  if(rem<=0)return'✅ บ่มเสร็จ';
+  const rh=Math.floor(rem/3600000);
+  const rm=Math.floor((rem%3600000)/60000);
+  const rs=Math.floor((rem%60000)/1000);
+  return'🌡️ '+(rh>0?rh+'h ':'')+String(rm).padStart(2,'0')+'m '+String(rs).padStart(2,'0')+'s';
+}
+
 function getCuringInfo(row,lineId){
   if(!row||!row.past_end_time)return{done:false,endTime:'—'};
   const p=productMap[row.mix_code];const agingHr=+(p?.aging_time||0);
@@ -849,8 +874,8 @@ function buildCard(line){
     const qPct=_capQ>0?(qRem/_capQ)*100:0;
     let stTxt='—',stC='var(--t2)';
     const _stRaw=resolveStatus(row);
-    const _stMap={pending:'⏳ รอผสม',mixing:'🔵 Mixing',pasteurising:'🌡️ Pasteurise',past_done:'🌡️ บ่มอยู่',filling:'🔵 Filling',ready:'✅ พร้อม',cip:'🟣 CIP'};
-    stTxt=_stMap[_stRaw]||_stRaw;
+    const _stMap={pending:'⏳ รอผสม',mixing:'🔵 Mixing',pasteurising:'🌡️ Pasteurise',filling:'🔵 Filling',ready:'✅ พร้อม',cip:'🟣 CIP'};
+    stTxt=_stRaw==='past_done'?(_curingLabel(row,productMap)||'🌡️ บ่มอยู่'):(_stMap[_stRaw]||_stRaw);
     // ถ้า past_done ให้เช็ค curing done
     if(_stRaw==='past_done'){
       const _p2=productMap[row.mix_code];const _agHr2=+((_p2?.aging_time)||0);

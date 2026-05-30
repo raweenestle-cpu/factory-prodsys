@@ -299,6 +299,18 @@ function _makeSection(name){
   return d;
 }
 
+// tick countdown ทุก 1 วินาที
+setInterval(()=>{
+  Object.keys(tankStates).forEach(tankId=>{
+    const ts=tankStates[tankId]||{};
+    const status=ts.status||'';
+    if((status==='past_done'||status==='curing')&&ts.past_end_time){
+      const el=document.getElementById('cl-'+tankId);
+      if(el){el.textContent=_curingLabel(ts,productMap)||'✅ บ่มเสร็จ';}
+    }
+  });
+},1000);
+
 function renderAll(){renderBangchan();renderTwin();}
 
 function renderBangchan(){
@@ -370,7 +382,8 @@ function makeTankCard(tankId){
   const cap=getTankCapacity(tankId);
   const pct=cap>0?Math.min(100,(currentVol||totalVol)/cap*100):0;
   const wave=status==='pasteurising'||status==='filling';
-  const stLabel=statusLabel(status);
+  const _cl2=(status==='past_done'||status==='curing')?_curingLabel(tdata,productMap):null;
+  const stLabel=_cl2||statusLabel(status);
 
   // Expiry
   const activeRow=tdata.past_end_time?tdata:null;

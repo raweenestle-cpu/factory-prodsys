@@ -316,6 +316,31 @@ function getCuringRemain(row){
   return rh>0?`${rh}ชม.${rm}น.`:`${rm}น.`;
 }
 
+
+function _curingLabel(row,productMap){
+  const p=productMap[row.mix_code]||{};
+  const agHr=+(p.aging_time||0);
+  if(!row.past_end_time)return null;
+  // คำนวณ endTs
+  let endTs=null;
+  if(row.past_end_at){
+    endTs=new Date(new Date(row.past_end_at).getTime()+agHr*3600000);
+  } else {
+    const d=row.date||new Date().toISOString().slice(0,10);
+    const[h,m]=row.past_end_time.split(':').map(Number);
+    const base=new Date(d+'T00:00:00');
+    base.setHours(h,m,0,0);
+    endTs=new Date(base.getTime()+agHr*3600000);
+  }
+  if(!endTs)return null;
+  const rem=endTs.getTime()-Date.now();
+  if(rem<=0)return'✅ บ่มเสร็จ';
+  const rh=Math.floor(rem/3600000);
+  const rm=Math.floor((rem%3600000)/60000);
+  const rs=Math.floor((rem%60000)/1000);
+  return'🌡️ '+(rh>0?rh+'h ':'')+String(rm).padStart(2,'0')+'m '+String(rs).padStart(2,'0')+'s';
+}
+
 function getTanks(name){
   const raw=planRows
     .filter(r=>{
@@ -526,7 +551,7 @@ function card(row,isCur,isSingle=false){
   const uid=(isCur?'C':'Q')+row.id.slice(-8);
   const statusRaw=resolveStatus(row);
   const stMap={pending:'\u23f3 \u0e23\u0e2d\u0e1c\u0e2a\u0e21',mixing:'\ud83d\udd35 Mixing',pasteurising:'\ud83c\udf21\ufe0f Pasteurise',past_done:'\u2705 Past Done',filling:'\ud83d\udd35 Filling',ready:'\u2705 \u0e1e\u0e23\u0e49\u0e2d\u0e21',cip:'\ud83d\udfe3 CIP',waiting:'\u23f3 \u0e23\u0e2d'};
-  const stLabel=stMap[statusRaw]||statusRaw;
+  const stLabel=statusRaw==='past_done'?(_curingLabel(row,productMap)||'🌡️ บ่มอยู่'):(stMap[statusRaw]||statusRaw);
   return '<div class="tc '+(isCur?'cur':'que')+'">'
     +'<div class="ch">'
       +'<div class="ch-top" style="margin-bottom:4px">'
@@ -543,7 +568,7 @@ function card(row,isCur,isSingle=false){
     +'<div class="ab">'+at+' <span style="font-size:10px;color:#374151;font-weight:700">('+getTankCapacity(at).toLocaleString()+' L)</span></div>'
     +'<div style="position:relative;display:flex;justify-content:center;margin:10px 0 0">'
       +svg(uid,pct,col,isActive)
-      +'<div style="position:absolute;bottom:22px;left:50%;transform:translateX(-50%);background:#111827;color:#fff;font-family:var(--mono);font-size:12px;font-weight:800;padding:5px 14px;border-radius:999px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.3);letter-spacing:.04em;pointer-events:none">'+stLabel+'</div>'
+      +'<div id="st-'+uid+'" style="position:absolute;bottom:22px;left:50%;transform:translateX(-50%);background:#111827;color:#fff;font-family:var(--mono);font-size:12px;font-weight:800;padding:5px 14px;border-radius:999px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.3);letter-spacing:.04em;pointer-events:none">'+stLabel+'</div>'
     +'</div>'
     +'<div style="text-align:center;padding:8px 12px 4px">'
       +'<div id="vol-'+uid+'" style="font-family:var(--mono);font-size:26px;font-weight:900;color:'+pctC+';line-height:1">'+filled.toFixed(1)+' <span style="font-size:14px;font-weight:700;color:#6b7280">L</span></div>'
@@ -614,6 +639,15 @@ function tick(){
     const _queGrps=_grps.filter(g=>!isGroupReady(g));
     const cur=_curGrps[0]?_curGrps[0][0]:null;
     const queue=_queGrps.flatMap(g=>g);
+    // อัปเดต curing countdown สำหรับ past_done
+    tanks.forEach(row=>{
+      if(row.status!=='past_done'||!row.past_end_time)return;
+      const isCurR=cur&&cur.id===row.id;
+      const isInQueueR=queue.find(q=>q.id===row.id);
+      const uidR=(isCurR?'C':isInQueueR?'Q':'Q')+row.id.slice(-8);
+      const stEl=document.getElementById('st-'+uidR);
+      if(stEl){stEl.textContent=_curingLabel(row,productMap)||'✅ บ่มเสร็จ';}
+    });
     // อัปเดตทุก tank ที่กำลัง pasteurising
     tanks.forEach(row=>{
       if(row.status!=='pasteurising'||!row.past_start_time)return;
