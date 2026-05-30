@@ -780,6 +780,7 @@ function queueList(q,accent,lineId){
 function buildCard(line){
   const tanks=getTanksForLine(line.name);
   const current=tanks[0]||null;
+console.log('[CARD]',line.name,'tanks:',tanks.length,'planRows:',planRows.filter(r=>r.filling_line===line.name).map(r=>({id:r.id,status:r.status,past_end_time:r.past_end_time,past_end_at:r.past_end_at})));
   const queue=tanks.slice(1);
   const st=lineStates[line.id]||{};
   const isRunning=st.running&&!!st.start_ts;
