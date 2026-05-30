@@ -478,6 +478,7 @@ async function init(){
     const r=snap.docs.map(d=>({id:d.id,_col:'production_plans',...d.data()}));
     planRows=planRows.filter(x=>x._col!=='production_plans').concat(r);renderAll();
 window._planRows=planRows;
+window._planRows=planRows;
   });
   unsubP2=onSnapshot(query(collection(db,'production_plans_m2'),where('status','in',['pasteurising','past_done','ready'])),snap=>{
     const r=snap.docs.map(d=>({id:d.id,_col:'production_plans_m2',...d.data()}));
@@ -549,18 +550,18 @@ function calcCuringEndTs(pastEnd,agingHr,dateStr){
   }
   return new Date(base.getTime()+(+agingHr)*3600000);
 }
+window._getCuringInfo=function(row,lineId){return getCuringInfo(row,lineId);};
 function getCuringInfo(row,lineId){
   if(!row||!row.past_end_time)return{done:false,endTime:'—'};
   const p=productMap[row.mix_code];const agingHr=+(p?.aging_time||4);
   // ใช้ past_end_at (ISO) ถ้ามี ไม่งั้น fallback ใช้ date+past_end_time
   let endTs=null;
   if(row.past_end_at){
-console.log('[CURING]',row.id,'past_end_time:',row.past_end_time,'past_end_at:',row.past_end_at,'date:',row.date,'agingHr:',agingHr,'status:',row.status);
     const base=new Date(row.past_end_at);
     endTs=new Date(base.getTime()+agingHr*3600000);
   } else {
     endTs=calcCuringEndTs(row.past_end_time,agingHr,row.date||null);
-    if(endTs&&(endTs.getTime()-Date.now())>24*3600000){endTs=new Date(Date.now()-1000);}
+    if(endTs&&(endTs.getTime()-Date.now())>1*3600000){endTs=new Date(Date.now()-1000);}
   }
   const endTime=endTs?endTs.toLocaleDateString('th-TH',{weekday:'short',day:'2-digit',month:'short'})+' '+endTs.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'}):'—';
   const done=endTs?Date.now()>=endTs.getTime():false;
