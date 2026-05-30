@@ -176,6 +176,7 @@ body::before{
 .menu-btn:hover{transform:translateY(-2px);border-color:var(--b2)}
 .menu-btn:hover::after{opacity:1}
 .menu-btn.m-leadman::after{background:var(--yellow)}
+.menu-btn.m-daily::after{background:#0891b2}
 .menu-btn.m-mixing::after{background:var(--green)}
 .menu-btn.m-past::after{background:var(--orange, #ff8c42)}
 .menu-btn.m-flavor::after{background:var(--purple)}
@@ -283,6 +284,7 @@ let selectedRole=null;
 const MENUS={
   leadman:[
     {icon:'📋',name:'Leadman',desc:'แผนการผลิต',file:'leadman.html',cls:'m-leadman'},
+    {icon:'📅',name:'Daily Plan',desc:'อัปโหลดแผน',file:'dailyplan.html',cls:'m-leadman'},
     {icon:'🔬',name:'Mixing',desc:'บันทึกผสม',file:'mixing.html',cls:'m-mixing'},
     {icon:'🌡️',name:'Pasteurize',desc:'บันทึก Past.',file:'pasteurize.html',cls:'m-past'},
     {icon:'🍦',name:'Flavor',desc:'เทสี/กลิ่น',file:'flavor.html',cls:'m-flavor'},
@@ -452,7 +454,7 @@ function showStep(id){
 var pinTarget='', pinValue='', pinEmployees=[];
 
 function openPinModal(file,name){
-  var noPinPages=['admin.html','shelflife.html','mixing.html','pasteurize.html','leadman.html','aging.html','cipman.html','cipmixing.html','flavor.html','filling.html'];
+  var noPinPages=['admin.html','shelflife.html','mixing.html','pasteurize.html','leadman.html','aging.html','cipman.html','cipmixing.html','flavor.html','filling.html','dailyplan.html'];
   if(noPinPages.indexOf(file)>=0){window.location.href=file;return;}
   pinTarget=file;pinValue='';
   document.getElementById('pin-modal-page').textContent=name;

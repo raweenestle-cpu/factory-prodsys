@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Daily Plan — PROD.SYS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sarabun:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#e8ecf0;--s1:#f2f4f7;--s2:#e0e4ea;--s3:#d0d6de;
+  --b1:#b0bac8;--b2:#8896aa;
+  --text:#111827;--t2:#374151;--t3:#6b7280;
+  --blue:#1d4ed8;--green:#15803d;--yellow:#b45309;
+  --red:#b91c1c;--cyan:#0e7490;--orange:#c2410c;
+  --mono:'DM Mono',monospace;--sans:'Sarabun',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:var(--sans)}
+.nav{background:#fff;border-bottom:1px solid var(--s2);padding:0 16px;display:flex;align-items:center;gap:12px;height:48px;position:sticky;top:0;z-index:100}
+.nav-logo{font-family:var(--mono);font-size:13px;font-weight:900;color:var(--text);display:flex;align-items:center;gap:8px}
+.nav-logo span{background:#111827;color:#fff;padding:3px 8px;border-radius:6px;font-size:11px}
+.nav-back{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--t3);text-decoration:none;padding:4px 10px;border-radius:6px;border:1px solid var(--b1);background:var(--s1);cursor:pointer;margin-left:auto}
+.nav-back:hover{background:var(--s2)}
+
+.wrap{max-width:960px;margin:0 auto;padding:20px 16px}
+
+/* Upload zone */
+.upload-zone{background:#fff;border:2px dashed var(--b1);border-radius:18px;padding:40px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:20px}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--blue);background:rgba(29,78,216,.04)}
+.upload-zone.drag{border-style:solid}
+.upload-icon{font-size:48px;margin-bottom:12px}
+.upload-title{font-family:var(--mono);font-size:16px;font-weight:900;color:var(--text);margin-bottom:6px}
+.upload-sub{font-size:13px;color:var(--t3);margin-bottom:16px}
+.upload-btn{font-family:var(--mono);font-size:12px;font-weight:900;padding:8px 24px;border-radius:10px;border:none;background:#111827;color:#fff;cursor:pointer;transition:opacity .2s}
+.upload-btn:hover{opacity:.85}
+#fileInput{display:none}
+
+/* Summary bar */
+.summary-bar{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.sum-card{background:#fff;border:1.5px solid var(--b1);border-radius:12px;padding:12px 16px;flex:1;min-width:120px}
+.sum-lbl{font-family:var(--mono);font-size:9px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
+.sum-val{font-family:var(--mono);font-size:22px;font-weight:900;color:var(--text);line-height:1}
+.sum-sub{font-size:11px;color:var(--t3);margin-top:2px}
+
+/* Table */
+.table-wrap{background:#fff;border-radius:18px;border:1.5px solid var(--b1);overflow:hidden;margin-bottom:20px}
+.table-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 12px;border-bottom:1.5px solid var(--s2)}
+.table-title{font-family:var(--mono);font-size:13px;font-weight:900;color:var(--text)}
+.table-actions{display:flex;gap:8px}
+.btn-sm{font-family:var(--mono);font-size:11px;font-weight:800;padding:6px 14px;border-radius:8px;border:none;cursor:pointer;transition:all .15s}
+.btn-save{background:#15803d;color:#fff}
+.btn-save:hover{opacity:.85}
+.btn-clear{background:var(--s2);color:var(--t2);border:1px solid var(--b1)}
+.btn-clear:hover{background:var(--s3)}
+.btn-dl{background:#1d4ed8;color:#fff}
+.btn-dl:hover{opacity:.85}
+
+table{width:100%;border-collapse:collapse}
+th{font-family:var(--mono);font-size:9px;font-weight:800;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;padding:10px 14px;text-align:left;background:var(--s1);border-bottom:1px solid var(--s2)}
+td{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--text);padding:10px 14px;border-bottom:1px solid var(--s2)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--s1)}
+.badge{font-family:var(--mono);font-size:10px;font-weight:800;padding:3px 10px;border-radius:999px;display:inline-block}
+.color-dot{width:12px;height:12px;border-radius:50%;display:inline-block;margin-right:6px;vertical-align:middle;border:1px solid rgba(0,0,0,.1)}
+
+/* Column map panel */
+.map-panel{background:#fff;border-radius:18px;border:1.5px solid var(--b1);padding:18px;margin-bottom:20px;display:none}
+.map-panel.show{display:block}
+.map-title{font-family:var(--mono);font-size:12px;font-weight:900;color:var(--text);margin-bottom:14px}
+.map-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.map-row{display:flex;flex-direction:column;gap:4px}
+.map-lbl{font-family:var(--mono);font-size:9px;font-weight:800;color:var(--t3);text-transform:uppercase;letter-spacing:.06em}
+.map-sel{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--text);background:var(--s1);border:1px solid var(--b1);border-radius:7px;padding:6px 10px;outline:none;width:100%}
+.map-sel:focus{border-color:var(--blue)}
+
+/* Toast */
+.toast{position:fixed;bottom:24px;right:24px;background:#111827;color:#fff;font-family:var(--mono);font-size:12px;font-weight:800;padding:12px 20px;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.2);transform:translateY(80px);opacity:0;transition:all .3s;z-index:999}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.green{background:#15803d}
+.toast.red{background:#b91c1c}
+
+/* Empty state */
+.empty{text-align:center;padding:48px 20px;color:var(--t3)}
+.empty-icon{font-size:40px;margin-bottom:12px}
+.empty-text{font-family:var(--mono);font-size:13px;font-weight:700}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-logo"><span>PROD</span> Daily Plan</div>
+  <a href="index.html" class="nav-back">← กลับ</a>
+</nav>
+
+<div class="wrap">
+
+  <!-- Upload Zone -->
+  <div class="upload-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+    <div class="upload-icon">📊</div>
+    <div class="upload-title">Upload Excel แผนการผลิต</div>
+    <div class="upload-sub">ลาก & วางไฟล์ที่นี่ หรือคลิกเพื่อเลือกไฟล์ (.xlsx, .xls)</div>
+    <button class="upload-btn" onclick="event.stopPropagation()">เลือกไฟล์</button>
+    <input type="file" id="fileInput" accept=".xlsx,.xls" onchange="handleFile(this.files[0])">
+  </div>
+
+  <!-- Column Mapping Panel -->
+  <div class="map-panel" id="mapPanel">
+    <div class="map-title">📋 กำหนด Column ของ Excel</div>
+    <div class="map-grid" id="mapGrid"></div>
+    <div style="margin-top:14px;display:flex;gap:8px">
+      <button class="btn-sm btn-save" onclick="applyMapping()">✅ ยืนยัน Mapping</button>
+      <button class="btn-sm btn-clear" onclick="resetUpload()">✕ ยกเลิก</button>
+    </div>
+  </div>
+
+  <!-- Summary Bar -->
+  <div class="summary-bar" id="summaryBar" style="display:none">
+    <div class="sum-card">
+      <div class="sum-lbl">Batch ทั้งหมด</div>
+      <div class="sum-val" id="sumTotal">0</div>
+      <div class="sum-sub">รายการ</div>
+    </div>
+    <div class="sum-card">
+      <div class="sum-lbl">Volume รวม</div>
+      <div class="sum-val" id="sumVol">0</div>
+      <div class="sum-sub">ลิตร</div>
+    </div>
+    <div class="sum-card">
+      <div class="sum-lbl">จำนวน Line</div>
+      <div class="sum-val" id="sumLines">0</div>
+      <div class="sum-sub">Filling Line</div>
+    </div>
+    <div class="sum-card">
+      <div class="sum-lbl">สถานะ Firebase</div>
+      <div class="sum-val" id="sumStatus" style="font-size:14px;margin-top:4px">—</div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrap" id="tableWrap" style="display:none">
+    <div class="table-head">
+      <div class="table-title">📋 แผนการผลิต</div>
+      <div class="table-actions">
+        <button class="btn-sm btn-dl" onclick="downloadTemplate()">⬇ Template</button>
+        <button class="btn-sm btn-clear" onclick="resetUpload()">🗑 ล้างข้อมูล</button>
+        <button class="btn-sm btn-save" onclick="saveToFirebase()">☁️ บันทึกลง Firebase</button>
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr id="tableHeaders"></tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import {getFirestore,collection,addDoc,writeBatch,doc,deleteDoc,getDocs,query,where,Timestamp} from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import {getAuth,onAuthStateChanged} from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+
+const app=initializeApp({
+  apiKey:"AIzaSyC3f6jMuhugE6BNfRfkpOA9BMrIKWR9YgQ",
+  authDomain:"production-filling.firebaseapp.com",
+  projectId:"production-filling",
+  storageBucket:"production-filling.firebasestorage.app",
+  messagingSenderId:"89098393458",
+  appId:"1:89098393458:web:b723f2886e8a341935afeb"
+});
+const db=getFirestore(app);
+
+// Fields ที่ระบบต้องการ
+const REQUIRED_FIELDS=[
+  {key:'plan_date',label:'วันที่ผลิต',required:true},
+  {key:'filling_line',label:'Filling Line',required:true},
+  {key:'product_name',label:'ชื่อ Product',required:true},
+  {key:'mix_code',label:'Mix Code',required:false},
+  {key:'volume_liter',label:'Volume (L)',required:true},
+  {key:'start_time',label:'เวลา Start Fill',required:false},
+  {key:'batch_no',label:'Batch No.',required:false},
+  {key:'color_rank',label:'Color Rank (1-7)',required:false},
+  {key:'aging_time',label:'Aging Time (hr)',required:false},
+  {key:'remark',label:'หมายเหตุ',required:false},
+];
+
+let rawData=[];
+let headers=[];
+let mappedData=[];
+let columnMap={};
+
+// Toast
+function toast(msg,type=''){
+  const el=document.getElementById('toast');
+  el.textContent=msg;
+  el.className='toast show'+(type?' '+type:'');
+  setTimeout(()=>el.className='toast',3000);
+}
+window.toast=toast;
+
+// Drag & Drop
+const dz=document.getElementById('dropZone');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag')});
+dz.addEventListener('dragleave',()=>dz.classList.remove('drag'));
+dz.addEventListener('drop',e=>{
+  e.preventDefault();dz.classList.remove('drag');
+  const f=e.dataTransfer.files[0];
+  if(f)handleFile(f);
+});
+
+window.handleFile=async(file)=>{
+  if(!file)return;
+  if(!file.name.match(/\.xlsx?$/i)){toast('รองรับเฉพาะ .xlsx .xls ครับ','red');return;}
+  toast('📊 กำลังอ่านไฟล์...');
+  try{
+    const XLSX=await import('https://cdn.sheetjs.com/xlsx-0.20.0/package/xlsx.mjs');
+    const ab=await file.arrayBuffer();
+    const wb=XLSX.read(ab,{type:'array'});
+    const ws=wb.Sheets[wb.SheetNames[0]];
+    const json=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+    if(json.length<2){toast('ไฟล์ว่างหรือไม่มีข้อมูล','red');return;}
+    headers=json[0].map(h=>String(h).trim());
+    rawData=json.slice(1).filter(row=>row.some(c=>c!==''));
+    toast(`✅ อ่านได้ ${rawData.length} แถว`,  'green');
+    showMappingPanel();
+  }catch(e){
+    toast('Error: '+e.message,'red');
+  }
+};
+
+function showMappingPanel(){
+  const panel=document.getElementById('mapPanel');
+  const grid=document.getElementById('mapGrid');
+  panel.classList.add('show');
+  grid.innerHTML='';
+  // auto-match
+  columnMap={};
+  REQUIRED_FIELDS.forEach(f=>{
+    // ลอง auto match ชื่อคล้ายกัน
+    const idx=headers.findIndex(h=>{
+      const hl=h.toLowerCase();
+      return hl.includes(f.key.toLowerCase())||
+        hl.includes(f.label.toLowerCase())||
+        (f.key==='plan_date'&&(hl.includes('date')||hl.includes('วัน')))||
+        (f.key==='filling_line'&&(hl.includes('line')||hl.includes('ไลน์')))||
+        (f.key==='product_name'&&(hl.includes('product')||hl.includes('สินค้า')))||
+        (f.key==='volume_liter'&&(hl.includes('vol')||hl.includes('ปริมาณ')))||
+        (f.key==='mix_code'&&(hl.includes('mix')||hl.includes('code')))||
+        (f.key==='batch_no'&&(hl.includes('batch')||hl.includes('แบ')))||
+        (f.key==='color_rank'&&(hl.includes('color')||hl.includes('สี')))||
+        (f.key==='aging_time'&&(hl.includes('aging')||hl.includes('บ่ม')))||
+        (f.key==='start_time'&&(hl.includes('start')||hl.includes('เริ่ม')));
+    });
+    columnMap[f.key]=idx>=0?headers[idx]:'';
+    const div=document.createElement('div');
+    div.className='map-row';
+    div.innerHTML=`
+      <div class="map-lbl">${f.required?'*':''}${f.label}</div>
+      <select class="map-sel" id="map_${f.key}">
+        <option value="">— ไม่มีใน Excel —</option>
+        ${headers.map(h=>`<option value="${h}" ${h===columnMap[f.key]?'selected':''}>${h}</option>`).join('')}
+      </select>`;
+    grid.appendChild(div);
+  });
+}
+
+window.applyMapping=()=>{
+  // อ่าน mapping จาก select
+  REQUIRED_FIELDS.forEach(f=>{
+    const el=document.getElementById('map_'+f.key);
+    columnMap[f.key]=el?el.value:'';
+  });
+  // validate required
+  const missing=REQUIRED_FIELDS.filter(f=>f.required&&!columnMap[f.key]);
+  if(missing.length){
+    toast('กรุณาระบุ: '+missing.map(f=>f.label).join(', '),'red');
+    return;
+  }
+  // map data
+  mappedData=rawData.map((row,i)=>{
+    const obj={_rowIdx:i+2};
+    REQUIRED_FIELDS.forEach(f=>{
+      if(columnMap[f.key]){
+        const ci=headers.indexOf(columnMap[f.key]);
+        obj[f.key]=ci>=0?row[ci]:'';
+      }
+    });
+    return obj;
+  }).filter(r=>r.filling_line||r.product_name);
+
+  document.getElementById('mapPanel').classList.remove('show');
+  renderTable();
+  renderSummary();
+  toast(`✅ Map สำเร็จ ${mappedData.length} แถว`,'green');
+};
+
+function renderTable(){
+  const wrap=document.getElementById('tableWrap');
+  const thead=document.getElementById('tableHeaders');
+  const tbody=document.getElementById('tableBody');
+  wrap.style.display='block';
+
+  thead.innerHTML=`
+    <th>#</th>
+    <th>วันที่</th>
+    <th>Line</th>
+    <th>Product</th>
+    <th>Mix Code</th>
+    <th>Volume (L)</th>
+    <th>Start</th>
+    <th>Batch</th>
+    <th>Color Rank</th>
+    <th>Aging (hr)</th>
+    <th>หมายเหตุ</th>`;
+
+  tbody.innerHTML=mappedData.map((r,i)=>{
+    const cr=+r.color_rank||0;
+    const crColor=['','#f8fafc','#fef9c3','#fef3c7','#fce7f3','#d1fae5','#fef2f2','#1f2937'][Math.min(cr,7)];
+    const crLabel=cr?['','ขาว','เหลืองอ่อน','เหลือง','ชมพู','เขียว','แดง','ดำ'][Math.min(cr,7)]:'—';
+    return `<tr>
+      <td style="color:var(--t3)">${i+1}</td>
+      <td>${r.plan_date||'—'}</td>
+      <td><span class="badge" style="background:#111827;color:#fff">${r.filling_line||'—'}</span></td>
+      <td style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.product_name||'—'}</td>
+      <td>${r.mix_code||'—'}</td>
+      <td style="color:var(--blue)">${(+r.volume_liter||0).toLocaleString()}</td>
+      <td>${r.start_time||'—'}</td>
+      <td>${r.batch_no||'—'}</td>
+      <td>${cr?`<span class="color-dot" style="background:${crColor}"></span>${crLabel}`:'—'}</td>
+      <td>${r.aging_time||'—'}</td>
+      <td style="color:var(--t3)">${r.remark||'—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderSummary(){
+  document.getElementById('summaryBar').style.display='flex';
+  document.getElementById('sumTotal').textContent=mappedData.length;
+  const totalVol=mappedData.reduce((s,r)=>s+(+r.volume_liter||0),0);
+  document.getElementById('sumVol').textContent=totalVol.toLocaleString();
+  const lines=[...new Set(mappedData.map(r=>r.filling_line).filter(Boolean))];
+  document.getElementById('sumLines').textContent=lines.length;
+  document.getElementById('sumStatus').textContent='ยังไม่ได้บันทึก';
+  document.getElementById('sumStatus').style.color='var(--yellow)';
+}
+
+window.saveToFirebase=async()=>{
+  if(!mappedData.length){toast('ไม่มีข้อมูล','red');return;}
+  const statusEl=document.getElementById('sumStatus');
+  statusEl.textContent='⏳ กำลังบันทึก...';
+  statusEl.style.color='var(--blue)';
+  try{
+    // ลบแผนเก่าในวันที่เดียวกันออกก่อน (ถ้ามี plan_date เดียวกัน)
+    const dates=[...new Set(mappedData.map(r=>String(r.plan_date)).filter(Boolean))];
+    const batch=writeBatch(db);
+    let count=0;
+    // เพิ่มใหม่
+    for(const row of mappedData){
+      const ref=doc(collection(db,'daily_plans'));
+      batch.set(ref,{
+        plan_date:String(row.plan_date||''),
+        filling_line:String(row.filling_line||''),
+        product_name:String(row.product_name||''),
+        mix_code:String(row.mix_code||''),
+        volume_liter:+row.volume_liter||0,
+        start_time:String(row.start_time||''),
+        batch_no:String(row.batch_no||''),
+        color_rank:+row.color_rank||0,
+        aging_time:+row.aging_time||0,
+        remark:String(row.remark||''),
+        created_at:new Date().toISOString(),
+        status:'pending',
+      });
+      count++;
+    }
+    await batch.commit();
+    statusEl.textContent=`✅ บันทึกแล้ว ${count} รายการ`;
+    statusEl.style.color='var(--green)';
+    toast(`✅ บันทึกลง Firebase แล้ว ${count} รายการ`,'green');
+  }catch(e){
+    statusEl.textContent='❌ Error';
+    statusEl.style.color='var(--red)';
+    toast('Error: '+e.message,'red');
+  }
+};
+
+window.resetUpload=()=>{
+  rawData=[];mappedData=[];headers=[];columnMap={};
+  document.getElementById('fileInput').value='';
+  document.getElementById('mapPanel').classList.remove('show');
+  document.getElementById('tableWrap').style.display='none';
+  document.getElementById('summaryBar').style.display='none';
+  toast('ล้างข้อมูลแล้ว');
+};
+
+window.downloadTemplate=async()=>{
+  const XLSX=await import('https://cdn.sheetjs.com/xlsx-0.20.0/package/xlsx.mjs');
+  const headers2=['plan_date','filling_line','product_name','mix_code','volume_liter','start_time','batch_no','color_rank','aging_time','remark'];
+  const example=[
+    ['2026-06-01','Polo 12A','Milo Magma Stick 30x55g','ML07',3000,'08:00','16',6,4,''],
+    ['2026-06-01','Polo 12A','Vanilla Stick 30x55g','VN01',2500,'12:00','17',2,4,''],
+    ['2026-06-01','Hoyer','Water Ice White','WI01',1500,'09:00','18',1,0,'ไม่ต้องบ่ม'],
+  ];
+  const ws=XLSX.utils.aoa_to_sheet([headers2,...example]);
+  ws['!cols']=headers2.map(()=>({wch:20}));
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Daily Plan');
+  XLSX.writeFile(wb,'daily_plan_template.xlsx');
+  toast('⬇ ดาวน์โหลด Template แล้ว','green');
+};
+
+</script>
+</body>
+</html>
