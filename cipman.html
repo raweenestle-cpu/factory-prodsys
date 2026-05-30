@@ -242,7 +242,8 @@ main{position:relative;z-index:1;padding:10px 12px;}
 
   /* Queue card — ใช้ style เหมือน Filling */
   --fs:12px;
-  .cq-tc{width:240px;border-radius:10px;overflow:hidden;flex-shrink:0;display:flex;flex-direction:column;background:var(--s1);border:1.5px solid var(--b1);box-shadow:0 2px 8px rgba(0,0,0,.06)}
+  .cq-tc{width:180px;border-radius:18px;overflow:hidden;flex-shrink:0;display:flex;flex-direction:column;background:#fff;border:2px solid var(--b1);box-shadow:0 4px 16px rgba(0,0,0,.08);position:relative}
+.cq-tc::before{content:"";position:absolute;top:0;left:0;right:0;height:5px;background:#b0bac8;border-radius:18px 18px 0 0}
   .cq-ch{padding:9px 10px 6px;border-bottom:1px solid var(--b1)}
   .cq-ch-top{display:flex;align-items:baseline;gap:5px;margin-bottom:3px;flex-wrap:wrap}
   .cq-code{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--orange)}
@@ -857,36 +858,38 @@ function buildCard(line){
     const hotOk=(lineStates[line.id]||{})[`hot_q${idx}`]||false;
     const cipOk=(lineStates[line.id]||{})[`cip_q${idx}`]||false;
     const pctC=qPct>50?'#1fd17a':qPct>20?'#f5c842':'#f04f5e';
-    return`<div class="cq-tc">
-  <!-- body: ถัง + ข้อมูล+checkbox -->
-  <div style="display:flex;gap:10px;padding:10px 12px;align-items:flex-start">
-    <!-- ถัง + เลขถังบนหัว + status ใต้ถัง -->
-    <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px">
-      <div style="font-family:var(--mono);font-size:14px;font-weight:900;color:#111827;background:var(--s1);border:1px solid var(--b1);border-radius:6px;padding:2px 10px">${row.aging_tank||'—'}</div>
-      <div style="position:relative">
-        ${tankSVGSm('Q'+line.id+idx,qPct,dot,true)}
-        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;width:90%">
-          <div style="font-family:var(--mono);font-size:12px;font-weight:900;color:#ffffff;background:rgba(0,0,0,.55);padding:2px 8px;border-radius:999px;text-shadow:none;line-height:1.4;x-shadow:0 1px 6px rgba(0,0,0,1)">${qRem.toFixed(0)} L</div>
-        </div>
-      </div>
-      <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:${stC};${stTxt.includes('บ่ม')?'animation:blink 1.2s ease-in-out infinite':''}">${stTxt}</div>
+    return`<div class="cq-tc" style="--tc-c:${dot}">
+  <!-- top accent bar ตามสี product -->
+  <style>.cq-tc[style*="--tc-c"]::before{background:var(--tc-c,#b0bac8)}</style>
+  <!-- หัว: เลขถัง + product -->
+  <div style="padding:14px 12px 10px;border-bottom:1.5px solid var(--s2);margin-top:3px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+      <span style="font-family:var(--mono);font-size:18px;font-weight:900;color:#111827">${row.aging_tank||'—'}</span>
+      <span style="font-family:var(--mono);font-size:10px;font-weight:800;padding:3px 10px;border-radius:999px;background:#111827;color:#fff">${stTxt}</span>
     </div>
-    <!-- ข้อมูล + checkbox -->
-    <div style="flex:1;display:flex;flex-direction:column;gap:6px;padding-top:4px">
-      <div style="font-family:var(--mono);font-size:13px;font-weight:700;color:${dot};line-height:1.5">${row.mix_name||'—'}</div>
-      <div style="font-family:var(--mono);font-size:12px;color:${dot};opacity:.9">Batch ${row.batch_no||'—'} · ${qVol.toLocaleString()} L</div>
-      <div style="font-family:var(--mono);font-size:12px;color:var(--purple);font-weight:700">รหัส: ${rpc}</div>
-      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-top:6px">
-        <input type="checkbox" ${hotOk?'checked':''} onchange="setFP('${line.id}','q${idx}','hot_q${idx}',this.checked)" style="width:16px;height:16px;accent-color:var(--green)">
-        <span style="font-family:var(--mono);font-size:13px;font-weight:700;color:${hotOk?'var(--green)':'var(--t2)'}">⭐ น้ำร้อน</span>
-      </label>
-      <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
-        <input type="checkbox" ${cipOk?'checked':''} onchange="setFP('${line.id}','q${idx}','cip_q${idx}',this.checked)" style="width:16px;height:16px;accent-color:var(--green)">
-        <span style="font-family:var(--mono);font-size:13px;font-weight:700;color:${cipOk?'var(--green)':'var(--t2)'}">⭐ CIP</span>
-      </label>
+    <div style="font-family:var(--mono);font-size:12px;font-weight:900;color:#111827;line-height:1.4">${row.mix_name||'—'}</div>
+    <div style="font-family:var(--mono);font-size:11px;color:#374151;font-weight:700;margin-top:2px">B.${row.batch_no||'—'} · ${(+(row.volume_liter||0)).toLocaleString()} L</div>
+  </div>
+  <!-- ถัง SVG -->
+  <div style="position:relative;display:flex;justify-content:center;padding:10px 8px 0">
+    ${tankSVGSm('Q'+line.id+idx,qPct,dot,true)}
+    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;width:90%">
+      <div style="font-family:var(--mono);font-size:14px;font-weight:900;color:#ffffff;background:rgba(0,0,0,.6);padding:3px 10px;border-radius:999px;display:inline-block">${Math.round(qPct)}%</div>
     </div>
   </div>
-</div>`;
+  <!-- ข้อมูลล่าง -->
+  <div style="padding:8px 12px 12px;display:flex;flex-direction:column;gap:6px">
+    <div style="font-family:var(--mono);font-size:10px;color:#7c3aed;font-weight:700">${rpc}</div>
+    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:5px 8px;border-radius:8px;background:${hotOk?'rgba(21,128,61,.1)':'var(--s2)'}">
+      <input type="checkbox" ${hotOk?'checked':''} onchange="setFP('${line.id}','q${idx}','hot_q${idx}',this.checked)" style="width:18px;height:18px;accent-color:#15803d;cursor:pointer;flex-shrink:0">
+      <span style="font-family:var(--mono);font-size:12px;font-weight:800;color:${hotOk?'#15803d':'#374151'}">🌡️ น้ำร้อน</span>
+    </label>
+    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:5px 8px;border-radius:8px;background:${cipOk?'rgba(21,128,61,.1)':'var(--s2)'}">
+      <input type="checkbox" ${cipOk?'checked':''} onchange="setFP('${line.id}','q${idx}','cip_q${idx}',this.checked)" style="width:18px;height:18px;accent-color:#15803d;cursor:pointer;flex-shrink:0">
+      <span style="font-family:var(--mono);font-size:12px;font-weight:800;color:${cipOk?'#15803d':'#374151'}">🧹 CIP แล้ว</span>
+    </label>
+  </div>
+</div>`
   }
 
 
