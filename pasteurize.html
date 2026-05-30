@@ -14,286 +14,7 @@
 
 
 </script>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;600&family=Sarabun:wght@400;500;600;700&display=swap');
-*{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#e8ecf0;--s1:#f2f4f7;--s2:#e0e4ea;--s3:#d0d6de;
-  --b1:#b0bac8;--b2:#8896aa;
-  --text:#111827;--t2:#374151;--t3:#6b7280;
-  --blue:#2563eb;--blue2:#3b82f6;
-  --green:#16a34a;--yellow:#ca8a04;--red:#dc2626;--cyan:#0891b2;--orange:#ea580c;
-  --mono:'DM Mono',monospace;--sans:'Sarabun',sans-serif;
-}
-body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13px;min-height:100vh;font-weight:500}
-::-webkit-scrollbar{width:6px;height:6px}
-::-webkit-scrollbar-track{background:var(--bg)}
-::-webkit-scrollbar-thumb{background:var(--b1);border-radius:3px}
-input[type="number"]{-moz-appearance:textfield}
-input[type="number"]::-webkit-inner-spin-button,input[type="number"]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
-
-nav{display:flex;align-items:center;height:52px;background:#ffffff;border-bottom:2px solid var(--b1);position:sticky;top:0;z-index:200;padding:0 16px;gap:8px}
-.nav-logo{font-family:var(--mono);font-size:14px;font-weight:600;letter-spacing:.06em;margin-right:8px}
-.nav-logo b{color:var(--blue)}
-.nav-tab{font-size:12px;font-weight:600;padding:6px 12px;border-radius:7px;border:none;background:none;color:var(--t2);cursor:pointer;white-space:nowrap}
-.nav-tab:hover{color:var(--text);background:var(--s3)}
-.nav-tab.on{color:var(--orange);background:rgba(249,115,22,.12)}
-.nav-right{display:flex;align-items:center;gap:8px;margin-left:auto}
-.nav-user{font-family:var(--mono);font-size:11px;color:var(--t2)}
-.nav-role{font-size:10px;font-family:var(--mono);padding:2px 8px;border-radius:4px;background:rgba(249,115,22,.15);color:var(--orange);border:1px solid rgba(249,115,22,.3)}
-.btn-logout{font-size:11px;padding:5px 10px;border-radius:6px;border:1px solid var(--b2);background:none;color:var(--t2);cursor:pointer}
-.btn-logout:hover{color:var(--red);border-color:var(--red)}
-
-.page{display:none;padding:14px 16px}
-.page.on{display:block}
-
-.tw{overflow-x:auto;border-radius:10px;border:1px solid var(--b1);margin-bottom:14px}
-table{width:100%;border-collapse:collapse;font-size:12px}
-tbody td{border-right:1px solid var(--b1);border-bottom:1px solid var(--b1)}
-thead th{border-right:1px solid var(--b2)!important}
-thead th{background:var(--s2);padding:8px 10px;text-align:left;white-space:nowrap;font-family:var(--mono);font-size:12px;font-weight:800;color:var(--text);border-bottom:2px solid var(--b1);vertical-align:middle}
-
-/* ROW HIGHLIGHT — ทั้งแถวสีเดียวกัน */
-.row-past{background:rgba(249,115,22,.08)!important;border-left:3px solid var(--orange)}
-.row-past td{background:rgba(249,115,22,.08)!important}
-.row-past td *:not(.stamp-btn):not(.stat-badge):not(.ci){color:var(--orange)!important}
-.row-done{background:var(--s2)!important;border-left:3px solid var(--green)}
-.row-done td{background:var(--s2)!important;color:var(--text)!important}
-.row-done td *:not(.stamp-btn):not(.stat-badge):not(.ci){color:#4ade80!important}
-.row-wait{background:rgba(234,179,8,.07)!important;border-left:3px solid var(--yellow)}
-.row-wait td{background:rgba(234,179,8,.07)!important}
-.row-wait td *:not(.stamp-btn):not(.stat-badge):not(.ci){color:var(--yellow)!important}
-
-.ci{background:var(--s2);border:1px solid var(--b1);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:12px;padding:5px 7px;outline:none}
-.ci:focus{border-color:var(--blue)}
-.ca{font-family:var(--mono);font-size:12px;color:var(--t2);white-space:nowrap}
-.cr{font-family:var(--mono);font-size:11px;font-weight:700;color:#fff;background:#1e3a5f;border:2px solid #3b82f6;border-radius:50%;width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;}
-
-/* STAMP */
-.stamp-wrap{display:flex;flex-direction:column;gap:3px;min-width:120px}
-.stamp-btn{display:flex;align-items:center;gap:4px;background:var(--s3);border:1px solid var(--b2);border-radius:6px;color:var(--t2);font-size:11px;font-family:var(--mono);padding:5px 10px;cursor:pointer;white-space:nowrap;transition:all .2s}
-.stamp-btn:hover{border-color:var(--orange);color:var(--orange)}
-.stamp-btn.stamped{background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.4);color:var(--green)}
-.stamp-btn.active{background:rgba(249,115,22,.1);border-color:rgba(249,115,22,.4);color:var(--orange)}
-.edit-link{font-size:10px;color:var(--t3);cursor:pointer;padding-left:4px}
-.edit-link:hover{color:var(--blue2)}
-
-/* STATUS BADGE */
-.stat-badge{font-family:var(--mono);font-size:11px;font-weight:700;padding:4px 10px;border-radius:99px;white-space:nowrap;display:inline-block}
-
-
-
-/* FLOW ANIMATION */
-.flow-wrap{position:relative;width:100%;margin-bottom:16px;background:var(--s1);
-  border:1px solid var(--b1);border-radius:14px;padding:16px;overflow:hidden}
-.flow-wrap::before{content:"";position:absolute;inset:0;
-  background:radial-gradient(ellipse at 50% 50%,rgba(6,182,212,.04) 0%,transparent 70%);
-  pointer-events:none}
-.flow-title{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--t3);
-  text-transform:uppercase;letter-spacing:.12em;margin-bottom:12px}
-
-/* PIPE PARTICLE */
-@keyframes flow-particle{
-  0%{stroke-dashoffset:200}
-  100%{stroke-dashoffset:0}
-}
-@keyframes flow-particle2{
-  0%{stroke-dashoffset:300}
-  100%{stroke-dashoffset:0}
-}
-@keyframes pump-spin{
-  0%{transform:rotate(0deg)}
-  100%{transform:rotate(360deg)}
-}
-@keyframes glow-pulse{
-  0%,100%{opacity:.4}
-  50%{opacity:1}
-}
-@keyframes tank-fill-up{
-  0%{opacity:.6}
-  50%{opacity:1}
-  100%{opacity:.6}
-}
-.flow-svg{display:block;width:100%;height:auto}
-
-/* TANK VISUAL */
-.tank-row{display:block;margin-bottom:14px}
-.tank-card{background:var(--s1);border:1px solid var(--b1);border-radius:12px;padding:14px;text-align:center;position:relative;overflow:hidden}
-.tank-card-title{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}
-.tank-card-name{font-family:var(--mono);font-size:11px;color:var(--blue2);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tank-card-vol{font-family:var(--mono);font-size:14px;font-weight:700;margin-top:4px}
-.tank-card-pct{font-family:var(--mono);font-size:10px;color:var(--t2);margin-top:2px}
-.tank-card-time{font-family:var(--mono);font-size:10px;color:var(--orange);margin-top:4px}
-@keyframes pastwave{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
-@keyframes pastwave2{0%{transform:translateX(-30%)}100%{transform:translateX(20%)}}
-
-/* KPI */
-.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
-@media(max-width:600px){.kpi-row{grid-template-columns:repeat(2,1fr)}}
-.kpi{background:var(--s1);border:1px solid var(--b1);border-radius:10px;padding:12px 14px}
-.kpi-label{font-size:10px;color:var(--t3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
-.kpi-val{font-size:22px;font-weight:700;font-family:var(--mono)}
-
-/* CHART */
-.chart-card{background:var(--s1);border:1px solid var(--b1);border-radius:12px;padding:16px;margin-bottom:14px}
-.chart-title{font-family:var(--mono);font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px}
-.chart-wrap{height:220px;position:relative}
-.period-row{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
-.period-btn{font-size:11px;padding:4px 12px;border-radius:6px;border:1px solid var(--b2);background:none;color:var(--t2);cursor:pointer;font-family:var(--mono)}
-.period-btn.on{background:rgba(249,115,22,.15);border-color:var(--orange);color:var(--orange)}
-
-.toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px;flex-wrap:wrap;gap:8px}
-
-#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#1d4ed8;color:#fff;padding:10px 20px;border-radius:10px;font-size:13px;opacity:0;transition:all .3s;z-index:9999;white-space:nowrap;pointer-events:none}
-#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-
-@keyframes blink{0%,100%{opacity:1}40%{opacity:.15}}
-@keyframes pulse-orange{0%,100%{box-shadow:0 0 0 0 rgba(249,115,22,.4)}70%{box-shadow:0 0 0 6px rgba(249,115,22,0)}}
-.past-pulse{animation:pulse-orange 1.5s infinite}
-
-/* ── MOBILE RESPONSIVE ──────────────────────────────────────────────── */
-@media(max-width:768px){
-  nav{padding:0 10px;gap:4px}
-  .nav-logo{font-size:12px}
-  .nav-tab{font-size:11px;padding:5px 8px}
-  .nav-user{display:none}
-  .btn-logout{font-size:10px;padding:4px 8px}
-  .page{padding:10px}
-
-  /* TABLE → CARD */
-  .tw{border:none;background:none;overflow:visible}
-  table,thead,tbody,tr,td,th{display:block;width:100%}
-  thead tr{display:none}
-  tbody tr{
-    background:var(--s1);border:1px solid var(--b1);border-radius:12px;
-    margin-bottom:12px;padding:12px;position:relative;
-  }
-  tbody tr.row-past{border-left:4px solid var(--orange)!important;background:rgba(249,115,22,.06)!important}
-  tbody tr.row-done{border-left:4px solid var(--green)!important;background:var(--s2)!important}
-  tbody tr.row-wait{border-left:4px solid var(--yellow)!important;background:rgba(234,179,8,.06)!important}
-  tbody td{border:none!important;padding:3px 0;display:flex;align-items:center;gap:8px;font-size:13px}
-
-  /* ซ่อน td ที่ไม่จำเป็น */
-  tbody td:nth-child(1){display:none} /* # */
-  tbody td:nth-child(4){display:none} /* Batch — แสดงใน mix name */
-
-  /* Mix Code + Mix Name */
-  tbody td:nth-child(2) span{font-family:var(--mono);font-size:14px!important;font-weight:700!important;color:var(--orange)!important}
-  tbody td:nth-child(3) span{font-size:14px!important;font-weight:700!important;color:var(--blue2)!important}
-
-  /* Volume + Tank — inline */
-  tbody td:nth-child(5),tbody td:nth-child(6){display:inline-flex;width:auto;margin-right:10px}
-
-  /* Stamp buttons — ใหญ่กดง่าย */
-  .stamp-btn{min-height:48px;font-size:14px!important;padding:10px 16px!important;border-radius:10px!important;justify-content:center;width:100%}
-
-  /* Stamp cells — full width */
-  tbody td:nth-child(7),tbody td:nth-child(8),tbody td:nth-child(9){padding:4px 0}
-
-  /* คาดเสร็จ */
-  tbody td:nth-child(8)::before{content:"🕐 คาดเสร็จ: ";font-family:var(--mono);font-size:11px;color:var(--t2);flex-shrink:0}
-
-  /* Eff% */
-  tbody td:nth-child(10){justify-content:center;padding-top:4px}
-  tbody td:nth-child(10)::before{content:"Eff%: ";font-family:var(--mono);font-size:11px;color:var(--t2)}
-
-  /* Actual + Checkbox — label กำกับ */
-  tbody td:nth-child(11)::before{content:"🍬 Glc: ";font-family:var(--mono);font-size:11px;color:#86efac;flex-shrink:0}
-  tbody td:nth-child(12)::before{content:"🧂 Sgr: ";font-family:var(--mono);font-size:11px;color:#67e8f9;flex-shrink:0}
-  tbody td:nth-child(13)::before{content:"🌴 Plm: ";font-family:var(--mono);font-size:11px;color:#fdba74;flex-shrink:0}
-
-  /* Aging Tank */
-  tbody td:nth-child(14)::before{content:"🪣 Aging: ";font-family:var(--mono);font-size:11px;color:var(--cyan);flex-shrink:0}
-  tbody td:nth-child(14) input{width:100%!important}
-
-  /* รหัสผลิต */
-  tbody td:nth-child(15)::before{content:"รหัส: ";font-family:var(--mono);font-size:11px;color:var(--purple);flex-shrink:0}
-
-  /* Status */
-  tbody td:last-child{justify-content:center;padding-top:8px}
-
-  
-
-/* FLOW ANIMATION */
-.flow-wrap{position:relative;width:100%;margin-bottom:16px;background:var(--s1);
-  border:1px solid var(--b1);border-radius:14px;padding:16px;overflow:hidden}
-.flow-wrap::before{content:"";position:absolute;inset:0;
-  background:radial-gradient(ellipse at 50% 50%,rgba(6,182,212,.04) 0%,transparent 70%);
-  pointer-events:none}
-.flow-title{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--t3);
-  text-transform:uppercase;letter-spacing:.12em;margin-bottom:12px}
-
-/* PIPE PARTICLE */
-@keyframes flow-particle{
-  0%{stroke-dashoffset:200}
-  100%{stroke-dashoffset:0}
-}
-@keyframes flow-particle2{
-  0%{stroke-dashoffset:300}
-  100%{stroke-dashoffset:0}
-}
-@keyframes pump-spin{
-  0%{transform:rotate(0deg)}
-  100%{transform:rotate(360deg)}
-}
-@keyframes glow-pulse{
-  0%,100%{opacity:.4}
-  50%{opacity:1}
-}
-@keyframes tank-fill-up{
-  0%{opacity:.6}
-  50%{opacity:1}
-  100%{opacity:.6}
-}
-.flow-svg{display:block;width:100%;height:auto}
-
-/* TANK VISUAL */
-.tank-row{display:block;margin-bottom:14px}
-.tank-card{background:var(--s1);border:1px solid var(--b1);border-radius:12px;padding:14px;text-align:center;position:relative;overflow:hidden}
-.tank-card-title{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}
-.tank-card-name{font-family:var(--mono);font-size:11px;color:var(--blue2);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tank-card-vol{font-family:var(--mono);font-size:14px;font-weight:700;margin-top:4px}
-.tank-card-pct{font-family:var(--mono);font-size:10px;color:var(--t2);margin-top:2px}
-.tank-card-time{font-family:var(--mono);font-size:10px;color:var(--orange);margin-top:4px}
-@keyframes pastwave{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
-@keyframes pastwave2{0%{transform:translateX(-30%)}100%{transform:translateX(20%)}}
-
-/* KPI */
-  .kpi-row{grid-template-columns:repeat(2,1fr)!important;gap:8px}
-  .kpi-val{font-size:18px}
-}
-
-@keyframes statusPulse{0%,100%{opacity:1}50%{opacity:.45}}
-.status-blink{animation:statusPulse 1.4s ease-in-out infinite}
-
-.info-card{background:#fff;border:1.5px solid var(--b1);border-radius:12px;padding:12px 16px;margin-top:10px;font-family:'DM Mono',monospace;box-shadow:0 2px 6px rgba(0,0,0,.07);}
-.info-card .card-title{font-size:10px;color:#60a5fa;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;border-bottom:2px solid var(--b1);padding-bottom:6px;}
-.info-card .card-row{display:flex;justify-content:space-between;align-items:center;margin:4px 0;font-size:11px;color:var(--text);}
-.info-card .card-label{color:#64748b;}
-.info-card .card-value{color:var(--text);font-weight:700;}
-.info-card .card-value.highlight{color:#60a5fa;font-size:13px;}
-.info-cards-wrap{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:4px 0 8px;}
-
-/* Real-time Shift Chart — แนวตั้ง */
-.shift-chart-card{background:linear-gradient(135deg,#080d1a,#0d1525);border:1px solid #1e2535;border-radius:12px;padding:12px 10px;height:100%;box-sizing:border-box;display:flex;flex-direction:column;}
-.shift-chart-title{font-family:'DM Mono',monospace;font-size:10px;color:#60a5fa;font-weight:700;letter-spacing:1px;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
-.shift-live-dot{width:8px;height:8px;background:#22c55e;border-radius:50%;animation:livePulse 1.2s ease-in-out infinite;}
-@keyframes livePulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(34,197,94,.4)}50%{opacity:.7;box-shadow:0 0 0 6px rgba(34,197,94,0)}}
-.shift-bars-wrap{display:flex;align-items:flex-end;gap:8px;height:100%;padding:0 4px;}
-.shift-bar-col{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;}
-.shift-bar-track-v{width:100%;flex:1;background:#0a0f1e;border-radius:8px 8px 4px 4px;position:relative;overflow:hidden;display:flex;align-items:flex-end;}
-.shift-bar-fill-v{width:100%;border-radius:6px 6px 3px 3px;transition:height 1s cubic-bezier(.4,0,.2,1);position:relative;min-height:3px;}
-.shift-bar-fill-v.active{box-shadow:0 -4px 20px currentColor;}
-.shift-bar-fill-v .bar-val-v{position:absolute;top:-18px;left:0;right:0;text-align:center;font-family:'DM Mono',monospace;font-size:10px;font-weight:700;color:#fff;white-space:nowrap;}
-.shift-bar-label{font-family:'DM Mono',monospace;font-size:10px;font-weight:700;text-align:center;}
-.shift-bar-kg-v{font-family:'DM Mono',monospace;font-size:11px;font-weight:700;text-align:center;}
-.shift-total{font-family:'DM Mono',monospace;font-size:11px;color:#64748b;text-align:right;margin-top:8px;padding-top:6px;border-top:1px solid #1e2535;}
-
-.sig-btn{background:none;border:none;cursor:pointer;padding:4px 6px;border-radius:6px;transition:background .15s;display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#64748b;}
-.sig-btn:hover{background:rgba(99,102,241,.15);color:#818cf8;}
-.sig-btn svg{width:18px;height:18px;}
-.sig-preview{height:28px;filter:invert(1) brightness(2);vertical-align:middle;opacity:.9;}
-</style>
+<style>@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;600&family=Sarabun:wght@400;500;600;700&display=swap');*{box-sizing:border-box;margin:0;padding:0}:root{--bg:#e8ecf0;--s1:#f2f4f7;--s2:#e0e4ea;--s3:#d0d6de;--b1:#b0bac8;--b2:#8896aa;--text:#111827;--t2:#374151;--t3:#6b7280;--blue:#2563eb;--blue2:#3b82f6;--green:#16a34a;--yellow:#ca8a04;--red:#dc2626;--cyan:#0891b2;--orange:#ea580c;--mono:'DM Mono',monospace;--sans:'Sarabun',sans-serif;}body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13px;min-height:100vh;font-weight:500}::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--b1);border-radius:3px}input[type="number"]{-moz-appearance:textfield}input[type="number"]::-webkit-inner-spin-button,input[type="number"]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}nav{display:flex;align-items:center;height:52px;background:#ffffff;border-bottom:2px solid var(--b1);position:sticky;top:0;z-index:200;padding:0 16px;gap:8px}.nav-logo{font-family:var(--mono);font-size:14px;font-weight:600;letter-spacing:.06em;margin-right:8px}.nav-logo b{color:var(--blue)}.nav-tab{font-size:12px;font-weight:600;padding:6px 12px;border-radius:7px;border:none;background:none;color:var(--t2);cursor:pointer;white-space:nowrap}.nav-tab:hover{color:var(--text);background:var(--s3)}.nav-tab.on{color:var(--orange);background:rgba(249,115,22,.12)}.nav-right{display:flex;align-items:center;gap:8px;margin-left:auto}.nav-user{font-family:var(--mono);font-size:11px;color:var(--t2)}.nav-role{font-size:10px;font-family:var(--mono);padding:2px 8px;border-radius:4px;background:rgba(249,115,22,.15);color:var(--orange);border:1px solid rgba(249,115,22,.3)}.btn-logout{font-size:11px;padding:5px 10px;border-radius:6px;border:1px solid var(--b2);background:none;color:var(--t2);cursor:pointer}.btn-logout:hover{color:var(--red);border-color:var(--red)}.page{display:none;padding:14px 16px}.page.on{display:block}.tw{overflow-x:auto;border-radius:10px;border:1px solid var(--b1);margin-bottom:14px}table{width:100%;border-collapse:collapse;font-size:12px}tbody td{border-right:1px solid var(--b1);border-bottom:1px solid var(--b1)}thead th{border-right:1px solid var(--b2)!important}thead th{background:var(--s2);padding:8px 10px;text-align:left;white-space:nowrap;font-family:var(--mono);font-size:12px;font-weight:800;color:var(--text);border-bottom:2px solid var(--b1);vertical-align:middle}.row-past{background:rgba(249,115,22,.08)!important;border-left:3px solid var(--orange)}.row-past td{background:rgba(249,115,22,.08)!important}.row-past td *:not(.stamp-btn):not(.stat-badge):not(.ci){color:var(--orange)!important}.row-done{background:var(--s2)!important;border-left:3px solid var(--green)}.row-done td{background:var(--s2)!important;color:var(--text)!important}.row-done td *:not(.stamp-btn):not(.stat-badge):not(.ci){color:#4ade80!important}.row-wait{background:rgba(234,179,8,.07)!important;border-left:3px solid var(--yellow)}.row-wait td{background:rgba(234,179,8,.07)!important}.row-wait td *:not(.stamp-btn):not(.stat-badge):not(.ci){color:var(--yellow)!important}.ci{background:var(--s2);border:1px solid var(--b1);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:12px;padding:5px 7px;outline:none}.ci:focus{border-color:var(--blue)}.ca{font-family:var(--mono);font-size:12px;color:var(--t2);white-space:nowrap}.cr{font-family:var(--mono);font-size:11px;font-weight:700;color:#fff;background:#1e3a5f;border:2px solid #3b82f6;border-radius:50%;width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;}.stamp-wrap{display:flex;flex-direction:column;gap:3px;min-width:120px}.stamp-btn{display:flex;align-items:center;gap:4px;background:var(--s3);border:1px solid var(--b2);border-radius:6px;color:var(--t2);font-size:11px;font-family:var(--mono);padding:5px 10px;cursor:pointer;white-space:nowrap;transition:all .2s}.stamp-btn:hover{border-color:var(--orange);color:var(--orange)}.stamp-btn.stamped{background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.4);color:var(--green)}.stamp-btn.active{background:rgba(249,115,22,.1);border-color:rgba(249,115,22,.4);color:var(--orange)}.edit-link{font-size:10px;color:var(--t3);cursor:pointer;padding-left:4px}.edit-link:hover{color:var(--blue2)}.stat-badge{font-family:var(--mono);font-size:11px;font-weight:700;padding:4px 10px;border-radius:99px;white-space:nowrap;display:inline-block}.flow-wrap{position:relative;width:100%;margin-bottom:16px;background:var(--s1);border:1px solid var(--b1);border-radius:14px;padding:16px;overflow:hidden}.flow-wrap::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,rgba(6,182,212,.04) 0%,transparent 70%);pointer-events:none}.flow-title{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.12em;margin-bottom:12px}@keyframes flow-particle{0%{stroke-dashoffset:200}100%{stroke-dashoffset:0}}@keyframes flow-particle2{0%{stroke-dashoffset:300}100%{stroke-dashoffset:0}}@keyframes pump-spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}@keyframes glow-pulse{0%,100%{opacity:.4}50%{opacity:1}}@keyframes tank-fill-up{0%{opacity:.6}50%{opacity:1}100%{opacity:.6}}.flow-svg{display:block;width:100%;height:auto}.tank-row{display:block;margin-bottom:14px}.tank-card{background:var(--s1);border:1px solid var(--b1);border-radius:12px;padding:14px;text-align:center;position:relative;overflow:hidden}.tank-card-title{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}.tank-card-name{font-family:var(--mono);font-size:11px;color:var(--blue2);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tank-card-vol{font-family:var(--mono);font-size:14px;font-weight:700;margin-top:4px}.tank-card-pct{font-family:var(--mono);font-size:10px;color:var(--t2);margin-top:2px}.tank-card-time{font-family:var(--mono);font-size:10px;color:var(--orange);margin-top:4px}@keyframes pastwave{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}@keyframes pastwave2{0%{transform:translateX(-30%)}100%{transform:translateX(20%)}}.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}@media(max-width:600px){.kpi-row{grid-template-columns:repeat(2,1fr)}}.kpi{background:var(--s1);border:1px solid var(--b1);border-radius:10px;padding:12px 14px}.kpi-label{font-size:10px;color:var(--t3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}.kpi-val{font-size:22px;font-weight:700;font-family:var(--mono)}.chart-card{background:var(--s1);border:1px solid var(--b1);border-radius:12px;padding:16px;margin-bottom:14px}.chart-title{font-family:var(--mono);font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px}.chart-wrap{height:220px;position:relative}.period-row{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}.period-btn{font-size:11px;padding:4px 12px;border-radius:6px;border:1px solid var(--b2);background:none;color:var(--t2);cursor:pointer;font-family:var(--mono)}.period-btn.on{background:rgba(249,115,22,.15);border-color:var(--orange);color:var(--orange)}.toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px;flex-wrap:wrap;gap:8px}#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#1d4ed8;color:#fff;padding:10px 20px;border-radius:10px;font-size:13px;opacity:0;transition:all .3s;z-index:9999;white-space:nowrap;pointer-events:none}#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}@keyframes blink{0%,100%{opacity:1}40%{opacity:.15}}@keyframes pulse-orange{0%,100%{box-shadow:0 0 0 0 rgba(249,115,22,.4)}70%{box-shadow:0 0 0 6px rgba(249,115,22,0)}}.past-pulse{animation:pulse-orange 1.5s infinite}@media(max-width:768px){nav{padding:0 10px;gap:4px}.nav-logo{font-size:12px}.nav-tab{font-size:11px;padding:5px 8px}.nav-user{display:none}.btn-logout{font-size:10px;padding:4px 8px}.page{padding:10px}.tw{border:none;background:none;overflow:visible}table,thead,tbody,tr,td,th{display:block;width:100%}thead tr{display:none}tbody tr{background:var(--s1);border:1px solid var(--b1);border-radius:12px;margin-bottom:12px;padding:12px;position:relative;}tbody tr.row-past{border-left:4px solid var(--orange)!important;background:rgba(249,115,22,.06)!important}tbody tr.row-done{border-left:4px solid var(--green)!important;background:var(--s2)!important}tbody tr.row-wait{border-left:4px solid var(--yellow)!important;background:rgba(234,179,8,.06)!important}tbody td{border:none!important;padding:3px 0;display:flex;align-items:center;gap:8px;font-size:13px}tbody td:nth-child(1){display:none}tbody td:nth-child(4){display:none}tbody td:nth-child(2) span{font-family:var(--mono);font-size:14px!important;font-weight:700!important;color:var(--orange)!important}tbody td:nth-child(3) span{font-size:14px!important;font-weight:700!important;color:var(--blue2)!important}tbody td:nth-child(5),tbody td:nth-child(6){display:inline-flex;width:auto;margin-right:10px}.stamp-btn{min-height:48px;font-size:14px!important;padding:10px 16px!important;border-radius:10px!important;justify-content:center;width:100%}tbody td:nth-child(7),tbody td:nth-child(8),tbody td:nth-child(9){padding:4px 0}tbody td:nth-child(8)::before{content:"🕐 คาดเสร็จ:";font-family:var(--mono);font-size:11px;color:var(--t2);flex-shrink:0}tbody td:nth-child(10){justify-content:center;padding-top:4px}tbody td:nth-child(10)::before{content:"Eff%:";font-family:var(--mono);font-size:11px;color:var(--t2)}tbody td:nth-child(11)::before{content:"🍬 Glc:";font-family:var(--mono);font-size:11px;color:#86efac;flex-shrink:0}tbody td:nth-child(12)::before{content:"🧂 Sgr:";font-family:var(--mono);font-size:11px;color:#67e8f9;flex-shrink:0}tbody td:nth-child(13)::before{content:"🌴 Plm:";font-family:var(--mono);font-size:11px;color:#fdba74;flex-shrink:0}tbody td:nth-child(14)::before{content:"🪣 Aging:";font-family:var(--mono);font-size:11px;color:var(--cyan);flex-shrink:0}tbody td:nth-child(14) input{width:100%!important}tbody td:nth-child(15)::before{content:"รหัส:";font-family:var(--mono);font-size:11px;color:var(--purple);flex-shrink:0}tbody td:last-child{justify-content:center;padding-top:8px}.flow-wrap{position:relative;width:100%;margin-bottom:16px;background:var(--s1);border:1px solid var(--b1);border-radius:14px;padding:16px;overflow:hidden}.flow-wrap::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,rgba(6,182,212,.04) 0%,transparent 70%);pointer-events:none}.flow-title{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.12em;margin-bottom:12px}@keyframes flow-particle{0%{stroke-dashoffset:200}100%{stroke-dashoffset:0}}@keyframes flow-particle2{0%{stroke-dashoffset:300}100%{stroke-dashoffset:0}}@keyframes pump-spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}@keyframes glow-pulse{0%,100%{opacity:.4}50%{opacity:1}}@keyframes tank-fill-up{0%{opacity:.6}50%{opacity:1}100%{opacity:.6}}.flow-svg{display:block;width:100%;height:auto}.tank-row{display:block;margin-bottom:14px}.tank-card{background:var(--s1);border:1px solid var(--b1);border-radius:12px;padding:14px;text-align:center;position:relative;overflow:hidden}.tank-card-title{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}.tank-card-name{font-family:var(--mono);font-size:11px;color:var(--blue2);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tank-card-vol{font-family:var(--mono);font-size:14px;font-weight:700;margin-top:4px}.tank-card-pct{font-family:var(--mono);font-size:10px;color:var(--t2);margin-top:2px}.tank-card-time{font-family:var(--mono);font-size:10px;color:var(--orange);margin-top:4px}@keyframes pastwave{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}@keyframes pastwave2{0%{transform:translateX(-30%)}100%{transform:translateX(20%)}}.kpi-row{grid-template-columns:repeat(2,1fr)!important;gap:8px}.kpi-val{font-size:18px}}@keyframes statusPulse{0%,100%{opacity:1}50%{opacity:.45}}.status-blink{animation:statusPulse 1.4s ease-in-out infinite}.info-card{background:#fff;border:1.5px solid var(--b1);border-radius:12px;padding:12px 16px;margin-top:10px;font-family:'DM Mono',monospace;box-shadow:0 2px 6px rgba(0,0,0,.07);}.info-card .card-title{font-size:10px;color:#60a5fa;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;border-bottom:2px solid var(--b1);padding-bottom:6px;}.info-card .card-row{display:flex;justify-content:space-between;align-items:center;margin:4px 0;font-size:11px;color:var(--text);}.info-card .card-label{color:#64748b;}.info-card .card-value{color:var(--text);font-weight:700;}.info-card .card-value.highlight{color:#60a5fa;font-size:13px;}.info-cards-wrap{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:4px 0 8px;}.shift-chart-card{background:linear-gradient(135deg,#080d1a,#0d1525);border:1px solid #1e2535;border-radius:12px;padding:12px 10px;height:100%;box-sizing:border-box;display:flex;flex-direction:column;}.shift-chart-title{font-family:'DM Mono',monospace;font-size:10px;color:#60a5fa;font-weight:700;letter-spacing:1px;margin-bottom:10px;display:flex;align-items:center;gap:8px;}.shift-live-dot{width:8px;height:8px;background:#22c55e;border-radius:50%;animation:livePulse 1.2s ease-in-out infinite;}@keyframes livePulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(34,197,94,.4)}50%{opacity:.7;box-shadow:0 0 0 6px rgba(34,197,94,0)}}.shift-bars-wrap{display:flex;align-items:flex-end;gap:8px;height:100%;padding:0 4px;}.shift-bar-col{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;}.shift-bar-track-v{width:100%;flex:1;background:#0a0f1e;border-radius:8px 8px 4px 4px;position:relative;overflow:hidden;display:flex;align-items:flex-end;}.shift-bar-fill-v{width:100%;border-radius:6px 6px 3px 3px;transition:height 1s cubic-bezier(.4,0,.2,1);position:relative;min-height:3px;}.shift-bar-fill-v.active{box-shadow:0 -4px 20px currentColor;}.shift-bar-fill-v .bar-val-v{position:absolute;top:-18px;left:0;right:0;text-align:center;font-family:'DM Mono',monospace;font-size:10px;font-weight:700;color:#fff;white-space:nowrap;}.shift-bar-label{font-family:'DM Mono',monospace;font-size:10px;font-weight:700;text-align:center;}.shift-bar-kg-v{font-family:'DM Mono',monospace;font-size:11px;font-weight:700;text-align:center;}.shift-total{font-family:'DM Mono',monospace;font-size:11px;color:#64748b;text-align:right;margin-top:8px;padding-top:6px;border-top:1px solid #1e2535;}.sig-btn{background:none;border:none;cursor:pointer;padding:4px 6px;border-radius:6px;transition:background .15s;display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#64748b;}.sig-btn:hover{background:rgba(99,102,241,.15);color:#818cf8;}.sig-btn svg{width:18px;height:18px;}.sig-preview{height:28px;filter:invert(1) brightness(2);vertical-align:middle;opacity:.9;}</style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 </head>
 <body>
@@ -401,1334 +122,1139 @@ thead th{background:var(--s2);padding:8px 10px;text-align:left;white-space:nowra
 
 <div id="toast"></div>
 
-<script type="module">
-import { initializeApp }     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+<script type="module">import { initializeApp }     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-
-
-
 import { getFirestore, collection, query, where, orderBy, onSnapshot, updateDoc, doc, addDoc, deleteDoc, getDocs, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-
 import {resolveStatus,statusLabel,statusColor,statusBlink,statusBadge} from "./shared.js";
-
 const app = initializeApp({
-  apiKey:"AIzaSyC3f6jMuhugE6BNfRfkpOA9BMrIKWR9YgQ",
-  authDomain:"production-filling.firebaseapp.com",
-  projectId:"production-filling",
-  storageBucket:"production-filling.firebasestorage.app",
-  messagingSenderId:"89098393458",
-  appId:"1:89098393458:web:b723f2886e8a341935afeb"
+apiKey:"AIzaSyC3f6jMuhugE6BNfRfkpOA9BMrIKWR9YgQ",
+authDomain:"production-filling.firebaseapp.com",
+projectId:"production-filling",
+storageBucket:"production-filling.firebasestorage.app",
+messagingSenderId:"89098393458",
+appId:"1:89098393458:web:b723f2886e8a341935afeb"
 });
 const auth = getAuth(app);
 const db   = getFirestore(app);
-
 let ME=null, productMap={}, lineMap={};
 let rows={p1:[],p2:[]};
-// expose globals สำหรับ interval และ debug
 window._rows=rows;
 window._productMap=productMap;
 let unsub={p1:null,p2:null};
-
-// P1 ดึงจาก production_plans (Mixing 1), P2 ดึงจาก production_plans_m2
 const planCol=(p)=>p==="p1"?"production_plans":"production_plans_m2";
-
 const today  = ()=>new Date().toISOString().slice(0,10);
 const $      = id=>document.getElementById(id);
 const nowHHMM= ()=>{const d=new Date();return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");};
 const nowHHMMSS=()=>{const d=new Date();return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0")+":"+String(d.getSeconds()).padStart(2,"0");};
-
 function toast(msg,t="blue"){
-  const el=$("toast");el.textContent=msg;
-  el.style.background=t==="green"?"#15803d":t==="red"?"#991b1b":"#1d4ed8";
-  el.classList.add("show");setTimeout(()=>el.classList.remove("show"),2500);
+const el=$("toast");el.textContent=msg;
+el.style.background=t==="green"?"#15803d":t==="red"?"#991b1b":"#1d4ed8";
+el.classList.add("show");setTimeout(()=>el.classList.remove("show"),2500);
 }
-
-// ── AUTH ──────────────────────────────────────────────────────────────
-
-// ── IDLE TIMEOUT ──────────────────────────────────────────────────────
 async function initIdleTimeout(){
-  try{
-    const snap=await getDoc(doc(db,'settings','idle_timeout'));
-    const minutes=snap.exists()?(snap.data().minutes||0):0;
-    if(!minutes||minutes<=0)return;
-    let t;
-    const reset=()=>{
-      clearTimeout(t);
-      t=setTimeout(async()=>{
-        alert('ระบบ logout อัตโนมัติ เนื่องจากไม่มีการใช้งาน '+minutes+' นาที');
-        await signOut(auth);
-        window.location.href='index.html';
-      },minutes*60*1000);
-    };
-    ['mousemove','mousedown','keydown','touchstart','scroll','click'].forEach(e=>{
-      document.addEventListener(e,reset,{passive:true});
-    });
-    reset();
-  }catch(e){console.warn('idleTimeout:',e);}
-}
-
-onAuthStateChanged(auth,async user=>{
-  if(!user){window.location.href="index.html";return;}
-  ME=user;
-  try{
-    const snap=await getDocs(query(collection(db,"users"),where("uid","==",user.uid)));
-    const role=snap.empty?"pasteurize":(snap.docs[0].data().role||"pasteurize");
-    if(role!=="pasteurize"&&role!=="admin"&&role!=="leadman"&&role!=="operator"){window.location.href="index.html";return;}
-  }catch{}
-
-  // โหลด products แบบ realtime
-  onSnapshot(collection(db,"products"), snap=>{
-    snap.docs.forEach(d=>{const p={id:d.id,...d.data()};if(p.mix_code)productMap[p.mix_code]=p;});
-    window._productMap=productMap;
-  }, e=>console.error('products error:',e));
-
-  // โหลด lines แบบ realtime
-  onSnapshot(collection(db,"lines"), snap=>{
-    snap.docs.forEach(d=>{const l={id:d.id,...d.data()};
-      if(l.name) lineMap[l.name]=l;
-      if(l.line_name) lineMap[l.line_name]=l;
-      if(l.lineName) lineMap[l.lineName]=l;
-      lineMap[d.id]=l;
-    });
-    window._lineMap=lineMap;
-  }, e=>console.error('lines error:',e));
-
-  $("nav-user").textContent=user.email.replace("@filling.local","");
-  $("date-p1").value=today();
-  $("date-p2").value=today();
-  loadPlan("p1");
-  loadPlan("p2");
+try{
+const snap=await getDoc(doc(db,'settings','idle_timeout'));
+const minutes=snap.exists()?(snap.data().minutes||0):0;
+if(!minutes||minutes<=0)return;
+let t;
+const reset=()=>{
+clearTimeout(t);
+t=setTimeout(async()=>{
+alert('ระบบ logout อัตโนมัติ เนื่องจากไม่มีการใช้งาน '+minutes+' นาที');
+await signOut(auth);
+window.location.href='index.html';
+},minutes*60*1000);
+};
+['mousemove','mousedown','keydown','touchstart','scroll','click'].forEach(e=>{
+document.addEventListener(e,reset,{passive:true});
 });
-
+reset();
+}catch(e){console.warn('idleTimeout:',e);}
+}
+onAuthStateChanged(auth,async user=>{
+if(!user){window.location.href="index.html";return;}
+ME=user;
+try{
+const snap=await getDocs(query(collection(db,"users"),where("uid","==",user.uid)));
+const role=snap.empty?"pasteurize":(snap.docs[0].data().role||"pasteurize");
+if(role!=="pasteurize"&&role!=="admin"&&role!=="leadman"&&role!=="operator"){window.location.href="index.html";return;}
+}catch{}
+onSnapshot(collection(db,"products"), snap=>{
+snap.docs.forEach(d=>{const p={id:d.id,...d.data()};if(p.mix_code)productMap[p.mix_code]=p;});
+window._productMap=productMap;
+}, e=>console.error('products error:',e));
+onSnapshot(collection(db,"lines"), snap=>{
+snap.docs.forEach(d=>{const l={id:d.id,...d.data()};
+if(l.name) lineMap[l.name]=l;
+if(l.line_name) lineMap[l.line_name]=l;
+if(l.lineName) lineMap[l.lineName]=l;
+lineMap[d.id]=l;
+});
+window._lineMap=lineMap;
+}, e=>console.error('lines error:',e));
+$("nav-user").textContent=user.email.replace("@filling.local","");
+$("date-p1").value=today();
+$("date-p2").value=today();
+loadPlan("p1");
+loadPlan("p2");
+});
 setInterval(()=>{["p1","p2"].forEach(p=>{if(document.getElementById("tank-visual-"+p))renderTankVisual(p,rows[p]||[]);});},5000);
-
-// ── Eff% REAL-TIME UPDATE ทุก 10 วินาที ──────────────────────────────
 setInterval(()=>{
-  ["p1","p2"].forEach(p=>{
-    (rows[p]||[]).forEach(row=>{
-      if(!row.past_start_time||row.past_end_time) return; // เฉพาะที่กำลัง past. อยู่
-      const prod=productMap[row.mix_code]||{};
-      const speed=p==="p1"?+(prod.speed_m1||prod.speed||1000):+(prod.speed_m2||prod.speed||1000);
-      const density=+(prod.density||1);
-      const vol=+(row.volume_liter||0);
-      const reqMin=vol>0&&speed>0?Math.round(vol*density*60/speed):0;
-      if(!reqMin) return;
-      const[sh,sm]=row.past_start_time.split(":").map(Number);
-      const now=new Date();
-      const actualMin=(now.getHours()*60+now.getMinutes())-(sh*60+sm);
-      if(actualMin<=0) return;
-      const eff=reqMin/actualMin*100;
-      const effColor=eff>=97&&eff<=100?"#22c55e":eff>100?"#f97316":"#ef4444";
-      const effLabel=eff>=97&&eff<=100?"✅":eff>100?"⚠️":"❌";
-      const el=document.getElementById("eff-rt-"+row.id);
-      if(el) el.innerHTML=`<span style="font-family:var(--mono);font-size:12px;font-weight:700;color:${effColor}">${effLabel} ${eff.toFixed(1)}%</span>`;
-    });
-  });
+["p1","p2"].forEach(p=>{
+(rows[p]||[]).forEach(row=>{
+if(!row.past_start_time||row.past_end_time) return;
+const prod=productMap[row.mix_code]||{};
+const speed=p==="p1"?+(prod.speed_m1||prod.speed||1000):+(prod.speed_m2||prod.speed||1000);
+const density=+(prod.density||1);
+const vol=+(row.volume_liter||0);
+const reqMin=vol>0&&speed>0?Math.round(vol*density*60/speed):0;
+if(!reqMin) return;
+const[sh,sm]=row.past_start_time.split(":").map(Number);
+const now=new Date();
+const actualMin=(now.getHours()*60+now.getMinutes())-(sh*60+sm);
+if(actualMin<=0) return;
+const eff=reqMin/actualMin*100;
+const effColor=eff>=97&&eff<=100?"#22c55e":eff>100?"#f97316":"#ef4444";
+const effLabel=eff>=97&&eff<=100?"✅":eff>100?"⚠️":"❌";
+const el=document.getElementById("eff-rt-"+row.id);
+if(el) el.innerHTML=`<span style="font-family:var(--mono);font-size:12px;font-weight:700;color:${effColor}">${effLabel} ${eff.toFixed(1)}%</span>`;
+});
+});
 },10000);
-
-// เขียน current_vol ลง Firebase ทุก 3 วินาที + Auto Stamp เมื่อถึง ETA
-const _autoStamping=new Set(); // ป้องกัน stamp ซ้ำ
-
+const _autoStamping=new Set();
 setInterval(async()=>{
-  for(const p of["p1","p2"]){
-    const pRows=window._rows[p]||[];
-    const agRow=pRows.find(r=>r.status==='pasteurising'&&r.past_start_time)||null;
-    if(!agRow)continue;
-    try{
-      const totalVol=+(agRow.volume_liter||0);
-      const prod=window._productMap[agRow.mix_code]||{};
-      const density=+(prod.density||1);
-      const speed=p==='p1'?+(prod.speed_m1||prod.speed||0):+(prod.speed_m2||prod.speed||0);
-      if(!speed||!totalVol){console.warn('SKIP',p,agRow.mix_code,'speed:',speed,'vol:',totalVol,'prod:',JSON.stringify(prod));continue;}
-      const totalMin=(totalVol*density*60)/speed;
-      const _tParts=agRow.past_start_time.split(':').map(Number);
-      const[h,mm,ss]=[ _tParts[0]||0, _tParts[1]||0, _tParts[2]||0 ];
-      const start=new Date((agRow.date||new Date().toISOString().slice(0,10))+'T'+String(h).padStart(2,'0')+':'+String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0'));
-      const elapsedSec2=Math.max(0,(Date.now()-start)/1000);
-      const elapsedMin=elapsedSec2/60;
-      const agVol=totalMin>0?Math.min(totalVol,(elapsedMin/totalMin)*totalVol):0;
-
-      // รวม current_vol จาก batch อื่นที่ process_order + aging_tank เดียวกัน (past_done แล้ว)
-      const allRows=[...(window._rows['p1']||[]),...(window._rows['p2']||[])];
-      let prevVol=0;
-      if(agRow.process_order&&agRow.aging_tank){
-        prevVol=allRows
-          .filter(r=>
-            r.id!==agRow.id &&
-            r.process_order===agRow.process_order &&
-            r.aging_tank===agRow.aging_tank &&
-            (r.status==='past_done'||r.status==='ready')
-          )
-          .reduce((sum,r)=>sum+(+(r.volume_liter||0)),0);
-      }
-      const totalCumVol=Math.round((prevVol+agVol)*10)/10;
-      await updateDoc(doc(db,planCol(p),agRow.id),{current_vol:totalCumVol});
-      // sync ข้อมูลลง aging_tank_states
-      if(agRow.aging_tank){
-        const prod2=productMap[agRow.mix_code]||{};
-        try{await setDoc(doc(db,'aging_tank_states',agRow.aging_tank),{
-          current_vol:totalCumVol,
-          mix_code:agRow.mix_code||'',
-          mix_name:agRow.mix_name||'',
-          batch_no:agRow.batch_no||'',
-          product_code:agRow.product_code||'',
-          prod_suffix:agRow.prod_suffix||'',
-          date:agRow.date||'',
-          past_start_time:agRow.past_start_time||'',
-          past_end_time:agRow.past_end_time||'',
-          volume_liter:agRow.volume_liter||0,
-          process_order:agRow.process_order||'',
-          status:agRow.status||'',
-          updated_at:new Date().toISOString()
-        },{merge:true});}catch{}
-      }
-
-      // ── AUTO STAMP ──────────────────────────────────────────
-      // ถ้าถึงเวลา ETA และยังไม่มี past_end_time
-      const totalSec2=totalMin*60;
-      if(!agRow.past_end_time && totalSec2>0 && elapsedSec2>=totalSec2){
-        // ต้องมี aging_tank ก่อนถึง auto stamp ได้
-        if(!agRow.aging_tank){
-          toast(`⚠️ Auto Stamp หยุด — กรุณาเลือก Aging Tank ก่อน`,"red");
-          continue;
-        }
-        const key=agRow.id;
-        if(!_autoStamping.has(key)){
-          _autoStamping.add(key);
-          const endTime=nowHHMMSS();
-          const eff=100; // auto stamp พอดีเวลา ETA → Eff=100% เสมอ
-
-          // Stamp Past.เสร็จ — current_vol = cumulative รวม batch ก่อนหน้าด้วย
-          const donePrevVol=allRows
-            .filter(r=>r.id!==agRow.id&&
-              r.process_order===agRow.process_order&&
-              r.aging_tank===agRow.aging_tank&&
-              (r.status==='past_done'||r.status==='ready'))
-            .reduce((s,r)=>s+(+(r.volume_liter||0)),0);
-          const finalCumVol=donePrevVol+(+(agRow.volume_liter||0));
-
-          await updateDoc(doc(db,planCol(p),agRow.id),{
-            past_end_time:endTime,
-            eff:Math.round(eff*10)/10,
-            status:'past_done',
-            current_vol:finalCumVol,
-            mix_start_time:"",mix_end_time:"",
-          });
-          if(agRow.aging_tank){
-            try{await setDoc(doc(db,'aging_tank_states',agRow.aging_tank),{
-              past_end_time:endTime,status:'past_done',
-              current_vol:finalCumVol,eff:Math.round(eff*10)/10,
-              updated_at:new Date().toISOString()
-            },{merge:true});}catch{}
-          }
-
-          if(!effOk){
-            toast(`⚠️ Auto Stamp Past.เสร็จ — Eff% ${eff.toFixed(1)}% ต่ำกว่า 97%`,"red");
-          } else {
-            toast(`✅ Auto Stamp Past.เสร็จ เวลา ${endTime}`,"green");
-          }
-
-          // หา batch ถัดไปจาก process_order + aging_tank เดียวกัน
-          if(agRow.process_order&&agRow.aging_tank){
-            const nextRow=allRows
-              .filter(r=>
-                r.process_order===agRow.process_order&&
-                r.aging_tank===agRow.aging_tank&&
-                r.id!==agRow.id&&
-                !r.past_start_time&&
-                (r.status==='pending'||r.status==='mixing'||r.status==='pasteurising')
-              )
-              .sort((a,b)=>(a.seq||0)-(b.seq||0))[0];
-            if(nextRow){
-              // คำนวณ prevVol สะสมจาก batch ที่ past_done แล้ว
-              const prevCumVol=allRows
-                .filter(r=>
-                  r.process_order===nextRow.process_order&&
-                  r.aging_tank===nextRow.aging_tank&&
-                  (r.status==='past_done'||r.status==='ready')
-                )
-                .reduce((s,r)=>s+(+(r.volume_liter||0)),0);
-              await updateDoc(doc(db,planCol(p),nextRow.id),{
-                past_start_time:endTime,
-                status:'pasteurising',
-                past_end_time:null,
-              });
-              // sync aging_tank_states ต่อเนื่อง
-              if(nextRow.aging_tank){
-                try{await setDoc(doc(db,'aging_tank_states',nextRow.aging_tank),{
-                  current_vol:prevCumVol,
-                  mix_code:nextRow.mix_code||'',
-                  mix_name:nextRow.mix_name||'',
-                  batch_no:nextRow.batch_no||'',
-                  process_order:nextRow.process_order||'',
-                  past_start_time:endTime,
-                  past_end_time:null,
-                  status:'pasteurising',
-                  updated_at:new Date().toISOString()
-                },{merge:true});}catch{}
-              }
-              toast(`🔄 Auto เริ่ม Past. Batch ${nextRow.batch_no} (${nextRow.mixing_tank||''}) ต่อเนื่อง`,"green");
-            }
-          }
-        }
-      }
-    }catch(e){console.error('auto stamp error:',e);_autoStamping.delete(agRow?.id);}
-  }
+for(const p of["p1","p2"]){
+const pRows=window._rows[p]||[];
+const agRow=pRows.find(r=>r.status==='pasteurising'&&r.past_start_time)||null;
+if(!agRow)continue;
+try{
+const totalVol=+(agRow.volume_liter||0);
+const prod=window._productMap[agRow.mix_code]||{};
+const density=+(prod.density||1);
+const speed=p==='p1'?+(prod.speed_m1||prod.speed||0):+(prod.speed_m2||prod.speed||0);
+if(!speed||!totalVol){console.warn('SKIP',p,agRow.mix_code,'speed:',speed,'vol:',totalVol,'prod:',JSON.stringify(prod));continue;}
+const totalMin=(totalVol*density*60)/speed;
+const _tParts=agRow.past_start_time.split(':').map(Number);
+const[h,mm,ss]=[ _tParts[0]||0, _tParts[1]||0, _tParts[2]||0 ];
+const start=new Date((agRow.date||new Date().toISOString().slice(0,10))+'T'+String(h).padStart(2,'0')+':'+String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0'));
+const elapsedSec2=Math.max(0,(Date.now()-start)/1000);
+const elapsedMin=elapsedSec2/60;
+const agVol=totalMin>0?Math.min(totalVol,(elapsedMin/totalMin)*totalVol):0;
+const allRows=[...(window._rows['p1']||[]),...(window._rows['p2']||[])];
+let prevVol=0;
+if(agRow.process_order&&agRow.aging_tank){
+prevVol=allRows
+.filter(r=>
+r.id!==agRow.id &&
+r.process_order===agRow.process_order &&
+r.aging_tank===agRow.aging_tank &&
+(r.status==='past_done'||r.status==='ready')
+)
+.reduce((sum,r)=>sum+(+(r.volume_liter||0)),0);
+}
+const totalCumVol=Math.round((prevVol+agVol)*10)/10;
+await updateDoc(doc(db,planCol(p),agRow.id),{current_vol:totalCumVol});
+if(agRow.aging_tank){
+const prod2=productMap[agRow.mix_code]||{};
+try{await setDoc(doc(db,'aging_tank_states',agRow.aging_tank),{
+current_vol:totalCumVol,
+mix_code:agRow.mix_code||'',
+mix_name:agRow.mix_name||'',
+batch_no:agRow.batch_no||'',
+product_code:agRow.product_code||'',
+prod_suffix:agRow.prod_suffix||'',
+date:agRow.date||'',
+past_start_time:agRow.past_start_time||'',
+past_end_time:agRow.past_end_time||'',
+volume_liter:agRow.volume_liter||0,
+process_order:agRow.process_order||'',
+status:agRow.status||'',
+updated_at:new Date().toISOString()
+},{merge:true});}catch{}
+}
+const totalSec2=totalMin*60;
+if(!agRow.past_end_time && totalSec2>0 && elapsedSec2>=totalSec2){
+if(!agRow.aging_tank){
+toast(`⚠️ Auto Stamp หยุด — กรุณาเลือก Aging Tank ก่อน`,"red");
+continue;
+}
+const key=agRow.id;
+if(!_autoStamping.has(key)){
+_autoStamping.add(key);
+const endTime=nowHHMMSS();
+const eff=100;
+const donePrevVol=allRows
+.filter(r=>r.id!==agRow.id&&
+r.process_order===agRow.process_order&&
+r.aging_tank===agRow.aging_tank&&
+(r.status==='past_done'||r.status==='ready'))
+.reduce((s,r)=>s+(+(r.volume_liter||0)),0);
+const finalCumVol=donePrevVol+(+(agRow.volume_liter||0));
+await updateDoc(doc(db,planCol(p),agRow.id),{
+past_end_time:endTime,
+eff:Math.round(eff*10)/10,
+status:'past_done',
+current_vol:finalCumVol,
+mix_start_time:"",mix_end_time:"",
+});
+if(agRow.aging_tank){
+try{await setDoc(doc(db,'aging_tank_states',agRow.aging_tank),{
+past_end_time:endTime,status:'past_done',
+current_vol:finalCumVol,eff:Math.round(eff*10)/10,
+updated_at:new Date().toISOString()
+},{merge:true});}catch{}
+}
+if(!effOk){
+toast(`⚠️ Auto Stamp Past.เสร็จ — Eff% ${eff.toFixed(1)}% ต่ำกว่า 97%`,"red");
+} else {
+toast(`✅ Auto Stamp Past.เสร็จ เวลา ${endTime}`,"green");
+}
+if(agRow.process_order&&agRow.aging_tank){
+const nextRow=allRows
+.filter(r=>
+r.process_order===agRow.process_order&&
+r.aging_tank===agRow.aging_tank&&
+r.id!==agRow.id&&
+!r.past_start_time&&
+(r.status==='pending'||r.status==='mixing'||r.status==='pasteurising')
+)
+.sort((a,b)=>(a.seq||0)-(b.seq||0))[0];
+if(nextRow){
+const prevCumVol=allRows
+.filter(r=>
+r.process_order===nextRow.process_order&&
+r.aging_tank===nextRow.aging_tank&&
+(r.status==='past_done'||r.status==='ready')
+)
+.reduce((s,r)=>s+(+(r.volume_liter||0)),0);
+await updateDoc(doc(db,planCol(p),nextRow.id),{
+past_start_time:endTime,
+status:'pasteurising',
+past_end_time:null,
+});
+if(nextRow.aging_tank){
+try{await setDoc(doc(db,'aging_tank_states',nextRow.aging_tank),{
+current_vol:prevCumVol,
+mix_code:nextRow.mix_code||'',
+mix_name:nextRow.mix_name||'',
+batch_no:nextRow.batch_no||'',
+process_order:nextRow.process_order||'',
+past_start_time:endTime,
+past_end_time:null,
+status:'pasteurising',
+updated_at:new Date().toISOString()
+},{merge:true});}catch{}
+}
+toast(`🔄 Auto เริ่ม Past. Batch ${nextRow.batch_no} (${nextRow.mixing_tank||''}) ต่อเนื่อง`,"green");
+}
+}
+}
+}
+}catch(e){console.error('auto stamp error:',e);_autoStamping.delete(agRow?.id);}
+}
 },1000);
 window.doLogout=async()=>{
-  if(unsub.p1)unsub.p1();
-  if(unsub.p2)unsub.p2();
-  await signOut(auth);
-  window.location.href="index.html";
+if(unsub.p1)unsub.p1();
+if(unsub.p2)unsub.p2();
+await signOut(auth);
+window.location.href="index.html";
 };
-
-// ── LOAD PLAN ─────────────────────────────────────────────────────────
-// ── TANK CAPACITY ─────────────────────────────────────────
 function getTankCapacity(tankId){
-  const raw=parseInt((tankId||'').replace(/\D/g,''));
-  const num=raw>100?Math.floor(raw/10):raw;
-  if(num>=61&&num<=64) return 10000;
-  if(num>=71&&num<=74) return 10000;
-  if(num>=65&&num<=68) return 8000;
-  if(num>=75&&num<=78) return 8000;
-  if(num>=1&&num<=34)  return 3000;
-  return 3000;
+const raw=parseInt((tankId||'').replace(/\D/g,''));
+const num=raw>100?Math.floor(raw/10):raw;
+if(num>=61&&num<=64) return 10000;
+if(num>=71&&num<=74) return 10000;
+if(num>=65&&num<=68) return 8000;
+if(num>=75&&num<=78) return 8000;
+if(num>=1&&num<=34)  return 3000;
+return 3000;
 }
-// ── TANK VISUAL FUNCTIONS ─────────────────────────────────
 function pastTankSVG(uid,pct,col,animate){
-  const W=100,H=160;
-  const bX=12,bY=16,bW=W-24,bH=H-44;
-  const maxFill=(bH-4)*0.92;
-  const fillH=Math.max(0,(pct/100)*maxFill);
-  const fillY=bY+bH-2-fillH;
-  const gid='pg'+uid,cid='pc'+uid;
-  const waveW=bW*2;const wAmp=8;
-  const r2=parseInt(col.slice(1,3),16),g2=parseInt(col.slice(3,5),16),b2=parseInt(col.slice(5,7),16);
-  const rgba2=(a)=>`rgba(${r2},${g2},${b2},${a})`;
-  const dk2='#'+[1,3,5].map(i=>Math.max(0,parseInt(col.slice(i,i+2),16)-55).toString(16).padStart(2,'0')).join('');
-  if(pct<=0)return`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
-    <rect x="${bX+1}" y="${bY+3}" width="${bW}" height="${bH}" rx="8" fill="rgba(0,0,0,.5)"/>
-    <rect x="${bX}" y="${bY}" width="${bW}" height="${bH}" rx="8" fill="#060a14" stroke="#1e2d4a" stroke-width="1.5"/>
-    <rect x="${bX+(bW-18)/2}" y="${bY-6}" width="18" height="8" rx="2" fill="#060a14" stroke="#1e2d4a" stroke-width="1.2"/>
-    <rect x="${bX+(bW-24)/2}" y="${bY-10}" width="24" height="5" rx="2" fill="#08101a" stroke="#1e2d4a" stroke-width="1.2"/>
-    <rect x="${bX+6}" y="${bY+bH}" width="5" height="6" rx="1.5" fill="#060a14" stroke="#1e2d4a" stroke-width="1.2"/>
-    <rect x="${bX+bW-11}" y="${bY+bH}" width="5" height="6" rx="1.5" fill="#060a14" stroke="#1e2d4a" stroke-width="1.2"/>
-    <rect x="${bX+2}" y="${bY+bH+5}" width="${bW-4}" height="3" rx="1.5" fill="#060a14" stroke="#1e2d4a" stroke-width="1.2"/>
-  </svg>`;
-  return`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="${col}" stop-opacity=".9"/>
-      <stop offset="100%" stop-color="${dk2}" stop-opacity="1"/>
-    </linearGradient>
-    <clipPath id="${cid}"><rect x="${bX+1}" y="${bY+1}" width="${bW-2}" height="${bH-2}" rx="7"/></clipPath>
-  </defs>
-  <rect x="${bX+1}" y="${bY+3}" width="${bW}" height="${bH}" rx="8" fill="rgba(0,0,0,.5)"/>
-  <rect x="${bX}" y="${bY}" width="${bW}" height="${bH}" rx="8" fill="#060a14" stroke="${rgba2(.4)}" stroke-width="1.5"/>
-  <g clip-path="url(#${cid})">
-    <rect x="${bX+1}" y="${fillY+wAmp+1}" width="${bW-2}" height="${fillH}" fill="url(#${gid})"/>
-    ${animate?`
-    <g>
-      <path d="M${bX+1},${fillY+wAmp} C${bX+1+bW*.3},${fillY} ${bX+1+bW*.7},${fillY} ${bX+1+bW},${fillY+wAmp} C${bX+1+bW*1.3},${fillY+wAmp*2} ${bX+1+bW*1.7},${fillY+wAmp*2} ${bX+1+waveW},${fillY+wAmp} L${bX+1+waveW},${fillY+fillH+6} L${bX+1},${fillY+fillH+6} Z" fill="${rgba2(.5)}">
-        <animateTransform attributeName="transform" type="translate" from="0,0" to="${-bW},0" dur="1.5s" repeatCount="indefinite"/>
-      </path>
-      <path d="M${bX+1+bW},${fillY+wAmp} C${bX+1+bW*1.3},${fillY} ${bX+1+bW*1.7},${fillY} ${bX+1+waveW},${fillY+wAmp} C${bX+1+waveW+bW*.3},${fillY+wAmp*2} ${bX+1+waveW+bW*.7},${fillY+wAmp*2} ${bX+1+waveW+bW},${fillY+wAmp} L${bX+1+waveW+bW},${fillY+fillH+6} L${bX+1+bW},${fillY+fillH+6} Z" fill="${rgba2(.5)}">
-        <animateTransform attributeName="transform" type="translate" from="${bW},0" to="0,0" dur="1.5s" repeatCount="indefinite"/>
-      </path>
-    </g>
-    <g>
-      <path d="M${bX+1},${fillY+wAmp*.8} C${bX+1+bW*.35},${fillY-wAmp*.5} ${bX+1+bW*.65},${fillY-wAmp*.5} ${bX+1+bW},${fillY+wAmp*.8} C${bX+1+bW*1.35},${fillY+wAmp*2} ${bX+1+bW*1.65},${fillY+wAmp*2} ${bX+1+waveW},${fillY+wAmp*.8} L${bX+1+waveW},${fillY+fillH+6} L${bX+1},${fillY+fillH+6} Z" fill="${rgba2(.22)}">
-        <animateTransform attributeName="transform" type="translate" from="${-bW*.4},0" to="${bW*.6},0" dur="2s" repeatCount="indefinite"/>
-      </path>
-    </g>`
-    :`<rect x="${bX+1}" y="${fillY+1}" width="${bW-2}" height="4" rx="2" fill="${rgba2(.5)}"/>`}
-    <rect x="${bX+3}" y="${fillY+wAmp+4}" width="5" height="${Math.max(0,fillH*.35)}" rx="2.5" fill="rgba(255,255,255,.07)"/>
-  </g>
-  <line x1="${bX+bW+2}" y1="${fillY+wAmp}" x2="${bX+bW+7}" y2="${fillY+wAmp}" stroke="${col}" stroke-width="1.5" stroke-linecap="round"/>
-  <rect x="${bX}" y="${bY}" width="${bW}" height="${bH}" rx="8" fill="none" stroke="${rgba2(.45)}" stroke-width="1.5"/>
-  <rect x="${bX+(bW-18)/2}" y="${bY-6}" width="18" height="8" rx="2" fill="#060a14" stroke="#1e2d4a" stroke-width="1.2"/>
-  <rect x="${bX+(bW-24)/2}" y="${bY-10}" width="24" height="5" rx="2" fill="#08101a" stroke="#1e2d4a" stroke-width="1.2"/>
-  <rect x="${bX+6}" y="${bY+bH}" width="5" height="6" rx="1.5" fill="#060a14" stroke="#1e2d4a" stroke-width="1.2"/>
-  <rect x="${bX+bW-11}" y="${bY+bH}" width="5" height="6" rx="1.5" fill="#060a14" stroke="#1e2d4a" stroke-width="1.2"/>
-  <rect x="${bX+2}" y="${bY+bH+5}" width="${bW-4}" height="3" rx="1.5" fill="#060a14" stroke="#1e2d4a" stroke-width="1.2"/>
+const W=100,H=160;
+const bX=12,bY=16,bW=W-24,bH=H-44;
+const maxFill=(bH-4)*0.92;
+const fillH=Math.max(0,(pct/100)*maxFill);
+const fillY=bY+bH-2-fillH;
+const gid='pg'+uid,cid='pc'+uid;
+const waveW=bW*2;const wAmp=8;
+const r2=parseInt(col.slice(1,3),16),g2=parseInt(col.slice(3,5),16),b2=parseInt(col.slice(5,7),16);
+const rgba2=(a)=>`rgba(${r2},${g2},${b2},${a})`;
+const dk2='#'+[1,3,5].map(i=>Math.max(0,parseInt(col.slice(i,i+2),16)-55).toString(16).padStart(2,'0')).join('');
+if(pct<=0)return`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+<rect x="${bX+1}" y="${bY+3}" width="${bW}" height="${bH}" rx="8" fill="rgba(0,0,0,.5)"/>
+<rect x="${bX}" y="${bY}" width="${bW}" height="${bH}" rx="8" fill="#060a14" stroke="#1e2d4a" stroke-width="1.5"/>
+<rect x="${bX+(bW-18)/2}" y="${bY-6}" width="18" height="8" rx="2" fill="#060a14" stroke="#1e2d4a" stroke-width="1.2"/>
+<rect x="${bX+(bW-24)/2}" y="${bY-10}" width="24" height="5" rx="2" fill="#08101a" stroke="#1e2d4a" stroke-width="1.2"/>
+<rect x="${bX+6}" y="${bY+bH}" width="5" height="6" rx="1.5" fill="#060a14" stroke="#1e2d4a" stroke-width="1.2"/>
+<rect x="${bX+bW-11}" y="${bY+bH}" width="5" height="6" rx="1.5" fill="#060a14" stroke="#1e2d4a" stroke-width="1.2"/>
+<rect x="${bX+2}" y="${bY+bH+5}" width="${bW-4}" height="3" rx="1.5" fill="#060a14" stroke="#1e2d4a" stroke-width="1.2"/>
+</svg>`;
+return`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0%" stop-color="${col}" stop-opacity=".9"/>
+<stop offset="100%" stop-color="${dk2}" stop-opacity="1"/>
+</linearGradient>
+<clipPath id="${cid}"><rect x="${bX+1}" y="${bY+1}" width="${bW-2}" height="${bH-2}" rx="7"/></clipPath>
+</defs>
+<rect x="${bX+1}" y="${bY+3}" width="${bW}" height="${bH}" rx="8" fill="rgba(0,0,0,.5)"/>
+<rect x="${bX}" y="${bY}" width="${bW}" height="${bH}" rx="8" fill="#060a14" stroke="${rgba2(.4)}" stroke-width="1.5"/>
+<g clip-path="url(#${cid})">
+<rect x="${bX+1}" y="${fillY+wAmp+1}" width="${bW-2}" height="${fillH}" fill="url(#${gid})"/>
+${animate?`
+<g>
+<path d="M${bX+1},${fillY+wAmp} C${bX+1+bW*.3},${fillY} ${bX+1+bW*.7},${fillY} ${bX+1+bW},${fillY+wAmp} C${bX+1+bW*1.3},${fillY+wAmp*2} ${bX+1+bW*1.7},${fillY+wAmp*2} ${bX+1+waveW},${fillY+wAmp} L${bX+1+waveW},${fillY+fillH+6} L${bX+1},${fillY+fillH+6} Z" fill="${rgba2(.5)}">
+<animateTransform attributeName="transform" type="translate" from="0,0" to="${-bW},0" dur="1.5s" repeatCount="indefinite"/>
+</path>
+<path d="M${bX+1+bW},${fillY+wAmp} C${bX+1+bW*1.3},${fillY} ${bX+1+bW*1.7},${fillY} ${bX+1+waveW},${fillY+wAmp} C${bX+1+waveW+bW*.3},${fillY+wAmp*2} ${bX+1+waveW+bW*.7},${fillY+wAmp*2} ${bX+1+waveW+bW},${fillY+wAmp} L${bX+1+waveW+bW},${fillY+fillH+6} L${bX+1+bW},${fillY+fillH+6} Z" fill="${rgba2(.5)}">
+<animateTransform attributeName="transform" type="translate" from="${bW},0" to="0,0" dur="1.5s" repeatCount="indefinite"/>
+</path>
+</g>
+<g>
+<path d="M${bX+1},${fillY+wAmp*.8} C${bX+1+bW*.35},${fillY-wAmp*.5} ${bX+1+bW*.65},${fillY-wAmp*.5} ${bX+1+bW},${fillY+wAmp*.8} C${bX+1+bW*1.35},${fillY+wAmp*2} ${bX+1+bW*1.65},${fillY+wAmp*2} ${bX+1+waveW},${fillY+wAmp*.8} L${bX+1+waveW},${fillY+fillH+6} L${bX+1},${fillY+fillH+6} Z" fill="${rgba2(.22)}">
+<animateTransform attributeName="transform" type="translate" from="${-bW*.4},0" to="${bW*.6},0" dur="2s" repeatCount="indefinite"/>
+</path>
+</g>`
+:`<rect x="${bX+1}" y="${fillY+1}" width="${bW-2}" height="4" rx="2" fill="${rgba2(.5)}"/>`}
+<rect x="${bX+3}" y="${fillY+wAmp+4}" width="5" height="${Math.max(0,fillH*.35)}" rx="2.5" fill="rgba(255,255,255,.07)"/>
+</g>
+<line x1="${bX+bW+2}" y1="${fillY+wAmp}" x2="${bX+bW+7}" y2="${fillY+wAmp}" stroke="${col}" stroke-width="1.5" stroke-linecap="round"/>
+<rect x="${bX}" y="${bY}" width="${bW}" height="${bH}" rx="8" fill="none" stroke="${rgba2(.45)}" stroke-width="1.5"/>
+<rect x="${bX+(bW-18)/2}" y="${bY-6}" width="18" height="8" rx="2" fill="#060a14" stroke="#1e2d4a" stroke-width="1.2"/>
+<rect x="${bX+(bW-24)/2}" y="${bY-10}" width="24" height="5" rx="2" fill="#08101a" stroke="#1e2d4a" stroke-width="1.2"/>
+<rect x="${bX+6}" y="${bY+bH}" width="5" height="6" rx="1.5" fill="#060a14" stroke="#1e2d4a" stroke-width="1.2"/>
+<rect x="${bX+bW-11}" y="${bY+bH}" width="5" height="6" rx="1.5" fill="#060a14" stroke="#1e2d4a" stroke-width="1.2"/>
+<rect x="${bX+2}" y="${bY+bH+5}" width="${bW-4}" height="3" rx="1.5" fill="#060a14" stroke="#1e2d4a" stroke-width="1.2"/>
 </svg>`;
 }
-
 function renderTankVisual(m,rows){
-  // หา row ที่กำลัง pasteurising หรือเพิ่งเสร็จ
-  const pastRow=rows.find(r=>r.status==='pasteurising'&&r.past_start_time)
-              ||rows.find(r=>r.status==='pasteurising')
-              ||rows.find(r=>r.status==='past_done'&&r.past_start_time)
-              ||rows.find(r=>r.status==='ready'&&r.past_start_time);
-
-  // ดึง row จากตารางโดยตรง — ทุก status ที่ active (mixing, pasteurising)
-  const activeStatuses=['mixing','pasteurising'];
-  const t1Row=rows.find(r=>activeStatuses.includes(r.status)&&
-    (r.mixing_tank==='Tank 1'||r.mixing_tank==='T1'||r.mixing_tank==='ถัง 1'||r.mixing_tank==='1'))||null;
-  const t2Row=rows.find(r=>activeStatuses.includes(r.status)&&
-    (r.mixing_tank==='Tank 2'||r.mixing_tank==='T2'||r.mixing_tank==='ถัง 2'||r.mixing_tank==='2'))||null;
-  const agRow=pastRow||null;
-
-  const isFlowing=agRow?.status==='pasteurising'&&!!agRow?.past_start_time;
-  const isDone=agRow?.status==='past_done'||agRow?.status==='ready';
-  const activeTank=agRow?.mixing_tank||'';
-  const isT1=activeTank==='Tank 1'||activeTank==='T1'||activeTank==='ถัง 1'||activeTank==='1';
-  const isT2=activeTank==='Tank 2'||activeTank==='T2'||activeTank==='ถัง 2'||activeTank==='2';
-  const t1Active=isFlowing&&isT1;
-  const t2Active=isFlowing&&isT2;
-
-  const t1Total=+(t1Row?.volume_liter||0);
-  const t2Total=+(t2Row?.volume_liter||0);
-  const t1Status=t1Row?.status||'';
-  const t2Status=t2Row?.status||'';
-
-  let t1Vol=t1Total, t2Vol=t2Total;
-  let agVol=0, agPct=0, agName='—', agTank='—', agTime='';
-
-  if(agRow?.past_start_time){
-    try{
-      agTank=agRow.aging_tank||'—';
-      agName=(agRow.mix_name||'—').slice(0,12);
-      agTime=agRow.past_start_time+(agRow.past_end_time?' → '+agRow.past_end_time:'');
-
-      // รวม volume จากทุก batch ที่ process_order + aging_tank เดียวกัน
-      const allRows=[...(window._rows['p1']||[]),...(window._rows['p2']||[])];
-      const groupRows=agRow.process_order&&agRow.aging_tank
-        ? allRows.filter(r=>r.process_order===agRow.process_order&&r.aging_tank===agRow.aging_tank)
-        : [agRow];
-      const totalVol=groupRows.reduce((sum,r)=>sum+(+(r.volume_liter||0)),0)||+(agRow.volume_liter||0);
-
-      // current_vol ของ batch นี้เท่านั้น
-      const cumVol=agRow?.current_vol!=null?+agRow.current_vol:0;
-
-      if(isDone){
-        agVol=totalVol;
-        const _capDone=getTankCapacity(agRow.aging_tank||'');
-        agPct=_capDone>0?(totalVol/_capDone)*100:0;
-        if(isT1) t1Vol=0;
-        else t2Vol=0;
-      } else {
-        const batchVol=+(agRow.volume_liter||0);
-        // batch ที่ past_done แล้ว (ไม่รวม agRow ปัจจุบัน)
-        const doneBatchesVol=groupRows
-          .filter(r=>r.id!==agRow.id&&(r.status==='past_done'||r.status==='ready'))
-          .reduce((s,r)=>s+(+(r.volume_liter||0)),0);
-        // flow จริงของ batch นี้ = cumVol - doneBatchesVol
-        const thisBatchFlowed=Math.min(batchVol, Math.max(0, cumVol - doneBatchesVol));
-        // agVol = done batches + flow จริงของ batch นี้
-        agVol=Math.min(totalVol, doneBatchesVol + thisBatchFlowed);
-        const _cap=getTankCapacity(agRow.aging_tank||'');
-        agPct=_cap>0?(agVol/_cap)*100:0;
-        // ถัง Mix ลดตาม thisBatchFlowed
-        if(isT1) t1Vol=Math.max(0,t1Total-thisBatchFlowed);
-        else t2Vol=Math.max(0,t2Total-thisBatchFlowed);
-      }
-    }catch{}
-  }
-
-  // Status label
-  function statLabel(st,hasStartTime,vol,isDoneRow){
-    if(isDoneRow)                              return{txt:'⚪ Empty',         col:'#6b7280',tankCol:'#374151',tankCol2:'#1f2937'};
-    if(st==='mixing')                          return{txt:'🔄 กำลังผสม',     col:'#eab308',tankCol:'#eab308',tankCol2:'#78350f'};
-    if(st==='pasteurising'&&!hasStartTime)     return{txt:'🔵 รอ Pasteurise',      col:'#eab308',tankCol:'#eab308',tankCol2:'#78350f'};
-    if(st==='pasteurising'&&hasStartTime)      return{txt:'🔵 กำลัง Pasteurise',  col:'#f97316',tankCol:'#f97316',tankCol2:'#9a3412'};
-    if(st==='past_done'||st==='ready')         return{txt:'✅ Past.เสร็จ',   col:'#22c55e',tankCol:'#22c55e',tankCol2:'#14532d'};
-    return{txt:'—',col:'#374151',tankCol:'#374151',tankCol2:'#1f2937'};
-  }
-
-  // Mix T1 empty ถ้า past เสร็จแล้วและเป็น active tank
-  const t1Done=isDone&&isT1;
-  const t2Done=isDone&&isT2;
-  const s1=statLabel(t1Status,!!t1Row?.past_start_time,t1Vol,t1Done);
-  const s2=statLabel(t2Status,!!t2Row?.past_start_time,t2Vol,t2Done);
-
-  // คำนวณ volume และ % สำหรับแสดงในถัง Mix (อยู่หลัง agVol คำนวณเสร็จแล้ว)
-  function mixTankVol(tRow,tTotal,tActive,tDone){
-    const st=tRow?.status||'';
-    const cap=3000;
-    if(!st||st==='pending') return{vol:0,pct:0,show:true,wave:false};
-    if(st==='mixing'){
-      const vol=tTotal*0.5;
-      const pct=Math.min(100,(vol/cap)*100);
-      return{vol,pct,show:true,wave:true};
-    }
-    if(tDone) return{vol:0,pct:0,show:true,wave:false};
-    if(tActive){
-      const flowed=tRow?.current_vol!=null?+tRow.current_vol:0;
-      const remaining=Math.max(0,tTotal-flowed);
-      const pct=Math.min(100,(remaining/cap)*100);
-      return{vol:remaining,pct,show:true,wave:true};
-    }
-    const pct=Math.min(100,(tTotal/cap)*100);
-    return{vol:tTotal,pct,show:true,wave:false};
-  }
-  const mx1=mixTankVol(t1Row,t1Total,t1Active,t1Done);
-  const mx2=mixTankVol(t2Row,t2Total,t2Active,t2Done);
-  const sAg={txt:isFlowing?'♨️ รับของ':agVol>0?'✅ เต็ม':'⚪ ว่าง',
-             col:isFlowing?'#f97316':agVol>0?'#22c55e':'#374151',
-             tankCol:isFlowing?'#f97316':agVol>0?'#22c55e':'#374151',
-             tankCol2:isFlowing?'#9a3412':agVol>0?'#14532d':'#1f2937'};
-
-  const ac=isFlowing?'#22c55e':'#374151';
-  const pc=isFlowing?'#06b6d4':'#1e2535';
-  const pf=isFlowing?'.85':'.25';
-
-  // ── SVG helpers ──
-  function rgba(hex,a){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return`rgba(${r},${g},${b},${a})`;}
-
-  function tankFill(vol,total,gid,cid,tw,th,c1,c2,flowing){
-    if(total<=0||vol<=0)return'';
-    const pct=Math.min(vol/total,1),fh=Math.round((th-4)*pct*0.92),fy=th-2-fh;
-    const amp=flowing?8:2; // wave amplitude — แรงเมื่อ flowing
-    return`<defs>
-      <linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="${c1}" stop-opacity=".9"/>
-        <stop offset="100%" stop-color="${c2}"/>
-      </linearGradient>
-      <clipPath id="${cid}"><rect x="1" y="1" width="${tw-2}" height="${th-2}" rx="7"/></clipPath>
-    </defs>
-    <g clip-path="url(#${cid})">
-      <rect x="1" y="${fy+amp+2}" width="${tw-2}" height="${fh}" fill="url(#${gid})"/>
-      ${flowing?`
-      <!-- layer 1 — หลัก -->
-      <path d="M1,${fy+amp} C${tw*.25},${fy} ${tw*.75},${fy} ${tw-1},${fy+amp} C${tw*1.25},${fy+amp*2} ${tw*1.75},${fy+amp*2} ${tw*2-1},${fy+amp} L${tw*2},${fy+fh+amp+4} L1,${fy+fh+amp+4} Z" fill="${c1}cc">
-        <animateTransform attributeName="transform" type="translate" from="0,0" to="${-tw},0" dur="1.6s" repeatCount="indefinite"/>
-      </path>
-      <!-- layer 2 — ตาม offset -->
-      <path d="M1,${fy+amp*.6} C${tw*.3},${fy-amp*.4} ${tw*.7},${fy-amp*.4} ${tw-1},${fy+amp*.6} C${tw*1.3},${fy+amp*1.6} ${tw*1.7},${fy+amp*1.6} ${tw*2-1},${fy+amp*.6} L${tw*2},${fy+fh+amp+4} L1,${fy+fh+amp+4} Z" fill="${c1}66">
-        <animateTransform attributeName="transform" type="translate" from="${tw*.4},0" to="${-tw*.6},0" dur="2.1s" repeatCount="indefinite"/>
-      </path>
-      <!-- layer 3 — สวนทาง ฟองขาว -->
-      <path d="M1,${fy+amp*1.2} C${tw*.35},${fy+amp*.2} ${tw*.65},${fy+amp*.2} ${tw-1},${fy+amp*1.2} C${tw*1.35},${fy+amp*2.2} ${tw*1.65},${fy+amp*2.2} ${tw*2-1},${fy+amp*1.2} L${tw*2},${fy+fh+amp+4} L1,${fy+fh+amp+4} Z" fill="rgba(255,255,255,.12)">
-        <animateTransform attributeName="transform" type="translate" from="${-tw*.2},0" to="${tw*.8},0" dur="2.8s" repeatCount="indefinite"/>
-      </path>`
-      :`<rect x="${tw/2-20}" y="${fy+1}" width="40" height="3" rx="1.5" fill="${c1}66"/>`}
-      <rect x="3" y="${fy+amp+6}" width="6" height="${Math.max(0,fh*.35)}" rx="3" fill="rgba(255,255,255,.07)"/>
-    </g>`;
-  }
-
-
-function autoTextColor(hex){
-  if(!hex||hex[0]!=='#') return '#ffffff';
-  var r=parseInt(hex.slice(1,3),16)||0;
-  var g=parseInt(hex.slice(3,5),16)||0;
-  var b=parseInt(hex.slice(5,7),16)||0;
-  return (0.299*r+0.587*g+0.114*b)>160?'#111827':'#ffffff';
+const pastRow=rows.find(r=>r.status==='pasteurising'&&r.past_start_time)
+||rows.find(r=>r.status==='pasteurising')
+||rows.find(r=>r.status==='past_done'&&r.past_start_time)
+||rows.find(r=>r.status==='ready'&&r.past_start_time);
+const activeStatuses=['mixing','pasteurising'];
+const t1Row=rows.find(r=>activeStatuses.includes(r.status)&&
+(r.mixing_tank==='Tank 1'||r.mixing_tank==='T1'||r.mixing_tank==='ถัง 1'||r.mixing_tank==='1'))||null;
+const t2Row=rows.find(r=>activeStatuses.includes(r.status)&&
+(r.mixing_tank==='Tank 2'||r.mixing_tank==='T2'||r.mixing_tank==='ถัง 2'||r.mixing_tank==='2'))||null;
+const agRow=pastRow||null;
+const isFlowing=agRow?.status==='pasteurising'&&!!agRow?.past_start_time;
+const isDone=agRow?.status==='past_done'||agRow?.status==='ready';
+const activeTank=agRow?.mixing_tank||'';
+const isT1=activeTank==='Tank 1'||activeTank==='T1'||activeTank==='ถัง 1'||activeTank==='1';
+const isT2=activeTank==='Tank 2'||activeTank==='T2'||activeTank==='ถัง 2'||activeTank==='2';
+const t1Active=isFlowing&&isT1;
+const t2Active=isFlowing&&isT2;
+const t1Total=+(t1Row?.volume_liter||0);
+const t2Total=+(t2Row?.volume_liter||0);
+const t1Status=t1Row?.status||'';
+const t2Status=t2Row?.status||'';
+let t1Vol=t1Total, t2Vol=t2Total;
+let agVol=0, agPct=0, agName='—', agTank='—', agTime='';
+if(agRow?.past_start_time){
+try{
+agTank=agRow.aging_tank||'—';
+agName=(agRow.mix_name||'—').slice(0,12);
+agTime=agRow.past_start_time+(agRow.past_end_time?' → '+agRow.past_end_time:'');
+const allRows=[...(window._rows['p1']||[]),...(window._rows['p2']||[])];
+const groupRows=agRow.process_order&&agRow.aging_tank
+? allRows.filter(r=>r.process_order===agRow.process_order&&r.aging_tank===agRow.aging_tank)
+: [agRow];
+const totalVol=groupRows.reduce((sum,r)=>sum+(+(r.volume_liter||0)),0)||+(agRow.volume_liter||0);
+const cumVol=agRow?.current_vol!=null?+agRow.current_vol:0;
+if(isDone){
+agVol=totalVol;
+const _capDone=getTankCapacity(agRow.aging_tank||'');
+agPct=_capDone>0?(totalVol/_capDone)*100:0;
+if(isT1) t1Vol=0;
+else t2Vol=0;
+} else {
+const batchVol=+(agRow.volume_liter||0);
+const doneBatchesVol=groupRows
+.filter(r=>r.id!==agRow.id&&(r.status==='past_done'||r.status==='ready'))
+.reduce((s,r)=>s+(+(r.volume_liter||0)),0);
+const thisBatchFlowed=Math.min(batchVol, Math.max(0, cumVol - doneBatchesVol));
+agVol=Math.min(totalVol, doneBatchesVol + thisBatchFlowed);
+const _cap=getTankCapacity(agRow.aging_tank||'');
+agPct=_cap>0?(agVol/_cap)*100:0;
+if(isT1) t1Vol=Math.max(0,t1Total-thisBatchFlowed);
+else t2Vol=Math.max(0,t2Total-thisBatchFlowed);
 }
-
-  function drawTank(tx,ty,tw,th,vol,total,label,sublabel,status,gid,cid,c1,c2,wave){
-    const hasLiq=vol>0&&total>0;
-    const pct=hasLiq?Math.min(100,(vol/total)*100):0;
-    const r=parseInt(c1.slice(1,3),16),g=parseInt(c1.slice(3,5),16),b=parseInt(c1.slice(5,7),16);
-    const bodyFill=hasLiq?'rgba(255,255,255,.12)':'rgba(176,186,200,.25)';
-    const bodyStroke=hasLiq?c1:'#94a3b8';
-    const tc=hasLiq?autoTextColor(c1):'#6b7280';
-    const fillH=Math.max(0,(pct/100)*(th-6)*0.92);
-    const wy=th-fillH;
-    const A=5,midY=th/2;
-    const ST={mixing:'🔄 ผสม',pasteurising:'🔵 Past.',past_done:'✅ เสร็จ',busy:'มีของ',ready:'✅ พร้อม',pending:'รอ'};
-    const stTxt=ST[status]||`${Math.round(pct)}%`;
-    function waveD(yBase,amp,nc){
-      const W=tw*2,segW=W/(nc*2);
-      let d=`M0,${yBase}`;
-      for(let i=0;i<nc*2;i++){
-        const x1=i*segW,x2=(i+1)*segW;
-        const cy=i%2===0?yBase-amp:yBase+amp;
-        d+=` C${x1+segW*.4},${cy} ${x2-segW*.4},${cy} ${x2},${yBase}`;
-      }
-      return d+` L${W},${th} L0,${th} Z`;
-    }
-    return`<g transform="translate(${tx},${ty})">
-      <defs>
-        <linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="${c1}" stop-opacity=".5"/>
-          <stop offset="100%" stop-color="${c1}" stop-opacity=".85"/>
-        </linearGradient>
-        <clipPath id="${cid}"><rect x="-1" y="-1" width="${tw+2}" height="${th+2}" rx="11"/></clipPath>
-      </defs>
-      <text x="${tw/2}" y="-22" text-anchor="middle" font-family="DM Mono,monospace" font-size="12" fill="${tc}" font-weight="800">${sublabel}</text>
-      <rect x="${tw/2-13}" y="-10" width="26" height="12" rx="3" fill="${hasLiq?'#16a34a':'rgba(255,255,255,.12)'}" stroke="${bodyStroke}" stroke-width="1.5" stroke-opacity=".6"/>
-      <rect x="${tw/2-17}" y="-18" width="34" height="9" rx="3" fill="${hasLiq?'#16a34a':'rgba(255,255,255,.12)'}" stroke="${bodyStroke}" stroke-width="1.5" stroke-opacity=".5"/>
-      ${hasLiq?`<circle cx="${tw/2}" cy="-13" r="4" fill="#22c55e" opacity=".9"/><circle cx="${tw/2}" cy="-13" r="4" fill="none" stroke="#22c55e" stroke-width="1.5" opacity="0"><animate attributeName="r" from="4" to="10" dur="1.5s" repeatCount="indefinite"/><animate attributeName="opacity" from="0.6" to="0" dur="1.5s" repeatCount="indefinite"/></circle>`:''}
-      <rect x="0" y="0" width="${tw}" height="${th}" rx="10" fill="${bodyFill}" stroke="${bodyStroke}" stroke-width="1.5" stroke-opacity="${hasLiq?'.4':'.6'}"/>
-      ${hasLiq?`<g clip-path="url(#${cid})">
-        <rect x="0" y="${wy+A}" width="${tw*2}" height="${th-(wy+A)}" fill="url(#${gid})"/>
-        <path d="${waveD(wy,A,3)}" fill="${c1}" fill-opacity=".55"><animateTransform attributeName="transform" type="translate" from="0,0" to="${-tw},0" dur="2.8s" repeatCount="indefinite"/></path>
-        <path d="${waveD(wy,A*.6,4)}" fill="${c1}" fill-opacity=".3"><animateTransform attributeName="transform" type="translate" from="${tw*.5},0" to="${-tw*.5},0" dur="4s" repeatCount="indefinite"/></path>
-        <ellipse cx="${tw*.35}" cy="${wy-2}" rx="${tw*.12}" ry="2.5" fill="white" fill-opacity=".3"/>
-      </g>`:''}
-      <rect x="0" y="0" width="${tw}" height="${th}" rx="10" fill="none" stroke="${bodyStroke}" stroke-width="2.5" stroke-opacity="${hasLiq?'.8':'.6'}"/>
-      <rect x="8" y="${th}" width="8" height="14" rx="2" fill="rgba(255,255,255,.15)" stroke="${bodyStroke}" stroke-width="1" stroke-opacity=".6"/>
-      <rect x="${tw-16}" y="${th}" width="8" height="14" rx="2" fill="rgba(255,255,255,.15)" stroke="${bodyStroke}" stroke-width="1" stroke-opacity=".6"/>
-      <rect x="4" y="${th+13}" width="${tw-8}" height="5" rx="2" fill="rgba(255,255,255,.12)" stroke="${bodyStroke}" stroke-width="1" stroke-opacity=".5"/>
-      <text x="${tw/2}" y="${midY-4}" text-anchor="middle" font-family="DM Mono,monospace" font-size="16" fill="${tc}" font-weight="900">${hasLiq?vol.toLocaleString():'ว่าง'}</text>
-      ${hasLiq?`<text x="${tw/2}" y="${midY+10}" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="${tc}" opacity=".7">ลิตร</text>
-      <rect x="${tw/2-32}" y="${midY+14}" width="64" height="18" rx="9" fill="${c1}" fill-opacity=".15" stroke="${c1}" stroke-width="1.5" stroke-opacity=".4"/>
-      <text x="${tw/2}" y="${midY+27}" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="${c1}" font-weight="900">${stTxt}</text>`:''}
-    </g>`;
-  }
-
-  function valve(x,y,open){
-    const c=open?ac:'#2d3748';
-    return`<circle cx="${x}" cy="${y}" r="9" fill="white" stroke="${c}" stroke-width="2"/>
-    <path d="M${x-6},${y} L${x},${y-6} L${x+6},${y} L${x},${y+6} Z" fill="${c}" opacity="${open?.9:.45}"/>
-    <line x1="${x}" y1="${y-9}" x2="${x}" y2="${y+9}" stroke="${c}" stroke-width="2.2"/>
-    ${open?`<circle cx="${x}" cy="${y}" r="12" fill="none" stroke="${c}" stroke-width="1" opacity="0">
-      <animate attributeName="r" from="10" to="17" dur="1.3s" repeatCount="indefinite"/>
-      <animate attributeName="opacity" from=".7" to="0" dur="1.3s" repeatCount="indefinite"/>
-    </circle>`:''}`;
-  }
-
-  function pump(x,y,run){
-    const col=run?'#22c55e':'#2d3748';
-    const anim=run?'pumpPulse 1s ease-in-out infinite':'none';
-    return`<circle cx="${x}" cy="${y}" r="22" fill="#06101e" stroke="${col}" stroke-width="2.5" style="animation:${anim}"/>
-    <circle cx="${x}" cy="${y}" r="14" fill="${run?'#052e16':'#0a0f1e'}" stroke="${col}66" stroke-width="1.5"/>
-    <circle cx="${x}" cy="${y}" r="7" fill="${col}" opacity="${run?'0.9':'0.3'}"/>
-    <text x="${x}" y="${y+4}" text-anchor="middle" font-size="8" fill="${col}" font-family="DM Mono" font-weight="700">PUMP</text>`;
-  }
-
-  function pipe(d,on){
-    const gf=on?`filter="url(#gfx${m})"`:'' ;
-    const ptcl=on?`<path d="${d}" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 16" opacity=".9">
-      <animate attributeName="stroke-dashoffset" from="24" to="0" dur="0.65s" repeatCount="indefinite"/>
-    </path>`:'';
-    return`<path d="${d}" fill="none" stroke="#08111e" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="${d}" fill="none" stroke="${pc}" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity="${pf}" ${gf}/>
-    ${ptcl}`;
-  }
-
-  const el=document.getElementById('tank-visual-'+m);
-  if(!el)return;
-
-  // Layout: 3 tanks side by side, pipes from bottoms, horizontal collector, pump, aging
-  // ViewBox: 560 x 280
-  // Tank width=110, height=130
-  // T1: x=30, T2: x=165, Aging: x=390
-  // Tank center x: T1=85, T2=220, Aging=445
-  // Tank bottom y = 20+130 = 150
-  // Pipe vertical down from 150 to 195
-  // Horizontal pipe at y=195: from x=85 to x=390+55=445
-  // Pump between T2 and Aging: x=325, y=195
-  // Aging bottom pipe down from 195 to 20 (enter from bottom going up)
-
-  const TW=130,TH=160,TOP=45;
-  const T1X=20,T2X=190,AGX=530;
-  const T1CX=T1X+TW/2,T2CX=T2X+TW/2,AGCX=AGX+TW/2;
-  const TBOT=TOP+TH;
-  const HPIPE=TBOT+55;
-  const PUMPX=350,PUMPY=HPIPE;
-  const HOMOX=440,HOMOY=HPIPE;
-
-  el.innerHTML=`
-    <!-- ══ FLOW DIAGRAM RIGHT ══ -->
-  <div class="flow-wrap" style="padding:8px 14px;margin-bottom:0">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-    <span class="flow-title" style="margin:0">⚗️ PROCESS FLOW — ${m.toUpperCase()}</span>
-    <span style="font-family:var(--mono);font-size:10px;color:${isFlowing?'#22c55e':'var(--t3)'}">
-      ${isFlowing?`🟢 Pasteurising · ${agTime}`:'⚪ Standby'}
-    </span>
-  </div>
-  <svg viewBox="0 -50 1060 400" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;max-height:280px">
-    <defs>
-      <filter id="gfx${m}" x="-40%" y="-40%" width="180%" height="180%">
-        <feGaussianBlur stdDeviation="2.5" result="b"/>
-        <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-      </filter>
-    </defs>
-
-    <!-- ══ MIX TANK 1 ══ -->
-    ${mx1.show?(()=>{const p1=productMap[t1Row?.mix_code||'']||{};const c1=t1Done?'#374151':(p1.color||s1.tankCol);const c1d=c1+'88';return drawTank(T1X,TOP,TW,TH,mx1.vol,t1Total,'Mixing 1',(t1Row?.mix_name||'—').slice(0,12),s1,'g1t'+m,'c1t'+m,c1,c1d,mx1.wave);})():`<g transform="translate(${T1X},${TOP})">
-  <rect x="2" y="-46" width="${TW-4}" height="20" rx="10" fill="${c1}22" stroke="${c1}66" stroke-width="1.5"/>
-  <text x="${TW/2}" y="-32" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="${c1}" font-weight="900">Mixing ${t1Row?.mixing_tank||'T1'}</text>
-  <rect x="2" y="4" width="${TW}" height="${TH}" rx="10" fill="rgba(176,186,200,.1)"/>
-  <rect x="0" y="0" width="${TW}" height="${TH}" rx="10" fill="rgba(176,186,200,.2)" stroke="#94a3b8" stroke-width="2"/>
-  <rect x="${TW/2-13}" y="-10" width="26" height="12" rx="3" fill="rgba(176,186,200,.2)" stroke="#94a3b8" stroke-width="1.5"/>
-  <rect x="${TW/2-17}" y="-16" width="34" height="7" rx="3" fill="rgba(176,186,200,.2)" stroke="#94a3b8" stroke-width="1.5"/>
-  <rect x="${TW/2-5}" y="${TH}" width="10" height="12" rx="2" fill="rgba(176,186,200,.2)" stroke="#94a3b8" stroke-width="1.2"/>
-  <rect x="8" y="${TH+10}" width="16" height="5" rx="2" fill="rgba(176,186,200,.2)" stroke="#94a3b8" stroke-width="1.2"/>
-  <rect x="${TW-24}" y="${TH+10}" width="16" height="5" rx="2" fill="rgba(176,186,200,.2)" stroke="#94a3b8" stroke-width="1.2"/>
+}catch{}
+}
+function statLabel(st,hasStartTime,vol,isDoneRow){
+if(isDoneRow)                              return{txt:'⚪ Empty',         col:'#6b7280',tankCol:'#374151',tankCol2:'#1f2937'};
+if(st==='mixing')                          return{txt:'🔄 กำลังผสม',     col:'#eab308',tankCol:'#eab308',tankCol2:'#78350f'};
+if(st==='pasteurising'&&!hasStartTime)     return{txt:'🔵 รอ Pasteurise',      col:'#eab308',tankCol:'#eab308',tankCol2:'#78350f'};
+if(st==='pasteurising'&&hasStartTime)      return{txt:'🔵 กำลัง Pasteurise',  col:'#f97316',tankCol:'#f97316',tankCol2:'#9a3412'};
+if(st==='past_done'||st==='ready')         return{txt:'✅ Past.เสร็จ',   col:'#22c55e',tankCol:'#22c55e',tankCol2:'#14532d'};
+return{txt:'—',col:'#374151',tankCol:'#374151',tankCol2:'#1f2937'};
+}
+const t1Done=isDone&&isT1;
+const t2Done=isDone&&isT2;
+const s1=statLabel(t1Status,!!t1Row?.past_start_time,t1Vol,t1Done);
+const s2=statLabel(t2Status,!!t2Row?.past_start_time,t2Vol,t2Done);
+function mixTankVol(tRow,tTotal,tActive,tDone){
+const st=tRow?.status||'';
+const cap=3000;
+if(!st||st==='pending') return{vol:0,pct:0,show:true,wave:false};
+if(st==='mixing'){
+const vol=tTotal*0.5;
+const pct=Math.min(100,(vol/cap)*100);
+return{vol,pct,show:true,wave:true};
+}
+if(tDone) return{vol:0,pct:0,show:true,wave:false};
+if(tActive){
+const flowed=tRow?.current_vol!=null?+tRow.current_vol:0;
+const remaining=Math.max(0,tTotal-flowed);
+const pct=Math.min(100,(remaining/cap)*100);
+return{vol:remaining,pct,show:true,wave:true};
+}
+const pct=Math.min(100,(tTotal/cap)*100);
+return{vol:tTotal,pct,show:true,wave:false};
+}
+const mx1=mixTankVol(t1Row,t1Total,t1Active,t1Done);
+const mx2=mixTankVol(t2Row,t2Total,t2Active,t2Done);
+const sAg={txt:isFlowing?'♨️ รับของ':agVol>0?'✅ เต็ม':'⚪ ว่าง',
+col:isFlowing?'#f97316':agVol>0?'#22c55e':'#374151',
+tankCol:isFlowing?'#f97316':agVol>0?'#22c55e':'#374151',
+tankCol2:isFlowing?'#9a3412':agVol>0?'#14532d':'#1f2937'};
+const ac=isFlowing?'#22c55e':'#374151';
+const pc=isFlowing?'#06b6d4':'#1e2535';
+const pf=isFlowing?'.85':'.25';
+function rgba(hex,a){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return`rgba(${r},${g},${b},${a})`;}
+function tankFill(vol,total,gid,cid,tw,th,c1,c2,flowing){
+if(total<=0||vol<=0)return'';
+const pct=Math.min(vol/total,1),fh=Math.round((th-4)*pct*0.92),fy=th-2-fh;
+const amp=flowing?8:2;
+return`<defs>
+<linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0%" stop-color="${c1}" stop-opacity=".9"/>
+<stop offset="100%" stop-color="${c2}"/>
+</linearGradient>
+<clipPath id="${cid}"><rect x="1" y="1" width="${tw-2}" height="${th-2}" rx="7"/></clipPath>
+</defs>
+<g clip-path="url(#${cid})">
+<rect x="1" y="${fy+amp+2}" width="${tw-2}" height="${fh}" fill="url(#${gid})"/>
+${flowing?`
+<!-- layer 1 — หลัก -->
+<path d="M1,${fy+amp} C${tw*.25},${fy} ${tw*.75},${fy} ${tw-1},${fy+amp} C${tw*1.25},${fy+amp*2} ${tw*1.75},${fy+amp*2} ${tw*2-1},${fy+amp} L${tw*2},${fy+fh+amp+4} L1,${fy+fh+amp+4} Z" fill="${c1}cc">
+<animateTransform attributeName="transform" type="translate" from="0,0" to="${-tw},0" dur="1.6s" repeatCount="indefinite"/>
+</path>
+<!-- layer 2 — ตาม offset -->
+<path d="M1,${fy+amp*.6} C${tw*.3},${fy-amp*.4} ${tw*.7},${fy-amp*.4} ${tw-1},${fy+amp*.6} C${tw*1.3},${fy+amp*1.6} ${tw*1.7},${fy+amp*1.6} ${tw*2-1},${fy+amp*.6} L${tw*2},${fy+fh+amp+4} L1,${fy+fh+amp+4} Z" fill="${c1}66">
+<animateTransform attributeName="transform" type="translate" from="${tw*.4},0" to="${-tw*.6},0" dur="2.1s" repeatCount="indefinite"/>
+</path>
+<!-- layer 3 — สวนทาง ฟองขาว -->
+<path d="M1,${fy+amp*1.2} C${tw*.35},${fy+amp*.2} ${tw*.65},${fy+amp*.2} ${tw-1},${fy+amp*1.2} C${tw*1.35},${fy+amp*2.2} ${tw*1.65},${fy+amp*2.2} ${tw*2-1},${fy+amp*1.2} L${tw*2},${fy+fh+amp+4} L1,${fy+fh+amp+4} Z" fill="rgba(255,255,255,.12)">
+<animateTransform attributeName="transform" type="translate" from="${-tw*.2},0" to="${tw*.8},0" dur="2.8s" repeatCount="indefinite"/>
+</path>`
+:`<rect x="${tw/2-20}" y="${fy+1}" width="40" height="3" rx="1.5" fill="${c1}66"/>`}
+<rect x="3" y="${fy+amp+6}" width="6" height="${Math.max(0,fh*.35)}" rx="3" fill="rgba(255,255,255,.07)"/>
+</g>`;
+}
+function autoTextColor(hex){
+if(!hex||hex[0]!=='#') return '#ffffff';
+var r=parseInt(hex.slice(1,3),16)||0;
+var g=parseInt(hex.slice(3,5),16)||0;
+var b=parseInt(hex.slice(5,7),16)||0;
+return (0.299*r+0.587*g+0.114*b)>160?'#111827':'#ffffff';
+}
+function drawTank(tx,ty,tw,th,vol,total,label,sublabel,status,gid,cid,c1,c2,wave){
+const hasLiq=vol>0&&total>0;
+const pct=hasLiq?Math.min(100,(vol/total)*100):0;
+const r=parseInt(c1.slice(1,3),16),g=parseInt(c1.slice(3,5),16),b=parseInt(c1.slice(5,7),16);
+const bodyFill=hasLiq?'rgba(255,255,255,.12)':'rgba(176,186,200,.25)';
+const bodyStroke=hasLiq?c1:'#94a3b8';
+const tc=hasLiq?autoTextColor(c1):'#6b7280';
+const fillH=Math.max(0,(pct/100)*(th-6)*0.92);
+const wy=th-fillH;
+const A=5,midY=th/2;
+const ST={mixing:'🔄 ผสม',pasteurising:'🔵 Past.',past_done:'✅ เสร็จ',busy:'มีของ',ready:'✅ พร้อม',pending:'รอ'};
+const stTxt=ST[status]||`${Math.round(pct)}%`;
+function waveD(yBase,amp,nc){
+const W=tw*2,segW=W/(nc*2);
+let d=`M0,${yBase}`;
+for(let i=0;i<nc*2;i++){
+const x1=i*segW,x2=(i+1)*segW;
+const cy=i%2===0?yBase-amp:yBase+amp;
+d+=` C${x1+segW*.4},${cy} ${x2-segW*.4},${cy} ${x2},${yBase}`;
+}
+return d+` L${W},${th} L0,${th} Z`;
+}
+return`<g transform="translate(${tx},${ty})">
+<defs>
+<linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0%" stop-color="${c1}" stop-opacity=".5"/>
+<stop offset="100%" stop-color="${c1}" stop-opacity=".85"/>
+</linearGradient>
+<clipPath id="${cid}"><rect x="-1" y="-1" width="${tw+2}" height="${th+2}" rx="11"/></clipPath>
+</defs>
+<text x="${tw/2}" y="-22" text-anchor="middle" font-family="DM Mono,monospace" font-size="12" fill="${tc}" font-weight="800">${sublabel}</text>
+<rect x="${tw/2-13}" y="-10" width="26" height="12" rx="3" fill="${hasLiq?'#16a34a':'rgba(255,255,255,.12)'}" stroke="${bodyStroke}" stroke-width="1.5" stroke-opacity=".6"/>
+<rect x="${tw/2-17}" y="-18" width="34" height="9" rx="3" fill="${hasLiq?'#16a34a':'rgba(255,255,255,.12)'}" stroke="${bodyStroke}" stroke-width="1.5" stroke-opacity=".5"/>
+${hasLiq?`<circle cx="${tw/2}" cy="-13" r="4" fill="#22c55e" opacity=".9"/><circle cx="${tw/2}" cy="-13" r="4" fill="none" stroke="#22c55e" stroke-width="1.5" opacity="0"><animate attributeName="r" from="4" to="10" dur="1.5s" repeatCount="indefinite"/><animate attributeName="opacity" from="0.6" to="0" dur="1.5s" repeatCount="indefinite"/></circle>`:''}
+<rect x="0" y="0" width="${tw}" height="${th}" rx="10" fill="${bodyFill}" stroke="${bodyStroke}" stroke-width="1.5" stroke-opacity="${hasLiq?'.4':'.6'}"/>
+${hasLiq?`<g clip-path="url(#${cid})">
+<rect x="0" y="${wy+A}" width="${tw*2}" height="${th-(wy+A)}" fill="url(#${gid})"/>
+<path d="${waveD(wy,A,3)}" fill="${c1}" fill-opacity=".55"><animateTransform attributeName="transform" type="translate" from="0,0" to="${-tw},0" dur="2.8s" repeatCount="indefinite"/></path>
+<path d="${waveD(wy,A*.6,4)}" fill="${c1}" fill-opacity=".3"><animateTransform attributeName="transform" type="translate" from="${tw*.5},0" to="${-tw*.5},0" dur="4s" repeatCount="indefinite"/></path>
+<ellipse cx="${tw*.35}" cy="${wy-2}" rx="${tw*.12}" ry="2.5" fill="white" fill-opacity=".3"/>
+</g>`:''}
+<rect x="0" y="0" width="${tw}" height="${th}" rx="10" fill="none" stroke="${bodyStroke}" stroke-width="2.5" stroke-opacity="${hasLiq?'.8':'.6'}"/>
+<rect x="8" y="${th}" width="8" height="14" rx="2" fill="rgba(255,255,255,.15)" stroke="${bodyStroke}" stroke-width="1" stroke-opacity=".6"/>
+<rect x="${tw-16}" y="${th}" width="8" height="14" rx="2" fill="rgba(255,255,255,.15)" stroke="${bodyStroke}" stroke-width="1" stroke-opacity=".6"/>
+<rect x="4" y="${th+13}" width="${tw-8}" height="5" rx="2" fill="rgba(255,255,255,.12)" stroke="${bodyStroke}" stroke-width="1" stroke-opacity=".5"/>
+<text x="${tw/2}" y="${midY-4}" text-anchor="middle" font-family="DM Mono,monospace" font-size="16" fill="${tc}" font-weight="900">${hasLiq?vol.toLocaleString():'ว่าง'}</text>
+${hasLiq?`<text x="${tw/2}" y="${midY+10}" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="${tc}" opacity=".7">ลิตร</text>
+<rect x="${tw/2-32}" y="${midY+14}" width="64" height="18" rx="9" fill="${c1}" fill-opacity=".15" stroke="${c1}" stroke-width="1.5" stroke-opacity=".4"/>
+<text x="${tw/2}" y="${midY+27}" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="${c1}" font-weight="900">${stTxt}</text>`:''}
+</g>`;
+}
+function valve(x,y,open){
+const c=open?ac:'#2d3748';
+return`<circle cx="${x}" cy="${y}" r="9" fill="white" stroke="${c}" stroke-width="2"/>
+<path d="M${x-6},${y} L${x},${y-6} L${x+6},${y} L${x},${y+6} Z" fill="${c}" opacity="${open?.9:.45}"/>
+<line x1="${x}" y1="${y-9}" x2="${x}" y2="${y+9}" stroke="${c}" stroke-width="2.2"/>
+${open?`<circle cx="${x}" cy="${y}" r="12" fill="none" stroke="${c}" stroke-width="1" opacity="0">
+<animate attributeName="r" from="10" to="17" dur="1.3s" repeatCount="indefinite"/>
+<animate attributeName="opacity" from=".7" to="0" dur="1.3s" repeatCount="indefinite"/>
+</circle>`:''}`;
+}
+function pump(x,y,run){
+const col=run?'#22c55e':'#2d3748';
+const anim=run?'pumpPulse 1s ease-in-out infinite':'none';
+return`<circle cx="${x}" cy="${y}" r="22" fill="#06101e" stroke="${col}" stroke-width="2.5" style="animation:${anim}"/>
+<circle cx="${x}" cy="${y}" r="14" fill="${run?'#052e16':'#0a0f1e'}" stroke="${col}66" stroke-width="1.5"/>
+<circle cx="${x}" cy="${y}" r="7" fill="${col}" opacity="${run?'0.9':'0.3'}"/>
+<text x="${x}" y="${y+4}" text-anchor="middle" font-size="8" fill="${col}" font-family="DM Mono" font-weight="700">PUMP</text>`;
+}
+function pipe(d,on){
+const gf=on?`filter="url(#gfx${m})"`:'' ;
+const ptcl=on?`<path d="${d}" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 16" opacity=".9">
+<animate attributeName="stroke-dashoffset" from="24" to="0" dur="0.65s" repeatCount="indefinite"/>
+</path>`:'';
+return`<path d="${d}" fill="none" stroke="#08111e" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="${d}" fill="none" stroke="${pc}" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity="${pf}" ${gf}/>
+${ptcl}`;
+}
+const el=document.getElementById('tank-visual-'+m);
+if(!el)return;
+const TW=130,TH=160,TOP=45;
+const T1X=20,T2X=190,AGX=530;
+const T1CX=T1X+TW/2,T2CX=T2X+TW/2,AGCX=AGX+TW/2;
+const TBOT=TOP+TH;
+const HPIPE=TBOT+55;
+const PUMPX=350,PUMPY=HPIPE;
+const HOMOX=440,HOMOY=HPIPE;
+el.innerHTML=`
+<!-- ══ FLOW DIAGRAM RIGHT ══ -->
+<div class="flow-wrap" style="padding:8px 14px;margin-bottom:0">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+<span class="flow-title" style="margin:0">⚗️ PROCESS FLOW — ${m.toUpperCase()}</span>
+<span style="font-family:var(--mono);font-size:10px;color:${isFlowing?'#22c55e':'var(--t3)'}">
+${isFlowing?`🟢 Pasteurising · ${agTime}`:'⚪ Standby'}
+</span>
+</div>
+<svg viewBox="0 -50 1060 400" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;max-height:280px">
+<defs>
+<filter id="gfx${m}" x="-40%" y="-40%" width="180%" height="180%">
+<feGaussianBlur stdDeviation="2.5" result="b"/>
+<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+</filter>
+</defs>
+<!-- ══ MIX TANK 1 ══ -->
+${mx1.show?(()=>{const p1=productMap[t1Row?.mix_code||'']||{};const c1=t1Done?'#374151':(p1.color||s1.tankCol);const c1d=c1+'88';return drawTank(T1X,TOP,TW,TH,mx1.vol,t1Total,'Mixing 1',(t1Row?.mix_name||'—').slice(0,12),s1,'g1t'+m,'c1t'+m,c1,c1d,mx1.wave);})():`<g transform="translate(${T1X},${TOP})">
+<rect x="2" y="-46" width="${TW-4}" height="20" rx="10" fill="${c1}22" stroke="${c1}66" stroke-width="1.5"/>
+<text x="${TW/2}" y="-32" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="${c1}" font-weight="900">Mixing ${t1Row?.mixing_tank||'T1'}</text>
+<rect x="2" y="4" width="${TW}" height="${TH}" rx="10" fill="rgba(176,186,200,.1)"/>
+<rect x="0" y="0" width="${TW}" height="${TH}" rx="10" fill="rgba(176,186,200,.2)" stroke="#94a3b8" stroke-width="2"/>
+<rect x="${TW/2-13}" y="-10" width="26" height="12" rx="3" fill="rgba(176,186,200,.2)" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="${TW/2-17}" y="-16" width="34" height="7" rx="3" fill="rgba(176,186,200,.2)" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="${TW/2-5}" y="${TH}" width="10" height="12" rx="2" fill="rgba(176,186,200,.2)" stroke="#94a3b8" stroke-width="1.2"/>
+<rect x="8" y="${TH+10}" width="16" height="5" rx="2" fill="rgba(176,186,200,.2)" stroke="#94a3b8" stroke-width="1.2"/>
+<rect x="${TW-24}" y="${TH+10}" width="16" height="5" rx="2" fill="rgba(176,186,200,.2)" stroke="#94a3b8" stroke-width="1.2"/>
 </g>`}
-
-    <!-- ══ MIX TANK 2 ══ -->
-    ${mx2.show?(()=>{const p2=productMap[t2Row?.mix_code||'']||{};const c2=t2Done?'#374151':(p2.color||s2.tankCol);const c2d=c2+'88';return drawTank(T2X,TOP,TW,TH,mx2.vol,t2Total,'Mixing 2',(t2Row?.mix_name||'—').slice(0,12),s2,'g2t'+m,'c2t'+m,c2,c2d,mx2.wave);})():`<g transform="translate(${T2X},${TOP})">
-  <rect x="2" y="-46" width="${TW-4}" height="20" rx="10" fill="${c2}22" stroke="${c2}66" stroke-width="1.5"/>
-  <text x="${TW/2}" y="-32" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="${c2}" font-weight="900">Mixing ${t2Row?.mixing_tank||'T2'}</text>
-  <rect x="2" y="4" width="${TW}" height="${TH}" rx="10" fill="rgba(176,186,200,.1)"/>
-  <rect x="0" y="0" width="${TW}" height="${TH}" rx="10" fill="rgba(176,186,200,.2)" stroke="#94a3b8" stroke-width="2"/>
-  <rect x="${TW/2-13}" y="-10" width="26" height="12" rx="3" fill="rgba(176,186,200,.2)" stroke="#94a3b8" stroke-width="1.5"/>
-  <rect x="${TW/2-17}" y="-16" width="34" height="7" rx="3" fill="rgba(176,186,200,.2)" stroke="#94a3b8" stroke-width="1.5"/>
-  <rect x="${TW/2-5}" y="${TH}" width="10" height="12" rx="2" fill="rgba(176,186,200,.2)" stroke="#94a3b8" stroke-width="1.2"/>
-  <rect x="8" y="${TH+10}" width="16" height="5" rx="2" fill="rgba(176,186,200,.2)" stroke="#94a3b8" stroke-width="1.2"/>
-  <rect x="${TW-24}" y="${TH+10}" width="16" height="5" rx="2" fill="rgba(176,186,200,.2)" stroke="#94a3b8" stroke-width="1.2"/>
+<!-- ══ MIX TANK 2 ══ -->
+${mx2.show?(()=>{const p2=productMap[t2Row?.mix_code||'']||{};const c2=t2Done?'#374151':(p2.color||s2.tankCol);const c2d=c2+'88';return drawTank(T2X,TOP,TW,TH,mx2.vol,t2Total,'Mixing 2',(t2Row?.mix_name||'—').slice(0,12),s2,'g2t'+m,'c2t'+m,c2,c2d,mx2.wave);})():`<g transform="translate(${T2X},${TOP})">
+<rect x="2" y="-46" width="${TW-4}" height="20" rx="10" fill="${c2}22" stroke="${c2}66" stroke-width="1.5"/>
+<text x="${TW/2}" y="-32" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="${c2}" font-weight="900">Mixing ${t2Row?.mixing_tank||'T2'}</text>
+<rect x="2" y="4" width="${TW}" height="${TH}" rx="10" fill="rgba(176,186,200,.1)"/>
+<rect x="0" y="0" width="${TW}" height="${TH}" rx="10" fill="rgba(176,186,200,.2)" stroke="#94a3b8" stroke-width="2"/>
+<rect x="${TW/2-13}" y="-10" width="26" height="12" rx="3" fill="rgba(176,186,200,.2)" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="${TW/2-17}" y="-16" width="34" height="7" rx="3" fill="rgba(176,186,200,.2)" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="${TW/2-5}" y="${TH}" width="10" height="12" rx="2" fill="rgba(176,186,200,.2)" stroke="#94a3b8" stroke-width="1.2"/>
+<rect x="8" y="${TH+10}" width="16" height="5" rx="2" fill="rgba(176,186,200,.2)" stroke="#94a3b8" stroke-width="1.2"/>
+<rect x="${TW-24}" y="${TH+10}" width="16" height="5" rx="2" fill="rgba(176,186,200,.2)" stroke="#94a3b8" stroke-width="1.2"/>
 </g>`}
-
-    <!-- ══ AGING TANK ══ -->
-    ${drawTank(AGX,TOP,TW,TH,agVol,getTankCapacity(agTank),'Aging '+agTank,agName,sAg,'gag'+m,'cag'+m,sAg.tankCol,sAg.tankCol2,isFlowing)}
-
-    <!-- ══ VERTICAL PIPES from tank bottoms ══ -->
-    <!-- T1 bottom → down to horizontal -->
-    ${pipe(`M ${T1CX},${TBOT+12} L ${T1CX},${HPIPE}`,t1Active)}
-    <!-- T2 bottom → down to horizontal -->
-    ${pipe(`M ${T2CX},${TBOT+12} L ${T2CX},${HPIPE}`,t2Active)}
-    <!-- Aging bottom → down to horizontal (receive) -->
-    ${pipe(`M ${AGCX},${TBOT+12} L ${AGCX},${HPIPE}`,isFlowing)}
-
-    <!-- ══ VALVES — เปิดเฉพาะถังที่ใช้งาน ══ -->
-    ${valve(T1CX,TBOT+28,t1Active)}
-    ${valve(T2CX,TBOT+28,t2Active)}
-    ${valve(AGCX,TBOT+28,isFlowing)}
-
-    <!-- ══ HORIZONTAL COLLECTOR PIPE ══ -->
-    <!-- inactive ก่อน (ใต้ active) -->
-    ${!t1Active?`<path d="M ${T1CX},${HPIPE} L ${PUMPX-22},${HPIPE}" fill="none" stroke="#b0bac8" stroke-width="6" stroke-linecap="round"/>`:'' }
-    ${!t2Active?`<path d="M ${T2CX},${HPIPE} L ${PUMPX-22},${HPIPE}" fill="none" stroke="#b0bac8" stroke-width="6" stroke-linecap="round"/>`:'' }
-    <!-- active ทีหลัง (ทับ inactive) -->
-    ${t1Active?pipe(`M ${T1CX},${HPIPE} L ${PUMPX-22},${HPIPE}`,true):''}
-    ${t2Active?pipe(`M ${T2CX},${HPIPE} L ${PUMPX-22},${HPIPE}`,true):''}
-    <!-- ══ PUMP ══ -->
-    ${pump(PUMPX,PUMPY,isFlowing)}
-    <text x="${PUMPX}" y="${PUMPY+36}" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" font-weight="700" fill="${isFlowing?ac:'#3d4560'}">PUMP</text>
-    <!-- pump → homogenizer -->
-    ${pipe(`M ${PUMPX+22},${HPIPE} L ${HOMOX-30},${HPIPE}`,isFlowing)}
-    <!-- ══ HOMOGENIZER ══ -->
-    ${(()=>{
-      const curProd=agRow?productMap[agRow.mix_code]||{}:{};
-      const h1=curProd.homo_stage1||0;
-      const h2=curProd.homo_stage2||0;
-      const hc=isFlowing?'#a78bfa':'#4a5568';
-      const hcBright=isFlowing?'#c4b5fd':'#718096';
-      const hcBox=isFlowing?'rgba(167,139,250,.12)':'rgba(30,40,60,.6)';
-      const HX=HOMOX, HY=HOMOY;
-      const R=34; // รัศมีถัง HOMO ใหญ่ขึ้น
-      return`<g>
-        <!-- Stage 1 บนถัง -->
-        <rect x="${HX-60}" y="${HY-R-60}" width="120" height="28" rx="5" fill="rgba(0,0,0,.9)" stroke="${hc}" stroke-width="1.5"/>
-        <text x="${HX-36}" y="${HY-R-41}" text-anchor="middle" font-family="DM Mono,monospace" font-size="10" fill="${hcBright}" font-weight="700">St.1</text>
-        <text x="${HX+18}" y="${HY-R-41}" text-anchor="middle" font-family="DM Mono,monospace" font-size="13" fill="white" font-weight="800">${h1?h1+' psi':'— psi'}</text>
-
-        <!-- Stage 2 บนถัง -->
-        <rect x="${HX-60}" y="${HY-R-30}" width="120" height="28" rx="5" fill="rgba(0,0,0,.9)" stroke="${hc}" stroke-width="1.5"/>
-        <text x="${HX-36}" y="${HY-R-11}" text-anchor="middle" font-family="DM Mono,monospace" font-size="10" fill="${hcBright}" font-weight="700">St.2</text>
-        <text x="${HX+18}" y="${HY-R-11}" text-anchor="middle" font-family="DM Mono,monospace" font-size="13" fill="white" font-weight="800">${h2?h2+' psi':'— psi'}</text>
-
-        <!-- กรอบ HOMO วงกลม -->
-        <circle cx="${HX}" cy="${HY}" r="${R+6}" fill="rgba(0,0,0,.4)" />
-        <circle cx="${HX}" cy="${HY}" r="${R}" fill="${hcBox}" stroke="${hc}" stroke-width="2.5"/>
-        <!-- วงกลมใน -->
-        <circle cx="${HX}" cy="${HY}" r="${R*0.65}" fill="none" stroke="${hc}" stroke-width="1.5"/>
-        <!-- ใบพัด -->
-        <line x1="${HX-R*0.55}" y1="${HY}" x2="${HX+R*0.55}" y2="${HY}" stroke="${hcBright}" stroke-width="3" stroke-linecap="round"/>
-        <line x1="${HX}" y1="${HY-R*0.55}" x2="${HX}" y2="${HY+R*0.55}" stroke="${hcBright}" stroke-width="3" stroke-linecap="round"/>
-        <line x1="${HX-R*0.4}" y1="${HY-R*0.4}" x2="${HX+R*0.4}" y2="${HY+R*0.4}" stroke="${hc}" stroke-width="2" stroke-linecap="round" opacity=".7"/>
-        <line x1="${HX+R*0.4}" y1="${HY-R*0.4}" x2="${HX-R*0.4}" y2="${HY+R*0.4}" stroke="${hc}" stroke-width="2" stroke-linecap="round" opacity=".7"/>
-        <!-- จุดกลาง -->
-        <circle cx="${HX}" cy="${HY}" r="5" fill="${hcBright}"/>
-        <!-- pulse -->
-        ${isFlowing?`<circle cx="${HX}" cy="${HY}" r="${R}" fill="none" stroke="#a78bfa" stroke-width="2" opacity="0">
-          <animate attributeName="r" from="${R}" to="${R+18}" dur="1.8s" repeatCount="indefinite"/>
-          <animate attributeName="opacity" from="0.5" to="0" dur="1.8s" repeatCount="indefinite"/>
-        </circle>`:''}
-        <!-- label -->
-        <rect x="${HX-52}" y="${HY+R+6}" width="104" height="20" rx="4" fill="rgba(0,0,0,.85)" stroke="${hc}" stroke-width="1"/>
-        <text x="${HX}" y="${HY+R+20}" text-anchor="middle" font-family="DM Mono,monospace" font-size="12" font-weight="800" fill="white" letter-spacing="0.5">HOMOGENIZER</text>
-      </g>`;
-    })()}
-    <!-- homogenizer → aging -->
-    ${pipe(`M ${HOMOX+34},${HPIPE} L ${AGCX},${HPIPE}`,isFlowing)}
-
-
-    <!-- ══ INFO CARD ══ -->
-    ${agRow?(()=>{
-      const prod=productMap[agRow.mix_code]||{};
-      const dens=+(prod.density||1);
-      const allRows=[...(window._rows['p1']||[]),...(window._rows['p2']||[])];
-      const totalVol=agRow.process_order?allRows.filter(r=>r.process_order===agRow.process_order).reduce((s,r)=>s+(+(r.volume_liter||0)),0):+(agRow.volume_liter||0);
-      const totalKg=Math.round(totalVol*dens);
-      return`<foreignObject x="750" y="10" width="295" height="310">
-        <div xmlns="http://www.w3.org/1999/xhtml" style="background:#fff;border:1.5px solid var(--b1);border-radius:12px;padding:14px 18px;font-family:DM Mono,monospace;font-size:13px;color:var(--text);box-sizing:border-box;">
-          <div style="color:#60a5fa;font-weight:700;border-bottom:2px solid var(--b1);padding-bottom:6px;margin-bottom:10px;font-size:13px;">🧊 กำลัง PASTEURISE</div>
-          <div style="display:flex;justify-content:space-between;margin:7px 0"><span>Mix Name</span><span style="font-weight:700">${agRow.mix_name||'—'}</span></div>
-          <div style="display:flex;justify-content:space-between;margin:7px 0"><span>Batch</span><span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:#1e3a5f;border:2px solid #3b82f6;font-weight:700">${(agRow.batch_no||'—').toString().split('/')[0]}</span></div>
-          <div style="display:flex;justify-content:space-between;margin:7px 0"><span>Vol รวม PO</span><span style="font-weight:700">${totalVol.toLocaleString()} L</span></div>
-          <div style="display:flex;justify-content:space-between;margin:7px 0"><span>Vol × Density</span><span style="font-weight:700">${totalKg.toLocaleString()} kg</span></div>
-          <div style="display:flex;justify-content:space-between;margin:7px 0"><span>รหัสผลิต</span><span style="font-weight:700">${(agRow.product_code||'')}${(agRow.prod_suffix||'')}</span></div>
-          <div style="display:flex;justify-content:space-between;margin:7px 0"><span>Tank</span><span style="font-weight:700">${agTank||'—'}</span></div>
-        </div>
-      </foreignObject>`;
-    })():''}
-  </svg>
+<!-- ══ AGING TANK ══ -->
+${drawTank(AGX,TOP,TW,TH,agVol,getTankCapacity(agTank),'Aging '+agTank,agName,sAg,'gag'+m,'cag'+m,sAg.tankCol,sAg.tankCol2,isFlowing)}
+<!-- ══ VERTICAL PIPES from tank bottoms ══ -->
+<!-- T1 bottom → down to horizontal -->
+${pipe(`M ${T1CX},${TBOT+12} L ${T1CX},${HPIPE}`,t1Active)}
+<!-- T2 bottom → down to horizontal -->
+${pipe(`M ${T2CX},${TBOT+12} L ${T2CX},${HPIPE}`,t2Active)}
+<!-- Aging bottom → down to horizontal (receive) -->
+${pipe(`M ${AGCX},${TBOT+12} L ${AGCX},${HPIPE}`,isFlowing)}
+<!-- ══ VALVES — เปิดเฉพาะถังที่ใช้งาน ══ -->
+${valve(T1CX,TBOT+28,t1Active)}
+${valve(T2CX,TBOT+28,t2Active)}
+${valve(AGCX,TBOT+28,isFlowing)}
+<!-- ══ HORIZONTAL COLLECTOR PIPE ══ -->
+<!-- inactive ก่อน (ใต้ active) -->
+${!t1Active?`<path d="M ${T1CX},${HPIPE} L ${PUMPX-22},${HPIPE}" fill="none" stroke="#b0bac8" stroke-width="6" stroke-linecap="round"/>`:'' }
+${!t2Active?`<path d="M ${T2CX},${HPIPE} L ${PUMPX-22},${HPIPE}" fill="none" stroke="#b0bac8" stroke-width="6" stroke-linecap="round"/>`:'' }
+<!-- active ทีหลัง (ทับ inactive) -->
+${t1Active?pipe(`M ${T1CX},${HPIPE} L ${PUMPX-22},${HPIPE}`,true):''}
+${t2Active?pipe(`M ${T2CX},${HPIPE} L ${PUMPX-22},${HPIPE}`,true):''}
+<!-- ══ PUMP ══ -->
+${pump(PUMPX,PUMPY,isFlowing)}
+<text x="${PUMPX}" y="${PUMPY+36}" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" font-weight="700" fill="${isFlowing?ac:'#3d4560'}">PUMP</text>
+<!-- pump → homogenizer -->
+${pipe(`M ${PUMPX+22},${HPIPE} L ${HOMOX-30},${HPIPE}`,isFlowing)}
+<!-- ══ HOMOGENIZER ══ -->
+${(()=>{
+const curProd=agRow?productMap[agRow.mix_code]||{}:{};
+const h1=curProd.homo_stage1||0;
+const h2=curProd.homo_stage2||0;
+const hc=isFlowing?'#a78bfa':'#4a5568';
+const hcBright=isFlowing?'#c4b5fd':'#718096';
+const hcBox=isFlowing?'rgba(167,139,250,.12)':'rgba(30,40,60,.6)';
+const HX=HOMOX, HY=HOMOY;
+const R=34;
+return`<g>
+<!-- Stage 1 บนถัง -->
+<rect x="${HX-60}" y="${HY-R-60}" width="120" height="28" rx="5" fill="rgba(0,0,0,.9)" stroke="${hc}" stroke-width="1.5"/>
+<text x="${HX-36}" y="${HY-R-41}" text-anchor="middle" font-family="DM Mono,monospace" font-size="10" fill="${hcBright}" font-weight="700">St.1</text>
+<text x="${HX+18}" y="${HY-R-41}" text-anchor="middle" font-family="DM Mono,monospace" font-size="13" fill="white" font-weight="800">${h1?h1+' psi':'— psi'}</text>
+<!-- Stage 2 บนถัง -->
+<rect x="${HX-60}" y="${HY-R-30}" width="120" height="28" rx="5" fill="rgba(0,0,0,.9)" stroke="${hc}" stroke-width="1.5"/>
+<text x="${HX-36}" y="${HY-R-11}" text-anchor="middle" font-family="DM Mono,monospace" font-size="10" fill="${hcBright}" font-weight="700">St.2</text>
+<text x="${HX+18}" y="${HY-R-11}" text-anchor="middle" font-family="DM Mono,monospace" font-size="13" fill="white" font-weight="800">${h2?h2+' psi':'— psi'}</text>
+<!-- กรอบ HOMO วงกลม -->
+<circle cx="${HX}" cy="${HY}" r="${R+6}" fill="rgba(0,0,0,.4)" />
+<circle cx="${HX}" cy="${HY}" r="${R}" fill="${hcBox}" stroke="${hc}" stroke-width="2.5"/>
+<!-- วงกลมใน -->
+<circle cx="${HX}" cy="${HY}" r="${R*0.65}" fill="none" stroke="${hc}" stroke-width="1.5"/>
+<!-- ใบพัด -->
+<line x1="${HX-R*0.55}" y1="${HY}" x2="${HX+R*0.55}" y2="${HY}" stroke="${hcBright}" stroke-width="3" stroke-linecap="round"/>
+<line x1="${HX}" y1="${HY-R*0.55}" x2="${HX}" y2="${HY+R*0.55}" stroke="${hcBright}" stroke-width="3" stroke-linecap="round"/>
+<line x1="${HX-R*0.4}" y1="${HY-R*0.4}" x2="${HX+R*0.4}" y2="${HY+R*0.4}" stroke="${hc}" stroke-width="2" stroke-linecap="round" opacity=".7"/>
+<line x1="${HX+R*0.4}" y1="${HY-R*0.4}" x2="${HX-R*0.4}" y2="${HY+R*0.4}" stroke="${hc}" stroke-width="2" stroke-linecap="round" opacity=".7"/>
+<!-- จุดกลาง -->
+<circle cx="${HX}" cy="${HY}" r="5" fill="${hcBright}"/>
+<!-- pulse -->
+${isFlowing?`<circle cx="${HX}" cy="${HY}" r="${R}" fill="none" stroke="#a78bfa" stroke-width="2" opacity="0">
+<animate attributeName="r" from="${R}" to="${R+18}" dur="1.8s" repeatCount="indefinite"/>
+<animate attributeName="opacity" from="0.5" to="0" dur="1.8s" repeatCount="indefinite"/>
+</circle>`:''}
+<!-- label -->
+<rect x="${HX-52}" y="${HY+R+6}" width="104" height="20" rx="4" fill="rgba(0,0,0,.85)" stroke="${hc}" stroke-width="1"/>
+<text x="${HX}" y="${HY+R+20}" text-anchor="middle" font-family="DM Mono,monospace" font-size="12" font-weight="800" fill="white" letter-spacing="0.5">HOMOGENIZER</text>
+</g>`;
+})()}
+<!-- homogenizer → aging -->
+${pipe(`M ${HOMOX+34},${HPIPE} L ${AGCX},${HPIPE}`,isFlowing)}
+<!-- ══ INFO CARD ══ -->
+${agRow?(()=>{
+const prod=productMap[agRow.mix_code]||{};
+const dens=+(prod.density||1);
+const allRows=[...(window._rows['p1']||[]),...(window._rows['p2']||[])];
+const totalVol=agRow.process_order?allRows.filter(r=>r.process_order===agRow.process_order).reduce((s,r)=>s+(+(r.volume_liter||0)),0):+(agRow.volume_liter||0);
+const totalKg=Math.round(totalVol*dens);
+return`<foreignObject x="750" y="10" width="295" height="310">
+<div xmlns="http://www.w3.org/1999/xhtml" style="background:#fff;border:1.5px solid var(--b1);border-radius:12px;padding:14px 18px;font-family:DM Mono,monospace;font-size:13px;color:var(--text);box-sizing:border-box;">
+<div style="color:#60a5fa;font-weight:700;border-bottom:2px solid var(--b1);padding-bottom:6px;margin-bottom:10px;font-size:13px;">🧊 กำลัง PASTEURISE</div>
+<div style="display:flex;justify-content:space-between;margin:7px 0"><span>Mix Name</span><span style="font-weight:700">${agRow.mix_name||'—'}</span></div>
+<div style="display:flex;justify-content:space-between;margin:7px 0"><span>Batch</span><span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:#1e3a5f;border:2px solid #3b82f6;font-weight:700">${(agRow.batch_no||'—').toString().split('/')[0]}</span></div>
+<div style="display:flex;justify-content:space-between;margin:7px 0"><span>Vol รวม PO</span><span style="font-weight:700">${totalVol.toLocaleString()} L</span></div>
+<div style="display:flex;justify-content:space-between;margin:7px 0"><span>Vol × Density</span><span style="font-weight:700">${totalKg.toLocaleString()} kg</span></div>
+<div style="display:flex;justify-content:space-between;margin:7px 0"><span>รหัสผลิต</span><span style="font-weight:700">${(agRow.product_code||'')}${(agRow.prod_suffix||'')}</span></div>
+<div style="display:flex;justify-content:space-between;margin:7px 0"><span>Tank</span><span style="font-weight:700">${agTank||'—'}</span></div>
+</div>
+</foreignObject>`;
+})():''}
+</svg>
 </div>
 </div>`;
 }
-
-
-
-// ── REAL-TIME SHIFT CHART ────────────────────────────────────────────
 const SHIFT_COLORS = ['#f97316','#3b82f6','#8b5cf6'];
 const SHIFT_LABELS = ['กะเช้า','กะบ่าย','กะดึก'];
-const SHIFT_RANGES = [[360,840],[840,1320],[1320,1800]]; // นาที 06-14, 14-22, 22-06(+1440)
-
+const SHIFT_RANGES = [[360,840],[840,1320],[1320,1800]];
 function getShiftMinutes(){
-  const now = new Date();
-  return now.getHours()*60 + now.getMinutes();
+const now = new Date();
+return now.getHours()*60 + now.getMinutes();
 }
-
 function getCurrentShift(){
-  const m = getShiftMinutes();
-  if(m>=360&&m<840) return 0;
-  if(m>=840&&m<1320) return 1;
-  return 2;
+const m = getShiftMinutes();
+if(m>=360&&m<840) return 0;
+if(m>=840&&m<1320) return 1;
+return 2;
 }
-
 function calcShiftKg(p, shiftIdx){
-  const pRows = window._rows[p]||[];
-  const allPRows = [...(window._rows['p1']||[]),...(window._rows['p2']||[])];
-  const [sMin, eMin] = SHIFT_RANGES[shiftIdx];
-  let kg = 0;
-  allPRows.forEach(r=>{
-    if(!r.past_start_time) return;
-    const prod = (window._productMap||{})[r.mix_code]||{};
-    const density = +(prod.density||1);
-    const vol = +(r.volume_liter||0);
-    if(!vol) return;
-    const startM = toMin(r.past_start_time);
-    if(startM===null) return;
-    // ถ้า row กำลัง pasteurise อยู่ใช้ current_vol แทน
-    if(r.status==='pasteurising'&&r.past_start_time&&!r.past_end_time){
-      const cv = +(r.current_vol||0);
-      // เช็คว่า start อยู่ในกะนี้
-      const normStart = shiftIdx===2&&startM<360?startM+1440:startM;
-      if(normStart>=sMin&&normStart<eMin){
-        kg += cv * density;
-      }
-    } else if(r.past_end_time){
-      const endM = toMin(r.past_end_time);
-      if(endM===null) return;
-      const normStart = shiftIdx===2&&startM<360?startM+1440:startM;
-      const normEnd = shiftIdx===2&&endM<360?endM+1440:endM;
-      if(normStart>=sMin&&normStart<eMin){
-        kg += vol * density;
-      }
-    }
-  });
-  return Math.round(kg);
+const pRows = window._rows[p]||[];
+const allPRows = [...(window._rows['p1']||[]),...(window._rows['p2']||[])];
+const [sMin, eMin] = SHIFT_RANGES[shiftIdx];
+let kg = 0;
+allPRows.forEach(r=>{
+if(!r.past_start_time) return;
+const prod = (window._productMap||{})[r.mix_code]||{};
+const density = +(prod.density||1);
+const vol = +(r.volume_liter||0);
+if(!vol) return;
+const startM = toMin(r.past_start_time);
+if(startM===null) return;
+if(r.status==='pasteurising'&&r.past_start_time&&!r.past_end_time){
+const cv = +(r.current_vol||0);
+const normStart = shiftIdx===2&&startM<360?startM+1440:startM;
+if(normStart>=sMin&&normStart<eMin){
+kg += cv * density;
 }
-
+} else if(r.past_end_time){
+const endM = toMin(r.past_end_time);
+if(endM===null) return;
+const normStart = shiftIdx===2&&startM<360?startM+1440:startM;
+const normEnd = shiftIdx===2&&endM<360?endM+1440:endM;
+if(normStart>=sMin&&normStart<eMin){
+kg += vol * density;
+}
+}
+});
+return Math.round(kg);
+}
 function renderShiftChart(p){
-  const el=document.getElementById('chart-area-'+p);
-  if(!el) return;
-  const kgs=[0,1,2].map(i=>calcShiftKg(p,i));
-  const total=kgs.reduce((s,v)=>s+v,0);
-  const curShift=getCurrentShift();
-  const SHIFT_COL=['#f59e0b','#f97316','#6366f1'];
-  const SHIFT_LBL=['เช้า','บ่าย','ดึก'];
-  const canvasId='sc-'+p;
-
-  // สร้าง DOM ครั้งเดียว
-  if(!document.getElementById(canvasId)){
-    el.innerHTML='<div style="background:#fff;border:1.5px solid var(--b1);border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:6px">'
-      +'<div style="font-family:var(--mono);font-size:10px;font-weight:800;color:var(--t2)">📊 ผลผลิตตามกะ</div>'
-      +'<div id="chips-'+p+'" style="display:flex;gap:4px"></div>'
-      +'<div style="width:170px;height:110px;flex-shrink:0"><canvas id="'+canvasId+'" width="170" height="110"></canvas></div>'
-      +'<div id="total-'+p+'" style="font-family:var(--mono);font-size:10px;color:var(--t2);text-align:right"></div>'
-      +'</div>';
-    // สร้าง chart ครั้งแรก
-    const ctx=document.getElementById(canvasId);
-    if(ctx){
-      window['_c_'+p]=new Chart(ctx,{
-        type:'bar',
-        data:{labels:SHIFT_LBL,datasets:[{data:kgs,backgroundColor:SHIFT_COL.map((col,i)=>i===curShift?col+'cc':col+'44'),borderColor:SHIFT_COL,borderWidth:1.5,borderRadius:5,borderSkipped:false}]},
-        options:{responsive:false,maintainAspectRatio:false,animation:{duration:400},plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.raw.toLocaleString()+' L'}}},scales:{x:{grid:{display:false},ticks:{font:{family:'DM Mono',size:9},color:'#374151',maxRotation:0}},y:{grid:{color:'rgba(0,0,0,.05)'},ticks:{font:{family:'DM Mono',size:9},color:'#6b7280',callback:v=>(v/1000).toFixed(1)+'k'},beginAtZero:true}}}
-      });
-    }
-  } else if(window['_c_'+p]){
-    // update data เมื่อมีข้อมูลใหม่
-    window['_c_'+p].data.datasets[0].data=kgs;
-    window['_c_'+p].data.datasets[0].backgroundColor=SHIFT_COL.map((col,i)=>i===curShift?col+'cc':col+'44');
-    window['_c_'+p].update('none');
-  }
-
-  // update chips
-  const ce=document.getElementById('chips-'+p);
-  if(ce) ce.innerHTML=[0,1,2].map(i=>'<div style="flex:1;text-align:center;border-radius:6px;padding:4px 2px;border:1.5px solid '+SHIFT_COL[i]+'44;background:'+SHIFT_COL[i]+'11">'+'<div style="font-family:var(--mono);font-size:11px;font-weight:900;color:'+SHIFT_COL[i]+'">'+(kgs[i]/1000).toFixed(1)+'k</div>'+'<div style="font-family:var(--mono);font-size:8px;color:var(--t3)">'+SHIFT_LBL[i]+'</div>'+'</div>').join('');
-  const te=document.getElementById('total-'+p);
-  if(te) te.innerHTML='รวม <b>'+total.toLocaleString()+'</b> L';
+const el=document.getElementById('chart-area-'+p);
+if(!el) return;
+const kgs=[0,1,2].map(i=>calcShiftKg(p,i));
+const total=kgs.reduce((s,v)=>s+v,0);
+const curShift=getCurrentShift();
+const SHIFT_COL=['#f59e0b','#f97316','#6366f1'];
+const SHIFT_LBL=['เช้า','บ่าย','ดึก'];
+const canvasId='sc-'+p;
+if(!document.getElementById(canvasId)){
+el.innerHTML='<div style="background:#fff;border:1.5px solid var(--b1);border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:6px">'
++'<div style="font-family:var(--mono);font-size:10px;font-weight:800;color:var(--t2)">📊 ผลผลิตตามกะ</div>'
++'<div id="chips-'+p+'" style="display:flex;gap:4px"></div>'
++'<div style="width:170px;height:110px;flex-shrink:0"><canvas id="'+canvasId+'" width="170" height="110"></canvas></div>'
++'<div id="total-'+p+'" style="font-family:var(--mono);font-size:10px;color:var(--t2);text-align:right"></div>'
++'</div>';
+const ctx=document.getElementById(canvasId);
+if(ctx){
+window['_c_'+p]=new Chart(ctx,{
+type:'bar',
+data:{labels:SHIFT_LBL,datasets:[{data:kgs,backgroundColor:SHIFT_COL.map((col,i)=>i===curShift?col+'cc':col+'44'),borderColor:SHIFT_COL,borderWidth:1.5,borderRadius:5,borderSkipped:false}]},
+options:{responsive:false,maintainAspectRatio:false,animation:{duration:400},plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.raw.toLocaleString()+' L'}}},scales:{x:{grid:{display:false},ticks:{font:{family:'DM Mono',size:9},color:'#374151',maxRotation:0}},y:{grid:{color:'rgba(0,0,0,.05)'},ticks:{font:{family:'DM Mono',size:9},color:'#6b7280',callback:v=>(v/1000).toFixed(1)+'k'},beginAtZero:true}}}
+});
 }
-
-// อัปเดตกราฟทุก 3 วินาที
-
-
+} else if(window['_c_'+p]){
+window['_c_'+p].data.datasets[0].data=kgs;
+window['_c_'+p].data.datasets[0].backgroundColor=SHIFT_COL.map((col,i)=>i===curShift?col+'cc':col+'44');
+window['_c_'+p].update('none');
+}
+const ce=document.getElementById('chips-'+p);
+if(ce) ce.innerHTML=[0,1,2].map(i=>'<div style="flex:1;text-align:center;border-radius:6px;padding:4px 2px;border:1.5px solid '+SHIFT_COL[i]+'44;background:'+SHIFT_COL[i]+'11">'+'<div style="font-family:var(--mono);font-size:11px;font-weight:900;color:'+SHIFT_COL[i]+'">'+(kgs[i]/1000).toFixed(1)+'k</div>'+'<div style="font-family:var(--mono);font-size:8px;color:var(--t3)">'+SHIFT_LBL[i]+'</div>'+'</div>').join('');
+const te=document.getElementById('total-'+p);
+if(te) te.innerHTML='รวม <b>'+total.toLocaleString()+'</b> L';
+}
 window.loadPlan=(p)=>{
-  const d=$(p==="p1"?"date-p1":"date-p2").value||today();
-  if(unsub[p])unsub[p]();
-  const q=query(collection(db,planCol(p)),where("date","==",d));
-  unsub[p]=onSnapshot(q,snap=>{
-    rows[p]=snap.docs.map(d=>({id:d.id,...d.data()}))
-      .filter(r=>r.mix_code&&r.mix_code!=="") // เฉพาะ row ที่ leadman กรอกข้อมูลแล้ว
-      .sort((a,b)=>(a.seq||0)-(b.seq||0));
-    window._rows[p]=rows[p];
-    renderPlan(p);
-    renderShiftChart(p);
-  });
+const d=$(p==="p1"?"date-p1":"date-p2").value||today();
+if(unsub[p])unsub[p]();
+const q=query(collection(db,planCol(p)),where("date","==",d));
+unsub[p]=onSnapshot(q,snap=>{
+rows[p]=snap.docs.map(d=>({id:d.id,...d.data()}))
+.filter(r=>r.mix_code&&r.mix_code!=="")
+.sort((a,b)=>(a.seq||0)-(b.seq||0));
+window._rows[p]=rows[p];
+renderPlan(p);
+renderShiftChart(p);
+});
 };
-
-// ── GENERIC UPDATE ────────────────────────────────────────────────────
 window._up=async(col,id,field,val)=>{
-  try{
-    await updateDoc(doc(db,col,id),{[field]:val});
-  }catch(e){toast("บันทึกไม่สำเร็จ: "+e.message,"red");}
+try{
+await updateDoc(doc(db,col,id),{[field]:val});
+}catch(e){toast("บันทึกไม่สำเร็จ: "+e.message,"red");}
 };
-
-// ── DELETE TIME ───────────────────────────────────────────────────────
 window.deleteTimePrompt=async(col,id,field)=>{
-  if(!confirm("ลบเวลานี้ออก?"))return;
-  const upd={[field]:null};
-  if(field==="past_start_time"){upd.status="pasteurising";upd.past_end_time=null;}
-  if(field==="past_end_time") upd.status="pasteurising";
-  await updateDoc(doc(db,col,id),upd);
-  toast("ลบเวลาแล้ว","green");
+if(!confirm("ลบเวลานี้ออก?"))return;
+const upd={[field]:null};
+if(field==="past_start_time"){upd.status="pasteurising";upd.past_end_time=null;}
+if(field==="past_end_time") upd.status="pasteurising";
+await updateDoc(doc(db,col,id),upd);
+toast("ลบเวลาแล้ว","green");
 };
-
-// ── ARCHIVE TO HISTORY ────────────────────────────────────────────────
 async function checkAndArchive(p){
-  const col=planCol(p);
-  const done=rows[p].filter(r=>r.status==="past_done"||r.status==="ready");
-  if(!done.length) return;
-
-  // นับ process_order ที่เสร็จแล้ว (past_done/ready) ใน line นี้
-  const doneOrders=[...new Set(
-    done.map(r=>r.process_order).filter(Boolean)
-  )];
-
-  // ต้องมี process order ที่เสร็จแล้ว >= 5 จึงจะ archive อันเก่าสุดออก
-  if(doneOrders.length < 5) return;
-
-  const oldest=done.sort((a,b)=>(a.seq||0)-(b.seq||0))[0];
-  const needGlc=(+oldest.glc_actual||0)>0&&!oldest.glc_confirmed;
-  const needSgr=(+oldest.sgr_actual||0)>0&&!oldest.sgr_confirmed;
-  const needPlm=(+oldest.plm_actual||0)>0&&!oldest.plm_confirmed;
-  if(needGlc||needSgr||needPlm){
-    const missing=[];
-    if(needGlc)missing.push("Glucose");
-    if(needSgr)missing.push("Sugar");
-    if(needPlm)missing.push("Palm Oil");
-    toast(`⚠️ ยังไม่ยืนยัน: ${missing.join(", ")} — ไม่สามารถ Archive ได้`,"red");
-    return;
-  }
-  try{
-    await addDoc(collection(db,"past_history"),{
-      ...oldest,
-      archived_at:nowHHMM(),
-      archived_date:today(),
-      mixing_unit:p,
-    });
-    await deleteDoc(doc(db,col,oldest.id));
-    rows[p]=rows[p].filter(r=>r.id!==oldest.id);
-    toast(`Archive ${oldest.mix_code||''} แล้ว`,"green");
-  }catch(e){
-    toast("Archive ไม่สำเร็จ: "+e.message,"red");
-  }
+const col=planCol(p);
+const done=rows[p].filter(r=>r.status==="past_done"||r.status==="ready");
+if(!done.length) return;
+const doneOrders=[...new Set(
+done.map(r=>r.process_order).filter(Boolean)
+)];
+if(doneOrders.length < 5) return;
+const oldest=done.sort((a,b)=>(a.seq||0)-(b.seq||0))[0];
+const needGlc=(+oldest.glc_actual||0)>0&&!oldest.glc_confirmed;
+const needSgr=(+oldest.sgr_actual||0)>0&&!oldest.sgr_confirmed;
+const needPlm=(+oldest.plm_actual||0)>0&&!oldest.plm_confirmed;
+if(needGlc||needSgr||needPlm){
+const missing=[];
+if(needGlc)missing.push("Glucose");
+if(needSgr)missing.push("Sugar");
+if(needPlm)missing.push("Palm Oil");
+toast(`⚠️ ยังไม่ยืนยัน: ${missing.join(", ")} — ไม่สามารถ Archive ได้`,"red");
+return;
 }
-
-// ── STAMP ─────────────────────────────────────────────────────────────
+try{
+await addDoc(collection(db,"past_history"),{
+...oldest,
+archived_at:nowHHMM(),
+archived_date:today(),
+mixing_unit:p,
+});
+await deleteDoc(doc(db,col,oldest.id));
+rows[p]=rows[p].filter(r=>r.id!==oldest.id);
+toast(`Archive ${oldest.mix_code||''} แล้ว`,"green");
+}catch(e){
+toast("Archive ไม่สำเร็จ: "+e.message,"red");
+}
+}
 window.stampTime=async(col,id,field,p)=>{
-  const now=field==="past_end_time"?nowHHMMSS():nowHHMMSS();
-  const upd={[field]:now};
-
-  if(field==="past_start_time") upd.status="pasteurising";
-
-  if(field==="past_end_time"){
-    // คำนวณ Eff% ก่อน
-    const row=rows[p]?.find(r=>r.id===id);
-    if(row&&row.past_start_time){
-      const prod=productMap[row.mix_code]||{};
-      const density=+(prod.density||1);
-      const speed=p==='p1'?+(prod.speed_m1||prod.speed||0):+(prod.speed_m2||prod.speed||0);
-      const totalVol=+(row.volume_liter||0);
-      const reqMin=(totalVol*density*60)/speed;
-
-      const _sp=row.past_start_time.split(':').map(Number);
-      const _ep=now.split(':').map(Number);
-      const startSec=(_sp[0]||0)*3600+(_sp[1]||0)*60+(_sp[2]||0);
-      const endSec=(_ep[0]||0)*3600+(_ep[1]||0)*60+(_ep[2]||0);
-      let actualSec=endSec-startSec;
-      if(actualSec<0) actualSec+=86400;
-      const actualMin=actualSec/60;
-      const eff=actualSec>0?(reqMin*60/actualSec)*100:0;
-      upd.eff=Math.round(eff*10)/10;
-
-      if(eff<97||eff>100){
-        const msg=eff<97
-          ?`⚠️ Eff% = ${eff.toFixed(1)}% ต่ำกว่า 97% — ใช้เวลานานเกินไป`
-          :`⚠️ Eff% = ${eff.toFixed(1)}% เกิน 100% — เวลาน้อยกว่าที่ควร`;
-        const confirm=window.confirm(`${msg}\n\nยืนยัน Stamp Past.เสร็จหรือไม่?`);
-        if(!confirm) return;
-      }
-    }
-    upd.status="past_done";
-    upd.mix_start_time="";
-    upd.mix_end_time="";
-  }
-
-  await updateDoc(doc(db,col,id),upd);
-  toast(`Stamp ${now} แล้ว`,"green");
+const now=field==="past_end_time"?nowHHMMSS():nowHHMMSS();
+const upd={[field]:now};
+if(field==="past_start_time") upd.status="pasteurising";
+if(field==="past_end_time"){
+const row=rows[p]?.find(r=>r.id===id);
+if(row&&row.past_start_time){
+const prod=productMap[row.mix_code]||{};
+const density=+(prod.density||1);
+const speed=p==='p1'?+(prod.speed_m1||prod.speed||0):+(prod.speed_m2||prod.speed||0);
+const totalVol=+(row.volume_liter||0);
+const reqMin=(totalVol*density*60)/speed;
+const _sp=row.past_start_time.split(':').map(Number);
+const _ep=now.split(':').map(Number);
+const startSec=(_sp[0]||0)*3600+(_sp[1]||0)*60+(_sp[2]||0);
+const endSec=(_ep[0]||0)*3600+(_ep[1]||0)*60+(_ep[2]||0);
+let actualSec=endSec-startSec;
+if(actualSec<0) actualSec+=86400;
+const actualMin=actualSec/60;
+const eff=actualSec>0?(reqMin*60/actualSec)*100:0;
+upd.eff=Math.round(eff*10)/10;
+if(eff<97||eff>100){
+const msg=eff<97
+?`⚠️ Eff% = ${eff.toFixed(1)}% ต่ำกว่า 97% — ใช้เวลานานเกินไป`
+:`⚠️ Eff% = ${eff.toFixed(1)}% เกิน 100% — เวลาน้อยกว่าที่ควร`;
+const confirm=window.confirm(`${msg}\n\nยืนยัน Stamp Past.เสร็จหรือไม่?`);
+if(!confirm) return;
+}
+}
+upd.status="past_done";
+upd.mix_start_time="";
+upd.mix_end_time="";
+}
+await updateDoc(doc(db,col,id),upd);
+toast(`Stamp ${now} แล้ว`,"green");
 };
-
-// ── EDIT / DELETE TIME ────────────────────────────────────────────────
 window.editTimePrompt=async(col,id,field,current)=>{
-  const val=prompt("แก้ไขเวลา (HH:MM หรือ HH:MM:SS) :",current||"");
-  if(val===null)return;
-  const clean=val.trim();
-  if(!/^\d{2}:\d{2}(:\d{2})?$/.test(clean)){toast("รูปแบบ HH:MM หรือ HH:MM:SS เท่านั้น","red");return;}
-  const upd={[field]:clean};
-  if(field==="past_start_time"&&clean) upd.status="pasteurising";
-  if(field==="past_end_time"&&clean)   upd.status="pasteurising";
-  await updateDoc(doc(db,col,id),upd);
-  toast("แก้ไขเวลาแล้ว","green");
+const val=prompt("แก้ไขเวลา (HH:MM หรือ HH:MM:SS) :",current||"");
+if(val===null)return;
+const clean=val.trim();
+if(!/^\d{2}:\d{2}(:\d{2})?$/.test(clean)){toast("รูปแบบ HH:MM หรือ HH:MM:SS เท่านั้น","red");return;}
+const upd={[field]:clean};
+if(field==="past_start_time"&&clean) upd.status="pasteurising";
+if(field==="past_end_time"&&clean)   upd.status="pasteurising";
+await updateDoc(doc(db,col,id),upd);
+toast("แก้ไขเวลาแล้ว","green");
 };
-
-// ── SUBMIT PAST ───────────────────────────────────────────────────────
 window.submitPast=async(col,id,p,eff,warn)=>{
-  if(eff>100){
-    alert(`🔒 ส่งไม่ได้ — Eff% = ${eff}% เกิน 100%\nกรุณาแก้ไขเวลา Past.เสร็จก่อน`);
-    return;
-  }
-  if(warn){
-    const ok=confirm(`⚠️ Eff% = ${eff}% ต่ำกว่า 97%\nยืนยันส่งข้อมูลหรือไม่?`);
-    if(!ok) return;
-  }
-  try{
-    const row=(rows[p]||[]).find(r=>r.id===id);
-    // คำนวณ cumulative current_vol
-    const allRows=[...(window._rows['p1']||[]),...(window._rows['p2']||[])];
-    const donePrevVol=row?.process_order&&row?.aging_tank
-      ? allRows.filter(r=>r.id!==id&&
-          r.process_order===row.process_order&&
-          r.aging_tank===row.aging_tank&&
-          (r.status==='past_done'||r.status==='ready'))
-        .reduce((s,r)=>s+(+(r.volume_liter||0)),0)
-      : 0;
-    const finalCumVol=donePrevVol+(+(row?.volume_liter||0));
-
-    await updateDoc(doc(db,col,id),{
-      status:'past_done',
-      eff:eff,
-      current_vol:finalCumVol,
-      mix_start_time:"",mix_end_time:"",
-      glc_actual:"",sgr_actual:"",plm_actual:"",
-    });
-    toast(`ส่งข้อมูลแล้ว (Eff ${eff}%)`,"green");
-  }catch(e){toast("เกิดข้อผิดพลาด: "+e.message,"red");}
+if(eff>100){
+alert(`🔒 ส่งไม่ได้ — Eff% = ${eff}% เกิน 100%\nกรุณาแก้ไขเวลา Past.เสร็จก่อน`);
+return;
+}
+if(warn){
+const ok=confirm(`⚠️ Eff% = ${eff}% ต่ำกว่า 97%\nยืนยันส่งข้อมูลหรือไม่?`);
+if(!ok) return;
+}
+try{
+const row=(rows[p]||[]).find(r=>r.id===id);
+const allRows=[...(window._rows['p1']||[]),...(window._rows['p2']||[])];
+const donePrevVol=row?.process_order&&row?.aging_tank
+? allRows.filter(r=>r.id!==id&&
+r.process_order===row.process_order&&
+r.aging_tank===row.aging_tank&&
+(r.status==='past_done'||r.status==='ready'))
+.reduce((s,r)=>s+(+(r.volume_liter||0)),0)
+: 0;
+const finalCumVol=donePrevVol+(+(row?.volume_liter||0));
+await updateDoc(doc(db,col,id),{
+status:'past_done',
+eff:eff,
+current_vol:finalCumVol,
+mix_start_time:"",mix_end_time:"",
+glc_actual:"",sgr_actual:"",plm_actual:"",
+});
+toast(`ส่งข้อมูลแล้ว (Eff ${eff}%)`,"green");
+}catch(e){toast("เกิดข้อผิดพลาด: "+e.message,"red");}
 };
-
-// ── EDIT / DELETE TIME ────────────────────────────────────────────────
 window.editTimePrompt=async(col,id,field,current,rowDate)=>{
-  const val=prompt("แก้ไขเวลา (HH:MM หรือ HH:MM:SS) :",current||"");
-  if(val===null)return;
-  const clean=val.trim();
-  if(!/^\d{2}:\d{2}(:\d{2})?$/.test(clean)){toast("รูปแบบ HH:MM หรือ HH:MM:SS เท่านั้น","red");return;}
-  const upd={[field]:clean};
-  if(field==="past_start_time"&&clean) upd.status="pasteurising";
-  if(field==="past_end_time"&&clean){
-    upd.status="past_done";
-    // เพิ่ม ISO timestamp สำหรับคำนวณ aging
-    const _d=rowDate||new Date().toISOString().slice(0,10);
-    const _t=clean.length===5?clean+':00':clean;
-    try{upd.past_end_at=new Date(_d+'T'+_t).toISOString();}catch{}
-  }
-  await updateDoc(doc(db,col,id),upd);
-  toast("แก้ไขเวลาแล้ว","green");
+const val=prompt("แก้ไขเวลา (HH:MM หรือ HH:MM:SS) :",current||"");
+if(val===null)return;
+const clean=val.trim();
+if(!/^\d{2}:\d{2}(:\d{2})?$/.test(clean)){toast("รูปแบบ HH:MM หรือ HH:MM:SS เท่านั้น","red");return;}
+const upd={[field]:clean};
+if(field==="past_start_time"&&clean) upd.status="pasteurising";
+if(field==="past_end_time"&&clean){
+upd.status="past_done";
+const _d=rowDate||new Date().toISOString().slice(0,10);
+const _t=clean.length===5?clean+':00':clean;
+try{upd.past_end_at=new Date(_d+'T'+_t).toISOString();}catch{}
+}
+await updateDoc(doc(db,col,id),upd);
+toast("แก้ไขเวลาแล้ว","green");
 };
-
-// ── RENDER ────────────────────────────────────────────────────────────
 function renderPlan(p){
-  const col=planCol(p);
-  const tbody=$(`tbody-${p}`);
-  if(!tbody)return;
-  tbody.innerHTML="";
-  // render tank visual
-  renderTankVisual(p,rows[p]);
-
-  rows[p].forEach((row,i)=>{
-    const isWait     = row.status==="pasteurising"&&!row.past_start_time;
-    const isPast     = row.status==="pasteurising"&&!!row.past_start_time;
-    const isDone     = row.status==="past_done"||row.status==="ready";
-
-    // past_done และ ready — แสดงได้ ไม่ซ่อน (ค้างจนครบ 5 process order ใหม่)
-    // if(isDone) return;  ← ลบออกแล้ว
-
-    const statStyle='';
-    const statText=statusBadge(resolveStatus(row));
-
-    // คำนวณ est. finish และ efficiency
-    const prod=productMap[row.mix_code]||{};
-    const speed=p==="p1"?+(prod.speed_m1||prod.speed||1000):+(prod.speed_m2||prod.speed||1000);
-    const density=+(prod.density||1);
-    const vol=+(row.volume_liter||0);
-    // เวลาที่ต้องใช้ Past. (นาที)
-    const reqMin=vol>0&&speed>0?Math.round(vol*density*60/speed):0;
-    // คาดเสร็จ
-    function addMin(t,m){if(!t||!m)return"—";const _p=t.split(":").map(Number);const totSec=(_p[0]||0)*3600+(_p[1]||0)*60+(_p[2]||0)+m*60;const th=Math.floor(totSec/3600)%24;const tmn=Math.floor((totSec%3600)/60);const ts=Math.round(totSec%60);return String(th).padStart(2,"0")+":"+String(tmn).padStart(2,"0")+":"+String(ts).padStart(2,"0");}
-    const estFinish=row.past_start_time?addMin(row.past_start_time,reqMin):"—";
-    // Efficiency — แสดง real-time ระหว่าง past. และหลัง stamp เสร็จ
-    let effHTML="—";
-    if(row.past_start_time&&reqMin>0){
-      const[sh,sm]=row.past_start_time.split(":").map(Number);
-      const endTime=row.past_end_time||nowHHMM();
-      const[eh,em]=endTime.split(":").map(Number);
-      let actualMin=(eh*60+em)-(sh*60+sm);
-      if(actualMin<0)actualMin+=1440;
-      const eff=actualMin>0?(reqMin/actualMin*100):0;
-      const effColor=eff>=97&&eff<=100?"#22c55e":eff>100?"#f97316":"#ef4444";
-      const effLabel=eff>=97&&eff<=100?"✅":eff>100?"⚠️":"❌";
-      effHTML=`<span style="font-family:var(--mono);font-size:12px;font-weight:700;color:${effColor}">${effLabel} ${eff.toFixed(1)}%</span>`;
-    }
-
-    // เช็ค checkbox ก่อนให้ Stamp เริ่ม Past.
-    const needGlc=(+row.glc_actual||0)>0&&!row.glc_confirmed;
-    const needSgr=(+row.sgr_actual||0)>0&&!row.sgr_confirmed;
-    const needPlm=(+row.plm_actual||0)>0&&!row.plm_confirmed;
-    const needTank=!row.aging_tank; // ต้องเลือกถังก่อน
-    const canStampStart=!needGlc&&!needSgr&&!needPlm&&!needTank;
-    const blockReason=needTank?'เลือก Aging Tank ก่อน':needGlc?'ติ๊ก Glc ก่อน':needSgr?'ติ๊ก Sgr ก่อน':needPlm?'ติ๊ก Plm ก่อน':'';
-
-    const stampCell=(field,time,label,isPulse=false,blocked=false,blockMsg='')=>`
-      <td style="min-width:130px;padding:5px 7px;white-space:nowrap">
-        <div style="display:flex;align-items:center;gap:4px">
-          <button class="stamp-btn ${time?"stamped":""} ${isPulse&&!time&&!blocked?"past-pulse active":""}"
-            style="flex:1;min-width:88px;font-size:11px${blocked?';opacity:.45;cursor:not-allowed':''}"
-            ${(field==='past_start_time'&&time)||blocked?"disabled":""}
-            title="${blocked?blockMsg:time?'กด Stamp ใหม่เพื่ออัปเดตเวลา':''}"
-            onclick="stampTime('${col}','${row.id}','${field}','${p}')">
-            ${blocked?'🔒 '+blockMsg:'⏱ '+(time||label)}
-          </button>
-          ${time?`<button style="flex-shrink:0;font-size:10px;padding:4px 6px;border-radius:5px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:var(--t2);cursor:pointer" onclick="editTimePrompt('${col}','${row.id}','${field}','${time}')">✏️</button><button style="flex-shrink:0;font-size:10px;padding:4px 6px;border-radius:5px;border:1px dashed rgba(240,79,94,.3);background:rgba(240,79,94,.05);color:var(--red);cursor:pointer" onclick="deleteTimePrompt('${col}','${row.id}','${field}')">✕</button>`:""}
-        </div>
-      </td>`;
-
-    const tr=document.createElement("tr");
-    if(isPast)       tr.classList.add("row-past");
-    else if(isDone)  tr.classList.add("row-done");
-    else if(row.status==="pasteurising") tr.classList.add("row-wait");
-
-    tr.innerHTML=`
-      <td><span class="cr">${i+1}</span></td>
-      <td><span style="font-family:var(--mono);font-weight:700">${row.mix_code||"—"}</span></td>
-      <td style="text-align:center"><span style="font-family:var(--mono);font-size:14px;font-weight:800;color:var(--cyan)">${row.process_order||'—'}</span></td>
-      <td><span style="font-family:var(--mono);font-weight:700;color:var(--blue2)">${row.mix_name||"—"}</span></td>
-      <td><span class="cr">${row.batch_no||"—"}</span></td>
-      <td><span style="font-family:var(--mono)">${row.volume_liter||"—"}</span></td>
-
-      <td>
-        <span style="font-family:var(--mono);font-size:12px;font-weight:700;padding:3px 10px;border-radius:6px;background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.2);white-space:nowrap">${row.mixing_tank||"—"}</span>
-      </td>
-      ${(row.status==='pasteurising'||row.past_start_time)
-        ? stampCell("past_start_time",row.past_start_time,"Stamp เริ่ม",!row.past_start_time,!canStampStart&&!row.past_start_time,blockReason)
-        : `<td><span style="font-family:var(--mono);font-size:10px;color:var(--t3);padding:5px 8px">⏳ รอ Mixing</span></td>`}
-      <td><span style="font-family:var(--mono);font-size:12px;color:var(--cyan)">${estFinish}</span></td>
-      ${(row.status==='pasteurising'&&row.past_start_time)||row.past_end_time
-        ? stampCell("past_end_time",row.past_end_time,"Stamp เสร็จ",false,false,'')
-        : `<td><span style="font-family:var(--mono);font-size:10px;color:var(--t3)">—</span></td>`}
-      <td id="eff-rt-${row.id}">${effHTML}</td>
-      <!-- ปุ่มส่งข้อมูล -->
-      <td style="padding:4px 6px;min-width:100px">
-        ${!row.past_end_time
-          ? '<span style="font-family:var(--mono);font-size:10px;color:var(--t3)">รอ Stamp</span>'
-          : (()=>{
-              const prod2=productMap[row.mix_code]||{};
-              const spd2=+(prod2.speed_m1||prod2.speed||1000);
-              const den2=+(prod2.density||1.1);
-              const vol2=+(row.volume_liter||0);
-              const req2=vol2>0&&spd2>0?Math.round(vol2*den2*60/spd2):0;
-              const[sh2,sm2]=(row.past_start_time||'00:00').split(':').map(Number);
-              const[eh2,em2]=row.past_end_time.split(':').map(Number);
-              let act2=(eh2*60+em2)-(sh2*60+sm2);
-              if(act2<0)act2+=1440;
-              const eff2=act2>0?(req2/act2)*100:0;
-              if(eff2>100){
-                return `<div style="display:flex;flex-direction:column;gap:4px">
-                  <button disabled style="width:100%;padding:5px 8px;border-radius:8px;font-family:var(--mono);font-size:11px;font-weight:700;border:1px solid rgba(240,79,94,.3);background:rgba(240,79,94,.08);color:#ef4444;cursor:not-allowed">🔒 ส่งไม่ได้ (${eff2.toFixed(1)}%)</button>
-                  <button onclick="editTimePrompt('${col}','${row.id}','past_end_time','${row.past_end_time}','${row.date||""}')" style="width:100%;padding:5px 8px;border-radius:8px;font-family:var(--mono);font-size:11px;font-weight:700;border:1px solid rgba(234,179,8,.4);background:rgba(234,179,8,.08);color:#fde047;cursor:pointer">✏️ แก้เวลาเสร็จ</button>
-                </div>`;
-              }
-              const warn=eff2<97;
-              return `<button onclick="submitPast('${col}','${row.id}','${p}',${eff2.toFixed(1)},${warn})" style="width:100%;padding:6px 8px;border-radius:8px;font-family:var(--mono);font-size:12px;font-weight:700;border:1px solid ${warn?'rgba(234,179,8,.4)':'rgba(34,197,94,.4)'};background:${warn?'rgba(234,179,8,.08)':'rgba(34,197,94,.08)'};color:${warn?'#fde047':'#4ade80'};cursor:pointer">${warn?'⚠️':'✅'} ส่งข้อมูล<br><span style="font-size:10px">(Eff ${eff2.toFixed(1)}%)</span></button>`;
-            })()
-        }
-      </td>
-      <td style="padding:5px 6px">
-        <div style="display:flex;align-items:center;gap:4px">
-          <input class="ci" style="width:58px;text-align:right;background:var(--s2);border-color:var(--b1);color:var(--text)" type="number" step="0.1" value="${row.glc_actual||""}" placeholder="0" onchange="_up('${col}','${row.id}','glc_actual',+this.value)">
-          <input type="checkbox" title="แจ้งใช้เสร็จ" style="width:16px;height:16px;accent-color:var(--green);cursor:pointer;flex-shrink:0" ${row.glc_confirmed?"checked":""} onchange="_up('${col}','${row.id}','glc_confirmed',this.checked)">
-        </div>
-      </td>
-      <td style="padding:5px 6px">
-        <div style="display:flex;align-items:center;gap:4px">
-          <input class="ci" style="width:58px;text-align:right;background:var(--s2);border-color:var(--b1);color:var(--text)" type="number" step="0.1" value="${row.sgr_actual||""}" placeholder="0" onchange="_up('${col}','${row.id}','sgr_actual',+this.value)">
-          <input type="checkbox" title="แจ้งใช้เสร็จ" style="width:16px;height:16px;accent-color:var(--cyan);cursor:pointer;flex-shrink:0" ${row.sgr_confirmed?"checked":""} onchange="_up('${col}','${row.id}','sgr_confirmed',this.checked)">
-        </div>
-      </td>
-      <td style="padding:5px 6px">
-        <div style="display:flex;align-items:center;gap:4px">
-          <input class="ci" style="width:58px;text-align:right;background:var(--s2);border-color:var(--b1);color:var(--text)" type="number" step="0.1" value="${row.plm_actual||""}" placeholder="0" onchange="_up('${col}','${row.id}','plm_actual',+this.value)">
-          <input type="checkbox" title="แจ้งใช้เสร็จ" style="width:16px;height:16px;accent-color:var(--orange);cursor:pointer;flex-shrink:0" ${row.plm_confirmed?"checked":""} onchange="_up('${col}','${row.id}','plm_confirmed',this.checked)">
-        </div>
-      </td>
-      <td style="padding:4px 6px">
-        ${(()=>{
-          // ดึง aging_tanks จาก LINE ที่เลือก
-          const lineName=row.filling_line||'';
-          const lineData=lineMap[lineName];
-          const tanks=lineData?.aging_tanks||[];
-          if(!tanks.length){
-            return `<input class="ci" style="width:80px;font-family:var(--mono);font-size:11px;padding:4px 7px"
-              value="${row.aging_tank||''}" placeholder="T-01"
-              onchange="_up('${col}','${row.id}','aging_tank',this.value)">`;
-          }
-          return `<select class="ci" style="width:90px;font-family:var(--mono);font-size:11px;padding:4px 6px"
-            onchange="_up('${col}','${row.id}','aging_tank',this.value)">
-            <option value="">— เลือก —</option>
-            ${tanks.map(t=>`<option value="${t}" ${row.aging_tank===t?'selected':''}>${t}</option>`).join('')}
-          </select>`;
-        })()}
-      </td>
-      <td style="padding:4px 6px">
-        <div style="display:flex;align-items:center;gap:2px">
-          <span style="font-family:var(--mono);font-size:12px;font-weight:700;color:#a855f7;background:rgba(168,85,247,.1);padding:3px 6px;border-radius:4px 0 0 4px;white-space:nowrap;border:1px solid rgba(168,85,247,.3);letter-spacing:.1em">${getProdPrefix(p)}</span>
-          <input class="ci" style="width:54px;letter-spacing:.1em;font-family:var(--mono);font-size:12px;text-transform:uppercase;border-radius:0 4px 4px 0;border-left:none;padding:3px 6px" maxlength="4" value="${row.prod_suffix||''}" placeholder="0001" onchange="_up('${col}','${row.id}','prod_suffix',this.value.toUpperCase())">
-        </div>
-      </td>
-      <td style="text-align:center;min-width:60px">
-        ${row.past_sig
-          ? `<img src="${row.past_sig}" style="height:30px;vertical-align:middle;opacity:.95" title="${row.past_by||''}">`
-          : `<button class="sig-btn" onclick="stampSig('${col}','${row.id}','past_sig','${p}')" title="เซ็นชื่อ">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>
-              </svg>
-            </button>`}
-      </td>
-      <td>${statText}</td>`;
-    tbody.appendChild(tr);
-  });
-
-  const safeSet=(id,val)=>{const el=document.getElementById(id);if(el)el.textContent=val;};
-  safeSet(`${p}-total`,rows[p].length);
-  safeSet(`${p}-bat-all`,rows[p].length);
-  safeSet(`${p}-wait`,rows[p].filter(r=>r.status==="pasteurising"&&!r.past_start_time).length);
-  safeSet(`${p}-running`,rows[p].filter(r=>r.status==="pasteurising"&&!!r.past_start_time).length);
-  safeSet(`${p}-done`,rows[p].filter(r=>r.status==="past_done"||r.status==="ready").length);
-
-  // ── Volume by Shift (pro-rata) ────────────────────────────────────────
-  const SHIFTS=[
-    {key:'morning',   s:6*60,  e:14*60},
-    {key:'afternoon', s:14*60, e:22*60},
-    {key:'night',     s:22*60, e:30*60}, // 30*60 = 06:00 วันถัดไป
-  ];
-  const toMin=t=>{if(!t)return null;const[h,m]=t.split(':').map(Number);return h*60+m;};
-  const fmtKg=v=>v>0?Math.round(v).toLocaleString()+' kg':'0 kg';
-  const vol={morning:0,afternoon:0,night:0};
-
-  rows[p].forEach(r=>{
-    if(r.status!=='pasteurising'&&r.status!=='past_done'&&r.status!=='ready')return;
-    if(!r.past_start_time)return;
-    const prod=productMap[r.mix_code]||{};
-    const volKg=+(r.volume_liter||0)*(+(prod.density||1));
-    if(volKg<=0)return;
-
-    let s=toMin(r.past_start_time);
-    let e=r.past_end_time?toMin(r.past_end_time):(new Date().getHours()*60+new Date().getMinutes());
-
-    // กะดึกเริ่มก่อนเที่ยงคืน (00:00-06:00) ให้บวก 1440
-    if(s<6*60) s+=1440;
-    if(e<=s)   e+=1440;
-
-    const total=e-s;
-    if(total<=0)return;
-
-    SHIFTS.forEach(({key,s:sS,e:sE})=>{
-      const ov=Math.max(0,Math.min(e,sE)-Math.max(s,sS));
-      if(ov>0) vol[key]+=volKg*(ov/total);
-    });
-  });
-
-  const totVol=vol.morning+vol.afternoon+vol.night;
-  ['morning','afternoon','night'].forEach(sh=>{
-    const el=$(`${p}-vol-${sh}`);
-    if(el)el.textContent=fmtKg(vol[sh]);
-  });
-  const vt=$(`${p}-vol-total`);
-  if(vt)vt.textContent=fmtKg(totVol);
-
-  // ถ้าเกิน 10 แถว ให้ archive อัตโนมัติ
-  if(rows[p].length>10) checkAndArchive(p);
+const col=planCol(p);
+const tbody=$(`tbody-${p}`);
+if(!tbody)return;
+tbody.innerHTML="";
+renderTankVisual(p,rows[p]);
+rows[p].forEach((row,i)=>{
+const isWait     = row.status==="pasteurising"&&!row.past_start_time;
+const isPast     = row.status==="pasteurising"&&!!row.past_start_time;
+const isDone     = row.status==="past_done"||row.status==="ready";
+const statStyle='';
+const statText=statusBadge(resolveStatus(row));
+const prod=productMap[row.mix_code]||{};
+const speed=p==="p1"?+(prod.speed_m1||prod.speed||1000):+(prod.speed_m2||prod.speed||1000);
+const density=+(prod.density||1);
+const vol=+(row.volume_liter||0);
+const reqMin=vol>0&&speed>0?Math.round(vol*density*60/speed):0;
+function addMin(t,m){if(!t||!m)return"—";const _p=t.split(":").map(Number);const totSec=(_p[0]||0)*3600+(_p[1]||0)*60+(_p[2]||0)+m*60;const th=Math.floor(totSec/3600)%24;const tmn=Math.floor((totSec%3600)/60);const ts=Math.round(totSec%60);return String(th).padStart(2,"0")+":"+String(tmn).padStart(2,"0")+":"+String(ts).padStart(2,"0");}
+const estFinish=row.past_start_time?addMin(row.past_start_time,reqMin):"—";
+let effHTML="—";
+if(row.past_start_time&&reqMin>0){
+const[sh,sm]=row.past_start_time.split(":").map(Number);
+const endTime=row.past_end_time||nowHHMM();
+const[eh,em]=endTime.split(":").map(Number);
+let actualMin=(eh*60+em)-(sh*60+sm);
+if(actualMin<0)actualMin+=1440;
+const eff=actualMin>0?(reqMin/actualMin*100):0;
+const effColor=eff>=97&&eff<=100?"#22c55e":eff>100?"#f97316":"#ef4444";
+const effLabel=eff>=97&&eff<=100?"✅":eff>100?"⚠️":"❌";
+effHTML=`<span style="font-family:var(--mono);font-size:12px;font-weight:700;color:${effColor}">${effLabel} ${eff.toFixed(1)}%</span>`;
 }
-
-
-// ── PROD CODE PREFIX ──────────────────────────────────────────────────
-function getProdPrefix(p){
-  const yr = new Date().getFullYear().toString().slice(-1); // เลขท้ายปี
-  const unit = p==="p1"?"1":"2"; // P1=1, P2=2
-  return yr + "0522" + unit; // เช่น 605221
+const needGlc=(+row.glc_actual||0)>0&&!row.glc_confirmed;
+const needSgr=(+row.sgr_actual||0)>0&&!row.sgr_confirmed;
+const needPlm=(+row.plm_actual||0)>0&&!row.plm_confirmed;
+const needTank=!row.aging_tank;
+const canStampStart=!needGlc&&!needSgr&&!needPlm&&!needTank;
+const blockReason=needTank?'เลือก Aging Tank ก่อน':needGlc?'ติ๊ก Glc ก่อน':needSgr?'ติ๊ก Sgr ก่อน':needPlm?'ติ๊ก Plm ก่อน':'';
+const stampCell=(field,time,label,isPulse=false,blocked=false,blockMsg='')=>`
+<td style="min-width:130px;padding:5px 7px;white-space:nowrap">
+<div style="display:flex;align-items:center;gap:4px">
+<button class="stamp-btn ${time?"stamped":""} ${isPulse&&!time&&!blocked?"past-pulse active":""}"
+style="flex:1;min-width:88px;font-size:11px${blocked?';opacity:.45;cursor:not-allowed':''}"
+${(field==='past_start_time'&&time)||blocked?"disabled":""}
+title="${blocked?blockMsg:time?'กด Stamp ใหม่เพื่ออัปเดตเวลา':''}"
+onclick="stampTime('${col}','${row.id}','${field}','${p}')">
+${blocked?'🔒 '+blockMsg:'⏱ '+(time||label)}
+</button>
+${time?`<button style="flex-shrink:0;font-size:10px;padding:4px 6px;border-radius:5px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:var(--t2);cursor:pointer" onclick="editTimePrompt('${col}','${row.id}','${field}','${time}')">✏️</button><button style="flex-shrink:0;font-size:10px;padding:4px 6px;border-radius:5px;border:1px dashed rgba(240,79,94,.3);background:rgba(240,79,94,.05);color:var(--red);cursor:pointer" onclick="deleteTimePrompt('${col}','${row.id}','${field}')">✕</button>`:""}
+</div>
+</td>`;
+const tr=document.createElement("tr");
+if(isPast)       tr.classList.add("row-past");
+else if(isDone)  tr.classList.add("row-done");
+else if(row.status==="pasteurising") tr.classList.add("row-wait");
+tr.innerHTML=`
+<td><span class="cr">${i+1}</span></td>
+<td><span style="font-family:var(--mono);font-weight:700">${row.mix_code||"—"}</span></td>
+<td style="text-align:center"><span style="font-family:var(--mono);font-size:14px;font-weight:800;color:var(--cyan)">${row.process_order||'—'}</span></td>
+<td><span style="font-family:var(--mono);font-weight:700;color:var(--blue2)">${row.mix_name||"—"}</span></td>
+<td><span class="cr">${row.batch_no||"—"}</span></td>
+<td><span style="font-family:var(--mono)">${row.volume_liter||"—"}</span></td>
+<td>
+<span style="font-family:var(--mono);font-size:12px;font-weight:700;padding:3px 10px;border-radius:6px;background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.2);white-space:nowrap">${row.mixing_tank||"—"}</span>
+</td>
+${(row.status==='pasteurising'||row.past_start_time)
+? stampCell("past_start_time",row.past_start_time,"Stamp เริ่ม",!row.past_start_time,!canStampStart&&!row.past_start_time,blockReason)
+: `<td><span style="font-family:var(--mono);font-size:10px;color:var(--t3);padding:5px 8px">⏳ รอ Mixing</span></td>`}
+<td><span style="font-family:var(--mono);font-size:12px;color:var(--cyan)">${estFinish}</span></td>
+${(row.status==='pasteurising'&&row.past_start_time)||row.past_end_time
+? stampCell("past_end_time",row.past_end_time,"Stamp เสร็จ",false,false,'')
+: `<td><span style="font-family:var(--mono);font-size:10px;color:var(--t3)">—</span></td>`}
+<td id="eff-rt-${row.id}">${effHTML}</td>
+<!-- ปุ่มส่งข้อมูล -->
+<td style="padding:4px 6px;min-width:100px">
+${!row.past_end_time
+? '<span style="font-family:var(--mono);font-size:10px;color:var(--t3)">รอ Stamp</span>'
+: (()=>{
+const prod2=productMap[row.mix_code]||{};
+const spd2=+(prod2.speed_m1||prod2.speed||1000);
+const den2=+(prod2.density||1.1);
+const vol2=+(row.volume_liter||0);
+const req2=vol2>0&&spd2>0?Math.round(vol2*den2*60/spd2):0;
+const[sh2,sm2]=(row.past_start_time||'00:00').split(':').map(Number);
+const[eh2,em2]=row.past_end_time.split(':').map(Number);
+let act2=(eh2*60+em2)-(sh2*60+sm2);
+if(act2<0)act2+=1440;
+const eff2=act2>0?(req2/act2)*100:0;
+if(eff2>100){
+return `<div style="display:flex;flex-direction:column;gap:4px">
+<button disabled style="width:100%;padding:5px 8px;border-radius:8px;font-family:var(--mono);font-size:11px;font-weight:700;border:1px solid rgba(240,79,94,.3);background:rgba(240,79,94,.08);color:#ef4444;cursor:not-allowed">🔒 ส่งไม่ได้ (${eff2.toFixed(1)}%)</button>
+<button onclick="editTimePrompt('${col}','${row.id}','past_end_time','${row.past_end_time}','${row.date||""}')" style="width:100%;padding:5px 8px;border-radius:8px;font-family:var(--mono);font-size:11px;font-weight:700;border:1px solid rgba(234,179,8,.4);background:rgba(234,179,8,.08);color:#fde047;cursor:pointer">✏️ แก้เวลาเสร็จ</button>
+</div>`;
 }
-
-// ── CHART ─────────────────────────────────────────────────────────────
+const warn=eff2<97;
+return `<button onclick="submitPast('${col}','${row.id}','${p}',${eff2.toFixed(1)},${warn})" style="width:100%;padding:6px 8px;border-radius:8px;font-family:var(--mono);font-size:12px;font-weight:700;border:1px solid ${warn?'rgba(234,179,8,.4)':'rgba(34,197,94,.4)'};background:${warn?'rgba(234,179,8,.08)':'rgba(34,197,94,.08)'};color:${warn?'#fde047':'#4ade80'};cursor:pointer">${warn?'⚠️':'✅'} ส่งข้อมูล<br><span style="font-size:10px">(Eff ${eff2.toFixed(1)}%)</span></button>`;
+})()
+}
+</td>
+<td style="padding:5px 6px">
+<div style="display:flex;align-items:center;gap:4px">
+<input class="ci" style="width:58px;text-align:right;background:var(--s2);border-color:var(--b1);color:var(--text)" type="number" step="0.1" value="${row.glc_actual||""}" placeholder="0" onchange="_up('${col}','${row.id}','glc_actual',+this.value)">
+<input type="checkbox" title="แจ้งใช้เสร็จ" style="width:16px;height:16px;accent-color:var(--green);cursor:pointer;flex-shrink:0" ${row.glc_confirmed?"checked":""} onchange="_up('${col}','${row.id}','glc_confirmed',this.checked)">
+</div>
+</td>
+<td style="padding:5px 6px">
+<div style="display:flex;align-items:center;gap:4px">
+<input class="ci" style="width:58px;text-align:right;background:var(--s2);border-color:var(--b1);color:var(--text)" type="number" step="0.1" value="${row.sgr_actual||""}" placeholder="0" onchange="_up('${col}','${row.id}','sgr_actual',+this.value)">
+<input type="checkbox" title="แจ้งใช้เสร็จ" style="width:16px;height:16px;accent-color:var(--cyan);cursor:pointer;flex-shrink:0" ${row.sgr_confirmed?"checked":""} onchange="_up('${col}','${row.id}','sgr_confirmed',this.checked)">
+</div>
+</td>
+<td style="padding:5px 6px">
+<div style="display:flex;align-items:center;gap:4px">
+<input class="ci" style="width:58px;text-align:right;background:var(--s2);border-color:var(--b1);color:var(--text)" type="number" step="0.1" value="${row.plm_actual||""}" placeholder="0" onchange="_up('${col}','${row.id}','plm_actual',+this.value)">
+<input type="checkbox" title="แจ้งใช้เสร็จ" style="width:16px;height:16px;accent-color:var(--orange);cursor:pointer;flex-shrink:0" ${row.plm_confirmed?"checked":""} onchange="_up('${col}','${row.id}','plm_confirmed',this.checked)">
+</div>
+</td>
+<td style="padding:4px 6px">
+${(()=>{
+const lineName=row.filling_line||'';
+const lineData=lineMap[lineName];
+const tanks=lineData?.aging_tanks||[];
+if(!tanks.length){
+return `<input class="ci" style="width:80px;font-family:var(--mono);font-size:11px;padding:4px 7px"
+value="${row.aging_tank||''}" placeholder="T-01"
+onchange="_up('${col}','${row.id}','aging_tank',this.value)">`;
+}
+return `<select class="ci" style="width:90px;font-family:var(--mono);font-size:11px;padding:4px 6px"
+onchange="_up('${col}','${row.id}','aging_tank',this.value)">
+<option value="">— เลือก —</option>
+${tanks.map(t=>`<option value="${t}" ${row.aging_tank===t?'selected':''}>${t}</option>`).join('')}
+</select>`;
+})()}
+</td>
+<td style="padding:4px 6px">
+<div style="display:flex;align-items:center;gap:2px">
+<span style="font-family:var(--mono);font-size:12px;font-weight:700;color:#a855f7;background:rgba(168,85,247,.1);padding:3px 6px;border-radius:4px 0 0 4px;white-space:nowrap;border:1px solid rgba(168,85,247,.3);letter-spacing:.1em">${getProdPrefix(p)}</span>
+<input class="ci" style="width:54px;letter-spacing:.1em;font-family:var(--mono);font-size:12px;text-transform:uppercase;border-radius:0 4px 4px 0;border-left:none;padding:3px 6px" maxlength="4" value="${row.prod_suffix||''}" placeholder="0001" onchange="_up('${col}','${row.id}','prod_suffix',this.value.toUpperCase())">
+</div>
+</td>
+<td style="text-align:center;min-width:60px">
+${row.past_sig
+? `<img src="${row.past_sig}" style="height:30px;vertical-align:middle;opacity:.95" title="${row.past_by||''}">`
+: `<button class="sig-btn" onclick="stampSig('${col}','${row.id}','past_sig','${p}')" title="เซ็นชื่อ">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+<path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>
+</svg>
+</button>`}
+</td>
+<td>${statText}</td>`;
+tbody.appendChild(tr);
+});
+const safeSet=(id,val)=>{const el=document.getElementById(id);if(el)el.textContent=val;};
+safeSet(`${p}-total`,rows[p].length);
+safeSet(`${p}-bat-all`,rows[p].length);
+safeSet(`${p}-wait`,rows[p].filter(r=>r.status==="pasteurising"&&!r.past_start_time).length);
+safeSet(`${p}-running`,rows[p].filter(r=>r.status==="pasteurising"&&!!r.past_start_time).length);
+safeSet(`${p}-done`,rows[p].filter(r=>r.status==="past_done"||r.status==="ready").length);
 const SHIFTS=[
-  {label:"กะเช้า", color:"rgba(59,130,246,.8)",  start:6*60,  end:14*60},
-  {label:"กะบ่าย",color:"rgba(249,115,22,.8)",  start:14*60, end:22*60},
-  {label:"กะดึก", color:"rgba(168,85,247,.8)",  start:22*60, end:30*60},
+{key:'morning',   s:6*60,  e:14*60},
+{key:'afternoon', s:14*60, e:22*60},
+{key:'night',     s:22*60, e:30*60},
 ];
-
+const toMin=t=>{if(!t)return null;const[h,m]=t.split(':').map(Number);return h*60+m;};
+const fmtKg=v=>v>0?Math.round(v).toLocaleString()+' kg':'0 kg';
+const vol={morning:0,afternoon:0,night:0};
+rows[p].forEach(r=>{
+if(r.status!=='pasteurising'&&r.status!=='past_done'&&r.status!=='ready')return;
+if(!r.past_start_time)return;
+const prod=productMap[r.mix_code]||{};
+const volKg=+(r.volume_liter||0)*(+(prod.density||1));
+if(volKg<=0)return;
+let s=toMin(r.past_start_time);
+let e=r.past_end_time?toMin(r.past_end_time):(new Date().getHours()*60+new Date().getMinutes());
+if(s<6*60) s+=1440;
+if(e<=s)   e+=1440;
+const total=e-s;
+if(total<=0)return;
+SHIFTS.forEach(({key,s:sS,e:sE})=>{
+const ov=Math.max(0,Math.min(e,sE)-Math.max(s,sS));
+if(ov>0) vol[key]+=volKg*(ov/total);
+});
+});
+const totVol=vol.morning+vol.afternoon+vol.night;
+['morning','afternoon','night'].forEach(sh=>{
+const el=$(`${p}-vol-${sh}`);
+if(el)el.textContent=fmtKg(vol[sh]);
+});
+const vt=$(`${p}-vol-total`);
+if(vt)vt.textContent=fmtKg(totVol);
+if(rows[p].length>10) checkAndArchive(p);
+}
+function getProdPrefix(p){
+const yr = new Date().getFullYear().toString().slice(-1);
+const unit = p==="p1"?"1":"2";
+return yr + "0522" + unit;
+}
+const SHIFTS=[
+{label:"กะเช้า", color:"rgba(59,130,246,.8)",  start:6*60,  end:14*60},
+{label:"กะบ่าย",color:"rgba(249,115,22,.8)",  start:14*60, end:22*60},
+{label:"กะดึก", color:"rgba(168,85,247,.8)",  start:22*60, end:30*60},
+];
 function toMin(t){if(!t)return null;const[h,m]=t.split(":").map(Number);return h*60+m;}
 function overlap(bS,bE,sS,sE){
-  if(bE<=bS)bE+=1440;
-  return Math.max(0,Math.min(bE,sE)-Math.max(bS,sS))
-       + Math.max(0,Math.min(bE+1440,sE)-Math.max(bS+1440,sS))
-       + Math.max(0,Math.min(bE,sE+1440)-Math.max(bS,sS+1440));
+if(bE<=bS)bE+=1440;
+return Math.max(0,Math.min(bE,sE)-Math.max(bS,sS))
++ Math.max(0,Math.min(bE+1440,sE)-Math.max(bS+1440,sS))
++ Math.max(0,Math.min(bE,sE+1440)-Math.max(bS,sS+1440));
 }
-
 window.showPage=(type,p,btn)=>{
-  document.querySelectorAll('.page').forEach(el=>el.classList.remove('on'));
-  document.querySelectorAll('.nav-tab').forEach(el=>el.classList.remove('on'));
-  $(`page-${type}-${p}`).classList.add('on');
-  btn.classList.add('on');
-  if(type==="history")loadHistory();
+document.querySelectorAll('.page').forEach(el=>el.classList.remove('on'));
+document.querySelectorAll('.nav-tab').forEach(el=>el.classList.remove('on'));
+$(`page-${type}-${p}`).classList.add('on');
+btn.classList.add('on');
+if(type==="history")loadHistory();
 };
-
-// ── HISTORY ────────────────────────────────────────────────────────────
 async function loadHistory(){
-  const el=$('history-tbody');
-  if(!el)return;
-  el.innerHTML=`<tr><td colspan="10" style="text-align:center;padding:20px;color:var(--t3)">⏳ กำลังโหลด...</td></tr>`;
-  try{
-    const {getDocs,query,collection,orderBy,limit}=await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
-    const q=query(collection(db,"past_history"),orderBy("archived_date","desc"),orderBy("archived_at","desc"),limit(200));
-    const snap=await getDocs(q);
-    if(snap.empty){el.innerHTML=`<tr><td colspan="10" style="text-align:center;padding:20px;color:var(--t3)">ไม่มีข้อมูล</td></tr>`;return;}
-    el.innerHTML=snap.docs.map(d=>{
-      const r=d.data();
-      const eff=r.eff||0;
-      const effColor=eff>=97&&eff<=100?"#22c55e":eff>100?"#f97316":eff>0?"#ef4444":"var(--t3)";
-      const effLabel=eff>=97&&eff<=100?"✅":eff>100?"⚠️":eff>0?"❌":"—";
-      return`<tr>
-        <td style="font-family:var(--mono);font-size:11px;color:var(--t2)">${r.archived_date||'—'}</td>
-        <td style="font-family:var(--mono);font-size:11px;color:var(--t2)">${r.archived_at||'—'}</td>
-        <td style="font-family:var(--mono);font-weight:700">${r.mix_code||'—'}</td>
-        <td style="font-family:var(--mono);color:var(--cyan)">${r.process_order||'—'}</td>
-        <td>${r.mix_name||'—'}</td>
-        <td style="font-family:var(--mono)">${r.volume_liter||'—'}</td>
-        <td style="font-family:var(--mono);color:var(--t2)">${r.past_start_time||'—'} → ${r.past_end_time||'—'}</td>
-        <td style="font-family:var(--mono);color:#a78bfa">${r.aging_tank||'—'}</td>
-        <td style="font-family:var(--mono);font-size:11px;color:var(--t3)">${r.mixing_unit?.toUpperCase()||'—'}</td>
-        <td style="font-family:var(--mono);font-weight:700;color:${effColor}">${effLabel} ${eff?eff+'%':'—'}</td>
-      </tr>`;
-    }).join('');
-  }catch(e){
-    el.innerHTML=`<tr><td colspan="10" style="text-align:center;padding:20px;color:var(--red)">โหลดไม่ได้: ${e.message}</td></tr>`;
-  }
+const el=$('history-tbody');
+if(!el)return;
+el.innerHTML=`<tr><td colspan="10" style="text-align:center;padding:20px;color:var(--t3)">⏳ กำลังโหลด...</td></tr>`;
+try{
+const {getDocs,query,collection,orderBy,limit}=await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+const q=query(collection(db,"past_history"),orderBy("archived_date","desc"),orderBy("archived_at","desc"),limit(200));
+const snap=await getDocs(q);
+if(snap.empty){el.innerHTML=`<tr><td colspan="10" style="text-align:center;padding:20px;color:var(--t3)">ไม่มีข้อมูล</td></tr>`;return;}
+el.innerHTML=snap.docs.map(d=>{
+const r=d.data();
+const eff=r.eff||0;
+const effColor=eff>=97&&eff<=100?"#22c55e":eff>100?"#f97316":eff>0?"#ef4444":"var(--t3)";
+const effLabel=eff>=97&&eff<=100?"✅":eff>100?"⚠️":eff>0?"❌":"—";
+return`<tr>
+<td style="font-family:var(--mono);font-size:11px;color:var(--t2)">${r.archived_date||'—'}</td>
+<td style="font-family:var(--mono);font-size:11px;color:var(--t2)">${r.archived_at||'—'}</td>
+<td style="font-family:var(--mono);font-weight:700">${r.mix_code||'—'}</td>
+<td style="font-family:var(--mono);color:var(--cyan)">${r.process_order||'—'}</td>
+<td>${r.mix_name||'—'}</td>
+<td style="font-family:var(--mono)">${r.volume_liter||'—'}</td>
+<td style="font-family:var(--mono);color:var(--t2)">${r.past_start_time||'—'} → ${r.past_end_time||'—'}</td>
+<td style="font-family:var(--mono);color:#a78bfa">${r.aging_tank||'—'}</td>
+<td style="font-family:var(--mono);font-size:11px;color:var(--t3)">${r.mixing_unit?.toUpperCase()||'—'}</td>
+<td style="font-family:var(--mono);font-weight:700;color:${effColor}">${effLabel} ${eff?eff+'%':'—'}</td>
+</tr>`;
+}).join('');
+}catch(e){
+el.innerHTML=`<tr><td colspan="10" style="text-align:center;padding:20px;color:var(--red)">โหลดไม่ได้: ${e.message}</td></tr>`;
 }
-</script>
+}</script>
 
 
 <!-- HISTORY PAGE -->
