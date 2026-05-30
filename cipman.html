@@ -1085,7 +1085,7 @@ function buildFlowDiagram(lineId,agingTank,col,isRunning){
   </svg>`;
 }
 
-window.swapQueue=async(lineId,idxA,idxB)=>{
+ndow.swapQueue=async(lineId,idxA,idxB)=>{
   const ln=lines.find(l=>l.id===lineId);
   const tanks=getTanksForLine(ln?.name||'');
   const rowA=tanks[idxA-1],rowB=tanks[idxB-1];
