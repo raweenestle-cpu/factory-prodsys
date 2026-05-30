@@ -348,6 +348,7 @@ const db=getFirestore(app);
 
 let ME=null,ROLE=null;
 let lines=[],lineStates={},productMap={},planRows=[],agingStates={};
+window._planRows=planRows;
 let cipSL='all';
 window.cipSel=(name,btn)=>{cipSL=name;document.querySelectorAll('#cip-lsb .lsel-btn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderAll();};
 let freezers=[],pipes=[],hwState={};
@@ -476,10 +477,12 @@ async function init(){
   unsubP1=onSnapshot(query(collection(db,'production_plans'),where('status','in',['pasteurising','past_done','ready'])),snap=>{
     const r=snap.docs.map(d=>({id:d.id,_col:'production_plans',...d.data()}));
     planRows=planRows.filter(x=>x._col!=='production_plans').concat(r);renderAll();
+window._planRows=planRows;
   });
   unsubP2=onSnapshot(query(collection(db,'production_plans_m2'),where('status','in',['pasteurising','past_done','ready'])),snap=>{
     const r=snap.docs.map(d=>({id:d.id,_col:'production_plans_m2',...d.data()}));
     planRows=planRows.filter(x=>x._col!=='production_plans_m2').concat(r);renderAll();
+window._planRows=planRows;
   });
 
   tickTimer=setInterval(tickCountdowns,1000);
