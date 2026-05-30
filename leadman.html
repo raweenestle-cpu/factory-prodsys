@@ -626,7 +626,7 @@ const SA = {pending:"none",mixing:"none",pasteurising:"blink 0.7s infinite",past
 
 function agingTankSelect(col,row){
   var cl=lines.find(function(l){return l.name===row.filling_line;});
-  var agTanks=cl&&cl.aging_tanks?cl.aging_tanks:[];
+  var agTanks=cl&&cl.aging_tanks?[...new Set(cl.aging_tanks)]:[];
   if(!agTanks.length) return '<span style="font-size:10px;color:#6b7280">—</span>';
   var stMap={empty:'⚫ ว่าง',cip:'🔵 CIP',cip_done:'🔵 CIP เสร็จ',san:'🟢 San.',san_done:'🟢 San.เสร็จ'};
   var opts='<option value="">— เลือกถัง —</option>';
