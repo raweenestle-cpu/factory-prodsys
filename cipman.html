@@ -595,41 +595,37 @@ function fpPanel(lineId,tank){
   const cipOk=st[`cip_${tank}`]||false;
   const fzO=freezers.map(f=>`<option value="${f}"${fp.fz===f?' selected':''}>${f}</option>`).join('');
   const ppO=pipes.map(p=>`<option value="${p}"${fp.pp===p?' selected':''}>${p}</option>`).join('');
-  return`<div style="background:rgba(6,182,212,.05);border:1px solid rgba(6,182,212,.2);border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:8px">
-    <!-- Freezer dropdown -->
+  const selStyle='width:100%;background:#fff;border:2px solid #b0bac8;border-radius:8px;color:#111827;font-family:var(--mono);font-size:13px;font-weight:700;padding:8px 10px;outline:none;cursor:pointer';
+  const lblStyle='font-family:var(--mono);font-size:11px;font-weight:800;color:#374151;margin-bottom:5px;text-transform:uppercase;letter-spacing:.06em';
+  return`<div style="background:var(--s1);border:1.5px solid var(--b1);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px">
     <div>
-      <div style="font-family:var(--mono);font-size:9px;color:var(--cyan);margin-bottom:4px">🧊 FREEZER</div>
-      <select style="width:100%;background:rgba(6,182,212,.08);border:1px solid rgba(6,182,212,.3);border-radius:7px;color:var(--cyan);font-family:var(--mono);font-size:12px;padding:6px 8px;outline:none;cursor:pointer"
-        onchange="setFP('${lineId}','${tank}','fz',this.value)">
+      <div style="${lblStyle}">🧊 Freezer</div>
+      <select style="${selStyle}" onchange="setFP('${lineId}','${tank}','fz',this.value)">
         <option value="">— เลือก —</option>${fzO}
       </select>
     </div>
-    <!-- ท่อ dropdown -->
     <div>
-      <div style="font-family:var(--mono);font-size:9px;color:var(--cyan);margin-bottom:4px">⚙️ ท่อ</div>
-      <select style="width:100%;background:rgba(6,182,212,.08);border:1px solid rgba(6,182,212,.3);border-radius:7px;color:var(--cyan);font-family:var(--mono);font-size:12px;padding:6px 8px;outline:none;cursor:pointer"
-        onchange="setFP('${lineId}','${tank}','pp',this.value)">
+      <div style="${lblStyle}">⚙️ ท่อ</div>
+      <select style="${selStyle}" onchange="setFP('${lineId}','${tank}','pp',this.value)">
         <option value="">— เลือก —</option>${ppO}
       </select>
     </div>
-    <!-- Flow Rate -->
     <div>
-      <div style="font-family:var(--mono);font-size:9px;color:var(--cyan);margin-bottom:4px">⚡ FLOW RATE (L/hr)</div>
+      <div style="${lblStyle}">⚡ Flow Rate (L/hr)</div>
       <input type="number" value="${st.flow_rate||300}" min="50" max="2000" step="10"
-        style="width:100%;background:rgba(6,182,212,.08);border:1px solid rgba(6,182,212,.3);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:12px;font-weight:700;padding:5px 8px;outline:none"
+        style="${selStyle}"
         onchange="setFP('${lineId}','${tank}','flow_rate',+this.value)">
     </div>
-    <!-- Checkbox น้ำร้อน + CIP -->
-    <div style="display:flex;flex-direction:column;gap:5px;padding-top:4px;border-top:1px solid rgba(6,182,212,.15)">
-      <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+    <div style="display:flex;flex-direction:column;gap:8px;padding-top:8px;border-top:1.5px solid var(--b1)">
+      <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:6px 8px;border-radius:8px;background:${hotOk?'rgba(21,128,61,.1)':'var(--s2)'}">
         <input type="checkbox" ${hotOk?'checked':''} onchange="setFP('${lineId}','${tank}','hot_${tank}',this.checked)"
-          style="width:14px;height:14px;accent-color:var(--green)">
-        <span style="font-family:var(--mono);font-size:11px;color:${hotOk?'var(--green)':'var(--t2)'}">⭐ เดินน้ำร้อนท่อแล้ว</span>
+          style="width:20px;height:20px;accent-color:#15803d;cursor:pointer;flex-shrink:0">
+        <span style="font-family:var(--mono);font-size:13px;font-weight:800;color:${hotOk?'#15803d':'#374151'}">🌡️ น้ำร้อน</span>
       </label>
-      <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+      <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:6px 8px;border-radius:8px;background:${cipOk?'rgba(21,128,61,.1)':'var(--s2)'}">
         <input type="checkbox" ${cipOk?'checked':''} onchange="setFP('${lineId}','${tank}','cip_${tank}',this.checked)"
-          style="width:14px;height:14px;accent-color:var(--green)">
-        <span style="font-family:var(--mono);font-size:11px;color:${cipOk?'var(--green)':'var(--t2)'}">⭐ CIP แล้ว</span>
+          style="width:20px;height:20px;accent-color:#15803d;cursor:pointer;flex-shrink:0">
+        <span style="font-family:var(--mono);font-size:13px;font-weight:800;color:${cipOk?'#15803d':'#374151'}">🧹 CIP แล้ว</span>
       </label>
     </div>
   </div>`;
