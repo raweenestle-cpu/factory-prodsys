@@ -71,9 +71,9 @@ main{position:relative;z-index:1;padding:10px 12px;}
 .lhead-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
 .lname{font-family:var(--mono);font-size:18px;font-weight:700;letter-spacing:.04em}
 .spill{font-family:var(--mono);font-size:10px;font-weight:600;padding:4px 12px;border-radius:99px;white-space:nowrap}
-.sp-run{background:#111827;color:#fff;border:1px solid #111827;animation:blink-st .8s step-end infinite}
-.sp-cur{background:#111827;color:#fff;border:1px solid #111827;animation:blink-st .8s step-end infinite}
-.sp-stp{background:#111827;color:#fff;border:1px solid #111827}
+.sp-run{background:rgba(31,209,122,.12);color:var(--green);border:1px solid rgba(31,209,122,.3)}
+.sp-cur{background:rgba(245,200,66,.12);color:var(--yellow);border:1px solid rgba(245,200,66,.3);animation:blink .9s infinite}
+.sp-stp{background:rgba(59,126,246,.1);color:var(--blue2);border:1px solid rgba(59,126,246,.2)}
 .sp-emp{background:var(--s3);color:var(--t3)}
 
 .lhead-info{display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap}
@@ -262,8 +262,6 @@ main{position:relative;z-index:1;padding:10px 12px;}
 .sig-btn{background:none;border:none;cursor:pointer;padding:4px 6px;border-radius:6px;transition:background .15s;display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#64748b;}
 .sig-btn:hover{background:rgba(99,102,241,.15);color:#818cf8;}
 .sig-preview{height:28px;vertical-align:middle;opacity:.95;}
-@keyframes blink-st{0%,100%{opacity:1}50%{opacity:.3}}
-.cq-tc input[type="checkbox"]{width:20px;height:20px;cursor:pointer;accent-color:var(--green)}
 </style>
 </head>
 <body>
@@ -523,94 +521,6 @@ function calcCuringEnd(pastEnd,agingHr){
   const[h,m]=pastEnd.split(':').map(Number);const tot=h*60+m+(+agingHr)*60;
   return String(Math.floor(tot/60)%24).padStart(2,'0')+':'+String(tot%60).padStart(2,'0');
 }
-
-// ── ADDED FUNCTIONS ────────────────────────────────────────────────
-
-function calcAgingCountdown(pastEnd,agingHr){
-  if(!pastEnd)return null;
-  const[h,m]=pastEnd.split(':').map(Number);
-  const base=new Date();base.setHours(h,m,0,0);
-  const endTs=base.getTime()+(agingHr||4)*3600000;
-  const rem=endTs-Date.now();
-  if(rem<=0)return'✅ บ่มเสร็จ';
-  const rh=Math.floor(rem/3600000),rm2=Math.floor((rem%3600000)/60000),rs=Math.floor((rem%60000)/1000);
-  return rh+'h '+String(rm2).padStart(2,'0')+'m '+String(rs).padStart(2,'0')+'s';
-}
-
-let _pendingCipAct=null;
-window._signSkip=function(){document.getElementById('sign-modal-overlay').style.display='none';if(_pendingCipAct){_pendingCipAct();_pendingCipAct=null;}};
-window._signConfirm=function(){document.getElementById('sign-modal-overlay').style.display='none';if(_pendingCipAct){_pendingCipAct();_pendingCipAct=null;}};
-function showSignModal(title,cb){document.getElementById('sign-modal-title').textContent=title;document.getElementById('sign-modal-overlay').style.display='flex';_pendingCipAct=cb;}
-
-window._editLineTime=async(lineId,field,val)=>{
-  if(!lineId||!val)return;
-  try{await setDoc(doc(db,'cip_line_states',lineId),{[field]:val,updated_at:new Date().toISOString()},{merge:true});toast('✅ แก้ไขเวลา '+field+' → '+val,'green');}catch(e){toast('Error: '+e.message,'red');}
-};
-
-window.swapQueue=async(lineId,idxA,idxB)=>{
-  const ln=lines.find(l=>l.id===lineId);
-  const tanks=getTanksForLine(ln?.name||'');
-  const rowA=tanks[idxA-1],rowB=tanks[idxB-1];
-  if(!rowA||!rowB){toast('ไม่พบถังที่จะสลับ','red');return;}
-  const seqA=+(rowA.queue_order||rowA.seq||idxA),seqB=+(rowB.queue_order||rowB.seq||idxB);
-  try{
-    await updateDoc(doc(db,rowA._col,rowA.id),{queue_order:seqB,updated_at:new Date().toISOString()});
-    await updateDoc(doc(db,rowB._col,rowB.id),{queue_order:seqA,updated_at:new Date().toISOString()});
-    toast('✅ สลับลำดับแล้ว','green');
-  }catch(e){toast('Error: '+e.message,'red');}
-};
-
-function buildFlowDiagram(lineId,agingTank,col,isRunning){
-  const lineObj=lines.find(l=>l.id===lineId)||{};
-  const curRow=(getTanksForLine(lineObj.name)||[])[0]||{};
-  const mixCode=curRow.mix_code||'';
-  const lineProd=(lineObj.products||[]).find(p=>(p.mix_codes||[]).some(m=>m.code===mixCode));
-  const fr=lineProd?.flow_rate||(lineStates[lineId]||{}).flow_rate||lineObj.flow_rate||300;
-  const fz=(lineStates[lineId]||{}).fz_A||'Freezer';
-  const ac=isRunning?col:'#94a3b8';
-  const bg=isRunning?col+'18':'rgba(176,186,200,.15)';
-  const anim='<animate attributeName="stroke-dashoffset" from="24" to="0" dur=".55s" repeatCount="indefinite"/>';
-  const TANK_CX=80;
-  const W=500,H=120,PIPY=55,PX=380,PY=PIPY;
-  const FMX=245,FMY=PIPY-30,FMW=95,FMH=58;
-  const FZX=105,FZY=8,FZW=75,FZH=85,FZCX=FZX+FZW/2;
-  const LOX=0,LOY=22,LOW=60,LOH=60;
-  function pipe(x1,y1,x2,y2){
-    return isRunning
-      ?'<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+ac+'" stroke-width="7" stroke-linecap="round" opacity=".2"/>'
-       +'<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+ac+'" stroke-width="3.5" stroke-dasharray="8,5" stroke-linecap="round">'+anim+'</line>'
-      :'<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="#b0bac8" stroke-width="5" stroke-linecap="round" opacity=".4"/>';
-  }
-  let s='<svg width="100%" height="'+H+'" viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" style="display:block">';
-  s+='<rect x="'+(TANK_CX-5)+'" y="0" width="10" height="14" rx="3" fill="'+ac+'" opacity="'+(isRunning?'.8':'.3')+'"/>';
-  s+='<circle cx="'+TANK_CX+'" cy="16" r="7" fill="white" stroke="'+ac+'" stroke-width="2"/>';
-  s+='<circle cx="'+TANK_CX+'" cy="16" r="3" fill="'+ac+'" opacity="'+(isRunning?'.7':'.3')+'"/>';
-  s+=pipe(TANK_CX,22,TANK_CX,PIPY);
-  s+='<circle cx="'+TANK_CX+'" cy="'+PIPY+'" r="6" fill="'+ac+'" opacity="'+(isRunning?'.5':'.2')+'"/>';
-  s+=pipe(TANK_CX,PIPY,PX-22,PIPY);
-  s+='<circle cx="'+PX+'" cy="'+PY+'" r="21" fill="white" stroke="'+ac+'" stroke-width="2.5"/>';
-  s+='<text x="'+PX+'" y="'+(PY+6)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="16" fill="'+ac+'" font-weight="900">⚙</text>';
-  s+='<text x="'+PX+'" y="'+(PY+34)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="'+ac+'">Pump</text>';
-  s+=pipe(PX-22,PIPY,FMX+FMW,PIPY);
-  s+='<rect x="'+FMX+'" y="'+FMY+'" width="'+FMW+'" height="'+FMH+'" rx="8" fill="'+bg+'" stroke="'+ac+'" stroke-width="2"/>';
-  s+='<text x="'+(FMX+FMW/2)+'" y="'+(FMY+14)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="'+ac+'" font-weight="900">⚡ FLOW METER</text>';
-  s+='<text x="'+(FMX+FMW/2)+'" y="'+(FMY+33)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="15" fill="'+ac+'" font-weight="900">'+fr.toLocaleString()+'</text>';
-  s+='<text x="'+(FMX+FMW/2)+'" y="'+(FMY+49)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="'+ac+'" opacity=".8">L/hr</text>';
-  s+=pipe(FMX,PIPY,FZCX,PIPY);
-  s+='<circle cx="'+FZCX+'" cy="'+PIPY+'" r="6" fill="'+ac+'" opacity="'+(isRunning?'.5':'.2')+'"/>';
-  s+=pipe(FZCX,PIPY,FZCX,FZY+FZH);
-  s+='<rect x="'+FZX+'" y="'+FZY+'" width="'+FZW+'" height="'+FZH+'" rx="8" fill="'+bg+'" stroke="'+ac+'" stroke-width="2"/>';
-  s+='<text x="'+FZCX+'" y="'+(FZY+22)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="17">🧊</text>';
-  s+='<text x="'+FZCX+'" y="'+(FZY+40)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="'+ac+'" font-weight="900">'+fz+'</text>';
-  s+='<text x="'+FZCX+'" y="'+(FZY+56)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="'+ac+'" opacity=".7">Freezer</text>';
-  s+=pipe(FZX,FZY+FZH/2,LOX+LOW,FZY+FZH/2);
-  s+='<rect x="'+LOX+'" y="'+LOY+'" width="'+LOW+'" height="'+LOH+'" rx="8" fill="'+bg+'" stroke="'+ac+'" stroke-width="2"/>';
-  s+='<text x="'+(LOX+LOW/2)+'" y="'+(LOY+22)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="16">🏭</text>';
-  s+='<text x="'+(LOX+LOW/2)+'" y="'+(LOY+38)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="'+ac+'" font-weight="900">'+(lineObj.name||'Line')+'</text>';
-  s+='</svg>';
-  return s;
-}
-
 function getCuringInfo(row,lineId){
   if(!row||!row.past_end_time)return{done:false,endTime:'—'};
   const p=productMap[row.mix_code];const agingHr=+(p?.aging_time||4);
@@ -896,27 +806,18 @@ function buildCard(line){
     const _capQ=getTankCapacity(row.aging_tank||'');
     const qPct=_capQ>0?(qRem/_capQ)*100:0;
     let stTxt='—',stC='var(--t2)';
-    const agHr=+(productMap[row.mix_code]?.aging_time||4);
-    const cdTxt=row.past_end_time?calcAgingCountdown(row.past_end_time,agHr):null;
     if(row.status==='pasteurising'&&!row.past_end_time){stTxt='♨️ Past.';stC='var(--orange)';}
     else if(row.status==='past_done'||row.status==='pasteurising'){stTxt='🌡️ บ่มอยู่';stC='var(--yellow)';}
-    if(row.past_end_time&&curingEnd!=='—'){stTxt=cdTxt||curingEnd;}
+    if(row.past_end_time&&curingEnd!=='—'){stTxt+=` → ${curingEnd}`;}
     const hotOk=(lineStates[line.id]||{})[`hot_q${idx}`]||false;
     const cipOk=(lineStates[line.id]||{})[`cip_q${idx}`]||false;
     const pctC=qPct>50?'#1fd17a':qPct>20?'#f5c842':'#f04f5e';
-    return`<div class="cq-tc" style="flex-shrink:0;min-width:150px;max-width:170px">
-  <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 8px 0">
-    <span style="font-family:var(--mono);font-size:10px;font-weight:900;color:var(--t3)">#${idx}</span>
-    <div style="display:flex;gap:4px">
-      ${idx>2?`<button onclick="swapQueue('${line.id}',${idx},${idx-1})" style="font-size:10px;padding:2px 6px;border-radius:5px;border:1px solid var(--b1);background:var(--s2);cursor:pointer">◀</button>`:''}
-      <button onclick="swapQueue('${line.id}',${idx},${idx+1})" style="font-size:10px;padding:2px 6px;border-radius:5px;border:1px solid var(--b1);background:var(--s2);cursor:pointer">▶</button>
-    </div>
-  </div>
+    return`<div class="cq-tc">
   <!-- body: ถัง + ข้อมูล+checkbox -->
   <div style="display:flex;gap:10px;padding:10px 12px;align-items:flex-start">
     <!-- ถัง + เลขถังบนหัว + status ใต้ถัง -->
     <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px">
-      <div style="font-family:var(--mono);font-size:13px;font-weight:900;color:#111827;background:rgba(176,186,200,.2);border:1px solid rgba(6,182,212,.3);border-radius:6px;padding:2px 10px">${row.aging_tank||'—'}</div>
+      <div style="font-family:var(--mono);font-size:13px;font-weight:800;color:var(--cyan);background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.3);border-radius:6px;padding:2px 10px">${row.aging_tank||'—'}</div>
       <div style="position:relative">
         ${tankSVGSm('Q'+line.id+idx,qPct,dot,true)}
         <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;width:90%">
@@ -951,14 +852,14 @@ function buildCard(line){
     <div style="padding:10px 14px;border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between;gap:8px">
       <div style="min-width:0;flex:1">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
-          <span style="font-family:var(--mono);font-size:16px;font-weight:900;color:#111827">${line.name.toUpperCase()}</span>
+          <span style="font-family:var(--mono);font-size:14px;font-weight:800;color:var(--orange)">${line.name.toUpperCase()}</span>
           <span class="spill ${pm[cardStatus]}" style="font-family:var(--mono);font-size:10px">${(()=>{
             const matched=(line.products||[]).find(p=>(p.mix_codes||[]).some(m=>m.code===current.mix_code));
             return matched?matched.name:pt[cardStatus];
           })()}</span>
         </div>
         <div style="font-family:var(--mono);font-size:13px;font-weight:700;color:${col};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
-          ${productMap[current.mix_code]?.name||current.mix_name||'—'} &nbsp;·&nbsp; Batch ${current.batch_no||'—'} &nbsp;·&nbsp; ${(+(current.volume_liter||0)).toLocaleString()} L
+          ${current.mix_name||'—'} &nbsp;·&nbsp; Batch ${current.batch_no||'—'} &nbsp;·&nbsp; ${(+(current.volume_liter||0)).toLocaleString()} L
         </div>
         <div style="font-family:var(--mono);font-size:12px;color:var(--purple);font-weight:700;margin-top:2px">รหัส: ${prodCodeLabel||prodCode}</div>
       </div>
@@ -971,11 +872,10 @@ function buildCard(line){
     <!-- BODY -->
     <div style="display:flex;align-items:stretch">
 
-      <!-- ซ้าย: ถัง + diagram -->
-      <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:flex-start;min-width:550px">
-      <!-- ถัง SVG -->
+      <!-- ซ้าย: ถัง SVG + Flow Diagram -->
+      <div style="flex-shrink:0;min-width:550px;display:flex;flex-direction:column">
       <div style="flex-shrink:0;width:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 8px;border-right:1px solid var(--b1);background:rgba(0,0,0,.15)">
-        <div style="font-family:var(--mono);font-size:13px;color:#111827;font-weight:900;margin-bottom:4px;text-align:center;background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.2);border-radius:6px;padding:2px 10px">${agingTank}</div>
+        <div style="font-family:var(--mono);font-size:12px;color:var(--cyan);font-weight:800;margin-bottom:4px;text-align:center;background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.2);border-radius:6px;padding:2px 10px">${agingTank}</div>
         <div style="position:relative;display:flex;justify-content:center;align-items:center">
           ${tankSVG('S'+line.id, pct, col, hasLiquid,
             current.status==='pasteurising'?'🔵 กำลัง Pasteurise':curing.done?'✅ บ่มเสร็จ':'🌡️ กำลังบ่ม',
@@ -989,23 +889,14 @@ function buildCard(line){
         </div>
       </div>
 
-      <div style="width:100%;padding-left:0">${buildFlowDiagram(line.id,agingTank,col,isRunning)}</div>
+      <div style="padding:0 0 4px">${buildFlowDiagram(line.id,agingTank,col,isRunning)}</div>
       </div>
       <!-- Controls — เรียงแนวตั้ง ไม่ล้น -->
       <div style="flex-shrink:0;width:200px;padding:12px;display:flex;flex-direction:column;gap:8px;border-right:1px solid var(--b1)">
 
         ${fpPanel(line.id,'A')}
 
-        <!-- time -->
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px">
-          <span style="font-family:var(--mono);font-size:10px;color:var(--t3);min-width:36px">Start</span>
-          <input type="time" value="${st.start_time||''}" style="font-family:var(--mono);font-size:11px;border:1px solid var(--b1);border-radius:5px;padding:2px 6px;flex:1" onchange="_editLineTime('${line.id}','start_time',this.value)">
-        </div>
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
-          <span style="font-family:var(--mono);font-size:10px;color:var(--t3);min-width:36px">Stop</span>
-          <input type="time" value="${st.stop_time||''}" style="font-family:var(--mono);font-size:11px;border:1px solid var(--b1);border-radius:5px;padding:2px 6px;flex:1" onchange="_editLineTime('${line.id}','stop_time',this.value)">
-        </div>
-        <!-- Start / Stop / Reset -->
+        <!-- Start / Stop / Reset — เต็มความกว้าง -->
         <button style="width:100%;padding:10px;border-radius:10px;font-family:var(--mono);font-size:13px;font-weight:700;border:none;cursor:pointer;background:${isRunning||!curing.done?'rgba(255,255,255,.05)':'rgba(31,209,122,.15)'};color:${isRunning||!curing.done?'var(--t3)':'var(--green)'};border:1px solid ${isRunning||!curing.done?'rgba(255,255,255,.08)':'rgba(31,209,122,.3)'}"
           ${isRunning||!curing.done?'disabled':''} onclick="startLine('${line.id}',${sv},${fr})">▶ Start</button>
         <button style="width:100%;padding:10px;border-radius:10px;font-family:var(--mono);font-size:13px;font-weight:700;border:none;cursor:pointer;background:${!isRunning?'rgba(255,255,255,.05)':'rgba(240,79,94,.15)'};color:${!isRunning?'var(--t3)':'var(--red)'};border:1px solid ${!isRunning?'rgba(255,255,255,.08)':'rgba(240,79,94,.3)'}"
@@ -1021,9 +912,9 @@ function buildCard(line){
       </div>
 
       <!-- Queue — card เหมือน Filling -->
-      <div style="flex:1;padding:10px 12px;overflow-y:hidden;border:1px solid rgba(6,182,212,.2);border-radius:12px;background:rgba(6,182,212,.03)">
+      <div style="flex:1;padding:10px 12px;overflow-y:auto;max-height:340px;border:1px solid rgba(6,182,212,.2);border-radius:12px;background:rgba(6,182,212,.03)">
         <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--cyan);letter-spacing:.1em;margin-bottom:8px">⏳ คิวรอผลิต</div>
-        <div style="display:flex;gap:10px;flex-wrap:nowrap;overflow-x:auto;align-items:flex-start;padding-bottom:4px">
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-content:flex-start">
           ${queue.length?queue.map((r,i)=>queueItem(r,i+2)).join('')
             :'<div style="font-family:var(--mono);font-size:12px;color:var(--t3);padding:20px;text-align:center">ไม่มีคิวถัดไป</div>'}
         </div>
@@ -1050,6 +941,70 @@ function renderAll(){
   render(bangchan,'grid-bangchan');
   render(twin,'grid-twin');
   renderQueuePage();
+}
+
+
+function buildFlowDiagram(lineId,agingTank,col,isRunning){
+  const lineObj=lines.find(l=>l.id===lineId)||{};
+  const curRow=(getTanksForLine(lineObj.name)||[])[0]||{};
+  const mixCode=curRow.mix_code||'';
+  const lineProd=(lineObj.products||[]).find(p=>(p.mix_codes||[]).some(m=>m.code===mixCode));
+  const fr=lineProd?.flow_rate||(lineStates[lineId]||{}).flow_rate||lineObj.flow_rate||300;
+  const fz=(lineStates[lineId]||{}).fz_A||'Freezer';
+  const ac=isRunning?col:'#94a3b8';
+  const bg=isRunning?col+'18':'rgba(176,186,200,.15)';
+  const anim='<animate attributeName="stroke-dashoffset" from="24" to="0" dur=".55s" repeatCount="indefinite"/>';
+  // ซ้ายไปขวา: Nozzle(ก้นถัง) → Pump → FlowMeter → Freezer → Line
+  const W=550,H=120,PIPY=60;
+  const NCX=40; // nozzle center x
+  const PX=120,PY=PIPY;
+  const FMX=195,FMY=PIPY-30,FMW=100,FMH=58;
+  const FZX=345,FZY=10,FZW=80,FZH=85,FZCX=FZX+FZW/2;
+  const LOX=470,LOY=22,LOW=75,LOH=65;
+  function pipe(x1,y1,x2,y2){
+    return isRunning
+      ?'<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+ac+'" stroke-width="7" stroke-linecap="round" opacity=".2"/>'
+       +'<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+ac+'" stroke-width="3.5" stroke-dasharray="8,5" stroke-linecap="round">'+anim+'</line>'
+      :'<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="#b0bac8" stroke-width="5" stroke-linecap="round" opacity=".4"/>';
+  }
+  let s='<svg width="100%" height="'+H+'" viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" style="display:block">';
+  // nozzle ก้นถัง
+  s+='<rect x="'+(NCX-5)+'" y="0" width="10" height="14" rx="3" fill="'+ac+'" opacity="'+(isRunning?'.8':'.3')+'"/>';
+  s+='<circle cx="'+NCX+'" cy="16" r="7" fill="white" stroke="'+ac+'" stroke-width="2"/>';
+  s+='<circle cx="'+NCX+'" cy="16" r="3" fill="'+ac+'" opacity="'+(isRunning?'.7':'.3')+'"/>';
+  // pipe nozzle ลง → elbow
+  s+=pipe(NCX,22,NCX,PIPY);
+  s+='<circle cx="'+NCX+'" cy="'+PIPY+'" r="6" fill="'+ac+'" opacity="'+(isRunning?'.5':'.2')+'"/>';
+  // pipe → Pump
+  s+=pipe(NCX,PIPY,PX-22,PIPY);
+  // Pump
+  s+='<circle cx="'+PX+'" cy="'+PY+'" r="21" fill="white" stroke="'+ac+'" stroke-width="2.5"/>';
+  s+='<text x="'+PX+'" y="'+(PY+6)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="16" fill="'+ac+'" font-weight="900">⚙</text>';
+  s+='<text x="'+PX+'" y="'+(PY+34)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="'+ac+'">Pump</text>';
+  // pipe → FlowMeter
+  s+=pipe(PX+22,PIPY,FMX,PIPY);
+  // FlowMeter
+  s+='<rect x="'+FMX+'" y="'+FMY+'" width="'+FMW+'" height="'+FMH+'" rx="8" fill="'+bg+'" stroke="'+ac+'" stroke-width="2"/>';
+  s+='<text x="'+(FMX+FMW/2)+'" y="'+(FMY+14)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="'+ac+'" font-weight="900">⚡ FLOW</text>';
+  s+='<text x="'+(FMX+FMW/2)+'" y="'+(FMY+33)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="15" fill="'+ac+'" font-weight="900">'+fr.toLocaleString()+'</text>';
+  s+='<text x="'+(FMX+FMW/2)+'" y="'+(FMY+49)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="'+ac+'" opacity=".8">L/hr</text>';
+  // pipe → Freezer
+  s+=pipe(FMX+FMW,PIPY,FZCX,PIPY);
+  s+='<circle cx="'+FZCX+'" cy="'+PIPY+'" r="6" fill="'+ac+'" opacity="'+(isRunning?'.5':'.2')+'"/>';
+  s+=pipe(FZCX,PIPY,FZCX,FZY+FZH);
+  // Freezer
+  s+='<rect x="'+FZX+'" y="'+FZY+'" width="'+FZW+'" height="'+FZH+'" rx="8" fill="'+bg+'" stroke="'+ac+'" stroke-width="2"/>';
+  s+='<text x="'+FZCX+'" y="'+(FZY+22)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="17">🧊</text>';
+  s+='<text x="'+FZCX+'" y="'+(FZY+40)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="'+ac+'" font-weight="900">'+fz+'</text>';
+  s+='<text x="'+FZCX+'" y="'+(FZY+56)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="'+ac+'" opacity=".7">Freezer</text>';
+  // pipe → Line
+  s+=pipe(FZX+FZW,FZY+FZH/2,LOX,FZY+FZH/2);
+  // Line
+  s+='<rect x="'+LOX+'" y="'+LOY+'" width="'+LOW+'" height="'+LOH+'" rx="8" fill="'+bg+'" stroke="'+ac+'" stroke-width="2"/>';
+  s+='<text x="'+(LOX+LOW/2)+'" y="'+(LOY+24)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="18">🏭</text>';
+  s+='<text x="'+(LOX+LOW/2)+'" y="'+(LOY+42)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="'+ac+'" font-weight="900">'+(lineObj.name||'Line')+'</text>';
+  s+='</svg>';
+  return s;
 }
 
 function renderQueuePage(){
@@ -1083,14 +1038,12 @@ function renderQueuePage(){
 const _empName = sessionStorage.getItem('emp_name')||'';
 const _empSig  = sessionStorage.getItem('emp_sig')||'';
 
-window.startLine=(lineId,sv,fr)=>{showSignModal('▶ Start — '+lineId,()=>_startLineReal(lineId,sv,fr));};
-window._startLineReal=async(lineId,sv,fr)=>{
+window.startLine=async(lineId,sv,fr)=>{
   if(!_empSig){toast('กรุณา login ด้วย PIN ก่อน','red');return;}
   await setDoc(doc(db,'cip_line_states',lineId),{running:true,start_ts:Date.now(),start_vol:sv,flow_rate:fr,started_by:_empName,start_sig:_empSig,started_at:nowHHMM(),started_by:ME.email},{merge:true});
   toast('▶ Start แล้ว','green');
 };
-window.stopLine=(lineId)=>{showSignModal('⏸ Stop — '+lineId,()=>_stopLineReal(lineId));};
-window._stopLineReal=async(lineId)=>{
+window.stopLine=async(lineId)=>{
   const st=lineStates[lineId]||{};
   const elapsed=st.start_ts?(Date.now()-st.start_ts)/3600000:0;
   const rem=Math.max(0,(st.start_vol||0)-(elapsed*(st.flow_rate||300)));
@@ -1195,16 +1148,5 @@ window.forceClearTank=async(agTank)=>{
 
 </script>
 </script>
-<div id="sign-modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;align-items:center;justify-content:center">
-  <div style="background:#fff;border-radius:16px;padding:28px 32px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.18);min-width:280px">
-    <div style="font-size:48px;margin-bottom:8px">✏️</div>
-    <div id="sign-modal-title" style="font-family:var(--mono);font-size:14px;font-weight:900;color:#111827;margin-bottom:4px"></div>
-    <div style="font-family:var(--mono);font-size:11px;color:var(--t3);margin-bottom:20px">ระบบลายเซ็นจะเปิดใช้เมื่อ Interlock พร้อม</div>
-    <div style="display:flex;gap:10px;justify-content:center">
-      <button onclick="_signSkip()" style="font-family:var(--mono);font-size:12px;font-weight:900;padding:9px 24px;border-radius:9px;border:1.5px solid var(--b1);background:var(--s2);color:var(--t2);cursor:pointer">ข้าม</button>
-      <button onclick="_signConfirm()" style="font-family:var(--mono);font-size:12px;font-weight:900;padding:9px 24px;border-radius:9px;border:none;background:#1d4ed8;color:#fff;cursor:pointer">✅ ยืนยัน</button>
-    </div>
-  </div>
-</div>
 </body>
 </html>
