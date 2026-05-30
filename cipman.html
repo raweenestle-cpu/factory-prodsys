@@ -950,6 +950,13 @@ function buildCard(line){
         <button style="width:100%;padding:8px;border-radius:10px;font-family:var(--mono);font-size:11px;font-weight:700;background:rgba(239,68,68,.08);color:#f87171;border:1px solid rgba(239,68,68,.2);cursor:pointer"
           onclick="forceClearTank('${current.aging_tank||""}')">🗑 Force Clear ${current.aging_tank||'—'}</button>
 
+        <div style="background:var(--s2);border-radius:8px;padding:8px 10px;font-family:var(--mono);font-size:10px;line-height:1.9">
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--t3);font-weight:700">▶ START</span><span style="color:#111827;font-weight:900">${st.started_at||'—'}</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--t3)">โดย</span><span style="color:var(--blue);font-weight:800">${st.started_by||'—'}</span></div>
+          <div style="display:flex;justify-content:space-between;margin-top:4px;padding-top:4px;border-top:1px solid var(--b1)"><span style="color:var(--t3);font-weight:700">⏸ STOP</span><span style="color:#111827;font-weight:900">${st.stopped_at||'—'}</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--t3)">โดย</span><span style="color:var(--blue);font-weight:800">${st.stopped_by||'—'}</span></div>
+        </div>
+
         <!-- หมดถัง -->
         <button style="width:100%;padding:10px;border-radius:10px;font-family:var(--mono);font-size:12px;font-weight:700;border:1px dashed rgba(240,79,94,.4);background:rgba(240,79,94,.06);color:var(--red);cursor:pointer;margin-top:4px"
           onclick="askEmpty('${line.id}','${current._col}','${current.id}','${line.name}')">🪣 หมดถัง — โหลดถัดไป</button>
@@ -1091,7 +1098,7 @@ window.stopLine=async(lineId)=>{
   const st=lineStates[lineId]||{};
   const elapsed=st.start_ts?(Date.now()-st.start_ts)/3600000:0;
   const rem=Math.max(0,(st.start_vol||0)-(elapsed*(st.flow_rate||300)));
-  await setDoc(doc(db,'cip_line_states',lineId),{running:false,start_ts:null,start_vol:rem,stopped_at:nowHHMM()},{merge:true});
+  await setDoc(doc(db,'cip_line_states',lineId),{running:false,start_ts:null,start_vol:rem,stopped_at:nowHHMM(),stopped_by:_empName||ME.email,stop_sig:_empSig||''},{merge:true});
   toast('⏸ Stop แล้ว');
 };
 window.resetLine=async(lineId)=>{
