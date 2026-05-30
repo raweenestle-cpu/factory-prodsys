@@ -252,6 +252,11 @@ async function init(){
   u2=onSnapshot(collection(db,'cip_line_states'),snap=>{
     lineStates={};snap.docs.forEach(d=>{lineStates[d.id]={id:d.id,...d.data()};});renderAll();
   });
+  onSnapshot(collection(db,'cip_line_states'),snap=>{
+    cipLineStates={};
+    snap.docs.forEach(d=>{cipLineStates[d.id]={id:d.id,...d.data()};});
+  });
+
   onSnapshot(collection(db,'aging_tank_states'),snap=>{
     agingStates={};snap.docs.forEach(d=>{agingStates[d.id]={id:d.id,...d.data()};});renderAll();
   });
@@ -649,6 +654,24 @@ function tick(){
       if(stEl){stEl.textContent=_curingLabel(row,productMap)||'✅ บ่มเสร็จ';}
     });
     // อัปเดตทุก tank ที่กำลัง pasteurising
+    // อัปเดต volume จาก cip_line_states
+    tanks.forEach(row=>{
+      const _ls=Object.values(cipLineStates).find(s=>s.aging_tank===row.aging_tank&&s.running&&s.start_ts);
+      if(_ls){
+        const _el=(Date.now()-_ls.start_ts)/3600000;
+        const _rem=Math.max(0,(_ls.start_vol||0)-(_el*(_ls.flow_rate||300)));
+        const _isCur=cur&&cur.id===row.id;
+        const _isQ=queue.find(q=>q.id===row.id);
+        const _uid=(_isCur?'C':_isQ?'Q':'Q')+row.id.slice(-8);
+        const _cap=+(row.volume_liter||0)||1;
+        const _pct=Math.min(100,(_rem/_cap)*100);
+        const _pc=_pct>50?'#15803d':_pct>20?'#b45309':'#b91c1c';
+        const ve=document.getElementById('vol-'+_uid);
+        const pe=document.getElementById('pct-'+_uid);
+        if(ve){ve.textContent=_rem.toFixed(1)+' L';ve.style.color=_pc;}
+        if(pe){pe.textContent=_pct.toFixed(1)+'%';pe.style.color=_pc;}
+      }
+    });
     tanks.forEach(row=>{
       if(row.status!=='pasteurising'||!row.past_start_time)return;
       const{filled,pct}=calcVol(row);
