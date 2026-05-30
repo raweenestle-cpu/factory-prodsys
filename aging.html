@@ -403,7 +403,7 @@ function makeTankCard(tankId){
   const totalVol=+(tdata.volume_liter||tdata.total_vol||0);
   const currentVol=tdata.current_vol!=null?+tdata.current_vol:0;
   const cap=getTankCapacity(tankId);
-  const pct=cap>0?Math.min(100,(currentVol||totalVol)/cap*100):0;
+  const pct=cap>0?Math.min(100,(currentVol!=null&&currentVol>=0?currentVol:totalVol)/cap*100):0;
   const wave=status==='pasteurising'||status==='filling';
   const _cl2=(status==='past_done'||status==='curing')?_curingLabel(tdata,productMap):null;
   const stLabel=_cl2||statusLabel(status);
@@ -447,7 +447,7 @@ function makeTankCard(tankId){
     +(tdata.mix_code&&!isEmpty
       ?'<div class="tm" style="color:'+col+'">'+(tdata.mix_code||'—')+'</div>'
        +'<div class="tb">'+(tdata.mix_name||'—')+'</div>'
-       +'<div class="tvol" style="color:'+col+'">'+(currentVol||totalVol).toFixed(0)+' L</div>'
+       +'<div class="tvol" style="color:'+col+'">'+(currentVol!=null&&currentVol>=0?currentVol:totalVol).toFixed(0)+' L</div>'
        +'<div class="tpct">'+pct.toFixed(1)+'% / '+(cap/1000).toFixed(0)+'k L</div>'
       :'<div style="font-family:var(--mono);font-size:10px;color:var(--t3);text-align:center;padding:4px 0">— ว่าง —</div>')
     +dateHtml
