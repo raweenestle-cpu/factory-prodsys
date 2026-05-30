@@ -224,6 +224,14 @@ tbody td{padding:5px 6px;vertical-align:middle;font-weight:600}
 </nav>
 
 <!-- PAGE M1 -->
+<div style="background:#fff;border:1.5px solid var(--b1);border-radius:12px;padding:10px 16px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between">
+  <div style="font-family:var(--mono);font-size:12px;font-weight:900;color:var(--text)">🤖 Auto Assign Mode</div>
+  <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+    <span style="font-family:var(--mono);font-size:11px;color:var(--t3)">✋ Manual</span>
+    <input type="checkbox" onchange="toggleAutoMode(this)" style="width:18px;height:18px;accent-color:#15803d;cursor:pointer">
+    <span style="font-family:var(--mono);font-size:11px;color:var(--t3)">🤖 Auto</span>
+  </label>
+</div>
 <div class="page on" id="page-m1">
   <div class="line-cards-wrap" id="lcw-m1"></div>
   <div class="toolbar">
@@ -396,6 +404,112 @@ function calcEst(start,code,vol){
   const spd = p.speed_m1||p.speed||1000;
   return addMins(start,(+vol*(p.density||1)*60)/spd);
 }
+
+// ── ETA FILL + BACKWARD SCHEDULE ────────────────────────────
+// คำนวณเวลาเป็น minutes จาก HH:MM
+function toMin(t){if(!t||!t.includes(':'))return null;const[h,m]=t.split(':').map(Number);return h*60+m;}
+// แปลง minutes กลับเป็น HH:MM (รองรับข้ามวัน)
+function fromMin(m){const t=((m%1440)+1440)%1440;return String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0');}
+// คำนวณ ETA fill เสร็จ สำหรับ batch หนึ่ง
+// return {fillStart, fillEnd, mixStart, label, urgent}
+function calcFillETA(row){
+  const p=productMap[row.mix_code];
+  if(!p||!row.volume_liter)return null;
+  const vol=+row.volume_liter||0;
+  const spd2=p.speed_m2||p.speed_m1||p.speed||1000;
+  const density=p.density||1;
+  const agingHr=p.aging_time||0;
+  const status=resolveStatus(row);
+  // flow rate ของ filling line
+  const lineObj=_lcLines.find(l=>l.name===row.filling_line);
+  const lineState=_lcStates[lineObj?.id]||{};
+  const fillRate=lineState.flow_rate||lineObj?.flow_rate||300; // L/hr
+  const fillMinutes=Math.round((vol/fillRate)*60);
+  const mixMinutes=Math.round((vol*density/spd2)*60);
+  const pastMinutes=Math.round((vol*density/spd2)*60); // same machine speed
+  const agingMinutes=agingHr*60;
+  let fillStart=null,fillEnd=null,mixStart=null,urgent=false;
+  if(status==='filling'||status==='ready'){
+    // กำลัง fill หรือพร้อม fill
+    const now=new Date();
+    const nowMin=now.getHours()*60+now.getMinutes();
+    if(lineState.running&&lineState.start_ts){
+      const elapsed=(Date.now()-lineState.start_ts)/60000;
+      const rem=Math.max(0,(lineState.start_vol||vol)/fillRate*60-elapsed);
+      fillEnd=fromMin(nowMin+rem);
+    } else {
+      fillStart=fromMin(toMin(row.start_time||fromMin(now.getHours()*60+now.getMinutes()))||0);
+      fillEnd=fromMin((toMin(fillStart)||0)+fillMinutes);
+    }
+    urgent=true;
+  } else if(status==='past_done'){
+    // บ่มเสร็จแล้ว พร้อม fill
+    const now=new Date();
+    const nowMin=now.getHours()*60+now.getMinutes();
+    fillStart=fromMin(nowMin);
+    fillEnd=fromMin(nowMin+fillMinutes);
+    urgent=true;
+  } else if(status==='pasteurising'){
+    // กำลัง past — รอบ่มอีก
+    if(row.past_end_time){
+      const pastEndMin=toMin(row.past_end_time);
+      if(pastEndMin!=null){
+        fillStart=fromMin(pastEndMin+agingMinutes);
+        fillEnd=fromMin(pastEndMin+agingMinutes+fillMinutes);
+      }
+    }
+  } else {
+    // pending/mixing — คำนวณจาก start_time
+    const st=toMin(row.start_time||row._auto||'');
+    if(st!=null){
+      const pastEnd=st+mixMinutes+pastMinutes;
+      fillStart=fromMin(pastEnd+agingMinutes);
+      fillEnd=fromMin(pastEnd+agingMinutes+fillMinutes);
+      mixStart=fromMin(st);
+    }
+  }
+  // backward: ต้อง start mix กี่โมง
+  if(!mixStart&&fillStart){
+    const fs=toMin(fillStart);
+    if(fs!=null) mixStart=fromMin(fs-agingMinutes-pastMinutes-mixMinutes);
+  }
+  return{fillStart,fillEnd,mixStart,fillMinutes,mixMinutes,pastMinutes,agingMinutes,urgent,status};
+}
+// Auto assign — จับคู่ batch กับ line
+let autoMode=false;
+window.toggleAutoMode=function(el){
+  autoMode=el.checked;
+  if(autoMode) runAutoAssign();
+  toast(autoMode?'🤖 Auto Mode ON':'✋ Manual Mode','green');
+};
+function runAutoAssign(){
+  // รวม batch ทั้งหมดที่ยังไม่ assign filling_line
+  const allRows=[...(rows['m1']||[]),...(rows['m2']||[])];
+  const needAssign=allRows.filter(r=>!r.filling_line&&r.mix_code&&r.volume_liter);
+  if(!needAssign.length)return;
+  // เรียงตาม color_rank แล้ว ETA
+  const sorted=[...needAssign].sort((a,b)=>{
+    const pa=productMap[a.mix_code]||{},pb=productMap[b.mix_code]||{};
+    const cr=(pa.color_rank||4)-(pb.color_rank||4);
+    if(cr!==0)return cr;
+    const ea=calcFillETA(a),eb=calcFillETA(b);
+    const ta=toMin(ea?.fillEnd)||9999,tb=toMin(eb?.fillEnd)||9999;
+    return ta-tb;
+  });
+  // get available lines
+  const fillingLines=_lcLines.filter(l=>l.type==='Filling');
+  let lIdx=0;
+  sorted.forEach(row=>{
+    if(lIdx>=fillingLines.length)return;
+    const line=fillingLines[lIdx++];
+    const col=row._col||'production_plans';
+    import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js')
+      .then(({updateDoc,doc})=>updateDoc(doc(db,col,row.id),{filling_line:line.name}))
+      .catch(()=>{});
+  });
+  toast(`✅ Auto assign ${sorted.length} batch`,'green');
+}
+
 function toast(msg,t="blue"){
   const el=$("toast");
   el.textContent=msg;
@@ -714,7 +828,14 @@ function renderPlan(m){
         if(v.length>=3)this.value=v.slice(0,2)+':'+v.slice(2);
         else this.value=v;
       " onchange="_up('${col}','${row.id}','start_time',this.value)"></td>
-      <td><span style="font-family:var(--mono);font-size:12px;color:var(--t2)">${ef||"—"}</span></td>
+      <td style="min-width:100px">${(()=>{
+        const _eta=calcFillETA(row);
+        if(!_eta)return '<span style="color:var(--t3)">—</span>';
+        const _urg=_eta.urgent?'color:#b91c1c;font-weight:900':'color:var(--t2)';
+        const _fe=_eta.fillEnd?`<div style="font-family:var(--mono);font-size:12px;${_urg}">⏱ ${_eta.fillEnd}</div>`:'';
+        const _ms=_eta.mixStart?`<div style="font-family:var(--mono);font-size:10px;color:var(--t3)">mix ${_eta.mixStart}</div>`:'';
+        return _fe+_ms;
+      })()}</td>
       <td>${statusBadge(resolveStatus(row))}</td>
       <td><input class="ci" style="width:100px;font-size:11px" value="${row.note||""}" placeholder="หมายเหตุ" onchange="_up('${col}','${row.id}','note',this.value)"></td>
 

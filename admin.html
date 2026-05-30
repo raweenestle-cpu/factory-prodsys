@@ -296,6 +296,10 @@ tbody td{padding:7px 10px;vertical-align:middle}
         <input id="np-type" class="ci" placeholder="เช่น UHT, Pasteurised">
       </div>
       <div class="form-group">
+        <div class="form-label">Color Rank (1=ขาว→7=ดำ)</div>
+        <input id="np-crank" class="ci" type="number" min="1" max="7" value="1" placeholder="1-7">
+      </div>
+      <div class="form-group">
         <div class="form-label">สีถัง</div>
         <div style="display:flex;align-items:center;gap:8px">
           <input id="np-color" type="color" value="#60a5fa" style="width:44px;height:36px;border-radius:6px;border:1px solid var(--b1);background:var(--s2);cursor:pointer;padding:2px">
@@ -374,6 +378,7 @@ tbody td{padding:7px 10px;vertical-align:middle}
     <div class="modal-field"><div class="modal-label">Homo Stage 1</div><input id="ep-homo1" class="ci" type="number"></div>
     <div class="modal-field"><div class="modal-label">Homo Stage 2</div><input id="ep-homo2" class="ci" type="number"></div>
     <div class="modal-field"><div class="modal-label">Type</div><input id="ep-type" class="ci" placeholder="เช่น UHT, Pasteurised"></div>
+    <div class="modal-field"><div class="modal-label">Color Rank (1=ขาว→7=ดำ)</div><input id="ep-crank" class="ci" type="number" min="1" max="7"></div>
     <div class="modal-field">
       <div class="modal-label">สีถัง</div>
       <div style="display:flex;align-items:center;gap:8px">
@@ -1020,9 +1025,10 @@ window.addProduct=async()=>{
   const homo1=+$("np-homo1").value||0;
   const homo2=+$("np-homo2").value||0;
   const ptype=$("np-type").value.trim();
+  const crank=+$("np-crank").value||1;
   await addDoc(collection(db,"products"),{
     mix_code:code,mix_name:name,density,aging_time:aging,
-    speed_m1:spd1,speed_m2:spd2,speed:spd1,color,homo_stage1:homo1,homo_stage2:homo2,product_type:ptype,
+    speed_m1:spd1,speed_m2:spd2,speed:spd1,color,homo_stage1:homo1,homo_stage2:homo2,product_type:ptype,color_rank:+($("np-crank").value)||1,
     createdAt:new Date().toISOString()
   });
   $("np-code").value="";$("np-name").value="";
@@ -1043,6 +1049,7 @@ window.openEditProduct=(id)=>{
   $("ep-type").value=p.product_type||"";
   $("ep-color").value=p.color||"#60a5fa";
   $("ep-color-val").textContent=p.color||"#60a5fa";
+  if($("ep-crank"))$("ep-crank").value=p.color_rank||1;
   $("modal-product").classList.add("show");
 };
 
@@ -1061,6 +1068,7 @@ window.saveEditProduct=async()=>{
     homo_stage2:+$("ep-homo2").value||0,
     product_type:$("ep-type").value.trim(),
     color:$("ep-color").value||"#60a5fa",
+    color_rank:+$("ep-crank").value||1,
   });
   closeModal("modal-product");
   toast("แก้ไขผลิตภัณฑ์แล้ว","green");
