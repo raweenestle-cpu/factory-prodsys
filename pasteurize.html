@@ -241,17 +241,27 @@ const elapsedSec2=Math.max(0,(Date.now()-start)/1000);
 const elapsedMin=elapsedSec2/60;
 const agVol=totalMin>0?Math.min(totalVol,(elapsedMin/totalMin)*totalVol):0;
 const allRows=[...(window._rows['p1']||[]),...(window._rows['p2']||[])];
+// ROOT FIX: อ่าน prevVol จาก aging_tank_states โดยตรง (single source of truth)
+// ไม่คำนวณจาก volume_liter เพราะ switch tank จะทำให้ค่าหาย
+const _atState=window._agingStates&&agRow.aging_tank?window._agingStates[agRow.aging_tank]||{}:{};
+const _atCurVol=_atState.current_vol!=null?+_atState.current_vol:-1;
 let prevVol=0;
-if(agRow.process_order&&agRow.aging_tank){
-prevVol=allRows
-.filter(r=>
-r.id!==agRow.id &&
-r.process_order===agRow.process_order &&
-r.aging_tank===agRow.aging_tank &&
-(r.status==='past_done'||r.status==='ready')
-)
-.reduce((sum,r)=>sum+(+(r.volume_liter||0)),0);
+if(_atCurVol>=0){
+  // มีค่าสะสมจาก aging_tank_states แล้ว ใช้เป็น base
+  prevVol=Math.max(0,_atCurVol-agVol);
+} else if(agRow.process_order&&agRow.aging_tank){
+  prevVol=allRows
+  .filter(r=>r.id!==agRow.id&&r.process_order===agRow.process_order&&r.aging_tank===agRow.aging_tank&&(r.status==='past_done'||r.status==='ready'))
+  .reduce((sum,r)=>sum+(+(r.volume_liter||0)),0);
 }
+console.log('[TRANSFER]',
+  'PO:',agRow.process_order,
+  'Tank:',agRow.aging_tank,
+  'Source:',agRow.mixing_tank||p,
+  'agVol:',agVol.toFixed(1),
+  'prevVol:',prevVol.toFixed(1),
+  'cumVol:',(prevVol+agVol).toFixed(1)
+);
 const totalCumVol=Math.round((prevVol+agVol)*10)/10;
 await updateDoc(doc(db,planCol(p),agRow.id),{current_vol:totalCumVol});
 if(agRow.aging_tank){
@@ -346,13 +356,12 @@ r.id!==agRow.id&&
 )
 .sort((a,b)=>(a.seq||0)-(b.seq||0))[0];
 if(nextRow){
-const prevCumVol=allRows
-.filter(r=>
-r.process_order===nextRow.process_order&&
-r.aging_tank===nextRow.aging_tank&&
-(r.status==='past_done'||r.status==='ready'||r.id===agRow.id)
-)
-.reduce((s,r)=>s+(+(r.volume_liter||0)),0);
+// ROOT FIX 2: อ่าน accumulated volume จาก aging_tank_states (single source of truth)
+const _switchAt=window._agingStates&&nextRow.aging_tank?window._agingStates[nextRow.aging_tank]||{}:{};
+const prevCumVol=_switchAt.current_vol!=null
+  ?+_switchAt.current_vol
+  :allRows.filter(r=>r.process_order===nextRow.process_order&&r.aging_tank===nextRow.aging_tank&&(r.status==='past_done'||r.status==='ready'||r.id===agRow.id)).reduce((s,r)=>s+(+(r.volume_liter||0)),0);
+console.log('[SWITCH TANK] PO:',nextRow.process_order,'FROM:',agRow.mixing_tank||'?','TO:',nextRow.mixing_tank||'?','AgingTank:',nextRow.aging_tank,'AccVol:',prevCumVol);
 await updateDoc(doc(db,planCol(p),nextRow.id),{
 past_start_time:endTime,
 status:'pasteurising',
