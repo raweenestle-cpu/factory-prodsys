@@ -240,23 +240,27 @@ main{position:relative;z-index:1;padding:10px 12px;}
 }
 
 
-  /* Queue card — ใช้ style เหมือน Filling */
-  --fs:12px;
-  .cq-tc{border-radius:18px;overflow:hidden;display:flex;flex-direction:column;border:2px solid var(--b1);background:#fff;box-shadow:0 4px 16px rgba(0,0,0,.07);position:relative}
-.cq-tc::before{content:'';position:absolute;top:0;left:0;right:0;height:5px;background:var(--cq-c,#b0bac8);border-radius:18px 18px 0 0}
-.cq-tc .ch{padding:14px 14px 10px;border-bottom:1.5px solid var(--s2);margin-top:3px}
-  .cq-ch{padding:9px 10px 6px;border-bottom:1px solid var(--b1)}
-  .cq-ch-top{display:flex;align-items:baseline;gap:5px;margin-bottom:3px;flex-wrap:wrap}
-  .cq-code{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--orange)}
-  .cq-batch{font-family:var(--mono);font-size:12px;color:#8899bb;margin-top:2px;font-weight:600}
-  .cq-rp{font-family:var(--mono);font-size:12px;font-weight:700;color:#c084fc;letter-spacing:.08em;margin-top:3px}
-  .cq-ab{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--cyan);padding:5px 10px;text-align:center;border-bottom:1px solid var(--b1)}
-  .cq-sw{position:relative;margin:8px 10px 4px}
-  .cq-so{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;width:90%}
-  .cq-sv{font-family:var(--mono);font-size:13px;font-weight:700;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.9)}
-  .cq-st{text-align:center;padding:5px 8px 9px}
-  .cq-stb{font-family:var(--mono);font-size:12px;font-weight:700;border-radius:99px;padding:3px 10px}
-  .cq-cb{padding:6px 10px;border-top:1px solid var(--b1);display:flex;flex-direction:column;gap:5px}
+.tc{border-radius:18px;overflow:hidden;display:flex;flex-direction:column;min-height:340px;
+.tc.cur{border-color:#ea580c;box-shadow:0 4px 20px rgba(234,88,12,.15)}
+.tc.cur::before{content:'';position:absolute;top:0;left:0;right:0;height:5px;background:#ea580c;border-radius:18px 18px 0 0}
+.tc.que{border-color:var(--b1);background:#f8fafc}
+.tc.que::before{content:'';position:absolute;top:0;left:0;right:0;height:5px;background:#b0bac8;border-radius:18px 18px 0 0}
+.ch{padding:14px 14px 10px;border-bottom:1.5px solid var(--s2)}
+.ch-top{display:flex;align-items:baseline;gap:5px;margin-bottom:3px;flex-wrap:wrap}
+.ch-line{font-family:var(--mono);font-size:16px;font-weight:900;color:#111827}
+.ch-dot{color:var(--t3);font-size:10px}
+.ch-prod{font-size:14px;font-weight:800;color:#111827}
+.ch-code{font-family:var(--mono);font-size:13px;font-weight:900;color:#111827}
+.ch-name{font-size:12px;font-weight:700;color:#374151}
+.ch-batch{font-family:var(--mono);font-size:11px;color:#374151;margin-top:3px;font-weight:700}
+.ch-rp{font-family:var(--mono);font-size:11px;font-weight:800;color:#7c3aed;letter-spacing:.08em;margin-top:3px}
+.ab{font-family:var(--mono);font-size:13px;font-weight:900;color:#0e7490;
+.sw{position:relative;margin:8px 10px 4px}
+.sv{font-family:var(--mono);font-size:24px;font-weight:900;color:#111827;
+.sp{font-family:var(--mono);font-size:16px;font-weight:800;color:#111827;
+.st{display:none}
+.stb{display:none}
+
 
 @keyframes statusPulse{0%,100%{opacity:1}50%{opacity:.45}}
 .status-blink{animation:statusPulse 1.4s ease-in-out infinite}
@@ -331,7 +335,54 @@ main{position:relative;z-index:1;padding:10px 12px;}
 
 <div id="toast"></div>
 
-<script type="module">
+<script type="module">function svg(uid,pct,col,run){
+  const W=140,H=220;
+  const bX=18,bY=40,bW=W-36,bH=H-55;
+  const nW=24,nH=10,cW=34,cH=6;
+  const nX=bX+(bW-nW)/2,cX=bX+(bW-cW)/2;
+  const _pct=Math.min(pct,100);
+  const hasLiq=_pct>0;
+  const maxFillH=(bH-6)*0.92;
+  const fillH=Math.max(0,(_pct/100)*maxFillH);
+  const wy=bY+bH-fillH;
+  const A=5;
+  const gid='g'+uid,cid='c'+uid;
+  const bodyFill=hasLiq?'rgba(255,255,255,.12)':'rgba(176,186,200,.25)';
+  const bodyStroke=hasLiq?col:'#94a3b8';
+  function waveD(yBase,amp,nc){
+    const Ww=bW*2,segW=Ww/(nc*2);
+    let d='M'+bX+','+yBase;
+    for(let i=0;i<nc*2;i++){
+      const x1=bX+i*segW,x2=bX+(i+1)*segW;
+      const cy=i%2===0?yBase-amp:yBase+amp;
+      d+=' C'+(x1+segW*.4)+','+cy+' '+(x2-segW*.4)+','+cy+' '+x2+','+yBase;
+    }
+    return d+' L'+(bX+Ww)+','+(bY+bH)+' L'+bX+','+(bY+bH)+' Z';
+  }
+  let s='';
+  s+='<svg width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" style="display:block">';
+  s+='<defs><linearGradient id="'+gid+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="'+col+'" stop-opacity=".5"/><stop offset="100%" stop-color="'+col+'" stop-opacity=".85"/></linearGradient>';
+  s+='<clipPath id="'+cid+'"><rect x="'+bX+'" y="'+bY+'" width="'+bW+'" height="'+bH+'" rx="12"/></clipPath></defs>';
+  s+='<rect x="'+nX+'" y="'+(bY-nH)+'" width="'+nW+'" height="'+(nH+5)+'" rx="4" fill="'+(hasLiq?'#16a34a':'rgba(255,255,255,.12)')+'" stroke="'+bodyStroke+'" stroke-width="1.5" stroke-opacity=".6"/>';
+  s+='<rect x="'+cX+'" y="'+(bY-nH-cH)+'" width="'+cW+'" height="'+(cH+3)+'" rx="4" fill="'+(hasLiq?'#16a34a':'rgba(255,255,255,.12)')+'" stroke="'+bodyStroke+'" stroke-width="1.5" stroke-opacity=".5"/>';
+  if(hasLiq) s+='<circle cx="'+(W/2)+'" cy="'+(bY-nH-2)+'" r="4" fill="#22c55e" opacity=".9"/><circle cx="'+(W/2)+'" cy="'+(bY-nH-2)+'" r="4" fill="none" stroke="#22c55e" stroke-width="1.5" opacity="0"><animate attributeName="r" from="4" to="10" dur="1.5s" repeatCount="indefinite"/><animate attributeName="opacity" from="0.6" to="0" dur="1.5s" repeatCount="indefinite"/></circle>';
+  s+='<rect x="'+bX+'" y="'+bY+'" width="'+bW+'" height="'+bH+'" rx="12" fill="'+bodyFill+'" stroke="'+bodyStroke+'" stroke-width="1.5" stroke-opacity="'+(hasLiq?'.4':'.6')+'"/>';
+  if(hasLiq){
+    s+='<g clip-path="url(#'+cid+')">';
+    s+='<rect x="'+bX+'" y="'+(wy+A)+'" width="'+(bW*2)+'" height="'+(bY+bH-(wy+A))+'" fill="url(#'+gid+')"/>';
+    s+='<path d="'+waveD(wy,A,3)+'" fill="'+col+'" fill-opacity=".55"><animateTransform attributeName="transform" type="translate" from="0,0" to="'+(-bW)+',0" dur="2.8s" repeatCount="indefinite"/></path>';
+    s+='<path d="'+waveD(wy,A*.6,4)+'" fill="'+col+'" fill-opacity=".3"><animateTransform attributeName="transform" type="translate" from="'+(bW*.5)+',0" to="'+(-bW*.5)+',0" dur="4s" repeatCount="indefinite"/></path>';
+    s+='<ellipse cx="'+(bX+bW*.35)+'" cy="'+(wy-2)+'" rx="'+(bW*.12)+'" ry="2.5" fill="white" fill-opacity=".3"/>';
+    s+='</g>';
+  }
+  s+='<rect x="'+bX+'" y="'+bY+'" width="'+bW+'" height="'+bH+'" rx="12" fill="none" stroke="'+bodyStroke+'" stroke-width="2.5" stroke-opacity="'+(hasLiq?'.8':'.6')+'"/>';
+  s+='<rect x="'+(bX+8)+'" y="'+(bY+bH)+'" width="8" height="14" rx="2" fill="rgba(255,255,255,.15)" stroke="'+bodyStroke+'" stroke-width="1" stroke-opacity=".6"/>';
+  s+='<rect x="'+(bX+bW-16)+'" y="'+(bY+bH)+'" width="8" height="14" rx="2" fill="rgba(255,255,255,.15)" stroke="'+bodyStroke+'" stroke-width="1" stroke-opacity=".6"/>';
+  s+='<rect x="'+(bX+3)+'" y="'+(bY+bH+13)+'" width="'+(bW-6)+'" height="5" rx="2" fill="rgba(255,255,255,.12)" stroke="'+bodyStroke+'" stroke-width="1" stroke-opacity=".5"/>';
+  s+='</svg>';
+  return s;
+}
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import {resolveStatus,statusLabel,statusColor,statusBlink,statusBadge} from "./shared.js";
@@ -859,68 +910,50 @@ function buildCard(line){
 
   // Queue items — with tank SVG
   function queueItem(row,idx){
-    const p=productMap[row.mix_code]||{};
-    const curingEnd=row.past_end_time?calcCuringEnd(row.past_end_time,+(p.aging_time||4)):'—';
-    const ryr=new Date().getFullYear().toString().slice(-1);
-    const runit=row._col==='production_plans_m2'?'2':'1';
-    const rpc=row.prod_suffix?(ryr+'0522'+runit+row.prod_suffix):'—';
-    const dot=p.color||'#60a5fa';
-    const qVol=+(row.volume_liter||0);
-    const _qatsKey=row.aging_tank||'';
-    const _qatsCv=_qatsKey&&agingStates[_qatsKey]&&agingStates[_qatsKey].current_vol!=null
-      ?+agingStates[_qatsKey].current_vol:-1;
-    const qRem=_qatsCv>=0?_qatsCv:(row.current_vol!=null?+row.current_vol:qVol);
-    const _capQ=getTankCapacity(row.aging_tank||'');
-    const qPct=_capQ>0?(qRem/_capQ)*100:0;
-    let stTxt='—',stC='var(--t2)';
-    const _stRaw=resolveStatus(row);
-    const _stMap={pending:'⏳ รอผสม',mixing:'🔵 Mixing',pasteurising:'🌡️ Pasteurise',filling:'🔵 Filling',ready:'✅ พร้อม',cip:'🟣 CIP'};
-    stTxt=_stRaw==='past_done'?(_curingLabel(row,productMap)||'🌡️ บ่มอยู่'):(_stMap[_stRaw]||_stRaw);
-    // ถ้า past_done ให้เช็ค curing done
-    if(_stRaw==='past_done'){
-      const _p2=productMap[row.mix_code];const _agHr2=+((_p2?.aging_time)||0);
-      const _eTs=_agHr2===0?new Date(Date.now()-1000):calcCuringEndTs(row.past_end_time,_agHr2,row.date||null);
-      const _cd=_eTs?Date.now()>=_eTs.getTime():false;
-      if(_cd){stTxt='✅ บ่มเสร็จ';stC='var(--green)';}else{stTxt='🌡️ บ่มอยู่';stC='var(--yellow)';}
-    }
-    const hotOk=(lineStates[line.id]||{})[`hot_q${idx}`]||false;
-    const cipOk=(lineStates[line.id]||{})[`cip_q${idx}`]||false;
-    const pctC=qPct>50?'#1fd17a':qPct>20?'#f5c842':'#f04f5e';
-    return`<div class="cq-tc" style="--cq-c:${dot}">
-  <!-- header: ข้อมูล -->
-  <div class="ch" style="margin-top:3px">
-    <div class="ch-prod">${row.mix_name||'—'}</div>
-    <div style="display:flex;align-items:baseline;gap:5px;margin-top:3px">
-      <span class="ch-code">${row.mix_code||'—'}</span>
-    </div>
-    <div class="ch-batch">Batch ${row.batch_no||'—'} · ${(+(row.volume_liter||0)).toLocaleString()} L</div>
-    <div class="ch-rp">รหัสผลิต: ${rpc}</div>
-  </div>
-  <!-- เลขถัง + SVG -->
-  <div style="position:relative;display:flex;flex-direction:column;align-items:center;padding:8px 8px 0;border-top:1.5px solid var(--s2)">
-    <div style="font-family:var(--mono);font-size:15px;font-weight:900;color:#111827;background:var(--s1);border:1.5px solid var(--b1);border-radius:8px;padding:3px 14px;margin-bottom:4px">${row.aging_tank||'—'}</div>
-    <div style="position:relative;width:100%">
-      ${tankSVGSm('Q'+line.id+idx,qPct,dot,true)}
-      <div style="position:absolute;bottom:22px;left:50%;transform:translateX(-50%);background:#111827;color:#fff;font-family:var(--mono);font-size:12px;font-weight:800;padding:4px 12px;border-radius:999px;white-space:nowrap">${Math.round(qPct)}%</div>
-    </div>
-  </div>
-  <!-- checkbox + status -->
-  <div style="padding:8px 12px 12px;border-top:1.5px solid var(--s2);display:flex;flex-direction:column;gap:6px">
-    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:5px 8px;border-radius:8px;background:${hotOk?'rgba(21,128,61,.1)':'var(--s2)'}">
-      <input type="checkbox" ${hotOk?'checked':''} onchange="setFP('${line.id}','q${idx}','hot_q${idx}',this.checked)" style="width:18px;height:18px;accent-color:#15803d;cursor:pointer;flex-shrink:0">
-      <span style="font-family:var(--mono);font-size:12px;font-weight:800;color:${hotOk?'#15803d':'#374151'}">🌡️ น้ำร้อน</span>
-    </label>
-    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:5px 8px;border-radius:8px;background:${cipOk?'rgba(21,128,61,.1)':'var(--s2)'}">
-      <input type="checkbox" ${cipOk?'checked':''} onchange="setFP('${line.id}','q${idx}','cip_q${idx}',this.checked)" style="width:18px;height:18px;accent-color:#15803d;cursor:pointer;flex-shrink:0">
-      <span style="font-family:var(--mono);font-size:12px;font-weight:800;color:${cipOk?'#15803d':'#374151'}">🧹 CIP แล้ว</span>
-    </label>
-    <div style="padding:8px;border-radius:10px;background:#111827;text-align:center">
-      <div style="font-family:var(--mono);font-size:14px;font-weight:900;color:#fff;line-height:1.3">${stTxt}</div>
-      ${curingEnd&&curingEnd!=='—'?'<div style="font-family:var(--mono);font-size:12px;font-weight:700;color:rgba(255,255,255,.8);margin-top:3px">'+curingEnd+'</div>':''}
-    </div>
-  </div>
-</div>`
-  }
+  const p=productMap[row.mix_code]||{};
+  const col=p.color||'#60a5fa';
+  const{filled,pct,totalVol}=calcVol(row);
+  const pctC=pct>50?'#15803d':pct>20?'#b45309':'#b91c1c';
+  const isActive=!!row.past_start_time;
+  const at=row.aging_tank||'\u2014';
+  const agSt=agingStates&&row.aging_tank?agingStates[row.aging_tank]||{}:{};
+  const expHtml=expireBox(agSt.expire_at||null);
+  const yr=new Date().getFullYear().toString().slice(-1);
+  const unit=row._col==='production_plans_m2'?'2':'1';
+  const rp=row.prod_suffix?(yr+'0522'+unit+row.prod_suffix):'\u2014';
+  const uid=(false?'C':'Q')+row.id.slice(-8);
+  const statusRaw=resolveStatus(row);
+  const stMap={pending:'\u23f3 \u0e23\u0e2d\u0e1c\u0e2a\u0e21',mixing:'\ud83d\udd35 Mixing',pasteurising:'\ud83c\udf21\ufe0f Pasteurise',past_done:'\u2705 Past Done',filling:'\ud83d\udd35 Filling',ready:'\u2705 \u0e1e\u0e23\u0e49\u0e2d\u0e21',cip:'\ud83d\udfe3 CIP',waiting:'\u23f3 \u0e23\u0e2d'};
+  const stLabel=statusRaw==='past_done'?(_curingLabel(row,productMap)||'🌡️ บ่มอยู่'):(stMap[statusRaw]||statusRaw);
+  return '<div class="tc '+(false?'cur':'que')+'">'
+    +'<div class="ch">'
+      +'<div class="ch-top" style="margin-bottom:4px">'
+        +'<span class="ch-line">'+(row.filling_line||'\u2014')+'</span>'
+        +'<span style="font-family:var(--mono);font-size:10px;font-weight:800;padding:2px 8px;border-radius:5px;background:'+(false?'#ea580c':'#6b7280')+';color:#fff;margin-left:6px">'+(false?'\u25cf \u0e40\u0e14\u0e34\u0e19':'\u25cb \u0e04\u0e34\u0e27')+'</span>'
+      +'</div>'
+      +'<div class="ch-prod">'+(row.product_name||'\u2014')+'</div>'
+      +'<div style="display:flex;align-items:baseline;gap:5px;margin-top:3px;flex-wrap:wrap">'
+        +'<span class="ch-code">'+(row.mix_code||'\u2014')+'</span>'
+        +'<span class="ch-code" style="opacity:.5">|</span>'
+        +'<span class="ch-code">'+(row.mix_name||'\u2014')+'</span>'
+      +'</div>'
+    +'</div>'
+    +'<div class="ab">'+at+' <span style="font-size:10px;color:#374151;font-weight:700">('+getTankCapacity(at).toLocaleString()+' L)</span></div>'
+    +'<div style="position:relative;display:flex;justify-content:center;margin:10px 0 0">'
+      +svg(uid,pct,col,isActive)
+      +'<div id="st-'+uid+'" style="position:absolute;bottom:22px;left:50%;transform:translateX(-50%);background:#111827;color:#fff;font-family:var(--mono);font-size:12px;font-weight:800;padding:5px 14px;border-radius:999px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.3);letter-spacing:.04em;pointer-events:none">'+stLabel+'</div>'
+    +'</div>'
+    +'<div style="text-align:center;padding:8px 12px 4px">'
+      +'<div id="vol-'+uid+'" style="font-family:var(--mono);font-size:26px;font-weight:900;color:'+pctC+';line-height:1">'+filled.toFixed(1)+' <span style="font-size:14px;font-weight:700;color:#6b7280">L</span></div>'
+      +'<div id="pct-'+uid+'" style="font-family:var(--mono);font-size:16px;font-weight:800;color:'+pctC+';margin-top:2px">'+pct.toFixed(1)+'%</div>'
+    +'</div>'
+    +'<div style="padding:6px 12px 10px;border-top:1px solid var(--s2);margin-top:6px">'
+      +'<div class="ch-batch" style="margin-bottom:3px">Batch '+(row.batch_no||'\u2014')+'</div>'
+      +'<div class="ch-rp"><span style="font-size:10px;color:#6b7280;font-weight:600">\u0e23\u0e2b\u0e31\u0e2a\u0e1c\u0e25\u0e34\u0e15: </span>'+rp+'</div>'
+    +'</div>'
+    +expHtml
+    +'</div>';
+}
 
 
   return`<div class="lcard ${cardStatus}" id="card-${line.id}">
