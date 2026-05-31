@@ -200,6 +200,52 @@ td.sep{border-right:2px solid var(--b1)}
 </main>
 <div id="toast"></div>
 <script type="module">
+function renderTempAlert(){
+  const el=document.getElementById('temp-alert-bar');
+  if(!el)return;
+  const SHELF={'Ice Cream':[96,96,96,96,92,76,62,51,43,37,32],'Water Ice':[96,96,96,96,96,96,96,93,81,71,63]};
+  const warned=Object.values(tankStates).filter(ts=>{
+    const pt=ts.product_type||'';
+    if(!SHELF[pt])return false;
+    const maxT=ts.max_temp!=null?+ts.max_temp:null;
+    if(maxT==null)return false;
+    const threshold=pt==='Ice Cream'?-7.5:-7.0;
+    return maxT>(threshold+5);
+  });
+  if(!warned.length){el.innerHTML='';return;}
+  const now=Date.now();
+  const chips=warned.map(ts=>{
+    const pt=ts.product_type||'Ice Cream';
+    const threshold=pt==='Ice Cream'?-7.5:-7.0;
+    const maxT=+(ts.max_temp||0);
+    const diff=(maxT-threshold).toFixed(1);
+    const shelfHr=ts.shelf_hr||SHELF[pt]?.[Math.max(0,Math.min(10,Math.round(maxT)))]||96;
+    let expireStr='—',remainStr='—';
+    if(ts.expire_at){
+      const exp=new Date(ts.expire_at);
+      const rem=Math.max(0,Math.round((exp-now)/3600000));
+      const d=exp.toLocaleDateString('th-TH',{day:'2-digit',month:'short',year:'2-digit'});
+      const t=exp.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+      expireStr=d+' '+t;remainStr=rem+' ชม.';
+    }
+    return '<div style="background:rgba(239,68,68,0.2);border:2px solid #ef4444;border-radius:12px;padding:14px 18px;animation:cipTempBlink 2s step-start infinite;min-width:200px">'
+      +'<div style="font-family:monospace;font-size:36px;color:#fff;font-weight:900;letter-spacing:2px;line-height:1">'+ts.id+'</div>'
+      +'<div style="font-size:12px;color:#fca5a5;font-weight:700;margin:4px 0 6px">'+pt+'</div>'
+      +'<div style="font-family:monospace;font-size:38px;color:#fef2f2;font-weight:900;line-height:1">'+maxT+'°C</div>'
+      +'<div style="font-size:13px;color:#fbbf24;font-weight:800;margin:6px 0 4px">▲ +'+diff+'°C เกินจาก '+threshold+'°C</div>'
+      +'<div style="font-size:12px;color:#fca5a5;margin-top:5px;line-height:1.8">หมดอายุ: <span style="color:#fff;font-weight:900;font-family:monospace">'+expireStr+'</span><br>'
+      +'Shelf: <span style="color:#fff;font-weight:900;font-family:monospace">'+shelfHr+' ชม.</span> · เหลือ <span style="color:#fff;font-weight:900;font-family:monospace">'+remainStr+'</span></div>'
+      +'</div>';
+  }).join('');
+  el.innerHTML='<div style="background:#7f1d1d;border:2px solid #ef4444;border-radius:14px;padding:16px 18px;margin-bottom:14px;animation:cipTempPulse 2s ease-in-out infinite">'
+    +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">'
+    +'<span style="font-size:26px;animation:cipTempBlink 2s step-start infinite">🚨</span>'
+    +'<div><div style="color:#fca5a5;font-size:14px;font-weight:800;letter-spacing:1px">⚠️ เฝ้าระวัง — อุณหภูมิเกินกำหนด</div>'
+    +'<div style="color:#fca5a5;font-size:11px;opacity:.8;margin-top:3px">ตรวจสอบทันที · Ice Cream / Water Ice</div></div></div>'
+    +'<div style="display:flex;gap:12px;flex-wrap:wrap">'+chips+'</div></div>';
+}
+
+
 let _pendingAct = null;
 
 window._signSkip = function(){
