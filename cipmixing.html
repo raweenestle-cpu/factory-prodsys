@@ -220,18 +220,21 @@ function renderTempAlert(){
     return vals.length?Math.max(...vals):null;
   }
   const warned=Object.values(tankStates).filter(ts=>{
-    const pt=ts.product_type||'';
     const maxT=getMaxTemp(ts);
     if(maxT==null)return false;
+    const pt=ts.product_type||'';
+    // ถ้ามี product_type
     if(pt==='Jelly') return maxT<37||maxT>42;
     if(pt==='Ice Cream'||pt==='Water Ice') return maxT>5;
+    // ถ้าไม่มี product_type — ใช้ shelf_hr เป็นตัวบ่งชี้ว่าเป็น Ice Cream / Water Ice (shelf<=96)
+    if(!pt&&ts.shelf_hr&&ts.shelf_hr<=96&&ts.past_end_time) return maxT>5;
     return false;
   });
   if(!warned.length){el.innerHTML='';return;}
   const now=Date.now();
   const chips=warned.map(ts=>{
-    const pt=ts.product_type||'Ice Cream';
-    const threshold=pt==='Ice Cream'?-7.5:-7.0;
+    const pt=ts.product_type||(ts.shelf_hr<=96?'Ice Cream':'Ice Cream');
+    const threshold=pt==='Water Ice'?-7.0:-7.5;
     const maxT=+(ts.max_temp||0);
     const diff=(maxT-threshold).toFixed(1);
     const shelfHr=ts.shelf_hr||SHELF[pt]?.[Math.max(0,Math.min(10,Math.round(maxT)))]||96;
