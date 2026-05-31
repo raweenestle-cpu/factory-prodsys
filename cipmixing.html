@@ -395,7 +395,7 @@ window.loadAll=async()=>{
     getDocs(collection(db,'lines')),
     getDocs(query(collection(db,'production_plans'),where('date','==',d))),
     getDocs(query(collection(db,'production_plans_m2'),where('date','==',d))),
-    getDocs(collection(db,'productmaster'))
+    getDocs(collection(db,'productmaster')).catch(e=>{console.error('productmaster error:',e);return {docs:[]}})
   ]);
   linesData=lSnap.docs.map(d=>({id:d.id,...d.data()}));
   // map mix_code -> Type จาก productmaster
