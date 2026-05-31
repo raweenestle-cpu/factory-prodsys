@@ -596,7 +596,7 @@ setInterval(async()=>{
         const key=agRow.id;
         if(!_autoStamping.has(key)){
           _autoStamping.add(key);
-          const endTime=nowHHMMSS();
+          const endTime=agRow.expected_finish_time||nowHHMMSS();
           const eff=100; // auto stamp พอดีเวลา ETA → Eff=100% เสมอ
 
           // Stamp Past.เสร็จ — current_vol = cumulative รวม batch ก่อนหน้าด้วย
@@ -650,7 +650,7 @@ setInterval(async()=>{
                 )
                 .reduce((s,r)=>s+(+(r.volume_liter||0)),0);
               await updateDoc(doc(db,planCol(p),nextRow.id),{
-                past_start_time:endTime,
+                past_start_time:agRow.expected_finish_time||endTime,
                 status:'pasteurising',
                 past_end_time:null,
               });
@@ -837,9 +837,9 @@ function renderTankVisual(m,rows){
     return{txt:'—',col:'#374151',tankCol:'#374151',tankCol2:'#1f2937'};
   }
 
-  // Mix T1 empty ถ้า past เสร็จแล้วและเป็น active tank
-  const t1Done=isDone&&isT1;
-  const t2Done=isDone&&isT2;
+  // t1Done/t2Done ตรวจจาก status ของ row นั้นๆ โดยตรง ไม่ใช่ isDone ของ agRow
+  const t1Done=t1Row?.status==='past_done'||t1Row?.status==='ready';
+  const t2Done=t2Row?.status==='past_done'||t2Row?.status==='ready';
   const s1=statLabel(t1Status,!!t1Row?.past_start_time,t1Vol,t1Done);
   const s2=statLabel(t2Status,!!t2Row?.past_start_time,t2Vol,t2Done);
 
