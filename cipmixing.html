@@ -194,7 +194,7 @@ td.sep{border-right:2px solid var(--b1)}
   </div>
   <div class="tw">
     <table id="temp-table"></table>
-    <div class="save-row"><button class="btn btn-blue" onclick="saveTemp()">💾 บันทึกอุณหภูมิ</button></div>
+    
   </div>
 </div>
 </main>
@@ -484,7 +484,7 @@ window.setTempVal=async function(tid,key,val){
     renderTempAlert();
   }catch(e){console.warn('setTempVal:',e);toast('❌ '+e.message,'red');}
 };
-window.saveTemp=async()=>{const cr=getNowRound();const td=today();const key=td+'_'+cr.replace(':','');const active=Object.values(tankStates).filter(t=>t.status&&!['empty','san_done'].includes(t.status));const miss=active.filter(t=>!t.temps||t.temps[key]===null||t.temps[key]===undefined||t.temps[key]==='');if(miss.length)return toast('⚠️ ยังไม่กรอก: '+miss.map(t=>t.id).join(', '),'red');toast('✅ บันทึกอุณหภูมิรอบ '+cr+' สำเร็จ','green');};
+window.saveTemp=async()=>{};
 
 // ── CIP RECORDS ────────────────────────────────────────────────────
 let _recData = [];
