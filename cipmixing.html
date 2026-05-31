@@ -211,7 +211,7 @@ function renderTempAlert(){
     // Jelly ต้องอยู่ 37-42°C
     if(pt==='Jelly') return maxT<37||maxT>42;
     // Ice Cream / Water Ice — เกิน 5°C = ผิดปกติ
-    if(pt==='Ice Cream'||pt==='Water Ice') return maxT>5;
+    if(pt==='Ice Cream'||pt==='Water Ice') return maxT>-5;
     return false;
   });
   if(!warned.length){el.innerHTML='';return;}
@@ -316,8 +316,28 @@ async function _doActReal(tid, act){
   }
   if(act==='stop_san'){
     upd.san_stop_time=n;
-    // บันทึกลง cip_mixing_records
+    // คำนวณ expire_at จาก product_type + อุณหภูมิล่าสุด
     const _ts3=tankStates[tid]||{};
+    const _pt=_ts3.product_type||'';
+    const _SHELF={'Ice Cream':[96,96,96,96,92,76,62,51,43,37,32],'Water Ice':[96,96,96,96,96,96,96,93,81,71,63],'Jelly':[24,24,24,24,24,24,24,24,24,24,24]};
+    if(_pt&&_SHELF[_pt]){
+      const _temps=_ts3.temps||{};
+      const _vals=Object.values(_temps).filter(v=>v!=null&&!isNaN(+v)).map(v=>+v);
+      const _maxT=_vals.length?Math.max(..._vals):0;
+      const _shelfHr=_SHELF[_pt][Math.max(0,Math.min(10,Math.round(_maxT)))]||96;
+      // นับจาก past_end_time (เวลา pasteurize เสร็จ)
+      const _pastEnd=_ts3.past_end_time;
+      if(_pastEnd){
+        // past_end_time เป็น HH:MM หรือ ISO
+        const _baseDate=_pastEnd.length===5
+          ?new Date(new Date().toISOString().split('T')[0]+'T'+_pastEnd+':00')
+          :new Date(_pastEnd);
+        const _expDate=new Date(_baseDate.getTime()+_shelfHr*3600000);
+        upd.expire_at=_expDate.toISOString();
+        upd.shelf_hr=_shelfHr;
+      }
+    }
+    // บันทึกลง cip_mixing_records
     addDoc(collection(db,'cip_mixing_records'),{
       tank:tid, type:'san',
       start_time:_ts3.san_start_time||n, stop_time:n,
@@ -350,7 +370,30 @@ $('inp-date').value=today();
 const en=sessionStorage.getItem('emp_name')||'';if(en) $('emp-name').textContent='👤 '+en;
 onAuthStateChanged(auth,u=>{if(!u){location.href='index.html';return;}$('nav-user').textContent=u.email.replace('@filling.local','');initSt();loadAll();});
 function initSt(){if(unsubSt)unsubSt();unsubSt=onSnapshot(collection(db,'aging_tank_states'),snap=>{snap.docs.forEach(d=>{tankStates[d.id]={id:d.id,...d.data()};});renderAll();});}
-window.loadAll=async()=>{const d=$('inp-date').value||today();const lSnap=await getDocs(collection(db,'lines'));linesData=lSnap.docs.map(d=>({id:d.id,...d.data()}));const[s1,s2]=await Promise.all([getDocs(query(collection(db,'production_plans'),where('date','==',d))),getDocs(query(collection(db,'production_plans_m2'),where('date','==',d)))]);planRows.m1=s1.docs.map(d=>({...d.data(),id:d.id,_col:'production_plans'})).sort((a,b)=>(a.seq||0)-(b.seq||0));planRows.m2=s2.docs.map(d=>({...d.data(),id:d.id,_col:'production_plans_m2'})).sort((a,b)=>(a.seq||0)-(b.seq||0));renderAll();toast('โหลดแล้ว','green');};
+window.loadAll=async()=>{
+  const d=$('inp-date').value||today();
+  const[lSnap,s1,s2,pmSnap]=await Promise.all([
+    getDocs(collection(db,'lines')),
+    getDocs(query(collection(db,'production_plans'),where('date','==',d))),
+    getDocs(query(collection(db,'production_plans_m2'),where('date','==',d))),
+    getDocs(collection(db,'productmaster'))
+  ]);
+  linesData=lSnap.docs.map(d=>({id:d.id,...d.data()}));
+  // map mix_code -> Type จาก productmaster
+  const pmMap={};
+  pmSnap.docs.forEach(d=>{const pd=d.data();if(pd.mix_code)pmMap[pd.mix_code]=pd.Type||'';});
+  planRows.m1=s1.docs.map(d=>({...d.data(),id:d.id,_col:'production_plans'})).sort((a,b)=>(a.seq||0)-(b.seq||0));
+  planRows.m2=s2.docs.map(d=>({...d.data(),id:d.id,_col:'production_plans_m2'})).sort((a,b)=>(a.seq||0)-(b.seq||0));
+  // inject product_type เข้า tankStates จาก productmaster
+  const allRows=[...planRows.m1,...planRows.m2];
+  allRows.forEach(r=>{
+    if(r.aging_tank&&r.mix_code&&pmMap[r.mix_code]){
+      if(!tankStates[r.aging_tank])tankStates[r.aging_tank]={id:r.aging_tank};
+      tankStates[r.aging_tank].product_type=pmMap[r.mix_code];
+    }
+  });
+  renderAll();toast('โหลดแล้ว','green');
+};
 const SHELF={'Ice Cream':[96,96,96,96,92,76,62,51,43,37,32],'Water Ice':[96,96,96,96,96,96,96,93,81,71,63],'Jelly':[24,24,24,24,24,24,24,24,24,24,24]};
 const ST={empty:{color:'#94a3b8',label:'ว่าง',pulse:false},cip:{color:'#3b82f6',label:'CIP',pulse:true},cip_done:{color:'#3b82f6',label:'CIP✓',pulse:false},san:{color:'#22c55e',label:'San.',pulse:true},san_done:{color:'#22c55e',label:'San.✓',pulse:false},busy:{color:'#ef4444',label:'มีของ',pulse:false},pasteurising:{color:'#ef4444',label:'Past.',pulse:true},ready:{color:'#22c55e',label:'พร้อม',pulse:false},filling:{color:'#f97316',label:'Fill.',pulse:true}};
 const LC={};
@@ -485,6 +528,26 @@ window.setTempVal=async function(tid,key,val){
     tankStates[tid].temps[key]=newTemp;
     if(upd.max_temp!=null)tankStates[tid].max_temp=newTemp;
     toast('✅ บันทึก '+tid+' = '+newTemp+'°C','green');
+    // recalculate expire_at ถ้ามี product_type และ san_stop_time
+    const _ts2=tankStates[tid]||{};
+    const _pt2=_ts2.product_type||'';
+    const _SHELF2={'Ice Cream':[96,96,96,96,92,76,62,51,43,37,32],'Water Ice':[96,96,96,96,96,96,96,93,81,71,63],'Jelly':[24,24,24,24,24,24,24,24,24,24,24]};
+    if(_pt2&&_SHELF2[_pt2]&&_ts2.past_end_time){
+      const _temps2=tankStates[tid].temps||{};
+      const _vals2=Object.values(_temps2).filter(v=>v!=null&&!isNaN(+v)).map(v=>+v);
+      const _maxT2=_vals2.length?Math.max(..._vals2):0;
+      const _shelfHr2=_SHELF2[_pt2][Math.max(0,Math.min(10,Math.round(_maxT2)))]||96;
+      // นับจาก past_end_time
+      const _pastEnd2=_ts2.past_end_time;
+      const _baseDate2=_pastEnd2.length===5
+        ?new Date(new Date().toISOString().split('T')[0]+'T'+_pastEnd2+':00')
+        :new Date(_pastEnd2);
+      const _newExp=new Date(_baseDate2.getTime()+_shelfHr2*3600000);
+      const _expUpd={expire_at:_newExp.toISOString(),shelf_hr:_shelfHr2,updated_at:new Date().toISOString()};
+      await setDoc(doc(db,'aging_tank_states',tid),_expUpd,{merge:true});
+      tankStates[tid].expire_at=_newExp.toISOString();
+      tankStates[tid].shelf_hr=_shelfHr2;
+    }
     renderTempAlert();
   }catch(e){console.warn('setTempVal error:',e);toast('❌ '+e.message,'red');}
 };
