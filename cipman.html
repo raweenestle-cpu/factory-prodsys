@@ -1138,6 +1138,11 @@ window.stopLine=async(lineId)=>{
   const elapsed=st.start_ts?(Date.now()-st.start_ts)/3600000:0;
   const rem=Math.max(0,(st.start_vol||0)-(elapsed*(st.flow_rate||300)));
   await setDoc(doc(db,'cip_line_states',lineId),{running:false,start_ts:null,start_vol:rem,stopped_at:nowHHMM(),stopped_by:_empName||ME.email,stop_sig:_empSig||''},{merge:true});
+  // เคลียร์ aging_tank_states ให้หยุดด้วย
+  const _agTankStop=st.aging_tank||'';
+  if(_agTankStop){
+    setDoc(doc(db,'aging_tank_states',_agTankStop),{current_vol:Math.round(rem),updated_at:new Date().toISOString()},{merge:true}).catch(()=>{});
+  }
   toast('⏸ Stop แล้ว');
 };
 window.resetLine=async(lineId)=>{
