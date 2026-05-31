@@ -533,7 +533,7 @@ const _autoStamping=new Set(); // ป้องกัน stamp ซ้ำ
 setInterval(async()=>{
   for(const p of["p1","p2"]){
     const pRows=window._rows[p]||[];
-    const agRow=pRows.find(r=>r.status==='pasteurising'&&r.past_start_time)||null;
+    const agRow=pRows.find(r=>r.status==='pasteurising'&&r.past_start_time&&!r.past_end_time)||null;
     if(!agRow)continue;
     try{
       const totalVol=+(agRow.volume_liter||0);
@@ -880,6 +880,7 @@ function renderTankVisual(m,rows){
   }
   const mx1=mixTankVol(t1Row,t1Total,t1Active,t1Done);
   const mx2=mixTankVol(t2Row,t2Total,t2Active,t2Done);
+  console.log('[TANK]','t2Row:',t2Row?.id,t2Row?.status,'t2Total:',t2Total,'t2Active:',t2Active,'t2Done:',t2Done,'mx2.vol:',mx2.vol,'mx2.pct:',mx2.pct);
   const sAg={txt:isFlowing?'♨️ รับของ':agVol>0?'✅ เต็ม':'⚪ ว่าง',
              col:isFlowing?'#f97316':agVol>0?'#22c55e':'#374151',
              tankCol:isFlowing?'#f97316':agVol>0?'#22c55e':'#374151',
