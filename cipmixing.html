@@ -420,34 +420,59 @@ function getNowRound(){const h=new Date().getHours();const r=[2,6,10,14,18,22];f
 function getNextRound(cur){const i=TEMP_TIMES.indexOf(cur);return i>=0&&i<TEMP_TIMES.length-1?TEMP_TIMES[i+1]:'02:00 (พรุ่งนี้)';}
 function getDays(){const d=[];for(let i=4;i>=0;i--){const dt=new Date();dt.setDate(dt.getDate()-i);d.push(dt.toISOString().slice(0,10));}return d;}
 function fmtDay(d,idx){return 'วันที่ '+(idx+1);}
-function renderTemp(){if(document.activeElement&&document.activeElement.tagName==='SELECT')return;const cr=getNowRound();const nr=getNextRound(cr);const days=getDays();const td=today();$('cur-round').textContent='รอบปัจจุบัน: '+cr;$('next-round').textContent='ถัดไป: '+nr;const active=Object.values(tankStates).filter(t=>t.status&&!['empty','san_done'].includes(t.status));$('tank-count').textContent='มีของ: '+active.length+' ถัง';if(!active.length){$('temp-table').innerHTML='<tr><td style="text-align:center;padding:30px;color:var(--t3)">ไม่มีถังที่มีของ</td></tr>';return;}let h='<thead><tr><th class="th-fix" rowspan="2">ถัง</th><th class="th-fix" rowspan="2" style="min-width:130px;position:sticky;left:80px;z-index:4;border-right:2px solid var(--b1)">สินค้า</th>';days.forEach((d,i)=>{const isT=d===td;h+='<th class="th-date'+(isT?' today':'')+'" colspan="6">'+fmtDay(d,i)+(isT?' ★':'')+'</th>';});h+='</tr><tr>';days.forEach(d=>{TEMP_TIMES.forEach((t,ti)=>{const isN=d===td&&t===cr;const sep=ti===5?'border-right:2px solid var(--b1)':'';h+='<th class="th-time'+(isN?' now-col':'')+'" style="'+sep+'">'+t+'</th>';});});h+='</tr></thead><tbody>';active.sort((a,b)=>a.id.localeCompare(b.id)).forEach(tank=>{const sc=ST[tank.status]||ST.empty;h+='<tr><td class="sep" style="position:sticky;left:0;z-index:3;background:#fff"><div style="display:flex;align-items:center;gap:5px"><span class="st-dot" style="background:'+sc.color+'"></span><span style="font-family:var(--mono);font-weight:900;color:'+sc.color+'">'+tank.id+'</span></div></td><td class="sep" style="position:sticky;left:80px;z-index:3;background:#fff;border-right:2px solid var(--b1)"><div class="badge badge-cyan" style="margin-bottom:2px">'+(tank.mix_code||'—')+'</div><div style="font-size:11px;color:var(--t2)">'+(tank.mix_name||'—')+'</div></td>';days.forEach(d=>{TEMP_TIMES.forEach((t,ti)=>{const isN=d===td&&t===cr;const isPast=d<td||(d===td&&t<=cr);const sep=ti===5?'border-right:2px solid var(--b1)':'';const key=d+'_'+t.replace(':','');const val=tank.temps?tank.temps[key.replace(/-/g,'')]:null;const filled=val!==null&&val!==undefined&&val!=='';const newTemp2=filled?+val:0;const maxT2=tank.max_temp!=null?+tank.max_temp:-1;const isHot=filled&&newTemp2>maxT2;const cls='ti'+(filled?(isHot?' hot':' ok'):'')+(isN&&!filled?' cur-slot':'');// สร้าง options ตาม product_type — Ice Cream/Water Ice: -10~10, Jelly: 30~50, อื่นๆ: -10~50
+function renderTemp(){
+  if(document.activeElement&&document.activeElement.tagName==='SELECT')return;
+  const cr=getNowRound(),nr=getNextRound(cr),days=getDays(),td=today();
+  $('cur-round').textContent='รอบปัจจุบัน: '+cr;
+  $('next-round').textContent='ถัดไป: '+nr;
+  const active=Object.values(tankStates).filter(t=>t.status&&!['empty','san_done'].includes(t.status));
+  $('tank-count').textContent='มีของ: '+active.length+' ถัง';
+  if(!active.length){$('temp-table').innerHTML='<tr><td style="text-align:center;padding:30px;color:var(--t3)">ไม่มีถังที่มีของ</td></tr>';return;}
+  let h='<thead><tr><th style="position:sticky;left:0;z-index:4;background:var(--s2);padding:8px 10px">ถัง</th><th style="position:sticky;left:52px;z-index:4;background:var(--s2);padding:8px 6px">Code</th><th style="position:sticky;left:108px;z-index:4;background:var(--s2);padding:8px 8px;border-right:2px solid var(--b1)">Mix</th>';
+  days.forEach((d,di)=>{const isT=d===td;TEMP_TIMES.forEach((t,ti)=>{const isN=isT&&t===cr;h+='<th style="padding:5px 3px;text-align:center;font-size:10px;min-width:42px;'+(isN?'background:rgba(29,78,216,.08)':'')+(isT?'font-weight:800':'opacity:.5')+'">'+(isT?'':('d'+(di+1)+'<br>'))+t+(isN?'<br>★':'')+'</th>';});if(di<days.length-1)h+='<th style="width:3px;background:var(--s2)"></th>';});
+  h+='</tr></thead><tbody>';
+  active.sort((a,b)=>a.id.localeCompare(b.id)).forEach(tank=>{
+    const sc=ST[tank.status]||ST.empty;
+    h+='<tr><td style="position:sticky;left:0;z-index:2;background:#fff;padding:5px 8px;white-space:nowrap"><span style="font-family:var(--mono);font-weight:900;color:'+sc.color+'">'+tank.id+'</span></td>';
+    h+='<td style="position:sticky;left:52px;z-index:2;background:#fff;padding:5px 5px;white-space:nowrap"><span class="badge badge-cyan" style="font-size:10px">'+(tank.mix_code||'—')+'</span></td>';
+    h+='<td style="position:sticky;left:108px;z-index:2;background:#fff;padding:5px 8px;white-space:nowrap;border-right:2px solid var(--b1);font-size:11px;color:var(--t2)">'+(tank.mix_name||'—').slice(0,10)+'</td>';
+    days.forEach((d,di)=>{
+      TEMP_TIMES.forEach((t,ti)=>{
+        const isN=d===td&&t===cr;
+        const isPast=d<td||(d===td&&t<=cr);
+        const key=(d+'_'+t.replace(':','')).replace(/-/g,'');
+        const val=tank.temps&&tank.temps[key]!=null?tank.temps[key]:null;
+        const filled=val!==null&&val!==undefined&&val!=='';
+        const isHot=filled&&+val>5;
+        const bg=isHot?'#fee2e2':isN?'rgba(29,78,216,.04)':'';
+        const bdr=isHot?'#ef4444':filled?'#15803d':'var(--b1)';
+        const selbg=isHot?'#fee2e2':filled?'#f0fdf4':'#fff';
+        const opts='<option value="">'+(filled?'':'—')+'</option>'+[0,1,2,3,4,5,6,7,8,9,10].map(v=>'<option value="'+v+'"'+(filled&&+v===+val?' selected':'')+'>'+v+'</option>').join('');
+        h+='<td style="padding:2px;text-align:center;background:'+bg+'"><select style="font-family:var(--mono);font-size:12px;font-weight:700;width:40px;border:1px solid '+bdr+';border-radius:4px;padding:2px;background:'+selbg+';"'+(isPast?'':' disabled')+' onchange="setTempVal('+JSON.stringify(tank.id)+','+JSON.stringify(key)+',this.value)">'+opts+'</select></td>';
+      });
+      if(di<days.length-1)h+='<td style="width:3px;background:var(--s2)"></td>';
+    });
+    h+='</tr>';
+  });
+  $('temp-table').innerHTML=h+'</tbody>';
+}
 
-const selOpts='<option value="">'+(filled?'':'—')+'</option>'+[0,1,2,3,4,5,6,7,8,9,10].map(v=>'<option value="'+v+'"'+(filled&&+v===+val?' selected':'')+'>'+v+'°</option>').join('');h+='<td style="'+(isN?'background:rgba(29,78,216,.03)':'')+sep+'"><select class="'+cls+'"'+(isPast?'':' disabled')+' onchange="setTempVal(\''+tank.id+'\',\''+key+'\',this.value)">'+selOpts+'</select></td>';});});h+='</tr>';});h+='</tbody>';$('temp-table').innerHTML=h;}
-window.setTempVal=async(tid,key,val)=>{if(val===''||val===null||val===undefined||isNaN(+val))return;const newTemp=+val;const ts=tankStates[tid]||{};try{const upd={updated_at:new Date().toISOString()};upd['temps.'+key.replace(/-/g,'')]=newTemp;const oldMax=ts.max_temp!=null?+ts.max_temp:-1;if(newTemp>oldMax){upd.max_temp=newTemp;const pType=ts.product_type||'Ice Cream';const shelfHr=SHELF[pType]?SHELF[pType][Math.max(0,Math.min(SHELF[pType].length-1,Math.round(newTemp)))]:96;const pastEnd=ts.past_end_time||null;if(pastEnd){
+window.setTempVal=async(tid,key,val)=>{
+  if(val===''||val===null||val===undefined||isNaN(+val))return;
+  const newTemp=+val;
   try{
-    // past_end_time อาจเป็น HH:MM:SS — แปลงเป็น Date วันนี้
-    let ed;
-    if(/^\d{2}:\d{2}/.test(pastEnd)){
-      const [hh,mm,ss]=pastEnd.split(':').map(Number);
-      ed=new Date();ed.setHours(hh,mm,ss||0,0);
-    } else {
-      ed=new Date(pastEnd);
-    }
-    if(!isNaN(ed.getTime())){
-      ed.setHours(ed.getHours()+shelfHr);
-      upd.expire_at=ed.toISOString();upd.shelf_hr=shelfHr;
-    }
-  }catch{}
-}toast('⬆️ อุณหภูมิสูงขึ้น '+newTemp+'°C — คำนวณ Expire ใหม่','red');}await setDoc(doc(db,'aging_tank_states',tid),upd,{merge:true});
-  // อัปเดต tankStates ทันทีไม่รอ onSnapshot แล้ว trigger alert
-  if(!tankStates[tid])tankStates[tid]={id:tid};
-  Object.assign(tankStates[tid],upd);
-  // อัปเดต max_temp ใน local state ด้วยถึงแม้ไม่ได้ write
-  if(tankStates[tid].max_temp==null||newTemp>+(tankStates[tid].max_temp||0)){
-    tankStates[tid].max_temp=newTemp;
-  }
-  renderTempAlert();
-}catch(e){console.warn(e);}};
+    const upd={updated_at:new Date().toISOString()};
+    upd['temps.'+key]=newTemp;
+    const ts=tankStates[tid]||{};
+    if(ts.max_temp==null||newTemp>+ts.max_temp)upd.max_temp=newTemp;
+    await setDoc(doc(db,'aging_tank_states',tid),upd,{merge:true});
+    if(!tankStates[tid])tankStates[tid]={id:tid};
+    if(!tankStates[tid].temps)tankStates[tid].temps={};
+    tankStates[tid].temps[key]=newTemp;
+    if(upd.max_temp!=null)tankStates[tid].max_temp=newTemp;
+    renderTempAlert();
+  }catch(e){console.warn(e);toast('❌ '+e.message,'red');}
+};
 window.saveTemp=async()=>{};
 
 // ── CIP RECORDS ────────────────────────────────────────────────────
