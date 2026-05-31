@@ -533,6 +533,9 @@ window._agingStates={};
 onSnapshot(collection(db,'aging_tank_states'),snap=>{
   snap.docs.forEach(d=>{window._agingStates[d.id]={id:d.id,...d.data()};});
 });
+onSnapshot(collection(db,'aging_tank_states'),snap=>{
+  snap.docs.forEach(d=>{window._agingStates[d.id]={id:d.id,...d.data()};});
+});
 
 const _autoStamping=new Set(); // ป้องกัน stamp ซ้ำ
 
@@ -819,8 +822,9 @@ function renderTankVisual(m,rows){
         : [agRow];
       const totalVol=groupRows.reduce((sum,r)=>sum+(+(r.volume_liter||0)),0)||+(agRow.volume_liter||0);
 
-      // current_vol ของ batch นี้เท่านั้น
-      const cumVol=agRow?.current_vol!=null?+agRow.current_vol:0;
+      // อ่าน cumVol จาก aging_tank_states
+      const _atsAg=window._agingStates&&agRow.aging_tank?window._agingStates[agRow.aging_tank]||{}:{};
+      const cumVol=_atsAg.current_vol!=null?+_atsAg.current_vol:(agRow?.current_vol!=null?+agRow.current_vol:0);
 
       if(isDone){
         agVol=totalVol;
