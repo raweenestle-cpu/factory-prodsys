@@ -221,6 +221,7 @@ async function _doActReal(tid, act){
   const upd={status:newSt,updated_at:new Date().toISOString()};
   if(act==='start_cip'){
     upd.cip_start_time=n;
+    upd.cip_date=new Date().toISOString().split('T')[0];
     // ดึง mix_code/mix_name จาก aging_tank_states (batch ล่าสุดที่อยู่ในถัง)
     const _ts=tankStates[tid]||{};
     if(_ts.mix_code) upd.last_mix_code=_ts.mix_code;
@@ -229,6 +230,7 @@ async function _doActReal(tid, act){
   if(act==='stop_cip')upd.cip_stop_time=n;
   if(act==='start_san'){
     upd.san_start_time=n;
+    upd.san_date=new Date().toISOString().split('T')[0];
     // ดึง mix_code/mix_name จาก production_plans batch ถัดไปที่ leadman สั่ง
     const _next=_getNextPlanForTank(tid);
     if(_next.mix_code) upd.next_mix_code=_next.mix_code;
