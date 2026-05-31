@@ -473,13 +473,15 @@ let agVol=0, agPct=0, agName='—', agTank='—', agTime='';
 if(agRow){
 agTank=agRow.aging_tank||'—';
 agName=(agRow.mix_name||'—').slice(0,12);
-// mixing เสร็จแล้ว รอ stamp past — แสดง volume จาก production_plans โดยตรง
+// mixing เสร็จแล้ว รอ stamp past — ใช้ volume_liter จาก row โดยตรง เหมือน mixing.html
 if(!agRow.past_start_time&&agRow.status==='pasteurising'){
   const _allR=[...(window._rows['p1']||[]),...(window._rows['p2']||[])];
   const _grp=agRow.process_order&&agRow.aging_tank
     ?_allR.filter(r=>r.process_order===agRow.process_order&&r.aging_tank===agRow.aging_tank)
     :[agRow];
   agVol=_grp.reduce((s,r)=>s+(+(r.volume_liter||0)),0)||+(agRow.volume_liter||0);
+  agTank=agRow.aging_tank||'—';
+  agName=(agRow.mix_name||'—').slice(0,12);
   const _capE=getTankCapacity(agRow.aging_tank||'');
   agPct=_capE>0?(agVol/_capE)*100:0;
 }
