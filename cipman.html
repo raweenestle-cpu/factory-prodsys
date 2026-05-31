@@ -1220,9 +1220,9 @@ function tickCountdowns(){
     if(vEl){vEl.textContent=fmtL(rem)+' L';vEl.style.color=c;}
     if(pEl){pEl.textContent=pct.toFixed(2)+'%';pEl.style.color=c;}
     if(bEl){bEl.style.width=pct.toFixed(1)+'%';bEl.style.background=c;}
-    // อัปเดต aging_tank_states.current_vol ทุก 30 วินาที
+    // อัปเดต aging_tank_states.current_vol ทุก tick
     const _agTank=st.aging_tank||'';
-    if(_agTank&&Date.now()%2000<1100){
+    if(_agTank){
       setDoc(doc(db,'aging_tank_states',_agTank),{current_vol:Math.round(rem),updated_at:new Date().toISOString()},{merge:true}).catch(()=>{});
       setDoc(doc(db,'cip_line_states',line.id),{current_vol:Math.round(rem),updated_at:new Date().toISOString()},{merge:true}).catch(()=>{});
     }
