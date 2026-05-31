@@ -505,7 +505,12 @@ async function checkPin(){
     // ถ้าโหลดไม่ได้ใช้ค่าเดิม
   }
 
-  var emp=pinEmployees.find(function(e){return e.pin===pinValue;});
+  // verify ด้วย hash (SHA-256)
+  var inputHash=await hashPin(pinValue);
+  var emp=pinEmployees.find(function(e){
+    // รองรับทั้ง pin_hash (ใหม่) และ pin (เก่า)
+    return e.pin_hash===inputHash||(e.pin&&e.pin===pinValue);
+  });
   if(!emp){
     document.getElementById('pin-error').textContent='❌ รหัส PIN ไม่ถูกต้อง';
     pinValue='';updatePinDots();return;
