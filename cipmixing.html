@@ -205,14 +205,26 @@ function renderTempAlert(){
   const el=document.getElementById('temp-alert-bar');
   if(!el)return;
   const SHELF={'Ice Cream':[96,96,96,96,92,76,62,51,43,37,32],'Water Ice':[96,96,96,96,96,96,96,93,81,71,63]};
+  // helper: หา max_temp จากทั้ง ts.temps{} และ root field temps.xxx
+  function getMaxTemp(ts){
+    const vals=[];
+    if(ts.max_temp!=null) vals.push(+ts.max_temp);
+    // อ่าน nested temps object
+    if(ts.temps&&typeof ts.temps==='object'){
+      Object.values(ts.temps).forEach(v=>{if(v!=null&&!isNaN(+v))vals.push(+v);});
+    }
+    // อ่าน root field ที่ชื่อขึ้นต้นด้วย temps. หรือมี _ (legacy dot-notation bug)
+    Object.keys(ts).forEach(k=>{
+      if(k.startsWith('temps.')&&!isNaN(+ts[k]))vals.push(+ts[k]);
+    });
+    return vals.length?Math.max(...vals):null;
+  }
   const warned=Object.values(tankStates).filter(ts=>{
     const pt=ts.product_type||'';
-    const maxT=ts.max_temp!=null?+ts.max_temp:null;
+    const maxT=getMaxTemp(ts);
     if(maxT==null)return false;
-    // Jelly ต้องอยู่ 37-42°C
     if(pt==='Jelly') return maxT<37||maxT>42;
-    // Ice Cream / Water Ice — เกิน 5°C = ผิดปกติ
-    if(pt==='Ice Cream'||pt==='Water Ice') return maxT>-5;
+    if(pt==='Ice Cream'||pt==='Water Ice') return maxT>5;
     return false;
   });
   if(!warned.length){el.innerHTML='';return;}
