@@ -194,7 +194,7 @@ td.sep{border-right:2px solid var(--b1)}
   </div>
   <div class="tw">
     <table id="temp-table"></table>
-    
+    <div class="save-row"><button class="btn btn-blue" onclick="saveTemp()">💾 บันทึกอุณหภูมิ</button></div>
   </div>
 </div>
 </main>
@@ -427,67 +427,64 @@ function renderTemp(){
   const active=Object.values(tankStates).filter(t=>t.status&&!['empty','san_done'].includes(t.status));
   $('tank-count').textContent='มีของ: '+active.length+' ถัง';
   if(!active.length){$('temp-table').innerHTML='<tr><td colspan="99" style="text-align:center;padding:30px;color:var(--t3)">ไม่มีถังที่มีของ</td></tr>';return;}
-  let h='<thead><tr>';
-  h+='<th style="position:sticky;left:0;z-index:4;background:var(--s2);padding:8px 10px">ถัง</th>';
-  h+='<th style="position:sticky;left:52px;z-index:4;background:var(--s2);padding:8px 6px">Code</th>';
-  h+='<th style="position:sticky;left:108px;z-index:4;background:var(--s2);padding:8px 8px;border-right:2px solid var(--b1)">Mix</th>';
-  days.forEach((d,di)=>{
-    const isT=d===td;
-    TEMP_TIMES.forEach(t=>{
-      const isN=isT&&t===cr;
-      h+='<th style="padding:5px 3px;text-align:center;font-size:10px;min-width:48px;'+(isN?'background:rgba(29,78,216,.1);font-weight:900':'')+(isT?';font-weight:700':'')+'">'+t+(isN?' ★':'')+'</th>';
-    });
-    if(di<days.length-1)h+='<th style="width:3px;background:var(--s2)"></th>';
-  });
-  h+='</tr></thead><tbody>';
-  active.sort((a,b)=>a.id.localeCompare(b.id)).forEach(tank=>{
+  const rows=[];
+  active.sort((a,b)=>a.id.localeCompare(b.id)).forEach(function(tank){
     const sc=ST[tank.status]||ST.empty;
-    h+='<tr>';
-    h+='<td style="position:sticky;left:0;z-index:2;background:#fff;padding:5px 8px"><span style="font-family:var(--mono);font-weight:900;color:'+sc.color+'">'+tank.id+'</span></td>';
-    h+='<td style="position:sticky;left:52px;z-index:2;background:#fff;padding:5px 5px"><span class="badge badge-cyan" style="font-size:10px">'+(tank.mix_code||'—')+'</span></td>';
-    h+='<td style="position:sticky;left:108px;z-index:2;background:#fff;padding:5px 8px;border-right:2px solid var(--b1);font-size:11px;color:var(--t2)">'+(tank.mix_name||'—').slice(0,10)+'</td>';
-    days.forEach((d,di)=>{
-      TEMP_TIMES.forEach(t=>{
+    let row=[];
+    row.push('<td style="position:sticky;left:0;z-index:2;background:#fff;padding:5px 8px"><span style="font-family:var(--mono);font-weight:900;color:'+sc.color+'">'+tank.id+'</span></td>');
+    row.push('<td style="position:sticky;left:52px;z-index:2;background:#fff;padding:5px 5px"><span class="badge badge-cyan" style="font-size:10px">'+(tank.mix_code||'—')+'</span></td>');
+    row.push('<td style="position:sticky;left:108px;z-index:2;background:#fff;padding:5px 8px;border-right:2px solid var(--b1);font-size:11px;color:var(--t2)">'+(tank.mix_name||'—').slice(0,10)+'</td>');
+    days.forEach(function(d,di){
+      TEMP_TIMES.forEach(function(t){
         const isN=d===td&&t===cr;
         const isPast=d<td||(d===td&&t<=cr);
         const key=(d+'_'+t.replace(':','')).replace(/-/g,'');
-        const val=tank.temps&&tank.temps[key]!=null?tank.temps[key]:'';
-        const filled=val!=='';
-        const isHot=filled&&+val>5;
-        const bg=isHot?'#fee2e2':isN?'rgba(29,78,216,.04)':'';
+        const rawVal=tank.temps&&tank.temps[key]!=null?tank.temps[key]:'';
+        const filled=rawVal!=='';
+        const isHot=filled&&+rawVal>5;
+        const bg=isHot?'background:#fee2e2':isN?'background:rgba(29,78,216,.04)':'';
         const bdr=isHot?'#ef4444':filled?'#15803d':'#d1d5db';
-        h+='<td style="padding:2px;text-align:center;background:'+bg+'">';
+        const inputBg=isHot?'#fee2e2':filled?'#f0fdf4':'#fff';
         if(isPast){
-          h+='<input type="number" min="0" max="10" step="1" value="'+val+'" style="width:40px;text-align:center;font-family:var(--mono);font-size:13px;font-weight:700;border:1px solid '+bdr+';border-radius:4px;padding:2px;background:'+(isHot?'#fee2e2':filled?'#f0fdf4':'#fff')+';" onchange="setTempVal('+JSON.stringify(tank.id)+','+JSON.stringify(key)+',this.value)">';
+          row.push('<td style="padding:2px;text-align:center;'+bg+'"><input type="number" min="0" max="10" step="1"'+(filled?' value="'+rawVal+'"':'')+' data-tid="'+tank.id+'" data-key="'+key+'" style="width:40px;text-align:center;font-family:var(--mono);font-size:13px;font-weight:700;border:1px solid '+bdr+';border-radius:4px;padding:2px 1px;background:'+inputBg+';" onchange="window.setTempVal(this.dataset.tid,this.dataset.key,this.value)"></td>');
         } else {
-          h+='<span style="color:var(--b1);font-size:11px">—</span>';
+          row.push('<td style="padding:2px;text-align:center"><span style="color:var(--b1);font-size:11px">—</span></td>');
         }
-        h+='</td>';
       });
-      if(di<days.length-1)h+='<td style="width:3px;background:var(--s2)"></td>';
+      if(di<days.length-1)row.push('<td style="width:3px;background:var(--s2)"></td>');
     });
-    h+='</tr>';
+    rows.push('<tr>'+row.join('')+'</tr>');
   });
-  $('temp-table').innerHTML=h+'</tbody>';
+  let h='<thead><tr><th style="position:sticky;left:0;z-index:4;background:var(--s2);padding:8px 10px">ถัง</th><th style="position:sticky;left:52px;z-index:4;background:var(--s2);padding:8px 6px">Code</th><th style="position:sticky;left:108px;z-index:4;background:var(--s2);padding:8px 8px;border-right:2px solid var(--b1)">Mix</th>';
+  days.forEach(function(d,di){
+    const isT=d===td;
+    TEMP_TIMES.forEach(function(t){
+      const isN=isT&&t===cr;
+      h+='<th style="padding:5px 3px;text-align:center;font-size:10px;min-width:48px;'+(isN?'background:rgba(29,78,216,.1);font-weight:900;':'')+(isT?'font-weight:700;':'')+'">';
+      h+=t+(isN?' ★':'')+'</th>';
+    });
+    if(di<days.length-1)h+='<th style="width:3px;background:var(--s2)"></th>';
+  });
+  h+='</tr></thead><tbody>'+rows.join('')+'</tbody>';
+  $('temp-table').innerHTML=h;
 }
-
-window.setTempVal=async(tid,key,val)=>{
+window.setTempVal=async function(tid,key,val){
   if(val===''||val===null||val===undefined||isNaN(+val))return;
-  const newTemp=+val;
+  var newTemp=+val;
+  var upd={updated_at:new Date().toISOString()};
+  upd['temps.'+key]=newTemp;
+  var ts=tankStates[tid]||{};
+  if(ts.max_temp==null||newTemp>+ts.max_temp)upd.max_temp=newTemp;
   try{
-    const upd={updated_at:new Date().toISOString()};
-    upd['temps.'+key]=newTemp;
-    const ts=tankStates[tid]||{};
-    if(ts.max_temp==null||newTemp>+ts.max_temp)upd.max_temp=newTemp;
     await setDoc(doc(db,'aging_tank_states',tid),upd,{merge:true});
     if(!tankStates[tid])tankStates[tid]={id:tid};
     if(!tankStates[tid].temps)tankStates[tid].temps={};
     tankStates[tid].temps[key]=newTemp;
     if(upd.max_temp!=null)tankStates[tid].max_temp=newTemp;
     renderTempAlert();
-  }catch(e){console.warn(e);toast('❌ '+e.message,'red');}
+  }catch(e){console.warn('setTempVal:',e);toast('❌ '+e.message,'red');}
 };
-window.saveTemp=async()=>{};
+window.saveTemp=async()=>{const cr=getNowRound();const td=today();const key=td+'_'+cr.replace(':','');const active=Object.values(tankStates).filter(t=>t.status&&!['empty','san_done'].includes(t.status));const miss=active.filter(t=>!t.temps||t.temps[key]===null||t.temps[key]===undefined||t.temps[key]==='');if(miss.length)return toast('⚠️ ยังไม่กรอก: '+miss.map(t=>t.id).join(', '),'red');toast('✅ บันทึกอุณหภูมิรอบ '+cr+' สำเร็จ','green');};
 
 // ── CIP RECORDS ────────────────────────────────────────────────────
 let _recData = [];
