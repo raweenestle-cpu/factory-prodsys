@@ -587,7 +587,7 @@ setInterval(async()=>{
       // ── AUTO STAMP ──────────────────────────────────────────
       // ถ้าถึงเวลา ETA และยังไม่มี past_end_time
       const totalSec2=totalMin*60;
-      if(!agRow.past_end_time && totalSec2>0 && elapsedSec2>=totalSec2){
+      if(!agRow.past_end_time && totalSec2>0 && elapsedSec2>=(totalSec2-10)){
         // ต้องมี aging_tank ก่อนถึง auto stamp ได้
         if(!agRow.aging_tank){
           toast(`⚠️ Auto Stamp หยุด — กรุณาเลือก Aging Tank ก่อน`,"red");
@@ -597,8 +597,9 @@ setInterval(async()=>{
         if(!_autoStamping.has(key)){
           _autoStamping.add(key);
           const endTime=agRow.expected_finish_time||nowHHMMSS();
-          const eff=100; // auto stamp พอดีเวลา ETA → Eff=100% เสมอ
-
+          // endTime = expected_finish_time ซึ่งคำนวณจาก stdSec พอดี → Eff = 100% เสมอ
+          const eff=100;
+          const effOk=true;
           // Stamp Past.เสร็จ — current_vol = cumulative รวม batch ก่อนหน้าด้วย
           const donePrevVol=allRows
             .filter(r=>r.id!==agRow.id&&
@@ -651,6 +652,14 @@ setInterval(async()=>{
                 .reduce((s,r)=>s+(+(r.volume_liter||0)),0);
               await updateDoc(doc(db,planCol(p),nextRow.id),{
                 past_start_time:agRow.expected_finish_time||endTime,
+                expected_finish_time:(()=>{
+                  const _p=productMap[nextRow.mix_code]||{};
+                  const _d=+(_p.density||1),_s=planCol(p)==='production_plans'?+(_p.speed_m1||_p.speed||0):+(_p.speed_m2||_p.speed||0),_v=+(nextRow.volume_liter||0);
+                  if(!_s||!_v)return null;
+                  const _r=Math.round(_v*_d*3600/_s),_st=(agRow.expected_finish_time||endTime).split(':').map(Number);
+                  const _ss=(_st[0]||0)*3600+(_st[1]||0)*60+(_st[2]||0),_es=(_ss+_r+2)%86400;
+                  return String(Math.floor(_es/3600)).padStart(2,'0')+':'+String(Math.floor((_es%3600)/60)).padStart(2,'0')+':'+String(_es%60).padStart(2,'0');
+                })(),
                 status:'pasteurising',
                 past_end_time:null,
               });
@@ -757,10 +766,16 @@ function pastTankSVG(uid,pct,col,animate){
 
 function renderTankVisual(m,rows){
   // หา row ที่กำลัง pasteurising หรือเพิ่งเสร็จ
+  // หา active process_order ก่อน — pasteurising เสมอ
+  const _activePO=rows.find(r=>r.status==='pasteurising'&&r.past_start_time)?.process_order
+    ||rows.find(r=>r.status==='pasteurising')?.process_order;
   const pastRow=rows.find(r=>r.status==='pasteurising'&&r.past_start_time)
-              ||rows.find(r=>r.status==='pasteurising')
-              ||rows.find(r=>r.status==='past_done'&&r.past_start_time)
-              ||rows.find(r=>r.status==='ready'&&r.past_start_time);
+    // กรณี Tank 2 เพิ่ง set past_start_time แต่ยังไม่มีใน snapshot — ใช้ pasteurising ที่ไม่มี past_start_time
+    ||rows.find(r=>r.status==='pasteurising')
+    // fallback past_done เฉพาะ process_order เดียวกันเท่านั้น
+    ||(_activePO?rows.find(r=>r.status==='past_done'&&r.past_start_time&&r.process_order===_activePO):null)
+    // กรณีไม่มี activePO เลย — ดู process_order ที่มี past_done ล่าสุด
+    ||rows.filter(r=>r.status==='past_done'&&r.past_start_time).sort((a,b)=>(b.seq||0)-(a.seq||0))[0]||null;
 
   // ดึง row จากตารางโดยตรง — ทุก status ที่ active (mixing, pasteurising)
   const activeStatuses=['mixing','pasteurising'];
@@ -1337,7 +1352,25 @@ window.stampTime=async(col,id,field,p)=>{
   const now=field==="past_end_time"?nowHHMMSS():nowHHMMSS();
   const upd={[field]:now};
 
-  if(field==="past_start_time") upd.status="pasteurising";
+  if(field==="past_start_time"){
+    upd.status="pasteurising";
+    // คำนวณ expected_finish_time ทันที
+    const _row=rows[p]?.find(r=>r.id===id);
+    if(_row){
+      const _prod=productMap[_row.mix_code]||{};
+      const _dens=+(_prod.density||1);
+      const _spd=p==='p1'?+(_prod.speed_m1||_prod.speed||0):+(_prod.speed_m2||_prod.speed||0);
+      const _vol=+(_row.volume_liter||0);
+      if(_spd>0&&_vol>0){
+        const _reqSec=Math.round(_vol*_dens*3600/_spd);
+        const _np=now.split(':').map(Number);
+        const _ns=(_np[0]||0)*3600+(_np[1]||0)*60+(_np[2]||0);
+        const _es=(_ns+_reqSec+2)%86400;
+        upd.expected_finish_time=String(Math.floor(_es/3600)).padStart(2,'0')+':'+String(Math.floor((_es%3600)/60)).padStart(2,'0')+':'+String(_es%60).padStart(2,'0');
+        upd.standard_duration_sec=_reqSec;
+      }
+    }
+  }
 
   if(field==="past_end_time"){
     // คำนวณ Eff% ก่อน
