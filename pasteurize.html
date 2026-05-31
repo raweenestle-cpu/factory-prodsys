@@ -222,14 +222,10 @@ if(el) el.innerHTML=`<span style="font-family:var(--mono);font-size:12px;font-we
 });
 },10000);
 
-// Subscribe aging_tank_states — single source of truth สำหรับ volume
 window._agingStates={};
 onSnapshot(collection(db,'aging_tank_states'),snap=>{
-  snap.docs.forEach(d=>{
-    window._agingStates[d.id]={id:d.id,...d.data()};
-  });
+  snap.docs.forEach(d=>{window._agingStates[d.id]={id:d.id,...d.data()};});
 });
-
 const _autoStamping=new Set();
 setInterval(async()=>{
 for(const p of["p1","p2"]){
@@ -250,27 +246,18 @@ const elapsedSec2=Math.max(0,(Date.now()-start)/1000);
 const elapsedMin=elapsedSec2/60;
 const agVol=totalMin>0?Math.min(totalVol,(elapsedMin/totalMin)*totalVol):0;
 const allRows=[...(window._rows['p1']||[]),...(window._rows['p2']||[])];
-// ROOT FIX: อ่าน prevVol จาก aging_tank_states โดยตรง (single source of truth)
-// ไม่คำนวณจาก volume_liter เพราะ switch tank จะทำให้ค่าหาย
+// ROOT FIX 1: อ่าน prevVol จาก aging_tank_states
 const _atState=window._agingStates&&agRow.aging_tank?window._agingStates[agRow.aging_tank]||{}:{};
 const _atCurVol=_atState.current_vol!=null?+_atState.current_vol:-1;
 let prevVol=0;
 if(_atCurVol>=0){
-  // มีค่าสะสมจาก aging_tank_states แล้ว ใช้เป็น base
   prevVol=Math.max(0,_atCurVol-agVol);
 } else if(agRow.process_order&&agRow.aging_tank){
   prevVol=allRows
   .filter(r=>r.id!==agRow.id&&r.process_order===agRow.process_order&&r.aging_tank===agRow.aging_tank&&(r.status==='past_done'||r.status==='ready'))
   .reduce((sum,r)=>sum+(+(r.volume_liter||0)),0);
 }
-console.log('[TRANSFER]',
-  'PO:',agRow.process_order,
-  'Tank:',agRow.aging_tank,
-  'Source:',agRow.mixing_tank||p,
-  'agVol:',agVol.toFixed(1),
-  'prevVol:',prevVol.toFixed(1),
-  'cumVol:',(prevVol+agVol).toFixed(1)
-);
+console.log('[TRANSFER]','PO:',agRow.process_order,'Tank:',agRow.aging_tank,'Source:',agRow.mixing_tank||p,'agVol:',agVol.toFixed(1),'prevVol:',prevVol.toFixed(1),'cumVol:',(prevVol+agVol).toFixed(1));
 const totalCumVol=Math.round((prevVol+agVol)*10)/10;
 await updateDoc(doc(db,planCol(p),agRow.id),{current_vol:totalCumVol});
 if(agRow.aging_tank){
@@ -300,33 +287,10 @@ continue;
 const key=agRow.id;
 if(!_autoStamping.has(key)){
 _autoStamping.add(key);
-// คำนวณ expected_finish_time ถ้ายังไม่มี (batch เก่า)
-        let endTime=agRow.expected_finish_time;
-        if(!endTime&&agRow.past_start_time){
-          const _prodAuto=productMap[agRow.mix_code]||{};
-          const _densAuto=+(_prodAuto.density||1);
-          const _spdAuto=+(agRow._col==='production_plans'?(_prodAuto.speed_m1||_prodAuto.speed||0):(_prodAuto.speed_m2||_prodAuto.speed||0));
-          const _volAuto=+(agRow.volume_liter||0);
-          if(_spdAuto>0&&_volAuto>0){
-            const _reqSecAuto=Math.round(_volAuto*_densAuto*3600/_spdAuto);
-            const _sp=agRow.past_start_time.split(':').map(Number);
-            const _startSecAuto=(_sp[0]||0)*3600+(_sp[1]||0)*60+(_sp[2]||0);
-            const _expSecAuto=(_startSecAuto+_reqSecAuto)%86400;
-            const _eH=Math.floor(_expSecAuto/3600),_eM=Math.floor((_expSecAuto%3600)/60),_eS=_expSecAuto%60;
-            endTime=String(_eH).padStart(2,'0')+':'+String(_eM).padStart(2,'0')+':'+String(_eS).padStart(2,'0');
-          }
-        }
-        if(!endTime) endTime=nowHHMMSS();
-        // บวก 2 วินาที buffer เพื่อป้องกัน eff > 100%
-        if(endTime){
-          const _ep=endTime.split(':').map(Number);
-          const _es=(_ep[0]||0)*3600+(_ep[1]||0)*60+(_ep[2]||0)+3;
-          const _eH=Math.floor(_es/3600)%24,_eM=Math.floor((_es%3600)/60),_eSec=_es%60;
-          endTime=String(_eH).padStart(2,'0')+':'+String(_eM).padStart(2,'0')+':'+String(_eSec).padStart(2,'0');
-        }
+const endTime=agRow.expected_finish_time||nowHHMMSS();
 const actualStampTime=nowHHMMSS();
 const eff=100;
-const effOk=true; // auto stamp ใช้ expected_finish_time เสมอ = 100%
+const effOk=true;
 const donePrevVol=allRows
 .filter(r=>r.id!==agRow.id&&
 r.process_order===agRow.process_order&&
@@ -337,7 +301,6 @@ const finalCumVol=donePrevVol+(+(agRow.volume_liter||0));
 await updateDoc(doc(db,planCol(p),agRow.id),{
 past_end_time:endTime,
 actual_finish_time:actualStampTime,
-past_end_at:new Date().toISOString(),
 eff:Math.round(eff*10)/10,
 status:'past_done',
 current_vol:finalCumVol,
@@ -366,32 +329,21 @@ r.id!==agRow.id&&
 )
 .sort((a,b)=>(a.seq||0)-(b.seq||0))[0];
 if(nextRow){
-// ROOT FIX 2: อ่าน accumulated volume จาก aging_tank_states (single source of truth)
+// ROOT FIX 2: อ่าน prevCumVol จาก aging_tank_states
 const _switchAt=window._agingStates&&nextRow.aging_tank?window._agingStates[nextRow.aging_tank]||{}:{};
 const prevCumVol=_switchAt.current_vol!=null
   ?+_switchAt.current_vol
   :allRows.filter(r=>r.process_order===nextRow.process_order&&r.aging_tank===nextRow.aging_tank&&(r.status==='past_done'||r.status==='ready'||r.id===agRow.id)).reduce((s,r)=>s+(+(r.volume_liter||0)),0);
-console.log('[SWITCH TANK] PO:',nextRow.process_order,'FROM:',agRow.mixing_tank||'?','TO:',nextRow.mixing_tank||'?','AgingTank:',nextRow.aging_tank,'AccVol:',prevCumVol);
-// คำนวณ expected_finish_time ของ nextRow ต่อจาก endTime (expected ของ agRow)
-const _nextProd=productMap[nextRow.mix_code]||{};
-const _nextDens=+(_nextProd.density||1);
-const _nextSpd=planCol(p)==='production_plans'?+(_nextProd.speed_m1||_nextProd.speed||0):+(_nextProd.speed_m2||_nextProd.speed||0);
-const _nextVol=+(nextRow.volume_liter||0);
-let _nextExpected=null;
-if(_nextSpd>0&&_nextVol>0){
-  const _nextReqSec=Math.round(_nextVol*_nextDens*3600/_nextSpd);
-  // ใช้ expected_finish_time ของ agRow เป็น start ของ nextRow (ไม่ใช่ endTime จริง)
-  const _startRef=agRow.expected_finish_time||endTime;
-  const _sp=_startRef.split(':').map(Number);
-  const _startSec=(_sp[0]||0)*3600+(_sp[1]||0)*60+(_sp[2]||0);
-  const _expSec=(_startSec+_nextReqSec+3)%86400; // +3 sec buffer
-  const _eH=Math.floor(_expSec/3600),_eM=Math.floor((_expSec%3600)/60),_eSec=_expSec%60;
-  _nextExpected=String(_eH).padStart(2,'0')+':'+String(_eM).padStart(2,'0')+':'+String(_eSec).padStart(2,'0');
-}
+console.log('[SWITCH TANK] PO:',nextRow.process_order,'FROM:',agRow.mixing_tank||'?','TO:',nextRow.mixing_tank||'?','AccVol:',prevCumVol);
+// คำนวณ expected_finish_time ของ nextRow ต่อจาก expected ของ agRow
+const _nP=productMap[nextRow.mix_code]||{};
+const _nD=+(_nP.density||1),_nS=planCol(p)==='production_plans'?+(_nP.speed_m1||_nP.speed||0):+(_nP.speed_m2||_nP.speed||0),_nV=+(nextRow.volume_liter||0);
+let _nExp=null;
+if(_nS>0&&_nV>0){const _rq=Math.round(_nV*_nD*3600/_nS),_sr=(agRow.expected_finish_time||endTime).split(':').map(Number),_ss=(_sr[0]||0)*3600+(_sr[1]||0)*60+(_sr[2]||0),_es=(_ss+_rq+3)%86400;
+_nExp=String(Math.floor(_es/3600)).padStart(2,'0')+':'+String(Math.floor((_es%3600)/60)).padStart(2,'0')+':'+String(_es%60).padStart(2,'0');}
 await updateDoc(doc(db,planCol(p),nextRow.id),{
-past_start_time:agRow.expected_finish_time||endTime, // ต่อจาก expected ไม่ใช่ actual stamp
-expected_finish_time:_nextExpected||undefined,
-standard_duration_sec:_nextSpd>0&&_nextVol>0?Math.round(_nextVol*_nextDens*3600/_nextSpd):undefined,
+past_start_time:agRow.expected_finish_time||endTime,
+expected_finish_time:_nExp||undefined,
 status:'pasteurising',
 past_end_time:null,
 });
@@ -409,9 +361,9 @@ updated_at:new Date().toISOString()
 },{merge:true});
 // อัปเดต _agingStates ทันทีไม่รอ onSnapshot
 if(!window._agingStates)window._agingStates={};
-if(!window._agingStates[nextRow.aging_tank])window._agingStates[nextRow.aging_tank]={};
+window._agingStates[nextRow.aging_tank]=window._agingStates[nextRow.aging_tank]||{};
 window._agingStates[nextRow.aging_tank].current_vol=prevCumVol;
-window._agingStates[nextRow.aging_tank].status='pasteurising';}catch{}
+}catch{}
 }
 toast(`🔄 Auto เริ่ม Past. Batch ${nextRow.batch_no} (${nextRow.mixing_tank||''}) ต่อเนื่อง`,"green");
 }
@@ -468,7 +420,7 @@ return`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www
 <rect x="${bX+1}" y="${bY+3}" width="${bW}" height="${bH}" rx="8" fill="rgba(0,0,0,.5)"/>
 <rect x="${bX}" y="${bY}" width="${bW}" height="${bH}" rx="8" fill="#060a14" stroke="${rgba2(.4)}" stroke-width="1.5"/>
 <g clip-path="url(#${cid})">
-<rect x="${bX+1}" y="${fillY+wAmp+1}" width="${bW-2}" height="${Math.max(0,fillH)}" fill="url(#${gid})"/>
+<rect x="${bX+1}" y="${fillY+wAmp+1}" width="${bW-2}" height="${Math.max(0,fillH-wAmp-1)}" fill="url(#${gid})"/>
 ${animate?`
 <g>
 <path d="M${bX+1},${fillY+wAmp} C${bX+1+bW*.3},${fillY} ${bX+1+bW*.7},${fillY} ${bX+1+bW},${fillY+wAmp} C${bX+1+bW*1.3},${fillY+wAmp*2} ${bX+1+bW*1.7},${fillY+wAmp*2} ${bX+1+waveW},${fillY+wAmp} L${bX+1+waveW},${fillY+fillH+6} L${bX+1},${fillY+fillH+6} Z" fill="${rgba2(.5)}">
@@ -501,7 +453,6 @@ const pastRow=rows.find(r=>r.status==='pasteurising'&&r.past_start_time)
 ||rows.find(r=>r.status==='past_done'&&r.past_start_time)
 ||rows.find(r=>r.status==='ready'&&r.past_start_time);
 const activeStatuses=['mixing','pasteurising'];
-// หาจากทุก row ในถัง ไม่จำกัด active status เพราะ past_done ยังต้องแสดง card อยู่
 const t1Row=rows.find(r=>r.mixing_tank==='Tank 1'||r.mixing_tank==='T1'||r.mixing_tank==='ถัง 1'||r.mixing_tank==='1')||null;
 const t2Row=rows.find(r=>r.mixing_tank==='Tank 2'||r.mixing_tank==='T2'||r.mixing_tank==='ถัง 2'||r.mixing_tank==='2')||null;
 const agRow=pastRow||null;
@@ -528,9 +479,8 @@ const groupRows=agRow.process_order&&agRow.aging_tank
 ? allRows.filter(r=>r.process_order===agRow.process_order&&r.aging_tank===agRow.aging_tank)
 : [agRow];
 const totalVol=groupRows.reduce((sum,r)=>sum+(+(r.volume_liter||0)),0)||+(agRow.volume_liter||0);
-// อ่าน cumVol จาก aging_tank_states (single source of truth)
-const _atsVis=window._agingStates&&agRow.aging_tank?window._agingStates[agRow.aging_tank]||{}:{};
-const cumVol=_atsVis.current_vol!=null?+_atsVis.current_vol:(agRow?.current_vol!=null?+agRow.current_vol:0);
+const _atsV=window._agingStates&&agRow.aging_tank?window._agingStates[agRow.aging_tank]||{}:{};
+const cumVol=_atsV.current_vol!=null?+_atsV.current_vol:(agRow?.current_vol!=null?+agRow.current_vol:0);
 if(isDone){
 agVol=totalVol;
 const _capDone=getTankCapacity(agRow.aging_tank||'');
@@ -559,7 +509,6 @@ if(st==='pasteurising'&&hasStartTime)      return{txt:'🔵 กำลัง Past
 if(st==='past_done'||st==='ready')         return{txt:'✅ Past.เสร็จ',   col:'#22c55e',tankCol:'#22c55e',tankCol2:'#14532d'};
 return{txt:'—',col:'#374151',tankCol:'#374151',tankCol2:'#1f2937'};
 }
-// t1Done/t2Done = mixing tank นั้นๆ past_done แล้ว ไม่ใช่ agRow
 const t1Done=t1Row?.status==='past_done'||t1Row?.status==='ready'||(isDone&&isT1&&!t2Active);
 const t2Done=t2Row?.status==='past_done'||t2Row?.status==='ready'||(isDone&&isT2&&!t1Active);
 const s1=statLabel(t1Status,!!t1Row?.past_start_time,t1Vol,t1Done);
@@ -666,7 +615,7 @@ return`<g transform="translate(${tx},${ty})">
 ${hasLiq?`<circle cx="${tw/2}" cy="-13" r="4" fill="#22c55e" opacity=".9"/><circle cx="${tw/2}" cy="-13" r="4" fill="none" stroke="#22c55e" stroke-width="1.5" opacity="0"><animate attributeName="r" from="4" to="10" dur="1.5s" repeatCount="indefinite"/><animate attributeName="opacity" from="0.6" to="0" dur="1.5s" repeatCount="indefinite"/></circle>`:''}
 <rect x="0" y="0" width="${tw}" height="${th}" rx="10" fill="${bodyFill}" stroke="${bodyStroke}" stroke-width="1.5" stroke-opacity="${hasLiq?'.4':'.6'}"/>
 ${hasLiq?`<g clip-path="url(#${cid})">
-<rect x="0" y="${wy+A}" width="${tw*2}" height="${th-(wy+A)}" fill="url(#${gid})"/>
+<rect x="0" y="${wy+A}" width="${tw*2}" height="${Math.max(0,th-(wy+A))}" fill="url(#${gid})"/>
 <path d="${waveD(wy,A,3)}" fill="${c1}" fill-opacity=".55"><animateTransform attributeName="transform" type="translate" from="0,0" to="${-tw},0" dur="2.8s" repeatCount="indefinite"/></path>
 <path d="${waveD(wy,A*.6,4)}" fill="${c1}" fill-opacity=".3"><animateTransform attributeName="transform" type="translate" from="${tw*.5},0" to="${-tw*.5},0" dur="4s" repeatCount="indefinite"/></path>
 <ellipse cx="${tw*.35}" cy="${wy-2}" rx="${tw*.12}" ry="2.5" fill="white" fill-opacity=".3"/>
@@ -986,72 +935,18 @@ toast(`Archive ${oldest.mix_code||''} แล้ว`,"green");
 toast("Archive ไม่สำเร็จ: "+e.message,"red");
 }
 }
-
-window.openAdjustModal=function(col,id,p,exp,actual){
-  const m=document.getElementById('adjust-modal');
-  m.dataset.col=col;m.dataset.id=id;m.dataset.p=p;
-  document.getElementById('adj-expected').textContent=exp||'—';
-  document.getElementById('adj-actual').textContent=actual||'—';
-  document.getElementById('adj-time').value=exp||actual||'';
-  document.getElementById('adj-reason').value='';
-  document.getElementById('adj-note').value='';
-  m.style.display='flex';
-};
-window.closeAdjustModal=()=>{document.getElementById('adjust-modal').style.display='none';};
-window.submitAdjust=async()=>{
-  const m=document.getElementById('adjust-modal');
-  const col=m.dataset.col,id=m.dataset.id,p=m.dataset.p;
-  const adjTime=document.getElementById('adj-time').value.trim();
-  const reason=document.getElementById('adj-reason').value;
-  const note=document.getElementById('adj-note').value.trim();
-  if(!adjTime){alert('กรุณากรอกเวลา');return;}
-  if(!reason){alert('กรุณาเลือกเหตุผล');return;}
-  const row=(rows[p]||[]).find(r=>r.id===id);if(!row)return;
-  const prod=productMap[row.mix_code]||{};
-  const spd=p==='p1'?+(prod.speed_m1||prod.speed||0):+(prod.speed_m2||prod.speed||0);
-  const den=+(prod.density||1);
-  const vol=+(row.volume_liter||0);
-  const reqSec=spd>0?Math.round(vol*den*3600/spd):0;
-  const _sp=(row.past_start_time||'00:00:00').split(':').map(Number);
-  const _ep=adjTime.split(':').map(Number);
-  let actSec=((_ep[0]||0)*3600+(_ep[1]||0)*60+(_ep[2]||0))-((_sp[0]||0)*3600+(_sp[1]||0)*60+(_sp[2]||0));
-  if(actSec<0)actSec+=86400;
-  const effAdj=actSec>0?(reqSec/actSec)*100:0;
-  await updateDoc(doc(db,col,id),{adjusted_finish_time:adjTime,adjustment_reason:reason,adjustment_note:note,adjustment_by:ME?.email||'—',adjustment_at:new Date().toISOString(),eff:Math.round(effAdj*10)/10});
-  closeAdjustModal();
-  toast(`✅ ปรับแก้แล้ว Eff: ${effAdj.toFixed(1)}%`,'green');
-};
-function delayLabel(row){
-  const ef=row.adjusted_finish_time||row.actual_finish_time||row.past_end_time;
-  const ex=row.expected_finish_time;
-  if(!ef||!ex)return'';
-  const _ep=ef.split(':').map(Number),_xp=ex.split(':').map(Number);
-  const diff=((_ep[0]||0)*3600+(_ep[1]||0)*60+(_ep[2]||0))-((_xp[0]||0)*3600+(_xp[1]||0)*60+(_xp[2]||0));
-  if(diff<=0)return'🟢 On Time';
-  const dm=Math.floor(diff/60),ds=diff%60;
-  return diff<120?`🟡 +${String(dm).padStart(2,'0')}:${String(ds).padStart(2,'0')}`:`🔴 +${String(dm).padStart(2,'0')}:${String(ds).padStart(2,'0')}`;
-}
-
 window.stampTime=async(col,id,field,p)=>{
 const now=field==="past_end_time"?nowHHMMSS():nowHHMMSS();
 const upd={[field]:now};
-if(field==="past_start_time"){
-    upd.status="pasteurising";
-    const _rowS=rows[p]?.find(r=>r.id===id);
-    if(_rowS){
-      const _prodS=productMap[_rowS.mix_code]||{};
-      const _densS=+(_prodS.density||1);
-      const _spdS=p==='p1'?+(_prodS.speed_m1||_prodS.speed||0):+(_prodS.speed_m2||_prodS.speed||0);
-      const _volS=+(_rowS.volume_liter||0);
-      const _reqSecS=_spdS>0?Math.round(_volS*_densS*3600/_spdS):0;
-      const _nowParts=now.split(':').map(Number);
-      const _nowSecS=(_nowParts[0]||0)*3600+(_nowParts[1]||0)*60+(_nowParts[2]||0);
-      const _expSecS=(_nowSecS+_reqSecS)%86400;
-      const _expH=Math.floor(_expSecS/3600),_expM=Math.floor((_expSecS%3600)/60),_expSec2=_expSecS%60;
-      upd.expected_finish_time=String(_expH).padStart(2,'0')+':'+String(_expM).padStart(2,'0')+':'+String(_expSec2).padStart(2,'0');
-      upd.standard_duration_sec=_reqSecS;
-    }
+if(field==="past_start_time"){upd.status="pasteurising";
+  const _rS=rows[p]?.find(r=>r.id===id);if(_rS){
+    const _pS=productMap[_rS.mix_code]||{};
+    const _dS=+(_pS.density||1),_sS=p==='p1'?+(_pS.speed_m1||_pS.speed||0):+(_pS.speed_m2||_pS.speed||0),_vS=+(_rS.volume_liter||0);
+    if(_sS>0&&_vS>0){const _rq=Math.round(_vS*_dS*3600/_sS),_np=now.split(':').map(Number),_ns=(_np[0]||0)*3600+(_np[1]||0)*60+(_np[2]||0),_es=(_ns+_rq)%86400;
+    upd.expected_finish_time=String(Math.floor(_es/3600)).padStart(2,'0')+':'+String(Math.floor((_es%3600)/60)).padStart(2,'0')+':'+String(_es%60).padStart(2,'0');
+    upd.standard_duration_sec=_rq;}
   }
+}
 if(field==="past_end_time"){
 const row=rows[p]?.find(r=>r.id===id);
 if(row&&row.past_start_time){
@@ -1120,25 +1015,14 @@ if(val===null)return;
 const clean=val.trim();
 if(!/^\d{2}:\d{2}(:\d{2})?$/.test(clean)){toast("รูปแบบ HH:MM หรือ HH:MM:SS เท่านั้น","red");return;}
 const upd={[field]:clean};
-if(field==="past_start_time"&&clean){
-    upd.status="pasteurising";
-    // คำนวณ expected_finish_time ใหม่ทุกครั้งที่แก้เวลาเริ่ม
-    const _rowE=(rows['p1']||[]).find(r=>r.id===id)||(rows['p2']||[]).find(r=>r.id===id);
-    const _pE=_rowE?productMap[_rowE.mix_code]||{}:{};
-    const _pName=col===planCol('p1')?'p1':'p2';
-    const _densE=+(_pE.density||1);
-    const _spdE=_pName==='p1'?+(_pE.speed_m1||_pE.speed||0):+(_pE.speed_m2||_pE.speed||0);
-    const _volE=+(_rowE?.volume_liter||0);
-    if(_spdE>0&&_volE>0){
-      const _reqSecE=Math.round(_volE*_densE*3600/_spdE);
-      const _sp=clean.split(':').map(Number);
-      const _startSecE=(_sp[0]||0)*3600+(_sp[1]||0)*60+(_sp[2]||0);
-      const _expSecE=(_startSecE+_reqSecE)%86400;
-      const _eH=Math.floor(_expSecE/3600),_eM=Math.floor((_expSecE%3600)/60),_eS=_expSecE%60;
-      upd.expected_finish_time=String(_eH).padStart(2,'0')+':'+String(_eM).padStart(2,'0')+':'+String(_eS).padStart(2,'0');
-      upd.standard_duration_sec=_reqSecE;
-    }
+if(field==="past_start_time"&&clean){upd.status="pasteurising";
+  const _rE=(rows['p1']||[]).find(r=>r.id===id)||(rows['p2']||[]).find(r=>r.id===id);
+  if(_rE){const _pE=productMap[_rE.mix_code]||{},_pN=col===planCol('p1')?'p1':'p2';
+    const _dE=+(_pE.density||1),_sE=_pN==='p1'?+(_pE.speed_m1||_pE.speed||0):+(_pE.speed_m2||_pE.speed||0),_vE=+(_rE.volume_liter||0);
+    if(_sE>0&&_vE>0){const _rq=Math.round(_vE*_dE*3600/_sE),_sp=clean.split(':').map(Number),_ss=(_sp[0]||0)*3600+(_sp[1]||0)*60+(_sp[2]||0),_es=(_ss+_rq)%86400;
+    upd.expected_finish_time=String(Math.floor(_es/3600)).padStart(2,'0')+':'+String(Math.floor((_es%3600)/60)).padStart(2,'0')+':'+String(_es%60).padStart(2,'0');}
   }
+}
 if(field==="past_end_time"&&clean){
 upd.status="past_done";
 // ถามวันที่จริงที่ pasteurize เสร็จ
@@ -1424,42 +1308,6 @@ el.innerHTML=`<tr><td colspan="10" style="text-align:center;padding:20px;color:v
           <tr><td colspan="10" style="text-align:center;padding:20px;color:var(--t3)">กด tab ประวัติเพื่อโหลด</td></tr>
         </tbody>
       </table>
-    </div>
-  </div>
-</div>
-
-<div id="adjust-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;align-items:flex-end;justify-content:center">
-  <div style="background:var(--s1);border-radius:20px 20px 0 0;padding:24px 20px 36px;width:100%;max-width:520px">
-    <div style="font-family:var(--mono);font-size:14px;font-weight:900;margin-bottom:16px">⏱ ปรับแก้เวลา Past.เสร็จ</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
-      <div style="background:var(--s2);border-radius:10px;padding:10px 14px">
-        <div style="font-family:var(--mono);font-size:9px;color:var(--t3);text-transform:uppercase">Expected</div>
-        <div id="adj-expected" style="font-family:var(--mono);font-size:18px;font-weight:900;color:var(--cyan)">—</div>
-      </div>
-      <div style="background:var(--s2);border-radius:10px;padding:10px 14px">
-        <div style="font-family:var(--mono);font-size:9px;color:var(--t3);text-transform:uppercase">Actual Stamp</div>
-        <div id="adj-actual" style="font-family:var(--mono);font-size:18px;font-weight:900;color:var(--orange)">—</div>
-      </div>
-    </div>
-    <div style="margin-bottom:10px">
-      <div style="font-family:var(--mono);font-size:10px;color:var(--t3);margin-bottom:5px">เวลาที่ปรับแก้ (HH:MM:SS)</div>
-      <input id="adj-time" type="text" placeholder="08:44:30" style="width:100%;background:var(--s2);border:1.5px solid var(--b1);border-radius:8px;color:var(--text);font-family:var(--mono);font-size:16px;font-weight:900;padding:10px 14px;outline:none">
-    </div>
-    <div style="margin-bottom:10px">
-      <div style="font-family:var(--mono);font-size:10px;color:var(--t3);margin-bottom:5px">เหตุผล</div>
-      <select id="adj-reason" style="width:100%;background:var(--s2);border:1.5px solid var(--b1);border-radius:8px;color:var(--text);font-family:var(--mono);font-size:13px;font-weight:700;padding:10px 14px;outline:none">
-        <option value="">— เลือกเหตุผล —</option>
-        <option>กดปุ่มช้า</option><option>เครื่องขัดข้อง</option><option>ผู้ปฏิบัติงานยุ่ง</option>
-        <option>ระบบค้าง</option><option>เหตุฉุกเฉิน</option><option>อื่นๆ</option>
-      </select>
-    </div>
-    <div style="margin-bottom:16px">
-      <div style="font-family:var(--mono);font-size:10px;color:var(--t3);margin-bottom:5px">หมายเหตุ</div>
-      <input id="adj-note" placeholder="รายละเอียดเพิ่มเติม..." style="width:100%;background:var(--s2);border:1.5px solid var(--b1);border-radius:8px;color:var(--text);font-family:var(--mono);font-size:13px;padding:10px 14px;outline:none">
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-      <button onclick="closeAdjustModal()" style="padding:13px;border-radius:10px;border:1px solid var(--b1);background:var(--s2);color:var(--t2);font-family:var(--mono);font-size:13px;font-weight:700;cursor:pointer">ยกเลิก</button>
-      <button onclick="submitAdjust()" style="padding:13px;border-radius:10px;border:none;background:#15803d;color:#fff;font-family:var(--mono);font-size:13px;font-weight:700;cursor:pointer">✅ บันทึกปรับแก้</button>
     </div>
   </div>
 </div>
