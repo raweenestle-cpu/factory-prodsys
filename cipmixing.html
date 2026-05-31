@@ -342,7 +342,7 @@ import{getFirestore,collection,query,where,orderBy,limit,getDocs,onSnapshot,doc,
 const app=initializeApp({apiKey:"AIzaSyC3f6jMuhugE6BNfRfkpOA9BMrIKWR9YgQ",authDomain:"production-filling.firebaseapp.com",projectId:"production-filling",storageBucket:"production-filling.firebasestorage.app",messagingSenderId:"89098393458",appId:"1:89098393458:web:b723f2886e8a341935afeb"});
 const auth=getAuth(app);const db=getFirestore(app);
 const $=id=>document.getElementById(id);
-const today=()=>new Date().toISOString().slice(0,10).replace(/-/g,'');
+const today=()=>new Date().toISOString().slice(0,10);
 const nowHMS=()=>{const d=new Date();return[d.getHours(),d.getMinutes(),d.getSeconds()].map(x=>x.toString().padStart(2,'0')).join(':');};
 let planRows={m1:[],m2:[]},tankStates={},linesData=[],curTab='m1',unsubSt=null;
 const TEMP_TIMES=['02:00','06:00','10:00','14:00','18:00','22:00'];
@@ -448,7 +448,7 @@ window.setTempVal=async(tid,key,val)=>{if(val===''||val===null||val===undefined|
   }
   renderTempAlert();
 }catch(e){console.warn(e);}};
-window.saveTemp=async()=>{const cr=getNowRound();const td=today();const key=td+'_'+cr.replace(':','');const active=Object.values(tankStates).filter(t=>t.status&&!['empty','san_done'].includes(t.status));const miss=active.filter(t=>!t.temps||t.temps[key]===null||t.temps[key]===undefined||t.temps[key]==='');if(miss.length)return toast('⚠️ ยังไม่กรอก: '+miss.map(t=>t.id).join(', '),'red');toast('✅ บันทึกอุณหภูมิรอบ '+cr+' สำเร็จ','green');};
+window.saveTemp=async()=>{const cr=getNowRound();const td=today();const key=(td+'_'+cr.replace(':','')).replace(/-/g,'');const active=Object.values(tankStates).filter(t=>t.status&&!['empty','san_done'].includes(t.status));const miss=active.filter(t=>!t.temps||t.temps[key]===null||t.temps[key]===undefined||t.temps[key]==='');if(miss.length)return toast('⚠️ ยังไม่กรอก: '+miss.map(t=>t.id).join(', '),'red');toast('✅ บันทึกอุณหภูมิรอบ '+cr+' สำเร็จ','green');};
 
 // ── CIP RECORDS ────────────────────────────────────────────────────
 let _recData = [];
