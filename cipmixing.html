@@ -222,12 +222,41 @@ async function _doActReal(tid, act){
   if(act==='start_cip'){
     upd.cip_start_time=n;
     upd.cip_date=new Date().toISOString().split('T')[0];
-    // ดึง mix_code/mix_name จาก aging_tank_states (batch ล่าสุดที่อยู่ในถัง)
-    const _ts=tankStates[tid]||{};
-    if(_ts.mix_code) upd.last_mix_code=_ts.mix_code;
-    if(_ts.mix_name) upd.last_mix_name=_ts.mix_name;
+    // ดึง mix_code/mix_name จาก cip_mixing_records record ล่าสุดของถังนี้
+    try{
+      const _q=query(collection(db,'cip_mixing_records'),
+        where('tank','==',tid),where('type','==','san'),
+        orderBy('created_at','desc'),limit(1));
+      const _snap=await getDocs(_q);
+      if(!_snap.empty){
+        const _lr=_snap.docs[0].data();
+        upd.last_mix_code=_lr.mix_code||'—';
+        upd.last_mix_name=_lr.mix_name||'—';
+      } else {
+        // fallback จาก aging_tank_states
+        const _ts=tankStates[tid]||{};
+        if(_ts.mix_code) upd.last_mix_code=_ts.mix_code;
+        if(_ts.mix_name) upd.last_mix_name=_ts.mix_name;
+      }
+    }catch{
+      const _ts=tankStates[tid]||{};
+      if(_ts.mix_code) upd.last_mix_code=_ts.mix_code;
+      if(_ts.mix_name) upd.last_mix_name=_ts.mix_name;
+    }
   }
-  if(act==='stop_cip')upd.cip_stop_time=n;
+  if(act==='stop_cip'){
+    upd.cip_stop_time=n;
+    // บันทึกลง cip_mixing_records
+    const _ts2=tankStates[tid]||{};
+    addDoc(collection(db,'cip_mixing_records'),{
+      tank:tid, type:'cip',
+      start_time:_ts2.cip_start_time||n, stop_time:n,
+      mix_code:_ts2.last_mix_code||'—', mix_name:_ts2.last_mix_name||'—',
+      group:_ts2.cip_group||'—',
+      date:new Date().toISOString().split('T')[0],
+      created_at:new Date().toISOString()
+    }).catch(()=>{});
+  }
   if(act==='start_san'){
     upd.san_start_time=n;
     upd.san_date=new Date().toISOString().split('T')[0];
@@ -237,7 +266,20 @@ async function _doActReal(tid, act){
     if(_next.mix_name) upd.next_mix_name=_next.mix_name;
     if(_next.vol) upd.next_vol=_next.vol;
   }
-  if(act==='stop_san')upd.san_stop_time=n;
+  if(act==='stop_san'){
+    upd.san_stop_time=n;
+    // บันทึกลง cip_mixing_records
+    const _ts3=tankStates[tid]||{};
+    addDoc(collection(db,'cip_mixing_records'),{
+      tank:tid, type:'san',
+      start_time:_ts3.san_start_time||n, stop_time:n,
+      mix_code:_ts3.next_mix_code||'—', mix_name:_ts3.next_mix_name||'—',
+      vol:_ts3.next_vol||0,
+      group:_ts3.cip_group||'—',
+      date:new Date().toISOString().split('T')[0],
+      created_at:new Date().toISOString()
+    }).catch(()=>{});
+  }
   try{
     await setDoc(doc(db,'aging_tank_states',tid),upd,{merge:true});
     const lb={start_cip:'▶ CIP เริ่ม',stop_cip:'✅ CIP เสร็จ',start_san:'▶ San เริ่ม',stop_san:'✅ San เสร็จ'};
@@ -248,7 +290,7 @@ async function _doActReal(tid, act){
 
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import{getAuth,onAuthStateChanged,signOut}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import{getFirestore,collection,query,where,getDocs,onSnapshot,doc,setDoc}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import{getFirestore,collection,query,where,orderBy,limit,getDocs,onSnapshot,doc,setDoc,addDoc}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 const app=initializeApp({apiKey:"AIzaSyC3f6jMuhugE6BNfRfkpOA9BMrIKWR9YgQ",authDomain:"production-filling.firebaseapp.com",projectId:"production-filling",storageBucket:"production-filling.firebasestorage.app",messagingSenderId:"89098393458",appId:"1:89098393458:web:b723f2886e8a341935afeb"});
 const auth=getAuth(app);const db=getFirestore(app);
 const $=id=>document.getElementById(id);
@@ -336,56 +378,29 @@ window.saveTemp=async()=>{const cr=getNowRound();const td=today();const key=td+'
 
 // ── CIP RECORDS ────────────────────────────────────────────────────
 let _recData = [];
+let _cipMixRecords = [];
+onSnapshot(query(collection(db,'cip_mixing_records'),orderBy('created_at','desc'),limit(200)),snap=>{
+  _cipMixRecords=snap.docs.map(d=>({id:d.id,...d.data()}));
+  if(document.getElementById('rec-body')) renderRecords();
+});
 let _recFilter = 'all';
 
 function _buildRecords(){
-  _recData = [];
-  const today = new Date().toISOString().split('T')[0];
-  Object.values(tankStates).forEach(ts=>{
-    const tid = ts.id;
-    // CIP record — ดึง mix info จาก cip_line_states (cipman กดจบการผลิต)
-    if(ts.cip_start_time){
-      // หา line ที่ใช้ถังนี้ล่าสุดจาก lineStatesForRec
-      const lineInfo = _getLineInfoForTank(tid,'cip');
-      _recData.push({
-        id: tid+'_cip',
-        type: 'cip',
-        tank: tid,
-        start: ts.cip_start_time||'—',
-        stop: ts.cip_stop_time||null,
-        // ใช้ last_mix_code ที่ save ตอน start_cip ก่อน fallback ไป lineInfo
-        mix_code: ts.last_mix_code||lineInfo.mix_code||'—',
-        mix_name: ts.last_mix_name||lineInfo.mix_name||'—',
-        vol: lineInfo.vol||0,
-        line: lineInfo.line||'—',
-        src: 'cipman',
-        group: ts.cip_group||'—',
-        sign: ts.cip_sign||null,
-        sort_key: ts.cip_start_time||'',
-      });
-    }
-    // Sanitize record — ดึง mix info จาก production_plans leadman (batch ถัดไป)
-    if(ts.san_start_time){
-      const nextInfo = _getNextPlanForTank(tid);
-      _recData.push({
-        id: tid+'_san',
-        type: 'san',
-        tank: tid,
-        start: ts.san_start_time||'—',
-        stop: ts.san_stop_time||null,
-        // ใช้ next_mix_code ที่ save ตอน start_san ก่อน fallback ไป nextInfo
-        mix_code: ts.next_mix_code||nextInfo.mix_code||'—',
-        mix_name: ts.next_mix_name||nextInfo.mix_name||'—',
-        vol: ts.next_vol||nextInfo.vol||0,
-        line: nextInfo.line||'—',
-        src: 'leadman',
-        group: ts.san_group||ts.cip_group||'—',
-        sign: ts.san_sign||null,
-        sort_key: ts.san_start_time||'',
-      });
-    }
-  });
-  _recData.sort((a,b)=>b.sort_key.localeCompare(a.sort_key));
+  _recData = _cipMixRecords.map(r=>({
+    id: r.id,
+    type: r.type||'cip',
+    tank: r.tank||'—',
+    start: r.start_time||'—',
+    stop: r.stop_time||null,
+    mix_code: r.mix_code||'—',
+    mix_name: r.mix_name||'—',
+    vol: r.vol||0,
+    line: r.line||'—',
+    src: r.type==='cip'?'cipman':'leadman',
+    group: r.group||'—',
+    sign: r.sign||null,
+    sort_key: r.created_at||'',
+  }));
 }
 
 function _getLineInfoForTank(tid, type){
