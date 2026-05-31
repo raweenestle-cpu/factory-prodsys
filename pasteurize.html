@@ -281,7 +281,30 @@ continue;
 const key=agRow.id;
 if(!_autoStamping.has(key)){
 _autoStamping.add(key);
-const endTime=agRow.expected_finish_time||nowHHMMSS();
+// คำนวณ expected_finish_time ถ้ายังไม่มี (batch เก่า)
+        let endTime=agRow.expected_finish_time;
+        if(!endTime&&agRow.past_start_time){
+          const _prodAuto=productMap[agRow.mix_code]||{};
+          const _densAuto=+(_prodAuto.density||1);
+          const _spdAuto=+(agRow._col==='production_plans'?(_prodAuto.speed_m1||_prodAuto.speed||0):(_prodAuto.speed_m2||_prodAuto.speed||0));
+          const _volAuto=+(agRow.volume_liter||0);
+          if(_spdAuto>0&&_volAuto>0){
+            const _reqSecAuto=Math.round(_volAuto*_densAuto*3600/_spdAuto);
+            const _sp=agRow.past_start_time.split(':').map(Number);
+            const _startSecAuto=(_sp[0]||0)*3600+(_sp[1]||0)*60+(_sp[2]||0);
+            const _expSecAuto=(_startSecAuto+_reqSecAuto)%86400;
+            const _eH=Math.floor(_expSecAuto/3600),_eM=Math.floor((_expSecAuto%3600)/60),_eS=_expSecAuto%60;
+            endTime=String(_eH).padStart(2,'0')+':'+String(_eM).padStart(2,'0')+':'+String(_eS).padStart(2,'0');
+          }
+        }
+        if(!endTime) endTime=nowHHMMSS();
+        // บวก 2 วินาที buffer เพื่อป้องกัน eff > 100%
+        if(endTime){
+          const _ep=endTime.split(':').map(Number);
+          const _es=(_ep[0]||0)*3600+(_ep[1]||0)*60+(_ep[2]||0)+3;
+          const _eH=Math.floor(_es/3600)%24,_eM=Math.floor((_es%3600)/60),_eSec=_es%60;
+          endTime=String(_eH).padStart(2,'0')+':'+String(_eM).padStart(2,'0')+':'+String(_eSec).padStart(2,'0');
+        }
 const actualStampTime=nowHHMMSS();
 const eff=100;
 const donePrevVol=allRows
