@@ -779,10 +779,9 @@ function renderTankVisual(m,rows){
 
   // ดึง row จากตารางโดยตรง — ทุก status ที่ active (mixing, pasteurising)
   const activeStatuses=['mixing','pasteurising'];
-  const t1Row=rows.find(r=>activeStatuses.includes(r.status)&&
-    (r.mixing_tank==='Tank 1'||r.mixing_tank==='T1'||r.mixing_tank==='ถัง 1'||r.mixing_tank==='1'))||null;
-  const t2Row=rows.find(r=>activeStatuses.includes(r.status)&&
-    (r.mixing_tank==='Tank 2'||r.mixing_tank==='T2'||r.mixing_tank==='ถัง 2'||r.mixing_tank==='2'))||null;
+  // หาจากทุก row — ไม่จำกัด status เพื่อให้ card ไม่หายตอน switch
+  const t1Row=rows.find(r=>(r.mixing_tank==='Tank 1'||r.mixing_tank==='T1'||r.mixing_tank==='ถัง 1'||r.mixing_tank==='1'))||null;
+  const t2Row=rows.find(r=>(r.mixing_tank==='Tank 2'||r.mixing_tank==='T2'||r.mixing_tank==='ถัง 2'||r.mixing_tank==='2'))||null;
   const agRow=pastRow||null;
 
   const isFlowing=agRow?.status==='pasteurising'&&!!agRow?.past_start_time;
@@ -870,7 +869,13 @@ function renderTankVisual(m,rows){
     }
     if(tDone) return{vol:0,pct:0,show:true,wave:false};
     if(tActive){
-      const flowed=tRow?.current_vol!=null?+tRow.current_vol:0;
+      // อ่าน cumVol จาก aging_tank_states แล้วหัก donePrevVol ออก
+      const _ats=window._agingStates&&tRow?.aging_tank?window._agingStates[tRow.aging_tank]||{}:{};
+      const _cumVol=_ats.current_vol!=null?+_ats.current_vol:0;
+      // donePrevVol = volume ของ batch ก่อนหน้าที่ past_done แล้ว
+      const _allR=[...(window._rows['p1']||[]),...(window._rows['p2']||[])];
+      const _donePrev=_allR.filter(r=>r.id!==tRow.id&&r.process_order===tRow.process_order&&r.aging_tank===tRow.aging_tank&&(r.status==='past_done'||r.status==='ready')).reduce((s,r)=>s+(+(r.volume_liter||0)),0);
+      const flowed=Math.max(0,_cumVol-_donePrev);
       const remaining=Math.max(0,tTotal-flowed);
       const pct=Math.min(100,(remaining/cap)*100);
       return{vol:remaining,pct,show:true,wave:true};
