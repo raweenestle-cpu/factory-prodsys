@@ -455,7 +455,7 @@ function showStep(id){
 var pinTarget='', pinValue='', pinEmployees=[];
 
 function openPinModal(file,name){
-  var noPinPages=['admin.html','shelflife.html','aging.html','filling.html'];
+  var noPinPages=['admin.html','shelflife.html','aging.html','filling.html','pinregister.html'];
   if(noPinPages.indexOf(file)>=0){window.location.href=file;return;}
   pinTarget=file;pinValue='';
   document.getElementById('pin-modal-page').textContent=name;
