@@ -430,7 +430,22 @@ window.setTempVal=async(tid,key,val)=>{if(val===''||val===null||val===undefined|
   const _pt=(tankStates[tid]||{}).product_type||'';
   if(_pt==='Jelly'&&(newTemp<37||newTemp>42)){
     toast('⚠️ Jelly ต้องอยู่ในช่วง 37–42°C (กรอก '+newTemp+'°C)','red');
-  }const ts=tankStates[tid]||{};try{const upd={updated_at:new Date().toISOString()};upd['temps.'+key]=newTemp;const oldMax=ts.max_temp!=null?+ts.max_temp:-1;if(newTemp>oldMax){upd.max_temp=newTemp;const pType=ts.product_type||'Ice Cream';const shelfHr=SHELF[pType]?SHELF[pType][Math.max(0,Math.min(SHELF[pType].length-1,Math.round(newTemp)))]:96;const pastEnd=ts.past_end_time||null;if(pastEnd){const ed=new Date(pastEnd);ed.setHours(ed.getHours()+shelfHr);upd.expire_at=ed.toISOString();upd.shelf_hr=shelfHr;}toast('⬆️ อุณหภูมิสูงขึ้น '+newTemp+'°C — คำนวณ Expire ใหม่','red');}await setDoc(doc(db,'aging_tank_states',tid),upd,{merge:true});
+  }const ts=tankStates[tid]||{};try{const upd={updated_at:new Date().toISOString()};upd['temps.'+key]=newTemp;const oldMax=ts.max_temp!=null?+ts.max_temp:-1;if(newTemp>oldMax){upd.max_temp=newTemp;const pType=ts.product_type||'Ice Cream';const shelfHr=SHELF[pType]?SHELF[pType][Math.max(0,Math.min(SHELF[pType].length-1,Math.round(newTemp)))]:96;const pastEnd=ts.past_end_time||null;if(pastEnd){
+  try{
+    // past_end_time อาจเป็น HH:MM:SS — แปลงเป็น Date วันนี้
+    let ed;
+    if(/^\d{2}:\d{2}/.test(pastEnd)){
+      const [hh,mm,ss]=pastEnd.split(':').map(Number);
+      ed=new Date();ed.setHours(hh,mm,ss||0,0);
+    } else {
+      ed=new Date(pastEnd);
+    }
+    if(!isNaN(ed.getTime())){
+      ed.setHours(ed.getHours()+shelfHr);
+      upd.expire_at=ed.toISOString();upd.shelf_hr=shelfHr;
+    }
+  }catch{}
+}toast('⬆️ อุณหภูมิสูงขึ้น '+newTemp+'°C — คำนวณ Expire ใหม่','red');}await setDoc(doc(db,'aging_tank_states',tid),upd,{merge:true});
   // อัปเดต tankStates ทันทีไม่รอ onSnapshot แล้ว trigger alert
   if(!tankStates[tid])tankStates[tid]={id:tid};
   Object.assign(tankStates[tid],upd);
