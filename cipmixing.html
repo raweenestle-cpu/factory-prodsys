@@ -400,7 +400,7 @@ window.loadAll=async()=>{
   linesData=lSnap.docs.map(d=>({id:d.id,...d.data()}));
   // map mix_code -> Type จาก productmaster
   const pmMap={};window._pmMap=pmMap;
-  pmSnap.docs.forEach(d=>{const pd=d.data();if(pd.mix_code)pmMap[pd.mix_code]=pd.Type||'';});
+  pmSnap.docs.forEach(d=>{const pd=d.data();pmMap[d.id]=pd.Type||pd.type||'';if(pd.mix_code)pmMap[pd.mix_code]=pd.Type||pd.type||'';});
   planRows.m1=s1.docs.map(d=>({...d.data(),id:d.id,_col:'production_plans'})).sort((a,b)=>(a.seq||0)-(b.seq||0));
   planRows.m2=s2.docs.map(d=>({...d.data(),id:d.id,_col:'production_plans_m2'})).sort((a,b)=>(a.seq||0)-(b.seq||0));
   // inject product_type เข้า tankStates โดยใช้ mix_code ที่มีอยู่ใน tankStates โดยตรง
