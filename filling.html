@@ -266,7 +266,7 @@ async function init(){
   u4=onSnapshot(query(collection(db,'production_plans_m2'),where('status','in',['pasteurising','past_done','ready','sent_filling'])),snap=>{
     planRows=planRows.filter(x=>x._col!=='production_plans_m2').concat(snap.docs.map(x=>({id:x.id,_col:'production_plans_m2',...x.data()})));renderAll();
   });
-  tickTimer=setInterval(tick,1000);
+  tickTimer=setInterval(tick,2000);
 }
 
 function parseDateHHMM(dateStr, timeStr){
@@ -654,12 +654,13 @@ function tick(){
       if(stEl){stEl.textContent=_curingLabel(row,productMap)||'✅ บ่มเสร็จ';}
     });
     // อัปเดตทุก tank ที่กำลัง pasteurising
-    // อัปเดต volume จาก cip_line_states
+    // อัปเดต volume จาก cip_line_states (cipman เป็น source of truth)
     tanks.forEach(row=>{
       const _ls=Object.values(cipLineStates).find(s=>s.aging_tank===row.aging_tank&&s.running&&s.start_ts);
       if(_ls){
+        // ใช้ current_vol ที่ cipman write ไว้ ถ้ามี ไม่งั้นคำนวณเอง
         const _el=(Date.now()-_ls.start_ts)/3600000;
-        const _rem=Math.max(0,(_ls.start_vol||0)-(_el*(_ls.flow_rate||300)));
+        const _rem=_ls.current_vol!=null?+_ls.current_vol:Math.max(0,(_ls.start_vol||0)-(_el*(_ls.flow_rate||300)));
         const _isCur=cur&&cur.id===row.id;
         const _isQ=queue.find(q=>q.id===row.id);
         const _uid=(_isCur?'C':_isQ?'Q':'Q')+row.id.slice(-8);

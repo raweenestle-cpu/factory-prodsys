@@ -140,6 +140,7 @@ let ME=null, productMap={}, lineMap={};
 let rows={p1:[],p2:[]};
 window._rows=rows;
 window._productMap=productMap;
+window._lines=lines;
 let unsub={p1:null,p2:null};
 const planCol=(p)=>p==="p1"?"production_plans":"production_plans_m2";
 const today  = ()=>new Date().toISOString().slice(0,10);
@@ -272,6 +273,9 @@ status:agRow.status||'',
 updated_at:new Date().toISOString()
 },{merge:true});}catch{}
 }
+// sync cip_line_states
+const _lineObj2=(window._lines||[]).find(l=>l.aging_tanks&&l.aging_tanks.includes(agRow.aging_tank));
+if(_lineObj2){try{await setDoc(doc(db,'cip_line_states',_lineObj2.id),{current_vol:totalCumVol,aging_tank:agRow.aging_tank,mix_code:agRow.mix_code||'',status:'pasteurising',updated_at:new Date().toISOString()},{merge:true});}catch{}}
 const totalSec2=totalMin*60;
 if(!agRow.past_end_time && totalSec2>0 && elapsedSec2>=totalSec2){
 if(!agRow.aging_tank){

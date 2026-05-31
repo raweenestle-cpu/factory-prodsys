@@ -1222,8 +1222,9 @@ function tickCountdowns(){
     if(bEl){bEl.style.width=pct.toFixed(1)+'%';bEl.style.background=c;}
     // อัปเดต aging_tank_states.current_vol ทุก 30 วินาที
     const _agTank=st.aging_tank||'';
-    if(_agTank&&Date.now()%30000<1100){
+    if(_agTank&&Date.now()%2000<1100){
       setDoc(doc(db,'aging_tank_states',_agTank),{current_vol:Math.round(rem),updated_at:new Date().toISOString()},{merge:true}).catch(()=>{});
+      setDoc(doc(db,'cip_line_states',line.id),{current_vol:Math.round(rem),updated_at:new Date().toISOString()},{merge:true}).catch(()=>{});
     }
     if(eEl&&rem>0){const m=Math.round((rem/fr)*60);const d=new Date();d.setMinutes(d.getMinutes()+m);eEl.textContent='หมด ~'+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
   });
