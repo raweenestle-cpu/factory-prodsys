@@ -456,7 +456,7 @@ const pastRow=allRowsBoth.find(r=>r.status==='pasteurising'&&r.past_start_time)
 ||allRowsBoth.find(r=>r.status==='ready'&&r.past_start_time);
 const activeStatuses=['mixing','pasteurising'];
 const t1Row=allRowsBoth.find(r=>r.mixing_tank==='Tank 1'||r.mixing_tank==='T1'||r.mixing_tank==='ถัง 1'||r.mixing_tank==='1')||null;
-const t2Row=rows.find(r=>r.mixing_tank==='Tank 2'||r.mixing_tank==='T2'||r.mixing_tank==='ถัง 2'||r.mixing_tank==='2')||null;
+const t2Row=allRowsBoth.find(r=>r.mixing_tank==='Tank 2'||r.mixing_tank==='T2'||r.mixing_tank==='ถัง 2'||r.mixing_tank==='2')||null;
 const agRow=pastRow||null;
 const isFlowing=agRow?.status==='pasteurising'&&!!agRow?.past_start_time;
 const isDone=agRow?.status==='past_done'||agRow?.status==='ready';
