@@ -350,7 +350,7 @@ const prevCumVol=allRows
 .filter(r=>
 r.process_order===nextRow.process_order&&
 r.aging_tank===nextRow.aging_tank&&
-(r.status==='past_done'||r.status==='ready')
+(r.status==='past_done'||r.status==='ready'||r.id===agRow.id)
 )
 .reduce((s,r)=>s+(+(r.volume_liter||0)),0);
 await updateDoc(doc(db,planCol(p),nextRow.id),{
