@@ -382,7 +382,8 @@ const TEMP_TIMES=['02:00','06:00','10:00','14:00','18:00','22:00'];
 $('inp-date').value=today();
 const en=sessionStorage.getItem('emp_name')||'';if(en) $('emp-name').textContent='👤 '+en;
 onAuthStateChanged(auth,u=>{if(!u){location.href='index.html';return;}$('nav-user').textContent=u.email.replace('@filling.local','');initSt();loadAll();});
-function initSt(){if(unsubSt)unsubSt();unsubSt=onSnapshot(collection(db,'aging_tank_states'),snap=>{snap.docs.forEach(d=>{tankStates[d.id]={id:d.id,...d.data()};});renderAll();});}
+function initSt(){if(unsubSt)unsubSt();unsubSt=onSnapshot(collection(db,'aging_tank_states'),snap=>{snap.docs.forEach(d=>{tankStates[d.id]={id:d.id,...d.data()};});injectProductTypes();renderAll();});}
+function injectProductTypes(){if(!window._pmMap)return;Object.values(tankStates).forEach(ts=>{if(ts.mix_code&&window._pmMap[ts.mix_code])ts.product_type=window._pmMap[ts.mix_code];});}
 window.loadAll=async()=>{
   const d=$('inp-date').value||today();
   const[lSnap,s1,s2,pmSnap]=await Promise.all([
@@ -393,16 +394,14 @@ window.loadAll=async()=>{
   ]);
   linesData=lSnap.docs.map(d=>({id:d.id,...d.data()}));
   // map mix_code -> Type จาก productmaster
-  const pmMap={};
+  const pmMap={};window._pmMap=pmMap;
   pmSnap.docs.forEach(d=>{const pd=d.data();if(pd.mix_code)pmMap[pd.mix_code]=pd.Type||'';});
   planRows.m1=s1.docs.map(d=>({...d.data(),id:d.id,_col:'production_plans'})).sort((a,b)=>(a.seq||0)-(b.seq||0));
   planRows.m2=s2.docs.map(d=>({...d.data(),id:d.id,_col:'production_plans_m2'})).sort((a,b)=>(a.seq||0)-(b.seq||0));
-  // inject product_type เข้า tankStates จาก productmaster
-  const allRows=[...planRows.m1,...planRows.m2];
-  allRows.forEach(r=>{
-    if(r.aging_tank&&r.mix_code&&pmMap[r.mix_code]){
-      if(!tankStates[r.aging_tank])tankStates[r.aging_tank]={id:r.aging_tank};
-      tankStates[r.aging_tank].product_type=pmMap[r.mix_code];
+  // inject product_type เข้า tankStates โดยใช้ mix_code ที่มีอยู่ใน tankStates โดยตรง
+  Object.values(tankStates).forEach(ts=>{
+    if(ts.mix_code&&pmMap[ts.mix_code]){
+      ts.product_type=pmMap[ts.mix_code];
     }
   });
   renderAll();toast('โหลดแล้ว','green');
