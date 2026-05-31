@@ -204,14 +204,15 @@ function renderTempAlert(){
   const el=document.getElementById('temp-alert-bar');
   if(!el)return;
   const SHELF={'Ice Cream':[96,96,96,96,92,76,62,51,43,37,32],'Water Ice':[96,96,96,96,96,96,96,93,81,71,63]};
-  console.log('[TEMP ALERT]',Object.values(tankStates).map(ts=>({id:ts.id,pt:ts.product_type,maxT:ts.max_temp})));
   const warned=Object.values(tankStates).filter(ts=>{
     const pt=ts.product_type||'';
-    if(!SHELF[pt])return false;
     const maxT=ts.max_temp!=null?+ts.max_temp:null;
     if(maxT==null)return false;
-    const threshold=pt==='Ice Cream'?-7.5:-7.0;
-    return maxT>(threshold+5);
+    // Jelly ต้องอยู่ 37-42°C
+    if(pt==='Jelly') return maxT<37||maxT>42;
+    // Ice Cream / Water Ice — เกิน 5°C = ผิดปกติ
+    if(pt==='Ice Cream'||pt==='Water Ice') return maxT>5;
+    return false;
   });
   if(!warned.length){el.innerHTML='';return;}
   const now=Date.now();
@@ -233,7 +234,7 @@ function renderTempAlert(){
       +'<div style="font-family:monospace;font-size:36px;color:#fff;font-weight:900;letter-spacing:2px;line-height:1">'+ts.id+'</div>'
       +'<div style="font-size:12px;color:#fca5a5;font-weight:700;margin:4px 0 6px">'+pt+'</div>'
       +'<div style="font-family:monospace;font-size:38px;color:#fef2f2;font-weight:900;line-height:1">'+maxT+'°C</div>'
-      +'<div style="font-size:13px;color:#fbbf24;font-weight:800;margin:6px 0 4px">▲ +'+diff+'°C เกินจาก '+threshold+'°C</div>'
+      +'<div style="font-size:13px;color:#fbbf24;font-weight:800;margin:6px 0 4px">⚠️ '+diff+'</div>'
       +'<div style="font-size:12px;color:#fca5a5;margin-top:5px;line-height:1.8">หมดอายุ: <span style="color:#fff;font-weight:900;font-family:monospace">'+expireStr+'</span><br>'
       +'Shelf: <span style="color:#fff;font-weight:900;font-family:monospace">'+shelfHr+' ชม.</span> · เหลือ <span style="color:#fff;font-weight:900;font-family:monospace">'+remainStr+'</span></div>'
       +'</div>';
@@ -419,7 +420,7 @@ function getNowRound(){const h=new Date().getHours();const r=[2,6,10,14,18,22];f
 function getNextRound(cur){const i=TEMP_TIMES.indexOf(cur);return i>=0&&i<TEMP_TIMES.length-1?TEMP_TIMES[i+1]:'02:00 (พรุ่งนี้)';}
 function getDays(){const d=[];for(let i=4;i>=0;i--){const dt=new Date();dt.setDate(dt.getDate()-i);d.push(dt.toISOString().slice(0,10));}return d;}
 function fmtDay(d,idx){return 'วันที่ '+(idx+1);}
-function renderTemp(){const cr=getNowRound();const nr=getNextRound(cr);const days=getDays();const td=today();$('cur-round').textContent='รอบปัจจุบัน: '+cr;$('next-round').textContent='ถัดไป: '+nr;const active=Object.values(tankStates).filter(t=>t.status&&!['empty','san_done'].includes(t.status));$('tank-count').textContent='มีของ: '+active.length+' ถัง';if(!active.length){$('temp-table').innerHTML='<tr><td style="text-align:center;padding:30px;color:var(--t3)">ไม่มีถังที่มีของ</td></tr>';return;}let h='<thead><tr><th class="th-fix" rowspan="2">ถัง</th><th class="th-fix" rowspan="2" style="min-width:130px;position:sticky;left:80px;z-index:4;border-right:2px solid var(--b1)">สินค้า</th>';days.forEach((d,i)=>{const isT=d===td;h+='<th class="th-date'+(isT?' today':'')+'" colspan="6">'+fmtDay(d,i)+(isT?' ★':'')+'</th>';});h+='</tr><tr>';days.forEach(d=>{TEMP_TIMES.forEach((t,ti)=>{const isN=d===td&&t===cr;const sep=ti===5?'border-right:2px solid var(--b1)':'';h+='<th class="th-time'+(isN?' now-col':'')+'" style="'+sep+'">'+t+'</th>';});});h+='</tr></thead><tbody>';active.sort((a,b)=>a.id.localeCompare(b.id)).forEach(tank=>{const sc=ST[tank.status]||ST.empty;h+='<tr><td class="sep" style="position:sticky;left:0;z-index:3;background:#fff"><div style="display:flex;align-items:center;gap:5px"><span class="st-dot" style="background:'+sc.color+'"></span><span style="font-family:var(--mono);font-weight:900;color:'+sc.color+'">'+tank.id+'</span></div></td><td class="sep" style="position:sticky;left:80px;z-index:3;background:#fff;border-right:2px solid var(--b1)"><div class="badge badge-cyan" style="margin-bottom:2px">'+(tank.mix_code||'—')+'</div><div style="font-size:11px;color:var(--t2)">'+(tank.mix_name||'—')+'</div></td>';days.forEach(d=>{TEMP_TIMES.forEach((t,ti)=>{const isN=d===td&&t===cr;const isPast=d<td||(d===td&&t<=cr);const sep=ti===5?'border-right:2px solid var(--b1)':'';const key=d+'_'+t.replace(':','');const val=tank.temps?tank.temps[key]:null;const filled=val!==null&&val!==undefined&&val!=='';const newTemp2=filled?+val:0;const maxT2=tank.max_temp!=null?+tank.max_temp:-1;const isHot=filled&&newTemp2>maxT2;const cls='ti'+(filled?(isHot?' hot':' ok'):'')+(isN&&!filled?' cur-slot':'');// สร้าง options ตาม product_type — Ice Cream/Water Ice: -10~10, Jelly: 30~50, อื่นๆ: -10~50
+function renderTemp(){if(document.activeElement&&document.activeElement.tagName==='SELECT')return;const cr=getNowRound();const nr=getNextRound(cr);const days=getDays();const td=today();$('cur-round').textContent='รอบปัจจุบัน: '+cr;$('next-round').textContent='ถัดไป: '+nr;const active=Object.values(tankStates).filter(t=>t.status&&!['empty','san_done'].includes(t.status));$('tank-count').textContent='มีของ: '+active.length+' ถัง';if(!active.length){$('temp-table').innerHTML='<tr><td style="text-align:center;padding:30px;color:var(--t3)">ไม่มีถังที่มีของ</td></tr>';return;}let h='<thead><tr><th class="th-fix" rowspan="2">ถัง</th><th class="th-fix" rowspan="2" style="min-width:130px;position:sticky;left:80px;z-index:4;border-right:2px solid var(--b1)">สินค้า</th>';days.forEach((d,i)=>{const isT=d===td;h+='<th class="th-date'+(isT?' today':'')+'" colspan="6">'+fmtDay(d,i)+(isT?' ★':'')+'</th>';});h+='</tr><tr>';days.forEach(d=>{TEMP_TIMES.forEach((t,ti)=>{const isN=d===td&&t===cr;const sep=ti===5?'border-right:2px solid var(--b1)':'';h+='<th class="th-time'+(isN?' now-col':'')+'" style="'+sep+'">'+t+'</th>';});});h+='</tr></thead><tbody>';active.sort((a,b)=>a.id.localeCompare(b.id)).forEach(tank=>{const sc=ST[tank.status]||ST.empty;h+='<tr><td class="sep" style="position:sticky;left:0;z-index:3;background:#fff"><div style="display:flex;align-items:center;gap:5px"><span class="st-dot" style="background:'+sc.color+'"></span><span style="font-family:var(--mono);font-weight:900;color:'+sc.color+'">'+tank.id+'</span></div></td><td class="sep" style="position:sticky;left:80px;z-index:3;background:#fff;border-right:2px solid var(--b1)"><div class="badge badge-cyan" style="margin-bottom:2px">'+(tank.mix_code||'—')+'</div><div style="font-size:11px;color:var(--t2)">'+(tank.mix_name||'—')+'</div></td>';days.forEach(d=>{TEMP_TIMES.forEach((t,ti)=>{const isN=d===td&&t===cr;const isPast=d<td||(d===td&&t<=cr);const sep=ti===5?'border-right:2px solid var(--b1)':'';const key=d+'_'+t.replace(':','');const val=tank.temps?tank.temps[key]:null;const filled=val!==null&&val!==undefined&&val!=='';const newTemp2=filled?+val:0;const maxT2=tank.max_temp!=null?+tank.max_temp:-1;const isHot=filled&&newTemp2>maxT2;const cls='ti'+(filled?(isHot?' hot':' ok'):'')+(isN&&!filled?' cur-slot':'');// สร้าง options ตาม product_type — Ice Cream/Water Ice: -10~10, Jelly: 30~50, อื่นๆ: -10~50
 const _ptype=(tank.product_type||'');
 const _opts=_ptype==='Jelly'
   ?[37,38,39,40,41,42]
