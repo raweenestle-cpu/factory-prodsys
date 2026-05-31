@@ -1762,7 +1762,36 @@ async function loadHistory(){
         <td>${r.mix_name||'—'}</td>
         <td style="font-family:var(--mono)">${r.volume_liter||'—'}</td>
         <td style="font-family:var(--mono);color:var(--t2)">${r.past_start_time||'—'} → ${r.past_end_time||'—'}</td>
-        <td style="font-family:var(--mono);color:#a78bfa">${r.aging_tank||'—'}</td>
+        <td style="font-family:var(--mono);color:#a78bfa">${(()=>{
+  const _tid=r.aging_tank||'';
+  if(!_tid)return'—';
+  const _st=window._agingStates&&window._agingStates[_tid]?window._agingStates[_tid]:{};
+  const _status=_st.status||'';
+  const _sanStop=_st.san_stop_time||'';
+  let _badge='';
+  if(_status==='san_done'&&_sanStop){
+    // นับถอยหลัง 20 นาที
+    const _sp=_sanStop.split(':').map(Number);
+    const _sanSec=(_sp[0]||0)*3600+(_sp[1]||0)*60+(_sp[2]||0);
+    const _now=new Date();
+    const _nowSec=_now.getHours()*3600+_now.getMinutes()*60+_now.getSeconds();
+    let _diff=_nowSec-_sanSec;if(_diff<0)_diff+=86400;
+    const _wait=20*60;
+    if(_diff<_wait){
+      const _rem=_wait-_diff;
+      const _m=String(Math.floor(_rem/60)).padStart(2,'0');
+      const _s=String(_rem%60).padStart(2,'0');
+      _badge='<span style="color:#3b82f6;font-weight:700;animation:blink 1s step-start infinite">🔵 San เสร็จ รอ '+_m+':'+_s+'</span>';
+    } else {
+      _badge='<span style="color:#22c55e;font-weight:700">✅ พร้อม Past</span>';
+    }
+  } else if(_status==='cip'){
+    _badge='<span style="color:#f97316;font-size:10px">🔄 CIP</span>';
+  } else if(_status==='san'){
+    _badge='<span style="color:#8b5cf6;font-size:10px">🧴 San</span>';
+  }
+  return _tid+(_badge?'<br>'+_badge:'');
+})()}</td>
         <td style="font-family:var(--mono);font-size:11px;color:var(--t3)">${r.mixing_unit?.toUpperCase()||'—'}</td>
         <td style="font-family:var(--mono);font-weight:700;color:${effColor}">${effLabel} ${eff?eff+'%':'—'}</td>
       </tr>`;
