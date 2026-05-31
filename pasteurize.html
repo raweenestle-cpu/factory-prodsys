@@ -528,6 +528,12 @@ setInterval(()=>{
 },10000);
 
 // เขียน current_vol ลง Firebase ทุก 3 วินาที + Auto Stamp เมื่อถึง ETA
+// Subscribe aging_tank_states real-time
+window._agingStates={};
+onSnapshot(collection(db,'aging_tank_states'),snap=>{
+  snap.docs.forEach(d=>{window._agingStates[d.id]={id:d.id,...d.data()};});
+});
+
 const _autoStamping=new Set(); // ป้องกัน stamp ซ้ำ
 
 setInterval(async()=>{
@@ -885,7 +891,7 @@ function renderTankVisual(m,rows){
   }
   const mx1=mixTankVol(t1Row,t1Total,t1Active,t1Done);
   const mx2=mixTankVol(t2Row,t2Total,t2Active,t2Done);
-  console.log('[TANK]','t2Row:',t2Row?.id,t2Row?.status,'t2Total:',t2Total,'t2Active:',t2Active,'t2Done:',t2Done,'mx2.vol:',mx2.vol,'mx2.pct:',mx2.pct);
+
   const sAg={txt:isFlowing?'♨️ รับของ':agVol>0?'✅ เต็ม':'⚪ ว่าง',
              col:isFlowing?'#f97316':agVol>0?'#22c55e':'#374151',
              tankCol:isFlowing?'#f97316':agVol>0?'#22c55e':'#374151',
