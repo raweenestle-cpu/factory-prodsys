@@ -281,7 +281,8 @@ continue;
 const key=agRow.id;
 if(!_autoStamping.has(key)){
 _autoStamping.add(key);
-const endTime=nowHHMMSS();
+const endTime=agRow.expected_finish_time||nowHHMMSS();
+const actualStampTime=nowHHMMSS();
 const eff=100;
 const donePrevVol=allRows
 .filter(r=>r.id!==agRow.id&&
@@ -292,6 +293,8 @@ r.aging_tank===agRow.aging_tank&&
 const finalCumVol=donePrevVol+(+(agRow.volume_liter||0));
 await updateDoc(doc(db,planCol(p),agRow.id),{
 past_end_time:endTime,
+actual_finish_time:actualStampTime,
+past_end_at:new Date().toISOString(),
 eff:Math.round(eff*10)/10,
 status:'past_done',
 current_vol:finalCumVol,
@@ -916,10 +919,72 @@ toast(`Archive ${oldest.mix_code||''} แล้ว`,"green");
 toast("Archive ไม่สำเร็จ: "+e.message,"red");
 }
 }
+
+window.openAdjustModal=function(col,id,p,exp,actual){
+  const m=document.getElementById('adjust-modal');
+  m.dataset.col=col;m.dataset.id=id;m.dataset.p=p;
+  document.getElementById('adj-expected').textContent=exp||'—';
+  document.getElementById('adj-actual').textContent=actual||'—';
+  document.getElementById('adj-time').value=exp||actual||'';
+  document.getElementById('adj-reason').value='';
+  document.getElementById('adj-note').value='';
+  m.style.display='flex';
+};
+window.closeAdjustModal=()=>{document.getElementById('adjust-modal').style.display='none';};
+window.submitAdjust=async()=>{
+  const m=document.getElementById('adjust-modal');
+  const col=m.dataset.col,id=m.dataset.id,p=m.dataset.p;
+  const adjTime=document.getElementById('adj-time').value.trim();
+  const reason=document.getElementById('adj-reason').value;
+  const note=document.getElementById('adj-note').value.trim();
+  if(!adjTime){alert('กรุณากรอกเวลา');return;}
+  if(!reason){alert('กรุณาเลือกเหตุผล');return;}
+  const row=(rows[p]||[]).find(r=>r.id===id);if(!row)return;
+  const prod=productMap[row.mix_code]||{};
+  const spd=p==='p1'?+(prod.speed_m1||prod.speed||0):+(prod.speed_m2||prod.speed||0);
+  const den=+(prod.density||1);
+  const vol=+(row.volume_liter||0);
+  const reqSec=spd>0?Math.round(vol*den*3600/spd):0;
+  const _sp=(row.past_start_time||'00:00:00').split(':').map(Number);
+  const _ep=adjTime.split(':').map(Number);
+  let actSec=((_ep[0]||0)*3600+(_ep[1]||0)*60+(_ep[2]||0))-((_sp[0]||0)*3600+(_sp[1]||0)*60+(_sp[2]||0));
+  if(actSec<0)actSec+=86400;
+  const effAdj=actSec>0?(reqSec/actSec)*100:0;
+  await updateDoc(doc(db,col,id),{adjusted_finish_time:adjTime,adjustment_reason:reason,adjustment_note:note,adjustment_by:ME?.email||'—',adjustment_at:new Date().toISOString(),eff:Math.round(effAdj*10)/10});
+  closeAdjustModal();
+  toast(`✅ ปรับแก้แล้ว Eff: ${effAdj.toFixed(1)}%`,'green');
+};
+function delayLabel(row){
+  const ef=row.adjusted_finish_time||row.actual_finish_time||row.past_end_time;
+  const ex=row.expected_finish_time;
+  if(!ef||!ex)return'';
+  const _ep=ef.split(':').map(Number),_xp=ex.split(':').map(Number);
+  const diff=((_ep[0]||0)*3600+(_ep[1]||0)*60+(_ep[2]||0))-((_xp[0]||0)*3600+(_xp[1]||0)*60+(_xp[2]||0));
+  if(diff<=0)return'🟢 On Time';
+  const dm=Math.floor(diff/60),ds=diff%60;
+  return diff<120?`🟡 +${String(dm).padStart(2,'0')}:${String(ds).padStart(2,'0')}`:`🔴 +${String(dm).padStart(2,'0')}:${String(ds).padStart(2,'0')}`;
+}
+
 window.stampTime=async(col,id,field,p)=>{
 const now=field==="past_end_time"?nowHHMMSS():nowHHMMSS();
 const upd={[field]:now};
-if(field==="past_start_time") upd.status="pasteurising";
+if(field==="past_start_time"){
+    upd.status="pasteurising";
+    const _rowS=rows[p]?.find(r=>r.id===id);
+    if(_rowS){
+      const _prodS=productMap[_rowS.mix_code]||{};
+      const _densS=+(_prodS.density||1);
+      const _spdS=p==='p1'?+(_prodS.speed_m1||_prodS.speed||0):+(_prodS.speed_m2||_prodS.speed||0);
+      const _volS=+(_rowS.volume_liter||0);
+      const _reqSecS=_spdS>0?Math.round(_volS*_densS*3600/_spdS):0;
+      const _nowParts=now.split(':').map(Number);
+      const _nowSecS=(_nowParts[0]||0)*3600+(_nowParts[1]||0)*60+(_nowParts[2]||0);
+      const _expSecS=(_nowSecS+_reqSecS)%86400;
+      const _expH=Math.floor(_expSecS/3600),_expM=Math.floor((_expSecS%3600)/60),_expSec2=_expSecS%60;
+      upd.expected_finish_time=String(_expH).padStart(2,'0')+':'+String(_expM).padStart(2,'0')+':'+String(_expSec2).padStart(2,'0');
+      upd.standard_duration_sec=_reqSecS;
+    }
+  }
 if(field==="past_end_time"){
 const row=rows[p]?.find(r=>r.id===id);
 if(row&&row.past_start_time){
@@ -988,7 +1053,25 @@ if(val===null)return;
 const clean=val.trim();
 if(!/^\d{2}:\d{2}(:\d{2})?$/.test(clean)){toast("รูปแบบ HH:MM หรือ HH:MM:SS เท่านั้น","red");return;}
 const upd={[field]:clean};
-if(field==="past_start_time"&&clean) upd.status="pasteurising";
+if(field==="past_start_time"&&clean){
+    upd.status="pasteurising";
+    // คำนวณ expected_finish_time ใหม่ทุกครั้งที่แก้เวลาเริ่ม
+    const _rowE=(rows['p1']||[]).find(r=>r.id===id)||(rows['p2']||[]).find(r=>r.id===id);
+    const _pE=_rowE?productMap[_rowE.mix_code]||{}:{};
+    const _pName=col===planCol('p1')?'p1':'p2';
+    const _densE=+(_pE.density||1);
+    const _spdE=_pName==='p1'?+(_pE.speed_m1||_pE.speed||0):+(_pE.speed_m2||_pE.speed||0);
+    const _volE=+(_rowE?.volume_liter||0);
+    if(_spdE>0&&_volE>0){
+      const _reqSecE=Math.round(_volE*_densE*3600/_spdE);
+      const _sp=clean.split(':').map(Number);
+      const _startSecE=(_sp[0]||0)*3600+(_sp[1]||0)*60+(_sp[2]||0);
+      const _expSecE=(_startSecE+_reqSecE)%86400;
+      const _eH=Math.floor(_expSecE/3600),_eM=Math.floor((_expSecE%3600)/60),_eS=_expSecE%60;
+      upd.expected_finish_time=String(_eH).padStart(2,'0')+':'+String(_eM).padStart(2,'0')+':'+String(_eS).padStart(2,'0');
+      upd.standard_duration_sec=_reqSecE;
+    }
+  }
 if(field==="past_end_time"&&clean){
 upd.status="past_done";
 // ถามวันที่จริงที่ pasteurize เสร็จ
@@ -1274,6 +1357,42 @@ el.innerHTML=`<tr><td colspan="10" style="text-align:center;padding:20px;color:v
           <tr><td colspan="10" style="text-align:center;padding:20px;color:var(--t3)">กด tab ประวัติเพื่อโหลด</td></tr>
         </tbody>
       </table>
+    </div>
+  </div>
+</div>
+
+<div id="adjust-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;align-items:flex-end;justify-content:center">
+  <div style="background:var(--s1);border-radius:20px 20px 0 0;padding:24px 20px 36px;width:100%;max-width:520px">
+    <div style="font-family:var(--mono);font-size:14px;font-weight:900;margin-bottom:16px">⏱ ปรับแก้เวลา Past.เสร็จ</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+      <div style="background:var(--s2);border-radius:10px;padding:10px 14px">
+        <div style="font-family:var(--mono);font-size:9px;color:var(--t3);text-transform:uppercase">Expected</div>
+        <div id="adj-expected" style="font-family:var(--mono);font-size:18px;font-weight:900;color:var(--cyan)">—</div>
+      </div>
+      <div style="background:var(--s2);border-radius:10px;padding:10px 14px">
+        <div style="font-family:var(--mono);font-size:9px;color:var(--t3);text-transform:uppercase">Actual Stamp</div>
+        <div id="adj-actual" style="font-family:var(--mono);font-size:18px;font-weight:900;color:var(--orange)">—</div>
+      </div>
+    </div>
+    <div style="margin-bottom:10px">
+      <div style="font-family:var(--mono);font-size:10px;color:var(--t3);margin-bottom:5px">เวลาที่ปรับแก้ (HH:MM:SS)</div>
+      <input id="adj-time" type="text" placeholder="08:44:30" style="width:100%;background:var(--s2);border:1.5px solid var(--b1);border-radius:8px;color:var(--text);font-family:var(--mono);font-size:16px;font-weight:900;padding:10px 14px;outline:none">
+    </div>
+    <div style="margin-bottom:10px">
+      <div style="font-family:var(--mono);font-size:10px;color:var(--t3);margin-bottom:5px">เหตุผล</div>
+      <select id="adj-reason" style="width:100%;background:var(--s2);border:1.5px solid var(--b1);border-radius:8px;color:var(--text);font-family:var(--mono);font-size:13px;font-weight:700;padding:10px 14px;outline:none">
+        <option value="">— เลือกเหตุผล —</option>
+        <option>กดปุ่มช้า</option><option>เครื่องขัดข้อง</option><option>ผู้ปฏิบัติงานยุ่ง</option>
+        <option>ระบบค้าง</option><option>เหตุฉุกเฉิน</option><option>อื่นๆ</option>
+      </select>
+    </div>
+    <div style="margin-bottom:16px">
+      <div style="font-family:var(--mono);font-size:10px;color:var(--t3);margin-bottom:5px">หมายเหตุ</div>
+      <input id="adj-note" placeholder="รายละเอียดเพิ่มเติม..." style="width:100%;background:var(--s2);border:1.5px solid var(--b1);border-radius:8px;color:var(--text);font-family:var(--mono);font-size:13px;padding:10px 14px;outline:none">
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <button onclick="closeAdjustModal()" style="padding:13px;border-radius:10px;border:1px solid var(--b1);background:var(--s2);color:var(--t2);font-family:var(--mono);font-size:13px;font-weight:700;cursor:pointer">ยกเลิก</button>
+      <button onclick="submitAdjust()" style="padding:13px;border-radius:10px;border:none;background:#15803d;color:#fff;font-family:var(--mono);font-size:13px;font-weight:700;cursor:pointer">✅ บันทึกปรับแก้</button>
     </div>
   </div>
 </div>
