@@ -342,7 +342,7 @@ import{getFirestore,collection,query,where,orderBy,limit,getDocs,onSnapshot,doc,
 const app=initializeApp({apiKey:"AIzaSyC3f6jMuhugE6BNfRfkpOA9BMrIKWR9YgQ",authDomain:"production-filling.firebaseapp.com",projectId:"production-filling",storageBucket:"production-filling.firebasestorage.app",messagingSenderId:"89098393458",appId:"1:89098393458:web:b723f2886e8a341935afeb"});
 const auth=getAuth(app);const db=getFirestore(app);
 const $=id=>document.getElementById(id);
-const today=()=>new Date().toISOString().slice(0,10);
+const today=()=>new Date().toISOString().slice(0,10).replace(/-/g,'');
 const nowHMS=()=>{const d=new Date();return[d.getHours(),d.getMinutes(),d.getSeconds()].map(x=>x.toString().padStart(2,'0')).join(':');};
 let planRows={m1:[],m2:[]},tankStates={},linesData=[],curTab='m1',unsubSt=null;
 const TEMP_TIMES=['02:00','06:00','10:00','14:00','18:00','22:00'];
