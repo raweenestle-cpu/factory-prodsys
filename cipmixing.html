@@ -423,7 +423,7 @@ function renderTemp(){const cr=getNowRound();const nr=getNextRound(cr);const day
 const _ptype=(tank.product_type||'');
 const _opts=_ptype==='Jelly'
   ?[37,38,39,40,41,42]
-  :Array.from({length:21},(_,i)=>i-10);
+  :Array.from({length:11},(_,i)=>i);
 const selOpts='<option value="">'+(filled?'':'—')+'</option>'+_opts.map(v=>'<option value="'+v+'"'+(filled&&+val===v?' selected':'')+'>'+v+'°</option>').join('');h+='<td style="'+(isN?'background:rgba(29,78,216,.03)':'')+sep+'"><select class="'+cls+'"'+(isPast?'':' disabled')+' onchange="setTempVal(\''+tank.id+'\',\''+key+'\',this.value)">'+selOpts+'</select></td>';});});h+='</tr>';});h+='</tbody>';$('temp-table').innerHTML=h;}
 window.setTempVal=async(tid,key,val)=>{if(val===''||val===null||val===undefined||isNaN(+val))return;const newTemp=+val;
   // Jelly ต้องอยู่ใน 37-42°C — แจ้งเตือนแต่ยังบันทึกได้
