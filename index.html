@@ -489,6 +489,15 @@ function loadPinEmployees(){
   // ใช้ค่าที่โหลดไว้แล้ว
 }
 
+async function hashPin(pin){
+  try{
+    var buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('PRODSYS:'+pin));
+    return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
+  }catch(e){
+    console.error('hashPin error:',e);
+    return '';
+  }
+}
 async function checkPin(){
   // โหลด employees จาก Firebase
   if(!window._db){
