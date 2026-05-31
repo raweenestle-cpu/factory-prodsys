@@ -338,7 +338,7 @@ async function _doActReal(tid, act){
 
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import{getAuth,onAuthStateChanged,signOut}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import{getFirestore,collection,query,where,orderBy,limit,getDocs,onSnapshot,doc,setDoc,addDoc}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import{getFirestore,collection,query,where,orderBy,limit,getDocs,onSnapshot,doc,setDoc,addDoc,FieldPath}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 const app=initializeApp({apiKey:"AIzaSyC3f6jMuhugE6BNfRfkpOA9BMrIKWR9YgQ",authDomain:"production-filling.firebaseapp.com",projectId:"production-filling",storageBucket:"production-filling.firebasestorage.app",messagingSenderId:"89098393458",appId:"1:89098393458:web:b723f2886e8a341935afeb"});
 const auth=getAuth(app);const db=getFirestore(app);
 const $=id=>document.getElementById(id);
@@ -471,18 +471,22 @@ function renderTemp(){
 window.setTempVal=async function(tid,key,val){
   if(val===''||val===null||val===undefined||isNaN(+val))return;
   var newTemp=+val;
-  var upd={updated_at:new Date().toISOString()};
-  upd['temps.'+key]=newTemp;
   var ts=tankStates[tid]||{};
-  if(ts.max_temp==null||newTemp>+ts.max_temp)upd.max_temp=newTemp;
   try{
+    // ใช้ object ซ้อน temps แทน dot-notation เพราะ key มี - และตัวเลข
+    var tempsUpdate={};
+    var existing=ts.temps||{};
+    tempsUpdate=Object.assign({},existing,{[key]:newTemp});
+    var upd={temps:tempsUpdate,updated_at:new Date().toISOString()};
+    if(ts.max_temp==null||newTemp>+ts.max_temp)upd.max_temp=newTemp;
     await setDoc(doc(db,'aging_tank_states',tid),upd,{merge:true});
     if(!tankStates[tid])tankStates[tid]={id:tid};
     if(!tankStates[tid].temps)tankStates[tid].temps={};
     tankStates[tid].temps[key]=newTemp;
     if(upd.max_temp!=null)tankStates[tid].max_temp=newTemp;
+    toast('✅ บันทึก '+tid+' = '+newTemp+'°C','green');
     renderTempAlert();
-  }catch(e){console.warn('setTempVal:',e);toast('❌ '+e.message,'red');}
+  }catch(e){console.warn('setTempVal error:',e);toast('❌ '+e.message,'red');}
 };
 window.saveTemp=async()=>{};
 
