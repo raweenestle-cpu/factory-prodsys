@@ -285,6 +285,7 @@ const MENUS={
   leadman:[
     {icon:'📋',name:'Leadman',desc:'แผนการผลิต',file:'leadman.html',cls:'m-leadman'},
     {icon:'📅',name:'Daily Plan',desc:'อัปโหลดแผน',file:'dailyplan.html',cls:'m-leadman'},
+    {icon:'🔐',name:'Employee Reg.',desc:'ลงทะเบียนพนักงาน',file:'pinregister.html',cls:'m-leadman'},
     {icon:'🔬',name:'Mixing',desc:'บันทึกผสม',file:'mixing.html',cls:'m-mixing'},
     {icon:'🌡️',name:'Pasteurize',desc:'บันทึก Past.',file:'pasteurize.html',cls:'m-past'},
     {icon:'🍦',name:'Flavor',desc:'เทสี/กลิ่น',file:'flavor.html',cls:'m-flavor'},
@@ -454,7 +455,7 @@ function showStep(id){
 var pinTarget='', pinValue='', pinEmployees=[];
 
 function openPinModal(file,name){
-  var noPinPages=['admin.html','shelflife.html','mixing.html','pasteurize.html','leadman.html','aging.html','cipman.html','cipmixing.html','flavor.html','filling.html','dailyplan.html'];
+  var noPinPages=['admin.html','shelflife.html','aging.html','filling.html'];
   if(noPinPages.indexOf(file)>=0){window.location.href=file;return;}
   pinTarget=file;pinValue='';
   document.getElementById('pin-modal-page').textContent=name;
