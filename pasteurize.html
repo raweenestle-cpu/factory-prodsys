@@ -362,8 +362,26 @@ const prevCumVol=_switchAt.current_vol!=null
   ?+_switchAt.current_vol
   :allRows.filter(r=>r.process_order===nextRow.process_order&&r.aging_tank===nextRow.aging_tank&&(r.status==='past_done'||r.status==='ready'||r.id===agRow.id)).reduce((s,r)=>s+(+(r.volume_liter||0)),0);
 console.log('[SWITCH TANK] PO:',nextRow.process_order,'FROM:',agRow.mixing_tank||'?','TO:',nextRow.mixing_tank||'?','AgingTank:',nextRow.aging_tank,'AccVol:',prevCumVol);
+// คำนวณ expected_finish_time ของ nextRow ต่อจาก endTime (expected ของ agRow)
+const _nextProd=productMap[nextRow.mix_code]||{};
+const _nextDens=+(_nextProd.density||1);
+const _nextSpd=planCol(p)==='production_plans'?+(_nextProd.speed_m1||_nextProd.speed||0):+(_nextProd.speed_m2||_nextProd.speed||0);
+const _nextVol=+(nextRow.volume_liter||0);
+let _nextExpected=null;
+if(_nextSpd>0&&_nextVol>0){
+  const _nextReqSec=Math.round(_nextVol*_nextDens*3600/_nextSpd);
+  // ใช้ expected_finish_time ของ agRow เป็น start ของ nextRow (ไม่ใช่ endTime จริง)
+  const _startRef=agRow.expected_finish_time||endTime;
+  const _sp=_startRef.split(':').map(Number);
+  const _startSec=(_sp[0]||0)*3600+(_sp[1]||0)*60+(_sp[2]||0);
+  const _expSec=(_startSec+_nextReqSec+3)%86400; // +3 sec buffer
+  const _eH=Math.floor(_expSec/3600),_eM=Math.floor((_expSec%3600)/60),_eSec=_expSec%60;
+  _nextExpected=String(_eH).padStart(2,'0')+':'+String(_eM).padStart(2,'0')+':'+String(_eSec).padStart(2,'0');
+}
 await updateDoc(doc(db,planCol(p),nextRow.id),{
 past_start_time:endTime,
+expected_finish_time:_nextExpected||undefined,
+standard_duration_sec:_nextSpd>0&&_nextVol>0?Math.round(_nextVol*_nextDens*3600/_nextSpd):undefined,
 status:'pasteurising',
 past_end_time:null,
 });
