@@ -421,34 +421,48 @@ function getNextRound(cur){const i=TEMP_TIMES.indexOf(cur);return i>=0&&i<TEMP_T
 function getDays(){const d=[];for(let i=4;i>=0;i--){const dt=new Date();dt.setDate(dt.getDate()-i);d.push(dt.toISOString().slice(0,10));}return d;}
 function fmtDay(d,idx){return 'วันที่ '+(idx+1);}
 function renderTemp(){
-  if(document.activeElement&&document.activeElement.tagName==='SELECT')return;
-  const cr=getNowRound(),nr=getNextRound(cr),days=getDays(),td=today();
+  if(document.activeElement&&document.activeElement.tagName==='INPUT')return;
+  const cr=getNowRound(),days=getDays(),td=today();
   $('cur-round').textContent='รอบปัจจุบัน: '+cr;
-  $('next-round').textContent='ถัดไป: '+nr;
   const active=Object.values(tankStates).filter(t=>t.status&&!['empty','san_done'].includes(t.status));
   $('tank-count').textContent='มีของ: '+active.length+' ถัง';
-  if(!active.length){$('temp-table').innerHTML='<tr><td style="text-align:center;padding:30px;color:var(--t3)">ไม่มีถังที่มีของ</td></tr>';return;}
-  let h='<thead><tr><th style="position:sticky;left:0;z-index:4;background:var(--s2);padding:8px 10px">ถัง</th><th style="position:sticky;left:52px;z-index:4;background:var(--s2);padding:8px 6px">Code</th><th style="position:sticky;left:108px;z-index:4;background:var(--s2);padding:8px 8px;border-right:2px solid var(--b1)">Mix</th>';
-  days.forEach((d,di)=>{const isT=d===td;TEMP_TIMES.forEach((t,ti)=>{const isN=isT&&t===cr;h+='<th style="padding:5px 3px;text-align:center;font-size:10px;min-width:42px;'+(isN?'background:rgba(29,78,216,.08)':'')+(isT?'font-weight:800':'opacity:.5')+'">'+(isT?'':('d'+(di+1)+'<br>'))+t+(isN?'<br>★':'')+'</th>';});if(di<days.length-1)h+='<th style="width:3px;background:var(--s2)"></th>';});
+  if(!active.length){$('temp-table').innerHTML='<tr><td colspan="99" style="text-align:center;padding:30px;color:var(--t3)">ไม่มีถังที่มีของ</td></tr>';return;}
+  let h='<thead><tr>';
+  h+='<th style="position:sticky;left:0;z-index:4;background:var(--s2);padding:8px 10px">ถัง</th>';
+  h+='<th style="position:sticky;left:52px;z-index:4;background:var(--s2);padding:8px 6px">Code</th>';
+  h+='<th style="position:sticky;left:108px;z-index:4;background:var(--s2);padding:8px 8px;border-right:2px solid var(--b1)">Mix</th>';
+  days.forEach((d,di)=>{
+    const isT=d===td;
+    TEMP_TIMES.forEach(t=>{
+      const isN=isT&&t===cr;
+      h+='<th style="padding:5px 3px;text-align:center;font-size:10px;min-width:48px;'+(isN?'background:rgba(29,78,216,.1);font-weight:900':'')+(isT?';font-weight:700':'')+'">'+t+(isN?' ★':'')+'</th>';
+    });
+    if(di<days.length-1)h+='<th style="width:3px;background:var(--s2)"></th>';
+  });
   h+='</tr></thead><tbody>';
   active.sort((a,b)=>a.id.localeCompare(b.id)).forEach(tank=>{
     const sc=ST[tank.status]||ST.empty;
-    h+='<tr><td style="position:sticky;left:0;z-index:2;background:#fff;padding:5px 8px;white-space:nowrap"><span style="font-family:var(--mono);font-weight:900;color:'+sc.color+'">'+tank.id+'</span></td>';
-    h+='<td style="position:sticky;left:52px;z-index:2;background:#fff;padding:5px 5px;white-space:nowrap"><span class="badge badge-cyan" style="font-size:10px">'+(tank.mix_code||'—')+'</span></td>';
-    h+='<td style="position:sticky;left:108px;z-index:2;background:#fff;padding:5px 8px;white-space:nowrap;border-right:2px solid var(--b1);font-size:11px;color:var(--t2)">'+(tank.mix_name||'—').slice(0,10)+'</td>';
+    h+='<tr>';
+    h+='<td style="position:sticky;left:0;z-index:2;background:#fff;padding:5px 8px"><span style="font-family:var(--mono);font-weight:900;color:'+sc.color+'">'+tank.id+'</span></td>';
+    h+='<td style="position:sticky;left:52px;z-index:2;background:#fff;padding:5px 5px"><span class="badge badge-cyan" style="font-size:10px">'+(tank.mix_code||'—')+'</span></td>';
+    h+='<td style="position:sticky;left:108px;z-index:2;background:#fff;padding:5px 8px;border-right:2px solid var(--b1);font-size:11px;color:var(--t2)">'+(tank.mix_name||'—').slice(0,10)+'</td>';
     days.forEach((d,di)=>{
-      TEMP_TIMES.forEach((t,ti)=>{
+      TEMP_TIMES.forEach(t=>{
         const isN=d===td&&t===cr;
         const isPast=d<td||(d===td&&t<=cr);
         const key=(d+'_'+t.replace(':','')).replace(/-/g,'');
-        const val=tank.temps&&tank.temps[key]!=null?tank.temps[key]:null;
-        const filled=val!==null&&val!==undefined&&val!=='';
+        const val=tank.temps&&tank.temps[key]!=null?tank.temps[key]:'';
+        const filled=val!=='';
         const isHot=filled&&+val>5;
         const bg=isHot?'#fee2e2':isN?'rgba(29,78,216,.04)':'';
-        const bdr=isHot?'#ef4444':filled?'#15803d':'var(--b1)';
-        const selbg=isHot?'#fee2e2':filled?'#f0fdf4':'#fff';
-        const opts='<option value="">'+(filled?'':'—')+'</option>'+[0,1,2,3,4,5,6,7,8,9,10].map(v=>'<option value="'+v+'"'+(filled&&+v===+val?' selected':'')+'>'+v+'</option>').join('');
-        h+='<td style="padding:2px;text-align:center;background:'+bg+'"><select style="font-family:var(--mono);font-size:12px;font-weight:700;width:40px;border:1px solid '+bdr+';border-radius:4px;padding:2px;background:'+selbg+';"'+(isPast?'':' disabled')+' onchange="setTempVal('+JSON.stringify(tank.id)+','+JSON.stringify(key)+',this.value)">'+opts+'</select></td>';
+        const bdr=isHot?'#ef4444':filled?'#15803d':'#d1d5db';
+        h+='<td style="padding:2px;text-align:center;background:'+bg+'">';
+        if(isPast){
+          h+='<input type="number" min="0" max="10" step="1" value="'+val+'" style="width:40px;text-align:center;font-family:var(--mono);font-size:13px;font-weight:700;border:1px solid '+bdr+';border-radius:4px;padding:2px;background:'+(isHot?'#fee2e2':filled?'#f0fdf4':'#fff')+';" onchange="setTempVal('+JSON.stringify(tank.id)+','+JSON.stringify(key)+',this.value)">';
+        } else {
+          h+='<span style="color:var(--b1);font-size:11px">—</span>';
+        }
+        h+='</td>';
       });
       if(di<days.length-1)h+='<td style="width:3px;background:var(--s2)"></td>';
     });
