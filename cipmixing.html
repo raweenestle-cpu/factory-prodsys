@@ -365,7 +365,7 @@ const auth=getAuth(app);const db=getFirestore(app);
 const $=id=>document.getElementById(id);
 const today=()=>new Date().toISOString().slice(0,10);
 const nowHMS=()=>{const d=new Date();return[d.getHours(),d.getMinutes(),d.getSeconds()].map(x=>x.toString().padStart(2,'0')).join(':');};
-let planRows={m1:[],m2:[]},tankStates={},linesData=[],curTab='m1',unsubSt=null;
+window.tankStates={};window.planRows={m1:[],m2:[]};const tankStates=window.tankStates;const planRows=window.planRows;let linesData=[],curTab='m1',unsubSt=null;
 const TEMP_TIMES=['02:00','06:00','10:00','14:00','18:00','22:00'];
 $('inp-date').value=today();
 const en=sessionStorage.getItem('emp_name')||'';if(en) $('emp-name').textContent='👤 '+en;
