@@ -8,13 +8,17 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#e8ecf0;--s1:#f2f4f7;--s2:#e0e4ea;--b1:#b0bac8;--b2:#8896aa;
-  --text:#111827;--t2:#374151;--t3:#6b7280;
-  --cyan:#00d4ff;--green:#00e87a;--yellow:#ffd040;--orange:#ff8c42;--red:#ff4560;
+  --bg:#070a0f;--s1:#0e1117;--s2:#141820;--s3:#1c2130;--b1:#252d3d;--b2:#334155;
+  --text:#f0f4ff;--t2:#8892a4;--t3:#4a5568;
+  --cyan:#00d4ff;--green:#00e87a;--yellow:#ffd040;--orange:#ff8c42;--red:#ff4560;--purple:#a78bfa;
   --mono:'DM Mono',monospace;--sans:'Sarabun',sans-serif;--display:'Syne',sans-serif;
 }
 body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh}
-body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+body::before{content:'';position:fixed;inset:0;
+  background:radial-gradient(ellipse 100% 50% at 50% 0%,rgba(0,212,255,.04),transparent 60%),
+  linear-gradient(rgba(0,212,255,.015) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(0,212,255,.015) 1px,transparent 1px);
+  background-size:100% 100%,48px 48px,48px 48px;pointer-events:none;z-index:0;}
 nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;height:56px;background:rgba(7,9,15,.9);backdrop-filter:blur(12px);border-bottom:1px solid var(--b1);padding:0 20px;gap:10px;}
 .nav-logo{font-family:var(--display);font-size:16px;font-weight:800;color:var(--cyan)}
 .nav-sub{font-family:var(--mono);font-size:11px;color:var(--t2)}
@@ -116,6 +120,29 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;heigh
 /* SIG */
 .sig-img{height:32px;vertical-align:middle;opacity:.9;margin-left:6px}
 .sig-by{font-family:'DM Mono',monospace;font-size:10px;color:var(--t2)}
+
+.sec-card{background:var(--s1);border:1px solid var(--b1);border-radius:16px;padding:20px;margin-bottom:16px;box-shadow:0 4px 24px rgba(0,0,0,.3);position:relative;overflow:hidden}
+.sec-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:16px 16px 0 0}
+.sec-card.cip-mix::before{background:linear-gradient(90deg,#a78bfa,#7c3aed)}
+.sec-card.mixing::before{background:linear-gradient(90deg,#ffd040,#ff8c42)}
+.sec-card.past::before{background:linear-gradient(90deg,#00e87a,#00d4ff)}
+.sec-card.flavor::before{background:linear-gradient(90deg,#f472b6,#a78bfa)}
+.sec-card.cipman::before{background:linear-gradient(90deg,#00d4ff,#3b7ef6)}
+.sec-card.aging::before{background:linear-gradient(90deg,#3b7ef6,#a78bfa)}
+.sec-hd{font-family:var(--mono);font-size:13px;font-weight:900;color:var(--text);margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--b1);display:flex;align-items:center;gap:8px;letter-spacing:.04em}
+.sig-chip{display:inline-flex;align-items:center;gap:8px;background:rgba(0,232,122,.06);border:1px solid rgba(0,232,122,.2);border-radius:10px;padding:8px 14px;margin-top:8px}
+.sig-img{height:36px;max-width:120px;object-fit:contain;filter:brightness(0) invert(1);opacity:.9}
+.sig-name{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--green)}
+.sig-role{font-family:var(--mono);font-size:9px;color:var(--t3);margin-top:2px}
+.not-found{font-family:var(--mono);font-size:11px;color:var(--t3);padding:16px;text-align:center;border:1px dashed var(--b1);border-radius:10px}
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-bottom:14px}
+.kpi-box{background:var(--s2);border-radius:10px;padding:12px;border:1px solid var(--b1)}
+.kpi-lbl{font-family:var(--mono);font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;font-weight:700}
+.kpi-val{font-family:var(--mono);font-size:18px;font-weight:900;color:var(--text);line-height:1.2}
+.kpi-sub{font-family:var(--mono);font-size:9px;color:var(--t3);margin-top:2px}
+.badge-ok{background:rgba(0,232,122,.1);color:var(--green);border:1px solid rgba(0,232,122,.25);padding:3px 10px;border-radius:6px;font-family:var(--mono);font-size:10px;font-weight:800}
+.badge-warn{background:rgba(255,208,64,.08);color:var(--yellow);border:1px solid rgba(255,208,64,.2);padding:3px 10px;border-radius:6px;font-family:var(--mono);font-size:10px;font-weight:800}
+.badge-na{background:rgba(100,116,139,.08);color:var(--t3);border:1px solid var(--b1);padding:3px 10px;border-radius:6px;font-family:var(--mono);font-size:10px;font-weight:800}
 </style>
 </head>
 <body>
@@ -238,7 +265,7 @@ window.fetchAll=async()=>{
   btn.disabled=false;btn.textContent='🔍 ดึงข้อมูล';
 };
 
-function renderAll(rows,po,productType){
+function renderAll(rows,po,productType,cipMixData,flavorData){
   const r=rows[0];
   const yr=new Date().getFullYear().toString().slice(-1);
   const unit=r._col==='production_plans_m2'?'2':'1';
@@ -356,6 +383,8 @@ function renderAll(rows,po,productType){
     <div class="tl-body">
       <div class="tl-title" style="color:var(--green)">Pasteurise</div>
       <div class="info-grid">
+        <div class="info-item"><div class="info-label">Expected Finish</div><div class="info-val" style="color:var(--cyan)">${r.expected_finish_time||'—'}</div></div>
+        <div class="info-item"><div class="info-label">Adjusted Finish</div><div class="info-val" style="color:var(--yellow)">${r.adjusted_finish_time||'—'}${r.adjustment_reason?' ('+r.adjustment_reason+')':''}</div></div>
         <div class="info-item"><div class="info-label">เริ่ม Past.</div><div class="info-val ${r.past_start_time?'green':''}">${r.past_start_time||'— ยังไม่เริ่ม'}</div></div>
         <div class="info-item"><div class="info-label">Past. เสร็จ</div><div class="info-val ${r.past_end_time?'green':''}">${r.past_end_time||'— ยังไม่เสร็จ'}</div></div>
         ${r.past_start_time&&r.past_end_time?`<div class="info-item"><div class="info-label">ระยะเวลา Past.</div><div class="info-val">${calcDuration(r.past_start_time,r.past_end_time)}</div></div>`:''}
@@ -384,6 +413,45 @@ function renderAll(rows,po,productType){
   </div>`;
 
   html+=`</div></div>`; // end timeline card
+
+
+  // ── 2.5 CIP MIXING ─────────────────────────────────────────
+  html+=`<div class="sec-card cip-mix">
+    <div class="sec-hd">🟣 CIP Mixing</div>
+    ${cipMixData?`
+    <div class="kpi-row">
+      <div class="kpi-box"><div class="kpi-lbl">วันที่ CIP</div><div class="kpi-val" style="font-size:14px">${cipMixData.cip_date||'—'}</div></div>
+      <div class="kpi-box"><div class="kpi-lbl">เริ่ม CIP</div><div class="kpi-val">${cipMixData.cip_start||'—'}</div></div>
+      <div class="kpi-box"><div class="kpi-lbl">จบ CIP</div><div class="kpi-val">${cipMixData.cip_end||'—'}</div></div>
+      <div class="kpi-box"><div class="kpi-lbl">สถานะ</div><div class="kpi-val" style="font-size:13px">${cipMixData.status==='done'?'<span class="badge-ok">✅ เสร็จ</span>':'<span class="badge-warn">⏳ รอ</span>'}</div></div>
+    </div>
+    <div class="info-grid">
+      <div class="info-item"><div class="info-label">ผู้ทำ CIP</div><div class="info-val">${cipMixData.operator||'—'}</div></div>
+      <div class="info-item"><div class="info-label">Sanitizer เริ่ม</div><div class="info-val">${cipMixData.san_start||'—'}</div></div>
+      <div class="info-item"><div class="info-label">Sanitizer จบ</div><div class="info-val">${cipMixData.san_end||'—'}</div></div>
+      <div class="info-item"><div class="info-label">ผู้ทำ Sanitizer</div><div class="info-val">${cipMixData.san_operator||'—'}</div></div>
+    </div>
+    ${cipMixData.signature?`<div class="sig-chip"><img src="${cipMixData.signature}" class="sig-img"><div><div class="sig-name">${cipMixData.operator||'—'}</div><div class="sig-role">CIP Operator</div></div></div>`:''}
+    `:'<div class="not-found">⚠️ ไม่พบข้อมูล CIP Mixing สำหรับ Process Order นี้</div>'}
+  </div>`;
+
+  // ── 2.6 FLAVOR ──────────────────────────────────────────────
+  html+=`<div class="sec-card flavor">
+    <div class="sec-hd">🌸 Flavor Addition</div>
+    ${flavorData?`
+    <div class="kpi-row">
+      <div class="kpi-box"><div class="kpi-lbl">ชื่อ Flavor</div><div class="kpi-val" style="font-size:13px">${flavorData.flavor_name||'—'}</div></div>
+      <div class="kpi-box"><div class="kpi-lbl">เวลาเติม</div><div class="kpi-val">${flavorData.add_time||'—'}</div></div>
+      <div class="kpi-box"><div class="kpi-lbl">ปริมาณ</div><div class="kpi-val">${flavorData.quantity||'—'}<div class="kpi-sub">${flavorData.unit||''}</div></div></div>
+      <div class="kpi-box"><div class="kpi-lbl">ผลการตรวจ</div><div class="kpi-val" style="font-size:12px">${flavorData.verified?'<span class="badge-ok">✅ ผ่าน</span>':'<span class="badge-na">— รอ</span>'}</div></div>
+    </div>
+    <div class="info-grid">
+      <div class="info-item"><div class="info-label">เติมโดย</div><div class="info-val">${flavorData.added_by||'—'}</div></div>
+      <div class="info-item"><div class="info-label">ตรวจสอบโดย</div><div class="info-val">${flavorData.verified_by||'—'}</div></div>
+    </div>
+    ${flavorData.signature?`<div class="sig-chip"><img src="${flavorData.signature}" class="sig-img"><div><div class="sig-name">${flavorData.added_by||'—'}</div><div class="sig-role">Flavor Operator</div></div></div>`:''}
+    `:'<div class="not-found">⚠️ ไม่พบข้อมูล Flavor Addition สำหรับ Process Order นี้</div>'}
+  </div>`;
 
   // ── 3. SHELF LIFE ────────────────────────────────────────────────────
   const prodDate=r.date||r.archived_date||'';
