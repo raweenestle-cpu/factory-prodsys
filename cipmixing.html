@@ -110,7 +110,8 @@ td.sep{border-right:2px solid var(--b1)}
 <div style="display:flex;gap:16px;padding:12px 0;align-items:flex-start;border-bottom:2px solid var(--b1);margin-bottom:0">
   <!-- ซ้าย: 3 กะ -->
   <div style="flex:0 0 auto">
-  <div class="shift-summary" id="shift-summary" style="border-bottom:none;padding:0;margin-bottom:0">    <!-- กะเช้า -->
+  <div class="shift-summary" id="shift-summary" style="border-bottom:none;padding:0;margin-bottom:0">
+    <!-- กะเช้า -->
     <div class="ss-card ss-morning">
       <div class="ss-title">🌅 กะเช้า &nbsp;06:00 – 14:00</div>
       <div class="ss-header">
@@ -154,15 +155,14 @@ td.sep{border-right:2px solid var(--b1)}
     </div>
   </div>
   </div>
-  <!-- ขวา: alert bar -->
+  <!-- ขวา: ภาพรวม + กรุ๊ป -->
   <div style="flex:1;min-width:0">
-    <div id="temp-alert-bar"></div>
+    <div class="sum-row" id="sum-row-top"></div>
   </div>
 </div>
-<!-- ภาพรวม + กรุ๊ป — ข้างล่าง เล็กลง -->
-<div class="sum-row" id="sum-row-top" style="margin-top:8px"></div>
 <nav>
   <div class="nav-logo">CIP MIXING</div>
+  <div id="temp-alert-bar" style="flex:1;min-width:0"></div>
   <div class="nav-r">
     <span id="nav-user" style="font-family:var(--mono);font-size:11px;color:var(--t2)"></span>
     <a href="index.html" class="nbtn">Home</a>
@@ -224,19 +224,16 @@ function renderTempAlert(){
   const warned=Object.values(tankStates).filter(ts=>{
     const maxT=getMaxTemp(ts);
     if(maxT==null)return false;
-    const pt=ts.product_type||'';
-    // ถ้ามี product_type
+    const pt=(window._pmMap&&ts.mix_code&&window._pmMap[ts.mix_code])||ts.product_type||'';
     if(pt==='Jelly') return maxT<37||maxT>42;
     if(pt==='Ice Cream'||pt==='Water Ice') return maxT>5;
-    // ถ้าไม่มี product_type — ใช้ shelf_hr เป็นตัวบ่งชี้ว่าเป็น Ice Cream / Water Ice (shelf<=96)
-    if(!pt&&ts.shelf_hr&&ts.shelf_hr<=96&&ts.past_end_time) return maxT>5;
     return false;
   });
   if(!warned.length){el.innerHTML='';if(window._alertTimer){clearInterval(window._alertTimer);window._alertTimer=null;}return;}
   function buildChips(){
     const now=Date.now();
     return warned.map(ts=>{
-      const pt=ts.product_type||(ts.shelf_hr<=96?'Ice Cream':'Ice Cream');
+      const pt=(window._pmMap&&ts.mix_code&&window._pmMap[ts.mix_code])||ts.product_type||'Ice Cream';
       const maxT=+(ts.max_temp||0);
       const shelfHr=ts.shelf_hr||SHELF[pt]?.[Math.max(0,Math.min(10,Math.round(maxT)))]||96;
       let expireStr='—',remainStr='—',urgentColor='#fbbf24';
