@@ -221,6 +221,15 @@ if(el) el.innerHTML=`<span style="font-family:var(--mono);font-size:12px;font-we
 });
 });
 },10000);
+
+// Subscribe aging_tank_states — single source of truth สำหรับ volume
+window._agingStates={};
+onSnapshot(collection(db,'aging_tank_states'),snap=>{
+  snap.docs.forEach(d=>{
+    window._agingStates[d.id]={id:d.id,...d.data()};
+  });
+});
+
 const _autoStamping=new Set();
 setInterval(async()=>{
 for(const p of["p1","p2"]){
