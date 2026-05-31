@@ -317,6 +317,7 @@ _autoStamping.add(key);
         }
 const actualStampTime=nowHHMMSS();
 const eff=100;
+const effOk=true; // auto stamp ใช้ expected_finish_time เสมอ = 100%
 const donePrevVol=allRows
 .filter(r=>r.id!==agRow.id&&
 r.process_order===agRow.process_order&&
@@ -379,7 +380,7 @@ if(_nextSpd>0&&_nextVol>0){
   _nextExpected=String(_eH).padStart(2,'0')+':'+String(_eM).padStart(2,'0')+':'+String(_eSec).padStart(2,'0');
 }
 await updateDoc(doc(db,planCol(p),nextRow.id),{
-past_start_time:endTime,
+past_start_time:agRow.expected_finish_time||endTime, // ต่อจาก expected ไม่ใช่ actual stamp
 expected_finish_time:_nextExpected||undefined,
 standard_duration_sec:_nextSpd>0&&_nextVol>0?Math.round(_nextVol*_nextDens*3600/_nextSpd):undefined,
 status:'pasteurising',
@@ -396,7 +397,12 @@ past_start_time:endTime,
 past_end_time:null,
 status:'pasteurising',
 updated_at:new Date().toISOString()
-},{merge:true});}catch{}
+},{merge:true});
+// อัปเดต _agingStates ทันทีไม่รอ onSnapshot
+if(!window._agingStates)window._agingStates={};
+if(!window._agingStates[nextRow.aging_tank])window._agingStates[nextRow.aging_tank]={};
+window._agingStates[nextRow.aging_tank].current_vol=prevCumVol;
+window._agingStates[nextRow.aging_tank].status='pasteurising';}catch{}
 }
 toast(`🔄 Auto เริ่ม Past. Batch ${nextRow.batch_no} (${nextRow.mixing_tank||''}) ต่อเนื่อง`,"green");
 }
@@ -453,7 +459,7 @@ return`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www
 <rect x="${bX+1}" y="${bY+3}" width="${bW}" height="${bH}" rx="8" fill="rgba(0,0,0,.5)"/>
 <rect x="${bX}" y="${bY}" width="${bW}" height="${bH}" rx="8" fill="#060a14" stroke="${rgba2(.4)}" stroke-width="1.5"/>
 <g clip-path="url(#${cid})">
-<rect x="${bX+1}" y="${fillY+wAmp+1}" width="${bW-2}" height="${fillH}" fill="url(#${gid})"/>
+<rect x="${bX+1}" y="${fillY+wAmp+1}" width="${bW-2}" height="${Math.max(0,fillH)}" fill="url(#${gid})"/>
 ${animate?`
 <g>
 <path d="M${bX+1},${fillY+wAmp} C${bX+1+bW*.3},${fillY} ${bX+1+bW*.7},${fillY} ${bX+1+bW},${fillY+wAmp} C${bX+1+bW*1.3},${fillY+wAmp*2} ${bX+1+bW*1.7},${fillY+wAmp*2} ${bX+1+waveW},${fillY+wAmp} L${bX+1+waveW},${fillY+fillH+6} L${bX+1},${fillY+fillH+6} Z" fill="${rgba2(.5)}">
@@ -486,10 +492,9 @@ const pastRow=rows.find(r=>r.status==='pasteurising'&&r.past_start_time)
 ||rows.find(r=>r.status==='past_done'&&r.past_start_time)
 ||rows.find(r=>r.status==='ready'&&r.past_start_time);
 const activeStatuses=['mixing','pasteurising'];
-const t1Row=rows.find(r=>activeStatuses.includes(r.status)&&
-(r.mixing_tank==='Tank 1'||r.mixing_tank==='T1'||r.mixing_tank==='ถัง 1'||r.mixing_tank==='1'))||null;
-const t2Row=rows.find(r=>activeStatuses.includes(r.status)&&
-(r.mixing_tank==='Tank 2'||r.mixing_tank==='T2'||r.mixing_tank==='ถัง 2'||r.mixing_tank==='2'))||null;
+// หาจากทุก row ในถัง ไม่จำกัด active status เพราะ past_done ยังต้องแสดง card อยู่
+const t1Row=rows.find(r=>r.mixing_tank==='Tank 1'||r.mixing_tank==='T1'||r.mixing_tank==='ถัง 1'||r.mixing_tank==='1')||null;
+const t2Row=rows.find(r=>r.mixing_tank==='Tank 2'||r.mixing_tank==='T2'||r.mixing_tank==='ถัง 2'||r.mixing_tank==='2')||null;
 const agRow=pastRow||null;
 const isFlowing=agRow?.status==='pasteurising'&&!!agRow?.past_start_time;
 const isDone=agRow?.status==='past_done'||agRow?.status==='ready';
@@ -514,7 +519,9 @@ const groupRows=agRow.process_order&&agRow.aging_tank
 ? allRows.filter(r=>r.process_order===agRow.process_order&&r.aging_tank===agRow.aging_tank)
 : [agRow];
 const totalVol=groupRows.reduce((sum,r)=>sum+(+(r.volume_liter||0)),0)||+(agRow.volume_liter||0);
-const cumVol=agRow?.current_vol!=null?+agRow.current_vol:0;
+// อ่าน cumVol จาก aging_tank_states (single source of truth)
+const _atsVis=window._agingStates&&agRow.aging_tank?window._agingStates[agRow.aging_tank]||{}:{};
+const cumVol=_atsVis.current_vol!=null?+_atsVis.current_vol:(agRow?.current_vol!=null?+agRow.current_vol:0);
 if(isDone){
 agVol=totalVol;
 const _capDone=getTankCapacity(agRow.aging_tank||'');
@@ -543,8 +550,9 @@ if(st==='pasteurising'&&hasStartTime)      return{txt:'🔵 กำลัง Past
 if(st==='past_done'||st==='ready')         return{txt:'✅ Past.เสร็จ',   col:'#22c55e',tankCol:'#22c55e',tankCol2:'#14532d'};
 return{txt:'—',col:'#374151',tankCol:'#374151',tankCol2:'#1f2937'};
 }
-const t1Done=isDone&&isT1;
-const t2Done=isDone&&isT2;
+// t1Done/t2Done = mixing tank นั้นๆ past_done แล้ว ไม่ใช่ agRow
+const t1Done=t1Row?.status==='past_done'||t1Row?.status==='ready'||(isDone&&isT1&&!t2Active);
+const t2Done=t2Row?.status==='past_done'||t2Row?.status==='ready'||(isDone&&isT2&&!t1Active);
 const s1=statLabel(t1Status,!!t1Row?.past_start_time,t1Vol,t1Done);
 const s2=statLabel(t2Status,!!t2Row?.past_start_time,t2Vol,t2Done);
 function mixTankVol(tRow,tTotal,tActive,tDone){
