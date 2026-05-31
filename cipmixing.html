@@ -110,8 +110,7 @@ td.sep{border-right:2px solid var(--b1)}
 <div style="display:flex;gap:16px;padding:12px 0;align-items:flex-start;border-bottom:2px solid var(--b1);margin-bottom:0">
   <!-- ซ้าย: 3 กะ -->
   <div style="flex:0 0 auto">
-  <div class="shift-summary" id="shift-summary" style="border-bottom:none;padding:0;margin-bottom:0">
-    <!-- กะเช้า -->
+  <div class="shift-summary" id="shift-summary" style="border-bottom:none;padding:0;margin-bottom:0">    <!-- กะเช้า -->
     <div class="ss-card ss-morning">
       <div class="ss-title">🌅 กะเช้า &nbsp;06:00 – 14:00</div>
       <div class="ss-header">
@@ -155,14 +154,15 @@ td.sep{border-right:2px solid var(--b1)}
     </div>
   </div>
   </div>
-  <!-- ขวา: ภาพรวม + กรุ๊ป -->
+  <!-- ขวา: alert bar -->
   <div style="flex:1;min-width:0">
-    <div class="sum-row" id="sum-row-top"></div>
+    <div id="temp-alert-bar"></div>
   </div>
 </div>
+<!-- ภาพรวม + กรุ๊ป — ข้างล่าง เล็กลง -->
+<div class="sum-row" id="sum-row-top" style="margin-top:8px"></div>
 <nav>
   <div class="nav-logo">CIP MIXING</div>
-  <div id="temp-alert-bar" style="flex:1;min-width:0"></div>
   <div class="nav-r">
     <span id="nav-user" style="font-family:var(--mono);font-size:11px;color:var(--t2)"></span>
     <a href="index.html" class="nbtn">Home</a>
