@@ -696,15 +696,33 @@ function buildStepHtml(st, i, stepsLen, pcol, rid){
   const svCls=isDone?'done':isActive?(st.pwd?'pwr':'active'):'';
   const connHtml=i<stepsLen-1?`<div class="tv3-conn ${connCls}"></div>`:'';
 
-  return `<div class="tv3-sw">
-    <div class="tv3-step">
+  // step tank และ aging ใช้ SVG ถัง
+  let nodeHtml = '';
+  if(st.id==='tank'){
+    const _svgMix = (()=>{try{return window.mixTankSVG&&window._pastRow?window.mixTankSVG(window._pastRow,3000):'';} catch(e){return '';}})();
+    nodeHtml = _svgMix
+      ? `<div class="tv3-step" style="width:100px">${_svgMix}<div class="tv3-sn ${snCls}" style="margin-top:4px">${st.name}</div><div class="tv3-sv ${svCls}">${st.kg}</div></div>`
+      : `<div class="tv3-step"><div class="tv3-circle ${cls}"><span style="font-size:28px">${st.ico}</span></div><div class="tv3-sn ${snCls}">${st.name}</div><div class="tv3-sv ${svCls}">${st.kg}</div></div>`;
+  } else if(st.id==='aging'){
+    const _agId = window._pastRow?.aging_tank||'';
+    const _agSt = window._agingStates&&_agId?window._agingStates[_agId]||{}:{};
+    const _v = +(_agSt.current_vol||0);
+    const _cap = _agId?getTankCapacity(_agId):0;
+    const _p = _cap>0?Math.min(100,(_v/_cap)*100):0;
+    const _col = _agSt.status==='pasteurising'?'#ea580c':'#3b82f6';
+    const _svgAg = (()=>{try{return _agId&&window.cipTankSVG?window.cipTankSVG(_agId,_p,_col,_agSt.status==='pasteurising','🪣 '+_agId,_col,90,200):'';} catch(e){return '';}})();
+    nodeHtml = _svgAg
+      ? `<div class="tv3-step" style="width:100px">${_svgAg}<div class="tv3-sn ${snCls}" style="margin-top:4px">${st.name}</div><div class="tv3-sv ${svCls}">${st.kg}</div></div>`
+      : `<div class="tv3-step"><div class="tv3-circle ${cls}"><span style="font-size:28px">${st.ico}</span></div><div class="tv3-sn ${snCls}">${st.name}</div><div class="tv3-sv ${svCls}">${st.kg}</div></div>`;
+  } else {
+    nodeHtml = `<div class="tv3-step">
       <div class="tv3-circle ${cls}${isCCP&&isActive?' pwr':''}"><span style="font-size:28px">${st.ico}</span></div>
       <div class="tv3-sn ${snCls}">${st.name}</div>
       <div class="tv3-sv ${svCls}">${isSkip?'—':st.kg}</div>
       ${sv2}${btnH}
-    </div>
-    ${connHtml}
-  </div>`;
+    </div>`;
+  }
+  return `<div class="tv3-sw">${nodeHtml}${connHtml}</div>`;
 }
 
 
@@ -981,6 +999,7 @@ function renderPastCard(row, i, col, p){
   else if(ps.id==='wait_past') cardCls += ' tv3-mixing';
   else if(ps.id==='submitted'||ps.id==='done') cardCls += ' tv3-done';
 
+  window._pastRow = row; // ให้ buildStepHtml เข้าถึง row ได้
   const steps = buildStepsForPast(row);
   const stepsHtml = steps.map((st,idx)=>buildStepHtml(st,idx,steps.length,col,row.id)).join('');
 
@@ -995,29 +1014,12 @@ function renderPastCard(row, i, col, p){
       <div class="tv3-st"><span class="badge ${ps.cls}" style="font-size:13px;padding:8px 18px">${ps.lbl}</span></div>
     </div>
     <div class="tv3-body">
-      <div style="width:110px;flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:12px 6px;background:#f1f5f9;border-right:2px solid #e2e8f0">
-        ${(()=>{try{return window.mixTankSVG(row,3000);}catch(e){return '<div style="font-family:var(--mono);font-size:10px;color:#94a3b8;text-align:center">'+( row.mixing_tank||'—')+'</div>';}})()}
-      </div>
+
       <div class="tv3-flow" style="flex:1;padding:16px 20px;display:flex;align-items:center;background:#fff;overflow-x:auto;min-height:140px">
         <div class="tv3-steps">${stepsHtml}</div>
       </div>
-      <div style="width:110px;flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:12px 6px;background:#f1f5f9;border-left:2px solid #e2e8f0">
-        ${(()=>{try{const _id=row.aging_tank||'';if(!_id)return '<div style="font-family:var(--mono);font-size:10px;color:#94a3b8;text-align:center">—</div>';const _st=window._agingStates?window._agingStates[_id]||{}:{};const _v=+(_st.current_vol||0);const _c=getTankCapacity(_id);const _p=_c>0?Math.min(100,(_v/_c)*100):0;const _col=_st.status==='pasteurising'?'#ea580c':'#3b82f6';return window.cipTankSVG(_id,_p,_col,_st.status==='pasteurising','🪣 '+_id,_col,90,200);}catch(e){return '<div style="font-family:var(--mono);font-size:10px;color:#94a3b8;text-align:center">'+(row.aging_tank||'—')+'</div>';}})()}
-      </div>
-      <div style="width:175px;flex-shrink:0;border-left:2px solid #e2e8f0;padding:12px;background:#f8fafc;display:flex;flex-direction:column;gap:4px">
-        <div style="font-family:var(--mono);font-size:9px;font-weight:900;color:#64748b;letter-spacing:1.5px;margin-bottom:4px">ข้อมูล Past.</div>
-        <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #e2e8f0"><span style="font-family:var(--mono);font-size:10px;color:#64748b">⏱ เริ่ม</span><span style="font-family:var(--mono);font-size:12px;font-weight:900;color:#111827">${row.past_start_time||'—'}</span></div>
-        <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #e2e8f0"><span style="font-family:var(--mono);font-size:10px;color:#64748b">⏹ เสร็จ</span><span style="font-family:var(--mono);font-size:12px;font-weight:900;color:#111827">${row.past_end_time||'—'}</span></div>
-        <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #e2e8f0">
-          <span style="font-family:var(--mono);font-size:10px;color:#64748b">🪣 Aging</span>
-          <span style="font-family:var(--mono);font-size:12px;font-weight:900;color:#0891b2">
-            ${row.aging_tank||'—'}
-            ${(()=>{const _ag=window._agingStates&&row.aging_tank?window._agingStates[row.aging_tank]||{}:{};const _v=+(_ag.current_vol||0);return _v>0?'<br><span style="font-size:10px;color:#059669">'+_v.toLocaleString()+' L</span>':'';})()}
-          </span>
-        </div>
-        <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #e2e8f0"><span style="font-family:var(--mono);font-size:10px;color:#64748b">📊 Eff%</span><span style="font-family:var(--mono);font-size:12px;font-weight:900;color:#059669">${row.eff?row.eff+'%':'—'}</span></div>
-        <div style="display:flex;justify-content:space-between;padding:3px 0"><span style="font-family:var(--mono);font-size:10px;color:#64748b">🌡 CCP</span><span style="font-family:var(--mono);font-size:12px;font-weight:900;color:${row.past_start_time?'#ea580c':'#64748b'}">≥81.1°C</span></div>
-      </div>
+
+
     </div>
   </div>`;
 }
