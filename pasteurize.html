@@ -725,7 +725,10 @@ function buildStepsForPast(row){
   const done = !!row.past_end_time;
   const submitted = row.status === 'past_done' || row.status === 'ready';
   
-  steps.push({id:'start', ico:'🚀', name:'เริ่ม Past.', kg:row.past_start_time||'', done:started, active:!started, btn:false, skip:false, pwd:false, isStatus:false});
+  const tank = row.mixing_tank||'—';
+  const tankDone = !!row.mixing_tank;
+  steps.push({id:'tank', ico:'🥛', name:'Mix Tank', kg:tank, done:tankDone, active:!tankDone, btn:false, skip:false, pwd:false, isStatus:false});
+  steps.push({id:'start', ico:'🚀', name:'เริ่ม Past.', kg:row.past_start_time||'', done:started, active:tankDone&&!started, btn:false, skip:false, pwd:false, isStatus:false});
   steps.push({id:'past', ico:'♨️', name:'Pasteurising', kg:'', done:done, active:started&&!done, btn:false, skip:false, pwd:false, isStatus:true});
   steps.push({id:'done', ico:'✅', name:'Past.เสร็จ', kg:row.past_end_time||'', done:done, active:false, btn:false, skip:false, pwd:false, isStatus:false});
   steps.push({id:'submit', ico:'📤', name:'ส่งข้อมูล', kg:'', done:submitted, active:done&&!submitted, btn:false, skip:false, pwd:false, isStatus:false});
