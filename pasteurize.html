@@ -845,13 +845,13 @@ function getPastProcessState(row){
   return {id:'pending', lbl:'⏳ รอ Mixing', cls:'b-wait', color:'#94a3b8', bg:'#f1f5f9', anim:'none'};
 }
 
-function mixTankSVG(row,cap){
+window.mixTankSVG=function(row,cap){
   cap=cap||3000;
   const st=row?.status||'';
   const totalVol=+(row?.volume_liter||0);
   const flowed=st==='pasteurising'||st==='past_done'?+(row?.current_vol||0):0;
   const vol=st==='pasteurising'?Math.max(0,totalVol-flowed):totalVol;
-  const prod=productMap[row?.mix_code||'']||{};
+  const prod=(window.productMap||{})[row?.mix_code||'']||{};
   const col=prod.color||'#3b82f6';
   const isActive=['mixing','pasteurising','past_done','waiting_past','ready','busy'].includes(st);
   const pct=isActive&&vol>0?Math.min(100,(vol/cap)*100):0;
@@ -906,7 +906,7 @@ function mixTankSVG(row,cap){
   return s;
 }
 
-function cipTankSVG(uid,pct,col,run,statusTxt,statusCol,sw,sh){
+window.cipTankSVG=function(uid,pct,col,run,statusTxt,statusCol,sw,sh){
   statusCol=statusCol||col;
   sw=sw||160; sh=sh||280;
   const bX=14,bY=18,bW=sw-28,bH=sh-45;
@@ -996,13 +996,13 @@ function renderPastCard(row, i, col, p){
     </div>
     <div class="tv3-body">
       <div style="width:110px;flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:12px 6px;background:#f1f5f9;border-right:2px solid #e2e8f0">
-        ${(()=>{try{return mixTankSVG(row,3000);}catch(e){return '<div style="font-family:var(--mono);font-size:10px;color:#94a3b8;text-align:center">'+( row.mixing_tank||'—')+'</div>';}})()}
+        ${(()=>{try{return window.mixTankSVG(row,3000);}catch(e){return '<div style="font-family:var(--mono);font-size:10px;color:#94a3b8;text-align:center">'+( row.mixing_tank||'—')+'</div>';}})()}
       </div>
       <div class="tv3-flow" style="flex:1;padding:16px 20px;display:flex;align-items:center;background:#fff;overflow-x:auto;min-height:140px">
         <div class="tv3-steps">${stepsHtml}</div>
       </div>
       <div style="width:110px;flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:12px 6px;background:#f1f5f9;border-left:2px solid #e2e8f0">
-        ${(()=>{try{const _id=row.aging_tank||'';if(!_id)return '<div style="font-family:var(--mono);font-size:10px;color:#94a3b8;text-align:center">—</div>';const _st=window._agingStates?window._agingStates[_id]||{}:{};const _v=+(_st.current_vol||0);const _c=getTankCapacity(_id);const _p=_c>0?Math.min(100,(_v/_c)*100):0;const _col=_st.status==='pasteurising'?'#ea580c':'#3b82f6';return cipTankSVG(_id,_p,_col,_st.status==='pasteurising','🪣 '+_id,_col,90,200);}catch(e){return '<div style="font-family:var(--mono);font-size:10px;color:#94a3b8;text-align:center">'+(row.aging_tank||'—')+'</div>';}})()}
+        ${(()=>{try{const _id=row.aging_tank||'';if(!_id)return '<div style="font-family:var(--mono);font-size:10px;color:#94a3b8;text-align:center">—</div>';const _st=window._agingStates?window._agingStates[_id]||{}:{};const _v=+(_st.current_vol||0);const _c=getTankCapacity(_id);const _p=_c>0?Math.min(100,(_v/_c)*100):0;const _col=_st.status==='pasteurising'?'#ea580c':'#3b82f6';return window.cipTankSVG(_id,_p,_col,_st.status==='pasteurising','🪣 '+_id,_col,90,200);}catch(e){return '<div style="font-family:var(--mono);font-size:10px;color:#94a3b8;text-align:center">'+(row.aging_tank||'—')+'</div>';}})()}
       </div>
       <div style="width:175px;flex-shrink:0;border-left:2px solid #e2e8f0;padding:12px;background:#f8fafc;display:flex;flex-direction:column;gap:4px">
         <div style="font-family:var(--mono);font-size:9px;font-weight:900;color:#64748b;letter-spacing:1.5px;margin-bottom:4px">ข้อมูล Past.</div>
