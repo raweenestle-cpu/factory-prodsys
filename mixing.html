@@ -718,6 +718,45 @@ window.saveActual=async(col,id,field,val,m)=>{
 // ── RENDER PLAN ───────────────────────────────────────────────────────
 // ── TANK VISUAL ──────────────────────────────────────────────────────
 
+// ============================================================
+// SINGLE SOURCE OF TRUTH — Process State Machine
+// ============================================================
+function getProcessState(row){
+  if(!row) return {id:'empty',lbl:'🏁 EMPTY',cls:'b-wait',color:'#94a3b8',bg:'#f1f5f9',anim:'none'};
+  const st=row.status||'';
+  const mixDone=!!row.mix_end_time;
+  const pastStarted=!!row.past_start_time;
+  const pastDone=st==='past_done';
+  const prepDone=row.prep_status==='ready';
+
+  // PREPARING
+  if(!row.mix_start_time && !prepDone && !st.includes('mix'))
+    return {id:'preparing',lbl:'🔧 กำลังเตรียม',cls:'b-wait',color:'#f59e0b',bg:'#fef3c7',anim:'glow-y'};
+  // READY TO MIX
+  if(!row.mix_start_time && prepDone)
+    return {id:'ready_mix',lbl:'✅ พร้อมผสม',cls:'b-wait',color:'#10b981',bg:'#d1fae5',anim:'glow-g'};
+  // MIXING
+  if(st==='mixing'&&!mixDone)
+    return {id:'mixing',lbl:'🔄 MIXING',cls:'b-mix',color:'#f59e0b',bg:'#fef3c7',anim:'glow-y'};
+  // MIX DONE — WAITING PAST
+  if(mixDone && !pastStarted && !pastDone)
+    return {id:'wait_past',lbl:'⏳ รอ Pasteurize',cls:'b-wait',color:'#3b82f6',bg:'#dbeafe',anim:'glow-b'};
+  // PASTEURISING
+  if(st==='pasteurising' && pastStarted && !pastDone)
+    return {id:'pasteurising',lbl:'🔵 PASTEURISING',cls:'b-past',color:'#3b82f6',bg:'#dbeafe',anim:'glow-b'};
+  // PAST DONE
+  if(pastDone)
+    return {id:'past_done',lbl:'✅ PAST. เสร็จ',cls:'b-done',color:'#10b981',bg:'#d1fae5',anim:'none'};
+  // FALLBACK
+  const fallbacks={
+    pending:{id:'pending',lbl:'⏳ PENDING',cls:'b-wait',color:'#94a3b8',bg:'#f1f5f9',anim:'none'},
+    cip:{id:'cip',lbl:'🧹 CIP',cls:'b-wait',color:'#8b5cf6',bg:'#ede9fe',anim:'glow-p'},
+    ready:{id:'ready',lbl:'✅ พร้อม',cls:'b-done',color:'#10b981',bg:'#d1fae5',anim:'none'},
+  };
+  return fallbacks[st]||{id:st,lbl:st.toUpperCase(),cls:'b-wait',color:'#94a3b8',bg:'#f1f5f9',anim:'none'};
+}
+
+
 function buildFlowSteps(row){
   var s=[];
   var started=!!row.mix_start_time;
@@ -916,43 +955,6 @@ function renderMixTanks(m, rows){
   }
 
 
-  // ============================================================
-  // SINGLE SOURCE OF TRUTH — Process State Machine
-  // ============================================================
-  function getProcessState(row){
-    if(!row) return {id:'empty',lbl:'🏁 EMPTY',cls:'b-wait',color:'#94a3b8',bg:'#f1f5f9',anim:'none'};
-    const st=row.status||'';
-    const mixDone=!!row.mix_end_time;
-    const pastStarted=!!row.past_start_time;
-    const pastDone=st==='past_done';
-    const prepDone=row.prep_status==='ready';
-
-    // PREPARING
-    if(!row.mix_start_time && !prepDone && !st.includes('mix'))
-      return {id:'preparing',lbl:'🔧 กำลังเตรียม',cls:'b-wait',color:'#f59e0b',bg:'#fef3c7',anim:'glow-y'};
-    // READY TO MIX
-    if(!row.mix_start_time && prepDone)
-      return {id:'ready_mix',lbl:'✅ พร้อมผสม',cls:'b-wait',color:'#10b981',bg:'#d1fae5',anim:'glow-g'};
-    // MIXING
-    if(st==='mixing'&&!mixDone)
-      return {id:'mixing',lbl:'🔄 MIXING',cls:'b-mix',color:'#f59e0b',bg:'#fef3c7',anim:'glow-y'};
-    // MIX DONE — WAITING PAST
-    if(mixDone && !pastStarted && !pastDone)
-      return {id:'wait_past',lbl:'⏳ รอ Pasteurize',cls:'b-wait',color:'#3b82f6',bg:'#dbeafe',anim:'glow-b'};
-    // PASTEURISING
-    if(st==='pasteurising' && pastStarted && !pastDone)
-      return {id:'pasteurising',lbl:'🔵 PASTEURISING',cls:'b-past',color:'#3b82f6',bg:'#dbeafe',anim:'glow-b'};
-    // PAST DONE
-    if(pastDone)
-      return {id:'past_done',lbl:'✅ PAST. เสร็จ',cls:'b-done',color:'#10b981',bg:'#d1fae5',anim:'none'};
-    // FALLBACK
-    const fallbacks={
-      pending:{id:'pending',lbl:'⏳ PENDING',cls:'b-wait',color:'#94a3b8',bg:'#f1f5f9',anim:'none'},
-      cip:{id:'cip',lbl:'🧹 CIP',cls:'b-wait',color:'#8b5cf6',bg:'#ede9fe',anim:'glow-p'},
-      ready:{id:'ready',lbl:'✅ พร้อม',cls:'b-done',color:'#10b981',bg:'#d1fae5',anim:'none'},
-    };
-    return fallbacks[st]||{id:st,lbl:st.toUpperCase(),cls:'b-wait',color:'#94a3b8',bg:'#f1f5f9',anim:'none'};
-  }
 
   function buildStepsWithStatus(row, pcol, rid){
     const ps=getProcessState(row); // single source of truth
@@ -1074,12 +1076,12 @@ function renderMixTanks(m, rows){
     const isMix=st==='mixing';
     const isPast=st==='pasteurising';
     let cardCls='tv3-card';
-    if(ps.id==='mixing'||ps.id==='preparing'||ps.id==='ready_mix') cardCls+=' tv3-mixing';
-    else if(ps.id==='wait_past') cardCls+=' tv3-wait';
-    else if(ps.id==='pasteurising') cardCls+=' tv3-past';
-    else if(ps.id==='past_done') cardCls+=' tv3-done';
-    const ps=getProcessState(row); // single source of truth
-    const stInfo={lbl:ps.lbl,cls:ps.cls};
+    if(psCard.id==='mixing'||psCard.id==='preparing'||psCard.id==='ready_mix') cardCls+=' tv3-mixing';
+    else if(psCard.id==='wait_past') cardCls+=' tv3-wait';
+    else if(psCard.id==='pasteurising') cardCls+=' tv3-past';
+    else if(psCard.id==='past_done') cardCls+=' tv3-done';
+    const psCard=getProcessState(row); // single source of truth
+    const stInfo={lbl:psCard.lbl,cls:psCard.cls};
     const steps=buildStepsWithStatus(row, pcol, row.id);
     const stepsHtml=steps.map((st2,i)=>buildStepHtml(st2,i,steps.length,pcol,row.id)).join('');
     return `<div class="${cardCls}">
