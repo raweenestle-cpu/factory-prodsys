@@ -713,7 +713,7 @@ function buildStepHtml(st, i, stepsLen, pcol, rid){
     const _cap = _agId?getTankCapacity(_agId):0;
     const _p = _cap>0?Math.min(100,(_v/_cap)*100):0;
     const _col = _agSt.status==='pasteurising'?'#ea580c':'#3b82f6';
-    const _svgAg = (()=>{try{return _agId&&window.cipTankSVG?window.cipTankSVG(_agId,_p,_col,_agSt.status==='pasteurising','🪣 '+_agId,_col,90,200):'';} catch(e){return '';}})();
+    const _svgAg = (()=>{try{return _agId&&window.cipTankSVG?window.cipTankSVG(_agId,_p,_col,_agSt.status==='pasteurising','🪣 '+_agId,_col,100,220):'';} catch(e){return '';}})();
     nodeHtml = _svgAg
       ? `<div class="tv3-step" style="width:100px">${_svgAg}<div class="tv3-sn ${snCls}" style="margin-top:4px">${st.name}</div><div class="tv3-sv ${svCls}">${st.kg}</div></div>`
       : `<div class="tv3-step"><div class="tv3-circle ${cls}"><span style="font-size:28px">${st.ico}</span></div><div class="tv3-sn ${snCls}">${st.name}</div><div class="tv3-sv ${svCls}">${st.kg}</div></div>`;
@@ -929,11 +929,11 @@ window.mixTankSVG=function(row,cap){
   s+=`<rect x="${bX+bW-13}" y="${bY+bH}" width="7" height="13" rx="2" fill="${hasLiq?`rgba(${r2},${g2},${b2},.2)`:'rgba(71,85,105,.3)'}" stroke="${hasLiq?col:'#475569'}" stroke-width="1.5" stroke-opacity=".5"/>`;
   s+=`<rect x="${bX+2}" y="${bY+bH+12}" width="${bW-4}" height="4" rx="2" fill="${hasLiq?`rgba(${r2},${g2},${b2},.15)`:'rgba(71,85,105,.2)'}" stroke="${hasLiq?col:'#475569'}" stroke-width="1" stroke-opacity=".4"/>`;
   // text
-  s+=`<text x="${sw/2}" y="${midY-2}" text-anchor="middle" font-family="DM Mono,monospace" font-size="18" fill="#ffffff" font-weight="900">${hasLiq?vol.toLocaleString():'ว่าง'}</text>`;
+  s+=`<text x="${sw/2}" y="${midY-2}" text-anchor="middle" font-family="DM Mono,monospace" font-size="18" fill="#111827" font-weight="900">${hasLiq?vol.toLocaleString():'ว่าง'}</text>`;
   if(hasLiq){
-    s+=`<text x="${sw/2}" y="${midY+13}" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="${col}" font-weight="700" opacity=".75">ลิตร · ${Math.round(pct)}%</text>`;
+    s+=`<text x="${sw/2}" y="${midY+13}" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="#111827" font-weight="700" opacity=".8">ลิตร · ${Math.round(pct)}%</text>`;
     s+=`<rect x="${bX+5}" y="${midY+16}" width="${bW-10}" height="16" rx="8" fill="${col}" fill-opacity="1" stroke="rgba(255,255,255,.3)" stroke-width="1"/>`;
-    s+=`<text x="${sw/2}" y="${midY+27}" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#ffffff" font-weight="900">${stTxt} ${stLbl}</text>`;
+    s+=`<text x="${sw/2}" y="${midY+27}" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#111827" font-weight="900">${stTxt} ${stLbl}</text>`;
   }
   s+=`</svg>`;
   return s;
@@ -945,7 +945,7 @@ window.cipTankSVG=function(uid,pct,col,run,statusTxt,statusCol,sw,sh){
   const bX=14,bY=18,bW=sw-28,bH=sh-45;
   const nW=24,nH=10,cW=34,cH=6;
   const nX=bX+(bW-nW)/2,cX=bX+(bW-cW)/2;
-  const maxFillH=(bH-6)*0.92;
+  const maxFillH=(bH-6)*0.78;
   const fillH=Math.max(0,(pct/100)*maxFillH);
   const wy=Math.max(bY+2,bY+bH-fillH);
   const A=6,midY=bY+bH/2;
