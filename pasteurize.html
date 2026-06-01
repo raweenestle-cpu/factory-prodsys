@@ -304,6 +304,7 @@ onAuthStateChanged(auth,async user=>{
   onSnapshot(collection(db,"products"), snap=>{
     snap.docs.forEach(d=>{const p={id:d.id,...d.data()};if(p.mix_code)productMap[p.mix_code]=p;});
     window._productMap=productMap;
+    window.productMap=productMap;
   }, e=>console.error('products error:',e));
 
   // โหลด lines แบบ realtime
@@ -885,8 +886,8 @@ window.mixTankSVG=function(row,cap){
   const pct=isActive&&vol>0?Math.min(100,(vol/cap)*100):0;
   const hasLiq=pct>0;
   const sw=100,sh=210,bX=10,bY=40,bW=80,bH=138;
-  const fillH=Math.max(0,(pct/100)*(bH-4)*0.92);
-  const wy=bY+bH-fillH;
+  const fillH=Math.max(0,Math.min(bH-4,(pct/100)*(bH-4)*0.92));
+  const wy=Math.max(bY+2,bY+bH-fillH);
   const A=5,midY=bY+bH/2;
   const uid='tv3'+(row?.mix_code||'x').replace(/[^a-z0-9]/gi,'');
   const gid='g'+uid,cid='c'+uid;
@@ -913,7 +914,7 @@ window.mixTankSVG=function(row,cap){
   s+=`<rect x="${bX}" y="${bY}" width="${bW}" height="${bH}" rx="10" fill="${hasLiq?`rgba(${r2},${g2},${b2},.07)`:'rgba(71,85,105,.2)'}" stroke="${hasLiq?col:'#475569'}" stroke-width="2" stroke-opacity="${hasLiq?'.35':'.5'}"/>`;
   if(hasLiq){
     s+=`<g clip-path="url(#${cid})">`;
-    s+=`<rect x="${bX}" y="${wy+A}" width="${bW*2}" height="${bY+bH-(wy+A)}" fill="url(#${gid})"/>`;
+    s+=`<rect x="${bX}" y="${wy+A}" width="${bW*2}" height="${Math.max(0,bY+bH-(wy+A))}" fill="url(#${gid})"/>`;
     s+=`<path d="${waveD(wy,A,3)}" fill="${col}" fill-opacity=".5"><animateTransform attributeName="transform" type="translate" from="0,0" to="${-bW},0" dur="2.8s" repeatCount="indefinite"/></path>`;
     s+=`<path d="${waveD(wy,A*.6,4)}" fill="${col}" fill-opacity=".28"><animateTransform attributeName="transform" type="translate" from="${bW*.5},0" to="${-bW*.5},0" dur="4.2s" repeatCount="indefinite"/></path>`;
     s+=`</g>`;
@@ -942,7 +943,7 @@ window.cipTankSVG=function(uid,pct,col,run,statusTxt,statusCol,sw,sh){
   const nX=bX+(bW-nW)/2,cX=bX+(bW-cW)/2;
   const maxFillH=(bH-6)*0.92;
   const fillH=Math.max(0,(pct/100)*maxFillH);
-  const wy=bY+bH-fillH;
+  const wy=Math.max(bY+2,bY+bH-fillH);
   const A=6,midY=bY+bH/2;
   const hasLiq=pct>0;
   const bodyFill=hasLiq?col+'22':'#f8fafc';
