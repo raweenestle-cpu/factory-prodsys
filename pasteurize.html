@@ -1049,10 +1049,9 @@ window.loadPlan=(p)=>{
   const q=query(collection(db,planCol(p)),where("date","==",d));
   unsub[p]=onSnapshot(q,snap=>{
     rows[p]=snap.docs.map(d=>({id:d.id,...d.data()}))
-    window._rows=window._rows||{};
-    window._rows[p]=rows[p];
-      .filter(r=>r.mix_code&&r.mix_code!=="") // เฉพาะ row ที่ leadman กรอกข้อมูลแล้ว
+      .filter(r=>r.mix_code&&r.mix_code!=="")
       .sort((a,b)=>(a.seq||0)-(b.seq||0));
+    window._rows=window._rows||{};
     window._rows[p]=rows[p];
     renderPlan(p);
     renderShiftChart(p);
