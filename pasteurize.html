@@ -1027,8 +1027,8 @@ function renderPastCard(row, i, col, p){
       <div class="tv3-seq"><div style="font-family:var(--mono);font-size:13px;font-weight:900;color:#111827;text-align:center;padding:0 4px">${i+1}</div></div>
       <div class="tv3-hi">
         <div class="tv3-code">${row.mix_code||'—'} · ${row.process_order||'—'}</div>
-        <div class="tv3-name">${row.mix_name||'—'}</div>
-        <div class="tv3-meta">Batch ${row.batch_no||'—'} · <span style="font-size:18px;font-weight:900;color:#111827">${(+(row.volume_liter||0)).toLocaleString()} L</span> · <span style="font-size:12px;color:#0891b2;font-weight:800">${row.mixing_tank||'—'}</span></div>
+        <div class="tv3-name">${row.mix_name||'—'} · <span style="font-size:18px">${(+(row.volume_liter||0)).toLocaleString()} L</span> · <span style="font-size:16px">Batch ${row.batch_no||'—'}</span></div>
+        <div class="tv3-meta">${(()=>{const _p=(window.productMap||{})[row.mix_code||'']||{};const _spd=p==='p1'?(_p.speed_m1||_p.speed||'—'):(_p.speed_m2||_p.speed||'—');const _den=_p.density||'—';return 'Density: '+_den+' kg/L · Speed: '+_spd+' L/hr';})()}</div>
       </div>
       <div class="tv3-st"><span class="badge ${ps.cls}" style="font-size:13px;padding:8px 18px">${ps.lbl}</span></div>
     </div>
