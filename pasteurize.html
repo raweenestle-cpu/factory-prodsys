@@ -343,8 +343,8 @@ setInterval(()=>{
       const actualMin=(now.getHours()*60+now.getMinutes())-(sh*60+sm);
       if(actualMin<=0) return;
       const eff=reqMin/actualMin*100;
-      const effColor=eff>=97&&eff<=100?"#22c55e":eff>100?"#f97316":"#ef4444";
-      const effLabel=eff>=97&&eff<=100?"✅":eff>100?"⚠️":"❌";
+      const effColor=eff>=99.9&&eff<=100?"#22c55e":eff>100?"#f97316":"#ef4444";
+      const effLabel=eff>=99.9&&eff<=100?"✅":eff>100?"⚠️":"❌";
       const el=document.getElementById("eff-rt-"+row.id);
       if(el) el.innerHTML=`<span style="font-family:var(--mono);font-size:12px;font-weight:700;color:${effColor}">${effLabel} ${eff.toFixed(1)}%</span>`;
     });
@@ -1403,21 +1403,34 @@ function renderPlan(p){
     const vol=+(row.volume_liter||0);
     // เวลาที่ต้องใช้ Past. (นาที)
     const reqMin=vol>0&&speed>0?Math.round(vol*density*60/speed):0;
+    const reqSec=vol>0&&speed>0?Math.round(vol*density*3600/speed):0; // วินาที precise
+    // format mm:ss
+    function fmtMS(sec){const m=Math.floor(sec/60),s=sec%60;return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');}
     // คาดเสร็จ
     function addMin(t,m){if(!t||!m)return"—";const _p=t.split(":").map(Number);const totSec=(_p[0]||0)*3600+(_p[1]||0)*60+(_p[2]||0)+m*60;const th=Math.floor(totSec/3600)%24;const tmn=Math.floor((totSec%3600)/60);const ts=Math.round(totSec%60);return String(th).padStart(2,"0")+":"+String(tmn).padStart(2,"0")+":"+String(ts).padStart(2,"0");}
-    const estFinish=row.past_start_time?addMin(row.past_start_time,reqMin):"—";
+    function addSec(t,sec){if(!t||!sec)return"—";const _p=t.split(":").map(Number);const totSec=(_p[0]||0)*3600+(_p[1]||0)*60+(_p[2]||0)+sec;const th=Math.floor(totSec/3600)%24;const tmn=Math.floor((totSec%3600)/60);const ts=Math.round(totSec%60);return String(th).padStart(2,"0")+":"+String(tmn).padStart(2,"0")+":"+String(ts).padStart(2,"0");}
+    const estFinish=row.past_start_time?addSec(row.past_start_time,reqSec):"—";
+    // Target time label
+    const target999Sec=reqSec>0?Math.round(reqSec/0.999):0; // เวลาที่ได้ Eff=99.9%
+    const targetLabel=target999Sec>0?fmtMS(target999Sec):'—';
     // Efficiency — แสดง real-time ระหว่าง past. และหลัง stamp เสร็จ
     let effHTML="—";
-    if(row.past_start_time&&reqMin>0){
-      const[sh,sm]=row.past_start_time.split(":").map(Number);
+    if(row.past_start_time&&reqSec>0){
+      const[sh,sm,ss]=(row.past_start_time+':00').split(":").map(Number);
+      const startSec2=sh*3600+sm*60+(ss||0);
       const endTime=row.past_end_time||nowHHMM();
-      const[eh,em]=endTime.split(":").map(Number);
-      let actualMin=(eh*60+em)-(sh*60+sm);
-      if(actualMin<0)actualMin+=1440;
-      const eff=actualMin>0?(reqMin/actualMin*100):0;
-      const effColor=eff>=97&&eff<=100?"#22c55e":eff>100?"#f97316":"#ef4444";
-      const effLabel=eff>=97&&eff<=100?"✅":eff>100?"⚠️":"❌";
-      effHTML=`<span style="font-family:var(--mono);font-size:12px;font-weight:700;color:${effColor}">${effLabel} ${eff.toFixed(1)}%</span>`;
+      const[eh,em,es]=(endTime+':00').split(":").map(Number);
+      let actualSec=(eh*3600+em*60+(es||0))-startSec2;
+      if(actualSec<0)actualSec+=86400;
+      const actualMin2=actualSec/60;
+      const eff=actualSec>0?(reqSec/actualSec*100):0;
+      const effColor=eff>=99.9&&eff<=100.5?"#059669":eff>100.5?"#ea580c":"#dc2626";
+      const effLabel=eff>=99.9&&eff<=100.5?"✅":eff>100.5?"⚠️":"❌";
+      const actualFmt=fmtMS(Math.round(actualSec));
+      effHTML=`<div style="font-family:var(--mono);font-size:11px;font-weight:900;color:${effColor}">${effLabel} ${eff.toFixed(1)}%</div>
+        <div style="font-family:var(--mono);font-size:10px;color:#374151">⏱ ${actualFmt} / ${targetLabel}</div>`;
+    } else if(reqSec>0){
+      effHTML=`<div style="font-family:var(--mono);font-size:10px;color:#64748b">เป้า ${targetLabel}</div>`;
     }
 
     // เช็ค checkbox ก่อนให้ Stamp เริ่ม Past.
@@ -1461,11 +1474,11 @@ function renderPlan(p){
       ${(row.status==='pasteurising'||row.past_start_time)
         ? stampCell("past_start_time",row.past_start_time,"Stamp เริ่ม",!row.past_start_time,!canStampStart&&!row.past_start_time,blockReason)
         : `<td><span style="font-family:var(--mono);font-size:10px;color:var(--t3);padding:5px 8px">⏳ รอ Mixing</span></td>`}
-      <td><span style="font-family:var(--mono);font-size:12px;color:#111827">${estFinish}</span></td>
+      <td><span style="font-family:var(--mono);font-size:12px;font-weight:900;color:#111827">${estFinish}</span>${reqSec>0?`<div style="font-family:var(--mono);font-size:10px;color:#64748b;margin-top:2px">เป้า ${targetLabel}</div>`:''}</td>
       ${(row.status==='pasteurising'&&row.past_start_time)||row.past_end_time
         ? stampCell("past_end_time",row.past_end_time,"Stamp เสร็จ",false,false,'')
         : `<td><span style="font-family:var(--mono);font-size:10px;color:var(--t3)">—</span></td>`}
-      <td id="eff-rt-${row.id}">${effHTML}</td>
+      <td id="eff-rt-${row.id}" style="padding:6px 8px">${effHTML}</td>
       <!-- ปุ่มส่งข้อมูล -->
       <td style="padding:4px 6px;min-width:100px">
         ${!row.past_end_time
@@ -1481,13 +1494,13 @@ function renderPlan(p){
               let act2=(eh2*60+em2)-(sh2*60+sm2);
               if(act2<0)act2+=1440;
               const eff2=act2>0?(req2/act2)*100:0;
-              if(eff2>100){
+              if(eff2>100.5){
                 return `<div style="display:flex;flex-direction:column;gap:4px">
                   <button disabled style="width:100%;padding:5px 8px;border-radius:8px;font-family:var(--mono);font-size:11px;font-weight:700;border:1px solid rgba(240,79,94,.3);background:rgba(240,79,94,.08);color:#ef4444;cursor:not-allowed">🔒 ส่งไม่ได้ (${eff2.toFixed(1)}%)</button>
                   <button onclick="editTimePrompt('${col}','${row.id}','past_end_time','${row.past_end_time}')" style="width:100%;padding:5px 8px;border-radius:8px;font-family:var(--mono);font-size:11px;font-weight:700;border:1px solid rgba(234,179,8,.4);background:rgba(234,179,8,.08);color:#fde047;cursor:pointer">✏️ แก้เวลาเสร็จ</button>
                 </div>`;
               }
-              const warn=eff2<97;
+              const warn=eff2<99.9;
               return `<button onclick="submitPast('${col}','${row.id}','${p}',${eff2.toFixed(1)},${warn})" style="width:100%;padding:6px 8px;border-radius:8px;font-family:var(--mono);font-size:12px;font-weight:700;border:1px solid ${warn?'rgba(234,179,8,.4)':'rgba(34,197,94,.4)'};background:${warn?'rgba(234,179,8,.08)':'rgba(34,197,94,.08)'};color:${warn?'#fde047':'#4ade80'};cursor:pointer">${warn?'⚠️':'✅'} ส่งข้อมูล<br><span style="font-size:10px">(Eff ${eff2.toFixed(1)}%)</span></button>`;
             })()
         }
@@ -1642,8 +1655,8 @@ async function loadHistory(){
     el.innerHTML=snap.docs.map(d=>{
       const r=d.data();
       const eff=r.eff||0;
-      const effColor=eff>=97&&eff<=100?"#22c55e":eff>100?"#f97316":eff>0?"#ef4444":"var(--t3)";
-      const effLabel=eff>=97&&eff<=100?"✅":eff>100?"⚠️":eff>0?"❌":"—";
+      const effColor=eff>=99.9&&eff<=100?"#22c55e":eff>100?"#f97316":eff>0?"#ef4444":"var(--t3)";
+      const effLabel=eff>=99.9&&eff<=100?"✅":eff>100?"⚠️":eff>0?"❌":"—";
       return`<tr>
         <td style="font-family:var(--mono);font-size:11px;color:var(--t2)">${r.archived_date||'—'}</td>
         <td style="font-family:var(--mono);font-size:11px;color:var(--t2)">${r.archived_at||'—'}</td>
