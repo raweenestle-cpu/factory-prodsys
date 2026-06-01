@@ -1071,17 +1071,14 @@ function renderMixTanks(m, rows){
         </div>
       </div>`;
     }
+    const psCard=getProcessState(row); // single source of truth
+    const stInfo={lbl:psCard.lbl,cls:psCard.cls};
     const st=row.status||'';
-    const isDone=st==='past_done';
-    const isMix=st==='mixing';
-    const isPast=st==='pasteurising';
     let cardCls='tv3-card';
     if(psCard.id==='mixing'||psCard.id==='preparing'||psCard.id==='ready_mix') cardCls+=' tv3-mixing';
     else if(psCard.id==='wait_past') cardCls+=' tv3-wait';
     else if(psCard.id==='pasteurising') cardCls+=' tv3-past';
     else if(psCard.id==='past_done') cardCls+=' tv3-done';
-    const psCard=getProcessState(row); // single source of truth
-    const stInfo={lbl:psCard.lbl,cls:psCard.cls};
     const steps=buildStepsWithStatus(row, pcol, row.id);
     const stepsHtml=steps.map((st2,i)=>buildStepHtml(st2,i,steps.length,pcol,row.id)).join('');
     return `<div class="${cardCls}">
@@ -1107,8 +1104,8 @@ function renderMixTanks(m, rows){
   const pcol=planCol(m);
   // โชว์ทุกถังเสมอ ถ้าไม่มีของ = empty card
   let html='';
-  html+=renderTankCard(t1Row,'Mix Tank 1',1,3000,pcol);
-  html+=renderTankCard(t2Row,'Mix Tank 2',2,3500,pcol);
+  try{html+=renderTankCard(t1Row,'Mix Tank 1',1,3000,pcol);}catch(e){console.error('Tank1 error:',e);html+='<div style="padding:16px;color:red;font-family:monospace">Tank 1 Error: '+e.message+'</div>';}
+  try{html+=renderTankCard(t2Row,'Mix Tank 2',2,3500,pcol);}catch(e){console.error('Tank2 error:',e);html+='<div style="padding:16px;color:red;font-family:monospace">Tank 2 Error: '+e.message+'</div>';}
   el.innerHTML=html;
 }
 
@@ -1120,6 +1117,7 @@ function renderPlan(m){
   renderMixTanks(m, rows[m]||[]);
 
   rows[m].forEach((row,i)=>{
+    try{
     const isMixing=row.status==="mixing";
     const isPast=row.status==="pasteurising";
     const isPasting=isPast&&!!row.past_start_time; // กำลัง Past. อยู่
@@ -1212,6 +1210,7 @@ function renderPlan(m){
       <!-- STATUS -->
       <td>${statText}</td>`;
     tbody.appendChild(tr);
+    }catch(e){console.error('Row render error row',i,e);const errTr=document.createElement('tr');errTr.innerHTML=`<td colspan="21" style="color:red;font-family:monospace;padding:8px">Row ${i} Error: ${e.message}</td>`;tbody.appendChild(errTr);}
 
   });
 
