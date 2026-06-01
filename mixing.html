@@ -256,17 +256,17 @@ thead th{background:var(--s2);padding:8px 10px;text-align:left;white-space:nowra
 .tv3-head{display:flex;align-items:stretch;border-bottom:2px solid var(--b1)}
 .tv3-seq{width:56px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:30px;font-weight:900;color:var(--b2);background:var(--s2);border-right:2px solid var(--b1);flex-shrink:0}
 .tv3-hi{flex:1;padding:11px 15px;background:var(--s2)}
-.tv3-code{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--cyan);letter-spacing:.4px;margin-bottom:2px}
-.tv3-name{font-family:var(--sans);font-size:17px;font-weight:800;color:var(--text);line-height:1.2}
-.tv3-meta{font-family:var(--mono);font-size:10px;font-weight:500;color:var(--t2);margin-top:3px}
+.tv3-code{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--cyan);letter-spacing:.4px;margin-bottom:2px}
+.tv3-name{font-family:var(--sans);font-size:19px;font-weight:800;color:var(--text);line-height:1.2}
+.tv3-meta{font-family:var(--mono);font-size:11px;font-weight:500;color:var(--t2);margin-top:3px}
 .tv3-st{display:flex;align-items:center;justify-content:center;padding:0 18px;background:var(--s2);border-left:2px solid var(--b1);flex-shrink:0}
 .tv3-body{display:flex;align-items:stretch;min-height:130px}
 .tv3-tank{width:110px;flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:12px 6px;background:var(--s2);border-right:2px solid var(--b1)}
 .tv3-flow{flex:1;padding:14px 16px;overflow-x:auto;display:flex;align-items:center}
 .tv3-steps{display:flex;align-items:center;gap:0;flex-shrink:0}
 .tv3-sw{display:flex;align-items:center;flex-shrink:0}
-.tv3-step{display:flex;flex-direction:column;align-items:center;width:68px;gap:3px}
-.tv3-circle{width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;border:2.5px solid var(--b2);background:var(--s2);flex-shrink:0;transition:all .3s;position:relative}
+.tv3-step{display:flex;flex-direction:column;align-items:center;width:72px;gap:3px}
+.tv3-circle{width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;border:2.5px solid var(--b2);background:var(--s2);flex-shrink:0;transition:all .3s;position:relative}
 .tv3-circle.done{border-color:var(--green);background:rgba(52,211,153,.1)}
 .tv3-circle.done::after{content:'✓';position:absolute;bottom:-3px;right:-3px;font-size:10px;font-weight:900;color:var(--green);background:var(--s1);border-radius:50%;width:15px;height:15px;display:flex;align-items:center;justify-content:center;line-height:1;border:1.5px solid var(--green)}
 .tv3-circle.active{border-color:var(--yellow);background:rgba(251,191,36,.1);animation:tv3gy 1.4s ease-in-out infinite}
@@ -294,6 +294,24 @@ thead th{background:var(--s2);padding:8px 10px;text-align:left;white-space:nowra
 .tv3-sbtn.g{border:2px solid rgba(52,211,153,.4);background:rgba(52,211,153,.08);color:var(--green)}
 .tv3-sbtn.r{border:2px solid rgba(248,113,113,.4);background:rgba(248,113,113,.08);color:var(--red)}
 .tv3-sig{font-size:15px;background:none;border:2px dashed var(--b2);border-radius:9px;padding:5px 11px;cursor:pointer;color:var(--t2)}
+.tv3-prep{border-top:2px solid var(--b1);padding:12px 16px;background:var(--s2);display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.prep-lbl{font-family:var(--mono);font-size:12px;font-weight:900;color:var(--t2);white-space:nowrap;flex-shrink:0}
+.prep-sel{font-family:var(--mono);font-size:13px;font-weight:900;padding:8px 14px;border-radius:10px;border:2px solid var(--b1);background:var(--s2);color:var(--text);cursor:pointer;flex-shrink:0}
+.prep-sel.ready{border-color:rgba(52,211,153,.5);color:var(--green);background:rgba(52,211,153,.08)}
+.prep-sel.notready{border-color:rgba(248,113,113,.5);color:var(--red);background:rgba(248,113,113,.08)}
+.prep-sig-lbl{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--t3);flex-shrink:0}
+.tv3-sbtn{font-family:var(--mono);font-size:11px;font-weight:900;padding:8px 16px;border-radius:10px;cursor:pointer;white-space:nowrap;flex:1;text-align:center;letter-spacing:.3px;min-width:120px}
+.tv3-sbtn.y{border:2px solid rgba(251,191,36,.45);background:rgba(251,191,36,.1);color:var(--yellow)}
+.tv3-sbtn.g{border:2px solid rgba(52,211,153,.4);background:rgba(52,211,153,.08);color:var(--green)}
+.tv3-sbtn.r{border:2px solid rgba(248,113,113,.4);background:rgba(248,113,113,.08);color:var(--red)}
+.tv3-sbtn:disabled{opacity:.3;cursor:not-allowed;pointer-events:none}
+.tv3-sn{font-family:var(--mono);font-size:10px;font-weight:700;text-align:center;color:var(--t3);line-height:1.3;max-width:68px}
+.tv3-sn.done{color:var(--green)}.tv3-sn.active{color:var(--yellow)}.tv3-sn.pwr{color:var(--orange)}.tv3-sn.nxt{color:var(--blue)}
+.tv3-sv{font-family:var(--mono);font-size:12px;font-weight:900;text-align:center;color:var(--t3)}
+.tv3-sv.done{color:var(--green)}.tv3-sv.active{color:var(--yellow)}.tv3-sv.pwr{color:var(--orange)}
+.tv3-il{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--t3)}
+.tv3-iv{font-family:var(--mono);font-size:13px;font-weight:900;color:var(--text)}
+.tv3-iv.ok{color:var(--green)}.tv3-iv.warn{color:var(--yellow)}.tv3-iv.hot{color:var(--red)}.tv3-iv.info{color:var(--blue)}
 @keyframes tv3gy{0%,100%{box-shadow:0 0 0 0 rgba(251,191,36,.5)}50%{box-shadow:0 0 0 8px rgba(251,191,36,0)}}
 @keyframes tv3go{0%,100%{box-shadow:0 0 0 0 rgba(251,146,60,.5)}50%{box-shadow:0 0 0 8px rgba(251,146,60,0)}}
 @keyframes tv3gb{0%,100%{box-shadow:0 0 0 0 rgba(96,165,250,.5)}50%{box-shadow:0 0 0 8px rgba(96,165,250,0)}}
@@ -695,6 +713,32 @@ function renderFlowBar(row,pcol,rid){
   return html;
 }
 
+window._setPrepStatus=async function(pcol,rid,val,sel){
+  sel.className='prep-sel'+(val==='ready'?' ready':val==='not_ready'?' notready':'');
+  const sig=sessionStorage.getItem('emp_sig')||'';
+  const name=sessionStorage.getItem('emp_name')||'';
+  const upd={prep_status:val,updated_at:new Date().toISOString()};
+  // ถ้าเลือก ready ให้ stamp ลายเซ็นอัตโนมัติ
+  if(val==='ready'&&sig){upd.prep_sig=sig;upd.prep_sig_name=name;}
+  try{await updateDoc(doc(db,pcol,rid),upd);toast('✅ บันทึกสถานะเตรียม','green');}
+  catch(e){toast('❌ '+e.message,'red');}
+};
+window._stampPrepSig=async function(pcol,rid){
+  const sig=sessionStorage.getItem('emp_sig')||'';
+  const name=sessionStorage.getItem('emp_name')||'';
+  if(!sig){toast('ไม่พบลายเซ็น กรุณา login ใหม่','red');return;}
+  try{await updateDoc(doc(db,pcol,rid),{prep_sig:sig,prep_sig_name:name,updated_at:new Date().toISOString()});toast('✅ บันทึกลายเซ็นผู้เตรียม','green');}
+  catch(e){toast('❌ '+e.message,'red');}
+};
+window._stampMixStart=async function(pcol,rid,m){
+  const sig=sessionStorage.getItem('emp_sig')||'';
+  const name=sessionStorage.getItem('emp_name')||'';
+  const n=nowHMS();
+  const upd={mix_start_time:n,status:'mixing',updated_at:new Date().toISOString()};
+  if(sig){upd.sig_mix_start=sig;upd.sig_mix_start_name=name;}
+  try{await updateDoc(doc(db,pcol,rid),upd);toast('▶ Start ผสม '+n,'green');}
+  catch(e){toast('❌ '+e.message,'red');}
+};
 window._cfm=async function(pcol,rid,field){
   var upd={updated_at:new Date().toISOString()};
   if(field==='rw') upd.rw_confirmed=true;
@@ -864,18 +908,41 @@ function renderMixTanks(m, rows){
     return `<div class="tv3-info">${items.map(it=>`<div class="tv3-ir"><span class="tv3-il">${it.l}</span><span class="tv3-iv ${it.c}">${it.v}</span></div>`).join('')}</div>`;
   }
 
+  function prepStrip(row, pcol, rid){
+    if(!row) return '';
+    const prepStatus=row.prep_status||'';
+    const prepSig=row.prep_sig||'';
+    const prepName=row.prep_sig_name||'';
+    const isReady=prepStatus==='ready';
+    const isNotReady=prepStatus==='not_ready';
+    const selCls=isReady?'ready':isNotReady?'notready':'';
+    const sigHtml=prepSig
+      ?`<img src="${prepSig}" style="height:32px;max-width:70px;object-fit:contain;border:1.5px solid rgba(52,211,153,.4);border-radius:8px;background:var(--s2)" title="${prepName}">`
+      :(isReady?`<button class="tv3-sig" onclick="window._stampPrepSig('${pcol}','${rid}')">✍️ เซ็น</button>`:'<span style="font-family:var(--mono);font-size:10px;color:var(--t3)">— รอเลือกสถานะ —</span>');
+    return `<div class="tv3-prep">
+      <span class="prep-lbl">🔧 การเตรียม</span>
+      <select class="prep-sel ${selCls}" onchange="window._setPrepStatus('${pcol}','${rid}',this.value,this)">
+        <option value="">— เลือกสถานะ —</option>
+        <option value="ready" ${isReady?'selected':''}>✅ เตรียมเสร็จ</option>
+        <option value="not_ready" ${isNotReady?'selected':''}>❌ ยังไม่เสร็จ</option>
+      </select>
+      <span class="prep-sig-lbl">ลายเซ็นผู้เตรียม:</span>
+      ${sigHtml}
+    </div>`;
+  }
+
   function stampStrip(row, tankLabel, pcol, rid){
     if(!row) return '';
-    const st=row.status||'';
-    const isMix=st==='mixing';
-    const isPast=st==='pasteurising';
-    const isDone=st==='past_done';
-    const sig=row['sig_stop_san']?`<div style="font-family:var(--mono);font-size:9px;font-weight:700;color:var(--green);border:1.5px solid rgba(52,211,153,.35);border-radius:9px;padding:6px 12px;white-space:nowrap">✅ ${row.sig_stop_san_name||'signed'}</div>`:'<button class="tv3-sig" onclick="window._sigMix && window._sigMix()">✍️</button>';
+    const prepReady=(row.prep_status==='ready');
+    const sig=row['sig_mix_start']
+      ?`<img src="${row.sig_mix_start}" style="height:32px;max-width:70px;object-fit:contain;border:1.5px solid rgba(52,211,153,.4);border-radius:8px;background:var(--s2)" title="${row.sig_mix_start_name||''}">`
+      :'';
     let btns='';
     if(row.mix_start_time){
       btns+=`<button class="tv3-sbtn g">⏱ เริ่ม ${row.mix_start_time}</button>`;
     } else {
-      btns+=`<button class="tv3-sbtn y" onclick="stampTime('${pcol}','${rid}','mix_start_time','${m}')">⏱ Stamp เริ่ม</button>`;
+      const disabled=prepReady?'':'disabled title="ต้องเตรียมเสร็จก่อน"';
+      btns+=`<button class="tv3-sbtn y" ${disabled} onclick="window._stampMixStart('${pcol}','${rid}','${m}')">⏱ Start ผสม</button>`;
     }
     if(row.mix_end_time){
       btns+=`<button class="tv3-sbtn g">✅ เสร็จ ${row.mix_end_time}</button>`;
@@ -916,6 +983,7 @@ function renderMixTanks(m, rows){
         <div class="tv3-flow"><div class="tv3-steps">${stepsHtml}</div></div>
         ${infoPanel(row)}
       </div>
+      ${prepStrip(row, pcol, row.id)}
       ${stampStrip(row, tankLabel, pcol, row.id)}
     </div>`;
   }
