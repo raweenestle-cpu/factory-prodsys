@@ -525,9 +525,42 @@ function renderTemp(){
     });
     if(di<days.length-1)h+='<th style="width:3px;background:var(--s2)"></th>';
   });
-  h+='</tr></thead><tbody>'+rows.join('')+'</tbody>';
+  // row ลายเซ็นด้านล่าง
+  let sigRow='<tr style="border-top:2px solid var(--b1)">';
+  sigRow+='<td colspan="3" style="position:sticky;left:0;z-index:2;background:#f8fafc;padding:5px 8px;font-size:11px;font-weight:700;color:var(--t2);white-space:nowrap">ลายเซ็น</td>';
+  days.forEach(function(d,di){
+    TEMP_TIMES.forEach(function(t){
+      var sigKey='sig_'+(d+'_'+t.replace(':','')).replace(/-/g,'');
+      var existSig=null;
+      // หาลายเซ็นจาก tankStates ถังแรกที่มี
+      var anyTank=active[0];
+      if(anyTank&&anyTank.signatures&&anyTank.signatures[sigKey]) existSig=anyTank.signatures[sigKey];
+      if(existSig){
+        sigRow+='<td style="padding:2px;text-align:center;background:#f8fafc"><img src="'+existSig+'" style="height:28px;width:44px;object-fit:contain"></td>';
+      } else {
+        sigRow+='<td style="padding:2px;text-align:center;background:#f8fafc"><button onclick="window.stampSig(''+sigKey+'')" style="background:none;border:1px dashed #94a3b8;border-radius:4px;width:44px;height:28px;cursor:pointer;font-size:14px" title="เซ็นชื่อ">✍️</button></td>';
+      }
+    });
+    if(di<days.length-1)sigRow+='<td style="width:3px;background:var(--s2)"></td>';
+  });
+  sigRow+='</tr>';
+  h+='</tr></thead><tbody>'+rows.join('')+sigRow+'</tbody>';
   $('temp-table').innerHTML=h;
 }
+window.stampSig=async function(sigKey){
+  var sig=sessionStorage.getItem('emp_sig')||'';
+  var empName=sessionStorage.getItem('emp_name')||'';
+  if(!sig){toast('ไม่พบลายเซ็น กรุณา login ใหม่','red');return;}
+  // บันทึกลงทุกถังที่ active
+  var actTanks=Object.values(tankStates).filter(t=>t.status&&!['empty','san_done'].includes(t.status));
+  var upd={};upd['signatures.'+sigKey]=sig;upd['sig_name.'+sigKey]=empName;upd.updated_at=new Date().toISOString();
+  try{
+    await Promise.all(actTanks.map(t=>setDoc(doc(db,'aging_tank_states',t.id),upd,{merge:true})));
+    actTanks.forEach(t=>{if(!tankStates[t.id].signatures)tankStates[t.id].signatures={};tankStates[t.id].signatures[sigKey]=sig;});
+    toast('✅ บันทึกลายเซ็นแล้ว','green');
+    renderTemp();
+  }catch(e){toast('❌ '+e.message,'red');}
+};
 window.setTempVal=async function(tid,key,val){
   if(val===''||val===null||val===undefined||isNaN(+val))return;
   var newTemp=+val;
