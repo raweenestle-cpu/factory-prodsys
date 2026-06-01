@@ -996,10 +996,14 @@ window.cipTankSVG=function(uid,pct,col,run,statusTxt,statusCol,sw,sh){
   s+='<rect x="'+(bX+3)+'" y="'+(bY+bH+13)+'" width="'+(bW-6)+'" height="5" rx="2" fill="rgba(255,255,255,.12)" stroke="'+bodyStroke+'" stroke-width="1" stroke-opacity=".5"/>';
   // text
   const tc='#111827';
-
+  // แสดง volume ตรงกลางถัง
+  const volText = hasLiq ? Math.round((pct/100)*getTankCapacity(uid)).toLocaleString()+' L' : 'ว่าง';
+  s+='<text x="'+(sw/2)+'" y="'+(midY+5)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="16" fill="'+tc+'" font-weight="900">'+volText+'</text>';
   if(hasLiq){
-
+    s+='<text x="'+(sw/2)+'" y="'+(midY+20)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="'+col+'" font-weight="700" opacity=".8">'+Math.round(pct)+'%</text>';
   }
+  // label ถัง
+  s+='<text x="'+(sw/2)+'" y="'+(bY-8)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="'+tc+'" font-weight="900">'+uid+'</text>';
   s+='</svg>';
   return s;
 }
