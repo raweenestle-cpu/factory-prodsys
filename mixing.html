@@ -57,9 +57,11 @@ table{width:100%;border-collapse:collapse;font-size:12px}
 tbody td{border-right:1px solid var(--b1);border-bottom:1px solid var(--b1);background:var(--s1);color:var(--text);font-weight:600}
 thead th{border-right:1px solid var(--b2)!important}
 tr:hover td{background:#e0e7ff!important}
-thead th{background:var(--s2);padding:8px 10px;text-align:left;white-space:nowrap;font-family:var(--mono);font-size:12px;color:#111827;font-weight:900;border-bottom:2px solid var(--b1);vertical-align:middle}
-tbody td,tbody td span,tbody td *{color:#111827!important;font-weight:700!important}
-tbody td input,tbody td select{color:#111827!important}
+thead th{background:#e2e8f0;padding:10px 10px;text-align:left;white-space:nowrap;font-family:var(--mono);font-size:12px;color:#111827;font-weight:900;border-bottom:2px solid #94a3b8;vertical-align:middle}
+tbody td,tbody td span{color:#111827!important;font-weight:700!important}
+tbody td input,tbody td select{color:#111827!important;font-size:12px!important}
+tbody tr:hover td{background:rgba(241,245,249,.8)!important}
+tbody tr:nth-child(even) td{background:#fafbff}
 
 /* STATUS ROW COLORS */
 .row-mixing td{background:var(--s2)!important}
@@ -251,37 +253,37 @@ tbody td input,tbody td select{color:#111827!important}
 @keyframes fba{0%,100%{box-shadow:0 0 0 0 rgba(29,78,216,.35)}50%{box-shadow:0 0 0 10px rgba(29,78,216,0)}}
 @keyframes fbao{0%,100%{box-shadow:0 0 0 0 rgba(194,65,12,.35)}50%{box-shadow:0 0 0 10px rgba(194,65,12,0)}}
 /* ===== TANK CARD v3 ===== */
-.tv3-card{background:var(--s1);border:2px solid var(--b1);border-radius:18px;overflow:hidden;margin-bottom:12px;transition:opacity .3s,filter .3s}
-.tv3-card.tv3-mixing{border-color:rgba(251,191,36,.5);box-shadow:0 0 0 1px rgba(251,191,36,.06) inset}
-.tv3-card.tv3-past{border-color:rgba(96,165,250,.5);box-shadow:0 0 0 1px rgba(96,165,250,.06) inset}
+.tv3-card{background:#f8fafc;border:2px solid #cbd5e1;border-radius:18px;overflow:hidden;margin-bottom:14px;transition:opacity .3s,filter .3s;box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.tv3-card.tv3-mixing{border-color:#f59e0b;box-shadow:0 0 0 3px rgba(251,191,36,.12),0 4px 16px rgba(251,191,36,.1)}
+.tv3-card.tv3-past{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.12),0 4px 16px rgba(59,130,246,.1)}
 .tv3-card.tv3-done{opacity:.36;filter:grayscale(65%);pointer-events:none}
-.tv3-head{display:flex;align-items:stretch;border-bottom:2px solid var(--b1)}
-.tv3-seq{width:110px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:10px 6px;background:var(--s2);border-right:2px solid var(--b1);flex-shrink:0}
-.tv3-hi{flex:1;padding:11px 15px;background:var(--s2)}
-.tv3-code{font-family:var(--mono);font-size:13px;font-weight:800;color:#111827;letter-spacing:.4px;margin-bottom:3px}
-.tv3-name{font-family:var(--sans);font-size:22px;font-weight:900;color:#111827;line-height:1.2}
+.tv3-head{display:flex;align-items:stretch;border-bottom:2px solid #e2e8f0}
+.tv3-seq{width:110px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:10px 6px;background:#e2e8f0;border-right:2px solid #cbd5e1;flex-shrink:0}
+.tv3-hi{flex:1;padding:12px 16px;background:#f1f5f9}
+.tv3-code{font-family:var(--mono);font-size:12px;font-weight:800;color:#374151;letter-spacing:.5px;margin-bottom:3px}
+.tv3-name{font-family:var(--sans);font-size:22px;font-weight:900;color:#0f172a;line-height:1.2}
 .tv3-meta{font-family:var(--mono);font-size:13px;font-weight:700;color:#374151;margin-top:4px}
-.tv3-st{display:flex;align-items:center;justify-content:center;padding:0 18px;background:var(--s2);border-left:2px solid var(--b1);flex-shrink:0}
+.tv3-st{display:flex;align-items:center;justify-content:center;padding:0 20px;background:#f1f5f9;border-left:2px solid #e2e8f0;flex-shrink:0}
 .tv3-body{display:flex;align-items:stretch;min-height:130px}
-.tv3-tank{width:110px;flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:12px 6px;background:var(--s2);border-right:2px solid var(--b1)}
+.tv3-tank{width:130px;flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:14px 8px;background:#f1f5f9;border-right:2px solid #e2e8f0}
 .tv3-flow{flex:1;padding:14px 16px;overflow-x:auto;display:flex;align-items:center}
 .tv3-steps{display:flex;align-items:center;gap:0;flex-shrink:0}
 .tv3-sw{display:flex;align-items:center;flex-shrink:0}
-.tv3-step{display:flex;flex-direction:column;align-items:center;width:68px;gap:3px}
-.tv3-circle{width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;border:2.5px solid var(--b2);background:var(--s2);flex-shrink:0;transition:all .3s;position:relative}
-.tv3-circle.done{border-color:var(--green);background:rgba(52,211,153,.1)}
-.tv3-circle.done::after{content:'✓';position:absolute;bottom:-3px;right:-3px;font-size:10px;font-weight:900;color:var(--green);background:var(--s1);border-radius:50%;width:15px;height:15px;display:flex;align-items:center;justify-content:center;line-height:1;border:1.5px solid var(--green)}
-.tv3-circle.active{border-color:var(--yellow);background:rgba(251,191,36,.1);animation:tv3gy 1.4s ease-in-out infinite}
-.tv3-circle.pwr{border-color:var(--orange)!important;background:rgba(251,146,60,.1)!important;animation:tv3go 1.4s ease-in-out infinite!important}
-.tv3-circle.nxt{border-color:var(--blue)!important;background:rgba(96,165,250,.1)!important;animation:tv3gb 1.4s ease-in-out infinite!important}
-.tv3-circle.skip{opacity:.18;border-style:dashed;border-color:var(--b2)}
-.tv3-circle.idle{border-color:var(--b2);background:var(--s2)}
-.tv3-sn{font-family:var(--mono);font-size:9px;font-weight:700;text-align:center;color:var(--t3);line-height:1.3;max-width:68px}
-.tv3-sn.done{color:var(--green)}.tv3-sn.active{color:var(--yellow)}.tv3-sn.pwr{color:var(--orange)}.tv3-sn.nxt{color:var(--blue)}
-.tv3-sv{font-family:var(--mono);font-size:11px;font-weight:900;text-align:center;color:var(--t3)}
-.tv3-sv.done{color:var(--green)}.tv3-sv.active{color:var(--yellow)}.tv3-sv.pwr{color:var(--orange)}.tv3-sv2{font-family:var(--mono);font-size:9px;font-weight:700;text-align:center;color:var(--cyan);margin-top:-1px}
-.tv3-conn{flex:1;min-width:10px;max-width:40px;height:2.5px;background:var(--b2);flex-shrink:0;margin-bottom:26px;border-radius:2px}
-.tv3-conn.done{background:var(--green)}.tv3-conn.active{background:rgba(251,191,36,.35)}.tv3-conn.nxt{background:rgba(96,165,250,.35)}
+.tv3-step{display:flex;flex-direction:column;align-items:center;min-width:68px;gap:4px}
+.tv3-circle{width:62px;height:62px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;border:2.5px solid var(--b2);background:var(--s2);flex-shrink:0;transition:all .3s;position:relative}
+.tv3-circle.done{border-color:#10b981;background:#d1fae5}
+.tv3-circle.done::after{content:'✓';position:absolute;bottom:-3px;right:-3px;font-size:10px;font-weight:900;color:#ffffff;background:#10b981;border-radius:50%;width:16px;height:16px;display:flex;align-items:center;justify-content:center;line-height:1;border:2px solid #ffffff}
+.tv3-circle.active{border-color:#f59e0b;background:#fef3c7;animation:tv3gy 1.4s ease-in-out infinite}
+.tv3-circle.pwr{border-color:#ea580c!important;background:#ffedd5!important;animation:tv3go 1.4s ease-in-out infinite!important}
+.tv3-circle.nxt{border-color:#2563eb!important;background:#dbeafe!important;animation:tv3gb 1.4s ease-in-out infinite!important}
+.tv3-circle.skip{opacity:.3;border-style:dashed;border-color:#94a3b8;background:#f1f5f9}
+.tv3-circle.idle{border-color:#cbd5e1;background:#f8fafc}
+.tv3-sn{font-family:var(--mono);font-size:10px;font-weight:700;text-align:center;color:#475569;line-height:1.3;max-width:72px}
+.tv3-sn.done{color:#065f46;font-weight:800}.tv3-sn.active{color:#92400e;font-weight:900}.tv3-sn.pwr{color:#c2410c;font-weight:900}.tv3-sn.nxt{color:#1e40af;font-weight:900}
+.tv3-sv{font-family:var(--mono);font-size:12px;font-weight:900;text-align:center;color:#374151}
+.tv3-sv.done{color:#065f46}.tv3-sv.active{color:#92400e}.tv3-sv.pwr{color:#c2410c}.tv3-sv2{font-family:var(--mono);font-size:10px;font-weight:700;text-align:center;color:#0369a1;margin-top:-1px}
+.tv3-conn{flex:1;min-width:8px;max-width:36px;height:3px;background:var(--b2);flex-shrink:0;margin-bottom:30px;border-radius:2px;align-self:flex-start;margin-top:30px}
+.tv3-conn.done{background:#10b981}.tv3-conn.active{background:#f59e0b}.tv3-conn.nxt{background:#3b82f6}
 .tv3-fbtn{font-family:var(--mono);font-size:8px;font-weight:900;padding:3px 7px;border-radius:4px;border:none;cursor:pointer;color:#fff;white-space:nowrap;margin-top:2px}
 .tv3-fbtn.rw{background:#1d4ed8}.tv3-fbtn.pwr{background:#c2410c}
 .tv3-info{width:188px;flex-shrink:0;border-left:2px solid var(--b1);padding:12px;display:flex;flex-direction:column;gap:0;background:var(--s2)}
@@ -290,11 +292,11 @@ tbody td input,tbody td select{color:#111827!important}
 .tv3-il{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--t3)}
 .tv3-iv{font-family:var(--mono);font-size:12px;font-weight:900;color:var(--text)}
 .tv3-iv.ok{color:var(--green)}.tv3-iv.warn{color:var(--yellow)}.tv3-iv.hot{color:var(--red)}.tv3-iv.info{color:var(--blue)}
-.tv3-stamp{display:flex;gap:7px;align-items:center;padding:9px 14px;border-top:2px solid var(--b1);background:var(--s2)}
+.tv3-stamp{display:flex;gap:8px;align-items:center;padding:12px 16px;border-top:2px solid #e2e8f0;background:#f8fafc}
 .tv3-sbtn{font-family:var(--mono);font-size:10px;font-weight:900;padding:7px 14px;border-radius:9px;cursor:pointer;white-space:nowrap;flex:1;text-align:center;letter-spacing:.3px}
-.tv3-sbtn.y{border:2px solid rgba(251,191,36,.45);background:rgba(251,191,36,.1);color:var(--yellow)}
-.tv3-sbtn.g{border:2px solid rgba(52,211,153,.4);background:rgba(52,211,153,.08);color:var(--green)}
-.tv3-sbtn.r{border:2px solid rgba(248,113,113,.4);background:rgba(248,113,113,.08);color:var(--red)}
+.tv3-sbtn.y{border:2px solid #f59e0b;background:#fef3c7;color:#92400e;font-size:12px}
+.tv3-sbtn.g{border:2px solid #10b981;background:#d1fae5;color:#065f46;font-size:12px}
+.tv3-sbtn.r{border:2px solid #ef4444;background:#fee2e2;color:#991b1b;font-size:12px}
 .tv3-sig{font-size:15px;background:none;border:2px dashed var(--b2);border-radius:9px;padding:5px 11px;cursor:pointer;color:var(--t2)}
 @keyframes tv3gy{0%,100%{box-shadow:0 0 0 0 rgba(251,191,36,.5)}50%{box-shadow:0 0 0 8px rgba(251,191,36,0)}}
 @keyframes tv3go{0%,100%{box-shadow:0 0 0 0 rgba(251,146,60,.5)}50%{box-shadow:0 0 0 8px rgba(251,146,60,0)}}
@@ -319,38 +321,39 @@ tbody td input,tbody td select{color:#111827!important}
 
 <!-- PLAN M1 -->
 <div class="page on" id="page-plan-m1">
-  <div class="toolbar">
-    <div style="display:flex;align-items:center;gap:8px">
-      <span style="font-family:var(--mono);font-size:10px;color:var(--t3)">DATE</span>
-      <input type="date" id="date-m1" class="ci" style="width:140px" onchange="loadPlan('m1')">
+  <div style="padding:14px 18px 0">
+    <div style="display:flex;align-items:center;gap:16px;background:var(--s1);border:2px solid var(--b1);border-radius:14px;padding:14px 20px;margin-bottom:14px">
+      <div style="font-family:var(--mono);font-size:11px;font-weight:900;color:var(--t3);letter-spacing:2px;text-transform:uppercase;flex-shrink:0">📅 วันที่ผลิต</div>
+      <input type="date" id="date-m1" class="ci" style="font-family:var(--mono);font-size:20px;font-weight:900;color:#111827;background:transparent;border:none;outline:none;cursor:pointer;flex:1" onchange="loadPlan('m1')">
+      <div id="day-label-m1" style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--t2)"></div>
     </div>
   </div>
   <div id="tank-visual-m1" style="margin-bottom:12px;overflow:hidden;position:relative;z-index:1"></div>
   <div class="tw" style="position:relative;z-index:2"><table>
     <thead>
       <tr>
-        <th rowspan="2">#</th><th rowspan="2">Mix Code</th><th rowspan="2" style="color:var(--cyan)">🔗 Process</th><th rowspan="2">Mix Name</th>
+        <th rowspan="2">#</th><th rowspan="2">Mix Code</th><th rowspan="2" style="color:#111827">🔗 Process</th><th rowspan="2">Mix Name</th>
         <th rowspan="2">Batch</th><th rowspan="2">Vol (L)</th><th rowspan="2" style="color:#111827">🔧 การเตรียม</th><th rowspan="2">Tank</th>
-        <th rowspan="2" style="color:var(--yellow)">⏱ เริ่มผสม</th>
-        <th rowspan="2" style="color:var(--green)">✅ ผสมเสร็จ</th>
-        <th colspan="2" style="text-align:center;background:var(--s2);color:var(--text);border-bottom:1px solid var(--b2)">🍬 GLUCOSE (kg)</th>
-        <th colspan="2" style="text-align:center;background:var(--s2);color:var(--text);border-bottom:1px solid var(--b2)">🧂 SUGAR (kg)</th>
-        <th colspan="2" style="text-align:center;background:var(--s2);color:var(--text);border-bottom:1px solid var(--b2)">🌴 PALM OIL (kg)</th>
-        <th colspan="2" style="text-align:center;background:var(--s2);color:var(--text);border-bottom:1px solid var(--b2)">🛢️ OIL MIX (kg)</th>
-        <th colspan="2" style="text-align:center;background:var(--s2);color:var(--text);border-bottom:1px solid var(--b2)">🥛 FAT MILK (kg)</th>
+        <th rowspan="2" style="color:#111827">⏱ เริ่มผสม</th>
+        <th rowspan="2" style="color:#111827">✅ ผสมเสร็จ</th>
+        <th colspan="2" style="text-align:center;background:#dde4ee;color:#111827;border-bottom:1px solid var(--b2)">🍬 GLUCOSE (kg)</th>
+        <th colspan="2" style="text-align:center;background:#dde4ee;color:#111827;border-bottom:1px solid var(--b2)">🧂 SUGAR (kg)</th>
+        <th colspan="2" style="text-align:center;background:#dde4ee;color:#111827;border-bottom:1px solid var(--b2)">🌴 PALM OIL (kg)</th>
+        <th colspan="2" style="text-align:center;background:#dde4ee;color:#111827;border-bottom:1px solid var(--b2)">🛢️ OIL MIX (kg)</th>
+        <th colspan="2" style="text-align:center;background:#dde4ee;color:#111827;border-bottom:1px solid var(--b2)">🥛 FAT MILK (kg)</th>
         <th rowspan="2">Status</th>
       </tr>
       <tr>
-        <th style="background:var(--s2);color:var(--text);font-size:9px">Set</th>
-        <th style="background:var(--s2);color:var(--text);font-size:9px;border-right:1px solid var(--b2)">Actual ✅</th>
-        <th style="background:var(--s2);color:var(--text);font-size:9px">Set</th>
-        <th style="background:var(--s2);color:var(--text);font-size:9px;border-right:1px solid var(--b2)">Actual ✅</th>
-        <th style="background:var(--s2);color:var(--text);font-size:9px">Set</th>
-        <th style="background:var(--s2);color:var(--text);font-size:9px;border-right:1px solid var(--b2)">Actual ✅</th>
-        <th style="background:var(--s1);color:var(--text);font-size:9px">Set</th>
-        <th style="background:var(--s2);color:var(--text);font-size:9px;border-right:1px solid var(--b2)">Actual ✅</th>
-        <th style="background:var(--s2);color:var(--text);font-size:9px">Set</th>
-        <th style="background:var(--s2);color:var(--text);font-size:9px;border-right:1px solid var(--b2)">Actual ✅</th>
+        <th style="background:var(--s2);color:var(--text);font-size:11px;color:#111827">Set</th>
+        <th style="background:var(--s2);color:var(--text);font-size:11px;color:#059669;border-right:2px solid #94a3b8">Actual ✅</th>
+        <th style="background:var(--s2);color:var(--text);font-size:11px;color:#111827">Set</th>
+        <th style="background:var(--s2);color:var(--text);font-size:11px;color:#059669;border-right:2px solid #94a3b8">Actual ✅</th>
+        <th style="background:var(--s2);color:var(--text);font-size:11px;color:#111827">Set</th>
+        <th style="background:var(--s2);color:var(--text);font-size:11px;color:#059669;border-right:2px solid #94a3b8">Actual ✅</th>
+        <th style="background:var(--s1);color:var(--text);font-size:11px;color:#111827">Set</th>
+        <th style="background:var(--s2);color:var(--text);font-size:11px;color:#059669;border-right:2px solid #94a3b8">Actual ✅</th>
+        <th style="background:var(--s2);color:var(--text);font-size:11px;color:#111827">Set</th>
+        <th style="background:var(--s2);color:var(--text);font-size:11px;color:#059669;border-right:2px solid #94a3b8">Actual ✅</th>
       </tr>
     </thead>
     <tbody id="tbody-m1"></tbody>
@@ -359,38 +362,39 @@ tbody td input,tbody td select{color:#111827!important}
 
 <!-- PLAN M2 -->
 <div class="page" id="page-plan-m2">
-  <div class="toolbar">
-    <div style="display:flex;align-items:center;gap:8px">
-      <span style="font-family:var(--mono);font-size:10px;color:var(--t3)">DATE</span>
-      <input type="date" id="date-m2" class="ci" style="width:140px" onchange="loadPlan('m2')">
+  <div style="padding:14px 18px 0">
+    <div style="display:flex;align-items:center;gap:16px;background:var(--s1);border:2px solid var(--b1);border-radius:14px;padding:14px 20px;margin-bottom:14px">
+      <div style="font-family:var(--mono);font-size:11px;font-weight:900;color:var(--t3);letter-spacing:2px;text-transform:uppercase;flex-shrink:0">📅 วันที่ผลิต</div>
+      <input type="date" id="date-m2" class="ci" style="font-family:var(--mono);font-size:20px;font-weight:900;color:#111827;background:transparent;border:none;outline:none;cursor:pointer;flex:1" onchange="loadPlan('m2')">
+      <div id="day-label-m2" style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--t2)"></div>
     </div>
   </div>
   <div id="tank-visual-m2" style="margin-bottom:12px;overflow:hidden;position:relative;z-index:1"></div>
   <div class="tw" style="position:relative;z-index:2"><table>
     <thead>
       <tr>
-        <th rowspan="2">#</th><th rowspan="2">Mix Code</th><th rowspan="2" style="color:var(--cyan)">🔗 Process</th><th rowspan="2">Mix Name</th>
+        <th rowspan="2">#</th><th rowspan="2">Mix Code</th><th rowspan="2" style="color:#111827">🔗 Process</th><th rowspan="2">Mix Name</th>
         <th rowspan="2">Batch</th><th rowspan="2">Vol (L)</th><th rowspan="2" style="color:#111827">🔧 การเตรียม</th><th rowspan="2">Tank</th>
-        <th rowspan="2" style="color:var(--yellow)">⏱ เริ่มผสม</th>
-        <th rowspan="2" style="color:var(--green)">✅ ผสมเสร็จ</th>
-        <th colspan="2" style="text-align:center;background:var(--s2);color:var(--text);border-bottom:1px solid var(--b2)">🍬 GLUCOSE (kg)</th>
-        <th colspan="2" style="text-align:center;background:var(--s2);color:var(--text);border-bottom:1px solid var(--b2)">🧂 SUGAR (kg)</th>
-        <th colspan="2" style="text-align:center;background:var(--s2);color:var(--text);border-bottom:1px solid var(--b2)">🌴 PALM OIL (kg)</th>
-        <th colspan="2" style="text-align:center;background:var(--s2);color:var(--text);border-bottom:1px solid var(--b2)">🛢️ OIL MIX (kg)</th>
-        <th colspan="2" style="text-align:center;background:var(--s2);color:var(--text);border-bottom:1px solid var(--b2)">🥛 FAT MILK (kg)</th>
+        <th rowspan="2" style="color:#111827">⏱ เริ่มผสม</th>
+        <th rowspan="2" style="color:#111827">✅ ผสมเสร็จ</th>
+        <th colspan="2" style="text-align:center;background:#dde4ee;color:#111827;border-bottom:1px solid var(--b2)">🍬 GLUCOSE (kg)</th>
+        <th colspan="2" style="text-align:center;background:#dde4ee;color:#111827;border-bottom:1px solid var(--b2)">🧂 SUGAR (kg)</th>
+        <th colspan="2" style="text-align:center;background:#dde4ee;color:#111827;border-bottom:1px solid var(--b2)">🌴 PALM OIL (kg)</th>
+        <th colspan="2" style="text-align:center;background:#dde4ee;color:#111827;border-bottom:1px solid var(--b2)">🛢️ OIL MIX (kg)</th>
+        <th colspan="2" style="text-align:center;background:#dde4ee;color:#111827;border-bottom:1px solid var(--b2)">🥛 FAT MILK (kg)</th>
         <th rowspan="2">Status</th>
       </tr>
       <tr>
-        <th style="background:var(--s2);color:var(--text);font-size:9px">Set</th>
-        <th style="background:var(--s2);color:var(--text);font-size:9px;border-right:1px solid var(--b2)">Actual ✅</th>
-        <th style="background:var(--s2);color:var(--text);font-size:9px">Set</th>
-        <th style="background:var(--s2);color:var(--text);font-size:9px;border-right:1px solid var(--b2)">Actual ✅</th>
-        <th style="background:var(--s2);color:var(--text);font-size:9px">Set</th>
-        <th style="background:var(--s2);color:var(--text);font-size:9px;border-right:1px solid var(--b2)">Actual ✅</th>
-        <th style="background:var(--s1);color:var(--text);font-size:9px">Set</th>
-        <th style="background:var(--s2);color:var(--text);font-size:9px;border-right:1px solid var(--b2)">Actual ✅</th>
-        <th style="background:var(--s2);color:var(--text);font-size:9px">Set</th>
-        <th style="background:var(--s2);color:var(--text);font-size:9px;border-right:1px solid var(--b2)">Actual ✅</th>
+        <th style="background:var(--s2);color:var(--text);font-size:11px;color:#111827">Set</th>
+        <th style="background:var(--s2);color:var(--text);font-size:11px;color:#059669;border-right:2px solid #94a3b8">Actual ✅</th>
+        <th style="background:var(--s2);color:var(--text);font-size:11px;color:#111827">Set</th>
+        <th style="background:var(--s2);color:var(--text);font-size:11px;color:#059669;border-right:2px solid #94a3b8">Actual ✅</th>
+        <th style="background:var(--s2);color:var(--text);font-size:11px;color:#111827">Set</th>
+        <th style="background:var(--s2);color:var(--text);font-size:11px;color:#059669;border-right:2px solid #94a3b8">Actual ✅</th>
+        <th style="background:var(--s1);color:var(--text);font-size:11px;color:#111827">Set</th>
+        <th style="background:var(--s2);color:var(--text);font-size:11px;color:#059669;border-right:2px solid #94a3b8">Actual ✅</th>
+        <th style="background:var(--s2);color:var(--text);font-size:11px;color:#111827">Set</th>
+        <th style="background:var(--s2);color:var(--text);font-size:11px;color:#059669;border-right:2px solid #94a3b8">Actual ✅</th>
       </tr>
     </thead>
     <tbody id="tbody-m2"></tbody>
@@ -753,7 +757,7 @@ function renderMixTanks(m, rows){
     const isActive=['mixing','pasteurising','past_done','waiting_past','ready','busy'].includes(st);
     const pct=isActive&&vol>0?Math.min(100,(vol/cap)*100):0;
     const hasLiq=pct>0;
-    const sw=90,sh=200,bX=8,bY=38,bW=74,bH=130;
+    const sw=100,sh=210,bX=10,bY=40,bW=80,bH=138;
     const fillH=Math.max(0,(pct/100)*(bH-4)*0.92);
     const wy=bY+bH-fillH;
     const A=5,midY=bY+bH/2;
@@ -793,11 +797,11 @@ function renderMixTanks(m, rows){
     s+=`<rect x="${bX+bW-13}" y="${bY+bH}" width="7" height="13" rx="2" fill="${hasLiq?`rgba(${r2},${g2},${b2},.2)`:'rgba(71,85,105,.3)'}" stroke="${hasLiq?col:'#475569'}" stroke-width="1.5" stroke-opacity=".5"/>`;
     s+=`<rect x="${bX+2}" y="${bY+bH+12}" width="${bW-4}" height="4" rx="2" fill="${hasLiq?`rgba(${r2},${g2},${b2},.15)`:'rgba(71,85,105,.2)'}" stroke="${hasLiq?col:'#475569'}" stroke-width="1" stroke-opacity=".4"/>`;
     // text
-    s+=`<text x="${sw/2}" y="${midY-2}" text-anchor="middle" font-family="DM Mono,monospace" font-size="16" fill="${hasLiq?col:'#64748b'}" font-weight="900">${hasLiq?vol.toLocaleString():'ว่าง'}</text>`;
+    s+=`<text x="${sw/2}" y="${midY-2}" text-anchor="middle" font-family="DM Mono,monospace" font-size="18" fill="#ffffff" font-weight="900">${hasLiq?vol.toLocaleString():'ว่าง'}</text>`;
     if(hasLiq){
       s+=`<text x="${sw/2}" y="${midY+13}" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="${col}" font-weight="700" opacity=".75">ลิตร · ${Math.round(pct)}%</text>`;
-      s+=`<rect x="${bX+5}" y="${midY+17}" width="${bW-10}" height="14" rx="7" fill="${col}" fill-opacity=".85" stroke="${col}" stroke-width="1.5" stroke-opacity=".8"/>`;
-      s+=`<text x="${sw/2}" y="${midY+27}" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="${col}" font-weight="900">${stTxt} ${stLbl}</text>`;
+      s+=`<rect x="${bX+5}" y="${midY+16}" width="${bW-10}" height="16" rx="8" fill="${col}" fill-opacity="1" stroke="rgba(255,255,255,.3)" stroke-width="1"/>`;
+      s+=`<text x="${sw/2}" y="${midY+27}" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#ffffff" font-weight="900">${stTxt} ${stLbl}</text>`;
     }
     s+=`</svg>`;
     return s;
@@ -904,10 +908,10 @@ function renderMixTanks(m, rows){
       const ico=isPastDone?'✅':'🔵';
       const lbl=isPastDone?'PASTEURISE เสร็จแล้ว':'กำลัง PASTEURISING';
       const sub=row.mix_name?`${row.mix_name}${pastLine?' · '+pastLine:''}`:'';
-      return `<div class="tv3-stamp" style="background:${bgCol};border-top:2px solid ${borderCol};justify-content:center;gap:16px">
+      return `<div class="tv3-stamp" style="background:${isPastDone?'#d1fae5':'#dbeafe'};border-top:3px solid ${isPastDone?'#10b981':'#3b82f6'};justify-content:center;gap:16px;padding:16px">
         <span style="font-size:36px">${ico}</span>
         <div>
-          <div style="font-family:var(--mono);font-size:18px;font-weight:900;color:${textCol}">${lbl}</div>
+          <div style="font-family:var(--mono);font-size:20px;font-weight:900;color:${textCol};letter-spacing:.5px">${lbl}</div>
           ${sub?`<div style="font-family:var(--mono);font-size:13px;font-weight:700;color:${textCol};opacity:.75;margin-top:2px">${sub}</div>`:''}
         </div>
       </div>`;
