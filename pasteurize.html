@@ -746,9 +746,27 @@ function buildStepsForPast(row){
   const tempRange = (isJelly||isJelly2) ? '38–42' : '0–4';
   const iceWater = (isJelly||isJelly2) ? 'CLOSE' : 'OPEN';
 
+  const st2 = row.status||'';
+  const isPasteurising = st2==='pasteurising'||st2==='past_done'||st2==='ready';
   const started  = !!row.past_start_time;
   const ended    = !!row.past_end_time;
-  const submitted= row.status==='past_done'||row.status==='ready';
+  const submitted= st2==='past_done'||st2==='ready';
+  // ถ้ายังไม่ใช่ pasteurising ให้ทุก step เป็นสีเทา
+  if(!isPasteurising){
+    return [
+      {id:'tank',  ico:'🥛', name:'Mix Tank', kg:row.mixing_tank||'—', done:false, active:false, btn:false, skip:false, pwd:false},
+      {id:'start', ico:'🚀', name:'เริ่ม Past.', kg:'', done:false, active:false, btn:false, skip:false, pwd:false},
+      {id:'homo',  ico:'⚙️', name:'Homogenizer', kg:'S1 · '+(homoS1||'—')+' psi', kg2:'S2 · '+(homoS2||'—')+' psi', done:false, active:false, btn:false, skip:false, pwd:false},
+      {id:'ccp',   ico:'🌡️', name:'CCP Temp', kg:'≥81.1°C', done:false, active:false, btn:false, skip:false, pwd:false, isCCP:true},
+      {id:'cpm_valve', ico:'🔩', name:'CPM Valve', kg:'4 Bar', done:false, active:false, btn:false, skip:false, pwd:false},
+      {id:'ice',   ico:'🚿', name:'Valve Ice Water', kg:isJelly2?'CLOSE':'OPEN', done:false, active:false, btn:false, skip:false, pwd:false},
+      {id:'agit',  ico:'🔄', name:'Agitator', kg:'OPEN', done:false, active:false, btn:false, skip:false, pwd:false},
+      {id:'temp',  ico:'🌡', name:'After Temp', kg:'Control '+tempRange+' °C', done:false, active:false, btn:false, skip:false, pwd:false},
+      {id:'past',  ico:'♨️', name:'Pasteurising', kg:'', done:false, active:false, btn:false, skip:false, pwd:false, isStatus:true},
+      {id:'aging', ico:'🪣', name:'Aging Tank', kg:row.aging_tank||'—', done:false, active:false, btn:false, skip:false, pwd:false, isStatus:true},
+      {id:'complete', ico:'✅', name:'เสร็จสิ้น', kg:'', done:false, active:false, btn:false, skip:false, pwd:false, isStatus:true},
+    ];
+  }
 
   // checklist fields
   const ck = row._ck||{};
@@ -870,11 +888,15 @@ function getPastProcessState(row){
   const started = !!row.past_start_time;
   const ended   = !!row.past_end_time;
   const submitted = st==='past_done'||st==='ready';
+  const mixDone = !!row.mix_end_time;
 
-  if(submitted)          return {id:'submitted', lbl:'✅ เสร็จสิ้น', cls:'b-done', color:'#059669', bg:'#d1fae5', anim:'none'};
-  if(ended && !submitted)return {id:'stamped',   lbl:'⏳ รอส่งข้อมูล', cls:'b-wait', color:'#d97706', bg:'#fef3c7', anim:'none'};
-  if(started && !ended)  return {id:'pasteurising', lbl:'♨️ PASTEURISING', cls:'b-past', color:'#ea580c', bg:'#ffedd5', anim:'glow-o'};
-  if(st==='pasteurising')return {id:'wait_past', lbl:'♨️ Pasteurise', cls:'b-past', color:'#ea580c', bg:'#ffedd5', anim:'glow-o'};
+  if(submitted)                return {id:'submitted',   lbl:'✅ เสร็จสิ้น',      cls:'b-done', color:'#059669', bg:'#d1fae5', anim:'none'};
+  if(ended && !submitted)      return {id:'stamped',     lbl:'⏳ รอส่งข้อมูล',   cls:'b-wait', color:'#d97706', bg:'#fef3c7', anim:'none'};
+  if(started && !ended)        return {id:'pasteurising',lbl:'♨️ PASTEURISING',   cls:'b-past', color:'#ea580c', bg:'#ffedd5', anim:'glow-o'};
+  if(st==='pasteurising')      return {id:'wait_past',   lbl:'⏳ รอ Pasteurise', cls:'b-wait', color:'#3b82f6', bg:'#dbeafe', anim:'glow-b'};
+  if(mixDone && !started)      return {id:'wait_past',   lbl:'⏳ รอ Pasteurise', cls:'b-wait', color:'#3b82f6', bg:'#dbeafe', anim:'glow-b'};
+  if(st==='mixing')            return {id:'mixing',      lbl:'🔄 กำลังผสม',      cls:'b-mix',  color:'#f59e0b', bg:'#fef3c7', anim:'glow-y'};
+  if(st==='preparing'||st==='ready_mix') return {id:'preparing', lbl:'🔧 กำลังเตรียม', cls:'b-wait', color:'#f59e0b', bg:'#fef3c7', anim:'none'};
   return {id:'pending', lbl:'⏳ รอ Mixing', cls:'b-wait', color:'#94a3b8', bg:'#f1f5f9', anim:'none'};
 }
 
@@ -1059,9 +1081,17 @@ function renderTankVisual(m,rows){
   if(!el) return;
   const col = m==='p1'?'production_plans':'production_plans_m2';
 
-  // เหมือน mixing — หา row ของ Tank 1 และ Tank 2 เท่านั้น
-  const t1Row = rows.find(r=>(r.mixing_tank==='Tank 1'||r.mixing_tank==='T1')&&r.status!=='pending')||null;
-  const t2Row = rows.find(r=>(r.mixing_tank==='Tank 2'||r.mixing_tank==='T2')&&r.status!=='pending')||null;
+  // priority: mixing/pasteurising ก่อน past_done ก่อน pending
+  const statusPriority = st => {
+    if(st==='pasteurising') return 0;
+    if(st==='mixing') return 1;
+    if(st==='preparing'||st==='ready_mix') return 2;
+    if(st==='past_done'||st==='ready') return 3;
+    return 4;
+  };
+  const rowsSorted = [...rows].sort((a,b)=>statusPriority(a.status)-statusPriority(b.status));
+  const t1Row = rowsSorted.find(r=>(r.mixing_tank==='Tank 1'||r.mixing_tank==='T1'))||null;
+  const t2Row = rowsSorted.find(r=>(r.mixing_tank==='Tank 2'||r.mixing_tank==='T2'))||null;
 
   if(!t1Row&&!t2Row){
     el.innerHTML='<div style="padding:20px;text-align:center;font-family:var(--mono);font-size:12px;color:#64748b">ยังไม่มีรายการที่ต้อง Pasteurise</div>';
