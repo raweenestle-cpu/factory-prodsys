@@ -680,34 +680,39 @@ function buildStepHtml(st, i, stepsLen, pcol, rid){
   const isDone=st.done;
   const isSkip=st.skip;
   const isActive=st.active&&!isDone&&!isSkip;
+  const isCCP=st.isCCP;
   let cls='idle';
   if(isDone) cls='done';
   else if(isSkip) cls='skip';
   else if(isActive){
-    // กำหนด animation ตาม step id
     if(st.pwd) cls='active pwr';
-    else if(st.isStatus&&st.id==='wait_past') cls='active nxt'; // รอ Past = blue
-    else if(st.isStatus&&st.id==='pasteurising') cls='active nxt';
-    else if(st.isStatus&&st.id==='empty') cls='active nxt';
+    else if(st.isStatus) cls='active nxt';
+    else if(isCCP) cls='active pwr'; // CCP = orange pulse
     else cls='active';
   }
   let connCls='';
   if(isDone) connCls='done';
   else if(isActive) connCls=st.isStatus?'nxt':'active';
+
+  // btn — support custom label และ btnField
   let btnH='';
   if(st.btn&&isActive){
-    const bg=st.pwd?'pwr':'rw';
-    const lbl=st.pwd?'✅ Powder':'✅ Rework';
-    btnH=`<button class="tv3-fbtn ${bg}" onclick="window._cfm('${pcol}','${rid}','${st.id}')">${lbl}</button>`;
+    const bLabel = st.btnLabel||'✅ Confirm';
+    const bField = st.btnField||st.id;
+    const bg = isCCP?'#c2410c':st.pwd?'#c2410c':'#1d4ed8';
+    btnH=`<button class="tv3-fbtn" style="background:${bg}" onclick="window._pastCk('${pcol}','${rid}','${bField}')">${bLabel}</button>`;
   }
+
   let sv2='';
   if(st.id==='rw'&&isDone&&st.tanks) sv2=`<div class="tv3-sv2">${st.tanks} ถัง</div>`;
-  const snCls=isDone?'done':isActive?(st.pwd?'pwr':st.isStatus?'nxt':'active'):'';
+
+  const snCls=isDone?'done':isActive?(st.pwd?'pwr':st.isStatus?'nxt':isCCP?'pwr':'active'):'';
   const svCls=isDone?'done':isActive?(st.pwd?'pwr':'active'):'';
   const connHtml=i<stepsLen-1?`<div class="tv3-conn ${connCls}"></div>`:'';
+
   return `<div class="tv3-sw">
     <div class="tv3-step">
-      <div class="tv3-circle ${cls}"><span style="font-size:30px">${st.ico}</span></div>
+      <div class="tv3-circle ${cls}${isCCP&&isActive?' pwr':''}"><span style="font-size:28px">${st.ico}</span></div>
       <div class="tv3-sn ${snCls}">${st.name}</div>
       <div class="tv3-sv ${svCls}">${isSkip?'—':st.kg}</div>
       ${sv2}${btnH}
@@ -719,23 +724,126 @@ function buildStepHtml(st, i, stepsLen, pcol, rid){
 
 
 function buildStepsForPast(row){
-  // Flow สำหรับ pasteurize: เริ่ม → past → เสร็จ → aging → empty
   const steps = [];
-  const started = !!row.past_start_time;
-  const done = !!row.past_end_time;
-  const submitted = row.status === 'past_done' || row.status === 'ready';
-  
-  const tank = row.mixing_tank||'—';
+  const prod = window.productMap&&row.mix_code ? (window.productMap[row.mix_code]||{}) : {};
+  const ptype = prod.Type||prod.type||'';
+  const isJelly = ptype.toLowerCase().includes('jelly');
+  const homoS1 = prod.homo_stage1||prod.Homo_Stage1||'—';
+  const homoS2 = prod.homo_stage2||prod.Homo_Stage2||'—';
+  const tempRange = isJelly ? '38–42°C' : '0–4°C';
+  const iceWater = isJelly ? 'OFF' : 'ON';
+
+  const started  = !!row.past_start_time;
+  const ended    = !!row.past_end_time;
+  const submitted= row.status==='past_done'||row.status==='ready';
+
+  // checklist fields
+  const ck = row._ck||{};
+  const ckHomo1  = !!row.ck_homo1;
+  const ckHomo2  = !!row.ck_homo2;
+  const ckCPM    = !!row.ck_cpm;
+  const ckIce    = !!row.ck_ice;
+  const ckAgit   = !!row.ck_agit;
+  const ckTemp   = !!row.ck_temp;
+
+  // 1. MIXING TANK
   const tankDone = !!row.mixing_tank;
-  steps.push({id:'tank', ico:'🥛', name:'Mix Tank', kg:tank, done:tankDone, active:!tankDone, btn:false, skip:false, pwd:false, isStatus:false});
-  steps.push({id:'start', ico:'🚀', name:'เริ่ม Past.', kg:row.past_start_time||'', done:started, active:tankDone&&!started, btn:false, skip:false, pwd:false, isStatus:false});
-  steps.push({id:'past', ico:'♨️', name:'Pasteurising', kg:'', done:done, active:started&&!done, btn:false, skip:false, pwd:false, isStatus:true});
-  steps.push({id:'done', ico:'✅', name:'Past.เสร็จ', kg:row.past_end_time||'', done:done, active:false, btn:false, skip:false, pwd:false, isStatus:false});
-  steps.push({id:'submit', ico:'📤', name:'ส่งข้อมูล', kg:'', done:submitted, active:done&&!submitted, btn:false, skip:false, pwd:false, isStatus:false});
-  steps.push({id:'aging', ico:'🪣', name:'Aging Tank', kg:row.aging_tank||'—', done:submitted, active:done&&!submitted, btn:false, skip:false, pwd:false, isStatus:true});
-  steps.push({id:'empty', ico:'🏁', name:'เสร็จสิ้น', kg:'', done:false, active:submitted, btn:false, skip:false, pwd:false, isStatus:true});
+  steps.push({
+    id:'tank', ico:'🥛', name:'Mix Tank',
+    kg: row.mixing_tank||(row.volume_liter?row.volume_liter+' L':'—'),
+    done:tankDone, active:!tankDone,
+    btn:false, skip:false, pwd:false, isStatus:false
+  });
+
+  // 2. START PASTEURIZING
+  steps.push({
+    id:'start', ico:'🚀', name:'เริ่ม Past.',
+    kg:row.past_start_time||'',
+    done:started, active:tankDone&&!started,
+    btn:false, skip:false, pwd:false, isStatus:false
+  });
+
+  // 3. HOMOGENIZER S1
+  steps.push({
+    id:'homo1', ico:'⚙️', name:'Homo S1',
+    kg:homoS1?homoS1+' bar':'—',
+    done:ckHomo1, active:started&&!ckHomo1,
+    btn:true, btnLabel:'✅ S1', btnField:'ck_homo1',
+    skip:false, pwd:false, isStatus:false
+  });
+
+  // 4. HOMOGENIZER S2
+  steps.push({
+    id:'homo2', ico:'⚙️', name:'Homo S2',
+    kg:homoS2?homoS2+' bar':'—',
+    done:ckHomo2, active:ckHomo1&&!ckHomo2,
+    btn:true, btnLabel:'✅ S2', btnField:'ck_homo2',
+    skip:false, pwd:false, isStatus:false
+  });
+
+  // 5. CCP TEMP
+  steps.push({
+    id:'ccp', ico:'🌡️', name:'CCP Temp',
+    kg:'≥81.1°C',
+    done:ckCPM, active:ckHomo2&&!ckCPM,
+    btn:true, btnLabel:'✅ CCP OK', btnField:'ck_cpm',
+    skip:false, pwd:false, isStatus:false, isCCP:true
+  });
+
+  // 6. ICE WATER
+  steps.push({
+    id:'ice', ico: isJelly?'❌':'💧', name:'Ice Water',
+    kg:iceWater,
+    done:ckIce, active:ckCPM&&!ckIce,
+    btn:true, btnLabel:'✅ Ice OK', btnField:'ck_ice',
+    skip:false, pwd:false, isStatus:false
+  });
+
+  // 7. AGITATOR
+  steps.push({
+    id:'agit', ico:'🔄', name:'Agitator',
+    kg:'OPEN',
+    done:ckAgit, active:ckIce&&!ckAgit,
+    btn:true, btnLabel:'✅ Agit OK', btnField:'ck_agit',
+    skip:false, pwd:false, isStatus:false
+  });
+
+  // 8. POST TEMP
+  steps.push({
+    id:'temp', ico:'🌡', name:'Out Temp',
+    kg:tempRange,
+    done:ckTemp, active:ckAgit&&!ckTemp,
+    btn:true, btnLabel:'✅ Temp OK', btnField:'ck_temp',
+    skip:false, pwd:false, isStatus:false
+  });
+
+  // 9. PASTEURISING (running)
+  steps.push({
+    id:'past', ico:'♨️', name:'Pasteurising',
+    kg:row.past_start_time&&!ended?'กำลังทำ...':'',
+    done:ended, active:ckTemp&&!ended,
+    btn:false, skip:false, pwd:false, isStatus:true
+  });
+
+  // 10. AGING TANK
+  steps.push({
+    id:'aging', ico:'🪣', name:'Aging Tank',
+    kg:row.aging_tank||'—',
+    done:submitted, active:ended&&!submitted,
+    btn:false, skip:false, pwd:false, isStatus:true
+  });
+
+  // 11. COMPLETE
+  steps.push({
+    id:'complete', ico:'🏁', name:'เสร็จสิ้น',
+    kg:row.past_end_time||'',
+    done:false, active:submitted,
+    btn:false, skip:false, pwd:false, isStatus:true
+  });
+
   return steps;
 }
+
 
 function getPastProcessState(row){
   if(!row) return {id:'empty', lbl:'🏁 EMPTY', cls:'b-wait', color:'#94a3b8', bg:'#f1f5f9', anim:'none'};
@@ -773,12 +881,31 @@ function renderPastCard(row, i, col, p){
       <div class="tv3-st"><span class="badge ${ps.cls}" style="font-size:13px;padding:8px 18px">${ps.lbl}</span></div>
     </div>
     <div class="tv3-body">
-      <div class="tv3-flow" style="flex:1;padding:20px 24px;display:flex;align-items:center;background:#fff">
+      <div class="tv3-flow" style="flex:1;padding:16px 20px;display:flex;align-items:center;background:#fff;overflow-x:auto;min-height:140px">
         <div class="tv3-steps">${stepsHtml}</div>
       </div>
+      <div style="width:175px;flex-shrink:0;border-left:2px solid #e2e8f0;padding:12px;background:#f8fafc;display:flex;flex-direction:column;gap:4px">
+        <div style="font-family:var(--mono);font-size:9px;font-weight:900;color:#64748b;letter-spacing:1.5px;margin-bottom:4px">ข้อมูล Past.</div>
+        <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #e2e8f0"><span style="font-family:var(--mono);font-size:10px;color:#64748b">⏱ เริ่ม</span><span style="font-family:var(--mono);font-size:12px;font-weight:900;color:#111827">${row.past_start_time||'—'}</span></div>
+        <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #e2e8f0"><span style="font-family:var(--mono);font-size:10px;color:#64748b">⏹ เสร็จ</span><span style="font-family:var(--mono);font-size:12px;font-weight:900;color:#111827">${row.past_end_time||'—'}</span></div>
+        <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #e2e8f0"><span style="font-family:var(--mono);font-size:10px;color:#64748b">🪣 Aging</span><span style="font-family:var(--mono);font-size:12px;font-weight:900;color:#0891b2">${row.aging_tank||'—'}</span></div>
+        <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #e2e8f0"><span style="font-family:var(--mono);font-size:10px;color:#64748b">📊 Eff%</span><span style="font-family:var(--mono);font-size:12px;font-weight:900;color:#059669">${row.eff?row.eff+'%':'—'}</span></div>
+        <div style="display:flex;justify-content:space-between;padding:3px 0"><span style="font-family:var(--mono);font-size:10px;color:#64748b">🌡 CCP</span><span style="font-family:var(--mono);font-size:12px;font-weight:900;color:${row.past_start_time?'#ea580c':'#64748b'}">≥81.1°C</span></div>
+      </div>
     </div>
-  </div>`;
+  </div>\`;
 }
+
+window._pastCk=async function(pcol,rid,field){
+  const sig=sessionStorage.getItem('emp_sig')||'';
+  const name=sessionStorage.getItem('emp_name')||'';
+  const upd={[field]:true, [field+'_by']:name, [field+'_time']:nowHHMM(), updated_at:new Date().toISOString()};
+  if(sig) upd[field+'_sig']=sig;
+  try{
+    await updateDoc(doc(db,pcol,rid),upd);
+    toast('✅ บันทึก '+field,'green');
+  }catch(e){toast('❌ '+e.message,'red');}
+};
 
 function renderTankVisual(m,rows){
   const el = document.getElementById('tank-visual-'+m);
@@ -799,7 +926,13 @@ function renderTankVisual(m,rows){
     return;
   }
   
-  el.innerHTML = activeRows.map((row,i) => renderPastCard(row, i, col, m)).join('');
+  // แสดงทุก row ที่ active (pasteurising)
+  const displayRows = rows.filter(r=>
+    r.status==='pasteurising'||
+    (r.status==='past_done'&&!r.archived)||
+    (r.mix_end_time&&!r.past_end_time)
+  );
+  el.innerHTML = (displayRows.length?displayRows:activeRows).map((row,i) => renderPastCard(row, i, col, m)).join('');
   renderShiftChart(m);
 }
 
