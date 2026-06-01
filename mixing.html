@@ -52,8 +52,8 @@ nav{display:flex;align-items:center;height:52px;background:var(--s1);border-bott
 .page.on{display:block}
 
 /* TABLE */
-.tw{overflow-x:auto;border-radius:10px;border:1px solid var(--b1);margin-bottom:14px}
-table{width:100%;border-collapse:collapse;font-size:12px}
+.tw{overflow-x:auto;border-radius:12px;border:2px solid #e2e8f0;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+table{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed}
 tbody td{border-right:1px solid var(--b1);border-bottom:1px solid var(--b1);background:var(--s1);color:var(--text);font-weight:600}
 thead th{border-right:1px solid var(--b2)!important}
 tr:hover td{background:#e0e7ff!important}
@@ -298,6 +298,7 @@ tbody tr:nth-child(even) td{background:#fafbff}
 .tv3-sbtn.g{border:2px solid #10b981;background:#d1fae5;color:#065f46;font-size:12px}
 .tv3-sbtn.r{border:2px solid #ef4444;background:#fee2e2;color:#991b1b;font-size:12px}
 .tv3-sig{font-size:15px;background:none;border:2px dashed var(--b2);border-radius:9px;padding:5px 11px;cursor:pointer;color:var(--t2)}
+@keyframes mixingPulse{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,.6)}50%{box-shadow:0 0 0 8px rgba(245,158,11,0)}}
 @keyframes tv3gy{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,.7),0 0 0 0 rgba(245,158,11,.3)}50%{box-shadow:0 0 0 8px rgba(245,158,11,.2),0 0 0 16px rgba(245,158,11,0)}}
 @keyframes tv3go{0%,100%{box-shadow:0 0 0 0 rgba(234,88,12,.7),0 0 0 0 rgba(234,88,12,.3)}50%{box-shadow:0 0 0 8px rgba(234,88,12,.2),0 0 0 16px rgba(234,88,12,0)}}
 @keyframes tv3gb{0%,100%{box-shadow:0 0 0 0 rgba(37,99,235,.7),0 0 0 0 rgba(37,99,235,.3)}50%{box-shadow:0 0 0 8px rgba(37,99,235,.2),0 0 0 16px rgba(37,99,235,0)}}
@@ -306,6 +307,37 @@ tbody tr:nth-child(even) td{background:#fafbff}
 .tv3-sw{display:flex;align-items:center;flex:1;min-width:0}
 .tv3-sw:last-child{flex:0 0 auto}
 .tv3-conn{flex:1;height:3px;background:#cbd5e1;border-radius:2px;min-width:16px;margin:0 4px;align-self:center;margin-top:-28px}
+
+
+/* Table column widths */
+table td,table th{overflow:hidden;text-overflow:ellipsis}
+.col-seq{width:36px}
+.col-code{width:88px}
+.col-po{width:88px}
+.col-name{width:140px}
+.col-batch{width:52px}
+.col-vol{width:72px}
+.col-prep{width:150px}
+.col-tank{width:90px}
+.col-time{width:100px}
+.col-ing{width:58px}
+/* Row styles */
+tbody tr{border-bottom:1px solid #e2e8f0;transition:background .15s}
+tbody tr:hover{background:#f0f9ff!important}
+tbody tr.row-mixing{background:#fffbeb!important;border-left:4px solid #f59e0b}
+tbody tr.row-mixing td:first-child{border-left:none}
+tbody tr.row-past{background:#eff6ff!important;border-left:4px solid #3b82f6}
+tbody tr.row-done{background:#f0fdf4!important;opacity:.7;border-left:4px solid #10b981}
+/* Stamp btn */
+.stamp-btn{font-family:var(--mono);font-size:11px;font-weight:700;padding:5px 10px;border-radius:7px;cursor:pointer;white-space:nowrap;width:100%;text-align:center}
+.stamp-btn:not(.stamped){background:#fef3c7;border:1.5px solid #f59e0b;color:#92400e}
+.stamp-btn.stamped{background:#d1fae5;border:1.5px solid #10b981;color:#065f46}
+/* Act input */
+.act-input{font-family:var(--mono);font-size:12px;font-weight:700;width:58px;padding:4px 6px;border-radius:6px;border:1.5px solid #e2e8f0;background:#ffffff;color:#111827;text-align:right}
+.act-input:focus{border-color:#3b82f6;outline:none}
+/* Prep cell */
+.prep-cell{display:flex;flex-direction:column;gap:4px;padding:2px 0}
+.prep-status-row{display:flex;align-items:center;gap:6px;white-space:nowrap}
 
 </style>
 </head>
@@ -336,30 +368,42 @@ tbody tr:nth-child(even) td{background:#fafbff}
   </div>
   <div id="tank-visual-m1" style="margin-bottom:12px;overflow:hidden;position:relative;z-index:1"></div>
   <div class="tw" style="position:relative;z-index:2"><table>
+    <colgroup>
+      <col style="width:36px"><col style="width:86px"><col style="width:86px"><col style="width:140px">
+      <col style="width:46px"><col style="width:68px"><col style="width:148px"><col style="width:86px">
+      <col style="width:98px"><col style="width:98px">
+      <col style="width:54px"><col style="width:60px">
+      <col style="width:54px"><col style="width:60px">
+      <col style="width:54px"><col style="width:60px">
+      <col style="width:54px"><col style="width:60px">
+      <col style="width:54px"><col style="width:60px">
+      <col style="width:88px">
+    </colgroup>
     <thead>
       <tr>
-        <th rowspan="2">#</th><th rowspan="2">Mix Code</th><th rowspan="2" style="color:#111827">🔗 Process</th><th rowspan="2">Mix Name</th>
-        <th rowspan="2">Batch</th><th rowspan="2">Vol (L)</th><th rowspan="2" style="color:#111827">🔧 การเตรียม</th><th rowspan="2">Tank</th>
-        <th rowspan="2" style="color:#111827">⏱ เริ่มผสม</th>
-        <th rowspan="2" style="color:#111827">✅ ผสมเสร็จ</th>
-        <th colspan="2" style="text-align:center;background:#dde4ee;color:#111827;border-bottom:1px solid var(--b2)">🍬 GLUCOSE (kg)</th>
-        <th colspan="2" style="text-align:center;background:#dde4ee;color:#111827;border-bottom:1px solid var(--b2)">🧂 SUGAR (kg)</th>
-        <th colspan="2" style="text-align:center;background:#dde4ee;color:#111827;border-bottom:1px solid var(--b2)">🌴 PALM OIL (kg)</th>
-        <th colspan="2" style="text-align:center;background:#dde4ee;color:#111827;border-bottom:1px solid var(--b2)">🛢️ OIL MIX (kg)</th>
-        <th colspan="2" style="text-align:center;background:#dde4ee;color:#111827;border-bottom:1px solid var(--b2)">🥛 FAT MILK (kg)</th>
-        <th rowspan="2">Status</th>
+        <th rowspan="2" style="text-align:center">#</th>
+        <th rowspan="2">Code</th>
+        <th rowspan="2">Process</th>
+        <th rowspan="2">Mix Name</th>
+        <th rowspan="2" style="text-align:center">Batch</th>
+        <th rowspan="2" style="text-align:right">Vol (L)</th>
+        <th rowspan="2">🔧 การเตรียม</th>
+        <th rowspan="2">Tank</th>
+        <th rowspan="2" style="text-align:center">⏱ เริ่มผสม</th>
+        <th rowspan="2" style="text-align:center">⏹ ผสมเสร็จ</th>
+        <th colspan="2" style="text-align:center;border-bottom:2px solid #93c5fd;background:#dbeafe;color:#1e40af">🍬 GLUCOSE</th>
+        <th colspan="2" style="text-align:center;border-bottom:2px solid #fcd34d;background:#fef3c7;color:#92400e">🧂 SUGAR</th>
+        <th colspan="2" style="text-align:center;border-bottom:2px solid #6ee7b7;background:#d1fae5;color:#065f46">🌴 PALM OIL</th>
+        <th colspan="2" style="text-align:center;border-bottom:2px solid #f9a8d4;background:#fce7f3;color:#9d174d">🛢️ OIL MIX</th>
+        <th colspan="2" style="text-align:center;border-bottom:2px solid #c4b5fd;background:#ede9fe;color:#4c1d95">🥛 FAT MILK</th>
+        <th rowspan="2" style="text-align:center">Status</th>
       </tr>
       <tr>
-        <th style="background:var(--s2);color:var(--text);font-size:11px;color:#111827">Set</th>
-        <th style="background:var(--s2);color:var(--text);font-size:11px;color:#059669;border-right:2px solid #94a3b8">Actual ✅</th>
-        <th style="background:var(--s2);color:var(--text);font-size:11px;color:#111827">Set</th>
-        <th style="background:var(--s2);color:var(--text);font-size:11px;color:#059669;border-right:2px solid #94a3b8">Actual ✅</th>
-        <th style="background:var(--s2);color:var(--text);font-size:11px;color:#111827">Set</th>
-        <th style="background:var(--s2);color:var(--text);font-size:11px;color:#059669;border-right:2px solid #94a3b8">Actual ✅</th>
-        <th style="background:var(--s1);color:var(--text);font-size:11px;color:#111827">Set</th>
-        <th style="background:var(--s2);color:var(--text);font-size:11px;color:#059669;border-right:2px solid #94a3b8">Actual ✅</th>
-        <th style="background:var(--s2);color:var(--text);font-size:11px;color:#111827">Set</th>
-        <th style="background:var(--s2);color:var(--text);font-size:11px;color:#059669;border-right:2px solid #94a3b8">Actual ✅</th>
+        <th style="text-align:right;background:#dbeafe;color:#1e40af;font-size:10px;font-weight:900">Set</th><th style="text-align:right;background:#dbeafe;color:#059669;font-size:10px;font-weight:900">Actual</th>
+        <th style="text-align:right;background:#fef3c7;color:#92400e;font-size:10px;font-weight:900">Set</th><th style="text-align:right;background:#fef3c7;color:#059669;font-size:10px;font-weight:900">Actual</th>
+        <th style="text-align:right;background:#d1fae5;color:#065f46;font-size:10px;font-weight:900">Set</th><th style="text-align:right;background:#d1fae5;color:#059669;font-size:10px;font-weight:900">Actual</th>
+        <th style="text-align:right;background:#fce7f3;color:#9d174d;font-size:10px;font-weight:900">Set</th><th style="text-align:right;background:#fce7f3;color:#059669;font-size:10px;font-weight:900">Actual</th>
+        <th style="text-align:right;background:#ede9fe;color:#4c1d95;font-size:10px;font-weight:900">Set</th><th style="text-align:right;background:#ede9fe;color:#059669;font-size:10px;font-weight:900">Actual</th>
       </tr>
     </thead>
     <tbody id="tbody-m1"></tbody>
@@ -377,30 +421,42 @@ tbody tr:nth-child(even) td{background:#fafbff}
   </div>
   <div id="tank-visual-m2" style="margin-bottom:12px;overflow:hidden;position:relative;z-index:1"></div>
   <div class="tw" style="position:relative;z-index:2"><table>
+    <colgroup>
+      <col style="width:36px"><col style="width:86px"><col style="width:86px"><col style="width:140px">
+      <col style="width:46px"><col style="width:68px"><col style="width:148px"><col style="width:86px">
+      <col style="width:98px"><col style="width:98px">
+      <col style="width:54px"><col style="width:60px">
+      <col style="width:54px"><col style="width:60px">
+      <col style="width:54px"><col style="width:60px">
+      <col style="width:54px"><col style="width:60px">
+      <col style="width:54px"><col style="width:60px">
+      <col style="width:88px">
+    </colgroup>
     <thead>
       <tr>
-        <th rowspan="2">#</th><th rowspan="2">Mix Code</th><th rowspan="2" style="color:#111827">🔗 Process</th><th rowspan="2">Mix Name</th>
-        <th rowspan="2">Batch</th><th rowspan="2">Vol (L)</th><th rowspan="2" style="color:#111827">🔧 การเตรียม</th><th rowspan="2">Tank</th>
-        <th rowspan="2" style="color:#111827">⏱ เริ่มผสม</th>
-        <th rowspan="2" style="color:#111827">✅ ผสมเสร็จ</th>
-        <th colspan="2" style="text-align:center;background:#dde4ee;color:#111827;border-bottom:1px solid var(--b2)">🍬 GLUCOSE (kg)</th>
-        <th colspan="2" style="text-align:center;background:#dde4ee;color:#111827;border-bottom:1px solid var(--b2)">🧂 SUGAR (kg)</th>
-        <th colspan="2" style="text-align:center;background:#dde4ee;color:#111827;border-bottom:1px solid var(--b2)">🌴 PALM OIL (kg)</th>
-        <th colspan="2" style="text-align:center;background:#dde4ee;color:#111827;border-bottom:1px solid var(--b2)">🛢️ OIL MIX (kg)</th>
-        <th colspan="2" style="text-align:center;background:#dde4ee;color:#111827;border-bottom:1px solid var(--b2)">🥛 FAT MILK (kg)</th>
-        <th rowspan="2">Status</th>
+        <th rowspan="2" style="text-align:center">#</th>
+        <th rowspan="2">Code</th>
+        <th rowspan="2">Process</th>
+        <th rowspan="2">Mix Name</th>
+        <th rowspan="2" style="text-align:center">Batch</th>
+        <th rowspan="2" style="text-align:right">Vol (L)</th>
+        <th rowspan="2">🔧 การเตรียม</th>
+        <th rowspan="2">Tank</th>
+        <th rowspan="2" style="text-align:center">⏱ เริ่มผสม</th>
+        <th rowspan="2" style="text-align:center">⏹ ผสมเสร็จ</th>
+        <th colspan="2" style="text-align:center;border-bottom:2px solid #93c5fd;background:#dbeafe;color:#1e40af">🍬 GLUCOSE</th>
+        <th colspan="2" style="text-align:center;border-bottom:2px solid #fcd34d;background:#fef3c7;color:#92400e">🧂 SUGAR</th>
+        <th colspan="2" style="text-align:center;border-bottom:2px solid #6ee7b7;background:#d1fae5;color:#065f46">🌴 PALM OIL</th>
+        <th colspan="2" style="text-align:center;border-bottom:2px solid #f9a8d4;background:#fce7f3;color:#9d174d">🛢️ OIL MIX</th>
+        <th colspan="2" style="text-align:center;border-bottom:2px solid #c4b5fd;background:#ede9fe;color:#4c1d95">🥛 FAT MILK</th>
+        <th rowspan="2" style="text-align:center">Status</th>
       </tr>
       <tr>
-        <th style="background:var(--s2);color:var(--text);font-size:11px;color:#111827">Set</th>
-        <th style="background:var(--s2);color:var(--text);font-size:11px;color:#059669;border-right:2px solid #94a3b8">Actual ✅</th>
-        <th style="background:var(--s2);color:var(--text);font-size:11px;color:#111827">Set</th>
-        <th style="background:var(--s2);color:var(--text);font-size:11px;color:#059669;border-right:2px solid #94a3b8">Actual ✅</th>
-        <th style="background:var(--s2);color:var(--text);font-size:11px;color:#111827">Set</th>
-        <th style="background:var(--s2);color:var(--text);font-size:11px;color:#059669;border-right:2px solid #94a3b8">Actual ✅</th>
-        <th style="background:var(--s1);color:var(--text);font-size:11px;color:#111827">Set</th>
-        <th style="background:var(--s2);color:var(--text);font-size:11px;color:#059669;border-right:2px solid #94a3b8">Actual ✅</th>
-        <th style="background:var(--s2);color:var(--text);font-size:11px;color:#111827">Set</th>
-        <th style="background:var(--s2);color:var(--text);font-size:11px;color:#059669;border-right:2px solid #94a3b8">Actual ✅</th>
+        <th style="text-align:right;background:#dbeafe;color:#1e40af;font-size:10px;font-weight:900">Set</th><th style="text-align:right;background:#dbeafe;color:#059669;font-size:10px;font-weight:900">Actual</th>
+        <th style="text-align:right;background:#fef3c7;color:#92400e;font-size:10px;font-weight:900">Set</th><th style="text-align:right;background:#fef3c7;color:#059669;font-size:10px;font-weight:900">Actual</th>
+        <th style="text-align:right;background:#d1fae5;color:#065f46;font-size:10px;font-weight:900">Set</th><th style="text-align:right;background:#d1fae5;color:#059669;font-size:10px;font-weight:900">Actual</th>
+        <th style="text-align:right;background:#fce7f3;color:#9d174d;font-size:10px;font-weight:900">Set</th><th style="text-align:right;background:#fce7f3;color:#059669;font-size:10px;font-weight:900">Actual</th>
+        <th style="text-align:right;background:#ede9fe;color:#4c1d95;font-size:10px;font-weight:900">Set</th><th style="text-align:right;background:#ede9fe;color:#059669;font-size:10px;font-weight:900">Actual</th>
       </tr>
     </thead>
     <tbody id="tbody-m2"></tbody>
@@ -1021,14 +1077,15 @@ function renderPlan(m){
     // Stamp cell builder
     const stampCell=(field,time,label,color)=>{
       const hasTime=!!time;
-      return `<td style="min-width:130px;padding:5px 7px;white-space:nowrap">
-        <div style="display:flex;align-items:center;gap:4px">
-          <button class="stamp-btn ${hasTime?"stamped":""} ${isMixing&&field==="mix_start_time"?"mixing-pulse":""}"
-            style="flex:1;min-width:88px;font-size:11px"
+      const isActive=isMixing&&field==="mix_start_time";
+      return `<td style="padding:5px 8px;text-align:center;vertical-align:middle">
+        <div style="display:flex;align-items:center;justify-content:center;gap:3px">
+          <button class="stamp-btn ${hasTime?"stamped":""}" 
+            style="font-size:11px;font-weight:800;padding:5px 10px;border-radius:8px;cursor:pointer;${isActive?"animation:mixingPulse 1.2s ease-in-out infinite;":""}"
             onclick="stampTime('${col}','${row.id}','${field}','${m}')">
-            ⏱ ${hasTime?time:label}
+            ${hasTime?'⏱ '+time:'⏱ '+label}
           </button>
-          ${hasTime?`<button style="flex-shrink:0;font-size:10px;padding:4px 6px;border-radius:5px;border:1px solid rgba(255,255,255,.1);background:var(--s2);color:var(--t2);cursor:pointer" onclick="editTimePrompt('${col}','${row.id}','${field}','${time}')">✏️</button>`:""}
+          ${hasTime?`<button style="flex-shrink:0;font-size:11px;padding:4px 6px;border-radius:6px;border:1px solid #e2e8f0;background:#f8fafc;color:#64748b;cursor:pointer" onclick="editTimePrompt('${col}','${row.id}','${field}','${time}')">✏️</button>`:""}
         </div>
       </td>`;
     };
@@ -1039,67 +1096,51 @@ function renderPlan(m){
     else if(isDone) tr.classList.add("row-done");
 
     tr.innerHTML=`
-      <td><span class="cr">${i+1}</span></td>
-      <td><span style="font-family:var(--mono);font-weight:700;color:var(--blue2)">${row.mix_code||"—"}</span></td>
-      <td style="text-align:center"><span style="font-family:var(--mono);font-size:14px;font-weight:800;color:var(--cyan)">${row.process_order||'—'}</span></td>
-      <td><span style="font-family:var(--mono);font-weight:700;color:var(--blue2)">${row.mix_name||"—"}</span></td>
-      <td><span class="cr">${row.batch_no||"—"}</span></td>
-      <td><span style="font-family:var(--mono);color:var(--cyan)">${row.volume_liter||"—"}</span></td>
-      <td>
-        <select style="font-family:var(--mono);font-size:12px;padding:4px 8px;border-radius:6px;position:relative;z-index:10;background:var(--s2);color:var(--cyan);border:1px solid rgba(6,182,212,.3);cursor:pointer"
+      <td style="text-align:center;padding:8px 4px"><span style="font-family:var(--mono);font-size:13px;font-weight:900;color:#64748b">${i+1}</span></td>
+      <td style="padding:8px 6px"><span style="font-family:var(--mono);font-size:12px;font-weight:800;color:#111827">${row.mix_code||"—"}</span></td>
+      <td style="text-align:center;padding:8px 4px"><span style="font-family:var(--mono);font-size:12px;font-weight:900;color:#111827">${row.process_order||'—'}</span></td>
+      <td style="padding:8px 6px"><span style="font-family:var(--sans);font-size:13px;font-weight:800;color:#111827">${row.mix_name||"—"}</span></td>
+      <td style="text-align:center;padding:8px 4px"><span style="font-family:var(--mono);font-size:12px;font-weight:700;color:#111827">${row.batch_no||"—"}</span></td>
+      <td style="text-align:right;padding:8px 8px"><span style="font-family:var(--mono);font-size:13px;font-weight:900;color:#111827">${(+(row.volume_liter||0)).toLocaleString()}</span></td>
+      <td style="padding:6px 8px;vertical-align:middle">
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <div style="display:flex;align-items:center;gap:5px;flex-wrap:nowrap">
+            <select style="font-family:var(--mono);font-size:11px;font-weight:800;padding:4px 7px;border-radius:7px;cursor:pointer;flex-shrink:0;border:2px solid ${row.prep_status==='ready'?'#10b981':row.prep_status==='preparing'?'#f59e0b':row.prep_status==='not_ready'?'#ef4444':'#e2e8f0'};background:${row.prep_status==='ready'?'#d1fae5':row.prep_status==='preparing'?'#fef3c7':row.prep_status==='not_ready'?'#fee2e2':'#f8fafc'};color:${row.prep_status==='ready'?'#065f46':row.prep_status==='preparing'?'#92400e':row.prep_status==='not_ready'?'#991b1b':'#64748b'}"
+              onchange="window._setPrepStatus('${col}','${row.id}',this.value,this)">
+              <option value="">— สถานะ —</option>
+              <option value="preparing" ${row.prep_status==="preparing"?"selected":""}>🔄 กำลังเตรียม</option>
+              <option value="ready" ${row.prep_status==="ready"?"selected":""}>✅ พร้อม</option>
+              <option value="not_ready" ${row.prep_status==="not_ready"?"selected":""}>❌ ยังไม่เสร็จ</option>
+            </select>
+            ${row.prep_sig
+              ?`<img src="${row.prep_sig}" style="height:24px;max-width:44px;object-fit:contain;border:1.5px solid #10b981;border-radius:5px;flex-shrink:0" title="${row.prep_sig_name||''}">`
+              :row.prep_status==='ready'
+                ?`<button style="font-size:13px;padding:2px 6px;border-radius:6px;border:1.5px dashed #94a3b8;background:none;cursor:pointer;flex-shrink:0" onclick="window._stampPrepSig('${col}','${row.id}')">✍️</button>`
+                :''}
+          </div>
+          ${row.prep_sig_name?`<div style="font-family:var(--mono);font-size:9px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px">${row.prep_sig_name}</div>`:''}
+        </div>
+      </td>
+      <td style="padding:6px 8px;vertical-align:middle">
+        <select style="font-family:var(--mono);font-size:11px;font-weight:700;padding:5px 8px;border-radius:7px;background:#f8fafc;color:#111827;border:1.5px solid #e2e8f0;cursor:pointer;width:100%"
           onchange="_up('${col}','${row.id}','mixing_tank',this.value)">
-          <option value="">— เลือกถัง —</option>
+          <option value="">— ถัง —</option>
           <option value="Tank 1" ${row.mixing_tank==="Tank 1"?"selected":""}>Tank 1</option>
           <option value="Tank 2" ${row.mixing_tank==="Tank 2"?"selected":""}>Tank 2</option>
         </select>
       </td>
       ${stampCell("mix_start_time",row.mix_start_time,"Stamp เริ่ม","yellow")}
       ${stampCell("mix_end_time",row.mix_end_time,"Stamp เสร็จ","green")}
-      <td>
-        <span style="font-family:var(--mono);font-size:11px;color:var(--text);padding:2px 6px;min-width:66px;display:inline-block;text-align:right;font-family:var(--mono)">${row.glc_set||"—"}</span>
-      </td>
-      <td>
-        <div style="display:flex;align-items:center;gap:3px">
-          <input class="act-input" style="border-color:var(--b1)" type="number" step="0.1" value="${row.glc_actual||""}" placeholder="0"
-            onblur="saveActual('${col}','${row.id}','glc_actual',this.value,'${m}')">
-          ${row.glc_comment?`<span title="${row.glc_comment}" style="cursor:help;font-size:12px">⚠️</span>`:""}
-        </div>
-      </td>
-      <td>
-        <span style="font-family:var(--mono);font-size:11px;color:var(--text);padding:2px 6px;min-width:66px;display:inline-block;text-align:right;font-family:var(--mono)">${row.sgr_set||"—"}</span>
-      </td>
-      <td>
-        <div style="display:flex;align-items:center;gap:3px">
-          <input class="act-input" style="background:#fff;border-color:var(--b1);color:var(--text)" type="number" step="0.1" value="${row.sgr_actual||""}" placeholder="0"
-            onblur="saveActual('${col}','${row.id}','sgr_actual',this.value,'${m}')">
-          ${row.sgr_comment?`<span title="${row.sgr_comment}" style="cursor:help;font-size:12px">⚠️</span>`:""}
-        </div>
-      </td>
-      <td>
-        <span style="font-family:var(--mono);font-size:11px;color:#6b5530;padding:2px 6px;min-width:66px;display:inline-block;text-align:right;font-family:var(--mono)">${row.plm_set||"—"}</span>
-      </td>
-      <td>
-        <div style="display:flex;align-items:center;gap:3px">
-          <input class="act-input" style="background:#fff;border-color:var(--b1);color:var(--text)" type="number" step="0.1" value="${row.plm_actual||""}" placeholder="0"
-            onblur="saveActual('${col}','${row.id}','plm_actual',this.value,'${m}')">
-          ${row.plm_comment?`<span title="${row.plm_comment}" style="cursor:help;font-size:12px">⚠️</span>`:""}
-          
-        </div>
-      </td>
-      <!-- OIL MIX -->
-      <td><span style="font-family:var(--mono);font-size:11px;color:var(--text);padding:2px 6px;min-width:60px;display:inline-block;text-align:right">${row.oil_mix_set||"—"}</span></td>
-      <td><div style="display:flex;align-items:center;gap:3px">
-        <input class="act-input" style="background:#fff;border-color:var(--b1);color:var(--text)" type="number" step="0.1" value="${row.oil_mix_actual||""}" placeholder="0"
-          onblur="saveActual('${col}','${row.id}','oil_mix_actual',this.value,'${m}')">
-        
-      </div></td>
-      <!-- FAT MILK -->
-      <td><span style="font-family:var(--mono);font-size:11px;color:var(--text);padding:2px 6px;min-width:60px;display:inline-block;text-align:right">${row.fat_milk_set||"—"}</span></td>
-      <td><div style="display:flex;align-items:center;gap:3px">
-        <input class="act-input" style="background:#fff;border-color:var(--b1);color:var(--text)" type="number" step="0.1" value="${row.fat_milk_actual||""}" placeholder="0"
-          onblur="saveActual('${col}','${row.id}','fat_milk_actual',this.value,'${m}')">
-        
-      </div></td>
+      <td style="text-align:right;padding:6px 8px;background:#eff6ff"><span style="font-family:var(--mono);font-size:12px;font-weight:800;color:#1e40af">${row.glc_set||"—"}</span></td>
+      <td style="padding:4px 6px;background:#eff6ff"><div style="display:flex;align-items:center;gap:2px"><input class="act-input" style="background:#ffffff;border-color:#93c5fd;width:100%" type="number" step="0.1" value="${row.glc_actual||""}" placeholder="—" onblur="saveActual('${col}','${row.id}','glc_actual',this.value,'${m}')">${row.glc_comment?`<span title="${row.glc_comment}" style="cursor:help;font-size:11px">⚠️</span>`:""}</div></td>
+      <td style="text-align:right;padding:6px 8px;background:#fefce8"><span style="font-family:var(--mono);font-size:12px;font-weight:800;color:#92400e">${row.sgr_set||"—"}</span></td>
+      <td style="padding:4px 6px;background:#fefce8"><div style="display:flex;align-items:center;gap:2px"><input class="act-input" style="background:#ffffff;border-color:#fcd34d;width:100%" type="number" step="0.1" value="${row.sgr_actual||""}" placeholder="—" onblur="saveActual('${col}','${row.id}','sgr_actual',this.value,'${m}')">${row.sgr_comment?`<span title="${row.sgr_comment}" style="cursor:help;font-size:11px">⚠️</span>`:""}</div></td>
+      <td style="text-align:right;padding:6px 8px;background:#f0fdf4"><span style="font-family:var(--mono);font-size:12px;font-weight:800;color:#065f46">${row.plm_set||"—"}</span></td>
+      <td style="padding:4px 6px;background:#f0fdf4"><div style="display:flex;align-items:center;gap:2px"><input class="act-input" style="background:#ffffff;border-color:#6ee7b7;width:100%" type="number" step="0.1" value="${row.plm_actual||""}" placeholder="—" onblur="saveActual('${col}','${row.id}','plm_actual',this.value,'${m}')">${row.plm_comment?`<span title="${row.plm_comment}" style="cursor:help;font-size:11px">⚠️</span>`:""}</div></td>
+      <td style="text-align:right;padding:6px 8px;background:#fdf2f8"><span style="font-family:var(--mono);font-size:12px;font-weight:800;color:#9d174d">${row.oil_mix_set||"—"}</span></td>
+      <td style="padding:4px 6px;background:#fdf2f8"><input class="act-input" style="background:#ffffff;border-color:#f9a8d4;width:100%" type="number" step="0.1" value="${row.oil_mix_actual||""}" placeholder="—" onblur="saveActual('${col}','${row.id}','oil_mix_actual',this.value,'${m}')"></td>
+      <td style="text-align:right;padding:6px 8px;background:#f5f3ff"><span style="font-family:var(--mono);font-size:12px;font-weight:800;color:#4c1d95">${row.fat_milk_set||"—"}</span></td>
+      <td style="padding:4px 6px;background:#f5f3ff"><input class="act-input" style="background:#ffffff;border-color:#c4b5fd;width:100%" type="number" step="0.1" value="${row.fat_milk_actual||""}" placeholder="—" onblur="saveActual('${col}','${row.id}','fat_milk_actual',this.value,'${m}')"></td>
       <!-- SIGNATURE -->
       <td style="text-align:center;min-width:60px">
         ${row.mix_sig
