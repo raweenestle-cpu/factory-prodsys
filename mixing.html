@@ -330,7 +330,7 @@ tbody td input,tbody td select{color:#111827!important}
     <thead>
       <tr>
         <th rowspan="2">#</th><th rowspan="2">Mix Code</th><th rowspan="2" style="color:var(--cyan)">🔗 Process</th><th rowspan="2">Mix Name</th>
-        <th rowspan="2">Batch</th><th rowspan="2">Vol (L)</th><th rowspan="2">Tank</th>
+        <th rowspan="2">Batch</th><th rowspan="2">Vol (L)</th><th rowspan="2" style="color:#111827">🔧 การเตรียม</th><th rowspan="2">Tank</th>
         <th rowspan="2" style="color:var(--yellow)">⏱ เริ่มผสม</th>
         <th rowspan="2" style="color:var(--green)">✅ ผสมเสร็จ</th>
         <th colspan="2" style="text-align:center;background:var(--s2);color:var(--text);border-bottom:1px solid var(--b2)">🍬 GLUCOSE (kg)</th>
@@ -370,7 +370,7 @@ tbody td input,tbody td select{color:#111827!important}
     <thead>
       <tr>
         <th rowspan="2">#</th><th rowspan="2">Mix Code</th><th rowspan="2" style="color:var(--cyan)">🔗 Process</th><th rowspan="2">Mix Name</th>
-        <th rowspan="2">Batch</th><th rowspan="2">Vol (L)</th><th rowspan="2">Tank</th>
+        <th rowspan="2">Batch</th><th rowspan="2">Vol (L)</th><th rowspan="2" style="color:#111827">🔧 การเตรียม</th><th rowspan="2">Tank</th>
         <th rowspan="2" style="color:var(--yellow)">⏱ เริ่มผสม</th>
         <th rowspan="2" style="color:var(--green)">✅ ผสมเสร็จ</th>
         <th colspan="2" style="text-align:center;background:var(--s2);color:var(--text);border-bottom:1px solid var(--b2)">🍬 GLUCOSE (kg)</th>
@@ -968,7 +968,7 @@ function renderMixTanks(m, rows){
         <div class="tv3-hi">
           <div class="tv3-code">${row.mix_code||'—'} · PROCESS ${row.process_order||'—'}</div>
           <div class="tv3-name">${row.mix_name||'—'}</div>
-          <div class="tv3-meta">Batch ${row.batch_no||'—'} &nbsp;·&nbsp; <span style="font-size:18px;font-weight:900;color:#111827">${(+(row.volume_liter||0)).toLocaleString()} L</span> &nbsp;·&nbsp; ${tankLabel} &nbsp;·&nbsp; M${m==='m1'?'1':'2'}</div>
+          <div class="tv3-meta">Batch ${row.batch_no||'—'} &nbsp;·&nbsp; <span style="font-size:18px;font-weight:900;color:#111827">${(+(row.volume_liter||0)).toLocaleString()} L</span></div>
         </div>
         <div class="tv3-st"><span class="badge ${stInfo.cls}">${stInfo.lbl}</span></div>
       </div>
