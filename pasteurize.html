@@ -117,18 +117,18 @@
           <th rowspan="2" style="width:50px;text-align:center">Batch</th>
           <th rowspan="2" style="width:72px;text-align:right">Vol (L)</th>
           <th rowspan="2" style="width:88px">Tank</th>
-          <th rowspan="2" style="width:120px;color:var(--orange)">♨️ เริ่ม Past.</th>
+          <th rowspan="2" style="width:120px;color:#111827">♨️ เริ่ม Past.</th>
           <th colspan="2" style="text-align:center;background:#fff7ed;color:var(--orange);border-bottom:2px solid #fed7aa">⏱ เวลา Past.</th>
-          <th rowspan="2" style="width:72px;text-align:center;color:var(--green)">Eff%</th>
-          <th rowspan="2" style="width:120px;color:var(--cyan)">ส่งข้อมูล</th>
+          <th rowspan="2" style="width:72px;text-align:center;color:#111827">Eff%</th>
+          <th rowspan="2" style="width:120px;color:#111827">ส่งข้อมูล</th>
           <th colspan="3" style="text-align:center;background:#f0fdf4;color:var(--green);border-bottom:2px solid #bbf7d0">ค่าจริง ☑️</th>
-          <th rowspan="2" style="width:90px;color:var(--cyan)">🪣 Aging Tank</th>
-          <th rowspan="2" style="width:88px;color:var(--purple)">รหัสผลิต</th>
+          <th rowspan="2" style="width:90px;color:#111827">🪣 Aging Tank</th>
+          <th rowspan="2" style="width:88px;color:#111827">รหัสผลิต</th>
           <th rowspan="2" style="width:100px">Status</th>
         </tr>
         <tr>
           <th style="background:#fff7ed;color:var(--orange);font-size:10px;width:88px">🕐 คาดเสร็จ</th>
-          <th style="background:#fff7ed;color:var(--green);font-size:10px;width:120px">✅ Past.เสร็จ</th>
+          <th style="text-align:center;font-size:10px;font-weight:900;color:#059669">✅ Past.เสร็จ</th>
           <th style="background:#f0fdf4;color:var(--green);font-size:10px;width:58px">🍬 Glc</th>
           <th style="background:#f0fdf4;color:var(--yellow);font-size:10px;width:58px">🧂 Sgr</th>
           <th style="background:#f0fdf4;color:#065f46;font-size:10px;width:58px">🌴 Plm</th>
@@ -161,18 +161,18 @@
           <th rowspan="2" style="width:50px;text-align:center">Batch</th>
           <th rowspan="2" style="width:72px;text-align:right">Vol (L)</th>
           <th rowspan="2" style="width:88px">Tank</th>
-          <th rowspan="2" style="width:120px;color:var(--orange)">♨️ เริ่ม Past.</th>
+          <th rowspan="2" style="width:120px;color:#111827">♨️ เริ่ม Past.</th>
           <th colspan="2" style="text-align:center;background:#fff7ed;color:var(--orange);border-bottom:2px solid #fed7aa">⏱ เวลา Past.</th>
-          <th rowspan="2" style="width:72px;text-align:center;color:var(--green)">Eff%</th>
-          <th rowspan="2" style="width:120px;color:var(--cyan)">ส่งข้อมูล</th>
+          <th rowspan="2" style="width:72px;text-align:center;color:#111827">Eff%</th>
+          <th rowspan="2" style="width:120px;color:#111827">ส่งข้อมูล</th>
           <th colspan="3" style="text-align:center;background:#f0fdf4;color:var(--green);border-bottom:2px solid #bbf7d0">ค่าจริง ☑️</th>
-          <th rowspan="2" style="width:90px;color:var(--cyan)">🪣 Aging Tank</th>
-          <th rowspan="2" style="width:88px;color:var(--purple)">รหัสผลิต</th>
+          <th rowspan="2" style="width:90px;color:#111827">🪣 Aging Tank</th>
+          <th rowspan="2" style="width:88px;color:#111827">รหัสผลิต</th>
           <th rowspan="2" style="width:100px">Status</th>
         </tr>
         <tr>
           <th style="background:#fff7ed;color:var(--orange);font-size:10px;width:88px">🕐 คาดเสร็จ</th>
-          <th style="background:#fff7ed;color:var(--green);font-size:10px;width:120px">✅ Past.เสร็จ</th>
+          <th style="text-align:center;font-size:10px;font-weight:900;color:#059669">✅ Past.เสร็จ</th>
           <th style="background:#f0fdf4;color:var(--green);font-size:10px;width:58px">🍬 Glc</th>
           <th style="background:#f0fdf4;color:var(--yellow);font-size:10px;width:58px">🧂 Sgr</th>
           <th style="background:#f0fdf4;color:#065f46;font-size:10px;width:58px">🌴 Plm</th>
@@ -1439,20 +1439,20 @@ function renderPlan(p){
     else if(row.status==="pasteurising") tr.classList.add("row-wait");
 
     tr.innerHTML=`
-      <td><span class="cr">${i+1}</span></td>
-      <td><span style="font-family:var(--mono);font-weight:700">${row.mix_code||"—"}</span></td>
-      <td style="text-align:center"><span style="font-family:var(--mono);font-size:14px;font-weight:800;color:var(--cyan)">${row.process_order||'—'}</span></td>
-      <td><span style="font-family:var(--mono);font-weight:700;color:var(--blue2)">${row.mix_name||"—"}</span></td>
-      <td><span class="cr">${row.batch_no||"—"}</span></td>
-      <td><span style="font-family:var(--mono)">${row.volume_liter||"—"}</span></td>
+      <td style="text-align:center;padding:8px 4px"><span style="font-family:var(--mono);font-size:13px;font-weight:900;color:#64748b">${i+1}</span></td>
+      <td style="padding:8px 6px"><span style="font-family:var(--mono);font-size:12px;font-weight:800;color:#111827">${row.mix_code||"—"}</span></td>
+      <td style="text-align:center;padding:8px 4px"><span style="font-family:var(--mono);font-size:12px;font-weight:900;color:#111827">${row.process_order||'—'}</span></td>
+      <td style="padding:8px 6px"><span style="font-family:var(--sans);font-size:13px;font-weight:800;color:#111827">${row.mix_name||"—"}</span></td>
+      <td style="text-align:center;padding:8px 4px"><span style="font-family:var(--mono);font-size:12px;font-weight:700;color:#111827">${row.batch_no||"—"}</span></td>
+      <td style="text-align:right;padding:8px 8px"><span style="font-family:var(--mono);font-size:13px;font-weight:900;color:#111827">${(+(row.volume_liter||0)).toLocaleString()}</span></td>
 
       <td>
-        <span style="font-family:var(--mono);font-size:12px;font-weight:700;padding:3px 10px;border-radius:6px;background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.2);white-space:nowrap">${row.mixing_tank||"—"}</span>
+        <span style="font-family:var(--mono);font-size:12px;font-weight:800;color:#111827">${row.mixing_tank||"—"}</span>
       </td>
       ${(row.status==='pasteurising'||row.past_start_time)
         ? stampCell("past_start_time",row.past_start_time,"Stamp เริ่ม",!row.past_start_time,!canStampStart&&!row.past_start_time,blockReason)
         : `<td><span style="font-family:var(--mono);font-size:10px;color:var(--t3);padding:5px 8px">⏳ รอ Mixing</span></td>`}
-      <td><span style="font-family:var(--mono);font-size:12px;color:var(--cyan)">${estFinish}</span></td>
+      <td><span style="font-family:var(--mono);font-size:12px;color:#111827">${estFinish}</span></td>
       ${(row.status==='pasteurising'&&row.past_start_time)||row.past_end_time
         ? stampCell("past_end_time",row.past_end_time,"Stamp เสร็จ",false,false,'')
         : `<td><span style="font-family:var(--mono);font-size:10px;color:var(--t3)">—</span></td>`}
@@ -1639,7 +1639,7 @@ async function loadHistory(){
         <td style="font-family:var(--mono);font-size:11px;color:var(--t2)">${r.archived_date||'—'}</td>
         <td style="font-family:var(--mono);font-size:11px;color:var(--t2)">${r.archived_at||'—'}</td>
         <td style="font-family:var(--mono);font-weight:700">${r.mix_code||'—'}</td>
-        <td style="font-family:var(--mono);color:var(--cyan)">${r.process_order||'—'}</td>
+        <td style="font-family:var(--mono);color:#111827">${r.process_order||'—'}</td>
         <td>${r.mix_name||'—'}</td>
         <td style="font-family:var(--mono)">${r.volume_liter||'—'}</td>
         <td style="font-family:var(--mono);color:var(--t2)">${r.past_start_time||'—'} → ${r.past_end_time||'—'}</td>
