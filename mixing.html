@@ -258,9 +258,9 @@ tbody td input,tbody td select{color:#111827!important}
 .tv3-head{display:flex;align-items:stretch;border-bottom:2px solid var(--b1)}
 .tv3-seq{width:110px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:10px 6px;background:var(--s2);border-right:2px solid var(--b1);flex-shrink:0}
 .tv3-hi{flex:1;padding:11px 15px;background:var(--s2)}
-.tv3-code{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--cyan);letter-spacing:.4px;margin-bottom:2px}
-.tv3-name{font-family:var(--sans);font-size:17px;font-weight:800;color:var(--text);line-height:1.2}
-.tv3-meta{font-family:var(--mono);font-size:10px;font-weight:500;color:var(--t2);margin-top:3px}
+.tv3-code{font-family:var(--mono);font-size:13px;font-weight:800;color:#111827;letter-spacing:.4px;margin-bottom:3px}
+.tv3-name{font-family:var(--sans);font-size:22px;font-weight:900;color:#111827;line-height:1.2}
+.tv3-meta{font-family:var(--mono);font-size:13px;font-weight:700;color:#374151;margin-top:4px}
 .tv3-st{display:flex;align-items:center;justify-content:center;padding:0 18px;background:var(--s2);border-left:2px solid var(--b1);flex-shrink:0}
 .tv3-body{display:flex;align-items:stretch;min-height:130px}
 .tv3-tank{width:110px;flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:12px 6px;background:var(--s2);border-right:2px solid var(--b1)}
@@ -893,27 +893,59 @@ function renderMixTanks(m, rows){
 
   function stampStrip(row, tankLabel, pcol, rid){
     if(!row) return '';
+    const st=row.status||'';
+    // Pasteurising banner
+    if(st==='pasteurising'||st==='past_done'){
+      const isPastDone=st==='past_done';
+      const pastLine=row.filling_line||row.process_order||'';
+      const bgCol=isPastDone?'rgba(52,211,153,.15)':'rgba(96,165,250,.15)';
+      const borderCol=isPastDone?'rgba(52,211,153,.5)':'rgba(96,165,250,.5)';
+      const textCol=isPastDone?'#065f46':'#1e3a5f';
+      const ico=isPastDone?'✅':'🔵';
+      const lbl=isPastDone?'PASTEURISE เสร็จแล้ว':'กำลัง PASTEURISING';
+      const sub=row.mix_name?`${row.mix_name}${pastLine?' · '+pastLine:''}`:'';
+      return `<div class="tv3-stamp" style="background:${bgCol};border-top:2px solid ${borderCol};justify-content:center;gap:16px">
+        <span style="font-size:36px">${ico}</span>
+        <div>
+          <div style="font-family:var(--mono);font-size:18px;font-weight:900;color:${textCol}">${lbl}</div>
+          ${sub?`<div style="font-family:var(--mono);font-size:13px;font-weight:700;color:${textCol};opacity:.75;margin-top:2px">${sub}</div>`:''}
+        </div>
+      </div>`;
+    }
     const prepReady=(row.prep_status==='ready');
     const sig=row['sig_mix_start']
       ?`<img src="${row.sig_mix_start}" style="height:36px;width:100%;max-width:120px;object-fit:contain;border:1.5px solid rgba(52,211,153,.4);border-radius:8px;display:block" title="${row.sig_mix_start_name||''}">`
       :'<button class="tv3-sig" onclick="window._sigMix&&window._sigMix()">✍️</button>';
     let btns='';
     if(row.mix_start_time){
-      btns+=`<button class="tv3-sbtn g">⏱ Start ${row.mix_start_time}</button>`;
+      btns+=`<button class="tv3-sbtn g">⏱ Start ผสม</button>`;
     } else {
       const disabled=prepReady?'':'disabled title="ต้องเตรียมเสร็จก่อน"';
       btns+=`<button class="tv3-sbtn y" ${disabled} onclick="window._stampMixStart('${pcol}','${rid}','${m}')">⏱ Start ผสม</button>`;
     }
     if(row.mix_end_time){
-      btns+=`<button class="tv3-sbtn g">⏹ Stop ${row.mix_end_time}</button>`;
+      btns+=`<button class="tv3-sbtn g">⏹ Stop ผสม</button>`;
     } else {
-      btns+=`<button class="tv3-sbtn r" onclick="stampTime('${pcol}','${rid}','mix_end_time','${m}')">⏹ Stop ผสมเสร็จ</button>`;
+      btns+=`<button class="tv3-sbtn r" onclick="stampTime('${pcol}','${rid}','mix_end_time','${m}')">⏹ Stop ผสม</button>`;
     }
     return `<div class="tv3-stamp">${btns}${sig}</div>`;
   }
 
   function renderTankCard(row, tankLabel, seq, cap, pcol){
-    if(!row) return '';
+    // empty card
+    if(!row){
+      return `<div class="tv3-card" style="opacity:.6">
+        <div class="tv3-head">
+          <div class="tv3-seq"><div style="font-family:var(--mono);font-size:13px;font-weight:900;color:#111827;text-align:center;padding:0 4px">${tankLabel.toUpperCase()}</div></div>
+          <div class="tv3-hi">
+            <div class="tv3-code" style="color:#111827">— ไม่มีข้อมูล —</div>
+            <div class="tv3-name" style="color:#374151">ว่าง</div>
+            <div class="tv3-meta">—</div>
+          </div>
+          <div class="tv3-st"><span class="badge" style="background:rgba(100,116,139,.15);color:#374151;border:1.5px solid #475569;font-size:13px;padding:6px 16px">🏁 EMPTY</span></div>
+        </div>
+      </div>`;
+    }
     const st=row.status||'';
     const isDone=st==='past_done';
     const isMix=st==='mixing';
@@ -936,7 +968,7 @@ function renderMixTanks(m, rows){
         <div class="tv3-hi">
           <div class="tv3-code">${row.mix_code||'—'} · PROCESS ${row.process_order||'—'}</div>
           <div class="tv3-name">${row.mix_name||'—'}</div>
-          <div class="tv3-meta">Batch ${row.batch_no||'—'} &nbsp;·&nbsp; ${(+(row.volume_liter||0)).toLocaleString()} L &nbsp;·&nbsp; ${tankLabel} &nbsp;·&nbsp; M${m==='m1'?'1':'2'}</div>
+          <div class="tv3-meta">Batch ${row.batch_no||'—'} &nbsp;·&nbsp; <span style="font-size:18px;font-weight:900;color:#111827">${(+(row.volume_liter||0)).toLocaleString()} L</span> &nbsp;·&nbsp; ${tankLabel} &nbsp;·&nbsp; M${m==='m1'?'1':'2'}</div>
         </div>
         <div class="tv3-st"><span class="badge ${stInfo.cls}">${stInfo.lbl}</span></div>
       </div>
@@ -949,10 +981,10 @@ function renderMixTanks(m, rows){
   }
 
   const pcol=planCol(m);
+  // โชว์ทุกถังเสมอ ถ้าไม่มีของ = empty card
   let html='';
-  if(t1Row) html+=renderTankCard(t1Row,'Mix Tank 1',1,3000,pcol);
-  if(t2Row) html+=renderTankCard(t2Row,'Mix Tank 2',2,3500,pcol);
-  if(!t1Row&&!t2Row) html=`<div style="padding:20px 16px;color:var(--t3);font-family:var(--mono);font-size:12px">ยังไม่มีข้อมูลถัง</div>`;
+  html+=renderTankCard(t1Row,'Mix Tank 1',1,3000,pcol);
+  html+=renderTankCard(t2Row,'Mix Tank 2',2,3500,pcol);
   el.innerHTML=html;
 }
 
