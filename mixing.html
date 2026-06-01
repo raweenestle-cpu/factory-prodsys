@@ -22,8 +22,9 @@
   --bg:#e8ecf0;--s1:#f2f4f7;--s2:#e0e4ea;--s3:#1a2030;
   --b1:#1e2535;--b2:#2a3348;
   --text:#111827;--t2:#374151;--t3:#3d4560;
-  --blue:#3b82f6;--blue2:#60a5fa;
-  --green:#22c55e;--yellow:#eab308;--red:#ef4444;--cyan:#06b6d4;--purple:#a855f7;
+  --blue:#60a5fa;--blue2:#93c5fd;
+  --green:#34d399;--yellow:#fbbf24;--red:#f87171;--orange:#fb923c;--cyan:#22d3ee;--purple:#a855f7;
+  --sans:'Sarabun',sans-serif;
   --mono:'DM Mono',monospace;--sans:'Sarabun',sans-serif;
 }
 body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13px;min-height:100vh}
@@ -247,6 +248,55 @@ thead th{background:var(--s2);padding:8px 10px;text-align:left;white-space:nowra
 .flow-bar-row td{padding:4px 8px 8px!important;background:var(--s1)}
 @keyframes fba{0%,100%{box-shadow:0 0 0 0 rgba(29,78,216,.35)}50%{box-shadow:0 0 0 10px rgba(29,78,216,0)}}
 @keyframes fbao{0%,100%{box-shadow:0 0 0 0 rgba(194,65,12,.35)}50%{box-shadow:0 0 0 10px rgba(194,65,12,0)}}
+/* ===== TANK CARD v3 ===== */
+.tv3-card{background:var(--s1);border:2px solid var(--b1);border-radius:18px;overflow:hidden;margin-bottom:12px;transition:opacity .3s,filter .3s}
+.tv3-card.tv3-mixing{border-color:rgba(251,191,36,.5);box-shadow:0 0 0 1px rgba(251,191,36,.06) inset}
+.tv3-card.tv3-past{border-color:rgba(96,165,250,.5);box-shadow:0 0 0 1px rgba(96,165,250,.06) inset}
+.tv3-card.tv3-done{opacity:.36;filter:grayscale(65%);pointer-events:none}
+.tv3-head{display:flex;align-items:stretch;border-bottom:2px solid var(--b1)}
+.tv3-seq{width:56px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:30px;font-weight:900;color:var(--b2);background:var(--s2);border-right:2px solid var(--b1);flex-shrink:0}
+.tv3-hi{flex:1;padding:11px 15px;background:var(--s2)}
+.tv3-code{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--cyan);letter-spacing:.4px;margin-bottom:2px}
+.tv3-name{font-family:var(--sans);font-size:17px;font-weight:800;color:var(--text);line-height:1.2}
+.tv3-meta{font-family:var(--mono);font-size:10px;font-weight:500;color:var(--t2);margin-top:3px}
+.tv3-st{display:flex;align-items:center;justify-content:center;padding:0 18px;background:var(--s2);border-left:2px solid var(--b1);flex-shrink:0}
+.tv3-body{display:flex;align-items:stretch;min-height:130px}
+.tv3-tank{width:110px;flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:12px 6px;background:var(--s2);border-right:2px solid var(--b1)}
+.tv3-flow{flex:1;padding:14px 16px;overflow-x:auto;display:flex;align-items:center}
+.tv3-steps{display:flex;align-items:center;gap:0;flex-shrink:0}
+.tv3-sw{display:flex;align-items:center;flex-shrink:0}
+.tv3-step{display:flex;flex-direction:column;align-items:center;width:68px;gap:3px}
+.tv3-circle{width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;border:2.5px solid var(--b2);background:var(--s2);flex-shrink:0;transition:all .3s;position:relative}
+.tv3-circle.done{border-color:var(--green);background:rgba(52,211,153,.1)}
+.tv3-circle.done::after{content:'✓';position:absolute;bottom:-3px;right:-3px;font-size:10px;font-weight:900;color:var(--green);background:var(--s1);border-radius:50%;width:15px;height:15px;display:flex;align-items:center;justify-content:center;line-height:1;border:1.5px solid var(--green)}
+.tv3-circle.active{border-color:var(--yellow);background:rgba(251,191,36,.1);animation:tv3gy 1.4s ease-in-out infinite}
+.tv3-circle.pwr{border-color:var(--orange)!important;background:rgba(251,146,60,.1)!important;animation:tv3go 1.4s ease-in-out infinite!important}
+.tv3-circle.nxt{border-color:var(--blue)!important;background:rgba(96,165,250,.1)!important;animation:tv3gb 1.4s ease-in-out infinite!important}
+.tv3-circle.skip{opacity:.18;border-style:dashed;border-color:var(--b2)}
+.tv3-circle.idle{border-color:var(--b2);background:var(--s2)}
+.tv3-sn{font-family:var(--mono);font-size:9px;font-weight:700;text-align:center;color:var(--t3);line-height:1.3;max-width:68px}
+.tv3-sn.done{color:var(--green)}.tv3-sn.active{color:var(--yellow)}.tv3-sn.pwr{color:var(--orange)}.tv3-sn.nxt{color:var(--blue)}
+.tv3-sv{font-family:var(--mono);font-size:11px;font-weight:900;text-align:center;color:var(--t3)}
+.tv3-sv.done{color:var(--green)}.tv3-sv.active{color:var(--yellow)}.tv3-sv.pwr{color:var(--orange)}.tv3-sv2{font-family:var(--mono);font-size:9px;font-weight:700;text-align:center;color:var(--cyan);margin-top:-1px}
+.tv3-conn{width:14px;height:2.5px;background:var(--b2);flex-shrink:0;margin-bottom:26px;border-radius:2px}
+.tv3-conn.done{background:var(--green)}.tv3-conn.active{background:rgba(251,191,36,.35)}.tv3-conn.nxt{background:rgba(96,165,250,.35)}
+.tv3-fbtn{font-family:var(--mono);font-size:8px;font-weight:900;padding:3px 7px;border-radius:4px;border:none;cursor:pointer;color:#fff;white-space:nowrap;margin-top:2px}
+.tv3-fbtn.rw{background:#1d4ed8}.tv3-fbtn.pwr{background:#c2410c}
+.tv3-info{width:188px;flex-shrink:0;border-left:2px solid var(--b1);padding:12px;display:flex;flex-direction:column;gap:0;background:var(--s2)}
+.tv3-ir{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid rgba(45,58,82,.55)}
+.tv3-ir:last-child{border-bottom:none}
+.tv3-il{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--t3)}
+.tv3-iv{font-family:var(--mono);font-size:12px;font-weight:900;color:var(--text)}
+.tv3-iv.ok{color:var(--green)}.tv3-iv.warn{color:var(--yellow)}.tv3-iv.hot{color:var(--red)}.tv3-iv.info{color:var(--blue)}
+.tv3-stamp{display:flex;gap:7px;align-items:center;padding:9px 14px;border-top:2px solid var(--b1);background:var(--s2)}
+.tv3-sbtn{font-family:var(--mono);font-size:10px;font-weight:900;padding:7px 14px;border-radius:9px;cursor:pointer;white-space:nowrap;flex:1;text-align:center;letter-spacing:.3px}
+.tv3-sbtn.y{border:2px solid rgba(251,191,36,.45);background:rgba(251,191,36,.1);color:var(--yellow)}
+.tv3-sbtn.g{border:2px solid rgba(52,211,153,.4);background:rgba(52,211,153,.08);color:var(--green)}
+.tv3-sbtn.r{border:2px solid rgba(248,113,113,.4);background:rgba(248,113,113,.08);color:var(--red)}
+.tv3-sig{font-size:15px;background:none;border:2px dashed var(--b2);border-radius:9px;padding:5px 11px;cursor:pointer;color:var(--t2)}
+@keyframes tv3gy{0%,100%{box-shadow:0 0 0 0 rgba(251,191,36,.5)}50%{box-shadow:0 0 0 8px rgba(251,191,36,0)}}
+@keyframes tv3go{0%,100%{box-shadow:0 0 0 0 rgba(251,146,60,.5)}50%{box-shadow:0 0 0 8px rgba(251,146,60,0)}}
+@keyframes tv3gb{0%,100%{box-shadow:0 0 0 0 rgba(96,165,250,.5)}50%{box-shadow:0 0 0 8px rgba(96,165,250,0)}}
 </style>
 </head>
 <body>
@@ -656,20 +706,17 @@ function renderMixTanks(m, rows){
   const el=document.getElementById(`tank-visual-${m}`);
   if(!el)return;
 
-  const activeStatus=['mixing','pasteurising','past_done','waiting_past','ready','busy'];
   const t1Row=rows.find(r=>(r.mixing_tank==='Tank 1'||r.mixing_tank==='T1'||r.mixing_tank==='1')&&+(r.volume_liter||0)>0)||rows.find(r=>(r.mixing_tank==='Tank 1'||r.mixing_tank==='T1'||r.mixing_tank==='1'))||null;
   const t2Row=rows.find(r=>(r.mixing_tank==='Tank 2'||r.mixing_tank==='T2'||r.mixing_tank==='2')&&+(r.volume_liter||0)>0)||rows.find(r=>(r.mixing_tank==='Tank 2'||r.mixing_tank==='T2'||r.mixing_tank==='2'))||null;
 
-  
-function autoTextColor(hex){
-  if(!hex||hex[0]!=='#') return '#111827';
-  var r=parseInt(hex.slice(1,3),16)||0;
-  var g=parseInt(hex.slice(3,5),16)||0;
-  var b=parseInt(hex.slice(5,7),16)||0;
-  return (0.299*r+0.587*g+0.114*b)>160?'#111827':'#ffffff';
-}
+  function autoTextColor(hex){
+    if(!hex||hex[0]!=='#') return '#e2e8f0';
+    var r=parseInt(hex.slice(1,3),16)||0,g=parseInt(hex.slice(3,5),16)||0,b=parseInt(hex.slice(5,7),16)||0;
+    return (0.299*r+0.587*g+0.114*b)>160?'#111827':'#e2e8f0';
+  }
 
-  function tankSVG(row,label,cap){cap=cap||3000;
+  function tankSVG(row,cap){
+    cap=cap||3000;
     const st=row?.status||'';
     const totalVol=+(row?.volume_liter||0);
     const flowed=st==='pasteurising'||st==='past_done'?+(row?.current_vol||0):0;
@@ -679,76 +726,206 @@ function autoTextColor(hex){
     const isActive=['mixing','pasteurising','past_done','waiting_past','ready','busy'].includes(st);
     const pct=isActive&&vol>0?Math.min(100,(vol/cap)*100):0;
     const hasLiq=pct>0;
-    const sw=130,sh=290,bX=12,bY=50,bW=sw-24,bH=180;
-    const nW=22,nH=9,cW=30,cH=5;
-    const nX=bX+(bW-nW)/2,cX=bX+(bW-cW)/2;
-    const fillH=Math.max(0,(pct/100)*(bH-6)*0.92);
+    const sw=90,sh=200,bX=8,bY=38,bW=74,bH=130;
+    const fillH=Math.max(0,(pct/100)*(bH-4)*0.92);
     const wy=bY+bH-fillH;
-    const A=6,midY=bY+bH/2;
-    const uid='mx'+label.replace(/ /g,'')+(row?.mix_code||'').replace(/[^a-z0-9]/gi,'');
+    const A=5,midY=bY+bH/2;
+    const uid='tv3'+(row?.mix_code||'x').replace(/[^a-z0-9]/gi,'');
     const gid='g'+uid,cid='c'+uid;
-    // ถ้า hasLiq ให้ขอบและสีเห็นชัดเสมอ แม้ col เป็น default
-    const r2=parseInt(col.slice(1,3),16),g2=parseInt(col.slice(3,5),16),b2=parseInt(col.slice(5,7),16);
-    const bodyFill=hasLiq?'rgba('+r2+','+g2+','+b2+',.08)':'rgba(176,186,200,.25)';
-    const bodyStroke=hasLiq?col:'#94a3b8';
-    const tc='#111827';
-    // ถ้า col เป็น default และ hasLiq ให้ใช้สีน้ำเงินเข้มมองเห็นชัด
-    const colEff=hasLiq&&col==='#3b82f6'&&!prod.color?'#3b82f6':col;
-    const ST={mixing:'🔄 กำลังผสม',pasteurising:'🔵 Past.',past_done:'✅ เสร็จ',pending:'รอ'};
-    const stTxt=ST[st]||`${Math.round(pct)}%`;
-    const mixName=(row?.mix_name||'—').slice(0,14);
+    const r2=parseInt(col.slice(1,3),16)||0,g2=parseInt(col.slice(3,5),16)||0,b2=parseInt(col.slice(5,7),16)||0;
+    const ST2={mixing:'🔄',pasteurising:'🔵',past_done:'✅',pending:'⏳'};
+    const stTxt=ST2[st]||`${Math.round(pct)}%`;
+    const stLabel={mixing:'MIXING',pasteurising:'PAST.',past_done:'DONE',pending:'รอ'};
+    const stLbl=stLabel[st]||'';
     function waveD(yBase,amp,nc){
-      const W=bW*2,segW=W/(nc*2);
-      let d=`M${bX},${yBase}`;
-      for(let i=0;i<nc*2;i++){
-        const x1=bX+i*segW,x2=bX+(i+1)*segW;
-        const cy=i%2===0?yBase-amp:yBase+amp;
-        d+=` C${x1+segW*.4},${cy} ${x2-segW*.4},${cy} ${x2},${yBase}`;
-      }
+      const W=bW*2,segW=W/(nc*2);let d=`M${bX},${yBase}`;
+      for(let i=0;i<nc*2;i++){const x1=bX+i*segW,x2=bX+(i+1)*segW;const cy=i%2===0?yBase-amp:yBase+amp;d+=` C${x1+segW*.4},${cy} ${x2-segW*.4},${cy} ${x2},${yBase}`;}
       return d+` L${bX+W},${bY+bH} L${bX},${bY+bH} Z`;
     }
     let s=`<svg width="${sw}" height="${sh}" viewBox="0 0 ${sw} ${sh}" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto">`;
-    s+=`<defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${colEff}" stop-opacity=".6"/><stop offset="100%" stop-color="${colEff}" stop-opacity=".9"/></linearGradient><clipPath id="${cid}"><rect x="${bX-1}" y="${bY-1}" width="${bW+2}" height="${bH+2}" rx="13"/></clipPath></defs>`;
-    s+=`<text x="${sw/2}" y="${bY-nH-cH-18}" text-anchor="middle" font-family="DM Mono,monospace" font-size="10" fill="${tc}" font-weight="800">${mixName}</text>`;
-    s+=`<rect x="${nX}" y="${bY-nH}" width="${nW}" height="${nH+5}" rx="4" fill="${hasLiq?'#16a34a':'rgba(255,255,255,.12)'}" stroke="${bodyStroke}" stroke-width="1.5" stroke-opacity=".6"/>`;
-    s+=`<rect x="${cX}" y="${bY-nH-cH}" width="${cW}" height="${cH+3}" rx="4" fill="${hasLiq?'#16a34a':'rgba(255,255,255,.12)'}" stroke="${bodyStroke}" stroke-width="1.5" stroke-opacity=".5"/>`;
-    if(hasLiq) s+=`<circle cx="${sw/2}" cy="${bY-nH-2}" r="4" fill="#22c55e" opacity=".9"/><circle cx="${sw/2}" cy="${bY-nH-2}" r="4" fill="none" stroke="#22c55e" stroke-width="1.5" opacity="0"><animate attributeName="r" from="4" to="10" dur="1.5s" repeatCount="indefinite"/><animate attributeName="opacity" from="0.6" to="0" dur="1.5s" repeatCount="indefinite"/></circle>`;
-    s+=`<rect x="${bX}" y="${bY}" width="${bW}" height="${bH}" rx="12" fill="${bodyFill}" stroke="${bodyStroke}" stroke-width="1.5" stroke-opacity="${hasLiq?'.4':'.6'}"/>`;
+    s+=`<defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${col}" stop-opacity=".55"/><stop offset="100%" stop-color="${col}" stop-opacity=".9"/></linearGradient><clipPath id="${cid}"><rect x="${bX-1}" y="${bY-1}" width="${bW+2}" height="${bH+2}" rx="10"/></clipPath></defs>`;
+    // cap
+    s+=`<rect x="${bX+(bW-24)/2}" y="${bY-8}" width="24" height="10" rx="4" fill="${hasLiq?'#16a34a':'rgba(255,255,255,.1)'}" stroke="${hasLiq?col:'#475569'}" stroke-width="1.5" stroke-opacity=".7"/>`;
+    s+=`<rect x="${bX+(bW-14)/2}" y="${bY-14}" width="14" height="8" rx="3" fill="${hasLiq?'#16a34a':'rgba(255,255,255,.1)'}" stroke="${hasLiq?col:'#475569'}" stroke-width="1.5" stroke-opacity=".6"/>`;
+    if(hasLiq){
+      s+=`<circle cx="${sw/2}" cy="${bY-11}" r="4" fill="#22c55e" opacity=".9"/>`;
+      s+=`<circle cx="${sw/2}" cy="${bY-11}" r="4" fill="none" stroke="#22c55e" stroke-width="1.5"><animate attributeName="r" from="4" to="10" dur="1.6s" repeatCount="indefinite"/><animate attributeName="opacity" from=".7" to="0" dur="1.6s" repeatCount="indefinite"/></circle>`;
+    }
+    // body
+    s+=`<rect x="${bX}" y="${bY}" width="${bW}" height="${bH}" rx="10" fill="${hasLiq?`rgba(${r2},${g2},${b2},.07)`:'rgba(71,85,105,.2)'}" stroke="${hasLiq?col:'#475569'}" stroke-width="2" stroke-opacity="${hasLiq?'.35':'.5'}"/>`;
     if(hasLiq){
       s+=`<g clip-path="url(#${cid})">`;
       s+=`<rect x="${bX}" y="${wy+A}" width="${bW*2}" height="${bY+bH-(wy+A)}" fill="url(#${gid})"/>`;
-      s+=`<path d="${waveD(wy,A,3)}" fill="${col}" fill-opacity=".55"><animateTransform attributeName="transform" type="translate" from="0,0" to="${-bW},0" dur="2.8s" repeatCount="indefinite"/></path>`;
-      s+=`<path d="${waveD(wy,A*.6,4)}" fill="${col}" fill-opacity=".3"><animateTransform attributeName="transform" type="translate" from="${bW*.5},0" to="${-bW*.5},0" dur="4s" repeatCount="indefinite"/></path>`;
-      s+=`<ellipse cx="${bX+bW*.35}" cy="${wy-2}" rx="${bW*.12}" ry="2.5" fill="white" fill-opacity=".3"/></g>`;
+      s+=`<path d="${waveD(wy,A,3)}" fill="${col}" fill-opacity=".5"><animateTransform attributeName="transform" type="translate" from="0,0" to="${-bW},0" dur="2.8s" repeatCount="indefinite"/></path>`;
+      s+=`<path d="${waveD(wy,A*.6,4)}" fill="${col}" fill-opacity=".28"><animateTransform attributeName="transform" type="translate" from="${bW*.5},0" to="${-bW*.5},0" dur="4.2s" repeatCount="indefinite"/></path>`;
+      s+=`</g>`;
     }
-    s+=`<rect x="${bX}" y="${bY}" width="${bW}" height="${bH}" rx="12" fill="none" stroke="${bodyStroke}" stroke-width="2.5" stroke-opacity="${hasLiq?'.8':'.6'}"/>`;
-    s+=`<rect x="${bX+8}" y="${bY+bH}" width="8" height="14" rx="2" fill="rgba(255,255,255,.15)" stroke="${bodyStroke}" stroke-width="1" stroke-opacity=".6"/>`;
-    s+=`<rect x="${bX+bW-16}" y="${bY+bH}" width="8" height="14" rx="2" fill="rgba(255,255,255,.15)" stroke="${bodyStroke}" stroke-width="1" stroke-opacity=".6"/>`;
-    s+=`<rect x="${bX+3}" y="${bY+bH+13}" width="${bW-6}" height="5" rx="2" fill="rgba(255,255,255,.12)" stroke="${bodyStroke}" stroke-width="1" stroke-opacity=".5"/>`;
-    s+=`<text x="${sw/2}" y="${midY-4}" text-anchor="middle" font-family="DM Mono,monospace" font-size="18" fill="${tc}" font-weight="900">${hasLiq?vol.toLocaleString():'ว่าง'}</text>`;
+    s+=`<rect x="${bX}" y="${bY}" width="${bW}" height="${bH}" rx="10" fill="none" stroke="${hasLiq?col:'#475569'}" stroke-width="2.5" stroke-opacity="${hasLiq?'.75':'.6'}"/>`;
+    // legs
+    s+=`<rect x="${bX+6}" y="${bY+bH}" width="7" height="13" rx="2" fill="${hasLiq?`rgba(${r2},${g2},${b2},.2)`:'rgba(71,85,105,.3)'}" stroke="${hasLiq?col:'#475569'}" stroke-width="1.5" stroke-opacity=".5"/>`;
+    s+=`<rect x="${bX+bW-13}" y="${bY+bH}" width="7" height="13" rx="2" fill="${hasLiq?`rgba(${r2},${g2},${b2},.2)`:'rgba(71,85,105,.3)'}" stroke="${hasLiq?col:'#475569'}" stroke-width="1.5" stroke-opacity=".5"/>`;
+    s+=`<rect x="${bX+2}" y="${bY+bH+12}" width="${bW-4}" height="4" rx="2" fill="${hasLiq?`rgba(${r2},${g2},${b2},.15)`:'rgba(71,85,105,.2)'}" stroke="${hasLiq?col:'#475569'}" stroke-width="1" stroke-opacity=".4"/>`;
+    // text
+    s+=`<text x="${sw/2}" y="${midY-2}" text-anchor="middle" font-family="DM Mono,monospace" font-size="16" fill="${hasLiq?col:'#64748b'}" font-weight="900">${hasLiq?vol.toLocaleString():'ว่าง'}</text>`;
     if(hasLiq){
-      s+=`<text x="${sw/2}" y="${midY+10}" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="${tc}" opacity=".7">ลิตร / ${Math.round(pct)}%</text>`;
-      s+=`<rect x="${bX+8}" y="${midY+14}" width="${bW-16}" height="18" rx="9" fill="${col}" fill-opacity=".15" stroke="${col}" stroke-width="1.5" stroke-opacity=".4"/>`;
-      s+=`<text x="${sw/2}" y="${midY+27}" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="${col}" font-weight="900">${stTxt}</text>`;
+      s+=`<text x="${sw/2}" y="${midY+13}" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="${col}" font-weight="700" opacity=".75">ลิตร · ${Math.round(pct)}%</text>`;
+      s+=`<rect x="${bX+5}" y="${midY+17}" width="${bW-10}" height="13" rx="6" fill="${col}" fill-opacity=".12" stroke="${col}" stroke-width="1.5" stroke-opacity=".35"/>`;
+      s+=`<text x="${sw/2}" y="${midY+27}" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="${col}" font-weight="900">${stTxt} ${stLbl}</text>`;
     }
     s+=`</svg>`;
-    return`<div style="display:flex;flex-direction:column;align-items:center;gap:4px"><span style="font-family:DM Mono,monospace;font-size:11px;font-weight:800;color:${tc}">${label}</span>${s}</div>`;
+    return s;
   }
 
-  // หา active row เพื่อแสดง flow bar
-  const activeRow=rows.find(r=>r.status==='mixing'&&!r.mix_end_time);
-  const flowHtml=activeRow?`<div style="flex:1;min-width:0;border-left:2px solid var(--b1);padding-left:14px;display:flex;flex-direction:column;justify-content:center">
-    <div style="font-family:var(--mono);font-size:10px;font-weight:800;color:var(--t2);margin-bottom:8px">📋 Mixing Flow — Batch ${activeRow.batch_no||''}</div>
-    ${renderFlowBar(activeRow,planCol(m),activeRow.id)}
-  </div>`:'';
+  function buildStepHtml(st, i, stepsLen, pcol, rid){
+    const isDone=st.done;
+    const isSkip=st.skip;
+    const isActive=st.active&&!isDone&&!isSkip;
+    let cls='idle';
+    if(isDone) cls='done';
+    else if(isActive&&st.pwd) cls='active pwr';
+    else if(isActive) cls='active';
+    else if(isSkip) cls='skip';
+    let connCls='';
+    if(isDone) connCls='done';
+    else if(isActive) connCls='active';
+    // status steps (รอ Past / Pasteurising) ใช้ nxt
+    if(st.isStatus&&isActive) cls='nxt';
+    let btnH='';
+    if(st.btn&&isActive){
+      const bg=st.pwd?'pwr':'rw';
+      const lbl=st.pwd?'✅ Powder':'✅ Rework';
+      btnH=`<button class="tv3-fbtn ${bg}" onclick="window._cfm('${pcol}','${rid}','${st.id}')">${lbl}</button>`;
+    }
+    let sv2='';
+    if(st.id==='rw'&&isDone&&st.tanks) sv2=`<div class="tv3-sv2">${st.tanks} ถัง</div>`;
+    const snCls=isDone?'done':isActive?(st.pwd?'pwr':st.isStatus?'nxt':'active'):'';
+    const svCls=isDone?'done':isActive?(st.pwd?'pwr':'active'):'';
+    const connHtml=i<stepsLen-1?`<div class="tv3-conn ${connCls}"></div>`:'';
+    return `<div class="tv3-sw"><div class="tv3-step">
+      <div class="tv3-circle ${cls}"><span style="font-size:20px">${st.ico}</span></div>
+      <div class="tv3-sn ${snCls}">${st.name}</div>
+      <div class="tv3-sv ${svCls}">${isSkip?'—':st.kg}</div>
+      ${sv2}${btnH}
+    </div>${connHtml}</div>`;
+  }
 
-  el.innerHTML=`<div style="display:flex;gap:16px;padding:12px 16px;background:var(--s1);border:1px solid var(--b1);border-radius:12px;margin-bottom:4px;align-items:flex-start">
-    <div style="display:flex;gap:16px;flex-shrink:0">
-      ${tankSVG(t1Row,'Mixing 1',3000)}
-      ${tankSVG(t2Row,'Mixing 2',3500)}
-    </div>
-    ${flowHtml}
-  </div>`;
+  function buildStepsWithStatus(row, pcol, rid){
+    // build ingredient steps
+    var steps=buildFlowSteps(row);
+    // เพิ่ม tank count ใน rework
+    const rwKg=+(row.rework_kg||0);
+    if(rwKg>0){
+      const rwIdx=steps.findIndex(s=>s.id==='rw');
+      if(rwIdx>=0) steps[rwIdx].tanks=+(row.rework_tanks||0)||'';
+    }
+    // เพิ่ม status steps
+    const isMixDone=!!row.mix_end_time;
+    const st=row.status||'';
+    const isWaitPast=isMixDone&&(st==='pasteurising'||st==='past_done'||st==='waiting_past')&&!row.past_start_time;
+    const isPast=!!row.past_start_time&&st==='pasteurising';
+    const isPastDone=st==='past_done';
+    steps.push({id:'wait_past',ico:'⏳',name:'รอ Past.',kg:'',done:isWaitPast||isPast||isPastDone,active:isMixDone&&!isWaitPast&&!isPast&&!isPastDone,btn:false,skip:false,pwd:false,isStatus:true});
+    steps.push({id:'pasteurising',ico:'🔵',name:'Pasteurising',kg:row.past_start_time||'',done:isPastDone,active:isPast,btn:false,skip:false,pwd:false,isStatus:true});
+    steps.push({id:'empty',ico:'🏁',name:'Empty',kg:'',done:false,active:isPastDone,btn:false,skip:false,pwd:false,isStatus:true});
+    return steps;
+  }
+
+  function infoPanel(row){
+    if(!row) return `<div class="tv3-info"><div class="tv3-ir"><span class="tv3-il">—</span><span class="tv3-iv" style="color:var(--t3)">ว่าง</span></div></div>`;
+    const st=row.status||'';
+    const isPast=st==='pasteurising'||st==='past_done';
+    const prod=productMap[row.mix_code||'']||{};
+    // คำนวณ elapsed
+    let elapsed='—';
+    if(row.mix_start_time&&row.mix_end_time){
+      const t1=row.mix_start_time.split(':').map(Number);
+      const t2=row.mix_end_time.split(':').map(Number);
+      const m=(t2[0]*60+t2[1])-(t1[0]*60+t1[1]);
+      if(m>=0) elapsed=m+' min';
+    }
+    const items=[
+      {l:'⏱ เริ่มผสม',v:row.mix_start_time||'—',c:row.mix_start_time?'ok':'warn'},
+      {l:'⏱ ผสมเสร็จ',v:row.mix_end_time||'—',c:row.mix_end_time?'ok':'warn'},
+      {l:'⏳ ใช้เวลา',v:elapsed,c:row.mix_end_time?'ok':''},
+    ];
+    if(isPast){
+      items.push({l:'🌡 Past.เริ่ม',v:row.past_start_time||'—',c:row.past_start_time?'ok':'warn'});
+      items.push({l:'🌡 Past.เสร็จ',v:row.past_end_time||'—',c:row.past_end_time?'ok':'warn'});
+    } else {
+      items.push({l:'🧪 Homo Stage2',v:prod.homo_stage2||'—',c:''});
+    }
+    const glcOk=+(row.glc_set||0)<=0||+(row.glc_actual||0)>0;
+    const sgrOk=+(row.sgr_set||0)<=0||+(row.sgr_actual||0)>0;
+    if(+(row.glc_set||0)>0) items.push({l:'🍯 Glucose',v:`${row.glc_actual||'—'}/${row.glc_set}`,c:glcOk?'ok':'warn'});
+    if(+(row.sgr_set||0)>0) items.push({l:'🍬 Sugar',v:`${row.sgr_actual||'—'}/${row.sgr_set}`,c:sgrOk?'ok':'warn'});
+    if(+(row.plm_set||0)>0){const ok=+(row.plm_actual||0)>0;items.push({l:'🌴 Palm Oil',v:`${row.plm_actual||'—'}/${row.plm_set}`,c:ok?'ok':'warn'});}
+    else if(+(row.oil_mix_set||0)>0){const ok=+(row.oil_mix_actual||0)>0;items.push({l:'🛢️ Oil Mix',v:`${row.oil_mix_actual||'—'}/${row.oil_mix_set}`,c:ok?'ok':'warn'});}
+    else if(+(row.fat_milk_set||0)>0){const ok=+(row.fat_milk_actual||0)>0;items.push({l:'🥛 Fat Milk',v:`${row.fat_milk_actual||'—'}/${row.fat_milk_set}`,c:ok?'ok':'warn'});}
+    return `<div class="tv3-info">${items.map(it=>`<div class="tv3-ir"><span class="tv3-il">${it.l}</span><span class="tv3-iv ${it.c}">${it.v}</span></div>`).join('')}</div>`;
+  }
+
+  function stampStrip(row, tankLabel, pcol, rid){
+    if(!row) return '';
+    const st=row.status||'';
+    const isMix=st==='mixing';
+    const isPast=st==='pasteurising';
+    const isDone=st==='past_done';
+    const sig=row['sig_stop_san']?`<div style="font-family:var(--mono);font-size:9px;font-weight:700;color:var(--green);border:1.5px solid rgba(52,211,153,.35);border-radius:9px;padding:6px 12px;white-space:nowrap">✅ ${row.sig_stop_san_name||'signed'}</div>`:'<button class="tv3-sig" onclick="window._sigMix && window._sigMix()">✍️</button>';
+    let btns='';
+    if(row.mix_start_time){
+      btns+=`<button class="tv3-sbtn g">⏱ เริ่ม ${row.mix_start_time}</button>`;
+    } else {
+      btns+=`<button class="tv3-sbtn y" onclick="stampTime('${pcol}','${rid}','mix_start_time','${m}')">⏱ Stamp เริ่ม</button>`;
+    }
+    if(row.mix_end_time){
+      btns+=`<button class="tv3-sbtn g">✅ เสร็จ ${row.mix_end_time}</button>`;
+    } else {
+      btns+=`<button class="tv3-sbtn r" onclick="stampTime('${pcol}','${rid}','mix_end_time','${m}')">⏹ Stop ผสมเสร็จ</button>`;
+    }
+    return `<div class="tv3-stamp">${btns}${sig}</div>`;
+  }
+
+  function renderTankCard(row, tankLabel, seq, cap, pcol){
+    if(!row) return '';
+    const st=row.status||'';
+    const isDone=st==='past_done';
+    const isMix=st==='mixing';
+    const isPast=st==='pasteurising';
+    let cardCls='tv3-card';
+    if(isMix) cardCls+=' tv3-mixing';
+    else if(isPast) cardCls+=' tv3-past';
+    else if(isDone) cardCls+=' tv3-done';
+    const stMap={mixing:{lbl:'🔄 MIXING',cls:'b-mix'},pasteurising:{lbl:'🔵 PASTEURISING',cls:'b-past'},
+      past_done:{lbl:'✅ DONE',cls:'b-done'},pending:{lbl:'⏳ PENDING',cls:'b-wait'},
+      mixing_done:{lbl:'✅ ผสมเสร็จ',cls:'b-done'}};
+    const stInfo=stMap[st]||{lbl:st.toUpperCase(),cls:'b-wait'};
+    const steps=buildStepsWithStatus(row, pcol, row.id);
+    const stepsHtml=steps.map((st2,i)=>buildStepHtml(st2,i,steps.length,pcol,row.id)).join('');
+    return `<div class="${cardCls}">
+      <div class="tv3-head">
+        <div class="tv3-seq">${seq}</div>
+        <div class="tv3-hi">
+          <div class="tv3-code">${row.mix_code||'—'} · PROCESS ${row.process_order||'—'}</div>
+          <div class="tv3-name">${row.mix_name||'—'}</div>
+          <div class="tv3-meta">Batch ${row.batch_no||'—'} &nbsp;·&nbsp; ${(+(row.volume_liter||0)).toLocaleString()} L &nbsp;·&nbsp; ${tankLabel} &nbsp;·&nbsp; M${m==='m1'?'1':'2'}</div>
+        </div>
+        <div class="tv3-st"><span class="badge ${stInfo.cls}">${stInfo.lbl}</span></div>
+      </div>
+      <div class="tv3-body">
+        <div class="tv3-tank">${tankSVG(row, cap)}</div>
+        <div class="tv3-flow"><div class="tv3-steps">${stepsHtml}</div></div>
+        ${infoPanel(row)}
+      </div>
+      ${stampStrip(row, tankLabel, pcol, row.id)}
+    </div>`;
+  }
+
+  const pcol=planCol(m);
+  let html='';
+  if(t1Row) html+=renderTankCard(t1Row,'Mix Tank 1',1,3000,pcol);
+  if(t2Row) html+=renderTankCard(t2Row,'Mix Tank 2',2,3500,pcol);
+  if(!t1Row&&!t2Row) html=`<div style="padding:20px 16px;color:var(--t3);font-family:var(--mono);font-size:12px">ยังไม่มีข้อมูลถัง</div>`;
+  el.innerHTML=html;
 }
 
 function renderPlan(m){
