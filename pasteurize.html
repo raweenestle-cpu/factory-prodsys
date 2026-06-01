@@ -718,8 +718,9 @@ function buildStepHtml(st, i, stepsLen, pcol, rid){
       ? `<div class="tv3-step" style="width:100px">${_svgAg}<div class="tv3-sn ${snCls}" style="margin-top:4px">${st.name}</div><div class="tv3-sv ${svCls}">${st.kg}</div></div>`
       : `<div class="tv3-step"><div class="tv3-circle ${cls}"><span style="font-size:28px">${st.ico}</span></div><div class="tv3-sn ${snCls}">${st.name}</div><div class="tv3-sv ${svCls}">${st.kg}</div></div>`;
   } else {
+    const ccpStyle = st.isCCP&&st.autoDone ? 'background:#d1fae5;border-color:#10b981;border-width:3px' : '';
     nodeHtml = `<div class="tv3-step">
-      <div class="tv3-circle ${cls}${isCCP&&isActive?' pwr':''}"><span style="font-size:28px">${st.ico}</span></div>
+      <div class="tv3-circle ${cls}" style="${ccpStyle}"><span style="font-size:28px">${st.ico}</span></div>
       <div class="tv3-sn ${snCls}">${st.name}</div>
       <div class="tv3-sv ${svCls}">${isSkip?'—':st.kg}</div>
       ${st.kg2?`<div class="tv3-sv ${svCls}" style="font-size:10px">${st.kg2}</div>`:''}
@@ -786,13 +787,14 @@ function buildStepsForPast(row){
     skip:false, pwd:false, isStatus:false
   });
 
-  // 4. CCP TEMP
+  // 4. CCP TEMP — ผ่านอัตโนมัติเมื่อ Homo confirm แล้ว
+  const ccpAuto = ckHomo; // CCP ผ่านอัตโนมัติ
   steps.push({
     id:'ccp', ico:'🌡️', name:'CCP Temp',
     kg:'≥81.1°C',
-    done:ckCPM, active:ckHomo&&!ckCPM,
-    btn:true, btnLabel:'✅ CCP OK', btnField:'ck_cpm',
-    skip:false, pwd:false, isStatus:false, isCCP:true
+    done:ccpAuto, active:false,
+    autoDone:ccpAuto,
+    btn:false, skip:false, pwd:false, isStatus:false, isCCP:true
   });
 
   // 5. CPM VALVE 4 BAR
@@ -800,7 +802,7 @@ function buildStepsForPast(row){
   steps.push({
     id:'cpm_valve', ico:'🔩', name:'CPM Valve',
     kg:'4 Bar',
-    done:ckCPMValve, active:ckCPM&&!ckCPMValve,
+    done:ckCPMValve, active:ccpAuto&&!ckCPMValve,
     btn:true, btnLabel:'✅ 4 Bar OK', btnField:'ck_cpm_valve',
     skip:false, pwd:false, isStatus:false
   });
@@ -823,28 +825,30 @@ function buildStepsForPast(row){
     skip:false, pwd:false, isStatus:false
   });
 
-  // 8. POST TEMP
+  // 8. AFTER TEMP CONTROL — auto pass เมื่อ Agitator confirm
+  const tempAuto = ckAgit;
   steps.push({
     id:'temp', ico:'🌡', name:'After Temp',
     kg:'Control '+tempRange+' °C',
-    done:ckTemp, active:ckAgit&&!ckTemp,
-    btn:true, btnLabel:'✅ Temp OK', btnField:'ck_temp',
-    skip:false, pwd:false, isStatus:false
+    done:tempAuto, active:false,
+    autoDone:tempAuto,
+    btn:false, skip:false, pwd:false, isStatus:false
   });
 
-  // 9. PASTEURISING (running)
+  // 9. PASTEURISING (running) — auto flow
   steps.push({
     id:'past', ico:'♨️', name:'Pasteurising',
     kg:row.past_start_time&&!ended?'กำลังทำ...':'',
-    done:ended, active:ckTemp&&!ended,
+    done:ended, active:tempAuto&&!ended,
     btn:false, skip:false, pwd:false, isStatus:true
   });
 
-  // 10. AGING TANK
+  // 10. AGING TANK — auto flow
   steps.push({
     id:'aging', ico:'🪣', name:'Aging Tank',
     kg:row.aging_tank||'—',
     done:submitted, active:ended&&!submitted,
+    autoDone:submitted,
     btn:false, skip:false, pwd:false, isStatus:true
   });
 
@@ -852,7 +856,7 @@ function buildStepsForPast(row){
   steps.push({
     id:'complete', ico:'✅', name:'เสร็จสิ้น',
     kg:row.past_end_time||'',
-    done:false, active:submitted,
+    done:submitted, active:!submitted&&ended,
     btn:false, skip:false, pwd:false, isStatus:true
   });
 
@@ -862,15 +866,15 @@ function buildStepsForPast(row){
 
 function getPastProcessState(row){
   if(!row) return {id:'empty', lbl:'🏁 EMPTY', cls:'b-wait', color:'#94a3b8', bg:'#f1f5f9', anim:'none'};
+  const st = row.status||'';
   const started = !!row.past_start_time;
-  const done = !!row.past_end_time;
-  const submitted = row.status==='past_done'||row.status==='ready';
-  const isWait = row.status==='pasteurising'&&!started;
-  
-  if(!started && isWait) return {id:'wait_past', lbl:'Pasteurise', cls:'b-past', color:'#ea580c', bg:'#ffedd5', anim:'glow-o'};
-  if(started && !done)   return {id:'pasteurising', lbl:'♨️ PASTEURISING', cls:'b-past', color:'#ea580c', bg:'#ffedd5', anim:'glow-o'};
-  if(done && !submitted) return {id:'done', lbl:'✅ Past.เสร็จ', cls:'b-done', color:'#059669', bg:'#d1fae5', anim:'none'};
-  if(submitted)          return {id:'submitted', lbl:'✅ เสร็จ', cls:'b-done', color:'#059669', bg:'#d1fae5', anim:'none'};
+  const ended   = !!row.past_end_time;
+  const submitted = st==='past_done'||st==='ready';
+
+  if(submitted)          return {id:'submitted', lbl:'✅ เสร็จสิ้น', cls:'b-done', color:'#059669', bg:'#d1fae5', anim:'none'};
+  if(ended && !submitted)return {id:'stamped',   lbl:'⏳ รอส่งข้อมูล', cls:'b-wait', color:'#d97706', bg:'#fef3c7', anim:'none'};
+  if(started && !ended)  return {id:'pasteurising', lbl:'♨️ PASTEURISING', cls:'b-past', color:'#ea580c', bg:'#ffedd5', anim:'glow-o'};
+  if(st==='pasteurising')return {id:'wait_past', lbl:'♨️ Pasteurise', cls:'b-past', color:'#ea580c', bg:'#ffedd5', anim:'glow-o'};
   return {id:'pending', lbl:'⏳ รอ Mixing', cls:'b-wait', color:'#94a3b8', bg:'#f1f5f9', anim:'none'};
 }
 
