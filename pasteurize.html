@@ -1038,7 +1038,7 @@ function updateDayLabel(p){
   const days=['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัส','ศุกร์','เสาร์'];
   const months=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
   const dt=new Date(d.value);
-  lbl.textContent=`วัน${days[dt.getDay()]} ${dt.getDate()} ${months[dt.getMonth()]} ${dt.getFullYear()+543}`;
+  lbl.textContent='วัน'+days[dt.getDay()]+' '+dt.getDate()+' '+months[dt.getMonth()]+' '+(dt.getFullYear()+543);
 }
 window.loadPlan=(p)=>{
   updateDayLabel(p);
