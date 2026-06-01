@@ -248,6 +248,7 @@ const db   = getFirestore(app);
 
 let ME=null, productMap={}, lineMap={};
 let rows={p1:[],p2:[]};
+window._rows=rows; // expose ให้ทุก function ใช้ได้
 // expose globals สำหรับ interval และ debug
 window._rows=rows;
 window._productMap=productMap;
@@ -383,7 +384,7 @@ setInterval(async()=>{
       const agVol=totalMin>0?Math.min(totalVol,(elapsedMin/totalMin)*totalVol):0;
 
       // รวม current_vol จาก batch อื่นที่ process_order + aging_tank เดียวกัน (past_done แล้ว)
-      const allRows=[...(window._rows['p1']||[]),...(window._rows['p2']||[])];
+      const allRows=[...(rows['p1']||[]),...(rows['p2']||[])];
       let prevVol=0;
       if(agRow.process_order&&agRow.aging_tank){
         prevVol=allRows
@@ -468,12 +469,17 @@ setInterval(async()=>{
             const nextRow=allRows
               .filter(r=>
                 r.process_order===agRow.process_order&&
-                r.aging_tank===agRow.aging_tank&&
+                // aging_tank เดียวกัน หรือยังไม่ได้กำหนด (จะใช้อันเดียวกัน)
+                (!r.aging_tank||r.aging_tank===agRow.aging_tank)&&
                 r.id!==agRow.id&&
                 !r.past_start_time&&
-                (r.status==='pending'||r.status==='mixing'||r.status==='pasteurising')
+                (r.status==='pending'||r.status==='mixing'||r.status==='pasteurising'||r.status==='ready_mix')
               )
               .sort((a,b)=>(a.seq||0)-(b.seq||0))[0];
+            // ถ้า nextRow ยังไม่มี aging_tank ให้ inherit จาก agRow
+            if(nextRow&&!nextRow.aging_tank){
+              await updateDoc(doc(db,planCol(p),nextRow.id),{aging_tank:agRow.aging_tank});
+            }
             if(nextRow){
               // คำนวณ prevVol สะสมจาก batch ที่ past_done แล้ว
               const prevCumVol=allRows
@@ -1444,21 +1450,54 @@ function renderPlan(p){
     const target999Sec=reqSec>0?Math.round(reqSec/0.999):0; // เวลาที่ได้ Eff=99.9%
     const targetLabel=target999Sec>0?fmtMS(target999Sec):'—';
     // Efficiency — แสดง real-time ระหว่าง past. และหลัง stamp เสร็จ
+    // คำนวณ Eff% รวมทุก batch ใน process_order เดียวกัน
     let effHTML="—";
     if(row.past_start_time&&reqSec>0){
-      const[sh,sm,ss]=(row.past_start_time+':00').split(":").map(Number);
-      const startSec2=sh*3600+sm*60+(ss||0);
-      const endTime=row.past_end_time||nowHHMM();
-      const[eh,em,es]=(endTime+':00').split(":").map(Number);
-      let actualSec=(eh*3600+em*60+(es||0))-startSec2;
-      if(actualSec<0)actualSec+=86400;
-      const actualMin2=actualSec/60;
-      const eff=actualSec>0?(reqSec/actualSec*100):0;
-      const effColor=eff>=99.9&&eff<=100.5?"#059669":eff>100.5?"#ea580c":"#dc2626";
-      const effLabel=eff>=99.9&&eff<=100.5?"✅":eff>100.5?"⚠️":"❌";
-      const actualFmt=fmtMS(Math.round(actualSec));
-      effHTML=`<div style="font-family:var(--mono);font-size:11px;font-weight:900;color:${effColor}">${effLabel} ${eff.toFixed(1)}%</div>
-        <div style="font-family:var(--mono);font-size:10px;color:#374151">⏱ ${actualFmt} / ${targetLabel}</div>`;
+      // หา batch ทั้งหมดใน process_order เดียวกัน
+      const allBatches=[...(rows['p1']||[]),...(rows['p2']||[])]
+        .filter(r=>r.process_order===row.process_order&&r.aging_tank===row.aging_tank&&!!r.past_start_time);
+
+      if(allBatches.length>1){
+        // รวม reqSec ทุก batch
+        const totalReqSec = allBatches.reduce((sum,r)=>{
+          const _p=(window.productMap||{})[r.mix_code||'']||{};
+          const _d=+((_p.density)||1);
+          const _s=p==='p1'?+(_p.speed_m1||_p.speed||0):+(_p.speed_m2||_p.speed||0);
+          const _v=+(r.volume_liter||0);
+          return sum+(_s>0?Math.round(_v*_d*3600/_s):0);
+        },0);
+        // เวลาเริ่มของ batch แรกสุด
+        const firstBatch=allBatches.sort((a,b)=>(a.seq||0)-(b.seq||0))[0];
+        const lastBatch=allBatches.sort((a,b)=>(b.seq||0)-(a.seq||0))[0];
+        const[sh2,sm2,ss2]=(firstBatch.past_start_time+':00').split(':').map(Number);
+        const startSec3=sh2*3600+sm2*60+(ss2||0);
+        const endRef=lastBatch.past_end_time||nowHHMM();
+        const[eh2,em2,es2]=(endRef+':00').split(':').map(Number);
+        let totalActualSec=(eh2*3600+em2*60+(es2||0))-startSec3;
+        if(totalActualSec<0) totalActualSec+=86400;
+        const eff=totalActualSec>0?(totalReqSec/totalActualSec*100):0;
+        const effColor=eff>=99.9&&eff<=100.5?"#059669":eff>100.5?"#ea580c":"#dc2626";
+        const effLabel=eff>=99.9&&eff<=100.5?"✅":eff>100.5?"⚠️":"❌";
+        const actualFmt=fmtMS(Math.round(totalActualSec));
+        const target999Total=totalReqSec>0?fmtMS(Math.round(totalReqSec/0.999)):'—';
+        effHTML=`<div style="font-family:var(--mono);font-size:11px;font-weight:900;color:${effColor}">${effLabel} ${eff.toFixed(1)}%</div>
+          <div style="font-family:var(--mono);font-size:10px;color:#374151">⏱ ${actualFmt} / ${target999Total}</div>
+          <div style="font-family:var(--mono);font-size:9px;color:#64748b">${allBatches.length} batch รวม</div>`;
+      } else {
+        // batch เดียว — คำนวณปกติ
+        const[sh,sm,ss]=(row.past_start_time+':00').split(':').map(Number);
+        const startSec2=sh*3600+sm*60+(ss||0);
+        const endTime=row.past_end_time||nowHHMM();
+        const[eh,em,es]=(endTime+':00').split(':').map(Number);
+        let actualSec=(eh*3600+em*60+(es||0))-startSec2;
+        if(actualSec<0)actualSec+=86400;
+        const eff=actualSec>0?(reqSec/actualSec*100):0;
+        const effColor=eff>=99.9&&eff<=100.5?"#059669":eff>100.5?"#ea580c":"#dc2626";
+        const effLabel=eff>=99.9&&eff<=100.5?"✅":eff>100.5?"⚠️":"❌";
+        const actualFmt=fmtMS(Math.round(actualSec));
+        effHTML=`<div style="font-family:var(--mono);font-size:11px;font-weight:900;color:${effColor}">${effLabel} ${eff.toFixed(1)}%</div>
+          <div style="font-family:var(--mono);font-size:10px;color:#374151">⏱ ${actualFmt} / ${targetLabel}</div>`;
+      }
     } else if(reqSec>0){
       effHTML=`<div style="font-family:var(--mono);font-size:10px;color:#64748b">เป้า ${targetLabel}</div>`;
     }
