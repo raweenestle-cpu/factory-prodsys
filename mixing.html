@@ -57,7 +57,9 @@ table{width:100%;border-collapse:collapse;font-size:12px}
 tbody td{border-right:1px solid var(--b1);border-bottom:1px solid var(--b1);background:var(--s1);color:var(--text);font-weight:600}
 thead th{border-right:1px solid var(--b2)!important}
 tr:hover td{background:#e0e7ff!important}
-thead th{background:var(--s2);padding:8px 10px;text-align:left;white-space:nowrap;font-family:var(--mono);font-size:11px;color:var(--text);font-weight:800;border-bottom:2px solid var(--b1);vertical-align:middle}
+thead th{background:var(--s2);padding:8px 10px;text-align:left;white-space:nowrap;font-family:var(--mono);font-size:12px;color:#111827;font-weight:900;border-bottom:2px solid var(--b1);vertical-align:middle}
+tbody td,tbody td span,tbody td *{color:#111827!important;font-weight:700!important}
+tbody td input,tbody td select{color:#111827!important}
 
 /* STATUS ROW COLORS */
 .row-mixing td{background:var(--s2)!important}
@@ -254,19 +256,19 @@ thead th{background:var(--s2);padding:8px 10px;text-align:left;white-space:nowra
 .tv3-card.tv3-past{border-color:rgba(96,165,250,.5);box-shadow:0 0 0 1px rgba(96,165,250,.06) inset}
 .tv3-card.tv3-done{opacity:.36;filter:grayscale(65%);pointer-events:none}
 .tv3-head{display:flex;align-items:stretch;border-bottom:2px solid var(--b1)}
-.tv3-seq{width:56px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:30px;font-weight:900;color:var(--b2);background:var(--s2);border-right:2px solid var(--b1);flex-shrink:0}
+.tv3-seq{width:110px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:8px 0;background:var(--s2);border-right:2px solid var(--b1);flex-shrink:0}
 .tv3-hi{flex:1;padding:11px 15px;background:var(--s2)}
-.tv3-code{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--cyan);letter-spacing:.4px;margin-bottom:2px}
-.tv3-name{font-family:var(--sans);font-size:19px;font-weight:800;color:var(--text);line-height:1.2}
-.tv3-meta{font-family:var(--mono);font-size:11px;font-weight:500;color:var(--t2);margin-top:3px}
+.tv3-code{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--cyan);letter-spacing:.4px;margin-bottom:2px}
+.tv3-name{font-family:var(--sans);font-size:17px;font-weight:800;color:var(--text);line-height:1.2}
+.tv3-meta{font-family:var(--mono);font-size:10px;font-weight:500;color:var(--t2);margin-top:3px}
 .tv3-st{display:flex;align-items:center;justify-content:center;padding:0 18px;background:var(--s2);border-left:2px solid var(--b1);flex-shrink:0}
 .tv3-body{display:flex;align-items:stretch;min-height:130px}
 .tv3-tank{width:110px;flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:12px 6px;background:var(--s2);border-right:2px solid var(--b1)}
-.tv3-flow{flex:1;padding:14px 16px;overflow-x:auto;display:flex;align-items:center;min-width:0}
-.tv3-steps{display:flex;align-items:center;gap:0;flex-shrink:0;flex-wrap:nowrap}
+.tv3-flow{flex:1;padding:14px 16px;overflow-x:auto;display:flex;align-items:center}
+.tv3-steps{display:flex;align-items:center;gap:0;flex-shrink:0}
 .tv3-sw{display:flex;align-items:center;flex-shrink:0}
-.tv3-step{display:flex;flex-direction:column;align-items:center;width:78px;gap:3px}
-.tv3-circle{width:58px;height:58px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;border:2.5px solid var(--b2);background:var(--s2);flex-shrink:0;transition:all .3s;position:relative}
+.tv3-step{display:flex;flex-direction:column;align-items:center;width:68px;gap:3px}
+.tv3-circle{width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;border:2.5px solid var(--b2);background:var(--s2);flex-shrink:0;transition:all .3s;position:relative}
 .tv3-circle.done{border-color:var(--green);background:rgba(52,211,153,.1)}
 .tv3-circle.done::after{content:'✓';position:absolute;bottom:-3px;right:-3px;font-size:10px;font-weight:900;color:var(--green);background:var(--s1);border-radius:50%;width:15px;height:15px;display:flex;align-items:center;justify-content:center;line-height:1;border:1.5px solid var(--green)}
 .tv3-circle.active{border-color:var(--yellow);background:rgba(251,191,36,.1);animation:tv3gy 1.4s ease-in-out infinite}
@@ -278,7 +280,7 @@ thead th{background:var(--s2);padding:8px 10px;text-align:left;white-space:nowra
 .tv3-sn.done{color:var(--green)}.tv3-sn.active{color:var(--yellow)}.tv3-sn.pwr{color:var(--orange)}.tv3-sn.nxt{color:var(--blue)}
 .tv3-sv{font-family:var(--mono);font-size:11px;font-weight:900;text-align:center;color:var(--t3)}
 .tv3-sv.done{color:var(--green)}.tv3-sv.active{color:var(--yellow)}.tv3-sv.pwr{color:var(--orange)}.tv3-sv2{font-family:var(--mono);font-size:9px;font-weight:700;text-align:center;color:var(--cyan);margin-top:-1px}
-.tv3-conn{width:14px;height:2.5px;background:var(--b2);flex-shrink:0;margin-bottom:26px;border-radius:2px}
+.tv3-conn{flex:1;min-width:10px;max-width:40px;height:2.5px;background:var(--b2);flex-shrink:0;margin-bottom:26px;border-radius:2px}
 .tv3-conn.done{background:var(--green)}.tv3-conn.active{background:rgba(251,191,36,.35)}.tv3-conn.nxt{background:rgba(96,165,250,.35)}
 .tv3-fbtn{font-family:var(--mono);font-size:8px;font-weight:900;padding:3px 7px;border-radius:4px;border:none;cursor:pointer;color:#fff;white-space:nowrap;margin-top:2px}
 .tv3-fbtn.rw{background:#1d4ed8}.tv3-fbtn.pwr{background:#c2410c}
@@ -294,24 +296,6 @@ thead th{background:var(--s2);padding:8px 10px;text-align:left;white-space:nowra
 .tv3-sbtn.g{border:2px solid rgba(52,211,153,.4);background:rgba(52,211,153,.08);color:var(--green)}
 .tv3-sbtn.r{border:2px solid rgba(248,113,113,.4);background:rgba(248,113,113,.08);color:var(--red)}
 .tv3-sig{font-size:15px;background:none;border:2px dashed var(--b2);border-radius:9px;padding:5px 11px;cursor:pointer;color:var(--t2)}
-.tv3-prep{border-top:2px solid var(--b1);padding:12px 16px;background:var(--s2);display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.prep-lbl{font-family:var(--mono);font-size:12px;font-weight:900;color:var(--t2);white-space:nowrap;flex-shrink:0}
-.prep-sel{font-family:var(--mono);font-size:13px;font-weight:900;padding:8px 14px;border-radius:10px;border:2px solid var(--b1);background:var(--s2);color:var(--text);cursor:pointer;flex-shrink:0}
-.prep-sel.ready{border-color:rgba(52,211,153,.5);color:var(--green);background:rgba(52,211,153,.08)}
-.prep-sel.notready{border-color:rgba(248,113,113,.5);color:var(--red);background:rgba(248,113,113,.08)}
-.prep-sig-lbl{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--t3);flex-shrink:0}
-.tv3-sbtn{font-family:var(--mono);font-size:11px;font-weight:900;padding:8px 16px;border-radius:10px;cursor:pointer;white-space:nowrap;flex:1;text-align:center;letter-spacing:.3px;min-width:120px}
-.tv3-sbtn.y{border:2px solid rgba(251,191,36,.45);background:rgba(251,191,36,.1);color:var(--yellow)}
-.tv3-sbtn.g{border:2px solid rgba(52,211,153,.4);background:rgba(52,211,153,.08);color:var(--green)}
-.tv3-sbtn.r{border:2px solid rgba(248,113,113,.4);background:rgba(248,113,113,.08);color:var(--red)}
-.tv3-sbtn:disabled{opacity:.3;cursor:not-allowed;pointer-events:none}
-.tv3-sn{font-family:var(--mono);font-size:10px;font-weight:700;text-align:center;color:var(--t3);line-height:1.3;max-width:68px}
-.tv3-sn.done{color:var(--green)}.tv3-sn.active{color:var(--yellow)}.tv3-sn.pwr{color:var(--orange)}.tv3-sn.nxt{color:var(--blue)}
-.tv3-sv{font-family:var(--mono);font-size:12px;font-weight:900;text-align:center;color:var(--t3)}
-.tv3-sv.done{color:var(--green)}.tv3-sv.active{color:var(--yellow)}.tv3-sv.pwr{color:var(--orange)}
-.tv3-il{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--t3)}
-.tv3-iv{font-family:var(--mono);font-size:13px;font-weight:900;color:var(--text)}
-.tv3-iv.ok{color:var(--green)}.tv3-iv.warn{color:var(--yellow)}.tv3-iv.hot{color:var(--red)}.tv3-iv.info{color:var(--blue)}
 @keyframes tv3gy{0%,100%{box-shadow:0 0 0 0 rgba(251,191,36,.5)}50%{box-shadow:0 0 0 8px rgba(251,191,36,0)}}
 @keyframes tv3go{0%,100%{box-shadow:0 0 0 0 rgba(251,146,60,.5)}50%{box-shadow:0 0 0 8px rgba(251,146,60,0)}}
 @keyframes tv3gb{0%,100%{box-shadow:0 0 0 0 rgba(96,165,250,.5)}50%{box-shadow:0 0 0 8px rgba(96,165,250,0)}}
@@ -346,7 +330,7 @@ thead th{background:var(--s2);padding:8px 10px;text-align:left;white-space:nowra
     <thead>
       <tr>
         <th rowspan="2">#</th><th rowspan="2">Mix Code</th><th rowspan="2" style="color:var(--cyan)">🔗 Process</th><th rowspan="2">Mix Name</th>
-        <th rowspan="2">Batch</th><th rowspan="2">Vol (L)</th><th rowspan="2" style="color:#fb923c">🔧 การเตรียม</th><th rowspan="2">Tank</th>
+        <th rowspan="2">Batch</th><th rowspan="2">Vol (L)</th><th rowspan="2">Tank</th>
         <th rowspan="2" style="color:var(--yellow)">⏱ เริ่มผสม</th>
         <th rowspan="2" style="color:var(--green)">✅ ผสมเสร็จ</th>
         <th colspan="2" style="text-align:center;background:var(--s2);color:var(--text);border-bottom:1px solid var(--b2)">🍬 GLUCOSE (kg)</th>
@@ -386,7 +370,7 @@ thead th{background:var(--s2);padding:8px 10px;text-align:left;white-space:nowra
     <thead>
       <tr>
         <th rowspan="2">#</th><th rowspan="2">Mix Code</th><th rowspan="2" style="color:var(--cyan)">🔗 Process</th><th rowspan="2">Mix Name</th>
-        <th rowspan="2">Batch</th><th rowspan="2">Vol (L)</th><th rowspan="2" style="color:#fb923c">🔧 การเตรียม</th><th rowspan="2">Tank</th>
+        <th rowspan="2">Batch</th><th rowspan="2">Vol (L)</th><th rowspan="2">Tank</th>
         <th rowspan="2" style="color:var(--yellow)">⏱ เริ่มผสม</th>
         <th rowspan="2" style="color:var(--green)">✅ ผสมเสร็จ</th>
         <th colspan="2" style="text-align:center;background:var(--s2);color:var(--text);border-bottom:1px solid var(--b2)">🍬 GLUCOSE (kg)</th>
@@ -673,10 +657,7 @@ function buildFlowSteps(row){
   var oilKg=+(row.oil_mix_set||0);
   var fatKg=+(row.fat_milk_set||0);
   // 1
-  var prepReady=row.prep_status==='ready';
-  var prepDone=prepReady&&!!row.prep_sig;
-  s.push({id:'prep',ico:'\uD83D\uDD27',name:'\u0E40\u0E15\u0E23\u0E35\u0E22\u0E21',kg:row.prep_sig_name||'',done:prepReady,active:!prepReady,btn:false,skip:false,pwd:false});
-  s.push({id:'start',ico:'\u{1F680}',name:'\u0E40\u0E23\u0E34\u0E48\u0E21\u0E1C\u0E2A\u0E21',kg:'',done:started,active:prepReady&&!started,btn:false,skip:false,pwd:false});
+  s.push({id:'start',ico:'\u{1F680}',name:'\u0E40\u0E23\u0E34\u0E48\u0E21\u0E1C\u0E2A\u0E21',kg:'',done:started,active:!started,btn:false,skip:false,pwd:false});
   // 2 rework
   if(rwKg>0){var d=!!row.rw_confirmed;s.push({id:'rw',ico:'\u267B\uFE0F',name:'Rework',kg:rwKg+' kg',done:d,active:p&&!d,btn:true,skip:false,pwd:false});p=p&&d;}
   else{s.push({id:'nrw',ico:'\uD83D\uDEAB',name:'No Rework',kg:'',done:false,active:false,btn:false,skip:true,pwd:false});}
@@ -716,32 +697,6 @@ function renderFlowBar(row,pcol,rid){
   return html;
 }
 
-window._setPrepStatus=async function(pcol,rid,val,sel){
-  sel.className='prep-sel'+(val==='ready'?' ready':val==='not_ready'?' notready':'');
-  const sig=sessionStorage.getItem('emp_sig')||'';
-  const name=sessionStorage.getItem('emp_name')||'';
-  const upd={prep_status:val,updated_at:new Date().toISOString()};
-  // ถ้าเลือก ready ให้ stamp ลายเซ็นอัตโนมัติ
-  if(val==='ready'&&sig){upd.prep_sig=sig;upd.prep_sig_name=name;}
-  try{await updateDoc(doc(db,pcol,rid),upd);toast('✅ บันทึกสถานะเตรียม','green');}
-  catch(e){toast('❌ '+e.message,'red');}
-};
-window._stampPrepSig=async function(pcol,rid){
-  const sig=sessionStorage.getItem('emp_sig')||'';
-  const name=sessionStorage.getItem('emp_name')||'';
-  if(!sig){toast('ไม่พบลายเซ็น กรุณา login ใหม่','red');return;}
-  try{await updateDoc(doc(db,pcol,rid),{prep_sig:sig,prep_sig_name:name,updated_at:new Date().toISOString()});toast('✅ บันทึกลายเซ็นผู้เตรียม','green');}
-  catch(e){toast('❌ '+e.message,'red');}
-};
-window._stampMixStart=async function(pcol,rid,m){
-  const sig=sessionStorage.getItem('emp_sig')||'';
-  const name=sessionStorage.getItem('emp_name')||'';
-  const n=nowHMS();
-  const upd={mix_start_time:n,status:'mixing',updated_at:new Date().toISOString()};
-  if(sig){upd.sig_mix_start=sig;upd.sig_mix_start_name=name;}
-  try{await updateDoc(doc(db,pcol,rid),upd);toast('▶ Start ผสม '+n,'green');}
-  catch(e){toast('❌ '+e.message,'red');}
-};
 window._cfm=async function(pcol,rid,field){
   var upd={updated_at:new Date().toISOString()};
   if(field==='rw') upd.rw_confirmed=true;
@@ -849,7 +804,7 @@ function renderMixTanks(m, rows){
     const svCls=isDone?'done':isActive?(st.pwd?'pwr':'active'):'';
     const connHtml=i<stepsLen-1?`<div class="tv3-conn ${connCls}"></div>`:'';
     return `<div class="tv3-sw"><div class="tv3-step">
-      <div class="tv3-circle ${cls}"><span style="font-size:24px">${st.ico}</span></div>
+      <div class="tv3-circle ${cls}"><span style="font-size:20px">${st.ico}</span></div>
       <div class="tv3-sn ${snCls}">${st.name}</div>
       <div class="tv3-sv ${svCls}">${isSkip?'—':st.kg}</div>
       ${sv2}${btnH}
@@ -911,44 +866,21 @@ function renderMixTanks(m, rows){
     return `<div class="tv3-info">${items.map(it=>`<div class="tv3-ir"><span class="tv3-il">${it.l}</span><span class="tv3-iv ${it.c}">${it.v}</span></div>`).join('')}</div>`;
   }
 
-  function prepStrip(row, pcol, rid){
-    if(!row) return '';
-    const prepStatus=row.prep_status||'';
-    const prepSig=row.prep_sig||'';
-    const prepName=row.prep_sig_name||'';
-    const isReady=prepStatus==='ready';
-    const isNotReady=prepStatus==='not_ready';
-    const selCls=isReady?'ready':isNotReady?'notready':'';
-    const sigHtml=prepSig
-      ?`<img src="${prepSig}" style="height:32px;max-width:70px;object-fit:contain;border:1.5px solid rgba(52,211,153,.4);border-radius:8px;background:var(--s2)" title="${prepName}">`
-      :(isReady?`<button class="tv3-sig" onclick="window._stampPrepSig('${pcol}','${rid}')">✍️ เซ็น</button>`:'<span style="font-family:var(--mono);font-size:10px;color:var(--t3)">— รอเลือกสถานะ —</span>');
-    return `<div class="tv3-prep">
-      <span class="prep-lbl">🔧 การเตรียม</span>
-      <select class="prep-sel ${selCls}" onchange="window._setPrepStatus('${pcol}','${rid}',this.value,this)">
-        <option value="">— เลือกสถานะ —</option>
-        <option value="ready" ${isReady?'selected':''}>✅ เตรียมเสร็จ</option>
-        <option value="not_ready" ${isNotReady?'selected':''}>❌ ยังไม่เสร็จ</option>
-      </select>
-      <span class="prep-sig-lbl">ลายเซ็นผู้เตรียม:</span>
-      ${sigHtml}
-    </div>`;
-  }
-
   function stampStrip(row, tankLabel, pcol, rid){
     if(!row) return '';
     const prepReady=(row.prep_status==='ready');
     const sig=row['sig_mix_start']
-      ?`<img src="${row.sig_mix_start}" style="height:32px;max-width:70px;object-fit:contain;border:1.5px solid rgba(52,211,153,.4);border-radius:8px;background:var(--s2)" title="${row.sig_mix_start_name||''}">`
+      ?`<img src="${row.sig_mix_start}" style="height:32px;max-width:70px;object-fit:contain;border:1.5px solid rgba(52,211,153,.4);border-radius:8px" title="${row.sig_mix_start_name||''}">`
       :'';
     let btns='';
     if(row.mix_start_time){
-      btns+=`<button class="tv3-sbtn g">⏱ เริ่ม ${row.mix_start_time}</button>`;
+      btns+=`<button class="tv3-sbtn g">⏱ Start ${row.mix_start_time}</button>`;
     } else {
       const disabled=prepReady?'':'disabled title="ต้องเตรียมเสร็จก่อน"';
       btns+=`<button class="tv3-sbtn y" ${disabled} onclick="window._stampMixStart('${pcol}','${rid}','${m}')">⏱ Start ผสม</button>`;
     }
     if(row.mix_end_time){
-      btns+=`<button class="tv3-sbtn g">✅ เสร็จ ${row.mix_end_time}</button>`;
+      btns+=`<button class="tv3-sbtn g">⏹ Stop ${row.mix_end_time}</button>`;
     } else {
       btns+=`<button class="tv3-sbtn r" onclick="stampTime('${pcol}','${rid}','mix_end_time','${m}')">⏹ Stop ผสมเสร็จ</button>`;
     }
@@ -973,7 +905,10 @@ function renderMixTanks(m, rows){
     const stepsHtml=steps.map((st2,i)=>buildStepHtml(st2,i,steps.length,pcol,row.id)).join('');
     return `<div class="${cardCls}">
       <div class="tv3-head">
-        <div class="tv3-seq">${seq}</div>
+        <div class="tv3-seq">
+          <div style="font-family:var(--mono);font-size:11px;font-weight:900;color:var(--cyan);text-align:center;line-height:1.2">${tankLabel.toUpperCase()}</div>
+          <div style="font-family:var(--mono);font-size:28px;font-weight:900;color:var(--b2);text-align:center">${seq}</div>
+        </div>
         <div class="tv3-hi">
           <div class="tv3-code">${row.mix_code||'—'} · PROCESS ${row.process_order||'—'}</div>
           <div class="tv3-name">${row.mix_name||'—'}</div>
@@ -983,10 +918,8 @@ function renderMixTanks(m, rows){
       </div>
       <div class="tv3-body">
         <div class="tv3-tank">${tankSVG(row, cap)}</div>
-        <div class="tv3-flow"><div class="tv3-steps">${stepsHtml}</div></div>
-        ${infoPanel(row)}
+        <div class="tv3-flow" style="flex:1;min-width:0"><div class="tv3-steps">${stepsHtml}</div></div>
       </div>
-      ${prepStrip(row, pcol, row.id)}
       ${stampStrip(row, tankLabel, pcol, row.id)}
     </div>`;
   }
@@ -1043,16 +976,6 @@ function renderPlan(m){
       <td><span style="font-family:var(--mono);font-weight:700;color:var(--blue2)">${row.mix_name||"—"}</span></td>
       <td><span class="cr">${row.batch_no||"—"}</span></td>
       <td><span style="font-family:var(--mono);color:var(--cyan)">${row.volume_liter||"—"}</span></td>
-      <td style="min-width:130px">
-        <select class="prep-sel ${row.prep_status==='ready'?'ready':row.prep_status==='not_ready'?'notready':''}"
-          style="font-family:var(--mono);font-size:12px;padding:5px 10px;border-radius:8px;background:var(--s2);cursor:pointer;width:100%"
-          onchange="window._setPrepStatus(\'${col}\',\'${row.id}\',this.value,this)">
-          <option value="">— เลือกสถานะ —</option>
-          <option value="ready" ${row.prep_status==="ready"?"selected":""}>✅ เตรียมเสร็จ</option>
-          <option value="not_ready" ${row.prep_status==="not_ready"?"selected":""}>❌ ยังไม่เสร็จ</option>
-        </select>
-        ${row.prep_sig?`<img src="${row.prep_sig}" style="height:24px;max-width:56px;object-fit:contain;border:1px solid rgba(52,211,153,.4);border-radius:6px;display:block;margin-top:4px" title="${row.prep_sig_name||''}">`:row.prep_status==='ready'?`<button style="font-family:var(--mono);font-size:10px;margin-top:4px;padding:3px 8px;border-radius:6px;border:1px dashed var(--b2);background:none;color:var(--t2);cursor:pointer" onclick="window._stampPrepSig('${col}','${row.id}')">✍️ เซ็น</button>`:''}
-      </td>
       <td>
         <select style="font-family:var(--mono);font-size:12px;padding:4px 8px;border-radius:6px;position:relative;z-index:10;background:var(--s2);color:var(--cyan);border:1px solid rgba(6,182,212,.3);cursor:pointer"
           onchange="_up('${col}','${row.id}','mixing_tank',this.value)">
