@@ -606,6 +606,8 @@ window.loadPlan=(m)=>{
       .filter(r=>(r.mix_code||r.mix_name||r.process_order)&&r.status!=='past_done'&&r.status!=='ready'&&r.status!=='sent_filling'&&r.status!=='filling'&&r.status!=='curing')
       .sort((a,b)=>(a.seq||0)-(b.seq||0));
     renderPlan(m);
+    // auto assign ถังให้ row ที่พร้อมแล้ว
+    autoAssignTank(m);
   });
 };
 
@@ -627,6 +629,8 @@ window.stampTime=async(col,id,field,m)=>{
   }
 
   if(field==="mix_end_time"){
+    // trigger auto assign ถังถัดไป หลัง stamp เสร็จ
+    setTimeout(()=>autoAssignTank(m),1000);
     // เช็คว่า actual ครบหรือยัง
     if(row){
       const glcOk=+(row.glc_set||0)<=0||(+(row.glc_actual||0)>0);
@@ -814,8 +818,15 @@ window._setPrepStatus=async function(pcol,rid,val,sel){
   const name=sessionStorage.getItem('emp_name')||'';
   const upd={prep_status:val,updated_at:new Date().toISOString()};
   if(val==='ready'&&sig){upd.prep_sig=sig;upd.prep_sig_name=name;}
-  try{await updateDoc(doc(db,pcol,rid),upd);toast('✅ บันทึกสถานะเตรียม','green');}
-  catch(e){toast('❌ '+e.message,'red');}
+  try{
+    await updateDoc(doc(db,pcol,rid),upd);
+    toast('✅ บันทึกสถานะเตรียม','green');
+    // trigger auto assign ทันทีเมื่อกด ready
+    if(val==='ready'){
+      const m=pcol==='production_plans'?'m1':'m2';
+      setTimeout(()=>autoAssignTank(m),500);
+    }
+  }catch(e){toast('❌ '+e.message,'red');}
 };
 window._stampPrepSig=async function(pcol,rid){
   const sig=sessionStorage.getItem('emp_sig')||'';
@@ -1108,6 +1119,62 @@ function renderMixTanks(m, rows){
   try{html+=renderTankCard(t2Row,'Mix Tank 2',2,3500,pcol);}catch(e){console.error('Tank2 error:',e);html+='<div style="padding:16px;color:red;font-family:monospace">Tank 2 Error: '+e.message+'</div>';}
   el.innerHTML=html;
 }
+
+// ============================================================
+// AUTO TANK ASSIGNMENT — โยน row ที่ ready เข้าถังว่างอัตโนมัติ
+// ============================================================
+async function autoAssignTank(m){
+  const pcol = planCol(m);
+  const allRows = rows[m]||[];
+  
+  // หาถังที่ "ว่าง" — ไม่มี row ที่ status=mixing หรือ pasteurising ในถังนั้น
+  function isTankBusy(tank){
+    // ถังไม่ว่างถ้ามีของอยู่ — mixing, pasteurising, wait_past, หรือ assign แล้วรอเริ่ม
+    return allRows.some(r=>
+      (r.mixing_tank===tank) &&
+      (r.status==='mixing'||
+       r.status==='pasteurising'||
+       r.status==='wait_past'||
+       (r.mixing_tank===tank&&!r.mix_end_time&&r.prep_status==='ready') // assign แล้วรอเริ่ม
+      )
+    );
+  }
+  
+  const tank1Busy = isTankBusy('Tank 1');
+  const tank2Busy = isTankBusy('Tank 2');
+  
+  // หา row ที่ ready และยังไม่มีถัง ยังไม่เริ่มผสม
+  const readyRows = allRows.filter(r=>
+    r.prep_status==='ready' &&
+    !r.mixing_tank &&        // ยังไม่ถูก assign ถัง
+    r.status!=='mixing' &&
+    r.status!=='pasteurising' &&
+    r.status!=='wait_past' &&
+    r.status!=='past_done'
+  ).sort((a,b)=>(a.seq||0)-(b.seq||0));
+  
+  if(!readyRows.length) return; // ไม่มี row ที่รอ
+  
+  // หาถังว่างแรก
+  let assignTank = null;
+  if(!tank1Busy) assignTank = 'Tank 1';
+  else if(!tank2Busy) assignTank = 'Tank 2';
+  
+  if(!assignTank) return; // ทั้งสองถังยังไม่ว่าง — รอ
+  
+  // โยน row แรกที่ ready เข้าถังว่าง
+  const row = readyRows[0];
+  try{
+    await updateDoc(doc(db,pcol,row.id),{
+      mixing_tank: assignTank,
+      updated_at: new Date().toISOString()
+    });
+    toast(`✅ Auto assign ${row.mix_name||row.mix_code} → ${assignTank}`,'green');
+  }catch(e){
+    toast('❌ Auto assign error: '+e.message,'red');
+  }
+}
+
 
 function renderPlan(m){
   const col=planCol(m);
