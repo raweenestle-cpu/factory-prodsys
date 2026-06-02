@@ -2,261 +2,409 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-  
-  <meta name="theme-color" content="#1e40af">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="PROD.SYS">
-  <link rel="apple-touch-icon" href="icons/icon-192.png">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PROD.SYS — Login</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="PROD.SYS">
+<title>PROD.SYS — Smart Factory</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sarabun:wght@400;600;700;800&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;600&family=Sarabun:wght@400;500;600;700&display=swap');
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#06080e;--s1:#0b0e17;--s2:#10141f;
-  --b1:#1c2235;--b2:#242e48;
-  --text:#e4eaf8;--t2:#5e6e90;--t3:#2a3450;
-  --blue:#3b7ef6;--blue2:#7ab3ff;
-  --green:#1fd17a;--yellow:#f5c842;
-  --cyan:#00d4ff;--purple:#9b6dff;
-  --mono:'DM Mono',monospace;--sans:'Sarabun',sans-serif;
+  --mono:'DM Mono',monospace;
+  --sans:'Sarabun','Inter',sans-serif;
+  --bg:#f0f4f8;
+  --glass:rgba(255,255,255,0.75);
+  --glass-border:rgba(255,255,255,0.9);
+  --primary:#1d4ed8;
+  --primary-light:#3b82f6;
+  --cyan:#0891b2;
+  --purple:#7c3aed;
+  --text:#0f172a;
+  --text2:#374151;
+  --text3:#64748b;
+  --shadow:0 8px 32px rgba(0,0,0,.08);
+  --shadow-lg:0 20px 60px rgba(0,0,0,.12);
 }
-html,body{height:100%;margin:0}
 body{
   background:var(--bg);
-  font-family:var(--sans);
-  color:var(--text);
   min-height:100vh;
-  padding:20px;
-  position:relative;
-  overflow-y:auto;
-}
-
-/* BG EFFECTS */
-body::before{
-  content:"";position:fixed;inset:0;
-  background-image:linear-gradient(rgba(59,126,246,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(59,126,246,.04) 1px,transparent 1px);
-  background-size:48px 48px;pointer-events:none;
-}
-.glow-1{position:fixed;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(59,126,246,.12),transparent 70%);top:-100px;left:-100px;pointer-events:none}
-.glow-2{position:fixed;width:350px;height:350px;border-radius:50%;background:radial-gradient(circle,rgba(155,109,255,.1),transparent 70%);bottom:-80px;right:-80px;pointer-events:none}
-
-/* CARD */
-.card{
-  background:var(--s1);
-  border:1px solid var(--b1);
-  border-radius:24px;
-  padding:36px 28px;
-  width:100%;
-  max-width:400px;
-  margin:0 auto;
-  position:relative;
-  z-index:1;
-  box-shadow:0 24px 64px rgba(0,0,0,.6);
-}
-
-/* LOGO */
-.logo{text-align:center;margin-bottom:28px}
-.logo-text{font-family:var(--mono);font-size:32px;font-weight:600;letter-spacing:.06em}
-.logo-text b{color:var(--blue)}
-.logo-text span{color:var(--t2)}
-.logo-sub{font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--t3);margin-top:4px;text-transform:uppercase}
-
-/* STEP 1 — เลือก Role */
-.step{display:none}
-.step.on{display:block}
-
-.step-label{font-family:var(--mono);font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.12em;margin-bottom:14px;text-align:center}
-
-.role-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px}
-.role-btn{
-  background:var(--s2);
-  border:1px solid var(--b1);
-  border-radius:14px;
-  padding:18px 12px;
-  cursor:pointer;
-  text-align:center;
-  transition:all .2s;
-  position:relative;
-  overflow:hidden;
-}
-.role-btn:hover{border-color:var(--blue);background:rgba(59,126,246,.08);transform:translateY(-2px)}
-.role-btn.selected{border-color:var(--blue);background:rgba(59,126,246,.12);box-shadow:0 0 0 1px rgba(59,126,246,.3)}
-.role-btn::after{content:"";position:absolute;top:0;left:0;right:0;height:2px;border-radius:14px 14px 0 0;opacity:0;transition:opacity .2s}
-.role-btn.selected::after,.role-btn:hover::after{opacity:1}
-.role-btn.leadman::after{background:linear-gradient(90deg,var(--yellow),#fbbf24)}
-.role-btn.operator::after{background:linear-gradient(90deg,var(--blue),var(--cyan))}
-.role-icon{font-size:28px;margin-bottom:8px}
-.role-name{font-family:var(--mono);font-size:13px;font-weight:600}
-.role-desc{font-size:10px;color:var(--t2);margin-top:3px;line-height:1.4}
-.role-badge{display:inline-block;font-family:var(--mono);font-size:9px;padding:2px 7px;border-radius:4px;margin-top:6px}
-.badge-lm{background:rgba(245,200,66,.15);color:var(--yellow);border:1px solid rgba(245,200,66,.3)}
-.badge-op{background:rgba(59,126,246,.15);color:var(--blue2);border:1px solid rgba(59,126,246,.3)}
-
-/* STEP 2 — กรอก Password */
-.back-btn{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--t2);cursor:pointer;margin-bottom:20px;width:fit-content}
-.back-btn:hover{color:var(--text)}
-.back-btn svg{width:14px;height:14px}
-
-.selected-role{display:flex;align-items:center;gap:12px;background:var(--s2);border:1px solid var(--b1);border-radius:12px;padding:12px 16px;margin-bottom:20px}
-.selected-icon{font-size:24px}
-.selected-info{}
-.selected-name{font-family:var(--mono);font-size:14px;font-weight:700}
-.selected-email{font-family:var(--mono);font-size:10px;color:var(--t2);margin-top:2px}
-
-.pw-label{font-size:11px;color:var(--t2);margin-bottom:6px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em}
-.pw-wrap{position:relative}
-.pw-input{
-  width:100%;
-  background:var(--s2);
-  border:1px solid var(--b1);
-  border-radius:10px;
-  color:var(--text);
-  font-family:var(--mono);
-  font-size:16px;
-  padding:12px 44px 12px 14px;
-  outline:none;
-  letter-spacing:.1em;
-  transition:border-color .2s;
-}
-.pw-input:focus{border-color:var(--blue)}
-.pw-toggle{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--t2);cursor:pointer;font-size:16px;padding:4px}
-.pw-toggle:hover{color:var(--text)}
-
-.err-msg{font-size:12px;color:var(--red, #f04f5e);min-height:18px;margin-top:6px;font-family:var(--mono)}
-
-.login-btn{
-  width:100%;
-  background:linear-gradient(135deg,var(--blue),#6366f1);
-  color:#fff;
-  border:none;
-  border-radius:10px;
-  padding:14px;
-  font-size:15px;
-  font-weight:700;
-  cursor:pointer;
   font-family:var(--sans);
-  margin-top:14px;
-  transition:all .2s;
-  position:relative;
-  overflow:hidden;
-}
-.login-btn:hover{opacity:.9;transform:translateY(-1px)}
-.login-btn:active{transform:translateY(0)}
-.login-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
-.login-btn.loading::after{
-  content:"";position:absolute;top:0;left:-100%;width:100%;height:100%;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,.15),transparent);
-  animation:loading 1s infinite;
-}
-
-/* STEP 3 — เลือกหน้าที่ต้องการ */
-.welcome{text-align:center;margin-bottom:20px}
-.welcome-icon{font-size:32px;margin-bottom:8px}
-.welcome-name{font-family:var(--mono);font-size:16px;font-weight:700;color:var(--blue2)}
-.welcome-sub{font-size:12px;color:var(--t2);margin-top:4px}
-
-.menu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:14px}
-.menu-btn{
-  background:var(--s2);
-  border:1px solid var(--b1);
-  border-radius:16px;
-  padding:24px 16px;
-  cursor:pointer;
-  text-align:center;
-  transition:all .2s;
-  text-decoration:none;
-  display:block;
   color:var(--text);
-  position:relative;
-  overflow:hidden;
+  overflow-x:hidden;
 }
-.menu-btn::after{content:"";position:absolute;top:0;left:0;right:0;height:2px;opacity:0;transition:opacity .2s}
-.menu-btn:hover{transform:translateY(-2px);border-color:var(--b2)}
-.menu-btn:hover::after{opacity:1}
-.menu-btn.m-leadman::after{background:var(--yellow)}
-.menu-btn.m-daily::after{background:#0891b2}
-.menu-btn.m-mixing::after{background:var(--green)}
-.menu-btn.m-past::after{background:var(--orange, #ff8c42)}
-.menu-btn.m-flavor::after{background:var(--purple)}
-.menu-btn.m-cip::after{background:var(--cyan)}
-.menu-btn.m-filling::after{background:var(--blue)}
-.menu-btn.m-admin::after{background:var(--red, #f04f5e)}
-.menu-icon{font-size:36px;margin-bottom:10px}
-.menu-name{font-family:var(--mono);font-size:13px;font-weight:700}
-.menu-desc{font-size:11px;color:var(--t2);margin-top:4px}
 
-.logout-btn{width:100%;background:none;border:1px solid var(--b2);border-radius:8px;color:var(--t2);padding:9px;font-size:12px;cursor:pointer;margin-top:12px;font-family:var(--sans)}
-.logout-btn:hover{color:var(--red, #f04f5e);border-color:var(--red, #f04f5e)}
+/* BACKGROUND */
+.bg-grid{
+  position:fixed;inset:0;z-index:0;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 20%, rgba(59,130,246,.08) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(124,58,237,.06) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 30% at 50% 50%, rgba(8,145,178,.05) 0%, transparent 70%);
+}
+.bg-grid::before{
+  content:'';position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(59,130,246,.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(59,130,246,.06) 1px, transparent 1px);
+  background-size:48px 48px;
+}
 
-@keyframes loading{0%{left:-100%}100%{left:100%}}
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.step.on{animation:fadeIn .3s ease}
-.pin-key{padding:16px;font-size:20px;font-weight:700;font-family:DM Mono,monospace;background:#0d1525;border:1px solid #1e2535;border-radius:12px;color:#e2e8f0;cursor:pointer;transition:background .1s}
-.pin-key:active{background:#1e3a5f}
+/* NAV */
+nav{
+  position:sticky;top:0;z-index:100;
+  background:rgba(255,255,255,.85);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  border-bottom:1.5px solid rgba(255,255,255,.9);
+  padding:0 24px;
+  height:60px;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  box-shadow:0 2px 20px rgba(0,0,0,.06);
+}
+.nav-logo{
+  font-family:var(--mono);font-size:18px;font-weight:700;
+  color:var(--primary);letter-spacing:.08em;
+  display:flex;align-items:center;gap:8px;
+}
+.nav-logo b{color:var(--cyan)}
+.nav-logo-sub{font-family:var(--sans);font-size:10px;font-weight:700;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin-left:2px}
+.nav-center{display:flex;align-items:center;gap:8px;flex:1;justify-content:center}
+.nav-right{display:flex;align-items:center;gap:12px}
+.nav-time{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--text2)}
+.nav-user-pill{
+  display:flex;align-items:center;gap:8px;
+  background:linear-gradient(135deg,#eff6ff,#f0f9ff);
+  border:1.5px solid #bfdbfe;
+  border-radius:24px;padding:5px 14px;
+  font-family:var(--mono);font-size:12px;font-weight:800;color:var(--primary);
+}
+.nav-shift{
+  font-family:var(--mono);font-size:11px;font-weight:700;
+  padding:4px 12px;border-radius:20px;
+  background:#f0fdf4;border:1.5px solid #bbf7d0;color:#15803d;
+}
+
+/* HERO */
+.hero{
+  position:relative;z-index:1;
+  padding:32px 24px 20px;
+  text-align:center;
+}
+.hero-title{
+  font-size:clamp(24px,3vw,36px);font-weight:900;
+  background:linear-gradient(135deg,var(--primary) 0%,var(--cyan) 50%,var(--purple) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  margin-bottom:8px;letter-spacing:-.02em;
+}
+.hero-sub{font-size:14px;font-weight:600;color:var(--text3);letter-spacing:1px;text-transform:uppercase}
+
+/* KPI BAR */
+.kpi-bar{
+  position:relative;z-index:1;
+  display:flex;gap:12px;padding:0 24px 20px;
+  overflow-x:auto;scrollbar-width:none;
+}
+.kpi-bar::-webkit-scrollbar{display:none}
+.kpi-card{
+  flex-shrink:0;min-width:140px;
+  background:var(--glass);
+  backdrop-filter:blur(12px);
+  border:1.5px solid var(--glass-border);
+  border-radius:14px;padding:12px 16px;
+  box-shadow:var(--shadow);
+}
+.kpi-label{font-family:var(--mono);font-size:8px;font-weight:900;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px}
+.kpi-val{font-family:var(--mono);font-size:22px;font-weight:900;color:var(--text);line-height:1}
+.kpi-unit{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--text3);margin-top:2px}
+.kpi-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;animation:pulse 1.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 currentColor}50%{opacity:.7;box-shadow:0 0 0 5px transparent}}
+
+/* SECTION */
+.section{position:relative;z-index:1;padding:0 24px 12px}
+.section-title{
+  font-family:var(--mono);font-size:10px;font-weight:900;color:var(--text3);
+  letter-spacing:2px;text-transform:uppercase;
+  padding:8px 0 12px;
+  border-top:1.5px solid rgba(0,0,0,.06);
+  display:flex;align-items:center;gap:8px;
+}
+.section-title::before{content:'';width:3px;height:14px;border-radius:2px;background:linear-gradient(135deg,var(--primary),var(--cyan))}
+
+/* GRID */
+.menu-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+  gap:14px;
+  padding-bottom:4px;
+}
+
+/* MENU CARD */
+.menu-card{
+  background:var(--glass);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  border:1.5px solid var(--glass-border);
+  border-radius:18px;
+  padding:20px 16px;
+  cursor:pointer;
+  text-decoration:none;
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+  box-shadow:var(--shadow);
+  transition:all .2s cubic-bezier(.4,0,.2,1);
+  position:relative;overflow:hidden;
+}
+.menu-card::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,.4) 0%,transparent 60%);
+  pointer-events:none;
+}
+.menu-card:hover{
+  transform:translateY(-4px);
+  box-shadow:var(--shadow-lg);
+  border-color:rgba(59,130,246,.3);
+}
+.menu-card:active{transform:translateY(-2px)}
+.menu-icon{
+  font-size:36px;line-height:1;
+  filter:drop-shadow(0 2px 4px rgba(0,0,0,.1));
+  transition:transform .2s;
+}
+.menu-card:hover .menu-icon{transform:scale(1.1)}
+.menu-name{
+  font-family:var(--mono);font-size:12px;font-weight:900;
+  color:var(--text);text-align:center;letter-spacing:.02em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;
+}
+.menu-desc{
+  font-family:var(--sans);font-size:10px;font-weight:600;
+  color:var(--text3);text-align:center;line-height:1.4;
+}
+.menu-tag{
+  position:absolute;top:10px;right:10px;
+  font-family:var(--mono);font-size:8px;font-weight:900;
+  padding:3px 8px;border-radius:20px;
+  letter-spacing:.5px;text-transform:uppercase;
+}
+
+/* CARD COLOR VARIANTS */
+.mc-blue{background:linear-gradient(135deg,rgba(219,234,254,.9),rgba(239,246,255,.95))}
+.mc-blue:hover{border-color:rgba(59,130,246,.4)}
+.mc-cyan{background:linear-gradient(135deg,rgba(207,250,254,.9),rgba(240,249,255,.95))}
+.mc-cyan:hover{border-color:rgba(8,145,178,.4)}
+.mc-purple{background:linear-gradient(135deg,rgba(237,233,254,.9),rgba(245,243,255,.95))}
+.mc-purple:hover{border-color:rgba(124,58,237,.4)}
+.mc-green{background:linear-gradient(135deg,rgba(220,252,231,.9),rgba(240,253,244,.95))}
+.mc-green:hover{border-color:rgba(22,163,74,.4)}
+.mc-orange{background:linear-gradient(135deg,rgba(255,237,213,.9),rgba(255,247,237,.95))}
+.mc-orange:hover{border-color:rgba(234,88,12,.4)}
+.mc-red{background:linear-gradient(135deg,rgba(254,226,226,.9),rgba(255,241,242,.95))}
+.mc-red:hover{border-color:rgba(220,38,38,.4)}
+
+/* LOGIN OVERLAY */
+.login-overlay{
+  position:fixed;inset:0;z-index:200;
+  background:linear-gradient(135deg,#eff6ff 0%,#f0f9ff 50%,#faf5ff 100%);
+  display:flex;align-items:center;justify-content:center;
+  padding:20px;
+}
+.login-card{
+  background:rgba(255,255,255,.95);
+  backdrop-filter:blur(20px);
+  border:2px solid rgba(255,255,255,.9);
+  border-radius:24px;
+  padding:40px 36px;
+  max-width:420px;width:100%;
+  box-shadow:0 32px 80px rgba(0,0,0,.12);
+  text-align:center;
+}
+.login-logo{
+  font-family:var(--mono);font-size:28px;font-weight:700;color:var(--primary);
+  letter-spacing:.1em;margin-bottom:4px;
+}
+.login-logo b{color:var(--cyan)}
+.login-sub{font-size:11px;font-weight:700;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-bottom:28px}
+.login-label{font-family:var(--mono);font-size:11px;font-weight:900;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;text-align:left}
+.login-input{
+  width:100%;padding:14px 16px;
+  font-family:var(--mono);font-size:18px;font-weight:800;
+  letter-spacing:.2em;text-align:center;
+  border:2px solid #e2e8f0;border-radius:12px;
+  background:#f8fafc;color:var(--text);
+  outline:none;transition:all .15s;margin-bottom:6px;
+}
+.login-input:focus{border-color:var(--primary);background:#eff6ff;box-shadow:0 0 0 3px rgba(29,78,216,.1)}
+.login-err{font-family:var(--mono);font-size:11px;font-weight:700;color:#dc2626;min-height:18px;margin-bottom:12px;text-align:left}
+.login-btn{
+  width:100%;padding:14px;
+  font-family:var(--mono);font-size:14px;font-weight:900;
+  background:linear-gradient(135deg,var(--primary),var(--primary-light));
+  color:#fff;border:none;border-radius:12px;cursor:pointer;
+  letter-spacing:.05em;transition:all .15s;
+  box-shadow:0 4px 16px rgba(29,78,216,.3);
+}
+.login-btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(29,78,216,.4)}
+.login-btn:active{transform:translateY(0)}
+.login-btn.loading{opacity:.7;cursor:not-allowed}
+.login-pin-disp{
+  display:flex;justify-content:center;gap:10px;margin-bottom:12px;
+}
+.pin-dot{
+  width:14px;height:14px;border-radius:50%;
+  border:2px solid #cbd5e1;background:transparent;
+  transition:all .15s;
+}
+.pin-dot.filled{background:var(--primary);border-color:var(--primary)}
+
+/* NUMPAD */
+.numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0}
+.numpad-btn{
+  padding:16px;font-family:var(--mono);font-size:18px;font-weight:800;
+  background:#f8fafc;border:2px solid #e2e8f0;border-radius:12px;
+  cursor:pointer;color:var(--text);transition:all .1s;
+}
+.numpad-btn:hover{background:#eff6ff;border-color:#bfdbfe;color:var(--primary)}
+.numpad-btn:active{transform:scale(.95)}
+
+/* AI ASSISTANT FAB */
+.ai-fab{
+  position:fixed;bottom:24px;right:24px;z-index:50;
+  width:56px;height:56px;border-radius:50%;
+  background:linear-gradient(135deg,var(--primary),var(--cyan));
+  border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 8px 24px rgba(29,78,216,.4);
+  transition:all .2s;
+  animation:fabFloat 3s ease-in-out infinite;
+}
+.ai-fab:hover{transform:scale(1.1);box-shadow:0 12px 32px rgba(29,78,216,.5)}
+@keyframes fabFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+
+/* FOOTER */
+.footer{
+  position:relative;z-index:1;
+  text-align:center;padding:16px;
+  font-family:var(--mono);font-size:9px;font-weight:700;
+  color:var(--text3);letter-spacing:1px;text-transform:uppercase;
+}
+
+@media(max-width:600px){
+  nav{padding:0 16px}
+  .hero{padding:20px 16px 12px}
+  .kpi-bar{padding:0 16px 16px}
+  .section{padding:0 16px 12px}
+  .menu-grid{grid-template-columns:repeat(3,1fr);gap:10px}
+  .menu-icon{font-size:28px}
+  .menu-name{font-size:10px}
+  .menu-desc{display:none}
+}
 </style>
 </head>
 <body>
-<div class="glow-1"></div>
-<div class="glow-2"></div>
 
-<div class="card">
-  <div class="logo">
-    <div class="logo-text">PROD<b>.</b>SYS</div>
-    <div class="logo-sub">Production Flow System</div>
-  </div>
+<div class="bg-grid"></div>
 
-  <!-- STEP 1: เลือก Role -->
-  <div class="step on" id="step1">
-    <div class="step-label">เลือกตำแหน่งของคุณ</div>
-    <div class="role-grid">
-      <div class="role-btn leadman" onclick="selectRole('leadman')" id="btn-leadman">
-        <div class="role-icon">👷</div>
-        <div class="role-name">Leadman</div>
-        <div class="role-desc">เข้าได้ทุกหน้า<br>จัดการทุกอย่าง</div>
-        <div class="role-badge badge-lm">LEADMAN</div>
-      </div>
-      <div class="role-btn operator" onclick="selectRole('operator')" id="btn-operator">
-        <div class="role-icon">🏭</div>
-        <div class="role-name">Operation</div>
-        <div class="role-desc">เข้าได้ทุกหน้า<br>ยกเว้น Admin</div>
-        <div class="role-badge badge-op">OPERATOR</div>
-      </div>
-    </div>
-  </div>
+<!-- LOGIN OVERLAY -->
+<div class="login-overlay" id="login-overlay">
+  <div class="login-card">
+    <div class="login-logo">PROD<b>.</b>SYS</div>
+    <div class="login-sub">Smart Factory Production System</div>
 
-  <!-- STEP 2: กรอก Password -->
-  <div class="step" id="step2">
-    <div class="back-btn" onclick="goBack()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-      เลือกตำแหน่งใหม่
+    <div class="login-label">รหัส PIN</div>
+    <div class="login-pin-disp" id="pin-disp">
+      <div class="pin-dot" id="pd0"></div>
+      <div class="pin-dot" id="pd1"></div>
+      <div class="pin-dot" id="pd2"></div>
+      <div class="pin-dot" id="pd3"></div>
     </div>
-    <div class="selected-role" id="selected-display"></div>
-    <div class="pw-label">รหัสผ่าน</div>
-    <div class="pw-wrap">
-      <input class="pw-input" id="pw" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
-      <button class="pw-toggle" onclick="togglePw()" id="pw-toggle">👁️</button>
+    <input type="password" id="pw" maxlength="6" class="login-input" placeholder="กรอก PIN" autocomplete="off"
+      oninput="updatePinDots(this.value)" onkeydown="if(event.key==='Enter')doLogin()">
+    <div class="login-err" id="err-msg"></div>
+
+    <div class="numpad">
+      ${[1,2,3,4,5,6,7,8,9,'',0,'⌫'].map(n=>`
+        <button class="numpad-btn" onclick="${n===''?'void(0)':n==='⌫'?'delPin()':'addPin('+n+')'}" ${n===''?'style="visibility:hidden"':''}>${n}</button>
+      `).join('')}
     </div>
-    <div class="err-msg" id="err-msg"></div>
+
     <button class="login-btn" id="login-btn" onclick="doLogin()">เข้าสู่ระบบ</button>
+    <div id="err-msg2" style="font-family:var(--mono);font-size:11px;color:#dc2626;margin-top:8px;min-height:16px"></div>
   </div>
+</div>
 
-  <!-- STEP 3: เลือกหน้า -->
-  <div class="step" id="step3">
-    <!-- Logout บนสุด เห็นได้ทันที -->
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-      <div style="display:flex;align-items:center;gap:8px">
-        <span id="w-icon" style="font-size:20px"></span>
-        <div>
-          <div id="w-name" style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--blue2)"></div>
-          <div id="w-sub" style="font-size:10px;color:var(--t2)"></div>
-        </div>
-      </div>
-      <button class="logout-btn" onclick="doLogout()" style="margin-top:0;width:auto;padding:7px 12px;white-space:nowrap">🚪 ออก</button>
-    </div>
-    <div class="menu-grid" id="menu-grid"></div>
+<!-- MAIN APP -->
+<div id="main-app" style="display:none">
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <span>PROD<b>.</b>SYS</span>
+    <span class="nav-logo-sub">Smart Factory</span>
   </div>
+  <div class="nav-right">
+    <div class="nav-shift" id="nav-shift">Shift —</div>
+    <div class="nav-time" id="nav-time">--:--:--</div>
+    <div class="nav-user-pill" id="nav-user">—</div>
+    <button onclick="doLogout()" style="font-family:var(--mono);font-size:11px;font-weight:800;padding:6px 14px;border-radius:20px;border:1.5px solid #fca5a5;background:#fff1f2;color:#991b1b;cursor:pointer">Logout</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-title">Production Intelligence System</div>
+  <div class="hero-sub">Smart Factory · Realtime Monitoring · AI-Assisted Planning</div>
+</div>
+
+<!-- KPI BAR -->
+<div class="kpi-bar" id="kpi-bar">
+  <div class="kpi-card">
+    <div class="kpi-label"><span class="kpi-dot" style="background:#22c55e;color:#22c55e"></span>System</div>
+    <div class="kpi-val" style="font-size:14px;color:#15803d">ONLINE</div>
+    <div class="kpi-unit">All Systems Active</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">วันที่</div>
+    <div class="kpi-val" id="kpi-date" style="font-size:14px">—</div>
+    <div class="kpi-unit" id="kpi-day">—</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">Shift</div>
+    <div class="kpi-val" id="kpi-shift" style="font-size:18px">—</div>
+    <div class="kpi-unit">Current Shift</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">User</div>
+    <div class="kpi-val" id="kpi-user" style="font-size:13px">—</div>
+    <div class="kpi-unit">Logged In</div>
+  </div>
+</div>
+
+<!-- PRODUCTION MODULES -->
+<div class="section">
+  <div class="section-title">🏭 Production Modules</div>
+  <div class="menu-grid" id="grid-prod"></div>
+</div>
+
+<!-- MONITORING & QA -->
+<div class="section">
+  <div class="section-title">📊 Monitoring & Quality</div>
+  <div class="menu-grid" id="grid-monitor"></div>
+</div>
+
+<!-- SYSTEM -->
+<div class="section">
+  <div class="section-title">⚙️ System & Admin</div>
+  <div class="menu-grid" id="grid-system"></div>
+</div>
+
+<div class="footer">PROD.SYS v3.0 · Smart Factory Production System · © 2026</div>
+
+</div><!-- end main-app -->
+
+<!-- AI FAB -->
+<button class="ai-fab" onclick="alert('AI Assistant — Coming Soon')" title="AI Assistant">
+  <span style="font-size:24px">🤖</span>
+</button>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -546,6 +694,94 @@ document.addEventListener('keydown',function(e){
   if(e.key==='Escape')closePinModal();
 });
 </script>
+<script>
+// MENU DEFINITIONS
+const menuProd = [
+  {icon:'📋',name:'Leadman',desc:'Production Planning\nKPI Monitoring',file:'leadman.html',cls:'mc-blue',tag:'PLAN'},
+  {icon:'📅',name:'Daily Plan',desc:'Daily Schedule\nProduction Target',file:'dailyplan.html',cls:'mc-blue',tag:''},
+  {icon:'🔬',name:'Mixing',desc:'Mixing Process\nBatch Monitoring',file:'mixing.html',cls:'mc-cyan',tag:'MIX'},
+  {icon:'🧪',name:'Prepare Mix',desc:'Raw Material\nPreparation',file:'preparemix.html',cls:'mc-cyan',tag:''},
+  {icon:'🌡️',name:'Pasteurize',desc:'Pasteurize Control\nTemp Monitoring',file:'pasteurize.html',cls:'mc-orange',tag:'PAST'},
+  {icon:'🪣',name:'CIP Man',desc:'Tank CIP Control\nCleaning Monitor',file:'cipman.html',cls:'mc-green',tag:'CIP'},
+  {icon:'🧹',name:'CIP Mixing',desc:'Mixing Tank CIP\nSanitation Control',file:'cipmixing.html',cls:'mc-green',tag:''},
+  {icon:'🫙',name:'Aging Tank',desc:'Tank Status\nVolume Monitor',file:'aging.html',cls:'mc-purple',tag:''},
+  {icon:'🏭',name:'Filling',desc:'Line Monitoring\nOEE Dashboard',file:'filling.html',cls:'mc-blue',tag:'LINE'},
+];
+const menuMonitor = [
+  {icon:'🍦',name:'Flavor',desc:'Color & Flavor\nBatch Validation',file:'flavor.html',cls:'mc-orange',tag:'QA'},
+  {icon:'💧',name:'Flowmeter',desc:'Flow Verification\nUtility Monitor',file:'flowmeter.html',cls:'mc-cyan',tag:''},
+  {icon:'⏱️',name:'Shelf Life',desc:'Expiry Tracking\nProduct QA',file:'shelflife.html',cls:'mc-purple',tag:'QA'},
+  {icon:'📜',name:'History',desc:'Production Records\nShift History',file:'history.html',cls:'mc-blue',tag:''},
+];
+const menuSystem = [
+  {icon:'🔐',name:'Employee Reg.',desc:'PIN Registration\nUser Management',file:'pinregister.html',cls:'mc-red',tag:''},
+  {icon:'⚙️',name:'Admin',desc:'System Settings\nAudit Trail',file:'admin.html',cls:'mc-red',tag:'ADMIN'},
+];
 
+function renderMenuGrid(items, elId){
+  const el = document.getElementById(elId);
+  if(!el) return;
+  el.innerHTML = items.map(m=>`
+    <a href="${m.file}" class="menu-card ${m.cls}" onclick="checkAuth(event,'${m.file}')">
+      ${m.tag?`<div class="menu-tag" style="background:rgba(29,78,216,.1);color:#1d4ed8">${m.tag}</div>`:''}
+      <div class="menu-icon">${m.icon}</div>
+      <div class="menu-name">${m.name}</div>
+      <div class="menu-desc">${m.desc.replace('\n','<br>')}</div>
+    </a>
+  `).join('');
+}
+
+function checkAuth(e, file){
+  if(!sessionStorage.getItem('emp_sig')){
+    e.preventDefault();
+    document.getElementById('login-overlay').style.display='flex';
+  }
+}
+
+renderMenuGrid(menuProd, 'grid-prod');
+renderMenuGrid(menuMonitor, 'grid-monitor');
+renderMenuGrid(menuSystem, 'grid-system');
+
+// CLOCK
+function updateClock(){
+  const now = new Date();
+  const t = now.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  const d = now.toLocaleDateString('th-TH',{day:'2-digit',month:'short'});
+  const dy = ['อา.','จ.','อ.','พ.','พฤ.','ศ.','ส.'][now.getDay()];
+  const yr = now.getFullYear()+543;
+  const h = now.getHours();
+  const shift = h>=6&&h<14?'Morning 🌅':h>=14&&h<22?'Afternoon 🌞':'Night 🌙';
+
+  const nt = document.getElementById('nav-time');
+  if(nt) nt.textContent = t;
+  const ns = document.getElementById('nav-shift');
+  if(ns) ns.textContent = shift;
+  const kd = document.getElementById('kpi-date');
+  if(kd) kd.textContent = d+' '+yr;
+  const kdy = document.getElementById('kpi-day');
+  if(kdy) kdy.textContent = 'วัน'+dy;
+  const ks = document.getElementById('kpi-shift');
+  if(ks) ks.textContent = shift.split(' ')[0];
+}
+setInterval(updateClock,1000);
+updateClock();
+
+// PIN numpad
+function addPin(n){
+  const pw = document.getElementById('pw');
+  if(pw.value.length < 6){ pw.value += n; updatePinDots(pw.value); }
+}
+function delPin(){
+  const pw = document.getElementById('pw');
+  pw.value = pw.value.slice(0,-1);
+  updatePinDots(pw.value);
+}
+function updatePinDots(val){
+  for(let i=0;i<4;i++){
+    const d = document.getElementById('pd'+i);
+    if(d) d.classList.toggle('filled', i < val.length);
+  }
+}
+</script>
 </body>
 </html>
