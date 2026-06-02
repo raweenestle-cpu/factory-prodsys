@@ -268,6 +268,7 @@ tbody td{padding:5px 6px;vertical-align:middle;font-weight:600}
   <button class="nav-tab" onclick="showPage('m2')">🟢 Mixing 2</button>
   <div class="nav-right">
     <span class="nav-role">LEADMAN</span>
+    <button onclick="toggleAllCards()" id="btn-toggle-all" style="font-family:var(--mono);font-size:11px;font-weight:800;padding:5px 12px;border-radius:7px;border:1.5px solid var(--b1);background:#f1f5f9;color:#374151;cursor:pointer">⊟ ย่อทั้งหมด</button>
     <span class="nav-user" id="nav-user"></span>
     <a href="history.html" style="font-size:11px;padding:5px 12px;border-radius:7px;border:1.5px solid var(--b1);background:#f1f5f9;color:#374151;text-decoration:none;font-family:var(--mono);font-weight:800">📋 History</a>
     <a href="index.html" style="font-size:11px;padding:5px 10px;border-radius:6px;border:1px solid var(--b2);background:none;color:var(--t2);cursor:pointer;text-decoration:none;white-space:nowrap;flex-shrink:0">🏠 Home</a>
@@ -739,14 +740,20 @@ function _lcCard(line){
 
   let h=`<div class="lsc ${cardCls}" style="--lsc-c:${lc}">`;
 
-  // HEADER
-  h+=`<div class="lsc-header">
+  // HEADER with collapse toggle
+  const cid='lsc-body-'+line.id;
+  const collapsed=localStorage.getItem('lsc-collapse-'+line.id)==='1';
+  h+=`<div class="lsc-header" style="cursor:pointer" onclick="toggleLscCard('${line.id}')">
     <div>
       <div class="lsc-linename">${line.name.toUpperCase()}</div>
       <div style="font-family:var(--sans);font-size:13px;font-weight:800;color:${lc};margin-top:2px">${prodName}</div>
     </div>
-    <div class="lsc-badge ${badgeCls}">${badgeLbl}</div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div class="lsc-badge ${badgeCls}">${badgeLbl}</div>
+      <div id="lsc-chevron-${line.id}" style="font-size:14px;color:#94a3b8;transition:transform .2s;transform:${collapsed?'rotate(-90deg)':'rotate(0deg)'}"">▼</div>
+    </div>
   </div>`;
+  if(collapsed){h+='</div>';return h;}
 
   h+=`<div class="lsc-body">`;
 
@@ -904,6 +911,21 @@ window.addRow = async(m) => {
   }
 };
 
+window.toggleAllCards=function(){
+  const btn=document.getElementById('btn-toggle-all');
+  const allCollapsed=(_lcLines||[]).every(l=>localStorage.getItem('lsc-collapse-'+l.id)==='1');
+  (_lcLines||[]).forEach(l=>{
+    localStorage.setItem('lsc-collapse-'+l.id, allCollapsed?'0':'1');
+  });
+  btn.textContent=allCollapsed?'⊟ ย่อทั้งหมด':'⊞ ขยายทั้งหมด';
+  _lcRender();
+};
+window.toggleLscCard=function(lineId){
+  const key='lsc-collapse-'+lineId;
+  const isCollapsed=localStorage.getItem(key)==='1';
+  localStorage.setItem(key,isCollapsed?'0':'1');
+  _lcRender();
+};
 window._up = async(col,id,field,val) => {
   const upd = {[field]:val};
   if(field==="mix_code"){ const p=productMap[val]||{}; upd.mix_name=p.mix_name||""; }
