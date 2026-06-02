@@ -303,7 +303,7 @@ onAuthStateChanged(auth,async user=>{
       const snap=await getDocs(query(collection(db,'users'),where('uid','==',user.uid)));
       if(!snap.empty){
         const role=snap.docs[0].data().role||'operator';
-        showMenu(role);
+        window.showMenu(role);
         return;
       }
     }catch{}
@@ -348,7 +348,7 @@ window.doLogin=async()=>{
   try{
     const email=EMAIL[selectedRole];
     await signInWithEmailAndPassword(auth,email,pw);
-    showMenu(selectedRole);
+    window.showMenu(selectedRole);
   }catch(e){
     err.textContent=e.code==='auth/invalid-credential'||e.code==='auth/wrong-password'
       ?'❌ รหัสผ่านไม่ถูกต้อง'
