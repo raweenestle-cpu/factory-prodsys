@@ -186,23 +186,50 @@ tbody td{padding:5px 6px;vertical-align:middle;font-weight:600}
 .status-blink{animation:statusPulse 1.4s ease-in-out infinite}
 
 .line-cards-wrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;padding:12px 0 14px}
-.lsc{background:#fff;border-radius:18px;padding:0;box-shadow:0 4px 16px rgba(0,0,0,.08);border:2px solid var(--lsc-c,#b0bac8);min-height:180px;display:flex;flex-direction:column;position:relative;overflow:hidden}.lsc::before{content:"";position:absolute;top:0;left:0;right:0;height:5px;background:var(--lsc-c,#b0bac8);border-radius:18px 18px 0 0}.lsc-inner{padding:14px;flex:1;display:flex;flex-direction:column;justify-content:space-between}
-.lsc-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;padding-bottom:6px;border-bottom:1.5px solid var(--s2)}
-.lsc-name{font-family:var(--mono);font-size:20px;font-weight:900;color:#111827;letter-spacing:.02em;line-height:1}
-.lsc-st{font-family:var(--mono);font-size:10px;font-weight:900;padding:4px 10px;border-radius:999px}
-.lsc-run{background:rgba(21,128,61,.1);color:#15803d;border:1px solid rgba(21,128,61,.25)}
-.lsc-idle{background:var(--s2);color:var(--t3);border:1px solid var(--b1)}
-.lsc-wait{background:rgba(180,83,9,.08);color:#b45309;border:1px solid rgba(180,83,9,.2)}
-.lsc-prod{font-family:var(--mono);font-size:11px;font-weight:900;margin-bottom:4px}
-.lsc-vol{font-family:var(--mono);font-size:28px;font-weight:900;line-height:1;margin-bottom:4px;letter-spacing:.5px}
-.lsc-vbar{height:7px;background:var(--s2);border-radius:4px;overflow:hidden;margin-bottom:8px}
-.lsc-vfill{height:100%;border-radius:3px;transition:width .5s}
-.lsc-row{display:flex;justify-content:space-between;margin-bottom:2px}
-.lsc-lbl{font-family:var(--mono);font-size:9px;color:var(--t3);font-weight:700;text-transform:uppercase;letter-spacing:.05em}
-.lsc-val{font-family:var(--mono);font-size:12px;font-weight:900;color:#111827}
-.lsc-q{margin-top:5px;padding-top:5px;border-top:1px solid var(--s2)}
-.lsc-qlbl{font-family:var(--mono);font-size:8px;font-weight:800;color:var(--t3);margin-bottom:3px}
-.lsc-qrow{display:flex;align-items:center;gap:4px;margin-bottom:2px}
+.lsc{background:#ffffff;border-radius:20px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.08);border:2px solid #e2e8f0;display:flex;flex-direction:column;transition:box-shadow .2s}
+.lsc:hover{box-shadow:0 8px 32px rgba(0,0,0,.12)}
+.lsc.lsc-running{border-color:var(--lsc-c,#15803d);box-shadow:0 4px 20px rgba(0,0,0,.08),0 0 0 1px var(--lsc-c,#15803d) inset}
+.lsc.lsc-waiting{border-color:#f59e0b;box-shadow:0 4px 20px rgba(245,158,11,.1)}
+.lsc-header{padding:16px 18px 12px;border-bottom:2px solid #f1f5f9;background:linear-gradient(135deg,#f8fafc 0%,#ffffff 100%);display:flex;align-items:center;justify-content:space-between;gap:10px}
+.lsc-linename{font-family:var(--mono);font-size:22px;font-weight:900;color:#0f172a;letter-spacing:.05em}
+.lsc-badge{font-family:var(--mono);font-size:10px;font-weight:900;padding:5px 12px;border-radius:999px;white-space:nowrap;display:flex;align-items:center;gap:5px}
+.lsc-badge.run{background:#dcfce7;color:#15803d;border:1.5px solid #86efac}
+.lsc-badge.wait{background:#fef3c7;color:#b45309;border:1.5px solid #fcd34d}
+.lsc-badge.idle{background:#f1f5f9;color:#64748b;border:1.5px solid #cbd5e1}
+.lsc-badge.run::before{content:"";width:7px;height:7px;background:#15803d;border-radius:50%;animation:lcsPulse 1.2s ease-in-out infinite}
+@keyframes lcsPulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(21,128,61,.5)}50%{opacity:.7;box-shadow:0 0 0 5px rgba(21,128,61,0)}}
+.lsc-product{font-family:var(--sans);font-size:15px;font-weight:800;color:#111827;padding:10px 18px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lsc-body{padding:12px 18px;display:flex;flex-direction:column;gap:8px;flex:1}
+.lsc-kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.lsc-kpi{background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;padding:8px 10px}
+.lsc-kpi-label{font-family:var(--mono);font-size:8px;font-weight:900;color:#94a3b8;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px}
+.lsc-kpi-val{font-family:var(--mono);font-size:20px;font-weight:900;color:#111827;line-height:1}
+.lsc-kpi-sub{font-family:var(--mono);font-size:9px;font-weight:700;color:#64748b;margin-top:2px}
+.lsc-kpi.highlight{background:#f0fdf4;border-color:#86efac}
+.lsc-kpi.warn{background:#fffbeb;border-color:#fcd34d}
+.lsc-kpi.crit{background:#fff1f2;border-color:#fca5a5}
+.lsc-progress-wrap{display:flex;flex-direction:column;gap:4px}
+.lsc-progress-labels{display:flex;justify-content:space-between}
+.lsc-progress-label{font-family:var(--mono);font-size:9px;font-weight:700;color:#94a3b8;text-transform:uppercase}
+.lsc-progress-pct{font-family:var(--mono);font-size:9px;font-weight:900;color:#111827}
+.lsc-bar{height:8px;background:#e2e8f0;border-radius:999px;overflow:hidden}
+.lsc-bar-fill{height:100%;border-radius:999px;transition:width .8s cubic-bezier(.4,0,.2,1)}
+.lsc-flow-row{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:#f8fafc;border-radius:8px;border:1.5px solid #e2e8f0}
+.lsc-flow-label{font-family:var(--mono);font-size:9px;font-weight:900;color:#94a3b8;letter-spacing:1px;text-transform:uppercase}
+.lsc-flow-val{font-family:var(--mono);font-size:13px;font-weight:900;color:#111827}
+.lsc-flow-warn{color:#dc2626}
+.lsc-eta-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.lsc-eta-box{flex:1;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;padding:8px 10px;text-align:center}
+.lsc-eta-label{font-family:var(--mono);font-size:8px;font-weight:900;color:#94a3b8;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px}
+.lsc-eta-time{font-family:var(--mono);font-size:18px;font-weight:900;color:#111827}
+.lsc-eta-time.crit{color:#dc2626}
+.lsc-eta-time.warn{color:#d97706}
+.lsc-q-section{border-top:2px solid #f1f5f9;padding:10px 18px 14px;background:#fafbff}
+.lsc-q-title{font-family:var(--mono);font-size:9px;font-weight:900;color:#64748b;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px}
+.lsc-q-item{display:flex;align-items:center;justify-content:space-between;padding:5px 8px;background:#ffffff;border-radius:7px;border:1.5px solid #e2e8f0;margin-bottom:4px}
+.lsc-q-code{font-family:var(--mono);font-size:11px;font-weight:800;color:#111827}
+.lsc-q-vol{font-family:var(--mono);font-size:11px;font-weight:700;color:#3b82f6}
+.lsc-idle-msg{padding:24px 18px;text-align:center;font-family:var(--mono);font-size:13px;color:#94a3b8;font-weight:700}
 .lsc-qcode{font-family:var(--mono);font-size:10px;font-weight:900;color:#111827;flex:1}
 .lsc-qvol{font-family:var(--mono);font-size:10px;font-weight:900;color:var(--lsc-c,var(--cyan))}
 @keyframes ldot{0%,100%{opacity:1}50%{opacity:.2}}
@@ -270,9 +297,8 @@ tbody td{padding:5px 6px;vertical-align:middle;font-weight:600}
   <div class="line-cards-wrap" id="lcw-m1"></div>
   <div class="toolbar">
     <div class="toolbar-left">
-      <span style="font-family:var(--mono);font-size:10px;color:var(--t3)">DATE</span>
-      <input type="date" id="date-m1" class="ci" style="width:140px" onchange="loadPlan('m1')">
       <button class="btn btn-s" onclick="changeDate('m1',-1)" style="padding:5px 10px">◀</button>
+      <input type="date" id="date-m1" class="ci" style="width:150px;font-size:16px;font-weight:900;color:#111827;font-family:var(--mono);border:none;background:transparent;cursor:pointer" onchange="loadPlan('m1')">
       <button class="btn btn-s" onclick="changeDate('m1',1)" style="padding:5px 10px">▶</button>
       <button class="btn btn-s" onclick="goToday('m1')" style="font-size:10px">วันนี้</button>
 
@@ -341,9 +367,8 @@ tbody td{padding:5px 6px;vertical-align:middle;font-weight:600}
   <div class="line-cards-wrap" id="lcw-m2"></div>
   <div class="toolbar">
     <div class="toolbar-left">
-      <span style="font-family:var(--mono);font-size:10px;color:var(--t3)">DATE</span>
-      <input type="date" id="date-m2" class="ci" style="width:140px" onchange="loadPlan('m2')">
       <button class="btn btn-s" onclick="changeDate('m2',-1)" style="padding:5px 10px">◀</button>
+      <input type="date" id="date-m2" class="ci" style="width:150px;font-size:16px;font-weight:900;color:#111827;font-family:var(--mono);border:none;background:transparent;cursor:pointer" onchange="loadPlan('m2')">
       <button class="btn btn-s" onclick="changeDate('m2',1)" style="padding:5px 10px">▶</button>
       <button class="btn btn-s" onclick="goToday('m2')" style="font-size:10px">วันนี้</button>
 
@@ -669,36 +694,101 @@ function _lcCard(line){
   const isRun=!!st.running;
   const rv=Math.round(_lcRem(st,fr));
   const sv=+(st.start_vol||0);
-  const pct=sv>0?Math.min(100,(rv/sv)*100):0;
-  const pc=pct>40?'#15803d':pct>15?'#b45309':'#b91c1c';
+  const pct=sv>0?Math.min(100,Math.max(0,((sv-rv)/sv)*100)):0;
   const ei=isRun?_lcEnd(rv,fr):null;
   const cc=st.mix_code||'';
   const cp=cc?(typeof productMap!=='undefined'&&productMap[cc])||{}:{};
-  const pCol=cp.color||'#374151';
+  const lc=_getLC(line.name)||'#3b82f6';
   const allR=[...(_lcRows['m1']||[]),...(_lcRows['m2']||[])];
   const q=allR.filter(r=>r.filling_line===line.name&&(r.status==='past_done'||r.status==='ready')&&!r.sent_filling_at);
   const tq=q.reduce((s,r)=>s+(+(r.volume_liter||0)),0);
-  const sc=isRun?'lsc-run':q.length>0?'lsc-wait':'lsc-idle';
-  const sl=isRun?'<span class="live-d"></span>เดินอยู่':q.length>0?'⏳ รอ Start':'○ ว่าง';
-  const hc=ei?(ei.hr<2?'var(--red)':ei.hr<4?'var(--orange)':'#15803d'):'#374151';
-  const lc=_getLC(line.name);
-  let h='<div class="lsc" style="--lsc-c:'+lc+'"><div class="lsc-inner">';
-  h+='<div class="lsc-head"><span class="lsc-name">'+line.name+'</span><span class="lsc-st '+sc+'">'+sl+'</span></div>';
-  if(isRun&&cc) h+='<div class="lsc-prod" style="color:'+lc+'">'+cc+'</div>';
+
+  // nom speed จาก productMap
+  const nomSpeed=+(cp.speed_m1||cp.speed||fr);
+  const flowOk=fr>=nomSpeed*0.98;
+  const flowWarn=fr<nomSpeed*0.95;
+
+  // status
+  const badgeCls=isRun?'run':q.length?'wait':'idle';
+  const badgeLbl=isRun?'RUNNING':q.length?'WAITING':'IDLE';
+  const cardCls=isRun?'lsc-running':q.length?'lsc-waiting':'';
+
+  // ETA styling
+  const etaHrClass=ei?(ei.hr<2?'crit':ei.hr<4?'warn':''):'' ;
+
+  // Progress bar color
+  const barCol=pct>60?'#15803d':pct>30?'#f59e0b':'#ef4444';
+
+  // Volume KPI
+  const nomVol=sv>0?sv.toLocaleString():'—';
+  const actVol=isRun?(sv-rv>0?(sv-rv).toLocaleString():'0'):'—';
+
+  // Aging balance จาก aging_tank_states
+  const agTank=st.aging_tank||cc;
+  let agBal='—';
+  if(typeof agingStates!=='undefined'){
+    const ag=Object.values(agingStates).filter(a=>a.mix_code===cc||a.product===cc);
+    const agTotal=ag.reduce((s,a)=>s+(+(a.current_vol||0)),0);
+    if(agTotal>0) agBal=agTotal.toLocaleString()+' L';
+  }
+
+  let h=`<div class="lsc ${cardCls}" style="--lsc-c:${lc}">`;
+
+  // HEADER
+  h+=`<div class="lsc-header">
+    <div class="lsc-linename">${line.name}</div>
+    <div class="lsc-badge ${badgeCls}">${badgeLbl}</div>
+  </div>`;
+
   if(isRun){
-    h+='<div class="lsc-vol" style="color:'+pc+'">'+rv.toLocaleString()+' <span style="font-size:13px;color:var(--t3);font-weight:700">L</span></div>';
-    h+='<div class="lsc-vbar"><div class="lsc-vfill" style="width:'+pct+'%;background:'+pc+'"></div></div>';
-    h+='<div class="lsc-row"><span class="lsc-lbl">เหลือ</span><span class="lsc-val" style="color:'+hc+';font-size:14px">'+(ei?_lcFmtHr(ei.hr):'—')+'</span></div>';
-    h+='<div class="lsc-row"><span class="lsc-lbl">เสร็จ~</span><span class="lsc-val">'+(ei?ei.label:'—')+'</span></div>';
+    // PRODUCT NAME
+    h+=`<div class="lsc-product" style="color:${lc}">${cp.name||cc||'—'}</div>`;
+
+    h+=`<div class="lsc-body">`;
+
+    // PROGRESS BAR
+    h+=`<div class="lsc-progress-wrap">
+      <div class="lsc-progress-labels">
+        <span class="lsc-progress-label">Progress</span>
+        <span class="lsc-progress-pct">${pct.toFixed(1)}%</span>
+      </div>
+      <div class="lsc-bar"><div class="lsc-bar-fill" style="width:${pct}%;background:${barCol}"></div></div>
+    </div>`;
+
+
+
+    // ETA ROW
+    h+=`<div class="lsc-eta-row">
+      <div class="lsc-eta-box">
+        <div class="lsc-eta-label">ETA Finish</div>
+        <div class="lsc-eta-time ${etaHrClass}">${ei?ei.label:'—'}</div>
+      </div>
+      <div class="lsc-eta-box">
+        <div class="lsc-eta-label">Remaining</div>
+        <div class="lsc-eta-time ${etaHrClass}">${ei?_lcFmtHr(ei.hr):'—'}</div>
+      </div>
+    </div>`;
+
+    h+=`</div>`; // lsc-body
+  } else if(q.length){
+    h+=`<div class="lsc-idle-msg" style="color:#b45309">⏳ รอ Start<br><span style="font-size:11px;color:#64748b">${tq.toLocaleString()} L พร้อม Fill</span></div>`;
+  } else {
+    h+=`<div class="lsc-idle-msg">— IDLE —</div>`;
   }
-  if(q.length>0){
-    h+='<div class="lsc-q"><div class="lsc-qlbl">📦 Queue '+tq.toLocaleString()+' L</div>';
-    h+=q.slice(0,2).map(r=>'<div class="lsc-qrow"><span class="lsc-qcode">'+(r.mix_code||'—')+' B.'+(r.batch_no||'?')+'</span><span class="lsc-qvol">'+(+(r.volume_liter||0)).toLocaleString()+'L</span></div>').join('');
-    if(q.length>2) h+='<div style="font-size:9px;color:var(--t3);margin-top:2px">+'+(q.length-2)+' เพิ่มเติม...</div>';
-    h+='</div>';
+
+  // QUEUE SECTION
+  if(q.length){
+    h+=`<div class="lsc-q-section">
+      <div class="lsc-q-title">📦 Queue — ${tq.toLocaleString()} L</div>`;
+    h+=q.slice(0,3).map(r=>`<div class="lsc-q-item">
+      <div class="lsc-q-code">${r.mix_code||'—'} B.${r.batch_no||'?'}</div>
+      <div class="lsc-q-vol">${(+(r.volume_liter||0)).toLocaleString()} L</div>
+    </div>`).join('');
+    if(q.length>3) h+=`<div style="font-family:var(--mono);font-size:9px;color:#94a3b8;margin-top:4px;text-align:center">+${q.length-3} รายการ</div>`;
+    h+=`</div>`;
   }
-  if(!isRun&&!q.length) h+='<div style="font-family:var(--mono);font-size:13px;color:var(--t3);text-align:center;padding:20px 0;font-weight:700">— ว่าง —</div>';
-  h+='</div></div>';
+
+  h+=`</div>`; // lsc
   return h;
 }
 function _lcRender(){
