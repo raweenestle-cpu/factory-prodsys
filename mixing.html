@@ -399,7 +399,7 @@ const auth = getAuth(app);
 const db   = getFirestore(app);
 
 let ME=null, productMap={};
-let rows={m1:[],m2:[]};
+let rowsData={m1:[],m2:[]};
 let unsub={m1:null,m2:null};
 let charts={};
 let period={m1:"day",m2:"day"};
@@ -479,10 +479,10 @@ window.loadPlan=(m)=>{
   if(unsub[m])unsub[m]();
   const q=query(collection(db,planCol(m)),where("date","==",d));
   unsub[m]=onSnapshot(q,snap=>{
-    rows[m]=snap.docs.map(d=>({id:d.id,...d.data()}))
+    rowsData[m]=snap.docs.map(d=>({id:d.id,...d.data()}))
       .filter(r=>(r.mix_code||r.mix_name||r.process_order)&&r.status!=='past_done'&&r.status!=='ready'&&r.status!=='sent_filling'&&r.status!=='filling'&&r.status!=='curing')
       .sort((a,b)=>(a.seq||0)-(b.seq||0));
-    renderMixTanks(m, rows[m]||[]);
+    renderMixTanks(m, rowsData[m]||[]);
     autoAssignTank(m);
   });
 };
@@ -707,9 +707,11 @@ window._cfm=async function(pcol,rid,field){
   try{await updateDoc(doc(db,pcol,rid),upd);}catch(e){console.warn(e);}
 };
 
-function renderMixTanks(m, rows){
+function renderMixTanks(m, rowsArg){
   const el=document.getElementById(`tank-visual-${m}`);
   if(!el)return;
+  // ใช้ rowsArg ถ้ามี ไม่งั้นใช้ global rowsData
+  const rows=rowsArg||rowsData[m]||[];
 
   const t1Row=rows.find(r=>(r.mixing_tank==='Tank 1'||r.mixing_tank==='T1'||r.mixing_tank==='1')&&+(r.volume_liter||0)>0)||rows.find(r=>(r.mixing_tank==='Tank 1'||r.mixing_tank==='T1'||r.mixing_tank==='1'))||null;
   const t2Row=rows.find(r=>(r.mixing_tank==='Tank 2'||r.mixing_tank==='T2'||r.mixing_tank==='2')&&+(r.volume_liter||0)>0)||rows.find(r=>(r.mixing_tank==='Tank 2'||r.mixing_tank==='T2'||r.mixing_tank==='2'))||null;
@@ -993,7 +995,7 @@ function renderMixTanks(m, rows){
 // ============================================================
 async function autoAssignTank(m){
   const pcol = planCol(m);
-  const allRows = rows[m]||[];
+  const allRows = rowsData[m]||[];
   
   // หาถังที่ "ว่าง" — ไม่มี row ที่ status=mixing หรือ pasteurising ในถังนั้น
   function isTankBusy(tank){
