@@ -1002,7 +1002,13 @@ function calcVol(row){
 
         <!-- Flow Diagram -->
         <div style="padding:16px 16px 12px;background:#ffffff;flex:1">
-          <div style="font-family:var(--mono);font-size:10px;font-weight:900;color:#64748b;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px">${agingTank||'—'}</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <div style="font-family:var(--mono);font-size:10px;font-weight:900;color:#64748b;letter-spacing:1.5px;text-transform:uppercase">${agingTank||'—'}</div>
+            <div style="font-family:var(--mono);font-size:10px;font-weight:900;padding:4px 10px;border-radius:20px;
+              ${isRunning?'background:#d1fae5;color:#065f46':!curing.done&&current?.past_end_time?'background:#fef3c7;color:#92400e':curing.done?'background:#dbeafe;color:#1e40af':'background:#f1f5f9;color:#64748b'}">
+              ${isRunning?'🔵 กำลัง Fill':!curing.done&&current?.past_end_time?'⏳ บ่มอยู่ จบ '+curing.endTime:curing.done?'✅ พร้อม Fill':'○ รอ'}
+            </div>
+          </div>
           <div style="display:flex;align-items:center;gap:0;width:100%">
 
             <!-- AGING TANK SVG -->
@@ -1085,8 +1091,8 @@ function calcVol(row){
         <div style="border-top:1.5px solid #e2e8f0;margin:2px 0"></div>
 
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-          <button style="padding:10px 6px;border-radius:10px;font-family:var(--mono);font-size:12px;font-weight:900;border:2px solid ${isRunning||!curing.done?'#e2e8f0':'#10b981'};background:${isRunning||!curing.done?'#f1f5f9':'#d1fae5'};color:${isRunning||!curing.done?'#94a3b8':'#065f46'};cursor:${isRunning||!curing.done?'not-allowed':'pointer'}"
-            ${isRunning?'disabled':''} onclick="startLine('${line.id}',${sv},${fr})">▶ Start</button>
+          <button style="padding:10px 6px;border-radius:10px;font-family:var(--mono);font-size:12px;font-weight:900;border:2px solid ${isRunning?'#e2e8f0':!curing.done?'#fcd34d':'#10b981'};background:${isRunning?'#f1f5f9':!curing.done?'#fef9c3':'#d1fae5'};color:${isRunning?'#94a3b8':!curing.done?'#92400e':'#065f46'};cursor:${isRunning||!curing.done?'not-allowed':'pointer'}"
+            ${isRunning||!curing.done?'disabled':''} onclick="startLine('${line.id}',${sv},${fr})">${isRunning?'▶ กำลังเดิน':!curing.done?'⏳ รอบ่ม':'▶ Start'}</button>
           <button style="padding:10px 6px;border-radius:10px;font-family:var(--mono);font-size:12px;font-weight:900;border:2px solid ${!isRunning?'#e2e8f0':'#ef4444'};background:${!isRunning?'#f1f5f9':'#fee2e2'};color:${!isRunning?'#94a3b8':'#991b1b'};cursor:${!isRunning?'not-allowed':'pointer'}"
             ${!isRunning?'disabled':''} onclick="stopLine('${line.id}')">⏸ Stop</button>
         </div>
