@@ -39,3 +39,56 @@ export function statusBadge(s){
   var lbl=statusLabel(s),col=statusColor(s),blk=statusBlink(s);
   return '<span class="'+(blk?'status-blink':'')+'" style="display:inline-block;font-family:DM Mono,monospace;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;background:'+col+'22;color:'+col+';border:1px solid '+col+'55;white-space:nowrap">'+lbl+'</span>';
 }
+
+// ══ EXPIRE BOX ═══════════════════════════════════════════════════════
+// ใช้ร่วมกันทุกหน้า — filling, aging, cipman, mixing, pasteurize
+export function expireBox(expireAt){
+  if(!expireAt) return '';
+  var ed=new Date(expireAt);
+  var now=new Date();
+  var rh=(ed-now)/3600000;
+  var isExp=rh<0;
+  var isCrit=!isExp&&rh<24;
+  var isWarn=!isExp&&rh<48;
+  var bg=isExp?'rgba(185,28,28,.12)':isCrit?'rgba(185,28,28,.08)':isWarn?'rgba(194,65,12,.08)':'rgba(21,128,61,.08)';
+  var bc=isExp?'#b91c1c':isCrit?'#b91c1c':isWarn?'#c2410c':'#15803d';
+  var ic=isExp?'❌':isCrit?'⚠️':isWarn?'🟡':'✅';
+  var dateStr=ed.toLocaleDateString('th-TH',{weekday:'short',day:'2-digit',month:'short'});
+  var timeStr=ed.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+  var remStr=isExp?'หมดอายุแล้ว':rh<1?Math.round(rh*60)+' นาที':rh<24?rh.toFixed(1)+' ชม.':Math.floor(rh/24)+' วัน '+Math.round(rh%24)+' ชม.';
+  return '<div style="background:'+bg+';border:2px solid '+bc+';border-radius:8px;padding:6px 10px;margin-top:6px;font-family:DM Mono,monospace">'
+    +'<div style="font-size:10px;font-weight:800;color:'+bc+';letter-spacing:.06em">'+ic+' วันหมดอายุ</div>'
+    +'<div style="font-size:13px;font-weight:900;color:'+bc+';margin-top:2px">'+dateStr+' '+timeStr+'</div>'
+    +'<div style="font-size:10px;font-weight:700;color:'+bc+';opacity:.8;margin-top:1px">เหลือ '+remStr+'</div>'
+    +'</div>';
+}
+
+// ══ CALC EXPIRE AT ════════════════════════════════════════════════════
+// คำนวณวันหมดอายุจาก past_end_time + aging_time (ชั่วโมง)
+// pastEndStr = "HH:MM:SS", dateStr = "YYYY-MM-DD", agingHr = number
+export function calcExpireAt(pastEndStr, dateStr, agingHr){
+  if(!pastEndStr||!dateStr||!agingHr) return null;
+  try{
+    var parts=pastEndStr.split(':').map(Number);
+    var base=new Date(dateStr+'T'+
+      String(parts[0]||0).padStart(2,'0')+':'+
+      String(parts[1]||0).padStart(2,'0')+':'+
+      String(parts[2]||0).padStart(2,'0'));
+    if(isNaN(base)) return null;
+    return new Date(base.getTime()+agingHr*3600000).toISOString();
+  }catch(e){ return null; }
+}
+
+// ══ VOLUME DISPLAY ════════════════════════════════════════════════════
+// แสดง current_vol ถ้ามี ไม่งั้นใช้ volume_liter
+export function displayVol(row){
+  var v=row&&row.current_vol!=null?+row.current_vol:+(row&&row.volume_liter||0);
+  return Math.round(v).toLocaleString()+' L';
+}
+
+// ══ PRODUCT COLOR ═════════════════════════════════════════════════════
+// ดึงสีจาก productMap โดย mix_code — ถ้าไม่มีใช้ default
+export function getProductColor(productMap, mixCode){
+  var p=productMap&&productMap[mixCode];
+  return (p&&p.color)||'#3b82f6';
+}
