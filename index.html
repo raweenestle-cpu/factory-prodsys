@@ -455,7 +455,7 @@ onAuthStateChanged(auth,async user=>{
   showStep('step1');
 });
 
-window.selectRole=(role)=>{
+window.window.selectRole=(role)=>{
   selectedRole=role;
   document.querySelectorAll('.role-btn').forEach(b=>b.classList.remove('selected'));
   document.getElementById('btn-'+role).classList.add('selected');
@@ -523,7 +523,7 @@ window.doLogout=async()=>{
   showStep('step1');
 };
 
-function showStep(id){
+window.showStep=function(id){
   document.querySelectorAll('.step').forEach(s=>s.classList.remove('on'));
   document.getElementById(id).classList.add('on');
 }
@@ -570,7 +570,7 @@ function showStep(id){
 // ══ PIN MODAL ══════════════════════════════════════════════
 var pinTarget='', pinValue='', pinEmployees=[];
 
-function openPinModal(file,name){
+window.openPinModal=function(file,name){
   var noPinPages=['admin.html','shelflife.html','aging.html','filling.html','pinregister.html'];
   if(noPinPages.indexOf(file)>=0){window.location.href=file;return;}
   pinTarget=file;pinValue='';
@@ -582,7 +582,7 @@ function openPinModal(file,name){
   loadPinEmployees();
 }
 
-function closePinModal(){
+window.closePinModal=function(){
   document.getElementById('pin-modal').style.display='none';
   pinValue='';updatePinDots();
 }
