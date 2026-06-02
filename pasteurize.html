@@ -450,18 +450,65 @@ setInterval(async()=>{
             current_vol:finalCumVol,
             mix_start_time:"",mix_end_time:"",
           });
+          // อัปเดต rows local ทันทีก่อน Firebase onSnapshot กลับมา
+          const _lIdx=(rows[p]||[]).findIndex(r=>r.id===agRow.id);
+          if(_lIdx>=0){
+            rows[p][_lIdx]={...rows[p][_lIdx],status:'past_done',past_end_time:endTime,current_vol:finalCumVol};
+            window._rows[p]=rows[p];
+          }
+
+          // ── ARCHIVE → past_history แล้ว DELETE ออกจาก production_plans ──
+          try{
+            await addDoc(collection(db,'past_history'),{
+              ...agRow,
+              past_end_time:endTime,
+              eff:Math.round(eff*10)/10,
+              status:'past_done',
+              current_vol:finalCumVol,
+              archived_at:nowHHMM(),
+              archived_date:today(),
+              mixing_unit:p,
+            });
+            await deleteDoc(doc(db,planCol(p),agRow.id));
+            // ลบออกจาก rows local ด้วย
+            rows[p]=(rows[p]||[]).filter(r=>r.id!==agRow.id);
+            window._rows[p]=rows[p];
+          }catch(e){console.error('archive error:',e);}
+
+          // ── UPDATE aging_tank_states ──
           if(agRow.aging_tank){
-            try{await setDoc(doc(db,'aging_tank_states',agRow.aging_tank),{
-              past_end_time:endTime,status:'past_done',
-              current_vol:finalCumVol,eff:Math.round(eff*10)/10,
-              updated_at:new Date().toISOString()
-            },{merge:true});}catch{}
+            const _allRowsNow=[...(rows['p1']||[]),...(rows['p2']||[])];
+            const _hasNext=_allRowsNow.some(r=>
+              r.process_order===agRow.process_order &&
+              r.aging_tank===agRow.aging_tank &&
+              r.id!==agRow.id &&
+              (r.status==='pasteurising'||r.status==='pending'||r.status==='mixing')
+            );
+            if(_hasNext){
+              // มี batch ถัดไปใน process เดียวกัน → สะสม volume ต่อ ไม่ clear
+              try{await setDoc(doc(db,'aging_tank_states',agRow.aging_tank),{
+                current_vol:finalCumVol,
+                updated_at:new Date().toISOString()
+              },{merge:true});}catch{}
+            } else {
+              // ไม่มี batch ถัดไป → clear ให้ว่าง รอรับ mix ใหม่
+              try{await setDoc(doc(db,'aging_tank_states',agRow.aging_tank),{
+                current_vol:0,
+                mix_code:'',
+                mix_name:'',
+                batch_no:'',
+                process_order:'',
+                status:'empty',
+                past_end_time:null,
+                updated_at:new Date().toISOString()
+              },{merge:false});}catch{}
+            }
           }
 
           if(!effOk){
             toast(`⚠️ Auto Stamp Past.เสร็จ — Eff% ${eff.toFixed(1)}% ต่ำกว่า 97%`,"red");
           } else {
-            toast(`✅ Auto Stamp Past.เสร็จ เวลา ${endTime}`,"green");
+            toast(`✅ Auto Stamp Past.เสร็จ เวลา ${endTime} — Archive แล้ว`,"green");
           }
 
           // หา batch ถัดไปจาก process_order + aging_tank เดียวกัน
@@ -1096,8 +1143,21 @@ function renderTankVisual(m,rows){
     return 4;
   };
   const rowsSorted = [...rows].sort((a,b)=>statusPriority(a.status)-statusPriority(b.status));
-  const t1Row = rowsSorted.find(r=>(r.mixing_tank==='Tank 1'||r.mixing_tank==='T1'))||null;
-  const t2Row = rowsSorted.find(r=>(r.mixing_tank==='Tank 2'||r.mixing_tank==='T2'))||null;
+  // ถ้า mixing_tank นั้นมี row ที่ pasteurising/mixing/pending อยู่ด้วย ให้ซ่อน past_done เก่า
+  const hasActiveForTank = (tank) => rows.some(r =>
+    (r.mixing_tank===tank) &&
+    (r.status==='pasteurising'||r.status==='mixing'||r.status==='pending'||r.status==='ready_mix')
+  );
+  const t1Row = rowsSorted.find(r=>{
+    if(r.mixing_tank!=='Tank 1'&&r.mixing_tank!=='T1') return false;
+    if((r.status==='past_done'||r.status==='ready') && hasActiveForTank(r.mixing_tank)) return false;
+    return true;
+  })||null;
+  const t2Row = rowsSorted.find(r=>{
+    if(r.mixing_tank!=='Tank 2'&&r.mixing_tank!=='T2') return false;
+    if((r.status==='past_done'||r.status==='ready') && hasActiveForTank(r.mixing_tank)) return false;
+    return true;
+  })||null;
 
   if(!t1Row&&!t2Row){
     el.innerHTML='<div style="padding:20px;text-align:center;font-family:var(--mono);font-size:12px;color:#64748b">ยังไม่มีรายการที่ต้อง Pasteurise</div>';
