@@ -7,404 +7,374 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="PROD.SYS">
 <title>PROD.SYS — Smart Factory</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sarabun:wght@400;600;700;800&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;700&family=Sarabun:wght@400;600;700;800&family=Inter:wght@700;800;900&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
   --mono:'DM Mono',monospace;
   --sans:'Sarabun','Inter',sans-serif;
-  --bg:#f0f4f8;
-  --glass:rgba(255,255,255,0.75);
-  --glass-border:rgba(255,255,255,0.9);
-  --primary:#1d4ed8;
-  --primary-light:#3b82f6;
-  --cyan:#0891b2;
-  --purple:#7c3aed;
-  --text:#0f172a;
-  --text2:#374151;
-  --text3:#64748b;
-  --shadow:0 8px 32px rgba(0,0,0,.08);
-  --shadow-lg:0 20px 60px rgba(0,0,0,.12);
 }
 body{
-  background:var(--bg);
-  min-height:100vh;
-  font-family:var(--sans);
-  color:var(--text);
+  min-height:100vh;font-family:var(--sans);color:#f1f5f9;
   overflow-x:hidden;
+  background:#0d1117;
 }
 
-/* BACKGROUND */
-.bg-grid{
-  position:fixed;inset:0;z-index:0;
+/* BG — factory dark blue gradient */
+.bg-wrap{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.bg-wrap::before{
+  content:'';position:absolute;inset:0;
   background:
-    radial-gradient(ellipse 80% 50% at 20% 20%, rgba(59,130,246,.08) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(124,58,237,.06) 0%, transparent 60%),
-    radial-gradient(ellipse 40% 30% at 50% 50%, rgba(8,145,178,.05) 0%, transparent 70%);
+    radial-gradient(ellipse 80% 60% at 10% 20%,rgba(29,78,216,.25),transparent 60%),
+    radial-gradient(ellipse 60% 50% at 90% 80%,rgba(124,58,237,.2),transparent 60%),
+    radial-gradient(ellipse 40% 40% at 50% 50%,rgba(8,145,178,.12),transparent 70%),
+    linear-gradient(180deg,#0d1117 0%,#0f172a 50%,#0d1117 100%);
 }
-.bg-grid::before{
+.bg-wrap::after{
   content:'';position:absolute;inset:0;
   background-image:
-    linear-gradient(rgba(59,130,246,.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(59,130,246,.06) 1px, transparent 1px);
+    linear-gradient(rgba(59,130,246,.06) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(59,130,246,.06) 1px,transparent 1px);
   background-size:48px 48px;
 }
 
+/* STEPS */
+.step{display:none}.step.on{display:block}
+
+/* OUTER */
+.outer{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column}
+
 /* NAV */
-nav{
-  position:sticky;top:0;z-index:100;
-  background:rgba(255,255,255,.85);
-  backdrop-filter:blur(20px);
-  -webkit-backdrop-filter:blur(20px);
-  border-bottom:1.5px solid rgba(255,255,255,.9);
-  padding:0 24px;
-  height:60px;
-  display:flex;align-items:center;justify-content:space-between;gap:16px;
-  box-shadow:0 2px 20px rgba(0,0,0,.06);
+.top-nav{
+  background:rgba(13,17,23,.8);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(59,130,246,.2);
+  padding:0 28px;height:64px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:50;
 }
-.nav-logo{
-  font-family:var(--mono);font-size:18px;font-weight:700;
-  color:var(--primary);letter-spacing:.08em;
-  display:flex;align-items:center;gap:8px;
-}
-.nav-logo b{color:var(--cyan)}
-.nav-logo-sub{font-family:var(--sans);font-size:10px;font-weight:700;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin-left:2px}
-.nav-center{display:flex;align-items:center;gap:8px;flex:1;justify-content:center}
-.nav-right{display:flex;align-items:center;gap:12px}
-.nav-time{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--text2)}
-.nav-user-pill{
-  display:flex;align-items:center;gap:8px;
-  background:linear-gradient(135deg,#eff6ff,#f0f9ff);
-  border:1.5px solid #bfdbfe;
-  border-radius:24px;padding:5px 14px;
-  font-family:var(--mono);font-size:12px;font-weight:800;color:var(--primary);
-}
-.nav-shift{
-  font-family:var(--mono);font-size:11px;font-weight:700;
-  padding:4px 12px;border-radius:20px;
-  background:#f0fdf4;border:1.5px solid #bbf7d0;color:#15803d;
-}
+.top-logo{font-family:var(--mono);font-size:20px;font-weight:700;letter-spacing:.1em;display:flex;align-items:center;gap:10px}
+.top-logo span{background:linear-gradient(135deg,#60a5fa,#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.top-logo b{background:linear-gradient(135deg,#34d399,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.top-logo-sub{font-size:9px;font-weight:700;color:#475569;letter-spacing:3px;text-transform:uppercase;display:block;margin-top:-2px}
+.top-right{display:flex;align-items:center;gap:14px}
+.nav-time{font-family:var(--mono);font-size:16px;font-weight:700;color:#e2e8f0}
+.nav-date{font-family:var(--mono);font-size:10px;color:#64748b;font-weight:600;letter-spacing:1px}
+.nav-shift-pill{font-family:var(--mono);font-size:11px;font-weight:800;padding:5px 14px;border-radius:20px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);color:#4ade80}
+.logout-btn{font-family:var(--mono);font-size:11px;font-weight:800;padding:6px 16px;border-radius:20px;border:1px solid rgba(239,68,68,.3);background:rgba(239,68,68,.08);color:#fca5a5;cursor:pointer;transition:all .15s}
+.logout-btn:hover{background:rgba(239,68,68,.15)}
 
-/* HERO */
-.hero{
-  position:relative;z-index:1;
-  padding:32px 24px 20px;
-  text-align:center;
-}
-.hero-title{
-  font-size:clamp(24px,3vw,36px);font-weight:900;
-  background:linear-gradient(135deg,var(--primary) 0%,var(--cyan) 50%,var(--purple) 100%);
+/* STEP 1 LOGIN */
+.login-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100vh - 64px);padding:24px}
+
+/* HERO TEXT */
+.login-hero{text-align:center;margin-bottom:32px}
+.login-hero-title{
+  font-size:clamp(28px,4vw,48px);font-weight:900;letter-spacing:-.02em;
+  background:linear-gradient(135deg,#93c5fd 0%,#a78bfa 50%,#67e8f9 100%);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  margin-bottom:8px;letter-spacing:-.02em;
+  margin-bottom:8px;
 }
-.hero-sub{font-size:14px;font-weight:600;color:var(--text3);letter-spacing:1px;text-transform:uppercase}
+.login-hero-sub{font-size:12px;font-weight:700;color:#475569;letter-spacing:3px;text-transform:uppercase}
 
-/* KPI BAR */
-.kpi-bar{
-  position:relative;z-index:1;
-  display:flex;gap:12px;padding:0 24px 20px;
-  overflow-x:auto;scrollbar-width:none;
-}
-.kpi-bar::-webkit-scrollbar{display:none}
-.kpi-card{
-  flex-shrink:0;min-width:140px;
-  background:var(--glass);
+/* ROLE CARDS ROW */
+.role-cards{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:0}
+.role-card-wrap{
+  background:rgba(15,23,42,.7);
+  border:1px solid rgba(59,130,246,.2);
+  border-radius:20px;padding:28px 20px;
+  width:220px;min-height:340px;
+  display:flex;flex-direction:column;align-items:center;gap:12px;
+  cursor:pointer;transition:all .2s;
+  position:relative;overflow:hidden;
   backdrop-filter:blur(12px);
-  border:1.5px solid var(--glass-border);
-  border-radius:14px;padding:12px 16px;
-  box-shadow:var(--shadow);
 }
-.kpi-label{font-family:var(--mono);font-size:8px;font-weight:900;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px}
-.kpi-val{font-family:var(--mono);font-size:22px;font-weight:900;color:var(--text);line-height:1}
-.kpi-unit{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--text3);margin-top:2px}
-.kpi-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;animation:pulse 1.5s ease-in-out infinite}
-@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 currentColor}50%{opacity:.7;box-shadow:0 0 0 5px transparent}}
+.role-card-wrap::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.03),transparent);pointer-events:none}
+.role-card-wrap:hover{transform:translateY(-6px);border-color:rgba(139,92,246,.5);box-shadow:0 20px 60px rgba(139,92,246,.15)}
+.role-card-wrap.selected{border-color:#818cf8;box-shadow:0 0 0 2px rgba(129,140,248,.3)}
+.role-icon-wrap{
+  width:72px;height:72px;border-radius:50%;
+  background:linear-gradient(135deg,rgba(99,102,241,.3),rgba(139,92,246,.3));
+  border:2px solid rgba(139,92,246,.4);
+  display:flex;align-items:center;justify-content:center;font-size:32px;
+  box-shadow:0 0 20px rgba(139,92,246,.2);
+}
+.role-name{font-family:var(--mono);font-size:18px;font-weight:900;letter-spacing:.05em;
+  background:linear-gradient(135deg,#e2e8f0,#94a3b8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.role-name-sub{font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+  background:linear-gradient(135deg,#818cf8,#67e8f9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.role-desc{font-size:12px;color:#64748b;text-align:center;line-height:1.6;font-weight:600}
+.role-access{width:100%;margin-top:4px}
+.role-access-title{font-family:var(--mono);font-size:8px;font-weight:900;color:#475569;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
+.role-access-item{display:flex;align-items:center;gap:6px;font-size:11px;color:#94a3b8;font-weight:600;margin-bottom:5px}
+.role-access-item::before{content:'✓';color:#818cf8;font-size:10px;font-weight:900}
+.role-login-btn{
+  width:100%;padding:10px;margin-top:auto;
+  font-family:var(--mono);font-size:12px;font-weight:900;letter-spacing:.05em;
+  background:transparent;border:1px solid rgba(139,92,246,.4);border-radius:10px;
+  color:#a78bfa;cursor:pointer;transition:all .15s;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.role-login-btn:hover{background:rgba(139,92,246,.15);border-color:#a78bfa}
 
-/* SECTION */
-.section{position:relative;z-index:1;padding:0 24px 12px}
-.section-title{
-  font-family:var(--mono);font-size:10px;font-weight:900;color:var(--text3);
-  letter-spacing:2px;text-transform:uppercase;
-  padding:8px 0 12px;
-  border-top:1.5px solid rgba(0,0,0,.06);
+/* STEP 2 PASSWORD */
+.pw-wrap{display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 64px);padding:24px}
+.pw-card{
+  background:rgba(15,23,42,.9);backdrop-filter:blur(20px);
+  border:1px solid rgba(59,130,246,.25);border-radius:24px;
+  padding:40px 36px;max-width:440px;width:100%;
+  box-shadow:0 32px 80px rgba(0,0,0,.5);
+}
+.pw-title{font-family:var(--mono);font-size:20px;font-weight:900;
+  background:linear-gradient(135deg,#93c5fd,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  text-align:center;margin-bottom:4px}
+.pw-sub{font-size:12px;color:#475569;text-align:center;margin-bottom:24px;font-weight:600;letter-spacing:1px}
+.selected-display{
+  background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.3);
+  border-radius:14px;padding:14px;margin-bottom:20px;
+  display:flex;align-items:center;gap:12px;
+}
+.selected-icon{font-size:28px}
+.selected-name{font-family:var(--mono);font-size:15px;font-weight:900;color:#e2e8f0}
+.selected-sub{font-size:11px;color:#64748b;margin-top:2px;font-weight:600}
+.pw-input{
+  width:100%;padding:14px 16px;
+  font-family:var(--mono);font-size:16px;font-weight:800;letter-spacing:.2em;text-align:center;
+  background:rgba(15,23,42,.8);border:1px solid rgba(59,130,246,.25);border-radius:12px;
+  color:#e2e8f0;outline:none;transition:all .15s;margin-bottom:8px;
+}
+.pw-input:focus{border-color:#818cf8;box-shadow:0 0 0 3px rgba(129,140,248,.15)}
+.err-msg{font-family:var(--mono);font-size:11px;font-weight:700;color:#f87171;min-height:18px;margin-bottom:10px}
+.login-btn{
+  width:100%;padding:14px;font-family:var(--mono);font-size:14px;font-weight:900;letter-spacing:.05em;
+  background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none;border-radius:12px;cursor:pointer;
+  transition:all .15s;box-shadow:0 4px 20px rgba(99,102,241,.4);
+}
+.login-btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(99,102,241,.5)}
+.login-btn.loading{opacity:.7;cursor:not-allowed}
+.back-btn{width:100%;padding:10px;font-family:var(--mono);font-size:12px;background:transparent;border:1px solid rgba(255,255,255,.1);border-radius:10px;cursor:pointer;color:#475569;margin-top:8px;transition:all .15s}
+.back-btn:hover{border-color:rgba(255,255,255,.2);color:#94a3b8}
+
+/* STEP 3: Menu */
+.step3-hero{text-align:center;padding:24px 24px 8px}
+.step3-title{
+  font-size:clamp(20px,3vw,32px);font-weight:900;
+  background:linear-gradient(135deg,#93c5fd 0%,#a78bfa 50%,#67e8f9 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  margin-bottom:4px;
+}
+.step3-sub{font-size:11px;font-weight:700;color:#475569;letter-spacing:2px;text-transform:uppercase}
+.sec{padding:0 24px 16px;position:relative;z-index:1}
+.sec-title{
+  font-family:var(--mono);font-size:9px;font-weight:900;color:#475569;
+  letter-spacing:2.5px;text-transform:uppercase;
+  padding:10px 0 12px;border-top:1px solid rgba(255,255,255,.06);
   display:flex;align-items:center;gap:8px;
 }
-.section-title::before{content:'';width:3px;height:14px;border-radius:2px;background:linear-gradient(135deg,var(--primary),var(--cyan))}
+.sec-title::before{content:'';width:3px;height:12px;border-radius:2px;background:linear-gradient(#818cf8,#67e8f9)}
 
-/* GRID */
+/* MENU GRID */
 .menu-grid{
   display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
-  gap:14px;
-  padding-bottom:4px;
+  grid-template-columns:repeat(auto-fill,minmax(145px,1fr));
+  gap:12px;
 }
-
-/* MENU CARD */
-.menu-card{
-  background:var(--glass);
-  backdrop-filter:blur(12px);
-  -webkit-backdrop-filter:blur(12px);
-  border:1.5px solid var(--glass-border);
-  border-radius:18px;
-  padding:20px 16px;
-  cursor:pointer;
-  text-decoration:none;
-  display:flex;flex-direction:column;align-items:center;gap:10px;
-  box-shadow:var(--shadow);
+.menu-btn{
+  background:rgba(15,23,42,.7);backdrop-filter:blur(10px);
+  border:1px solid rgba(59,130,246,.15);
+  border-radius:16px;padding:20px 14px;
+  cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:10px;
   transition:all .2s cubic-bezier(.4,0,.2,1);
-  position:relative;overflow:hidden;
+  position:relative;overflow:hidden;text-decoration:none;
+  box-shadow:0 4px 20px rgba(0,0,0,.2);
 }
-.menu-card::before{
-  content:'';position:absolute;inset:0;
-  background:linear-gradient(135deg,rgba(255,255,255,.4) 0%,transparent 60%);
-  pointer-events:none;
-}
-.menu-card:hover{
-  transform:translateY(-4px);
-  box-shadow:var(--shadow-lg);
-  border-color:rgba(59,130,246,.3);
-}
-.menu-card:active{transform:translateY(-2px)}
-.menu-icon{
-  font-size:36px;line-height:1;
-  filter:drop-shadow(0 2px 4px rgba(0,0,0,.1));
-  transition:transform .2s;
-}
-.menu-card:hover .menu-icon{transform:scale(1.1)}
-.menu-name{
-  font-family:var(--mono);font-size:12px;font-weight:900;
-  color:var(--text);text-align:center;letter-spacing:.02em;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;
-}
-.menu-desc{
-  font-family:var(--sans);font-size:10px;font-weight:600;
-  color:var(--text3);text-align:center;line-height:1.4;
-}
-.menu-tag{
-  position:absolute;top:10px;right:10px;
-  font-family:var(--mono);font-size:8px;font-weight:900;
-  padding:3px 8px;border-radius:20px;
-  letter-spacing:.5px;text-transform:uppercase;
-}
+.menu-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.03),transparent);pointer-events:none}
+.menu-btn:hover{transform:translateY(-4px);border-color:rgba(129,140,248,.4);box-shadow:0 12px 40px rgba(99,102,241,.2)}
+.menu-icon{font-size:34px;line-height:1;filter:drop-shadow(0 2px 8px rgba(99,102,241,.3));transition:transform .2s}
+.menu-btn:hover .menu-icon{transform:scale(1.12)}
+.menu-name{font-family:var(--mono);font-size:11px;font-weight:900;color:#e2e8f0;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;letter-spacing:.02em}
+.menu-desc{font-size:10px;font-weight:600;color:#475569;text-align:center;line-height:1.4}
 
-/* CARD COLOR VARIANTS */
-.mc-blue{background:linear-gradient(135deg,rgba(219,234,254,.9),rgba(239,246,255,.95))}
-.mc-blue:hover{border-color:rgba(59,130,246,.4)}
-.mc-cyan{background:linear-gradient(135deg,rgba(207,250,254,.9),rgba(240,249,255,.95))}
-.mc-cyan:hover{border-color:rgba(8,145,178,.4)}
-.mc-purple{background:linear-gradient(135deg,rgba(237,233,254,.9),rgba(245,243,255,.95))}
-.mc-purple:hover{border-color:rgba(124,58,237,.4)}
-.mc-green{background:linear-gradient(135deg,rgba(220,252,231,.9),rgba(240,253,244,.95))}
-.mc-green:hover{border-color:rgba(22,163,74,.4)}
-.mc-orange{background:linear-gradient(135deg,rgba(255,237,213,.9),rgba(255,247,237,.95))}
-.mc-orange:hover{border-color:rgba(234,88,12,.4)}
-.mc-red{background:linear-gradient(135deg,rgba(254,226,226,.9),rgba(255,241,242,.95))}
-.mc-red:hover{border-color:rgba(220,38,38,.4)}
+/* CARD VARIANTS */
+.m-leadman{border-color:rgba(96,165,250,.2)} .m-leadman:hover{border-color:rgba(96,165,250,.5);box-shadow:0 12px 40px rgba(96,165,250,.15)}
+.m-mixing{border-color:rgba(6,182,212,.2)} .m-mixing:hover{border-color:rgba(6,182,212,.5);box-shadow:0 12px 40px rgba(6,182,212,.15)}
+.m-past{border-color:rgba(251,146,60,.2)} .m-past:hover{border-color:rgba(251,146,60,.5);box-shadow:0 12px 40px rgba(251,146,60,.15)}
+.m-flavor{border-color:rgba(250,204,21,.2)} .m-flavor:hover{border-color:rgba(250,204,21,.4);box-shadow:0 12px 40px rgba(250,204,21,.1)}
+.m-cip{border-color:rgba(52,211,153,.2)} .m-cip:hover{border-color:rgba(52,211,153,.5);box-shadow:0 12px 40px rgba(52,211,153,.15)}
+.m-filling{border-color:rgba(167,139,250,.2)} .m-filling:hover{border-color:rgba(167,139,250,.5);box-shadow:0 12px 40px rgba(167,139,250,.15)}
+.m-admin{border-color:rgba(248,113,113,.2)} .m-admin:hover{border-color:rgba(248,113,113,.5);box-shadow:0 12px 40px rgba(248,113,113,.15)}
 
-/* LOGIN OVERLAY */
-.login-overlay{
-  position:fixed;inset:0;z-index:200;
-  background:linear-gradient(135deg,#eff6ff 0%,#f0f9ff 50%,#faf5ff 100%);
-  display:flex;align-items:center;justify-content:center;
-  padding:20px;
-}
-.login-card{
-  background:rgba(255,255,255,.95);
-  backdrop-filter:blur(20px);
-  border:2px solid rgba(255,255,255,.9);
-  border-radius:24px;
-  padding:40px 36px;
-  max-width:420px;width:100%;
-  box-shadow:0 32px 80px rgba(0,0,0,.12);
-  text-align:center;
-}
-.login-logo{
-  font-family:var(--mono);font-size:28px;font-weight:700;color:var(--primary);
-  letter-spacing:.1em;margin-bottom:4px;
-}
-.login-logo b{color:var(--cyan)}
-.login-sub{font-size:11px;font-weight:700;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-bottom:28px}
-.login-label{font-family:var(--mono);font-size:11px;font-weight:900;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;text-align:left}
-.login-input{
-  width:100%;padding:14px 16px;
-  font-family:var(--mono);font-size:18px;font-weight:800;
-  letter-spacing:.2em;text-align:center;
-  border:2px solid #e2e8f0;border-radius:12px;
-  background:#f8fafc;color:var(--text);
-  outline:none;transition:all .15s;margin-bottom:6px;
-}
-.login-input:focus{border-color:var(--primary);background:#eff6ff;box-shadow:0 0 0 3px rgba(29,78,216,.1)}
-.login-err{font-family:var(--mono);font-size:11px;font-weight:700;color:#dc2626;min-height:18px;margin-bottom:12px;text-align:left}
-.login-btn{
-  width:100%;padding:14px;
-  font-family:var(--mono);font-size:14px;font-weight:900;
-  background:linear-gradient(135deg,var(--primary),var(--primary-light));
-  color:#fff;border:none;border-radius:12px;cursor:pointer;
-  letter-spacing:.05em;transition:all .15s;
-  box-shadow:0 4px 16px rgba(29,78,216,.3);
-}
-.login-btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(29,78,216,.4)}
-.login-btn:active{transform:translateY(0)}
-.login-btn.loading{opacity:.7;cursor:not-allowed}
-.login-pin-disp{
-  display:flex;justify-content:center;gap:10px;margin-bottom:12px;
-}
-.pin-dot{
-  width:14px;height:14px;border-radius:50%;
-  border:2px solid #cbd5e1;background:transparent;
-  transition:all .15s;
-}
-.pin-dot.filled{background:var(--primary);border-color:var(--primary)}
+/* WELCOME BAR */
+.welcome-bar{display:flex;align-items:center;justify-content:space-between;padding:8px 24px 4px;position:relative;z-index:1}
+.welcome-info{display:flex;align-items:center;gap:12px}
+.welcome-icon{font-size:30px}
+.welcome-name{font-family:var(--mono);font-size:15px;font-weight:900;color:#e2e8f0}
+.welcome-sub{font-size:11px;color:#475569;font-weight:600;margin-top:2px}
 
-/* NUMPAD */
-.numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0}
-.numpad-btn{
-  padding:16px;font-family:var(--mono);font-size:18px;font-weight:800;
-  background:#f8fafc;border:2px solid #e2e8f0;border-radius:12px;
-  cursor:pointer;color:var(--text);transition:all .1s;
+/* PIN MODAL */
+.pin-modal{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:20px}
+.pin-modal.on{display:flex}
+.pin-card{
+  background:rgba(15,23,42,.97);border:1px solid rgba(129,140,248,.3);
+  border-radius:20px;padding:32px;max-width:320px;width:100%;
+  box-shadow:0 32px 80px rgba(0,0,0,.6),0 0 0 1px rgba(129,140,248,.1);text-align:center;
 }
-.numpad-btn:hover{background:#eff6ff;border-color:#bfdbfe;color:var(--primary)}
-.numpad-btn:active{transform:scale(.95)}
-
-/* AI ASSISTANT FAB */
-.ai-fab{
-  position:fixed;bottom:24px;right:24px;z-index:50;
-  width:56px;height:56px;border-radius:50%;
-  background:linear-gradient(135deg,var(--primary),var(--cyan));
-  border:none;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  box-shadow:0 8px 24px rgba(29,78,216,.4);
-  transition:all .2s;
-  animation:fabFloat 3s ease-in-out infinite;
+.pin-title{font-family:var(--mono);font-size:11px;font-weight:900;color:#475569;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
+.pin-sub{font-family:var(--sans);font-size:14px;font-weight:700;color:#e2e8f0;margin-bottom:20px}
+.pin-dots{display:flex;justify-content:center;gap:10px;margin-bottom:16px}
+.pin-dot{width:14px;height:14px;border-radius:50%;border:2px solid #1e293b;background:transparent;transition:all .15s}
+.pin-dot.filled{background:#818cf8;border-color:#818cf8;box-shadow:0 0 8px rgba(129,140,248,.5)}
+.pin-input{
+  width:100%;padding:12px;font-family:var(--mono);font-size:20px;font-weight:900;
+  letter-spacing:.3em;text-align:center;
+  background:rgba(15,23,42,.8);border:1px solid rgba(59,130,246,.25);
+  border-radius:10px;color:#e2e8f0;outline:none;margin-bottom:8px;
 }
-.ai-fab:hover{transform:scale(1.1);box-shadow:0 12px 32px rgba(29,78,216,.5)}
-@keyframes fabFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.pin-input:focus{border-color:#818cf8;box-shadow:0 0 0 3px rgba(129,140,248,.15)}
+.pin-err{font-family:var(--mono);font-size:11px;color:#f87171;min-height:16px;margin-bottom:8px}
+.pin-go{width:100%;padding:12px;font-family:var(--mono);font-size:14px;font-weight:900;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none;border-radius:10px;cursor:pointer;box-shadow:0 4px 16px rgba(99,102,241,.4)}
+.pin-cancel{width:100%;padding:10px;font-family:var(--mono);font-size:12px;background:transparent;border:1px solid rgba(255,255,255,.1);border-radius:10px;cursor:pointer;color:#475569;margin-top:8px}
 
 /* FOOTER */
-.footer{
-  position:relative;z-index:1;
-  text-align:center;padding:16px;
-  font-family:var(--mono);font-size:9px;font-weight:700;
-  color:var(--text3);letter-spacing:1px;text-transform:uppercase;
-}
+.footer{text-align:center;padding:16px;font-family:var(--mono);font-size:9px;font-weight:700;color:#1e293b;letter-spacing:1px;text-transform:uppercase;position:relative;z-index:1}
+
+/* TOAST */
+.toast-item{background:rgba(15,23,42,.95);border:1px solid rgba(99,102,241,.3);border-radius:10px;padding:10px 20px;font-family:var(--mono);font-size:12px;color:#e2e8f0;box-shadow:0 8px 24px rgba(0,0,0,.3)}
 
 @media(max-width:600px){
-  nav{padding:0 16px}
-  .hero{padding:20px 16px 12px}
-  .kpi-bar{padding:0 16px 16px}
-  .section{padding:0 16px 12px}
-  .menu-grid{grid-template-columns:repeat(3,1fr);gap:10px}
-  .menu-icon{font-size:28px}
+  .role-cards{flex-direction:column;align-items:center}
+  .role-card-wrap{width:100%;max-width:320px;min-height:auto}
+  .top-nav{padding:0 16px}
+  .sec{padding:0 16px 12px}
+  .menu-grid{grid-template-columns:repeat(3,1fr);gap:8px}
+  .menu-icon{font-size:26px}
   .menu-name{font-size:10px}
   .menu-desc{display:none}
+  .pw-card{padding:28px 20px}
 }
 </style>
 </head>
 <body>
-
-<div class="bg-grid"></div>
-
-<!-- LOGIN OVERLAY -->
-<div class="login-overlay" id="login-overlay">
-  <div class="login-card">
-    <div class="login-logo">PROD<b>.</b>SYS</div>
-    <div class="login-sub">Smart Factory Production System</div>
-
-    <div class="login-label">รหัส PIN</div>
-    <div class="login-pin-disp" id="pin-disp">
-      <div class="pin-dot" id="pd0"></div>
-      <div class="pin-dot" id="pd1"></div>
-      <div class="pin-dot" id="pd2"></div>
-      <div class="pin-dot" id="pd3"></div>
-    </div>
-    <input type="password" id="pw" maxlength="6" class="login-input" placeholder="กรอก PIN" autocomplete="off"
-      oninput="updatePinDots(this.value)" onkeydown="if(event.key==='Enter')doLogin()">
-    <div class="login-err" id="err-msg"></div>
-
-    <div class="numpad">
-      ${[1,2,3,4,5,6,7,8,9,'',0,'⌫'].map(n=>`
-        <button class="numpad-btn" onclick="${n===''?'void(0)':n==='⌫'?'delPin()':'addPin('+n+')'}" ${n===''?'style="visibility:hidden"':''}>${n}</button>
-      `).join('')}
-    </div>
-
-    <button class="login-btn" id="login-btn" onclick="doLogin()">เข้าสู่ระบบ</button>
-    <div id="err-msg2" style="font-family:var(--mono);font-size:11px;color:#dc2626;margin-top:8px;min-height:16px"></div>
-  </div>
-</div>
-
-<!-- MAIN APP -->
-<div id="main-app" style="display:none">
+<div class="bg-wrap"></div>
+<div class="outer">
 
 <!-- NAV -->
-<nav>
-  <div class="nav-logo">
-    <span>PROD<b>.</b>SYS</span>
-    <span class="nav-logo-sub">Smart Factory</span>
-  </div>
-  <div class="nav-right">
-    <div class="nav-shift" id="nav-shift">Shift —</div>
-    <div class="nav-time" id="nav-time">--:--:--</div>
-    <div class="nav-user-pill" id="nav-user">—</div>
-    <button onclick="doLogout()" style="font-family:var(--mono);font-size:11px;font-weight:800;padding:6px 14px;border-radius:20px;border:1.5px solid #fca5a5;background:#fff1f2;color:#991b1b;cursor:pointer">Logout</button>
+<nav class="top-nav">
+  <div class="top-logo">PROD<b>.</b>SYS <span class="top-logo-sub">Smart Factory</span></div>
+  <div class="top-right">
+    <div class="nav-shift-pill" id="nav-shift-pill">Shift —</div>
+    <div class="nav-time" id="nav-clock">--:--</div>
   </div>
 </nav>
 
-<!-- HERO -->
-<div class="hero">
-  <div class="hero-title">Production Intelligence System</div>
-  <div class="hero-sub">Smart Factory · Realtime Monitoring · AI-Assisted Planning</div>
-</div>
+<!-- STEP 1: เลือก Role -->
+<div class="step on login-wrap" id="step1">
+  <div style="width:100%;max-width:900px">
+    <div class="login-hero">
+      <div class="login-hero-title">WELCOME TO PROD.SYS</div>
+      <div class="login-hero-sub">Smart Factory · Smart Operation · Smart Future</div>
+    </div>
+    <div class="role-cards">
 
-<!-- KPI BAR -->
-<div class="kpi-bar" id="kpi-bar">
-  <div class="kpi-card">
-    <div class="kpi-label"><span class="kpi-dot" style="background:#22c55e;color:#22c55e"></span>System</div>
-    <div class="kpi-val" style="font-size:14px;color:#15803d">ONLINE</div>
-    <div class="kpi-unit">All Systems Active</div>
+      <!-- LEADMAN -->
+      <div class="role-card-wrap" onclick="selectRole('leadman')" id="btn-leadman">
+        <div class="role-icon-wrap">👷</div>
+        <div class="role-name">LEADMAN</div>
+        <div class="role-name-sub">MANAGEMENT</div>
+        <div class="role-desc">สำหรับหัวหน้างาน<br>และผู้ควบคุมการผลิต</div>
+        <div class="role-access">
+          <div class="role-access-title">System Access</div>
+          <div class="role-access-item">Production Planning</div>
+          <div class="role-access-item">KPI & OEE Monitoring</div>
+          <div class="role-access-item">Quality Control</div>
+          <div class="role-access-item">Machine Monitoring</div>
+          <div class="role-access-item">Report & Analysis</div>
+        </div>
+        <button class="role-login-btn">CLICK TO LOGIN →</button>
+      </div>
+
+      <!-- OPERATOR -->
+      <div class="role-card-wrap" onclick="selectRole('operator')" id="btn-operator">
+        <div class="role-icon-wrap">🏭</div>
+        <div class="role-name">OPERATION</div>
+        <div class="role-name-sub">SYSTEM</div>
+        <div class="role-desc">สำหรับพนักงาน<br>ปฏิบัติงาน</div>
+        <div class="role-access">
+          <div class="role-access-title">System Access</div>
+          <div class="role-access-item">Work Instruction</div>
+          <div class="role-access-item">Batch Tracking</div>
+          <div class="role-access-item">Safety Alert</div>
+          <div class="role-access-item">Production Reporting</div>
+          <div class="role-access-item">Record & Log</div>
+        </div>
+        <button class="role-login-btn">CLICK TO LOGIN →</button>
+      </div>
+
+    </div>
   </div>
-  <div class="kpi-card">
-    <div class="kpi-label">วันที่</div>
-    <div class="kpi-val" id="kpi-date" style="font-size:14px">—</div>
-    <div class="kpi-unit" id="kpi-day">—</div>
-  </div>
-  <div class="kpi-card">
-    <div class="kpi-label">Shift</div>
-    <div class="kpi-val" id="kpi-shift" style="font-size:18px">—</div>
-    <div class="kpi-unit">Current Shift</div>
-  </div>
-  <div class="kpi-card">
-    <div class="kpi-label">User</div>
-    <div class="kpi-val" id="kpi-user" style="font-size:13px">—</div>
-    <div class="kpi-unit">Logged In</div>
+</div>
+
+<!-- STEP 2: กรอก Password -->
+<div class="step pw-wrap" id="step2">
+  <div class="pw-card">
+    <div class="pw-title">เข้าสู่ระบบ</div>
+    <div class="pw-sub">กรอกรหัสผ่านเพื่อเข้าสู่ระบบ</div>
+    <div id="selected-display"></div>
+    <div class="err-msg" id="err-msg"></div>
+    <input type="password" id="pw" class="pw-input" placeholder="••••••" autocomplete="off" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" id="login-btn" onclick="doLogin()">เข้าสู่ระบบ →</button>
+    <button class="back-btn" onclick="showStep('step1')">← กลับ</button>
   </div>
 </div>
 
-<!-- PRODUCTION MODULES -->
-<div class="section">
-  <div class="section-title">🏭 Production Modules</div>
-  <div class="menu-grid" id="grid-prod"></div>
+<!-- STEP 3: เมนูหลัก -->
+<div class="step" id="step3">
+  <div class="step3-hero">
+    <div class="step3-title">Production Intelligence System</div>
+    <div class="step3-sub">Smart Factory · Realtime Monitoring · AI-Assisted Planning</div>
+  </div>
+
+  <!-- Welcome bar -->
+  <div class="welcome-bar">
+    <div class="welcome-info">
+      <div class="welcome-icon" id="w-icon"></div>
+      <div>
+        <div class="welcome-name" id="w-name"></div>
+        <div class="welcome-sub" id="w-sub"></div>
+      </div>
+    </div>
+    <button class="logout-btn" onclick="doLogout()">🚪 ออก</button>
+  </div>
+
+  <!-- Menu Grid -->
+  <div class="sec" style="margin-top:12px">
+    <div class="menu-grid" id="menu-grid"></div>
+  </div>
+
+  <div class="footer">PROD.SYS v3.0 · Smart Factory Production System · © 2026</div>
 </div>
 
-<!-- MONITORING & QA -->
-<div class="section">
-  <div class="section-title">📊 Monitoring & Quality</div>
-  <div class="menu-grid" id="grid-monitor"></div>
+<!-- PIN Modal -->
+<div class="pin-modal" id="pin-modal">
+  <div class="pin-card">
+    <div class="pin-title">ยืนยันตัวตน</div>
+    <div class="pin-sub" id="pin-target-name">—</div>
+    <div class="pin-dots" id="pin-dots">
+      <div class="pin-dot" id="dp0"></div>
+      <div class="pin-dot" id="dp1"></div>
+      <div class="pin-dot" id="dp2"></div>
+      <div class="pin-dot" id="dp3"></div>
+    </div>
+    <input type="password" id="pin-input" class="pin-input" maxlength="6" placeholder="PIN" autocomplete="off"
+      oninput="updateDots(this.value)" onkeydown="if(event.key==='Enter')submitPin()">
+    <div class="pin-err" id="pin-err"></div>
+    <button class="pin-go" onclick="submitPin()">✓ ยืนยัน</button>
+    <button class="pin-cancel" onclick="closePinModal()">ยกเลิก</button>
+  </div>
 </div>
 
-<!-- SYSTEM -->
-<div class="section">
-  <div class="section-title">⚙️ System & Admin</div>
-  <div class="menu-grid" id="grid-system"></div>
-</div>
+<div id="toast" style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:999;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none"></div>
 
-<div class="footer">PROD.SYS v3.0 · Smart Factory Production System · © 2026</div>
-
-</div><!-- end main-app -->
-
-<!-- AI FAB -->
-<button class="ai-fab" onclick="alert('AI Assistant — Coming Soon')" title="AI Assistant">
-  <span style="font-size:24px">🤖</span>
-</button>
+</div><!-- outer -->
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -694,94 +664,21 @@ document.addEventListener('keydown',function(e){
   if(e.key==='Escape')closePinModal();
 });
 </script>
+
 <script>
-// MENU DEFINITIONS
-const menuProd = [
-  {icon:'📋',name:'Leadman',desc:'Production Planning\nKPI Monitoring',file:'leadman.html',cls:'mc-blue',tag:'PLAN'},
-  {icon:'📅',name:'Daily Plan',desc:'Daily Schedule\nProduction Target',file:'dailyplan.html',cls:'mc-blue',tag:''},
-  {icon:'🔬',name:'Mixing',desc:'Mixing Process\nBatch Monitoring',file:'mixing.html',cls:'mc-cyan',tag:'MIX'},
-  {icon:'🧪',name:'Prepare Mix',desc:'Raw Material\nPreparation',file:'preparemix.html',cls:'mc-cyan',tag:''},
-  {icon:'🌡️',name:'Pasteurize',desc:'Pasteurize Control\nTemp Monitoring',file:'pasteurize.html',cls:'mc-orange',tag:'PAST'},
-  {icon:'🪣',name:'CIP Man',desc:'Tank CIP Control\nCleaning Monitor',file:'cipman.html',cls:'mc-green',tag:'CIP'},
-  {icon:'🧹',name:'CIP Mixing',desc:'Mixing Tank CIP\nSanitation Control',file:'cipmixing.html',cls:'mc-green',tag:''},
-  {icon:'🫙',name:'Aging Tank',desc:'Tank Status\nVolume Monitor',file:'aging.html',cls:'mc-purple',tag:''},
-  {icon:'🏭',name:'Filling',desc:'Line Monitoring\nOEE Dashboard',file:'filling.html',cls:'mc-blue',tag:'LINE'},
-];
-const menuMonitor = [
-  {icon:'🍦',name:'Flavor',desc:'Color & Flavor\nBatch Validation',file:'flavor.html',cls:'mc-orange',tag:'QA'},
-  {icon:'💧',name:'Flowmeter',desc:'Flow Verification\nUtility Monitor',file:'flowmeter.html',cls:'mc-cyan',tag:''},
-  {icon:'⏱️',name:'Shelf Life',desc:'Expiry Tracking\nProduct QA',file:'shelflife.html',cls:'mc-purple',tag:'QA'},
-  {icon:'📜',name:'History',desc:'Production Records\nShift History',file:'history.html',cls:'mc-blue',tag:''},
-];
-const menuSystem = [
-  {icon:'🔐',name:'Employee Reg.',desc:'PIN Registration\nUser Management',file:'pinregister.html',cls:'mc-red',tag:''},
-  {icon:'⚙️',name:'Admin',desc:'System Settings\nAudit Trail',file:'admin.html',cls:'mc-red',tag:'ADMIN'},
-];
-
-function renderMenuGrid(items, elId){
-  const el = document.getElementById(elId);
-  if(!el) return;
-  el.innerHTML = items.map(m=>`
-    <a href="${m.file}" class="menu-card ${m.cls}" onclick="checkAuth(event,'${m.file}')">
-      ${m.tag?`<div class="menu-tag" style="background:rgba(29,78,216,.1);color:#1d4ed8">${m.tag}</div>`:''}
-      <div class="menu-icon">${m.icon}</div>
-      <div class="menu-name">${m.name}</div>
-      <div class="menu-desc">${m.desc.replace('\n','<br>')}</div>
-    </a>
-  `).join('');
-}
-
-function checkAuth(e, file){
-  if(!sessionStorage.getItem('emp_sig')){
-    e.preventDefault();
-    document.getElementById('login-overlay').style.display='flex';
-  }
-}
-
-renderMenuGrid(menuProd, 'grid-prod');
-renderMenuGrid(menuMonitor, 'grid-monitor');
-renderMenuGrid(menuSystem, 'grid-system');
-
 // CLOCK
 function updateClock(){
-  const now = new Date();
-  const t = now.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-  const d = now.toLocaleDateString('th-TH',{day:'2-digit',month:'short'});
-  const dy = ['อา.','จ.','อ.','พ.','พฤ.','ศ.','ส.'][now.getDay()];
-  const yr = now.getFullYear()+543;
-  const h = now.getHours();
-  const shift = h>=6&&h<14?'Morning 🌅':h>=14&&h<22?'Afternoon 🌞':'Night 🌙';
-
-  const nt = document.getElementById('nav-time');
-  if(nt) nt.textContent = t;
-  const ns = document.getElementById('nav-shift');
-  if(ns) ns.textContent = shift;
-  const kd = document.getElementById('kpi-date');
-  if(kd) kd.textContent = d+' '+yr;
-  const kdy = document.getElementById('kpi-day');
-  if(kdy) kdy.textContent = 'วัน'+dy;
-  const ks = document.getElementById('kpi-shift');
-  if(ks) ks.textContent = shift.split(' ')[0];
+  const now=new Date();
+  const t=now.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+  const h=now.getHours();
+  const shift=h>=6&&h<14?'Morning 🌅':h>=14&&h<22?'Afternoon 🌞':'Night 🌙';
+  const nc=document.getElementById('nav-clock');
+  const ns=document.getElementById('nav-shift-pill');
+  if(nc)nc.textContent=t;
+  if(ns)ns.textContent=shift;
 }
 setInterval(updateClock,1000);
 updateClock();
-
-// PIN numpad
-function addPin(n){
-  const pw = document.getElementById('pw');
-  if(pw.value.length < 6){ pw.value += n; updatePinDots(pw.value); }
-}
-function delPin(){
-  const pw = document.getElementById('pw');
-  pw.value = pw.value.slice(0,-1);
-  updatePinDots(pw.value);
-}
-function updatePinDots(val){
-  for(let i=0;i<4;i++){
-    const d = document.getElementById('pd'+i);
-    if(d) d.classList.toggle('filled', i < val.length);
-  }
-}
 </script>
 </body>
 </html>
