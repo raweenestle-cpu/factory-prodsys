@@ -765,21 +765,17 @@ function _lcCard(line){
   // PLAN vs ACTUAL — แสดงเสมอถ้ามี mix
   const remaining=planVol>0?Math.max(0,planVol-actualVol):null;
   if(mixCodes.length<=1){
-    h+=`<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:6px">
+    h+=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px">
       <div style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;padding:10px 12px">
         <div style="font-family:var(--mono);font-size:9px;font-weight:900;color:#94a3b8;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">Plan (L)</div>
-        <input type="number" style="font-family:var(--mono);font-size:16px;font-weight:900;color:#111827;width:100%;border:none;background:transparent;padding:0;outline:none"
+        <input type="number" style="font-family:var(--mono);font-size:14px;font-weight:900;color:#111827;width:100%;border:none;background:transparent;padding:0;outline:none"
           placeholder="—" value="${planVol>0?planVol:''}"
           onchange="savePlanVol('${line.id}',this.value)"
           onclick="event.stopPropagation()">
       </div>
       <div style="background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:10px;padding:10px 12px">
         <div style="font-family:var(--mono);font-size:9px;font-weight:900;color:#94a3b8;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">Actual (L)</div>
-        <div style="font-family:var(--mono);font-size:16px;font-weight:900;color:#111827">${actualVol>0?actualVol.toLocaleString():'—'}</div>
-      </div>
-      <div style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;padding:10px 12px">
-        <div style="font-family:var(--mono);font-size:9px;font-weight:900;color:#94a3b8;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">ขาดอีก (L)</div>
-        <div style="font-family:var(--mono);font-size:16px;font-weight:900;color:#111827">${remaining===null?'—':remaining<=0?'ครบ':remaining.toLocaleString()}</div>
+        <div style="font-family:var(--mono);font-size:14px;font-weight:900;color:#111827">${actualVol>0?actualVol.toLocaleString():'—'}</div>
       </div>
     </div>`;
   } else {
