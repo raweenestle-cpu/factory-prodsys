@@ -159,22 +159,26 @@ body::before{
 .welcome-name{font-family:var(--mono);font-size:16px;font-weight:700;color:var(--blue2)}
 .welcome-sub{font-size:12px;color:var(--t2);margin-top:4px}
 
-.menu-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.menu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px;padding:8px}
 .menu-btn{
   background:var(--s2);
   border:1px solid var(--b1);
-  border-radius:12px;
-  padding:14px 10px;
+  border-radius:16px;
+  padding:24px 16px;
   cursor:pointer;
   text-align:center;
   transition:all .2s;
   text-decoration:none;
-  display:block;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:10px;
   color:var(--text);
   position:relative;
   overflow:hidden;
 }
 .menu-btn::after{content:"";position:absolute;top:0;left:0;right:0;height:2px;opacity:0;transition:opacity .2s}
+.menu-icon{font-size:44px;line-height:1}
 .menu-btn:hover{transform:translateY(-2px);border-color:var(--b2)}
 .menu-btn:hover::after{opacity:1}
 .menu-btn.m-leadman::after{background:var(--yellow)}
@@ -242,7 +246,7 @@ body::before{
   </div>
 
   <!-- STEP 3: เลือกหน้า -->
-  <div class="step" id="step3">
+  <div class="step" id="step3" style="min-height:calc(100vh - 60px);display:flex;flex-direction:column">
     <!-- Logout บนสุด เห็นได้ทันที -->
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
       <div style="display:flex;align-items:center;gap:8px">
