@@ -308,7 +308,7 @@ onAuthStateChanged(auth,async user=>{
       }
     }catch{}
   }
-  showStep('step1');
+  window.showStep('step1');
 });
 
 window.selectRole=(role)=>{
@@ -322,13 +322,13 @@ window.selectRole=(role)=>{
       <div class="selected-name">${l.name}</div>
       <div class="selected-email">${EMAIL[role]}</div>
     </div>`;
-  setTimeout(()=>showStep('step2'),200);
+  setTimeout(()=>window.showStep('step2'),200);
 };
 
 window.goBack=()=>{
   document.getElementById('pw').value='';
   document.getElementById('err-msg').textContent='';
-  showStep('step1');
+  window.showStep('step1');
 };
 
 window.togglePw=()=>{
@@ -357,7 +357,7 @@ window.doLogin=async()=>{
   }
 };
 
-function showMenu(role){
+window.showMenu=function showMenu(role){
   const l=LABEL[role]||LABEL.operator;
   const menus=MENUS[role]||MENUS.operator;
   document.getElementById('w-icon').textContent=l.icon;
@@ -369,17 +369,17 @@ function showMenu(role){
       <div class="menu-name">${m.name}</div>
       <div class="menu-desc">${m.desc}</div>
     </div>`).join('');
-  showStep('step3');
+  window.showStep('step3');
 }
 
 window.doLogout=async()=>{
   await signOut(auth);
   selectedRole=null;
   document.getElementById('pw').value='';
-  showStep('step1');
+  window.showStep('step1');
 };
 
-function showStep(id){
+window.showStep=function showStep(id){
   document.querySelectorAll('.step').forEach(s=>s.classList.remove('on'));
   document.getElementById(id).classList.add('on');
 }
