@@ -53,7 +53,7 @@ main{position:relative;z-index:1;padding:10px 12px;}
 .kpi-val{font-size:22px;font-weight:700;font-family:var(--mono)}
 
 /* LINE CARD */
-.lcard{background:var(--s1);border:2px solid var(--b1);border-radius:18px;overflow:hidden;margin-bottom:12px;width:100%;min-height:460px}
+.lcard{background:var(--s1);border:2px solid var(--b1);border-radius:18px;overflow:hidden;margin-bottom:12px;width:100%}
 .lcard.running{border-color:#15803d;box-shadow:0 4px 20px rgba(21,128,61,.12)}
 .lcard.curing{border-color:#b45309;box-shadow:0 4px 20px rgba(180,83,9,.12)}
 .lcard.stopped{border-color:#1d4ed8;box-shadow:0 4px 20px rgba(29,78,216,.1)}
@@ -998,7 +998,7 @@ function calcVol(row){
     <div style="display:flex;align-items:stretch">
 
       <!-- ซ้าย: ถัง SVG + Flow Diagram -->
-      <div style="flex-shrink:0;min-width:550px;display:flex;flex-direction:column">
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column">
       <div style="flex-shrink:0;width:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 8px;border-right:1px solid var(--b1);background:rgba(0,0,0,.15)">
         <div style="font-family:var(--mono);font-size:14px;color:#111827;font-weight:900;margin-bottom:4px;text-align:center;background:var(--s1);border:1px solid var(--b1);border-radius:6px;padding:2px 10px">${agingTank}</div>
         <!-- FLOW DIAGRAM — inline card style -->
