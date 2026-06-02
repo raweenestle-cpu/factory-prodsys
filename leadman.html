@@ -765,22 +765,21 @@ function _lcCard(line){
   // PLAN vs ACTUAL — แสดงเสมอถ้ามี mix
   const remaining=planVol>0?Math.max(0,planVol-actualVol):null;
   if(mixCodes.length<=1){
-    // 1 mix — ตารางเดียว
     h+=`<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:6px">
-      <div class="lsc-kpi">
-        <div class="lsc-kpi-label">Plan (L)</div>
-        <input type="number" class="ci" style="width:100%;font-family:var(--mono);font-size:13px;font-weight:900;color:#111827;padding:4px 6px;border:1.5px solid #e2e8f0;border-radius:6px;background:#fff;margin-top:4px" 
-          placeholder="กรอก Plan (L)" value="${planVol>0?planVol:''}"
+      <div style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;padding:10px 12px">
+        <div style="font-family:var(--mono);font-size:9px;font-weight:900;color:#94a3b8;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">Plan (L)</div>
+        <input type="number" style="font-family:var(--mono);font-size:16px;font-weight:900;color:#111827;width:100%;border:none;background:transparent;padding:0;outline:none"
+          placeholder="—" value="${planVol>0?planVol:''}"
           onchange="savePlanVol('${line.id}',this.value)"
           onclick="event.stopPropagation()">
       </div>
-      <div class="lsc-kpi highlight">
-        <div class="lsc-kpi-label">Actual (L)</div>
-        <div class="lsc-kpi-val">${actualVol>0?actualVol.toLocaleString():'—'}</div>
+      <div style="background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:10px;padding:10px 12px">
+        <div style="font-family:var(--mono);font-size:9px;font-weight:900;color:#94a3b8;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">Actual (L)</div>
+        <div style="font-family:var(--mono);font-size:16px;font-weight:900;color:#111827">${actualVol>0?actualVol.toLocaleString():'—'}</div>
       </div>
-      <div class="lsc-kpi ${remaining!==null&&remaining<=0?'highlight':remaining!==null&&remaining<500?'warn':''}">
-        <div class="lsc-kpi-label">ขาดอีก (L)</div>
-        <div class="lsc-kpi-val" style="color:${remaining===null?'#94a3b8':remaining<=0?'#059669':remaining<500?'#d97706':'#111827'}">${remaining===null?'—':remaining<=0?'✅ ครบ':remaining.toLocaleString()}</div>
+      <div style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;padding:10px 12px">
+        <div style="font-family:var(--mono);font-size:9px;font-weight:900;color:#94a3b8;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">ขาดอีก (L)</div>
+        <div style="font-family:var(--mono);font-size:16px;font-weight:900;color:#111827">${remaining===null?'—':remaining<=0?'ครบ':remaining.toLocaleString()}</div>
       </div>
     </div>`;
   } else {
