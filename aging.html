@@ -124,6 +124,25 @@ nav{position:sticky;top:0;z-index:100;background:rgba(7,9,15,.95);border-bottom:
   display:flex;align-items:center;gap:8px;border-bottom:none}
 .line-badge{font-family:var(--mono);font-size:10px;font-weight:800;padding:3px 10px;
   border-radius:6px;background:var(--lc,#b0bac8);color:#fff;letter-spacing:.08em}
+
+/* ── CARD STYLES (ออกแบบเหมือน filling) ────────────────────── */
+.tc{border-radius:18px;overflow:hidden;display:flex;flex-direction:column;
+  border:2px solid var(--b1);background:#fff;box-shadow:0 4px 16px rgba(0,0,0,.07);position:relative}
+.tc.active{border-color:#ea580c;box-shadow:0 4px 20px rgba(234,88,12,.15)}
+.tc.curing{border-color:#0e7490;box-shadow:0 4px 16px rgba(14,116,144,.12)}
+.tc.empty{border-color:var(--b1);background:#f8fafc}
+.ch{padding:14px 14px 10px;border-bottom:1.5px solid var(--s2)}
+.ch-top{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.ch-tank{font-family:var(--mono);font-size:16px;font-weight:900;color:#111827}
+.ch-prod{font-size:14px;font-weight:800;color:#111827;margin-top:2px}
+.ch-code{font-family:var(--mono);font-size:12px;font-weight:900;color:#374151}
+.ch-batch{font-family:var(--mono);font-size:11px;color:#374151;margin-top:3px;font-weight:700}
+.ch-info{font-family:var(--mono);font-size:10px;color:#6b7280;margin-top:2px;font-weight:600}
+.tc-vol{text-align:center;padding:8px 12px 4px}
+.tc-vol-num{font-family:var(--mono);font-size:26px;font-weight:900;line-height:1}
+.tc-vol-pct{font-family:var(--mono);font-size:16px;font-weight:800;margin-top:2px}
+.tc-info{padding:6px 12px 10px;border-top:1px solid var(--s2);margin-top:6px}
+.tc-st{font-family:var(--mono);font-size:11px;font-weight:900;padding:4px 12px;border-radius:20px;text-align:center;margin:6px 12px 0}
 </style>
 </head>
 <body>
@@ -184,7 +203,6 @@ import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-ap
 import{getAuth,signOut,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import{getFirestore,collection,query,where,onSnapshot,doc,setDoc,getDocs}
   from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import {resolveStatus,statusColor,statusBlink,statusBadge,expireBox,calcExpireAt,displayVol,getProductColor,getMaxTemp,tempBox} from "./shared.js";
 
 const app=initializeApp({
   apiKey:"AIzaSyC3f6jMuhugE6BNfRfkpOA9BMrIKWR9YgQ",
@@ -341,69 +359,62 @@ function makeTankCard(tankId){
   const status=ts.status||'empty';
   const isEmpty=status==='empty'||status==='pending';
 
-  // ดึงข้อมูลจาก aging_tank_states โดยตรง
-  const tdata=tankStates[tankId]||{};
-  const prod=tdata.mix_code?productMap[tdata.mix_code]||{}:{};
-  const row=tdata.mix_code?tdata:null;
-  const col=prod.color||(status==='empty'?'#3d4560':status==='pasteurising'?'#06b6d4':status==='filling'?'#22c55e':status==='ready'?'#3b82f6':'#7a8499');
+  // ข้อมูลสินค้า
+  const p=productMap[ts.mix_code||'']||{};
+  const col=ts.color||p.color||'#3b82f6';
 
   // Volume
-  const totalVol=+(tdata.volume_liter||tdata.total_vol||0);
-  const currentVol=tdata.current_vol!=null?+tdata.current_vol:0;
+  const totalVol=+(ts.volume_liter||ts.total_vol||0);
+  const currentVol=ts.current_vol!=null?+ts.current_vol:0;
   const cap=getTankCapacity(tankId);
-  const pct=cap>0?Math.min(100,(currentVol||totalVol)/cap*100):0;
-  const wave=status==='pasteurising'||status==='filling';
-  const stLabel=statusLabel(status);
+  const pct=cap>0?Math.min(100,(currentVol/cap)*100):0;
+  const pctC=pct>50?'#15803d':pct>20?'#b45309':'#b91c1c';
 
-  // Expiry
-  const activeRow=tdata.past_end_time?tdata:null;
-  const exp=calcExpiry(activeRow,tankId);
-  const alertCls=getAlertClass(exp);
+  // Status
+  const stMap={empty:'○ ว่าง',pending:'⏳ รอ',aging:'🌡️ บ่ม',past_done:'✅ Past Done',filling:'🔵 Filling',cip:'🟣 CIP',ready:'✅ พร้อม'};
+  const stColor=status==='empty'?'#6b7280':status==='aging'?'#0e7490':status==='past_done'?'#15803d':status==='filling'?'#ea580c':'#374151';
+  const stLabel=stMap[status]||status;
 
-  // Stage ring
-  const stageHtml=renderStageRing(status,isEmpty);
+  // วันผลิต (past_end_time)
+  const prodDate=ts.past_end_time&&ts.past_end_date
+    ?ts.past_end_date+' '+ts.past_end_time
+    :ts.past_end_time||'—';
 
-  // Status color
-  const stColor={pasteurising:'var(--cyan)',filling:'var(--green)',ready:'var(--purple)',
-    curing:'var(--orange)',aging:'var(--yellow)',cip_done:'var(--blue)',
-    sanitized:'#10b981',empty:'var(--t3)'}[status]||'var(--t2)';
+  // วันหมดอายุ
+  const expHtml=expireBox(ts.expire_at||null);
+  const tempHtml=tempBox(ts);
 
-  // Date info
-  let dateHtml='';
-  if(activeRow&&!isEmpty){
-    const exp2=calcExpiry(activeRow,tankId);
-    const expColor=exp2?(exp2.isExpired?'#ff4560':exp2.isCritical?'#ff8c42':exp2.isWarning?'#ffd040':'#00e87a'):'var(--t2)';
-    const expIcon=exp2?(exp2.isExpired?'❌':exp2.isCritical?'⚠️':exp2.isWarning?'🟡':'✅'):'';
-    dateHtml='<div class="tdate">'
-      +(activeRow.date?'<div class="tdr"><span class="tdl">วันผลิต</span><span class="tdv">'+activeRow.date.slice(5)+'</span></div>':'')
-      +(activeRow.past_start_time?'<div class="tdr"><span class="tdl">เริ่ม Past.</span><span class="tdv">'+activeRow.past_start_time+'</span></div>':'')
-      +(activeRow.past_end_time?'<div class="tdr"><span class="tdl">Past.เสร็จ</span><span class="tdv">'+activeRow.past_end_time+'</span></div>':'')
-      +(tankStates[tankId]&&tankStates[tankId].expire_at?expireBox(tankStates[tankId].expire_at):exp2?'<div style="font-family:DM Mono,monospace;font-size:11px;color:'+expColor+'">⏰ '+exp2+'</div>'+tempBox(tankStates[tankId]||{}):'');
-  }
-
-  // Temp selector
-  const temp=getMaxTemp(tankStates[tankId])??5;
-  const tempOpts=[0,1,2,3,4,5,6,7,8,9,10].map(t=>'<option value="'+t+'"'+(t===temp?' selected':'')+'>'+t+'°C</option>').join('');
+  // SVG ถัง
+  const uid='ag'+tankId.replace(/[^a-z0-9]/gi,'');
+  const svgHtml=svg?svg(uid,pct,col,!isEmpty):'';
 
   const div=document.createElement('div');
-  div.className='tc '+alertCls;
-  div.onclick=()=>openModal(tankId);
+  div.className='tc'+(status==='filling'||status==='past_done'?' active':status==='aging'?' curing':status==='empty'?' empty':'');
   div.innerHTML=
-    '<div class="tn" style="color:'+col+';border-color:'+hexAlpha(col,.2)+';background:'+hexAlpha(col,.08)+'">'+tankId+'</div>'
-    +'<div class="tsw">'+tankSVG(tankId,pct,col,wave,stLabel,col)+'</div>'
-    +(tdata.mix_code&&!isEmpty
-      ?'<div class="tm" style="color:'+col+'">'+(tdata.mix_code||'—')+'</div>'
-       +'<div class="tb">'+(tdata.mix_name||'—')+'</div>'
-       +'<div class="tvol" style="color:'+col+'">'+(currentVol||totalVol).toFixed(0)+' L</div>'
-       +'<div class="tpct">'+pct.toFixed(1)+'% / '+(cap/1000).toFixed(0)+'k L</div>'
-      :'<div style="font-family:var(--mono);font-size:10px;color:var(--t3);text-align:center;padding:4px 0">— ว่าง —</div>')
-    +dateHtml
-    +'<div class="tc-temp-row" onclick="event.stopPropagation()">'
-    +'<span style="font-family:var(--mono);font-size:10px;color:var(--t2)">🌡️</span>'
-    +'<select class="tc-temp-sel" onchange="window.setTankTemp(\''+tankId+'\',this.value)">'+tempOpts+'</select>'
+    '<div class="ch">'
+      +'<div class="ch-top">'
+        +'<span class="ch-tank">'+tankId+'</span>'
+        +'<span style="font-family:var(--mono);font-size:9px;font-weight:900;padding:2px 8px;border-radius:5px;background:'+stColor+';color:#fff;margin-left:6px">'+stLabel+'</span>'
+        +'<span style="margin-left:auto;font-family:var(--mono);font-size:10px;color:#6b7280">'+cap.toLocaleString()+' L</span>'
+      +'</div>'
+      +'<div class="ch-prod">'+(ts.mix_name||p.name||'—')+'</div>'
+      +'<div style="display:flex;align-items:baseline;gap:5px;margin-top:3px;flex-wrap:wrap">'
+        +'<span class="ch-code">'+(ts.mix_code||'—')+'</span>'
+        +(ts.mix_code&&ts.process_order?'<span class="ch-code" style="opacity:.4">|</span><span class="ch-code" style="opacity:.7">'+ts.process_order+'</span>':'')
+      +'</div>'
     +'</div>'
-    +stageHtml
-    +'<div class="tsb" style="color:'+stColor+';background:'+hexAlpha(stColor,.1)+'">'+statusLabel(status)+'</div>';
+    +(svgHtml?'<div style="position:relative;display:flex;justify-content:center;margin:8px 0 0">'+svgHtml+'</div>':'')
+    +'<div class="tc-vol">'
+      +'<div class="tc-vol-num" style="color:'+pctC+'">'+currentVol.toLocaleString()+' <span style="font-size:14px;font-weight:700;color:#6b7280">L</span></div>'
+      +(cap>0?'<div class="tc-vol-pct" style="color:'+pctC+'">'+pct.toFixed(1)+'%</div>':'')
+    +'</div>'
+    +'<div class="tc-info">'
+      +'<div class="ch-batch">Batch '+(ts.batch_no||'—')+'</div>'
+      +'<div class="ch-info">📅 ผลิต: '+prodDate+'</div>'
+    +'</div>'
+    +expHtml
+    +tempHtml
+    +'</div>';
 
   return div;
 }
