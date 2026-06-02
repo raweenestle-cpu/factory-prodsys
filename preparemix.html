@@ -1,0 +1,1457 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prepare Mix — PROD.SYS</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;600&family=Sarabun:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#e8ecf0;--s1:#f2f4f7;--s2:#e0e4ea;--s3:#1a2030;
+  --b1:#1e2535;--b2:#2a3348;
+  --text:#111827;--t2:#374151;--t3:#3d4560;
+  --blue:#60a5fa;--blue2:#93c5fd;
+  --green:#34d399;--yellow:#fbbf24;--red:#f87171;--orange:#fb923c;--cyan:#22d3ee;--purple:#a855f7;
+  --sans:'Sarabun',sans-serif;
+  --mono:'DM Mono',monospace;--sans:'Sarabun',sans-serif;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13px;min-height:100vh}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--b2);border-radius:3px}
+input[type="number"]{-moz-appearance:textfield}
+input[type="number"]::-webkit-inner-spin-button,input[type="number"]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+
+/* NAV */
+nav{display:flex;align-items:center;height:52px;background:var(--s1);border-bottom:1px solid var(--b1);position:sticky;top:0;z-index:200;padding:0 16px;gap:8px}
+.nav-logo{font-family:var(--mono);font-size:14px;font-weight:600;letter-spacing:.06em;margin-right:8px}
+.nav-logo b{color:var(--blue)}
+.nav-tab{font-size:12px;font-weight:600;padding:6px 12px;border-radius:7px;border:none;background:none;color:var(--t2);cursor:pointer;white-space:nowrap}
+.nav-tab:hover{color:var(--text);background:var(--s3)}
+.nav-tab.on{color:var(--blue);background:var(--s2)}
+.nav-right{display:flex;align-items:center;gap:8px;margin-left:auto}
+.nav-user{font-family:var(--mono);font-size:11px;color:var(--t2)}
+.nav-role{font-size:10px;font-family:var(--mono);padding:2px 8px;border-radius:4px;background:var(--s2);color:var(--cyan);border:1px solid rgba(6,182,212,.3)}
+.btn-logout{font-size:11px;padding:5px 10px;border-radius:6px;border:1px solid var(--b2);background:none;color:var(--t2);cursor:pointer}
+.btn-logout:hover{color:var(--red);border-color:var(--red)}
+
+/* PAGE */
+.page{display:none;padding:14px 16px}
+.page.on{display:block}
+
+/* TABLE */
+.tw{overflow-x:auto;border-radius:14px;border:2px solid #cbd5e1;margin:0 18px 14px;box-shadow:0 2px 12px rgba(0,0,0,.08)}
+table{width:100%;min-width:1100px;border-collapse:collapse;font-size:13px;table-layout:auto}
+tbody td{border-right:1px solid var(--b1);border-bottom:1px solid var(--b1);background:var(--s1);color:var(--text);font-weight:600}
+thead th{border-right:1px solid var(--b2)!important}
+tr:hover td{background:#e0e7ff!important}
+thead th{background:#e2e8f0;padding:10px 10px;text-align:left;white-space:nowrap;font-family:var(--mono);font-size:12px;color:#111827;font-weight:900;border-bottom:2px solid #94a3b8;vertical-align:middle}
+tbody td,tbody td span{color:#111827!important;font-weight:700!important}
+tbody td input,tbody td select{color:#111827!important;font-size:12px!important}
+tbody tr:hover td{background:rgba(241,245,249,.8)!important}
+tbody tr:nth-child(even) td{background:#fafbff}
+
+/* STATUS ROW COLORS */
+.row-mixing td{background:var(--s2)!important}
+.row-mixing td:first-child{border-left:3px solid var(--yellow)!important}
+.row-past td{background:var(--s2)!important}
+.row-past td:first-child{border-left:3px solid var(--yellow)!important}
+.row-done td{background:var(--s2)!important}
+.row-done td:first-child{border-left:3px solid var(--green)!important}
+
+/* INPUTS */
+.ci{background:var(--s2);border:1px solid var(--b1);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:12px;padding:5px 7px;outline:none}
+.ci:focus{border-color:var(--blue)}
+.ca{font-family:var(--mono);font-size:12px;color:var(--t2);white-space:nowrap}
+.cr{font-family:var(--mono);font-size:11px;font-weight:700;color:#fff;background:var(--blue);border:2px solid #3b82f6;border-radius:50%;width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;}
+
+/* STAMP BUTTON */
+.stamp-btn{display:flex;align-items:center;gap:4px;background:rgba(29,78,216,.08);border:1.5px solid rgba(29,78,216,.3);border-radius:7px;color:var(--blue);font-size:11px;font-family:var(--mono);font-weight:700;padding:5px 10px;cursor:pointer;white-space:nowrap}
+.stamp-btn:hover{background:rgba(29,78,216,.15);border-color:var(--blue)}
+.stamp-btn.stamped{background:rgba(21,128,61,.08);border-color:rgba(21,128,61,.4);color:var(--green)}
+.stamp-time{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--text)}
+.stamp-wrap{display:flex;flex-direction:column;gap:3px;min-width:110px}
+
+/* ACTUAL INPUT */
+.act-input{background:#fff;border:1.5px solid var(--b1);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:12px;padding:5px 8px;outline:none;width:80px;text-align:right;position:relative;z-index:20}
+.act-input:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(29,78,216,.15)}
+.act-input:focus{border-color:var(--green)}
+
+/* STATUS BADGE */
+.stat-badge{font-family:var(--mono);font-size:11px;font-weight:700;padding:4px 10px;border-radius:99px;white-space:nowrap}
+
+/* BUTTONS */
+.btn{font-size:12px;padding:6px 12px;border-radius:7px;border:1px solid var(--b2);background:var(--s3);color:var(--text);cursor:pointer;font-family:var(--sans);white-space:nowrap}
+.btn:hover{background:var(--b2)}
+.btn-b{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn-b:hover{background:#2563eb}
+.btn-s{font-size:11px;padding:5px 10px}
+
+/* KPI */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+@media(max-width:600px){.kpi-row{grid-template-columns:repeat(2,1fr)}}
+.kpi{background:var(--s1);border:1px solid var(--b1);border-radius:10px;padding:12px 14px}
+.kpi-label{font-size:10px;color:var(--t3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
+.kpi-val{font-size:22px;font-weight:700;font-family:var(--mono)}
+
+/* CHART CARD */
+.chart-card{background:var(--s1);border:1px solid var(--b1);border-radius:12px;padding:16px;margin-bottom:14px}
+.chart-title{font-family:var(--mono);font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px}
+.chart-wrap{height:220px;position:relative}
+
+/* PERIOD BTNS */
+.period-row{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.period-btn{font-size:11px;padding:4px 12px;border-radius:6px;border:1px solid var(--b2);background:none;color:var(--t2);cursor:pointer;font-family:var(--mono)}
+.period-btn.on{background:var(--s2);border-color:var(--blue);color:var(--blue2)}
+
+/* TOOLBAR */
+.toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px;flex-wrap:wrap;gap:8px}
+
+/* TOAST */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#1d4ed8;color:#fff;padding:10px 20px;border-radius:10px;font-size:13px;opacity:0;transition:all .3s;z-index:9999;white-space:nowrap;pointer-events:none}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@keyframes blink{0%,100%{opacity:1}40%{opacity:.15}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(234,179,8,.4)}70%{box-shadow:0 0 0 6px rgba(234,179,8,0)}}
+.mixing-pulse{animation:pulse 1.5s infinite}
+
+/* ── MOBILE RESPONSIVE ──────────────────────────────────────────────── */
+@media(max-width:768px){
+  /* NAV */
+  nav{padding:0 10px;gap:4px}
+  .nav-logo{font-size:12px}
+  .nav-tab{font-size:11px;padding:5px 8px}
+  .nav-user{display:none}
+  .btn-logout{font-size:10px;padding:4px 8px}
+
+  /* PAGE */
+  .page{padding:10px 10px}
+
+  /* TABLE — เปลี่ยนเป็น card layout บนมือถือ */
+  .tw{border:none;background:none;overflow:visible}
+  table,thead,tbody,tr,td,th{display:block;width:100%}
+  thead tr{display:none} /* ซ่อน header */
+  tbody tr{
+    background:var(--s1);
+    border:1px solid var(--b1);
+    border-radius:12px;
+    margin-bottom:10px;
+    padding:12px;
+    position:relative;
+  }
+  tbody tr.row-mixing{border-left:4px solid var(--yellow)!important;background:var(--s2)!important}
+  tbody tr.row-done{border-left:4px solid var(--green)!important;background:var(--s2)!important}
+  tbody tr.row-past{border-left:4px solid var(--yellow)!important}
+  tbody td{
+    border:none!important;
+    padding:3px 0;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:13px;
+    background:var(--s1)!important;
+    color:var(--text)!important;
+  }
+  /* ซ่อน td ที่ไม่สำคัญบนมือถือ */
+  tbody td:nth-child(1){display:none} /* drag handle */
+  tbody td:nth-child(2){display:none} /* # */
+
+  /* Set point columns — ซ่อนบนมือถือ แสดงแค่ Actual */
+  tbody td:nth-child(9){display:none}  /* Glc Set */
+  tbody td:nth-child(11){display:none} /* Sgr Set */
+  tbody td:nth-child(13){display:none} /* Plm Set */
+
+  /* Mix Code + Mix Name — ใหญ่ขึ้น */
+  tbody td:nth-child(3) select{width:100%!important;font-size:13px!important}
+  tbody td:nth-child(4) span{font-size:14px!important;font-weight:700!important;color:var(--blue2)!important}
+
+  /* Batch + Volume — inline */
+  tbody td:nth-child(5),tbody td:nth-child(6){display:inline-flex;width:auto;margin-right:10px}
+
+  /* Stamp area — full width */
+  tbody td:nth-child(7),tbody td:nth-child(8){
+    padding:4px 0;
+  }
+  tbody td:nth-child(7) div,tbody td:nth-child(8) div{
+    width:100%;
+  }
+
+  /* label ก่อน actual input */
+  tbody td:nth-child(10)::before{content:"🍬 Glucose: ";font-family:var(--mono);font-size:11px;color:var(--t2);flex-shrink:0}
+  tbody td:nth-child(12)::before{content:"🧂 Sugar: ";font-family:var(--mono);font-size:11px;color:var(--t2);flex-shrink:0}
+  tbody td:nth-child(14)::before{content:"🌴 Palm: ";font-family:var(--mono);font-size:11px;color:var(--t2);flex-shrink:0}
+
+  /* Status badge — full width centered */
+  tbody td:last-child{justify-content:center;padding-top:8px}
+
+  /* Stamp buttons — ใหญ่ขึ้น กดง่าย */
+  .stamp-btn{
+    min-height:44px;
+    font-size:13px!important;
+    padding:8px 14px!important;
+    border-radius:10px!important;
+    flex:1;
+    justify-content:center;
+  }
+
+  /* Act input — ใหญ่ขึ้น */
+  .act-input{
+    width:90px!important;
+    font-size:14px!important;
+    padding:8px 10px!important;
+    min-height:44px;
+  }
+
+  /* Toolbar */
+  .toolbar{flex-direction:column;align-items:stretch;gap:8px}
+  .toolbar .btn{min-height:44px;font-size:13px;text-align:center}
+
+  /* KPI */
+  .kpi-row{grid-template-columns:repeat(2,1fr);gap:8px}
+  .kpi-val{font-size:20px}
+
+  /* Chart */
+  .chart-wrap{height:180px}
+}
+
+@keyframes statusPulse{0%,100%{opacity:1}50%{opacity:.45}}
+.status-blink{animation:statusPulse 1.4s ease-in-out infinite}
+
+.sig-btn{background:none;border:none;cursor:pointer;padding:4px 6px;border-radius:6px;transition:background .15s;display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#64748b;}
+.sig-btn:hover{background:var(--s2);color:#818cf8;}
+.sig-btn svg{width:18px;height:18px;}
+.sig-preview{height:28px;filter:invert(1) brightness(2);vertical-align:middle;opacity:.9;}
+
+.fbar{display:flex;align-items:flex-start;flex-wrap:wrap;padding:6px 0 8px;gap:0}
+.fbar .sw{display:flex;align-items:flex-start;flex-shrink:0}
+.fbar .stepc{display:flex;flex-direction:column;align-items:center;width:82px}
+.fbar .fsc{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2.5px solid #b0bac8;background:#f2f4f7;flex-shrink:0;transition:all .3s}
+.fbar .fsc .fic{font-size:24px}
+.fbar .snm{font-family:var(--mono);font-size:10px;font-weight:800;text-align:center;margin-top:6px;color:#6b7280;line-height:1.3;max-width:82px}
+.fbar .skg{font-family:var(--mono);font-size:12px;font-weight:900;text-align:center;margin-top:3px;min-height:16px}
+.fbar .fconn{width:20px;height:3px;background:#d0d6de;margin-top:28px;flex-shrink:0;transition:background .3s}
+.fbar .fsc.fw-done{border-color:#15803d!important;background:rgba(21,128,61,.1)!important}
+.fbar .fsc.fw-blue{border-color:#1d4ed8!important;background:rgba(29,78,216,.06)!important;animation:fba .9s infinite}
+.fbar .fsc.fw-ora{border-color:#c2410c!important;background:rgba(194,65,12,.06)!important;animation:fbao .9s infinite}
+.fbar .fsc.fw-wait{border-color:#b0bac8;background:#f2f4f7}
+.fbar .fsc.fw-skip{opacity:.3;background:#e8ecf0}
+.fbar .fconn.done{background:#15803d}
+.fbar .fbtn{font-family:var(--mono);font-size:10px;font-weight:900;padding:5px 10px;border-radius:6px;border:none;cursor:pointer;margin-top:5px;color:#fff;display:block}
+.flow-bar-row td{padding:4px 8px 8px!important;background:var(--s1)}
+@keyframes fba{0%,100%{box-shadow:0 0 0 0 rgba(29,78,216,.35)}50%{box-shadow:0 0 0 10px rgba(29,78,216,0)}}
+@keyframes fbao{0%,100%{box-shadow:0 0 0 0 rgba(194,65,12,.35)}50%{box-shadow:0 0 0 10px rgba(194,65,12,0)}}
+/* ===== TANK CARD v3 ===== */
+.tv3-card{background:#f8fafc;border:2px solid #cbd5e1;border-radius:18px;overflow:hidden;margin-bottom:14px;transition:opacity .3s,filter .3s;box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.tv3-card.tv3-mixing{border-color:#f59e0b;box-shadow:0 0 0 3px rgba(251,191,36,.12),0 4px 16px rgba(251,191,36,.1)}
+.tv3-card.tv3-wait{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.12),0 4px 16px rgba(59,130,246,.1);animation:cardPulseBlue 2s ease-in-out infinite}
+@keyframes cardPulseBlue{0%,100%{box-shadow:0 0 0 3px rgba(59,130,246,.12),0 4px 16px rgba(59,130,246,.1)}50%{box-shadow:0 0 0 6px rgba(59,130,246,.2),0 4px 20px rgba(59,130,246,.2)}}
+.tv3-card.tv3-past{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.12),0 4px 16px rgba(59,130,246,.1)}
+.tv3-card.tv3-done{opacity:.36;filter:grayscale(65%);pointer-events:none}
+.tv3-head{display:flex;align-items:stretch;border-bottom:2px solid #e2e8f0}
+.tv3-seq{width:110px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:10px 6px;background:#e2e8f0;border-right:2px solid #cbd5e1;flex-shrink:0}
+.tv3-hi{flex:1;padding:12px 16px;background:#f1f5f9}
+.tv3-code{font-family:var(--mono);font-size:12px;font-weight:800;color:#374151;letter-spacing:.5px;margin-bottom:3px}
+.tv3-name{font-family:var(--sans);font-size:22px;font-weight:900;color:#0f172a;line-height:1.2}
+.tv3-meta{font-family:var(--mono);font-size:13px;font-weight:700;color:#374151;margin-top:4px}
+.tv3-st{display:flex;align-items:center;justify-content:center;padding:0 20px;background:#f1f5f9;border-left:2px solid #e2e8f0;flex-shrink:0}
+.tv3-body{display:flex;align-items:stretch;min-height:150px}
+.tv3-tank{width:130px;flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:14px 8px;background:#f1f5f9;border-right:2px solid #e2e8f0}
+.tv3-flow{flex:1;padding:14px 16px;overflow-x:auto;display:flex;align-items:center}
+.tv3-steps{display:flex;align-items:center;gap:0;flex-shrink:0}
+.tv3-sw{display:flex;align-items:center;flex:1;min-width:0}
+.tv3-step{display:flex;flex-direction:column;align-items:center;gap:5px;flex-shrink:0}
+.tv3-circle{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;border:2.5px solid var(--b2);background:var(--s2);flex-shrink:0;transition:all .3s;position:relative}
+.tv3-circle.done{border-color:#10b981;background:#d1fae5}
+.tv3-circle.done::after{content:'✓';position:absolute;bottom:-4px;right:-4px;font-size:11px;font-weight:900;color:#ffffff;background:#10b981;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;line-height:1;border:2.5px solid #ffffff}
+.tv3-circle.active{border-color:#f59e0b;background:#fef3c7;animation:tv3gy 1.2s ease-in-out infinite;border-width:3px}
+.tv3-circle.pwr{border-color:#ea580c!important;background:#ffedd5!important;animation:tv3go 1.2s ease-in-out infinite!important;border-width:3px!important}
+.tv3-circle.nxt{border-color:#2563eb!important;background:#dbeafe!important;animation:tv3gb 1.2s ease-in-out infinite!important;border-width:3px!important}
+.tv3-circle.skip{opacity:.3;border-style:dashed;border-color:#94a3b8;background:#f1f5f9}
+.tv3-circle.idle{border-color:#cbd5e1;background:#f8fafc}
+.tv3-sn{font-family:var(--mono);font-size:11px;font-weight:700;text-align:center;color:#475569;line-height:1.3;white-space:nowrap}
+.tv3-sn.done{color:#065f46;font-weight:800}.tv3-sn.active{color:#92400e;font-weight:900}.tv3-sn.pwr{color:#c2410c;font-weight:900}.tv3-sn.nxt{color:#1e40af;font-weight:900}
+.tv3-sv{font-family:var(--mono);font-size:13px;font-weight:900;text-align:center;color:#374151}
+.tv3-sv.done{color:#065f46}.tv3-sv.active{color:#92400e}.tv3-sv.pwr{color:#c2410c}.tv3-sv2{font-family:var(--mono);font-size:10px;font-weight:700;text-align:center;color:#0369a1;margin-top:-1px}
+.tv3-conn{flex:1;height:3px;background:#cbd5e1;border-radius:2px;min-width:12px;margin-top:0;margin-bottom:0;align-self:center}
+.tv3-conn.done{background:#10b981;height:3px}.tv3-conn.active{background:#f59e0b;height:3px}.tv3-conn.nxt{background:#3b82f6;height:3px}
+.tv3-fbtn{font-family:var(--mono);font-size:8px;font-weight:900;padding:3px 7px;border-radius:4px;border:none;cursor:pointer;color:#fff;white-space:nowrap;margin-top:2px}
+.tv3-fbtn.rw{background:#1d4ed8}.tv3-fbtn.pwr{background:#c2410c}
+.tv3-info{width:188px;flex-shrink:0;border-left:2px solid var(--b1);padding:12px;display:flex;flex-direction:column;gap:0;background:var(--s2)}
+.tv3-ir{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid rgba(45,58,82,.55)}
+.tv3-ir:last-child{border-bottom:none}
+.tv3-il{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--t3)}
+.tv3-iv{font-family:var(--mono);font-size:12px;font-weight:900;color:var(--text)}
+.tv3-iv.ok{color:var(--green)}.tv3-iv.warn{color:var(--yellow)}.tv3-iv.hot{color:var(--red)}.tv3-iv.info{color:var(--blue)}
+.tv3-stamp{display:flex;gap:8px;align-items:center;padding:12px 16px;border-top:2px solid #e2e8f0;background:#f8fafc}
+.tv3-sbtn{font-family:var(--mono);font-size:10px;font-weight:900;padding:7px 14px;border-radius:9px;cursor:pointer;white-space:nowrap;flex:1;text-align:center;letter-spacing:.3px}
+.tv3-sbtn.y{border:2px solid #f59e0b;background:#fef3c7;color:#92400e;font-size:12px}
+.tv3-sbtn.g{border:2px solid #10b981;background:#d1fae5;color:#065f46;font-size:12px}
+.tv3-sbtn.r{border:2px solid #ef4444;background:#fee2e2;color:#991b1b;font-size:12px}
+.tv3-sig{font-size:15px;background:none;border:2px dashed var(--b2);border-radius:9px;padding:5px 11px;cursor:pointer;color:var(--t2)}
+@keyframes glow-g{0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,.6)}50%{box-shadow:0 0 0 10px rgba(16,185,129,0)}}
+@keyframes glow-p{0%,100%{box-shadow:0 0 0 0 rgba(139,92,246,.6)}50%{box-shadow:0 0 0 10px rgba(139,92,246,0)}}
+@keyframes mixingPulse{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,.6)}50%{box-shadow:0 0 0 8px rgba(245,158,11,0)}}
+@keyframes tv3gy{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,.7),0 0 0 0 rgba(245,158,11,.3)}50%{box-shadow:0 0 0 8px rgba(245,158,11,.2),0 0 0 16px rgba(245,158,11,0)}}
+@keyframes tv3go{0%,100%{box-shadow:0 0 0 0 rgba(234,88,12,.7),0 0 0 0 rgba(234,88,12,.3)}50%{box-shadow:0 0 0 8px rgba(234,88,12,.2),0 0 0 16px rgba(234,88,12,0)}}
+@keyframes tv3gb{0%,100%{box-shadow:0 0 0 0 rgba(37,99,235,.7),0 0 0 0 rgba(37,99,235,.3)}50%{box-shadow:0 0 0 8px rgba(37,99,235,.2),0 0 0 16px rgba(37,99,235,0)}}
+/* Flow responsive full width */
+.tv3-steps{width:100%}
+.tv3-sw{display:flex;align-items:center;flex:1;min-width:0}
+.tv3-sw:last-child{flex:0 0 auto}
+.tv3-conn{flex:1;height:3px;background:#cbd5e1;border-radius:2px;min-width:16px;margin:0 4px;align-self:center;margin-top:-28px}
+
+
+/* Table column widths */
+table td,table th{overflow:hidden;text-overflow:ellipsis}
+.col-seq{width:36px}
+.col-code{width:88px}
+.col-po{width:88px}
+.col-name{width:140px}
+.col-batch{width:52px}
+.col-vol{width:72px}
+.col-prep{width:150px}
+.col-tank{width:90px}
+.col-time{width:100px}
+.col-ing{width:58px}
+/* Row styles */
+tbody tr{border-bottom:1px solid #e2e8f0;transition:background .15s}
+tbody tr:hover{background:#f0f9ff!important}
+tbody tr.row-mixing{background:#fffbeb!important;border-left:4px solid #f59e0b}
+tbody tr.row-mixing td:first-child{border-left:none}
+tbody tr.row-past{background:#eff6ff!important;border-left:4px solid #3b82f6}
+tbody tr.row-done{background:#f0fdf4!important;opacity:.7;border-left:4px solid #10b981}
+/* Stamp btn */
+.stamp-btn{font-family:var(--mono);font-size:11px;font-weight:700;padding:5px 10px;border-radius:7px;cursor:pointer;white-space:nowrap;width:100%;text-align:center}
+.stamp-btn:not(.stamped){background:#fef3c7;border:1.5px solid #f59e0b;color:#92400e}
+.stamp-btn.stamped{background:#d1fae5;border:1.5px solid #10b981;color:#065f46}
+/* Act input */
+.act-input{font-family:var(--mono);font-size:12px;font-weight:700;width:58px;padding:4px 6px;border-radius:6px;border:1.5px solid #e2e8f0;background:#ffffff;color:#111827;text-align:right}
+.act-input:focus{border-color:#3b82f6;outline:none}
+/* Prep cell */
+.prep-cell{display:flex;flex-direction:column;gap:4px;padding:2px 0}
+.prep-status-row{display:flex;align-items:center;gap:6px;white-space:nowrap}
+
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">PROD<b>.</b>SYS</div>
+  <button class="nav-tab on" onclick="showTab('m1',this)">🧪 Mix 1</button>
+  <button class="nav-tab" onclick="showTab('m2',this)">🧪 Mix 2</button>
+  <div class="nav-right">
+    <span class="nav-role">PREPARE MIX</span>
+    <span class="nav-user" id="nav-user"></span>
+    <a href="mixing.html" style="font-size:11px;padding:5px 12px;border-radius:7px;border:1.5px solid var(--b1);background:none;color:var(--t2);cursor:pointer;text-decoration:none;font-family:var(--mono);font-weight:700">⚗️ Mixing</a>
+    <a href="index.html" style="font-size:11px;padding:5px 12px;border-radius:7px;border:1.5px solid var(--b1);background:none;color:var(--t2);cursor:pointer;text-decoration:none;font-family:var(--mono);font-weight:700">🏠 Home</a>
+    <button class="btn-logout" onclick="doLogout()">Logout</button>
+  </div>
+</nav>
+
+<!-- MIX 1 -->
+<div class="page on" id="tab-m1">
+  <div class="date-header" style="margin:16px 20px 14px">
+    <div class="date-header-label">📅 วันที่ผลิต</div>
+    <input type="date" id="date-m1" class="date-input-lg" onchange="loadPlan('m1')">
+    <div class="date-day-label" id="day-label-m1"></div>
+  </div>
+  <div style="padding:0 20px 6px">
+    <div style="font-family:var(--mono);font-size:10px;font-weight:900;color:#64748b;letter-spacing:2px;text-transform:uppercase;padding:6px 0 8px;border-top:2px solid #e2e8f0">📋 รายการเตรียม Mix 1</div>
+  </div>
+  <div class="tw" style="margin:0 20px 20px">
+    <table>
+      <colgroup>
+        <col style="width:36px"><col style="width:90px"><col style="width:90px"><col>
+        <col style="width:48px"><col style="width:70px"><col style="width:150px"><col style="width:90px">
+        <col style="width:100px"><col style="width:100px">
+        <col style="width:56px"><col style="width:62px">
+        <col style="width:56px"><col style="width:62px">
+        <col style="width:56px"><col style="width:62px">
+        <col style="width:56px"><col style="width:62px">
+        <col style="width:56px"><col style="width:62px">
+        <col style="width:90px">
+      </colgroup>
+      <thead>
+        <tr>
+          <th rowspan="2" style="text-align:center">#</th>
+          <th rowspan="2">Code</th>
+          <th rowspan="2">Process</th>
+          <th rowspan="2">Mix Name</th>
+          <th rowspan="2" style="text-align:center">Batch</th>
+          <th rowspan="2" style="text-align:right">Vol (L)</th>
+          <th rowspan="2">🔧 การเตรียม</th>
+          <th rowspan="2">Tank</th>
+          <th rowspan="2" style="text-align:center">⏱ เริ่มผสม</th>
+          <th rowspan="2" style="text-align:center">⏹ ผสมเสร็จ</th>
+          <th colspan="2" style="text-align:center;border-bottom:2px solid #93c5fd;background:#dbeafe;color:#1e40af">🍬 GLUCOSE</th>
+          <th colspan="2" style="text-align:center;border-bottom:2px solid #fcd34d;background:#fef3c7;color:#92400e">🧂 SUGAR</th>
+          <th colspan="2" style="text-align:center;border-bottom:2px solid #6ee7b7;background:#d1fae5;color:#065f46">🌴 PALM OIL</th>
+          <th colspan="2" style="text-align:center;border-bottom:2px solid #f9a8d4;background:#fce7f3;color:#9d174d">🛢️ OIL MIX</th>
+          <th colspan="2" style="text-align:center;border-bottom:2px solid #c4b5fd;background:#ede9fe;color:#4c1d95">🥛 FAT MILK</th>
+          <th rowspan="2" style="text-align:center">Status</th>
+        </tr>
+        <tr>
+          <th style="text-align:right;background:#dbeafe;color:#1e40af;font-size:10px;font-weight:900">Set</th><th style="text-align:right;background:#dbeafe;color:#059669;font-size:10px;font-weight:900">Actual</th>
+          <th style="text-align:right;background:#fef3c7;color:#92400e;font-size:10px;font-weight:900">Set</th><th style="text-align:right;background:#fef3c7;color:#059669;font-size:10px;font-weight:900">Actual</th>
+          <th style="text-align:right;background:#d1fae5;color:#065f46;font-size:10px;font-weight:900">Set</th><th style="text-align:right;background:#d1fae5;color:#059669;font-size:10px;font-weight:900">Actual</th>
+          <th style="text-align:right;background:#fce7f3;color:#9d174d;font-size:10px;font-weight:900">Set</th><th style="text-align:right;background:#fce7f3;color:#059669;font-size:10px;font-weight:900">Actual</th>
+          <th style="text-align:right;background:#ede9fe;color:#4c1d95;font-size:10px;font-weight:900">Set</th><th style="text-align:right;background:#ede9fe;color:#059669;font-size:10px;font-weight:900">Actual</th>
+        </tr>
+      </thead>
+      <tbody id="tbody-m1"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- MIX 2 -->
+<div class="page" id="tab-m2">
+  <div class="date-header" style="margin:16px 20px 14px">
+    <div class="date-header-label">📅 วันที่ผลิต</div>
+    <input type="date" id="date-m2" class="date-input-lg" onchange="loadPlan('m2')">
+    <div class="date-day-label" id="day-label-m2"></div>
+  </div>
+  <div style="padding:0 20px 6px">
+    <div style="font-family:var(--mono);font-size:10px;font-weight:900;color:#64748b;letter-spacing:2px;text-transform:uppercase;padding:6px 0 8px;border-top:2px solid #e2e8f0">📋 รายการเตรียม Mix 2</div>
+  </div>
+  <div class="tw" style="margin:0 20px 20px">
+    <table>
+      <colgroup>
+        <col style="width:36px"><col style="width:90px"><col style="width:90px"><col>
+        <col style="width:48px"><col style="width:70px"><col style="width:150px"><col style="width:90px">
+        <col style="width:100px"><col style="width:100px">
+        <col style="width:56px"><col style="width:62px">
+        <col style="width:56px"><col style="width:62px">
+        <col style="width:56px"><col style="width:62px">
+        <col style="width:56px"><col style="width:62px">
+        <col style="width:56px"><col style="width:62px">
+        <col style="width:90px">
+      </colgroup>
+      <thead>
+        <tr>
+          <th rowspan="2" style="text-align:center">#</th>
+          <th rowspan="2">Code</th>
+          <th rowspan="2">Process</th>
+          <th rowspan="2">Mix Name</th>
+          <th rowspan="2" style="text-align:center">Batch</th>
+          <th rowspan="2" style="text-align:right">Vol (L)</th>
+          <th rowspan="2">🔧 การเตรียม</th>
+          <th rowspan="2">Tank</th>
+          <th rowspan="2" style="text-align:center">⏱ เริ่มผสม</th>
+          <th rowspan="2" style="text-align:center">⏹ ผสมเสร็จ</th>
+          <th colspan="2" style="text-align:center;border-bottom:2px solid #93c5fd;background:#dbeafe;color:#1e40af">🍬 GLUCOSE</th>
+          <th colspan="2" style="text-align:center;border-bottom:2px solid #fcd34d;background:#fef3c7;color:#92400e">🧂 SUGAR</th>
+          <th colspan="2" style="text-align:center;border-bottom:2px solid #6ee7b7;background:#d1fae5;color:#065f46">🌴 PALM OIL</th>
+          <th colspan="2" style="text-align:center;border-bottom:2px solid #f9a8d4;background:#fce7f3;color:#9d174d">🛢️ OIL MIX</th>
+          <th colspan="2" style="text-align:center;border-bottom:2px solid #c4b5fd;background:#ede9fe;color:#4c1d95">🥛 FAT MILK</th>
+          <th rowspan="2" style="text-align:center">Status</th>
+        </tr>
+        <tr>
+          <th style="text-align:right;background:#dbeafe;color:#1e40af;font-size:10px;font-weight:900">Set</th><th style="text-align:right;background:#dbeafe;color:#059669;font-size:10px;font-weight:900">Actual</th>
+          <th style="text-align:right;background:#fef3c7;color:#92400e;font-size:10px;font-weight:900">Set</th><th style="text-align:right;background:#fef3c7;color:#059669;font-size:10px;font-weight:900">Actual</th>
+          <th style="text-align:right;background:#d1fae5;color:#065f46;font-size:10px;font-weight:900">Set</th><th style="text-align:right;background:#d1fae5;color:#059669;font-size:10px;font-weight:900">Actual</th>
+          <th style="text-align:right;background:#fce7f3;color:#9d174d;font-size:10px;font-weight:900">Set</th><th style="text-align:right;background:#fce7f3;color:#059669;font-size:10px;font-weight:900">Actual</th>
+          <th style="text-align:right;background:#ede9fe;color:#4c1d95;font-size:10px;font-weight:900">Set</th><th style="text-align:right;background:#ede9fe;color:#059669;font-size:10px;font-weight:900">Actual</th>
+        </tr>
+      </thead>
+      <tbody id="tbody-m2"></tbody>
+    </table>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script type="module">
+import { initializeApp }     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+
+
+import { getFirestore, collection, query, where, orderBy, onSnapshot, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+
+import {resolveStatus,statusLabel,statusColor,statusBlink,statusBadge} from "./shared.js";
+
+
+const app  = initializeApp({
+  apiKey:"AIzaSyC3f6jMuhugE6BNfRfkpOA9BMrIKWR9YgQ",
+  authDomain:"production-filling.firebaseapp.com",
+  projectId:"production-filling",
+  storageBucket:"production-filling.firebasestorage.app",
+  messagingSenderId:"89098393458",
+  appId:"1:89098393458:web:b723f2886e8a341935afeb"
+});
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+let ME=null, productMap={};
+let rows={m1:[],m2:[]};
+let unsub={m1:null,m2:null};
+let charts={};
+let period={m1:"day",m2:"day"};
+
+const today  = () => new Date().toISOString().slice(0,10);
+const $      = id => document.getElementById(id);
+const fmt    = n  => Math.round(n||0).toLocaleString();
+const nowHHMM= () => { const d=new Date(); return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0"); };
+const nowHMS = () => { const d=new Date(); return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0")+":"+String(d.getSeconds()).padStart(2,"0"); };
+
+function toast(msg,t="blue"){
+  const el=$("toast"); el.textContent=msg;
+  el.style.background=t==="green"?"#15803d":t==="red"?"#991b1b":"#1d4ed8";
+  el.classList.add("show"); setTimeout(()=>el.classList.remove("show"),2500);
+}
+
+// ── AUTH ──────────────────────────────────────────────────────────────
+
+// ── IDLE TIMEOUT ──────────────────────────────────────────────────────
+async function initIdleTimeout(){
+  try{
+    const snap=await getDoc(doc(db,'settings','idle_timeout'));
+    const minutes=snap.exists()?(snap.data().minutes||0):0;
+    if(!minutes||minutes<=0)return;
+    let t;
+    const reset=()=>{
+      clearTimeout(t);
+      t=setTimeout(async()=>{
+        alert('ระบบ logout อัตโนมัติ เนื่องจากไม่มีการใช้งาน '+minutes+' นาที');
+        await signOut(auth);
+        window.location.href='index.html';
+      },minutes*60*1000);
+    };
+    ['mousemove','mousedown','keydown','touchstart','scroll','click'].forEach(e=>{
+      document.addEventListener(e,reset,{passive:true});
+    });
+    reset();
+  }catch(e){console.warn('idleTimeout:',e);}
+}
+
+onAuthStateChanged(auth, async user=>{
+  if(!user){window.location.href="index.html";return;}
+  ME=user;
+  try{
+    const snap=await getDocs(query(collection(db,"users"),where("uid","==",user.uid)));
+    const role=snap.empty?"mixing":(snap.docs[0].data().role||"mixing");
+    if(role!=="mixing"&&role!=="admin"&&role!=="leadman"&&role!=="operator"){window.location.href="index.html";return;}
+  }catch{}
+
+  // load productMap แบบ realtime
+  onSnapshot(collection(db,"products"), snap=>{
+    snap.docs.forEach(d=>{const p={id:d.id,...d.data()};if(p.mix_code)productMap[p.mix_code]=p;});
+    window._productMap=productMap;
+    // re-render ถังเมื่อ product colors โหลดแล้ว
+    ['m1','m2'].forEach(m=>renderMixTanks(m, rows[m]||[]));
+  }, e=>console.error('products error:',e));
+
+  $("nav-user").textContent=user.email.replace("@filling.local","");
+  $("date-m1").value=today();
+  $("date-m2").value=today();
+  loadPlan("m1");
+  loadPlan("m2");
+});
+
+window.doLogout=async()=>{
+  if(unsub.m1)unsub.m1();
+  if(unsub.m2)unsub.m2();
+  await signOut(auth);
+  window.location.href="index.html";
+};
+
+// ── LOAD PLAN ─────────────────────────────────────────────────────────
+const planCol=(m)=>m==="m1"?"production_plans":"production_plans_m2";
+
+window.loadPlan=(m)=>{
+  const d=$(m==="m1"?"date-m1":"date-m2").value||today();
+  if(unsub[m])unsub[m]();
+  const q=query(collection(db,planCol(m)),where("date","==",d));
+  unsub[m]=onSnapshot(q,snap=>{
+    rows[m]=snap.docs.map(d=>({id:d.id,...d.data()}))
+      .filter(r=>(r.mix_code||r.mix_name||r.process_order)&&r.status!=='past_done'&&r.status!=='ready'&&r.status!=='sent_filling'&&r.status!=='filling'&&r.status!=='curing')
+      .sort((a,b)=>(a.seq||0)-(b.seq||0));
+    renderPlan(m);
+    // auto assign ถังให้ row ที่พร้อมแล้ว
+    autoAssignTank(m);
+  });
+};
+
+// ── STAMP TIME ────────────────────────────────────────────────────────
+// ── GENERIC UPDATE ──────────────────────────────────────────────────────
+window._up=async(col,id,field,val)=>{
+  try{
+    await updateDoc(doc(db,col,id),{[field]:val});
+  }catch(e){toast("บันทึกไม่สำเร็จ: "+e.message,"red");}
+};
+
+window.stampTime=async(col,id,field,m)=>{
+  const now=nowHHMM();
+  const upd={[field]:now};
+  const row=rows[m]?.find(r=>r.id===id);
+
+  if(field==="mix_start_time"){
+    upd.status="mixing";
+  }
+
+  if(field==="mix_end_time"){
+    // trigger auto assign ถังถัดไป หลัง stamp เสร็จ
+    setTimeout(()=>autoAssignTank(m),1000);
+    // เช็คว่า actual ครบหรือยัง
+    if(row){
+      const glcOk=+(row.glc_set||0)<=0||(+(row.glc_actual||0)>0);
+      const sgrOk=+(row.sgr_set||0)<=0||(+(row.sgr_actual||0)>0);
+      const plmOk=+(row.plm_set||0)<=0||(+(row.plm_actual||0)>0);
+      const oilOk=+(row.oil_mix_set||0)<=0||(+(row.oil_mix_actual||0)>0);
+      const fatOk=+(row.fat_milk_set||0)<=0||(+(row.fat_milk_actual||0)>0);
+
+      if(!glcOk||!sgrOk||!plmOk||!oilOk||!fatOk){
+        const missing=[];
+        if(!glcOk)missing.push('Glucose');
+        if(!sgrOk)missing.push('Sugar');
+        if(!plmOk)missing.push('Palm Oil');
+        if(!oilOk)missing.push('Oil Mix');
+        if(!fatOk)missing.push('Fat Milk');
+        toast(`⚠️ กรุณากรอก Actual: ${missing.join(', ')} ก่อน Stamp เสร็จ`,'red');
+        return;
+      }
+      upd.status="pasteurising";
+    } else {
+      upd.status="pasteurising";
+    }
+  }
+
+  await updateDoc(doc(db,col,id),upd);
+  toast(`Stamp ${now} แล้ว`,"green");
+};
+
+window.editTime=async(col,id,field,current,m)=>{
+  const val=prompt(`แก้ไขเวลา (HH:MM) :`,current||"");
+  if(val===null)return;
+  const clean=val.replace(/[^0-9:]/g,"");
+  if(!/^\d{2}:\d{2}$/.test(clean)){toast("รูปแบบ HH:MM เท่านั้น","red");return;}
+  const upd={[field]:clean};
+  if(field==="mix_start_time"&&clean) upd.status="mixing";
+  if(field==="mix_end_time"&&clean){
+    const row=rows[m]?.find(r=>r.id===id);
+    if(row){
+      const glcOk2=+(row.glc_set||0)<=0||(+(row.glc_actual||0)>0);
+      const sgrOk2=+(row.sgr_set||0)<=0||(+(row.sgr_actual||0)>0);
+      const plmOk2=+(row.plm_set||0)<=0||(+(row.plm_actual||0)>0);
+      const oilOk2=+(row.oil_mix_set||0)<=0||(+(row.oil_mix_actual||0)>0);
+      const fatOk2=+(row.fat_milk_set||0)<=0||(+(row.fat_milk_actual||0)>0);
+      if(!glcOk2||!sgrOk2||!plmOk2||!oilOk2||!fatOk2){
+        const missing=[];
+        if(!glcOk2)missing.push('Glucose');
+        if(!sgrOk2)missing.push('Sugar');
+        if(!plmOk2)missing.push('Palm Oil');
+        if(!oilOk2)missing.push('Oil Mix');
+        if(!fatOk2)missing.push('Fat Milk');
+        toast(`กรุณากรอก Actual: ${missing.join(', ')} ก่อน`,'red');
+        return;
+      }
+    }
+    upd.status="pasteurising";
+  }
+  await updateDoc(doc(db,col,id),upd);
+  toast("แก้ไขเวลาแล้ว","green");
+};
+
+window.saveActual=async(col,id,field,val,m)=>{
+  const upd={[field]:+val};
+  const row=rows[m].find(r=>r.id===id);
+  if(row){
+    // เช็คค่า ±5 จาก set point
+    const setMap={glc_actual:"glc_set",sgr_actual:"sgr_set",plm_actual:"plm_set"};
+    const setField=setMap[field];
+    if(setField&&row[setField]){
+      const diff=Math.abs(+val-(+row[setField]));
+      if(diff>5){
+        const fieldName=field==="glc_actual"?"Glucose":field==="sgr_actual"?"Sugar":"Palm Oil";
+        const comment=prompt(`⚠️ ${fieldName} ต่างจาก Set Point ${diff.toFixed(1)} kg\n\nกรุณาระบุเหตุผล:`);
+        if(comment===null)return; // กด Cancel = ยกเลิก
+        if(!comment.trim()){toast("กรุณาใส่เหตุผล","red");return;}
+        const commentField=field.replace("_actual","_comment");
+        upd[commentField]=comment.trim();
+        toast(`บันทึกพร้อม comment แล้ว`,"green");
+      }
+    }
+    const merged={...row,...upd};
+    const anyActual=(+merged.glc_actual||0)>0||(+merged.plm_actual||0)>0||(+merged.sgr_actual||0)>0;
+    if(anyActual&&(merged.status==="pending"||merged.status==="mixing")){
+      upd.status="mixing";
+    }
+  }
+  await updateDoc(doc(db,col,id),upd);
+};
+
+// ── RENDER PLAN ───────────────────────────────────────────────────────
+// ── TANK VISUAL ──────────────────────────────────────────────────────
+
+// ============================================================
+// SINGLE SOURCE OF TRUTH — Process State Machine
+// ============================================================
+function getProcessState(row){
+  if(!row) return {id:'empty',lbl:'🏁 EMPTY',cls:'b-wait',color:'#94a3b8',bg:'#f1f5f9',anim:'none'};
+  const st=row.status||'';
+  const mixDone=!!row.mix_end_time;
+  const pastStarted=!!row.past_start_time;
+  const pastDone=st==='past_done';
+  const prepDone=row.prep_status==='ready';
+
+  // PREPARING
+  if(!row.mix_start_time && !prepDone && !st.includes('mix'))
+    return {id:'preparing',lbl:'🔧 กำลังเตรียม',cls:'b-wait',color:'#f59e0b',bg:'#fef3c7',anim:'glow-y'};
+  // READY TO MIX
+  if(!row.mix_start_time && prepDone)
+    return {id:'ready_mix',lbl:'✅ พร้อมผสม',cls:'b-wait',color:'#10b981',bg:'#d1fae5',anim:'glow-g'};
+  // MIXING
+  if(st==='mixing'&&!mixDone)
+    return {id:'mixing',lbl:'🔄 MIXING',cls:'b-mix',color:'#f59e0b',bg:'#fef3c7',anim:'glow-y'};
+  // MIX DONE — WAITING PAST
+  if(mixDone && !pastStarted && !pastDone)
+    return {id:'wait_past',lbl:'⏳ รอ Pasteurize',cls:'b-wait',color:'#3b82f6',bg:'#dbeafe',anim:'glow-b'};
+  // PASTEURISING
+  if(st==='pasteurising' && pastStarted && !pastDone)
+    return {id:'pasteurising',lbl:'🔵 PASTEURISING',cls:'b-past',color:'#3b82f6',bg:'#dbeafe',anim:'glow-b'};
+  // PAST DONE
+  if(pastDone)
+    return {id:'past_done',lbl:'✅ PAST. เสร็จ',cls:'b-done',color:'#10b981',bg:'#d1fae5',anim:'none'};
+  // FALLBACK
+  const fallbacks={
+    pending:{id:'pending',lbl:'⏳ PENDING',cls:'b-wait',color:'#94a3b8',bg:'#f1f5f9',anim:'none'},
+    cip:{id:'cip',lbl:'🧹 CIP',cls:'b-wait',color:'#8b5cf6',bg:'#ede9fe',anim:'glow-p'},
+    ready:{id:'ready',lbl:'✅ พร้อม',cls:'b-done',color:'#10b981',bg:'#d1fae5',anim:'none'},
+  };
+  return fallbacks[st]||{id:st,lbl:st.toUpperCase(),cls:'b-wait',color:'#94a3b8',bg:'#f1f5f9',anim:'none'};
+}
+
+
+function buildFlowSteps(row){
+  var s=[];
+  var started=!!row.mix_start_time;
+  var p=started;
+  var rwKg=+(row.rework_kg||0);
+  var glcKg=+(row.glc_set||0);
+  var sgrKg=+(row.sgr_set||0);
+  var plmKg=+(row.plm_set||0);
+  var oilKg=+(row.oil_mix_set||0);
+  var fatKg=+(row.fat_milk_set||0);
+  // 1
+  s.push({id:'start',ico:'\u{1F680}',name:'\u0E40\u0E23\u0E34\u0E48\u0E21\u0E1C\u0E2A\u0E21',kg:'',done:started,active:!started,btn:false,skip:false,pwd:false});
+  // 2 rework
+  if(rwKg>0){var d=!!row.rw_confirmed;s.push({id:'rw',ico:'\u267B\uFE0F',name:'Rework',kg:rwKg+' kg',done:d,active:p&&!d,btn:true,skip:false,pwd:false});p=p&&d;}
+  else{s.push({id:'nrw',ico:'\uD83D\uDEAB',name:'No Rework',kg:'',done:false,active:false,btn:false,skip:true,pwd:false});}
+  // 3 glc
+  if(glcKg>0){var d=+(row.glc_actual||0)>0;s.push({id:'glc',ico:'\uD83C\uDF6F',name:'Glucose',kg:glcKg+' kg',done:d,active:p&&!d,btn:false,skip:false,pwd:false,isIngr:true,actField:'glc_actual',actVal:row.glc_actual||''});p=p&&d;}
+  // 4 sgr
+  if(sgrKg>0){var d=+(row.sgr_actual||0)>0;s.push({id:'sgr',ico:'\uD83C\uDF6C',name:'Sugar',kg:sgrKg+' kg',done:d,active:p&&!d,btn:false,skip:false,pwd:false,isIngr:true,actField:'sgr_actual',actVal:row.sgr_actual||''});p=p&&d;}
+  // 5 powder
+  var pd=!!row.pwd_confirmed;
+  s.push({id:'pwd',ico:'\uD83E\uDDEA',name:'Powder',kg:'\u2191 \u0E0A\u0E34\u0E1B!',done:pd,active:p&&!pd,btn:true,skip:false,pwd:true});
+  p=p&&pd;
+  // 6 oil
+  if(plmKg>0){var d=+(row.plm_actual||0)>0;s.push({id:'plm',ico:'\uD83C\uDF34',name:'Palm Oil',kg:plmKg+' kg',done:d,active:p&&!d,btn:false,skip:false,pwd:false,isIngr:true,actField:'plm_actual',actVal:row.plm_actual||''});p=p&&d;}
+  else if(oilKg>0){var d=+(row.oil_mix_actual||0)>0;s.push({id:'oil',ico:'\uD83D\uDEE2\uFE0F',name:'Oil Mix',kg:oilKg+' kg',done:d,active:p&&!d,btn:false,skip:false,pwd:false,isIngr:true,actField:'oil_mix_actual',actVal:row.oil_mix_actual||''});p=p&&d;}
+  else if(fatKg>0){var d=+(row.fat_milk_actual||0)>0;s.push({id:'fat',ico:'\uD83E\uDD5B',name:'Fat Milk',kg:fatKg+' kg',done:d,active:p&&!d,btn:false,skip:false,pwd:false,isIngr:true,actField:'fat_milk_actual',actVal:row.fat_milk_actual||''});p=p&&d;}
+  // 7
+  s.push({id:'done',ico:'\u2705',name:'\u0E1C\u0E2A\u0E21\u0E40\u0E2A\u0E23\u0E47\u0E08',kg:'',done:!!row.mix_end_time,active:p&&!row.mix_end_time,btn:false,skip:false,pwd:false});
+  return s;
+}
+
+function renderFlowBar(row,pcol,rid){
+  var steps=buildFlowSteps(row);
+  var html='<div class="fbar">';
+  steps.forEach(function(st,i){
+    var isDone=st.done,isSkip=st.skip,isActive=!isDone&&!isSkip&&st.active;
+    var cls=isSkip?'fw-skip':isDone?'fw-done':isActive?(st.pwd?'fw-ora':'fw-blue'):'fw-wait';
+    var fc=isDone?'#15803d':isActive?(st.pwd?'#c2410c':'#1d4ed8'):'#6b7280';
+    var btnH='';
+    if(st.btn&&isActive){
+      var bg=st.pwd?'#c2410c':'#1d4ed8';
+      var lbl=st.pwd?'\u2705 Powder':'\u2705 Rework';
+      btnH='<button class="fbtn" style="background:'+bg+'" onclick="window._cfm(\'' +pcol+ '\'\,' +'\'' +rid+ '\'\,' +'\'' +st.id+ '\')">'+lbl+'</button>';
+    }
+    html+='<div class="sw"><div class="stepc" style="width:80px"><div class="fsc '+cls+'"><div class="fic">'+st.ico+'</div></div><div class="snm" style="color:'+fc+'">'+st.name+'</div><div class="skg" style="color:'+fc+'">'+(isSkip?'':st.kg)+'</div>'+btnH+'</div>'+(i<steps.length-1?'<div class="fconn'+(isDone?' done':'')+'"></div>':'')+'</div>';
+  });
+  html+='</div>';
+  return html;
+}
+
+window._setPrepStatus=async function(pcol,rid,val,sel){
+  sel.className='prep-sel'+(val==='ready'?' ready':val==='not_ready'?' notready':'');
+  const sig=sessionStorage.getItem('emp_sig')||'';
+  const name=sessionStorage.getItem('emp_name')||'';
+  const upd={prep_status:val,updated_at:new Date().toISOString()};
+  if(val==='ready'&&sig){upd.prep_sig=sig;upd.prep_sig_name=name;}
+  try{
+    await updateDoc(doc(db,pcol,rid),upd);
+    toast('✅ บันทึกสถานะเตรียม','green');
+    // trigger auto assign ทันทีเมื่อกด ready
+    if(val==='ready'){
+      const m=pcol==='production_plans'?'m1':'m2';
+      setTimeout(()=>autoAssignTank(m),500);
+    }
+  }catch(e){toast('❌ '+e.message,'red');}
+};
+window._stampPrepSig=async function(pcol,rid){
+  const sig=sessionStorage.getItem('emp_sig')||'';
+  const name=sessionStorage.getItem('emp_name')||'';
+  if(!sig){toast('ไม่พบลายเซ็น กรุณา login ใหม่','red');return;}
+  try{await updateDoc(doc(db,pcol,rid),{prep_sig:sig,prep_sig_name:name,updated_at:new Date().toISOString()});toast('✅ บันทึกลายเซ็นผู้เตรียม','green');}
+  catch(e){toast('❌ '+e.message,'red');}
+};
+window._stampMixStart=async function(pcol,rid,m){
+  const sig=sessionStorage.getItem('emp_sig')||'';
+  const name=sessionStorage.getItem('emp_name')||'';
+  const n=nowHMS();
+  const upd={mix_start_time:n,status:'mixing',updated_at:new Date().toISOString()};
+  if(sig){upd.sig_mix_start=sig;upd.sig_mix_start_name=name;}
+  try{await updateDoc(doc(db,pcol,rid),upd);toast('▶ Start ผสม '+n,'green');}
+  catch(e){toast('❌ '+e.message,'red');}
+};
+window._saveIngr=async function(pcol,rid,field,val){
+  if(!val||+val<=0){toast('กรุณากรอกค่า Actual','red');return;}
+  try{
+    await updateDoc(doc(db,pcol,rid),{[field]:+val, updated_at:new Date().toISOString()});
+    toast('✅ บันทึก '+field+' = '+val+' kg','green');
+  }catch(e){toast('❌ '+e.message,'red');}
+};
+window._cfm=async function(pcol,rid,field){
+  var upd={updated_at:new Date().toISOString()};
+  if(field==='rw') upd.rw_confirmed=true;
+  if(field==='pwd') upd.pwd_confirmed=true;
+  try{await updateDoc(doc(db,pcol,rid),upd);}catch(e){console.warn(e);}
+};
+
+function renderMixTanks(m, rows){
+  const el=document.getElementById(`tank-visual-${m}`);
+  if(!el)return;
+
+  const t1Row=rows.find(r=>(r.mixing_tank==='Tank 1'||r.mixing_tank==='T1'||r.mixing_tank==='1')&&+(r.volume_liter||0)>0)||rows.find(r=>(r.mixing_tank==='Tank 1'||r.mixing_tank==='T1'||r.mixing_tank==='1'))||null;
+  const t2Row=rows.find(r=>(r.mixing_tank==='Tank 2'||r.mixing_tank==='T2'||r.mixing_tank==='2')&&+(r.volume_liter||0)>0)||rows.find(r=>(r.mixing_tank==='Tank 2'||r.mixing_tank==='T2'||r.mixing_tank==='2'))||null;
+
+  function autoTextColor(hex){
+    if(!hex||hex[0]!=='#') return '#e2e8f0';
+    var r=parseInt(hex.slice(1,3),16)||0,g=parseInt(hex.slice(3,5),16)||0,b=parseInt(hex.slice(5,7),16)||0;
+    return (0.299*r+0.587*g+0.114*b)>160?'#111827':'#e2e8f0';
+  }
+
+  function tankSVG(row,cap){
+    cap=cap||3000;
+    const st=row?.status||'';
+    const totalVol=+(row?.volume_liter||0);
+    const flowed=st==='pasteurising'||st==='past_done'?+(row?.current_vol||0):0;
+    const vol=st==='pasteurising'?Math.max(0,totalVol-flowed):totalVol;
+    const prod=productMap[row?.mix_code||'']||{};
+    const col=prod.color||'#3b82f6';
+    const isActive=['mixing','pasteurising','past_done','waiting_past','ready','busy'].includes(st);
+    const pct=isActive&&vol>0?Math.min(100,(vol/cap)*100):0;
+    const hasLiq=pct>0;
+    const sw=100,sh=210,bX=10,bY=40,bW=80,bH=138;
+    const fillH=Math.max(0,(pct/100)*(bH-4)*0.92);
+    const wy=bY+bH-fillH;
+    const A=5,midY=bY+bH/2;
+    const uid='tv3'+(row?.mix_code||'x').replace(/[^a-z0-9]/gi,'');
+    const gid='g'+uid,cid='c'+uid;
+    const r2=parseInt(col.slice(1,3),16)||0,g2=parseInt(col.slice(3,5),16)||0,b2=parseInt(col.slice(5,7),16)||0;
+    const ST2={mixing:'🔄',pasteurising:'🔵',past_done:'✅',pending:'⏳'};
+    const stTxt=ST2[st]||`${Math.round(pct)}%`;
+    const stLabel={mixing:'MIXING',pasteurising:'PAST.',past_done:'DONE',pending:'รอ'};
+    const stLbl=stLabel[st]||'';
+    function waveD(yBase,amp,nc){
+      const W=bW*2,segW=W/(nc*2);let d=`M${bX},${yBase}`;
+      for(let i=0;i<nc*2;i++){const x1=bX+i*segW,x2=bX+(i+1)*segW;const cy=i%2===0?yBase-amp:yBase+amp;d+=` C${x1+segW*.4},${cy} ${x2-segW*.4},${cy} ${x2},${yBase}`;}
+      return d+` L${bX+W},${bY+bH} L${bX},${bY+bH} Z`;
+    }
+    let s=`<svg width="${sw}" height="${sh}" viewBox="0 0 ${sw} ${sh}" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto">`;
+    s+=`<defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${col}" stop-opacity=".55"/><stop offset="100%" stop-color="${col}" stop-opacity=".9"/></linearGradient><clipPath id="${cid}"><rect x="${bX-1}" y="${bY-1}" width="${bW+2}" height="${bH+2}" rx="10"/></clipPath></defs>`;
+    // cap
+    s+=`<rect x="${bX+(bW-24)/2}" y="${bY-8}" width="24" height="10" rx="4" fill="${hasLiq?'#16a34a':'rgba(255,255,255,.1)'}" stroke="${hasLiq?col:'#475569'}" stroke-width="1.5" stroke-opacity=".7"/>`;
+    s+=`<rect x="${bX+(bW-14)/2}" y="${bY-14}" width="14" height="8" rx="3" fill="${hasLiq?'#16a34a':'rgba(255,255,255,.1)'}" stroke="${hasLiq?col:'#475569'}" stroke-width="1.5" stroke-opacity=".6"/>`;
+    if(hasLiq){
+      s+=`<circle cx="${sw/2}" cy="${bY-11}" r="4" fill="#22c55e" opacity=".9"/>`;
+      s+=`<circle cx="${sw/2}" cy="${bY-11}" r="4" fill="none" stroke="#22c55e" stroke-width="1.5"><animate attributeName="r" from="4" to="10" dur="1.6s" repeatCount="indefinite"/><animate attributeName="opacity" from=".7" to="0" dur="1.6s" repeatCount="indefinite"/></circle>`;
+    }
+    // body
+    s+=`<rect x="${bX}" y="${bY}" width="${bW}" height="${bH}" rx="10" fill="${hasLiq?`rgba(${r2},${g2},${b2},.07)`:'rgba(71,85,105,.2)'}" stroke="${hasLiq?col:'#475569'}" stroke-width="2" stroke-opacity="${hasLiq?'.35':'.5'}"/>`;
+    if(hasLiq){
+      s+=`<g clip-path="url(#${cid})">`;
+      s+=`<rect x="${bX}" y="${wy+A}" width="${bW*2}" height="${bY+bH-(wy+A)}" fill="url(#${gid})"/>`;
+      s+=`<path d="${waveD(wy,A,3)}" fill="${col}" fill-opacity=".5"><animateTransform attributeName="transform" type="translate" from="0,0" to="${-bW},0" dur="2.8s" repeatCount="indefinite"/></path>`;
+      s+=`<path d="${waveD(wy,A*.6,4)}" fill="${col}" fill-opacity=".28"><animateTransform attributeName="transform" type="translate" from="${bW*.5},0" to="${-bW*.5},0" dur="4.2s" repeatCount="indefinite"/></path>`;
+      s+=`</g>`;
+    }
+    s+=`<rect x="${bX}" y="${bY}" width="${bW}" height="${bH}" rx="10" fill="none" stroke="${hasLiq?col:'#475569'}" stroke-width="2.5" stroke-opacity="${hasLiq?'.75':'.6'}"/>`;
+    // legs
+    s+=`<rect x="${bX+6}" y="${bY+bH}" width="7" height="13" rx="2" fill="${hasLiq?`rgba(${r2},${g2},${b2},.2)`:'rgba(71,85,105,.3)'}" stroke="${hasLiq?col:'#475569'}" stroke-width="1.5" stroke-opacity=".5"/>`;
+    s+=`<rect x="${bX+bW-13}" y="${bY+bH}" width="7" height="13" rx="2" fill="${hasLiq?`rgba(${r2},${g2},${b2},.2)`:'rgba(71,85,105,.3)'}" stroke="${hasLiq?col:'#475569'}" stroke-width="1.5" stroke-opacity=".5"/>`;
+    s+=`<rect x="${bX+2}" y="${bY+bH+12}" width="${bW-4}" height="4" rx="2" fill="${hasLiq?`rgba(${r2},${g2},${b2},.15)`:'rgba(71,85,105,.2)'}" stroke="${hasLiq?col:'#475569'}" stroke-width="1" stroke-opacity=".4"/>`;
+    // text
+    s+=`<text x="${sw/2}" y="${midY-2}" text-anchor="middle" font-family="DM Mono,monospace" font-size="18" fill="#ffffff" font-weight="900">${hasLiq?vol.toLocaleString():'ว่าง'}</text>`;
+    if(hasLiq){
+      s+=`<text x="${sw/2}" y="${midY+13}" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="${col}" font-weight="700" opacity=".75">ลิตร · ${Math.round(pct)}%</text>`;
+      s+=`<rect x="${bX+5}" y="${midY+16}" width="${bW-10}" height="16" rx="8" fill="${col}" fill-opacity="1" stroke="rgba(255,255,255,.3)" stroke-width="1"/>`;
+      s+=`<text x="${sw/2}" y="${midY+27}" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#ffffff" font-weight="900">${stTxt} ${stLbl}</text>`;
+    }
+    s+=`</svg>`;
+    return s;
+  }
+
+  function buildStepHtml(st, i, stepsLen, pcol, rid){
+    const isDone=st.done;
+    const isSkip=st.skip;
+    const isActive=st.active&&!isDone&&!isSkip;
+    let cls='idle';
+    if(isDone) cls='done';
+    else if(isSkip) cls='skip';
+    else if(isActive){
+      // กำหนด animation ตาม step id
+      if(st.pwd) cls='active pwr';
+      else if(st.isStatus&&st.id==='wait_past') cls='active nxt'; // รอ Past = blue
+      else if(st.isStatus&&st.id==='pasteurising') cls='active nxt';
+      else if(st.isStatus&&st.id==='empty') cls='active nxt';
+      else cls='active';
+    }
+    let connCls='';
+    if(isDone) connCls='done';
+    else if(isActive) connCls=st.isStatus?'nxt':'active';
+    let btnH='';
+    if(st.isIngr&&isActive){
+      // ingredient active — แสดง input + confirm
+      btnH=`<div style="display:flex;flex-direction:column;align-items:center;gap:3px;margin-top:3px">
+        <input id="act-${rid}-${st.id}" type="number" step="0.1" 
+          style="width:72px;font-family:var(--mono);font-size:11px;font-weight:900;padding:3px 6px;border:2px solid #f59e0b;border-radius:6px;text-align:center;background:#fff;color:#111827"
+          placeholder="Actual" value="${st.actVal||''}"
+          onkeydown="if(event.key==='Enter')window._saveIngr('${pcol}','${rid}','${st.actField}',this.value)">
+        <button class="tv3-fbtn rw" onclick="window._saveIngr('${pcol}','${rid}','${st.actField}',document.getElementById('act-${rid}-${st.id}').value)">✅ OK</button>
+      </div>`;
+    } else if(st.isIngr&&isDone){
+      // ingredient done — แสดงค่า actual
+      btnH=`<div style="font-family:var(--mono);font-size:11px;font-weight:900;color:#059669">${st.actVal} kg</div>`;
+    } else if(st.btn&&isActive){
+      const bg=st.pwd?'pwr':'rw';
+      const lbl=st.pwd?'✅ Powder':'✅ Rework';
+      btnH=`<button class="tv3-fbtn ${bg}" onclick="window._cfm('${pcol}','${rid}','${st.id}')">${lbl}</button>`;
+    }
+    let sv2='';
+    if(st.id==='rw'&&isDone&&st.tanks) sv2=`<div class="tv3-sv2">${st.tanks} ถัง</div>`;
+    const snCls=isDone?'done':isActive?(st.pwd?'pwr':st.isStatus?'nxt':'active'):'';
+    const svCls=isDone?'done':isActive?(st.pwd?'pwr':'active'):'';
+    const connHtml=i<stepsLen-1?`<div class="tv3-conn ${connCls}"></div>`:'';
+    return `<div class="tv3-sw">
+      <div class="tv3-step">
+        <div class="tv3-circle ${cls}"><span style="font-size:30px">${st.ico}</span></div>
+        <div class="tv3-sn ${snCls}">${st.name}</div>
+        <div class="tv3-sv ${svCls}">${isSkip?'—':st.kg}</div>
+        ${sv2}${btnH}
+      </div>
+      ${connHtml}
+    </div>`;
+  }
+
+
+
+  function buildStepsWithStatus(row, pcol, rid){
+    const ps=getProcessState(row); // single source of truth
+    var steps=buildFlowSteps(row);
+    // เพิ่ม tank count ใน rework
+    const rwKg=+(row.rework_kg||0);
+    if(rwKg>0){
+      const rwIdx=steps.findIndex(s=>s.id==='rw');
+      if(rwIdx>=0) steps[rwIdx].tanks=+(row.rework_tanks||0)||'';
+    }
+    // sync status steps จาก process state
+    const isWaitPast=ps.id==='wait_past';
+    const isPast=ps.id==='pasteurising';
+    const isPastDone=ps.id==='past_done';
+    const isMixDone=!!row.mix_end_time;
+    steps.push({
+      id:'wait_past',ico:'⏳',name:'รอ Past.',
+      kg:isWaitPast?'รอ...':'',
+      done:isPast||isPastDone,
+      active:isWaitPast,
+      btn:false,skip:false,pwd:false,isStatus:true
+    });
+    steps.push({
+      id:'pasteurising',ico:'🔵',name:'Pasteurising',
+      kg:row.past_start_time||'',
+      done:isPastDone,
+      active:isPast,
+      btn:false,skip:false,pwd:false,isStatus:true
+    });
+    steps.push({
+      id:'empty',ico:'🏁',name:'Empty',
+      kg:'',
+      done:false,
+      active:isPastDone,
+      btn:false,skip:false,pwd:false,isStatus:true
+    });
+    return steps;
+  }
+
+  function infoPanel(row){
+    if(!row) return `<div class="tv3-info"><div class="tv3-ir"><span class="tv3-il">—</span><span class="tv3-iv" style="color:var(--t3)">ว่าง</span></div></div>`;
+    const st=row.status||'';
+    const isPast=st==='pasteurising'||st==='past_done';
+    const prod=productMap[row.mix_code||'']||{};
+    // คำนวณ elapsed
+    let elapsed='—';
+    if(row.mix_start_time&&row.mix_end_time){
+      const t1=row.mix_start_time.split(':').map(Number);
+      const t2=row.mix_end_time.split(':').map(Number);
+      const m=(t2[0]*60+t2[1])-(t1[0]*60+t1[1]);
+      if(m>=0) elapsed=m+' min';
+    }
+    const items=[
+      {l:'⏱ เริ่มผสม',v:row.mix_start_time||'—',c:row.mix_start_time?'ok':'warn'},
+      {l:'⏱ ผสมเสร็จ',v:row.mix_end_time||'—',c:row.mix_end_time?'ok':'warn'},
+      {l:'⏳ ใช้เวลา',v:elapsed,c:row.mix_end_time?'ok':''},
+    ];
+    if(isPast){
+      items.push({l:'🌡 Past.เริ่ม',v:row.past_start_time||'—',c:row.past_start_time?'ok':'warn'});
+      items.push({l:'🌡 Past.เสร็จ',v:row.past_end_time||'—',c:row.past_end_time?'ok':'warn'});
+    } else {
+      items.push({l:'🧪 Homo Stage2',v:prod.homo_stage2||'—',c:''});
+    }
+    const glcOk=+(row.glc_set||0)<=0||+(row.glc_actual||0)>0;
+    const sgrOk=+(row.sgr_set||0)<=0||+(row.sgr_actual||0)>0;
+    if(+(row.glc_set||0)>0) items.push({l:'🍯 Glucose',v:`${row.glc_actual||'—'}/${row.glc_set}`,c:glcOk?'ok':'warn'});
+    if(+(row.sgr_set||0)>0) items.push({l:'🍬 Sugar',v:`${row.sgr_actual||'—'}/${row.sgr_set}`,c:sgrOk?'ok':'warn'});
+    if(+(row.plm_set||0)>0){const ok=+(row.plm_actual||0)>0;items.push({l:'🌴 Palm Oil',v:`${row.plm_actual||'—'}/${row.plm_set}`,c:ok?'ok':'warn'});}
+    else if(+(row.oil_mix_set||0)>0){const ok=+(row.oil_mix_actual||0)>0;items.push({l:'🛢️ Oil Mix',v:`${row.oil_mix_actual||'—'}/${row.oil_mix_set}`,c:ok?'ok':'warn'});}
+    else if(+(row.fat_milk_set||0)>0){const ok=+(row.fat_milk_actual||0)>0;items.push({l:'🥛 Fat Milk',v:`${row.fat_milk_actual||'—'}/${row.fat_milk_set}`,c:ok?'ok':'warn'});}
+    return `<div class="tv3-info">${items.map(it=>`<div class="tv3-ir"><span class="tv3-il">${it.l}</span><span class="tv3-iv ${it.c}">${it.v}</span></div>`).join('')}</div>`;
+  }
+
+  function stampStrip(row, tankLabel, pcol, rid){
+    if(!row) return '';
+    const st=row.status||'';
+    const prepReady=(row.prep_status==='ready');
+    const sig=row['sig_mix_start']
+      ?`<img src="${row.sig_mix_start}" style="height:32px;max-width:70px;object-fit:contain;border:1.5px solid #10b981;border-radius:8px" title="${row.sig_mix_start_name||''}">`
+      :'';
+    let btns='';
+    if(row.mix_start_time){
+      btns+=`<button class="tv3-sbtn g">⏱ Start ${row.mix_start_time}</button>`;
+    } else {
+      const disabled=prepReady?'':'disabled title="ต้องเตรียมเสร็จก่อน"';
+      btns+=`<button class="tv3-sbtn y" ${disabled} onclick="window._stampMixStart('${pcol}','${rid}','${m}')">⏱ Start ผสม</button>`;
+    }
+    if(row.mix_end_time){
+      btns+=`<button class="tv3-sbtn g">⏹ Stop ${row.mix_end_time}</button>`;
+    } else if(row.mix_start_time){
+      btns+=`<button class="tv3-sbtn r" onclick="stampTime('${pcol}','${rid}','mix_end_time','${m}')">⏹ Stop ผสม</button>`;
+    }
+    // Status pill จาก process state — single source
+    const ps2=getProcessState(row);
+    const showPill=['wait_past','pasteurising','past_done'].includes(ps2.id);
+    const pastPill=showPill?`<div style="display:flex;align-items:center;gap:6px;background:${ps2.bg};border:2px solid ${ps2.color};border-radius:10px;padding:6px 14px;flex-shrink:0">
+      <div style="font-family:var(--mono);font-size:12px;font-weight:900;color:${ps2.color};white-space:nowrap">${ps2.lbl}${ps2.id==='pasteurising'&&row.past_start_time?' · '+row.past_start_time:ps2.id==='past_done'&&row.past_end_time?' · '+row.past_end_time:''}</div>
+    </div>`:'' ;
+    return `<div class="tv3-stamp">${btns}${sig}${pastPill}</div>`;
+  }
+
+  function renderTankCard(row, tankLabel, seq, cap, pcol){
+    // empty card
+    if(!row){
+      return `<div class="tv3-card" style="opacity:.6">
+        <div class="tv3-head">
+          <div class="tv3-seq"><div style="font-family:var(--mono);font-size:13px;font-weight:900;color:#111827;text-align:center;padding:0 4px">${tankLabel.toUpperCase()}</div></div>
+          <div class="tv3-hi">
+            <div class="tv3-code" style="color:#111827">— ไม่มีข้อมูล —</div>
+            <div class="tv3-name" style="color:#374151">ว่าง</div>
+            <div class="tv3-meta">—</div>
+          </div>
+          <div class="tv3-st"><span class="badge" style="background:rgba(100,116,139,.15);color:#374151;border:1.5px solid #475569;font-size:13px;padding:6px 16px">🏁 EMPTY</span></div>
+        </div>
+      </div>`;
+    }
+    const psCard=getProcessState(row); // single source of truth
+    const stInfo={lbl:psCard.lbl,cls:psCard.cls};
+    const st=row.status||'';
+    let cardCls='tv3-card';
+    if(psCard.id==='mixing'||psCard.id==='preparing'||psCard.id==='ready_mix') cardCls+=' tv3-mixing';
+    else if(psCard.id==='wait_past') cardCls+=' tv3-wait';
+    else if(psCard.id==='pasteurising') cardCls+=' tv3-past';
+    else if(psCard.id==='past_done') cardCls+=' tv3-done';
+    const steps=buildStepsWithStatus(row, pcol, row.id);
+    const stepsHtml=steps.map((st2,i)=>buildStepHtml(st2,i,steps.length,pcol,row.id)).join('');
+    return `<div class="${cardCls}">
+      <div class="tv3-head">
+        <div class="tv3-seq">
+          <div style="font-family:var(--mono);font-size:13px;font-weight:900;color:#111827;text-align:center;line-height:1.4;padding:0 4px">${tankLabel.toUpperCase()}</div>
+        </div>
+        <div class="tv3-hi">
+          <div class="tv3-code">${row.mix_code||'—'} · PROCESS ${row.process_order||'—'}</div>
+          <div class="tv3-name">${row.mix_name||'—'}</div>
+          <div class="tv3-meta">Batch ${row.batch_no||'—'} &nbsp;·&nbsp; <span style="font-size:18px;font-weight:900;color:#111827">${(+(row.volume_liter||0)).toLocaleString()} L</span></div>
+        </div>
+        <div class="tv3-st"><span class="badge ${stInfo.cls}">${stInfo.lbl}</span></div>
+      </div>
+      <div class="tv3-body">
+        <div class="tv3-tank">${tankSVG(row, cap)}</div>
+        <div class="tv3-flow" style="flex:1;min-width:0"><div class="tv3-steps">${stepsHtml}</div></div>
+      </div>
+      ${stampStrip(row, tankLabel, pcol, row.id)}
+    </div>`;
+  }
+
+  const pcol=planCol(m);
+  // โชว์ทุกถังเสมอ ถ้าไม่มีของ = empty card
+  let html='';
+  try{html+=renderTankCard(t1Row,'Mix Tank 1',1,3000,pcol);}catch(e){console.error('Tank1 error:',e);html+='<div style="padding:16px;color:red;font-family:monospace">Tank 1 Error: '+e.message+'</div>';}
+  try{html+=renderTankCard(t2Row,'Mix Tank 2',2,3500,pcol);}catch(e){console.error('Tank2 error:',e);html+='<div style="padding:16px;color:red;font-family:monospace">Tank 2 Error: '+e.message+'</div>';}
+  el.innerHTML=html;
+}
+
+// ============================================================
+// AUTO TANK ASSIGNMENT — โยน row ที่ ready เข้าถังว่างอัตโนมัติ
+// ============================================================
+async function autoAssignTank(m){
+  const pcol = planCol(m);
+  const allRows = rows[m]||[];
+  
+  // หาถังที่ "ว่าง" — ไม่มี row ที่ status=mixing หรือ pasteurising ในถังนั้น
+  function isTankBusy(tank){
+    // ถังไม่ว่างถ้ามีของอยู่ — mixing, pasteurising, wait_past, หรือ assign แล้วรอเริ่ม
+    return allRows.some(r=>
+      (r.mixing_tank===tank) &&
+      (r.status==='mixing'||
+       r.status==='pasteurising'||
+       r.status==='wait_past'||
+       (r.mixing_tank===tank&&!r.mix_end_time&&r.prep_status==='ready') // assign แล้วรอเริ่ม
+      )
+    );
+  }
+  
+  const tank1Busy = isTankBusy('Tank 1');
+  const tank2Busy = isTankBusy('Tank 2');
+  
+  // หา row ที่ ready และยังไม่มีถัง ยังไม่เริ่มผสม
+  const readyRows = allRows.filter(r=>
+    r.prep_status==='ready' &&
+    !r.mixing_tank &&        // ยังไม่ถูก assign ถัง
+    r.status!=='mixing' &&
+    r.status!=='pasteurising' &&
+    r.status!=='wait_past' &&
+    r.status!=='past_done'
+  ).sort((a,b)=>(a.seq||0)-(b.seq||0));
+  
+  if(!readyRows.length) return; // ไม่มี row ที่รอ
+  
+  // หาถังว่างแรก
+  let assignTank = null;
+  if(!tank1Busy) assignTank = 'Tank 1';
+  else if(!tank2Busy) assignTank = 'Tank 2';
+  
+  if(!assignTank) return; // ทั้งสองถังยังไม่ว่าง — รอ
+  
+  // โยน row แรกที่ ready เข้าถังว่าง
+  const row = readyRows[0];
+  try{
+    await updateDoc(doc(db,pcol,row.id),{
+      mixing_tank: assignTank,
+      updated_at: new Date().toISOString()
+    });
+    toast(`✅ Auto assign ${row.mix_name||row.mix_code} → ${assignTank}`,'green');
+  }catch(e){
+    toast('❌ Auto assign error: '+e.message,'red');
+  }
+}
+
+
+function renderPlan(m){
+  const col=planCol(m);
+  const tbody=$(`tbody-${m}`);
+  if(!tbody)return;
+  tbody.innerHTML="";
+  renderMixTanks(m, rows[m]||[]);
+
+  rows[m].forEach((row,i)=>{
+    try{
+    const isMixing=row.status==="mixing";
+    const isPast=row.status==="pasteurising";
+    const isPasting=isPast&&!!row.past_start_time; // กำลัง Past. อยู่
+    const isWaitPast=isPast&&!row.past_start_time; // รอ Past.
+    const isDone=row.status==="past_done"||row.status==="ready";
+
+    const statStyle='';
+    // ใช้ getProcessState เป็น single source
+    const ps3=getProcessState(row);
+    const statText=`<span class="badge ${ps3.cls}" style="font-size:11px;padding:4px 10px">${ps3.lbl}</span>`;
+
+    // Stamp cell builder
+    const stampCell=(field,time,label,color)=>{
+      const hasTime=!!time;
+      const isActive=isMixing&&field==="mix_start_time";
+      return `<td style="padding:5px 8px;text-align:center;vertical-align:middle">
+        <div style="display:flex;align-items:center;justify-content:center;gap:3px">
+          <button class="stamp-btn ${hasTime?"stamped":""}" 
+            style="font-size:11px;font-weight:800;padding:5px 10px;border-radius:8px;cursor:pointer;${isActive?"animation:mixingPulse 1.2s ease-in-out infinite;":""}"
+            onclick="stampTime('${col}','${row.id}','${field}','${m}')">
+            ${hasTime?'⏱ '+time:'⏱ '+label}
+          </button>
+          ${hasTime?`<button style="flex-shrink:0;font-size:11px;padding:4px 6px;border-radius:6px;border:1px solid #e2e8f0;background:#f8fafc;color:#64748b;cursor:pointer" onclick="editTimePrompt('${col}','${row.id}','${field}','${time}')">✏️</button>`:""}
+        </div>
+      </td>`;
+    };
+
+    const tr=document.createElement("tr");
+    // sync row class กับ process state
+    if(ps3.id==='mixing'||ps3.id==='preparing'||ps3.id==='ready_mix') tr.classList.add("row-mixing");
+    else if(ps3.id==='wait_past'||ps3.id==='pasteurising') tr.classList.add("row-past");
+    else if(ps3.id==='past_done') tr.classList.add("row-done");
+
+    tr.innerHTML=`
+      <td style="text-align:center;padding:8px 4px"><span style="font-family:var(--mono);font-size:13px;font-weight:900;color:#64748b">${i+1}</span></td>
+      <td style="padding:8px 6px"><span style="font-family:var(--mono);font-size:12px;font-weight:800;color:#111827">${row.mix_code||"—"}</span></td>
+      <td style="text-align:center;padding:8px 4px"><span style="font-family:var(--mono);font-size:12px;font-weight:900;color:#111827">${row.process_order||'—'}</span></td>
+      <td style="padding:8px 6px"><span style="font-family:var(--sans);font-size:13px;font-weight:800;color:#111827">${row.mix_name||"—"}</span></td>
+      <td style="text-align:center;padding:8px 4px"><span style="font-family:var(--mono);font-size:12px;font-weight:700;color:#111827">${row.batch_no||"—"}</span></td>
+      <td style="text-align:right;padding:8px 8px"><span style="font-family:var(--mono);font-size:13px;font-weight:900;color:#111827">${(+(row.volume_liter||0)).toLocaleString()}</span></td>
+      <td style="padding:6px 8px;vertical-align:middle">
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <div style="display:flex;align-items:center;gap:5px;flex-wrap:nowrap">
+            <select style="font-family:var(--mono);font-size:11px;font-weight:800;padding:4px 7px;border-radius:7px;cursor:pointer;flex-shrink:0;border:2px solid ${row.prep_status==='ready'?'#10b981':row.prep_status==='preparing'?'#f59e0b':row.prep_status==='not_ready'?'#ef4444':'#e2e8f0'};background:${row.prep_status==='ready'?'#d1fae5':row.prep_status==='preparing'?'#fef3c7':row.prep_status==='not_ready'?'#fee2e2':'#f8fafc'};color:${row.prep_status==='ready'?'#065f46':row.prep_status==='preparing'?'#92400e':row.prep_status==='not_ready'?'#991b1b':'#64748b'}"
+              onchange="window._setPrepStatus('${col}','${row.id}',this.value,this)">
+              <option value="">— สถานะ —</option>
+              <option value="preparing" ${row.prep_status==="preparing"?"selected":""}>🔄 กำลังเตรียม</option>
+              <option value="ready" ${row.prep_status==="ready"?"selected":""}>✅ พร้อม</option>
+              <option value="not_ready" ${row.prep_status==="not_ready"?"selected":""}>❌ ยังไม่เสร็จ</option>
+            </select>
+            ${row.prep_sig
+              ?`<img src="${row.prep_sig}" style="height:24px;max-width:44px;object-fit:contain;border:1.5px solid #10b981;border-radius:5px;flex-shrink:0" title="${row.prep_sig_name||''}">`
+              :row.prep_status==='ready'
+                ?`<button style="font-size:13px;padding:2px 6px;border-radius:6px;border:1.5px dashed #94a3b8;background:none;cursor:pointer;flex-shrink:0" onclick="window._stampPrepSig('${col}','${row.id}')">✍️</button>`
+                :''}
+          </div>
+          ${row.prep_sig_name?`<div style="font-family:var(--mono);font-size:9px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px">${row.prep_sig_name}</div>`:''}
+        </div>
+      </td>
+      <td style="padding:6px 8px;vertical-align:middle">
+        <select style="font-family:var(--mono);font-size:11px;font-weight:700;padding:5px 8px;border-radius:7px;background:#f8fafc;color:#111827;border:1.5px solid #e2e8f0;cursor:pointer;width:100%"
+          onchange="_up('${col}','${row.id}','mixing_tank',this.value)">
+          <option value="">— ถัง —</option>
+          <option value="Tank 1" ${row.mixing_tank==="Tank 1"?"selected":""}>Tank 1</option>
+          <option value="Tank 2" ${row.mixing_tank==="Tank 2"?"selected":""}>Tank 2</option>
+        </select>
+      </td>
+      ${stampCell("mix_start_time",row.mix_start_time,"Stamp เริ่ม","yellow")}
+      ${stampCell("mix_end_time",row.mix_end_time,"Stamp เสร็จ","green")}
+      <td style="text-align:right;padding:6px 8px;background:#eff6ff"><span style="font-family:var(--mono);font-size:12px;font-weight:800;color:#1e40af">${row.glc_set||"—"}</span></td>
+      <td style="padding:4px 6px;background:#eff6ff"><div style="display:flex;align-items:center;gap:2px"><input class="act-input" style="background:#ffffff;border-color:#93c5fd;width:100%" type="number" step="0.1" value="${row.glc_actual||""}" placeholder="—" onblur="saveActual('${col}','${row.id}','glc_actual',this.value,'${m}')">${row.glc_comment?`<span title="${row.glc_comment}" style="cursor:help;font-size:11px">⚠️</span>`:""}</div></td>
+      <td style="text-align:right;padding:6px 8px;background:#fefce8"><span style="font-family:var(--mono);font-size:12px;font-weight:800;color:#92400e">${row.sgr_set||"—"}</span></td>
+      <td style="padding:4px 6px;background:#fefce8"><div style="display:flex;align-items:center;gap:2px"><input class="act-input" style="background:#ffffff;border-color:#fcd34d;width:100%" type="number" step="0.1" value="${row.sgr_actual||""}" placeholder="—" onblur="saveActual('${col}','${row.id}','sgr_actual',this.value,'${m}')">${row.sgr_comment?`<span title="${row.sgr_comment}" style="cursor:help;font-size:11px">⚠️</span>`:""}</div></td>
+      <td style="text-align:right;padding:6px 8px;background:#f0fdf4"><span style="font-family:var(--mono);font-size:12px;font-weight:800;color:#065f46">${row.plm_set||"—"}</span></td>
+      <td style="padding:4px 6px;background:#f0fdf4"><div style="display:flex;align-items:center;gap:2px"><input class="act-input" style="background:#ffffff;border-color:#6ee7b7;width:100%" type="number" step="0.1" value="${row.plm_actual||""}" placeholder="—" onblur="saveActual('${col}','${row.id}','plm_actual',this.value,'${m}')">${row.plm_comment?`<span title="${row.plm_comment}" style="cursor:help;font-size:11px">⚠️</span>`:""}</div></td>
+      <td style="text-align:right;padding:6px 8px;background:#fdf2f8"><span style="font-family:var(--mono);font-size:12px;font-weight:800;color:#9d174d">${row.oil_mix_set||"—"}</span></td>
+      <td style="padding:4px 6px;background:#fdf2f8"><input class="act-input" style="background:#ffffff;border-color:#f9a8d4;width:100%" type="number" step="0.1" value="${row.oil_mix_actual||""}" placeholder="—" onblur="saveActual('${col}','${row.id}','oil_mix_actual',this.value,'${m}')"></td>
+      <td style="text-align:right;padding:6px 8px;background:#f5f3ff"><span style="font-family:var(--mono);font-size:12px;font-weight:800;color:#4c1d95">${row.fat_milk_set||"—"}</span></td>
+      <td style="padding:4px 6px;background:#f5f3ff"><input class="act-input" style="background:#ffffff;border-color:#c4b5fd;width:100%" type="number" step="0.1" value="${row.fat_milk_actual||""}" placeholder="—" onblur="saveActual('${col}','${row.id}','fat_milk_actual',this.value,'${m}')"></td>
+      <!-- SIGNATURE -->
+      <td style="text-align:center;min-width:60px">
+        ${row.mix_sig
+          ? `<img src="${row.mix_sig}" style="height:30px;vertical-align:middle;opacity:.95" title="${row.mix_by||''} ${row.mix_sig_time||''}">`
+          : `<button class="sig-btn" onclick="stampSig('${col}','${row.id}','mix_sig','${m}')" title="เซ็นชื่อ">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>
+              </svg>
+            </button>`}
+      </td>
+      <!-- STATUS -->
+      <td>${statText}</td>`;
+    tbody.appendChild(tr);
+    }catch(e){console.error('Row render error row',i,e);const errTr=document.createElement('tr');errTr.innerHTML=`<td colspan="21" style="color:red;font-family:monospace;padding:8px">Row ${i} Error: ${e.message}</td>`;tbody.appendChild(errTr);}
+
+  });
+
+  // KPI — Diff by shift
+  const _tel=$(`${m}-total`); if(_tel) _tel.textContent=rows[m].length;
+
+  // กะ: เช้า 06:00-14:00, บ่าย 14:00-22:00, ดึก 22:00-06:00(+1)
+  function getShift(timeStr){
+    if(!timeStr)return null;
+    const[h,mi]=timeStr.split(':').map(Number);
+    const t=h*60+(mi||0);
+    if(t>=6*60&&t<14*60)return'morning';
+    if(t>=14*60&&t<22*60)return'afternoon';
+    return'night';
+  }
+  function fmtDiff(v){
+    if(v===0)return'0';
+    return(v>0?'+':'')+v.toFixed(1);
+  }
+  function diffColor(v){return v===0?'var(--t2)':Math.abs(v)>5?'var(--red)':'var(--green)';}
+
+  const shifts={morning:{glc:0,sgr:0,plm:0},afternoon:{glc:0,sgr:0,plm:0},night:{glc:0,sgr:0,plm:0}};
+  let totGlc=0,totSgr=0,totPlm=0;
+
+  rows[m].forEach(r=>{
+    const sh=getShift(r.mix_start_time);
+    if(!sh)return;
+    const gd=(+r.glc_set||0)-(+r.glc_actual||0);
+    const sd=(+r.sgr_set||0)-(+r.sgr_actual||0);
+    const pd=(+r.plm_set||0)-(+r.plm_actual||0);
+    if(r.glc_actual){shifts[sh].glc+=gd;totGlc+=gd;}
+    if(r.sgr_actual){shifts[sh].sgr+=sd;totSgr+=sd;}
+    if(r.plm_actual){shifts[sh].plm+=pd;totPlm+=pd;}
+  });
+
+  ['glc','sgr','plm'].forEach(f=>{
+    ['morning','afternoon','night'].forEach(sh=>{
+      const shKey={'morning':'morning','afternoon':'afternoon','night':'night'}[sh];
+      const v=shifts[sh][f];
+      const el=$(`${m}-${f}-${shKey}`);
+      if(el){el.textContent=fmtDiff(v);el.style.color=diffColor(v);}
+    });
+    const totEl=$(`${m}-${f}-total`);
+    const allEl=$(`${m}-${f}-all`);
+    const tot=f==='glc'?totGlc:f==='sgr'?totSgr:totPlm;
+    if(totEl){totEl.textContent=fmtDiff(tot);totEl.style.color=diffColor(tot);}
+    if(allEl){allEl.textContent=fmtDiff(tot);allEl.style.color=diffColor(tot);}
+  });
+}
+
+window.editTimePrompt=async(col,id,field,current)=>{
+  // แสดง dialog ให้เลือก แก้ไข หรือ ลบ
+  const action=confirm(`เวลาปัจจุบัน: ${current}\n\nกด OK = แก้ไขเวลา\nกด Cancel = ลบเวลาออก`);
+  if(action){
+    // แก้ไข
+    const val=prompt("แก้ไขเวลา (HH:MM):",current||"");
+    if(val===null)return;
+    const clean=val.trim();
+    if(!/^\d{2}:\d{2}$/.test(clean)){toast("รูปแบบ HH:MM เท่านั้น","red");return;}
+    const upd={[field]:clean};
+    if(field==="mix_start_time") upd.status="mixing";
+    if(field==="mix_end_time")   upd.status="pasteurising";
+    await updateDoc(doc(db,col,id),upd);
+    toast("แก้ไขเวลาแล้ว","green");
+  } else {
+    // ลบเวลา + reset status
+    if(!confirm("ยืนยันลบเวลานี้ออก?"))return;
+    const upd={[field]:null};
+    if(field==="mix_start_time"){upd.status="pending";upd.mix_end_time=null;}
+    if(field==="mix_end_time") upd.status="mixing";
+    await updateDoc(doc(db,col,id),upd);
+    toast("ลบเวลาแล้ว","green");
+  }
+};
+
+// ── CHART ─────────────────────────────────────────────────────────────
+const SHIFTS=[
+  {label:"กะเช้า",  color:"rgba(59,130,246,.8)",  start:6*60,  end:14*60},
+  {label:"กะบ่าย", color:"rgba(234,179,8,.8)",   start:14*60, end:22*60},
+  {label:"กะดึก",  color:"rgba(168,85,247,.8)",  start:22*60, end:30*60},
+];
+
+function toMin(t){if(!t)return null;const[h,m]=t.split(":").map(Number);return h*60+m;}
+function overlap(bS,bE,sS,sE){
+  if(bE<=bS)bE+=1440;
+  const o1=Math.max(0,Math.min(bE,sE)-Math.max(bS,sS));
+  const o2=Math.max(0,Math.min(bE+1440,sE)-Math.max(bS+1440,sS));
+  const o3=Math.max(0,Math.min(bE,sE+1440)-Math.max(bS,sS+1440));
+  return Math.max(o1,o2,o3);
+}
+
+window.setPeriod=async(m,p,btn)=>{
+  period[m]=p;
+  document.querySelectorAll(`#page-chart-${m} .period-btn`).forEach(b=>b.classList.remove("on"));
+  btn.classList.add("on");
+  await renderChart(m);
+};
+
+async function renderChart(m){
+  const col=planCol(m);
+  const now=new Date();
+  let dates=[];
+
+  if(period[m]==="day"){
+    dates=[today()];
+  } else if(period[m]==="week"){
+    for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);dates.push(d.toISOString().slice(0,10));}
+  } else if(period[m]==="month"){
+    for(let i=29;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);dates.push(d.toISOString().slice(0,10));}
+  } else {
+    for(let i=11;i>=0;i--){const d=new Date();d.setMonth(d.getMonth()-i);dates.push(d.toISOString().slice(0,7));}
+  }
+
+  // Load data
+  let allRows=[];
+  try{
+    const startDate=period[m]==="year"?dates[0]+"-01":dates[0];
+    const endDate=period[m]==="year"?dates[dates.length-1]+"-31":dates[dates.length-1];
+    const snap=await getDocs(query(collection(db,col),where("date",">=",startDate),where("date","<=",endDate)));
+    allRows=snap.docs.map(d=>({...d.data()}));
+  }catch{}
+
+  // Group by date/month
+  const labels=dates;
+  const shiftData=SHIFTS.map(()=>new Array(dates.length).fill(0));
+
+  allRows.forEach(r=>{
+    const vol=+r.volume_liter||0;
+    if(!vol||!r.mix_start_time||!r.mix_end_time)return;
+    const p=productMap[r.mix_code];
+    const kg=vol*(p?.density||1);
+    const bS=toMin(r.mix_start_time);
+    const bE=toMin(r.mix_end_time);
+    if(bS===null||bE===null)return;
+    const dur=bE>=bS?bE-bS:(1440-bS)+bE;
+    if(!dur)return;
+
+    const key=period[m]==="year"?r.date?.slice(0,7):r.date;
+    const idx=dates.indexOf(key);
+    if(idx===-1)return;
+
+    SHIFTS.forEach((sh,si)=>{
+      shiftData[si][idx]+=kg*(overlap(bS,bE,sh.start,sh.end)/dur);
+    });
+  });
+
+  // Render chart
+  const canvasId=`chart-${m}`;
+  if(charts[m]){charts[m].destroy();}
+  const ctx=$(canvasId).getContext("2d");
+  charts[m]=new Chart(ctx,{
+    type:"bar",
+    data:{
+      labels:period[m]==="year"?dates.map(d=>{const[y,mo]=d.split("-");return ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."][+mo-1]})
+        :dates.map(d=>{const p=d.split("-");return `${p[2]}/${p[1]}`}),
+      datasets:SHIFTS.map((sh,si)=>({
+        label:sh.label,
+        data:shiftData[si].map(v=>Math.round(v)),
+        backgroundColor:sh.color,
+        borderRadius:4,
+      }))
+    },
+    options:{
+      plugins:{legend:{labels:{color:"#7a8499",font:{family:"DM Mono",size:11}}}},
+      scales:{
+        x:{stacked:true,ticks:{color:"#3d4560",font:{size:10}},grid:{color:"#1e2535"}},
+        y:{stacked:true,ticks:{color:"#3d4560",font:{size:10}},grid:{color:"#1e2535"},title:{display:true,text:"kg",color:"#3d4560"}}
+      },
+      responsive:true,maintainAspectRatio:false
+    }
+  });
+}
+
+// ── PAGE SWITCH ────────────────────────────────────────────────────────
+window.showPage=(type,m,btn)=>{
+  document.querySelectorAll('.page').forEach(el=>el.classList.remove('on'));
+  document.querySelectorAll('.nav-tab').forEach(el=>el.classList.remove('on'));
+  $(`page-${type}-${m}`).classList.add('on');
+  btn.classList.add('on');
+  if(type==="chart") renderChart(m);
+};
+</script>
+<script>
+function showTab(m, btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.nav-tab').forEach(b=>b.classList.remove('on'));
+  document.getElementById('tab-'+m).classList.add('on');
+  btn.classList.add('on');
+}
+</script>
+</body>
+</html>
