@@ -268,6 +268,9 @@ main{position:relative;z-index:1;padding:10px 12px;}
 .sig-btn{background:none;border:none;cursor:pointer;padding:4px 6px;border-radius:6px;transition:background .15s;display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#64748b;}
 .sig-btn:hover{background:rgba(99,102,241,.15);color:#818cf8;}
 .sig-preview{height:28px;vertical-align:middle;opacity:.95;}
+
+@keyframes pumpSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes flowShine{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
 </style>
 </head>
 <body>
@@ -998,48 +1001,113 @@ function calcVol(row){
       <div style="flex-shrink:0;min-width:550px;display:flex;flex-direction:column">
       <div style="flex-shrink:0;width:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 8px;border-right:1px solid var(--b1);background:rgba(0,0,0,.15)">
         <div style="font-family:var(--mono);font-size:14px;color:#111827;font-weight:900;margin-bottom:4px;text-align:center;background:var(--s1);border:1px solid var(--b1);border-radius:6px;padding:2px 10px">${agingTank}</div>
-        <div style="position:relative;display:flex;justify-content:center;align-items:center">
-          ${tankSVG('S'+line.id, pct, col, hasLiquid,
-            current.status==='pasteurising'?'🔵 Pasteurise':isRunning?'🔵 Filling':curing.done?'✅ พร้อม':'🌡️ กำลังบ่ม',
-            current.status==='pasteurising'?'#fb923c':curing.done?'#4ade80':'#fde047',
-          )}
-          <div style="position:absolute;top:35%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;width:90%">
-            <div id="vol-S${line.id}" style="font-family:var(--mono);font-size:16px;font-weight:900;color:#ffffff;text-shadow:0 0 6px rgba(0,0,0,1),0 1px 3px rgba(0,0,0,1);line-height:1.2">${fmtL(rem)} L</div>
-          </div>
-          <div style="position:absolute;top:55%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;width:90%">
-            <div id="eta-S${line.id}" style="font-family:var(--mono);font-size:12px;font-weight:900;color:#ffffff;background:rgba(0,0,0,.6);padding:2px 10px;border-radius:999px;margin-top:4px;display:inline-block"></div>
+        <!-- FLOW DIAGRAM — inline card style -->
+        <div style="padding:16px 12px 8px;background:#ffffff;border-bottom:2px solid #e2e8f0">
+          <div style="display:flex;align-items:center;width:100%;gap:0">
+
+            <!-- AGING TANK -->
+            <div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;min-width:80px">
+              ${tankSVG('S'+line.id, pct, col, hasLiquid,
+                current.status==='pasteurising'?'♨️ Past.':isRunning?'🔵 Filling':curing.done?'✅ พร้อม':'🌡️ บ่ม',
+                current.status==='pasteurising'?'#fb923c':curing.done?'#4ade80':'#fde047',
+                80, 160
+              )}
+              <div style="font-family:var(--mono);font-size:9px;font-weight:900;color:#64748b;text-align:center">${agingTank||'—'}</div>
+            </div>
+
+            <!-- CONNECTOR -->
+            <div style="flex:1;height:3px;background:${isRunning?col:'#e2e8f0'};border-radius:2px;position:relative;overflow:hidden;min-width:16px">
+              ${isRunning?`<div style="position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.6) 50%,transparent 100%);animation:flowShine .8s linear infinite"></div>`:''}
+            </div>
+
+            <!-- PUMP -->
+            <div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0">
+              <div style="width:44px;height:44px;border-radius:50%;background:${isRunning?col+'22':'#f1f5f9'};border:2.5px solid ${isRunning?col:'#cbd5e1'};display:flex;align-items:center;justify-content:center;${isRunning?`animation:pumpSpin 1s linear infinite`:``}">
+                <span style="font-size:20px">⚙️</span>
+              </div>
+              <div style="font-family:var(--mono);font-size:9px;font-weight:900;color:#64748b">PUMP</div>
+              <div style="font-family:var(--mono);font-size:9px;color:#374151">${fr} L/hr</div>
+            </div>
+
+            <!-- CONNECTOR -->
+            <div style="flex:1;height:3px;background:${isRunning?col:'#e2e8f0'};border-radius:2px;position:relative;overflow:hidden;min-width:16px">
+              ${isRunning?`<div style="position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.6) 50%,transparent 100%);animation:flowShine .8s linear infinite .2s"></div>`:''}
+            </div>
+
+            <!-- FREEZER -->
+            <div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0">
+              <div style="width:52px;height:44px;border-radius:10px;background:${isRunning?col+'22':'#f1f5f9'};border:2.5px solid ${isRunning?col:'#cbd5e1'};display:flex;align-items:center;justify-content:center">
+                <span style="font-size:22px">❄️</span>
+              </div>
+              <div style="font-family:var(--mono);font-size:9px;font-weight:900;color:#64748b">FREEZER</div>
+              <div style="font-family:var(--mono);font-size:9px;color:#374151">${(lineStates[line.id]||{}).fz_A||'—'}</div>
+            </div>
+
+            <!-- CONNECTOR -->
+            <div style="flex:1;height:3px;background:${isRunning?col:'#e2e8f0'};border-radius:2px;position:relative;overflow:hidden;min-width:16px">
+              ${isRunning?`<div style="position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.6) 50%,transparent 100%);animation:flowShine .8s linear infinite .4s"></div>`:''}
+            </div>
+
+            <!-- LINE -->
+            <div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;min-width:60px">
+              <div style="width:52px;height:44px;border-radius:10px;background:${isRunning?col+'22':'#f1f5f9'};border:2.5px solid ${isRunning?col:'#cbd5e1'};display:flex;align-items:center;justify-content:center">
+                <span style="font-size:22px">🏭</span>
+              </div>
+              <div style="font-family:var(--mono);font-size:9px;font-weight:900;color:#64748b;text-align:center">${line.name.toUpperCase()}</div>
+            </div>
+
           </div>
         </div>
       </div>
+      <!-- Controls — Professional Layout -->
+      <div style="flex-shrink:0;width:220px;padding:14px;display:flex;flex-direction:column;gap:10px;background:#f8fafc;border-left:2px solid #e2e8f0">
 
-      <div style="text-align:center;padding:4px 0 2px"><span style="font-family:var(--mono);font-size:12px;font-weight:900;padding:4px 14px;border-radius:999px;background:#111827;color:#fff;display:inline-block">${current.status==='pasteurising'?'🔵 Pasteurise':isRunning?'🔵 Filling':curing.done?'✅ พร้อม':'🌡️ กำลังบ่ม'}</span></div>
-      <div style="padding:0 0 4px">${buildFlowDiagram(line.id,agingTank,col,isRunning)}</div>
-      </div>
-      <!-- Controls — เรียงแนวตั้ง ไม่ล้น -->
-      <div style="flex-shrink:0;width:200px;padding:12px;display:flex;flex-direction:column;gap:8px;border-right:1px solid var(--b1)">
-
+        <!-- Freezer & Pipe Config -->
         ${fpPanel(line.id,'A')}
 
-        <!-- Start / Stop / Reset — เต็มความกว้าง -->
-        <button style="width:100%;padding:10px;border-radius:10px;font-family:var(--mono);font-size:13px;font-weight:700;border:none;cursor:pointer;background:${isRunning||!curing.done?'rgba(255,255,255,.05)':'rgba(31,209,122,.15)'};color:${isRunning||!curing.done?'var(--t3)':'var(--green)'};border:1px solid ${isRunning||!curing.done?'rgba(255,255,255,.08)':'rgba(31,209,122,.3)'}"
-          ${isRunning?'disabled':''} onclick="startLine('${line.id}',${sv},${fr})">▶ Start</button>
-        <button style="width:100%;padding:10px;border-radius:10px;font-family:var(--mono);font-size:13px;font-weight:700;border:none;cursor:pointer;background:${!isRunning?'rgba(255,255,255,.05)':'rgba(240,79,94,.15)'};color:${!isRunning?'var(--t3)':'var(--red)'};border:1px solid ${!isRunning?'rgba(255,255,255,.08)':'rgba(240,79,94,.3)'}"
-          ${!isRunning?'disabled':''} onclick="stopLine('${line.id}')">⏸ Stop</button>
-        <button style="width:100%;padding:10px;border-radius:10px;font-family:var(--mono);font-size:13px;font-weight:700;border:none;cursor:pointer;background:rgba(234,179,8,.1);color:var(--yellow);border:1px solid rgba(234,179,8,.3)"
-          onclick="resetLine('${line.id}')">↺ Reset</button>
-        <button style="width:100%;padding:8px;border-radius:10px;font-family:var(--mono);font-size:11px;font-weight:700;background:rgba(239,68,68,.08);color:#f87171;border:1px solid rgba(239,68,68,.2);cursor:pointer"
-          onclick="forceClearTank('${current.aging_tank||""}')">🗑 Force Clear ${current.aging_tank||'—'}</button>
+        <!-- Divider -->
+        <div style="border-top:1.5px solid #e2e8f0;margin:2px 0"></div>
 
-        <div style="background:var(--s2);border-radius:8px;padding:8px 10px;font-family:var(--mono);font-size:10px;line-height:1.9">
-          <div style="display:flex;justify-content:space-between"><span style="color:var(--t3);font-weight:700">▶ START</span><span style="color:#111827;font-weight:900">${st.started_at||'—'}</span></div>
-          <div style="display:flex;justify-content:space-between"><span style="color:var(--t3)">โดย</span><span style="color:var(--blue);font-weight:800">${st.started_by||'—'}</span></div>
-          <div style="display:flex;justify-content:space-between;margin-top:4px;padding-top:4px;border-top:1px solid var(--b1)"><span style="color:var(--t3);font-weight:700">⏸ STOP</span><span style="color:#111827;font-weight:900">${st.stopped_at||'—'}</span></div>
-          <div style="display:flex;justify-content:space-between"><span style="color:var(--t3)">โดย</span><span style="color:var(--blue);font-weight:800">${st.stopped_by||'—'}</span></div>
+        <!-- START / STOP -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <button style="padding:10px 6px;border-radius:10px;font-family:var(--mono);font-size:12px;font-weight:900;border:2px solid ${isRunning||!curing.done?'#e2e8f0':'#10b981'};background:${isRunning||!curing.done?'#f1f5f9':'#d1fae5'};color:${isRunning||!curing.done?'#94a3b8':'#065f46'};cursor:${isRunning||!curing.done?'not-allowed':'pointer'};transition:all .15s"
+            ${isRunning?'disabled':''} onclick="startLine('${line.id}',${sv},${fr})">
+            ▶ Start
+          </button>
+          <button style="padding:10px 6px;border-radius:10px;font-family:var(--mono);font-size:12px;font-weight:900;border:2px solid ${!isRunning?'#e2e8f0':'#ef4444'};background:${!isRunning?'#f1f5f9':'#fee2e2'};color:${!isRunning?'#94a3b8':'#991b1b'};cursor:${!isRunning?'not-allowed':'pointer'};transition:all .15s"
+            ${!isRunning?'disabled':''} onclick="stopLine('${line.id}')">
+            ⏸ Stop
+          </button>
         </div>
 
-        <!-- หมดถัง -->
-        <button style="width:100%;padding:10px;border-radius:10px;font-family:var(--mono);font-size:12px;font-weight:700;border:1px dashed rgba(240,79,94,.4);background:rgba(240,79,94,.06);color:var(--red);cursor:pointer;margin-top:4px"
-          onclick="askEmpty('${line.id}','${current._col}','${current.id}','${line.name}')">🪣 หมดถัง — โหลดถัดไป</button>
+        <!-- RESET -->
+        <button style="width:100%;padding:9px;border-radius:10px;font-family:var(--mono);font-size:12px;font-weight:800;border:2px solid #fcd34d;background:#fef9c3;color:#92400e;cursor:pointer;transition:all .15s"
+          onclick="resetLine('${line.id}')">
+          ↺ Reset
+        </button>
+
+        <!-- TIMESTAMPS -->
+        <div style="background:#ffffff;border:1.5px solid #e2e8f0;border-radius:10px;padding:10px">
+          <div style="font-family:var(--mono);font-size:8px;font-weight:900;color:#94a3b8;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">Timestamps</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <span style="font-family:var(--mono);font-size:10px;color:#64748b;font-weight:700">▶ START</span>
+            <span style="font-family:var(--mono);font-size:11px;font-weight:900;color:#111827">${lineStates[line.id]?.start_label||'—'}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-family:var(--mono);font-size:10px;color:#64748b;font-weight:700">⏹ STOP</span>
+            <span style="font-family:var(--mono);font-size:11px;font-weight:900;color:#111827">${lineStates[line.id]?.stop_label||'—'}</span>
+          </div>
+        </div>
+
+        <!-- FORCE CLEAR + EMPTY TANK -->
+        <button style="width:100%;padding:8px;border-radius:9px;font-family:var(--mono);font-size:11px;font-weight:800;border:1.5px solid #fca5a5;background:#fff1f2;color:#991b1b;cursor:pointer"
+          onclick="forceClear('${line.id}')">
+          ⚠️ Force Clear
+        </button>
+        <button style="width:100%;padding:8px;border-radius:9px;font-family:var(--mono);font-size:11px;font-weight:800;border:1.5px solid #93c5fd;background:#eff6ff;color:#1e40af;cursor:pointer"
+          onclick="askEmpty('${line.id}','${current._col}','${current.id}','${line.name}')">
+          🪣 หมดถัง — โหลดถัดไป
+        </button>
       </div>
 
       <!-- Queue — card แยกของใครของมัน -->
