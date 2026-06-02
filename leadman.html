@@ -207,6 +207,30 @@ tbody td{padding:5px 6px;vertical-align:middle;font-weight:600}
 .lsc-qvol{font-family:var(--mono);font-size:10px;font-weight:900;color:var(--lsc-c,var(--cyan))}
 @keyframes ldot{0%,100%{opacity:1}50%{opacity:.2}}
 .live-d{display:inline-block;width:6px;height:6px;border-radius:50%;background:#15803d;margin-right:3px;animation:ldot 1s infinite;vertical-align:middle}
+
+/* ===== SMART PRIORITY ===== */
+.sp-wrap{display:flex;flex-direction:column;gap:6px;padding:12px 16px}
+.sp-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.sp-title{font-family:var(--mono);font-size:11px;font-weight:900;color:#f59e0b;letter-spacing:2px;text-transform:uppercase;display:flex;align-items:center;gap:6px}
+.sp-live{width:7px;height:7px;background:#22c55e;border-radius:50%;animation:spLive 1.2s ease-in-out infinite}
+@keyframes spLive{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(34,197,94,.5)}50%{opacity:.7;box-shadow:0 0 0 5px rgba(34,197,94,0)}}
+.sp-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:10px;border:1.5px solid transparent;background:#f8fafc;transition:all .2s}
+.sp-item.crit{background:#fff1f2;border-color:#fca5a5}
+.sp-item.warn{background:#fffbeb;border-color:#fde68a}
+.sp-item.ok{background:#f0fdf4;border-color:#bbf7d0}
+.sp-rank{font-family:var(--mono);font-size:16px;font-weight:900;color:#94a3b8;width:24px;text-align:center;flex-shrink:0}
+.sp-dot{font-size:16px;flex-shrink:0}
+.sp-body{flex:1;min-width:0}
+.sp-name{font-family:var(--sans);font-size:13px;font-weight:800;color:#111827;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sp-reason{font-family:var(--mono);font-size:10px;font-weight:700;color:#64748b;margin-top:1px}
+.sp-time{font-family:var(--mono);font-size:12px;font-weight:900;text-align:right;flex-shrink:0}
+.sp-time.crit{color:#dc2626}
+.sp-time.warn{color:#d97706}
+.sp-time.ok{color:#059669}
+.sp-empty{font-family:var(--mono);font-size:11px;color:#94a3b8;text-align:center;padding:16px}
+.sp-score-bar{height:3px;border-radius:2px;margin-top:4px;background:#e2e8f0}
+.sp-score-fill{height:100%;border-radius:2px;transition:width .5s}
+
 </style>
 </head>
 <body>
@@ -233,6 +257,16 @@ tbody td{padding:5px 6px;vertical-align:middle;font-weight:600}
   </label>
 </div>
 <div class="page on" id="page-m1">
+  <!-- SMART PRIORITY -->
+  <div style="margin:12px 16px 0;background:#ffffff;border:2px solid #e2e8f0;border-radius:14px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.05)">
+    <div class="sp-wrap">
+      <div class="sp-header">
+        <div class="sp-title"><div class="sp-live"></div>🧠 SMART PRIORITY</div>
+        <div style="font-family:var(--mono);font-size:9px;color:#94a3b8">อัปเดต realtime</div>
+      </div>
+      <div id="smart-priority-m1"><div class="sp-empty">กำลังวิเคราะห์...</div></div>
+    </div>
+  </div>
   <div class="line-cards-wrap" id="lcw-m1"></div>
   <div class="toolbar">
     <div class="toolbar-left">
@@ -294,6 +328,16 @@ tbody td{padding:5px 6px;vertical-align:middle;font-weight:600}
 
 <!-- PAGE M2 -->
 <div class="page" id="page-m2">
+  <!-- SMART PRIORITY -->
+  <div style="margin:12px 16px 0;background:#ffffff;border:2px solid #e2e8f0;border-radius:14px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.05)">
+    <div class="sp-wrap">
+      <div class="sp-header">
+        <div class="sp-title"><div class="sp-live"></div>🧠 SMART PRIORITY</div>
+        <div style="font-family:var(--mono);font-size:9px;color:#94a3b8">อัปเดต realtime</div>
+      </div>
+      <div id="smart-priority-m2"><div class="sp-empty">กำลังวิเคราะห์...</div></div>
+    </div>
+  </div>
   <div class="line-cards-wrap" id="lcw-m2"></div>
   <div class="toolbar">
     <div class="toolbar-left">
@@ -684,6 +728,7 @@ window.loadPlan = (m) => {
     }
     firstLoad=false;
     renderPlan(m);
+    renderSmartPriority(m);
   });
 };
 
