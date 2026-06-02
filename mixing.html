@@ -342,8 +342,8 @@ tbody tr.row-done{background:#f0fdf4!important;opacity:.7;border-left:4px solid 
 
 <nav>
   <div class="nav-logo">PROD<b>.</b>SYS</div>
-  <button class="nav-tab on" onclick="showPage('m1',this)">⚗️ Mix 1</button>
-  <button class="nav-tab" onclick="showPage('m2',this)">⚗️ Mix 2</button>
+  <button class="nav-tab on" onclick="switchMix('m1',this)">⚗️ Mix 1</button>
+  <button class="nav-tab" onclick="switchMix('m2',this)">⚗️ Mix 2</button>
   <div class="nav-right">
     <a href="preparemix.html" style="font-size:11px;padding:5px 12px;border-radius:7px;border:1.5px solid var(--b1);background:#fef3c7;color:#92400e;cursor:pointer;text-decoration:none;font-family:var(--mono);font-weight:800">📋 Prepare Mix</a>
     <span class="nav-role">MIXING</span>
@@ -1145,6 +1145,17 @@ async function renderChart(m){
 }
 
 // ── PAGE SWITCH ────────────────────────────────────────────────────────
+window.switchMix=(m,btn)=>{
+  document.querySelectorAll('.page').forEach(el=>el.classList.remove('on'));
+  document.querySelectorAll('.nav-tab').forEach(el=>el.classList.remove('on'));
+  const pg=document.getElementById('page-'+m);
+  if(pg) pg.classList.add('on');
+  if(btn) btn.classList.add('on');
+  // sync date และ load data
+  const dateEl=document.getElementById('date-'+m);
+  if(dateEl&&!dateEl.value){ dateEl.valueAsDate=new Date(); }
+  loadPlan(m);
+};
 window.showPage=(type,m,btn)=>{
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('on'));
   document.querySelectorAll('.nav-tab').forEach(el=>el.classList.remove('on'));
