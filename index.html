@@ -322,7 +322,7 @@ body{
     <div class="err-msg" id="err-msg"></div>
     <input type="password" id="pw" class="pw-input" placeholder="••••••" autocomplete="off" onkeydown="if(event.key==='Enter')doLogin()">
     <button class="login-btn" id="login-btn" onclick="doLogin()">เข้าสู่ระบบ →</button>
-    <button class="back-btn" onclick="showStep('step1')">← กลับ</button>
+    <button class="back-btn" onclick="window.showStep('step1')">← กลับ</button>
   </div>
 </div>
 
@@ -452,7 +452,7 @@ onAuthStateChanged(auth,async user=>{
       }
     }catch{}
   }
-  showStep('step1');
+  window.showStep('step1');
 });
 
 window.window.selectRole=(role)=>{
@@ -466,13 +466,13 @@ window.window.selectRole=(role)=>{
       <div class="selected-name">${l.name}</div>
       <div class="selected-email">${EMAIL[role]}</div>
     </div>`;
-  setTimeout(()=>showStep('step2'),200);
+  setTimeout(()=>window.showStep('step2'),200);
 };
 
 window.goBack=()=>{
   document.getElementById('pw').value='';
   document.getElementById('err-msg').textContent='';
-  showStep('step1');
+  window.showStep('step1');
 };
 
 window.togglePw=()=>{
@@ -520,7 +520,7 @@ window.doLogout=async()=>{
   await signOut(auth);
   selectedRole=null;
   document.getElementById('pw').value='';
-  showStep('step1');
+  window.showStep('step1');
 };
 
 window.showStep=function(id){
