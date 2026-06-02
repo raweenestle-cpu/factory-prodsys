@@ -908,6 +908,17 @@ function buildCard(line){
   const prodCode=current.prod_suffix?(yr+'0522'+unit+current.prod_suffix):'—';
   const prodCodeLabel='รหัสผลิต: '+prodCode;
 
+
+function calcVol(row){
+  const totalVol=+(row.volume_liter||0);
+  const _atsKey=row.aging_tank||'';
+  const _atsCv=_atsKey&&agingStates[_atsKey]&&agingStates[_atsKey].current_vol!=null
+    ?+agingStates[_atsKey].current_vol:-1;
+  const filled=_atsCv>=0?_atsCv:totalVol;
+  const pct=totalVol>0?Math.min(100,(filled/totalVol)*100):0;
+  return {filled,pct,totalVol};
+}
+
   // Queue items — with tank SVG
   function queueItem(row,idx){
   const p=productMap[row.mix_code]||{};
