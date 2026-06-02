@@ -1,3 +1,4 @@
+// PROD.SYS shared.js — updated 2026-06-02 23:57
 // shared.js — status functions ใช้ร่วมกันทุกหน้า
 export function resolveStatus(row){
   var s=row&&row.status||'pending';
