@@ -482,7 +482,7 @@ window.loadPlan=(m)=>{
     rows[m]=snap.docs.map(d=>({id:d.id,...d.data()}))
       .filter(r=>(r.mix_code||r.mix_name||r.process_order)&&r.status!=='past_done'&&r.status!=='ready'&&r.status!=='sent_filling'&&r.status!=='filling'&&r.status!=='curing')
       .sort((a,b)=>(a.seq||0)-(b.seq||0));
-    renderMixTanks(m);
+    renderMixTanks(m, rows[m]||[]);
     autoAssignTank(m);
   });
 };
