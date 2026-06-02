@@ -268,7 +268,6 @@ tbody td{padding:5px 6px;vertical-align:middle;font-weight:600}
   <button class="nav-tab" onclick="showPage('m2')">🟢 Mixing 2</button>
   <div class="nav-right">
     <span class="nav-role">LEADMAN</span>
-    <button onclick="toggleAllCards()" id="btn-toggle-all" style="font-family:var(--mono);font-size:11px;font-weight:800;padding:5px 12px;border-radius:7px;border:1.5px solid var(--b1);background:#f1f5f9;color:#374151;cursor:pointer">⊟ ย่อทั้งหมด</button>
     <span class="nav-user" id="nav-user"></span>
     <a href="history.html" style="font-size:11px;padding:5px 12px;border-radius:7px;border:1.5px solid var(--b1);background:#f1f5f9;color:#374151;text-decoration:none;font-family:var(--mono);font-weight:800">📋 History</a>
     <a href="index.html" style="font-size:11px;padding:5px 10px;border-radius:6px;border:1px solid var(--b2);background:none;color:var(--t2);cursor:pointer;text-decoration:none;white-space:nowrap;flex-shrink:0">🏠 Home</a>
@@ -295,6 +294,11 @@ tbody td{padding:5px 6px;vertical-align:middle;font-weight:600}
       </div>
       <div id="smart-priority-m1"><div class="sp-empty">กำลังวิเคราะห์...</div></div>
     </div>
+  </div>
+  <div style="display:flex;justify-content:flex-end;padding:4px 0 8px">
+    <button onclick="toggleAllCards()" id="btn-toggle-all" style="font-family:var(--mono);font-size:11px;font-weight:800;padding:6px 16px;border-radius:8px;border:1.5px solid #cbd5e1;background:#f8fafc;color:#374151;cursor:pointer;display:flex;align-items:center;gap:6px">
+      <span id="btn-toggle-icon">⊟</span> <span id="btn-toggle-text">ย่อการ์ดทั้งหมด</span>
+    </button>
   </div>
   <div class="line-cards-wrap" id="lcw-m1"></div>
   <div class="toolbar">
@@ -765,8 +769,8 @@ function _lcCard(line){
     h+=`<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:6px">
       <div class="lsc-kpi">
         <div class="lsc-kpi-label">Plan (L)</div>
-        <input type="number" class="ci" style="width:100%;font-family:var(--mono);font-size:18px;font-weight:900;color:#111827;border:none;background:transparent;padding:0;margin-top:2px" 
-          placeholder="กรอก Plan" value="${planVol>0?planVol:''}"
+        <input type="number" class="ci" style="width:100%;font-family:var(--mono);font-size:13px;font-weight:900;color:#111827;padding:4px 6px;border:1.5px solid #e2e8f0;border-radius:6px;background:#fff;margin-top:4px" 
+          placeholder="กรอก Plan (L)" value="${planVol>0?planVol:''}"
           onchange="savePlanVol('${line.id}',this.value)"
           onclick="event.stopPropagation()">
       </div>
@@ -929,12 +933,14 @@ window.savePlanVol=async function(lineId, val){
   }catch(e){toast('❌ '+e.message,'red');}
 };
 window.toggleAllCards=function(){
-  const btn=document.getElementById('btn-toggle-all');
   const allCollapsed=(_lcLines||[]).every(l=>localStorage.getItem('lsc-collapse-'+l.id)==='1');
   (_lcLines||[]).forEach(l=>{
     localStorage.setItem('lsc-collapse-'+l.id, allCollapsed?'0':'1');
   });
-  btn.textContent=allCollapsed?'⊟ ย่อทั้งหมด':'⊞ ขยายทั้งหมด';
+  const icon=document.getElementById('btn-toggle-icon');
+  const text=document.getElementById('btn-toggle-text');
+  if(icon) icon.textContent=allCollapsed?'⊟':'⊞';
+  if(text) text.textContent=allCollapsed?'ย่อการ์ดทั้งหมด':'ขยายการ์ดทั้งหมด';
   _lcRender();
 };
 window.toggleLscCard=function(lineId){
