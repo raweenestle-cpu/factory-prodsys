@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>History — PROD.SYS</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;600&family=Sarabun:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#e8ecf0;--s1:#f2f4f7;--s2:#e0e4ea;--s3:#d0d6de;
+  --b1:#b0bac8;--b2:#8896aa;
+  --text:#111827;--t2:#374151;--t3:#6b7280;
+  --blue:#3b82f6;--blue2:#60a5fa;
+  --green:#22c55e;--yellow:#eab308;--red:#ef4444;--cyan:#06b6d4;--purple:#a855f7;
+  --mono:'DM Mono',monospace;--sans:'Sarabun',sans-serif;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13px;min-height:100vh;font-weight:500}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--b2);border-radius:3px}
+input[type="number"]{-moz-appearance:textfield}
+input[type="number"]::-webkit-inner-spin-button,input[type="number"]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+
+/* NAV */
+nav{display:flex;align-items:center;height:52px;background:var(--s1);border-bottom:1px solid var(--b1);position:sticky;top:0;z-index:200;padding:0 16px;gap:8px}
+.nav-logo{font-family:var(--mono);font-size:14px;font-weight:600;letter-spacing:.06em;margin-right:8px;white-space:nowrap}
+.nav-logo b{color:var(--blue)}
+.nav-tab{font-size:12px;font-weight:600;padding:6px 12px;border-radius:7px;border:none;background:none;color:var(--t2);cursor:pointer;white-space:nowrap}
+.nav-tab:hover{color:var(--text);background:var(--s3)}
+.nav-tab.on{color:var(--blue);background:rgba(59,130,246,.12)}
+.nav-right{display:flex;align-items:center;gap:8px;margin-left:auto}
+.nav-user{font-family:var(--mono);font-size:11px;color:var(--t2)}
+.nav-role{font-size:10px;font-family:var(--mono);padding:2px 8px;border-radius:4px;background:rgba(234,179,8,.15);color:var(--yellow);border:1px solid rgba(234,179,8,.3)}
+.btn-logout{font-size:11px;padding:5px 10px;border-radius:6px;border:1px solid var(--b2);background:none;color:var(--t2);cursor:pointer}
+.btn-logout:hover{color:var(--red);border-color:var(--red)}
+
+/* PAGE */
+.page{display:none;padding:14px 16px}
+.page.on{display:block}
+
+/* KPI */
+.kpi-row{display:flex;gap:0;margin-bottom:12px;background:#fff;border-radius:12px;border:1.5px solid var(--b1);overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.kpi{background:var(--s1);border:1px solid var(--b1);border-radius:10px;padding:12px 14px}
+.kpi-label{font-size:10px;color:var(--t3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
+.kpi-val{font-size:22px;font-weight:700;font-family:var(--mono)}
+
+/* TABLE */
+.tw{border-radius:10px;border:1px solid var(--b1);overflow:auto;max-height:calc(100vh - 200px)}
+table{width:100%;border-collapse:collapse;font-size:12px;min-width:1100px}
+thead th{background:var(--s2);padding:7px 8px;text-align:left;white-space:nowrap;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1px solid var(--b1);position:sticky;top:0;z-index:10;box-shadow:0 1px 0 var(--b1)}
+tbody tr{border-bottom:1px solid var(--b1)}
+tbody tr:hover td{background:rgba(255,255,255,.02)}
+tbody td{padding:5px 6px;vertical-align:middle;font-weight:600}
+.row-mixing td{background:rgba(234,179,8,.08)!important}
+.row-mixing td:first-child{border-left:3px solid var(--yellow)!important}
+.row-past td{background:rgba(234,179,8,.08)!important}
+.row-past td:first-child{border-left:3px solid var(--yellow)!important}
+.row-done td{background:rgba(34,197,94,.08)!important}
+.row-done td:first-child{border-left:3px solid var(--green)!important}
+
+/* INPUTS */
+.ci{background:var(--s2);border:1px solid var(--b1);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:12px;padding:5px 7px;outline:none;width:100%}
+.ci:focus{border-color:var(--blue)}
+.ca{font-family:var(--mono);font-size:12px;color:var(--t2);padding:0 6px;white-space:nowrap}
+.cr{font-family:var(--mono);font-size:11px;color:var(--t3);padding:0 6px}
+
+/* BUTTONS */
+.btn{font-size:12px;padding:6px 12px;border-radius:7px;border:1px solid var(--b2);background:var(--s3);color:var(--text);cursor:pointer;font-family:var(--sans);white-space:nowrap}
+.btn:hover{background:var(--b2)}
+.btn-b{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn-b:hover{background:#2563eb}
+.btn-g{background:var(--s3);border-color:var(--b2)}
+.btn-s{font-size:11px;padding:5px 10px}
+.db{background:none;border:none;color:var(--t3);cursor:pointer;font-size:14px;padding:2px 6px;border-radius:4px}
+.db:hover{color:var(--red);background:rgba(239,68,68,.1)}
+
+/* TOOLBAR */
+.toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px;flex-wrap:wrap;gap:8px}
+.toolbar-left{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.toolbar-right{display:flex;align-items:center;gap:6px}
+
+/* PREFIX */
+.prefix-box{display:flex;align-items:center;gap:6px;background:rgba(168,85,247,.08);border:1px solid rgba(168,85,247,.25);border-radius:8px;padding:5px 10px}
+.prefix-box.m2{background:rgba(34,197,94,.08);border-color:rgba(34,197,94,.25)}
+
+/* STATUS SELECT */
+.stat-sel{font-family:var(--mono);font-size:11px;font-weight:700;padding:4px 9px;border-radius:99px;border:none;cursor:pointer;outline:none}
+
+/* DRAG */
+.dh{cursor:grab;color:var(--t3);font-size:16px;padding:0 4px;user-select:none}
+.dh:active{cursor:grabbing}
+
+/* TOAST */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#1d4ed8;color:#fff;padding:10px 20px;border-radius:10px;font-size:13px;opacity:0;transition:all .3s;z-index:9999;white-space:nowrap;pointer-events:none}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* MIXING TANK BADGE */
+.tank-sel{background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.3);border-radius:6px;color:#06b6d4;font-family:var(--mono);font-size:12px;padding:4px 8px;outline:none;cursor:pointer}
+
+@keyframes blink{0%,100%{opacity:1}40%{opacity:.15}}
+
+/* ── MOBILE RESPONSIVE ──────────────────────────────────────────────── */
+@media(max-width:768px){
+  nav{padding:0 10px;gap:4px}
+  .nav-logo{font-size:12px}
+  .nav-tab{font-size:11px;padding:5px 8px}
+  .btn-logout{font-size:10px;padding:4px 8px}
+  .page{padding:10px}
+
+  /* TABLE → CARD */
+  .tw{border:none;background:none;overflow:visible;max-height:none}
+  table,thead,tbody,tr,td,th{display:block;width:100%}
+  thead tr{display:none}
+  tbody tr{
+    background:var(--s1);border:1px solid var(--b1);border-radius:12px;
+    margin-bottom:12px;padding:12px;position:relative;
+  }
+  tbody tr.row-mixing{border-left:4px solid var(--yellow)!important}
+  tbody tr.row-past{border-left:4px solid var(--orange)!important}
+  tbody tr.row-done{border-left:4px solid var(--green)!important}
+  tbody td{border:none!important;padding:3px 0;display:flex;align-items:center;gap:8px;font-size:13px}
+
+  /* ซ่อน td ที่ไม่จำเป็น */
+  tbody td:nth-child(1){display:none} /* drag */
+  tbody td:nth-child(2){display:none} /* # */
+
+  /* Mix Code select — full width */
+  tbody td:nth-child(3) select{width:100%!important;font-size:13px!important;min-height:44px}
+  /* Mix Name */
+  tbody td:nth-child(4) span{font-size:14px!important;font-weight:700!important}
+
+  /* Batch + Volume inline */
+  tbody td:nth-child(5),tbody td:nth-child(6){display:inline-flex;width:auto;margin-right:8px}
+  tbody td:nth-child(5) input,tbody td:nth-child(6) input{width:80px!important}
+
+  /* Mixing Tank */
+  tbody td:nth-child(7)::before{content:"🪣 Tank: ";font-size:11px;color:var(--t2);font-family:var(--mono);flex-shrink:0}
+
+  /* Glucose/Sugar/Palm — ซ่อน set แสดงแค่ actual */
+  tbody td:nth-child(8){display:none}  /* Glc Set */
+  tbody td:nth-child(10){display:none} /* Sgr Set */
+  tbody td:nth-child(12){display:none} /* Plm Set */
+  tbody td:nth-child(9)::before{content:"🍬 Glc: ";font-size:11px;color:var(--text);font-family:var(--mono);flex-shrink:0}
+  tbody td:nth-child(11)::before{content:"🧂 Sgr: ";font-size:11px;color:var(--text);font-family:var(--mono);flex-shrink:0}
+  tbody td:nth-child(13)::before{content:"🌴 Plm: ";font-size:11px;color:var(--text);font-family:var(--mono);flex-shrink:0}
+
+  /* Rework */
+  tbody td:nth-child(14)::before{content:"♻️ RW kg: ";font-size:11px;color:var(--t2);font-family:var(--mono);flex-shrink:0}
+  tbody td:nth-child(15)::before{content:"♻️ ถัง: ";font-size:11px;color:var(--t2);font-family:var(--mono);flex-shrink:0}
+  tbody td:nth-child(14),tbody td:nth-child(15){display:inline-flex;width:auto;margin-right:8px}
+
+  /* Filling Line — full width */
+  tbody td:nth-child(16) select{width:100%!important;font-size:13px!important;min-height:44px}
+  /* Product */
+  tbody td:nth-child(17) select{width:100%!important;font-size:13px!important;min-height:44px}
+  /* Start */
+  tbody td:nth-child(18)::before{content:"⏱ Start: ";font-size:11px;color:var(--t2);font-family:var(--mono);flex-shrink:0}
+  tbody td:nth-child(18) input{flex:1}
+  /* Est Finish */
+  tbody td:nth-child(19)::before{content:"🕐 คาดจบ: ";font-size:11px;color:var(--t2);font-family:var(--mono);flex-shrink:0}
+  /* Status */
+  tbody td:nth-child(20){justify-content:center;padding-top:6px}
+  /* หมายเหตุ */
+  tbody td:nth-child(21)::before{content:"📝 ";font-size:11px;flex-shrink:0}
+  tbody td:nth-child(21) input{flex:1}
+  /* ลบ */
+  tbody td:last-child{justify-content:flex-end;padding-top:6px}
+
+  /* Toolbar */
+  .toolbar{flex-direction:column;align-items:stretch}
+  .toolbar-left,.toolbar-right{flex-wrap:wrap;gap:6px}
+  .btn{min-height:40px;font-size:13px}
+
+  /* KPI */
+  .kpi-row{grid-template-columns:repeat(2,1fr)!important;gap:8px}
+}
+
+@keyframes statusPulse{0%,100%{opacity:1}50%{opacity:.45}}
+.status-blink{animation:statusPulse 1.4s ease-in-out infinite}
+
+.line-cards-wrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;padding:12px 0 14px}
+.lsc{background:#ffffff;border-radius:20px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.08);border:2px solid #e2e8f0;display:flex;flex-direction:column;transition:box-shadow .2s}
+.lsc:hover{box-shadow:0 8px 32px rgba(0,0,0,.12)}
+.lsc.lsc-running{border-color:var(--lsc-c,#15803d);box-shadow:0 4px 20px rgba(0,0,0,.08),0 0 0 1px var(--lsc-c,#15803d) inset}
+.lsc.lsc-waiting{border-color:#f59e0b;box-shadow:0 4px 20px rgba(245,158,11,.1)}
+.lsc-header{padding:16px 18px 12px;border-bottom:2px solid #f1f5f9;background:linear-gradient(135deg,#f8fafc 0%,#ffffff 100%);display:flex;align-items:center;justify-content:space-between;gap:10px}
+.lsc-linename{font-family:var(--mono);font-size:22px;font-weight:900;color:#0f172a;letter-spacing:.05em}
+.lsc-badge{font-family:var(--mono);font-size:10px;font-weight:900;padding:5px 12px;border-radius:999px;white-space:nowrap;display:flex;align-items:center;gap:5px}
+.lsc-badge.run{background:#dcfce7;color:#15803d;border:1.5px solid #86efac}
+.lsc-badge.wait{background:#fef3c7;color:#b45309;border:1.5px solid #fcd34d}
+.lsc-badge.idle{background:#f1f5f9;color:#64748b;border:1.5px solid #cbd5e1}
+.lsc-badge.run::before{content:"";width:7px;height:7px;background:#15803d;border-radius:50%;animation:lcsPulse 1.2s ease-in-out infinite}
+@keyframes lcsPulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(21,128,61,.5)}50%{opacity:.7;box-shadow:0 0 0 5px rgba(21,128,61,0)}}
+.lsc-product{font-family:var(--sans);font-size:15px;font-weight:800;color:#111827;padding:10px 18px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lsc-body{padding:12px 18px;display:flex;flex-direction:column;gap:8px;flex:1}
+.lsc-kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.lsc-kpi{background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;padding:8px 10px}
+.lsc-kpi-label{font-family:var(--mono);font-size:8px;font-weight:900;color:#94a3b8;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px}
+.lsc-kpi-val{font-family:var(--mono);font-size:20px;font-weight:900;color:#111827;line-height:1}
+.lsc-kpi-sub{font-family:var(--mono);font-size:9px;font-weight:700;color:#64748b;margin-top:2px}
+.lsc-kpi.highlight{background:#f0fdf4;border-color:#86efac}
+.lsc-kpi.warn{background:#fffbeb;border-color:#fcd34d}
+.lsc-kpi.crit{background:#fff1f2;border-color:#fca5a5}
+.lsc-progress-wrap{display:flex;flex-direction:column;gap:4px}
+.lsc-progress-labels{display:flex;justify-content:space-between}
+.lsc-progress-label{font-family:var(--mono);font-size:9px;font-weight:700;color:#94a3b8;text-transform:uppercase}
+.lsc-progress-pct{font-family:var(--mono);font-size:9px;font-weight:900;color:#111827}
+.lsc-bar{height:8px;background:#e2e8f0;border-radius:999px;overflow:hidden}
+.lsc-bar-fill{height:100%;border-radius:999px;transition:width .8s cubic-bezier(.4,0,.2,1)}
+.lsc-flow-row{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:#f8fafc;border-radius:8px;border:1.5px solid #e2e8f0}
+.lsc-flow-label{font-family:var(--mono);font-size:9px;font-weight:900;color:#94a3b8;letter-spacing:1px;text-transform:uppercase}
+.lsc-flow-val{font-family:var(--mono);font-size:13px;font-weight:900;color:#111827}
+.lsc-flow-warn{color:#dc2626}
+.lsc-eta-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.lsc-eta-box{flex:1;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;padding:8px 10px;text-align:center}
+.lsc-eta-label{font-family:var(--mono);font-size:8px;font-weight:900;color:#94a3b8;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px}
+.lsc-eta-time{font-family:var(--mono);font-size:18px;font-weight:900;color:#111827}
+.lsc-eta-time.crit{color:#dc2626}
+.lsc-eta-time.warn{color:#d97706}
+.lsc-q-section{border-top:2px solid #f1f5f9;padding:10px 18px 14px;background:#fafbff}
+.lsc-q-title{font-family:var(--mono);font-size:9px;font-weight:900;color:#64748b;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px}
+.lsc-q-item{display:flex;align-items:center;justify-content:space-between;padding:5px 8px;background:#ffffff;border-radius:7px;border:1.5px solid #e2e8f0;margin-bottom:4px}
+.lsc-q-code{font-family:var(--mono);font-size:11px;font-weight:800;color:#111827}
+.lsc-q-vol{font-family:var(--mono);font-size:11px;font-weight:700;color:#3b82f6}
+.lsc-idle-msg{padding:24px 18px;text-align:center;font-family:var(--mono);font-size:13px;color:#94a3b8;font-weight:700}
+.lsc-qcode{font-family:var(--mono);font-size:10px;font-weight:900;color:#111827;flex:1}
+.lsc-qvol{font-family:var(--mono);font-size:10px;font-weight:900;color:var(--lsc-c,var(--cyan))}
+@keyframes ldot{0%,100%{opacity:1}50%{opacity:.2}}
+.live-d{display:inline-block;width:6px;height:6px;border-radius:50%;background:#15803d;margin-right:3px;animation:ldot 1s infinite;vertical-align:middle}
+
+/* ===== SMART PRIORITY ===== */
+.sp-wrap{display:flex;flex-direction:column;gap:8px;padding:12px 16px}
+.sp-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.sp-title{font-family:var(--mono);font-size:11px;font-weight:900;color:#f59e0b;letter-spacing:2px;text-transform:uppercase;display:flex;align-items:center;gap:6px}
+.sp-live{width:7px;height:7px;background:#22c55e;border-radius:50%;animation:spLive 1.2s ease-in-out infinite}
+@keyframes spLive{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(34,197,94,.5)}50%{opacity:.7;box-shadow:0 0 0 5px rgba(34,197,94,0)}}
+.sp-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:10px;border:1.5px solid transparent;background:#f8fafc;transition:all .2s}
+.sp-item.crit{background:#fff1f2;border-color:#fca5a5}
+.sp-item.warn{background:#fffbeb;border-color:#fde68a}
+.sp-item.ok{background:#f0fdf4;border-color:#bbf7d0}
+.sp-rank{font-family:var(--mono);font-size:16px;font-weight:900;color:#94a3b8;width:24px;text-align:center;flex-shrink:0}
+.sp-dot{font-size:16px;flex-shrink:0}
+.sp-body{flex:1;min-width:0}
+.sp-name{font-family:var(--sans);font-size:13px;font-weight:800;color:#111827;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sp-reason{font-family:var(--mono);font-size:10px;font-weight:700;color:#64748b;margin-top:1px}
+.sp-time{font-family:var(--mono);font-size:12px;font-weight:900;text-align:right;flex-shrink:0}
+.sp-time.crit{color:#dc2626}
+.sp-time.warn{color:#d97706}
+.sp-time.ok{color:#059669}
+.sp-empty{font-family:var(--mono);font-size:11px;color:#94a3b8;text-align:center;padding:16px}
+.sp-score-bar{height:3px;border-radius:2px;margin-top:4px;background:#e2e8f0}
+.sp-score-fill{height:100%;border-radius:2px;transition:width .5s}
+
+</style>
+<style>
+/* History specific */
+.hist-section{background:#fff;border:2px solid #e2e8f0;border-radius:14px;overflow:hidden;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.hist-section-header{padding:12px 16px;background:#f8fafc;border-bottom:2px solid #e2e8f0;display:flex;align-items:center;gap:10px}
+.hist-section-title{font-family:var(--mono);font-size:12px;font-weight:900;color:#111827;letter-spacing:1px}
+.hist-badge{font-family:var(--mono);font-size:10px;font-weight:900;padding:3px 10px;border-radius:20px;background:#dbeafe;color:#1e40af}
+.hist-table{width:100%;border-collapse:collapse;font-size:12px;min-width:900px}
+.hist-table th{background:#e8ecf2;padding:8px 10px;text-align:left;font-family:var(--mono);font-size:10px;font-weight:900;color:#111827;border-bottom:2px solid #cbd5e1;border-right:1px solid #e2e8f0;white-space:nowrap}
+.hist-table td{padding:7px 10px;border-bottom:1px solid #f1f5f9;border-right:1px solid #f1f5f9;font-family:var(--mono);font-size:11px;font-weight:700;color:#111827}
+.hist-table tr:hover td{background:#f8faff}
+.hist-table tr:last-child td{border-bottom:none}
+.stat-pill{font-family:var(--mono);font-size:10px;font-weight:900;padding:3px 10px;border-radius:20px;white-space:nowrap}
+.stat-done{background:#d1fae5;color:#065f46}
+.stat-fill{background:#dbeafe;color:#1e40af}
+.stat-curing{background:#fef3c7;color:#92400e}
+.stat-sent{background:#ede9fe;color:#4c1d95}
+.empty-msg{padding:30px;text-align:center;font-family:var(--mono);font-size:12px;color:#94a3b8}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">PROD<b>.</b>SYS</div>
+  <div class="nav-right">
+    <span class="nav-role">HISTORY</span>
+    <span class="nav-user" id="nav-user"></span>
+    <a href="leadman.html" style="font-size:11px;padding:5px 12px;border-radius:7px;border:1.5px solid var(--b1);background:none;color:var(--t2);text-decoration:none;font-family:var(--mono);font-weight:700">📋 Leadman</a>
+    <a href="index.html" style="font-size:11px;padding:5px 12px;border-radius:7px;border:1.5px solid var(--b1);background:none;color:var(--t2);text-decoration:none;font-family:var(--mono);font-weight:700">🏠 Home</a>
+    <button class="btn-logout" onclick="doLogout()">Logout</button>
+  </div>
+</nav>
+
+<!-- DATE HEADER -->
+<div style="display:flex;align-items:center;gap:12px;background:#fff;border:2px solid #e2e8f0;border-radius:14px;padding:14px 20px;margin:16px 20px 14px;box-shadow:0 2px 8px rgba(0,0,0,.04)">
+  <div style="font-family:var(--mono);font-size:11px;font-weight:900;color:#64748b;letter-spacing:2px;text-transform:uppercase">📅 วันที่</div>
+  <input type="date" id="hist-date" class="ci" style="font-family:var(--mono);font-size:20px;font-weight:900;color:#111827;background:transparent;border:none;outline:none;cursor:pointer;flex:1" onchange="loadHistory()">
+  <div id="hist-day-label" style="font-family:var(--mono);font-size:13px;font-weight:700;color:#64748b"></div>
+  <button class="btn btn-s" onclick="changeHistDate(-1)" style="padding:5px 12px">◀</button>
+  <button class="btn btn-s" onclick="changeHistDate(1)" style="padding:5px 12px">▶</button>
+</div>
+
+<!-- CONTENT -->
+<div style="padding:0 20px 24px">
+  <!-- MIXING M1 -->
+  <div class="hist-section" id="sect-mix1">
+    <div class="hist-section-header">
+      <div class="hist-section-title">⚗️ Mixing 1</div>
+      <div class="hist-badge" id="badge-mix1">0 รายการ</div>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="hist-table">
+        <thead>
+          <tr>
+            <th>#</th><th>Mix Code</th><th>Process</th><th>Mix Name</th>
+            <th>Batch</th><th>Vol (L)</th><th>Tank</th>
+            <th>เริ่มผสม</th><th>ผสมเสร็จ</th>
+            <th>เริ่ม Past.</th><th>Past.เสร็จ</th>
+            <th>Aging Tank</th><th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-hist-mix1"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- MIXING M2 -->
+  <div class="hist-section" id="sect-mix2">
+    <div class="hist-section-header">
+      <div class="hist-section-title">⚗️ Mixing 2</div>
+      <div class="hist-badge" id="badge-mix2">0 รายการ</div>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="hist-table">
+        <thead>
+          <tr>
+            <th>#</th><th>Mix Code</th><th>Process</th><th>Mix Name</th>
+            <th>Batch</th><th>Vol (L)</th><th>Tank</th>
+            <th>เริ่มผสม</th><th>ผสมเสร็จ</th>
+            <th>เริ่ม Past.</th><th>Past.เสร็จ</th>
+            <th>Aging Tank</th><th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-hist-mix2"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- PASTEURIZE P1 -->
+  <div class="hist-section" id="sect-past1">
+    <div class="hist-section-header">
+      <div class="hist-section-title">♨️ Pasteurize 1</div>
+      <div class="hist-badge" id="badge-past1">0 รายการ</div>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="hist-table">
+        <thead>
+          <tr>
+            <th>#</th><th>Mix Code</th><th>Process</th><th>Mix Name</th>
+            <th>Batch</th><th>Vol (L)</th><th>Mix Tank</th>
+            <th>เริ่ม Past.</th><th>Past.เสร็จ</th>
+            <th>Eff%</th><th>Aging Tank</th><th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-hist-past1"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- PASTEURIZE P2 -->
+  <div class="hist-section" id="sect-past2">
+    <div class="hist-section-header">
+      <div class="hist-section-title">♨️ Pasteurize 2</div>
+      <div class="hist-badge" id="badge-past2">0 รายการ</div>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="hist-table">
+        <thead>
+          <tr>
+            <th>#</th><th>Mix Code</th><th>Process</th><th>Mix Name</th>
+            <th>Batch</th><th>Vol (L)</th><th>Mix Tank</th>
+            <th>เริ่ม Past.</th><th>Past.เสร็จ</th>
+            <th>Eff%</th><th>Aging Tank</th><th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-hist-past2"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, collection, query, where, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const app = initializeApp({
+  apiKey:"AIzaSyC3f6jMuhugE6BNfRfkpOA9BMrIKWR9YgQ",
+  authDomain:"production-filling.firebaseapp.com",
+  projectId:"production-filling",
+  storageBucket:"production-filling.firebasestorage.app",
+  messagingSenderId:"89098393458",
+  appId:"1:89098393458:web:b723f2886e8a341935afeb"
+});
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const $ = id => document.getElementById(id);
+const toast = (msg,col='blue') => {
+  const t=document.createElement('div');
+  t.className=`toast-item toast-${col}`;
+  t.textContent=msg;
+  $('toast').appendChild(t);
+  setTimeout(()=>t.remove(),3000);
+};
+
+function doLogout(){ signOut(auth).then(()=>location.href='index.html'); }
+window.doLogout = doLogout;
+
+// Day label
+function updateDayLabel(){
+  const d=$('hist-date');
+  const lbl=$('hist-day-label');
+  if(!d||!lbl||!d.value) return;
+  const days=['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัส','ศุกร์','เสาร์'];
+  const months=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  const dt=new Date(d.value);
+  lbl.textContent='วัน'+days[dt.getDay()]+' '+dt.getDate()+' '+months[dt.getMonth()]+' '+(dt.getFullYear()+543);
+}
+
+function changeHistDate(delta){
+  const d=$('hist-date');
+  if(!d.value) return;
+  const dt=new Date(d.value);
+  dt.setDate(dt.getDate()+delta);
+  d.value=dt.toISOString().slice(0,10);
+  updateDayLabel();
+  loadHistory();
+}
+window.changeHistDate = changeHistDate;
+
+function statPill(status){
+  const map={
+    past_done:'done',sent_filling:'sent',filling:'fill',curing:'curing',
+    ready:'done',cleaned:'sent',mixing:'fill',pasteurising:'fill'
+  };
+  const cls=map[status]||'done';
+  const label={past_done:'Past.เสร็จ',sent_filling:'ส่ง Fill',filling:'กำลัง Fill',
+    curing:'Curing',ready:'พร้อม',cleaned:'ทำความสะอาด',mixing:'Mixing',pasteurising:'Pasteurising'}[status]||status;
+  return `<span class="stat-pill stat-${cls}">${label}</span>`;
+}
+
+async function loadHistory(){
+  updateDayLabel();
+  const date=$('hist-date').value;
+  if(!date) return;
+
+  // โหลดทั้ง 4 collections พร้อมกัน
+  const [m1Snap, m2Snap, p1Snap, p2Snap] = await Promise.all([
+    getDocs(query(collection(db,'production_plans'), where('date','==',date), orderBy('seq'))),
+    getDocs(query(collection(db,'production_plans_m2'), where('date','==',date), orderBy('seq'))),
+    getDocs(query(collection(db,'production_plans'), where('date','==',date), orderBy('seq'))),
+    getDocs(query(collection(db,'production_plans_m2'), where('date','==',date), orderBy('seq'))),
+  ]);
+
+  // Mixing rows — แสดงทุก status
+  function renderMixRows(snap, tbodyId, badgeId){
+    const tbody=$(tbodyId);
+    const badge=$(badgeId);
+    const rows=snap.docs.map(d=>({id:d.id,...d.data()}))
+      .filter(r=>r.mix_code||r.mix_name)
+      .sort((a,b)=>(a.seq||0)-(b.seq||0));
+    badge.textContent=rows.length+' รายการ';
+    if(!rows.length){tbody.innerHTML='<tr><td colspan="13" class="empty-msg">ไม่มีข้อมูล</td></tr>';return;}
+    tbody.innerHTML=rows.map((r,i)=>`<tr>
+      <td style="text-align:center;color:#94a3b8">${i+1}</td>
+      <td>${r.mix_code||'—'}</td>
+      <td style="text-align:center">${r.process_order||'—'}</td>
+      <td>${r.mix_name||'—'}</td>
+      <td style="text-align:center">${r.batch_no||'—'}</td>
+      <td style="text-align:right">${(+(r.volume_liter||0)).toLocaleString()}</td>
+      <td>${r.mixing_tank||'—'}</td>
+      <td style="text-align:center">${r.mix_start_time||'—'}</td>
+      <td style="text-align:center">${r.mix_end_time||'—'}</td>
+      <td style="text-align:center">${r.past_start_time||'—'}</td>
+      <td style="text-align:center">${r.past_end_time||'—'}</td>
+      <td style="text-align:center">${r.aging_tank||'—'}</td>
+      <td>${statPill(r.status||'pending')}</td>
+    </tr>`).join('');
+  }
+
+  // Pasteurize rows — แสดงเฉพาะที่มี past_start_time หรือ past_done
+  function renderPastRows(snap, tbodyId, badgeId){
+    const tbody=$(tbodyId);
+    const badge=$(badgeId);
+    const rows=snap.docs.map(d=>({id:d.id,...d.data()}))
+      .filter(r=>(r.mix_code||r.mix_name)&&(r.past_start_time||['pasteurising','past_done','ready','sent_filling','filling'].includes(r.status)))
+      .sort((a,b)=>(a.seq||0)-(b.seq||0));
+    badge.textContent=rows.length+' รายการ';
+    if(!rows.length){tbody.innerHTML='<tr><td colspan="12" class="empty-msg">ไม่มีข้อมูล</td></tr>';return;}
+    tbody.innerHTML=rows.map((r,i)=>{
+      // คำนวณ Eff%
+      let effTxt='—';
+      if(r.past_start_time&&r.past_end_time){
+        const[sh,sm]=(r.past_start_time+':00').split(':').map(Number);
+        const[eh,em]=(r.past_end_time+':00').split(':').map(Number);
+        let actualSec=(eh*3600+em*60)-(sh*3600+sm*60);
+        if(actualSec<0)actualSec+=86400;
+        // reqSec จาก volume * density / speed
+        const vol=+(r.volume_liter||0);
+        if(vol>0&&actualSec>0){
+          const reqSec=Math.round(vol*1.1*3600/1000); // estimate
+          const eff=(reqSec/actualSec*100);
+          const col=eff>=99.9?'#059669':eff>100.5?'#ea580c':'#dc2626';
+          effTxt=`<span style="color:${col};font-weight:900">${eff.toFixed(1)}%</span>`;
+        }
+      }
+      return `<tr>
+        <td style="text-align:center;color:#94a3b8">${i+1}</td>
+        <td>${r.mix_code||'—'}</td>
+        <td style="text-align:center">${r.process_order||'—'}</td>
+        <td>${r.mix_name||'—'}</td>
+        <td style="text-align:center">${r.batch_no||'—'}</td>
+        <td style="text-align:right">${(+(r.volume_liter||0)).toLocaleString()}</td>
+        <td>${r.mixing_tank||'—'}</td>
+        <td style="text-align:center">${r.past_start_time||'—'}</td>
+        <td style="text-align:center">${r.past_end_time||'—'}</td>
+        <td style="text-align:center">${effTxt}</td>
+        <td style="text-align:center">${r.aging_tank||'—'}</td>
+        <td>${statPill(r.status||'pending')}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  renderMixRows(m1Snap, 'tbody-hist-mix1', 'badge-mix1');
+  renderMixRows(m2Snap, 'tbody-hist-mix2', 'badge-mix2');
+  renderPastRows(p1Snap, 'tbody-hist-past1', 'badge-past1');
+  renderPastRows(p2Snap, 'tbody-hist-past2', 'badge-past2');
+}
+window.loadHistory = loadHistory;
+
+// Auth check
+onAuthStateChanged(auth, user=>{
+  if(!user){ location.href='index.html'; return; }
+  $('nav-user').textContent=user.displayName||user.email||'';
+  $('hist-date').valueAsDate=new Date();
+  updateDayLabel();
+  loadHistory();
+});
+</script>
+</body>
+</html>
