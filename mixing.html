@@ -777,17 +777,17 @@ function buildFlowSteps(row){
   if(rwKg>0){var d=!!row.rw_confirmed;s.push({id:'rw',ico:'\u267B\uFE0F',name:'Rework',kg:rwKg+' kg',done:d,active:p&&!d,btn:true,skip:false,pwd:false});p=p&&d;}
   else{s.push({id:'nrw',ico:'\uD83D\uDEAB',name:'No Rework',kg:'',done:false,active:false,btn:false,skip:true,pwd:false});}
   // 3 glc
-  if(glcKg>0){var d=+(row.glc_actual||0)>0;s.push({id:'glc',ico:'\uD83C\uDF6F',name:'Glucose',kg:glcKg+' kg',done:d,active:p&&!d,btn:false,skip:false,pwd:false});p=p&&d;}
+  if(glcKg>0){var d=+(row.glc_actual||0)>0;s.push({id:'glc',ico:'\uD83C\uDF6F',name:'Glucose',kg:glcKg+' kg',done:d,active:p&&!d,btn:false,skip:false,pwd:false,isIngr:true,actField:'glc_actual',actVal:row.glc_actual||''});p=p&&d;}
   // 4 sgr
-  if(sgrKg>0){var d=+(row.sgr_actual||0)>0;s.push({id:'sgr',ico:'\uD83C\uDF6C',name:'Sugar',kg:sgrKg+' kg',done:d,active:p&&!d,btn:false,skip:false,pwd:false});p=p&&d;}
+  if(sgrKg>0){var d=+(row.sgr_actual||0)>0;s.push({id:'sgr',ico:'\uD83C\uDF6C',name:'Sugar',kg:sgrKg+' kg',done:d,active:p&&!d,btn:false,skip:false,pwd:false,isIngr:true,actField:'sgr_actual',actVal:row.sgr_actual||''});p=p&&d;}
   // 5 powder
   var pd=!!row.pwd_confirmed;
   s.push({id:'pwd',ico:'\uD83E\uDDEA',name:'Powder',kg:'\u2191 \u0E0A\u0E34\u0E1B!',done:pd,active:p&&!pd,btn:true,skip:false,pwd:true});
   p=p&&pd;
   // 6 oil
-  if(plmKg>0){var d=+(row.plm_actual||0)>0;s.push({id:'plm',ico:'\uD83C\uDF34',name:'Palm Oil',kg:plmKg+' kg',done:d,active:p&&!d,btn:false,skip:false,pwd:false});p=p&&d;}
-  else if(oilKg>0){var d=+(row.oil_mix_actual||0)>0;s.push({id:'oil',ico:'\uD83D\uDEE2\uFE0F',name:'Oil Mix',kg:oilKg+' kg',done:d,active:p&&!d,btn:false,skip:false,pwd:false});p=p&&d;}
-  else if(fatKg>0){var d=+(row.fat_milk_actual||0)>0;s.push({id:'fat',ico:'\uD83E\uDD5B',name:'Fat Milk',kg:fatKg+' kg',done:d,active:p&&!d,btn:false,skip:false,pwd:false});p=p&&d;}
+  if(plmKg>0){var d=+(row.plm_actual||0)>0;s.push({id:'plm',ico:'\uD83C\uDF34',name:'Palm Oil',kg:plmKg+' kg',done:d,active:p&&!d,btn:false,skip:false,pwd:false,isIngr:true,actField:'plm_actual',actVal:row.plm_actual||''});p=p&&d;}
+  else if(oilKg>0){var d=+(row.oil_mix_actual||0)>0;s.push({id:'oil',ico:'\uD83D\uDEE2\uFE0F',name:'Oil Mix',kg:oilKg+' kg',done:d,active:p&&!d,btn:false,skip:false,pwd:false,isIngr:true,actField:'oil_mix_actual',actVal:row.oil_mix_actual||''});p=p&&d;}
+  else if(fatKg>0){var d=+(row.fat_milk_actual||0)>0;s.push({id:'fat',ico:'\uD83E\uDD5B',name:'Fat Milk',kg:fatKg+' kg',done:d,active:p&&!d,btn:false,skip:false,pwd:false,isIngr:true,actField:'fat_milk_actual',actVal:row.fat_milk_actual||''});p=p&&d;}
   // 7
   s.push({id:'done',ico:'\u2705',name:'\u0E1C\u0E2A\u0E21\u0E40\u0E2A\u0E23\u0E47\u0E08',kg:'',done:!!row.mix_end_time,active:p&&!row.mix_end_time,btn:false,skip:false,pwd:false});
   return s;
@@ -843,6 +843,13 @@ window._stampMixStart=async function(pcol,rid,m){
   if(sig){upd.sig_mix_start=sig;upd.sig_mix_start_name=name;}
   try{await updateDoc(doc(db,pcol,rid),upd);toast('▶ Start ผสม '+n,'green');}
   catch(e){toast('❌ '+e.message,'red');}
+};
+window._saveIngr=async function(pcol,rid,field,val){
+  if(!val||+val<=0){toast('กรุณากรอกค่า Actual','red');return;}
+  try{
+    await updateDoc(doc(db,pcol,rid),{[field]:+val, updated_at:new Date().toISOString()});
+    toast('✅ บันทึก '+field+' = '+val+' kg','green');
+  }catch(e){toast('❌ '+e.message,'red');}
 };
 window._cfm=async function(pcol,rid,field){
   var upd={updated_at:new Date().toISOString()};
@@ -944,7 +951,19 @@ function renderMixTanks(m, rows){
     if(isDone) connCls='done';
     else if(isActive) connCls=st.isStatus?'nxt':'active';
     let btnH='';
-    if(st.btn&&isActive){
+    if(st.isIngr&&isActive){
+      // ingredient active — แสดง input + confirm
+      btnH=`<div style="display:flex;flex-direction:column;align-items:center;gap:3px;margin-top:3px">
+        <input id="act-${rid}-${st.id}" type="number" step="0.1" 
+          style="width:72px;font-family:var(--mono);font-size:11px;font-weight:900;padding:3px 6px;border:2px solid #f59e0b;border-radius:6px;text-align:center;background:#fff;color:#111827"
+          placeholder="Actual" value="${st.actVal||''}"
+          onkeydown="if(event.key==='Enter')window._saveIngr('${pcol}','${rid}','${st.actField}',this.value)">
+        <button class="tv3-fbtn rw" onclick="window._saveIngr('${pcol}','${rid}','${st.actField}',document.getElementById('act-${rid}-${st.id}').value)">✅ OK</button>
+      </div>`;
+    } else if(st.isIngr&&isDone){
+      // ingredient done — แสดงค่า actual
+      btnH=`<div style="font-family:var(--mono);font-size:11px;font-weight:900;color:#059669">${st.actVal} kg</div>`;
+    } else if(st.btn&&isActive){
       const bg=st.pwd?'pwr':'rw';
       const lbl=st.pwd?'✅ Powder':'✅ Rework';
       btnH=`<button class="tv3-fbtn ${bg}" onclick="window._cfm('${pcol}','${rid}','${st.id}')">${lbl}</button>`;
