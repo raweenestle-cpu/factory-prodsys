@@ -773,7 +773,7 @@ function _lcCard(line){
   } else if(q.length){
     h+=`<div class="lsc-idle-msg" style="color:#b45309">⏳ รอ Start<br><span style="font-size:11px;color:#64748b">${tq.toLocaleString()} L พร้อม Fill</span></div>`;
   } else {
-    h+=`<div class="lsc-idle-msg">— IDLE —</div>`;
+    return ''; // ไม่มีแผนผลิต ไม่ render card
   }
 
   // QUEUE SECTION
@@ -897,6 +897,73 @@ window._upAgTank=async function(el){
     await updateDoc(doc(db,col,id),{aging_tank:val});
   }catch(e){console.warn('aging_tank save error:',e);}
 };
+
+// ============================================================
+// SMART PRIORITY ENGINE
+// ============================================================
+function calcSmartPriority(m){
+  const allRows=[...(_lcRows['m1']||[]),...(_lcRows['m2']||[])];
+  if(!allRows.length) return [];
+  const now=new Date();
+  const nowMin=now.getHours()*60+now.getMinutes();
+  const scored=[];
+  for(const row of allRows){
+    const p=(typeof productMap!=='undefined'&&productMap[row.mix_code])||{};
+    const vol=+(row.volume_liter||0);
+    if(!vol||!row.mix_code) continue;
+    const status=resolveStatus(row);
+    const spd=m==='m1'?(p.speed_m1||p.speed||1000):(p.speed_m2||p.speed||1000);
+    const density=+(p.density||1);
+    const agingHr=+(p.aging_time||4);
+    // รวม aging volume ของ mix_code นี้จากทุกถัง
+    const agTotal=Object.values(agingStates||{})
+      .filter(a=>a.mix_code===row.mix_code||a.product===row.mix_code)
+      .reduce((s,a)=>s+(+(a.current_vol||0)),0);
+    const lineObj=(_lcLines||[]).find(l=>l.name===row.filling_line);
+    const lineState=(_lcStates||{})[lineObj?.id]||{};
+    const fillRate=+(lineState.flow_rate||lineObj?.flow_rate||300);
+    const agingRemMin=agTotal>0&&fillRate>0?Math.round((agTotal/fillRate)*60):null;
+    const eta=calcFillETA(row);
+    const fillStartMin=eta?.fillStart?toMin(eta.fillStart):null;
+    const minsToFill=fillStartMin!=null?fillStartMin-nowMin:null;
+    let score=0,risk='ok',reasons=[];
+    if(agTotal>0&&agingRemMin!==null){
+      if(agingRemMin<240){score+=100;risk='crit';const h=Math.floor(agingRemMin/60),mm=agingRemMin%60;reasons.push(`🔴 Aging เหลือ ${h}ชม.${mm}น.`);}
+      else if(agingRemMin<360){score+=60;risk='warn';const h=Math.floor(agingRemMin/60),mm=agingRemMin%60;reasons.push(`🟡 Aging เหลือ ${h}ชม.${mm}น.`);}
+      else{const h=Math.floor(agingRemMin/60),mm=agingRemMin%60;reasons.push(`🟢 Aging เหลือ ${h}ชม.${mm}น.`);}
+    }
+    if(row.filling_line&&(status==='past_done'||status==='ready')){score+=80;if(risk==='ok')risk='warn';reasons.push(`⏳ รอ Line: ${row.filling_line}`);}
+    if(status==='filling'){score+=90;if(risk==='ok')risk='warn';reasons.push('🚀 กำลัง Fill');}
+    if(minsToFill!==null&&minsToFill<30&&minsToFill>0){score+=50;if(risk==='ok')risk='warn';reasons.push(`📍 Fill ใน ${minsToFill} นาที`);}
+    if(status==='pending'||status==='preparing'){score+=10;reasons.push('⏱ รอเริ่มผสม');}
+    if(status==='past_done'){score+=70;if(risk==='ok')risk='warn';reasons.push('✅ พร้อม Fill');}
+    scored.push({row,score,risk,reason:reasons[0]||'—',agingRem:agingRemMin,eta:eta?.fillStart||null,name:p.name||row.mix_name||row.mix_code||'—',status});
+  }
+  return scored.sort((a,b)=>b.score-a.score).slice(0,6);
+}
+
+function renderSmartPriority(m){
+  const el=document.getElementById(`smart-priority-${m}`);
+  if(!el) return;
+  const items=calcSmartPriority(m);
+  if(!items.length){el.innerHTML='<div class="sp-empty">ยังไม่มีข้อมูลวันนี้</div>';return;}
+  el.innerHTML=items.map((item,i)=>{
+    const riskDot=item.risk==='crit'?'🔴':item.risk==='warn'?'🟡':'🟢';
+    const timeLabel=item.agingRem!=null?(()=>{const h=Math.floor(item.agingRem/60),mm=item.agingRem%60;return h>0?`${h}ชม.${mm}น.`:`${mm}น.`;})():item.eta?item.eta:'—';
+    const barPct=Math.min(100,item.score);
+    const barCol=item.risk==='crit'?'#ef4444':item.risk==='warn'?'#f59e0b':'#22c55e';
+    return `<div class="sp-item ${item.risk}">
+      <div class="sp-rank">${i+1}</div>
+      <div class="sp-dot">${riskDot}</div>
+      <div class="sp-body">
+        <div class="sp-name">${item.name}</div>
+        <div class="sp-reason">${item.reason}</div>
+        <div class="sp-score-bar"><div class="sp-score-fill" style="width:${barPct}%;background:${barCol}"></div></div>
+      </div>
+      <div class="sp-time ${item.risk}">${timeLabel}</div>
+    </div>`;
+  }).join('');
+}
 
 function renderPlan(m){
   const col  = planCol(m);
