@@ -308,12 +308,7 @@ tbody td{padding:5px 6px;vertical-align:middle;font-weight:600}
       <button class="btn btn-b btn-s" onclick="addRow('m1');addRow('m1')">+ Add Row</button>
     </div>
   </div>
-  <div class="kpi-row">
-    <div class="kpi"><div class="kpi-label">Batches</div><div class="kpi-val" id="m1-total" style="color:var(--blue2)">0</div></div>
-    <div class="kpi"><div class="kpi-label">Volume</div><div class="kpi-val" id="m1-vol" style="color:var(--cyan)">0 L</div></div>
-    <div class="kpi"><div class="kpi-label">Mixing</div><div class="kpi-val" id="m1-mixing" style="color:var(--yellow)">0</div></div>
-    <div class="kpi"><div class="kpi-label">Done</div><div class="kpi-val" id="m1-done" style="color:var(--green)">0</div></div>
-  </div>
+
   <div class="tw">
     <table>
       <thead>
@@ -378,12 +373,7 @@ tbody td{padding:5px 6px;vertical-align:middle;font-weight:600}
       <button class="btn btn-b btn-s" onclick="addRow('m2');addRow('m2')">+ Add Row</button>
     </div>
   </div>
-  <div class="kpi-row">
-    <div class="kpi"><div class="kpi-label">Batches</div><div class="kpi-val" id="m2-total" style="color:var(--blue2)">0</div></div>
-    <div class="kpi"><div class="kpi-label">Volume</div><div class="kpi-val" id="m2-vol" style="color:var(--cyan)">0 L</div></div>
-    <div class="kpi"><div class="kpi-label">Mixing</div><div class="kpi-val" id="m2-mixing" style="color:var(--yellow)">0</div></div>
-    <div class="kpi"><div class="kpi-label">Done</div><div class="kpi-val" id="m2-done" style="color:var(--green)">0</div></div>
-  </div>
+
   <div class="tw">
     <table>
       <thead>
@@ -834,16 +824,15 @@ function _lcCard(line){
 
   h+=`</div>`; // lsc-body
 
-  // QUEUE
+  // QUEUE — แสดงแค่ยอดรวม
   if(q.length){
+    const tqVol=q.reduce((s,r)=>s+(+(r.volume_liter||0)),0);
     h+=`<div class="lsc-q-section">
-      <div class="lsc-q-title">📦 Queue — ${q.reduce((s,r)=>s+(+(r.volume_liter||0)),0).toLocaleString()} L</div>`;
-    h+=q.slice(0,3).map(r=>`<div class="lsc-q-item">
-      <div class="lsc-q-code">${r.mix_code||'—'} B.${r.batch_no||'?'}</div>
-      <div class="lsc-q-vol">${(+(r.volume_liter||0)).toLocaleString()} L</div>
-    </div>`).join('');
-    if(q.length>3) h+=`<div style="font-family:var(--mono);font-size:9px;color:#94a3b8;margin-top:4px;text-align:center">+${q.length-3} รายการ</div>`;
-    h+=`</div>`;
+      <div class="lsc-flow-row">
+        <span class="lsc-flow-label">📦 Queue (${q.length} batch)</span>
+        <span class="lsc-flow-val">${tqVol.toLocaleString()} L</span>
+      </div>
+    </div>`;
   }
 
   h+=`</div>`; // lsc
