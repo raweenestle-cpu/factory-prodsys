@@ -454,7 +454,7 @@ function showStep(id){
 // ══ PIN MODAL ══════════════════════════════════════════════
 var pinTarget='', pinValue='', pinEmployees=[];
 
-window.openPinModal=function openPinModal(file,name){
+function openPinModal(file,name){
   var noPinPages=['admin.html','shelflife.html','aging.html','filling.html','pinregister.html'];
   if(noPinPages.indexOf(file)>=0){window.location.href=file;return;}
   pinTarget=file;pinValue='';
@@ -466,12 +466,12 @@ window.openPinModal=function openPinModal(file,name){
   loadPinEmployees();
 }
 
-window.closePinModal=function closePinModal(){
+function closePinModal(){
   document.getElementById('pin-modal').style.display='none';
   pinValue='';updatePinDots();
 }
 
-window.pinKey=function pinKey(k){
+function pinKey(k){
   if(k===''){return;}
   if(k==='⌫'){pinValue=pinValue.slice(0,-1);updatePinDots();document.getElementById('pin-error').textContent='';return;}
   if(pinValue.length>=4)return;
@@ -479,14 +479,14 @@ window.pinKey=function pinKey(k){
   if(pinValue.length===4)checkPin();
 }
 
-window.updatePinDots=function updatePinDots(){
+function updatePinDots(){
   for(var i=1;i<=4;i++){
     var el=document.getElementById('pin-d'+i);
     if(el)el.style.background=i<=pinValue.length?'#3b82f6':'#1e2535';
   }
 }
 
-window.loadPinEmployees=function loadPinEmployees(){
+function loadPinEmployees(){
   if(typeof firebase!=='undefined'||window._db){
     // โหลดจาก Firebase ถ้ามี
   }
