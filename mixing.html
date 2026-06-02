@@ -909,7 +909,7 @@ function renderMixTanks(m, rowsArg){
     return `<div class="tv3-info">${items.map(it=>`<div class="tv3-ir"><span class="tv3-il">${it.l}</span><span class="tv3-iv ${it.c}">${it.v}</span></div>`).join('')}</div>`;
   }
 
-  function stampStrip(row, tankLabel, pcol, rid){
+  function stampStrip(row, tankLabel, pcol, rid, m){
     if(!row) return '';
     const st=row.status||'';
     const prepReady=(row.prep_status==='ready');
@@ -978,7 +978,7 @@ function renderMixTanks(m, rowsArg){
         <div class="tv3-tank">${tankSVG(row, cap)}</div>
         <div class="tv3-flow" style="flex:1;min-width:0"><div class="tv3-steps">${stepsHtml}</div></div>
       </div>
-      ${stampStrip(row, tankLabel, pcol, row.id)}
+      ${stampStrip(row, tankLabel, pcol, row.id, m)}
     </div>`;
   }
 
