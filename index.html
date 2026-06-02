@@ -14,12 +14,12 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;600&family=Sarabun:wght@400;500;600;700&display=swap');
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#0d1117;--s1:#0f172a;--s2:#1e293b;
-  --b1:#1e3a5f;--b2:#2d5a9e;
-  --text:#e2e8f0;--t2:#7c9cbf;--t3:#1e3a5f;
-  --blue:#3b82f6;--blue2:#93c5fd;
-  --green:#22c55e;--yellow:#f59e0b;
-  --cyan:#06b6d4;--purple:#8b5cf6;
+  --bg:#06080e;--s1:#0b0e17;--s2:#10141f;
+  --b1:#1c2235;--b2:#242e48;
+  --text:#e4eaf8;--t2:#5e6e90;--t3:#2a3450;
+  --blue:#3b7ef6;--blue2:#7ab3ff;
+  --green:#1fd17a;--yellow:#f5c842;
+  --cyan:#00d4ff;--purple:#9b6dff;
   --mono:'DM Mono',monospace;--sans:'Sarabun',sans-serif;
 }
 html,body{height:100%;margin:0}
@@ -279,24 +279,34 @@ let selectedRole=null;
 const MENUS={
   leadman:[
     {icon:'📋',name:'Leadman',desc:'แผนการผลิต',file:'leadman.html',cls:'m-leadman'},
+    {icon:'📅',name:'Daily Plan',desc:'อัปโหลดแผน',file:'dailyplan.html',cls:'m-leadman'},
     {icon:'🔬',name:'Mixing',desc:'บันทึกผสม',file:'mixing.html',cls:'m-mixing'},
+    {icon:'🧪',name:'Prepare Mix',desc:'เตรียมผสม',file:'preparemix.html',cls:'m-mixing'},
     {icon:'🌡️',name:'Pasteurize',desc:'บันทึก Past.',file:'pasteurize.html',cls:'m-past'},
     {icon:'🍦',name:'Flavor',desc:'เทสี/กลิ่น',file:'flavor.html',cls:'m-flavor'},
     {icon:'🪣',name:'CIP Man',desc:'ควบคุมถัง',file:'cipman.html',cls:'m-cip'},
+    {icon:'🧹',name:'CIP Mixing',desc:'ล้างถังผสม',file:'cipmixing.html',cls:'m-cip'},
     {icon:'🫙',name:'Aging Tank',desc:'สถานะถัง',file:'aging.html',cls:'m-cip'},
     {icon:'🏭',name:'Filling',desc:'ดู Dashboard',file:'filling.html',cls:'m-filling'},
     {icon:'💧',name:'Flowmeter',desc:'Verify Flow',file:'flowmeter.html',cls:'m-mixing'},
+    {icon:'📜',name:'History',desc:'ประวัติการผลิต',file:'history.html',cls:'m-leadman'},
+    {icon:'⏱️',name:'Shelf Life',desc:'คำนวณอายุ',file:'shelflife.html',cls:'m-past'},
+    {icon:'🔐',name:'Employee Reg.',desc:'ลงทะเบียน PIN',file:'pinregister.html',cls:'m-admin'},
     {icon:'⚙️',name:'Admin',desc:'จัดการระบบ',file:'admin.html',cls:'m-admin'},
   ],
   operator:[
     {icon:'📋',name:'Leadman',desc:'แผนการผลิต',file:'leadman.html',cls:'m-leadman'},
     {icon:'🔬',name:'Mixing',desc:'บันทึกผสม',file:'mixing.html',cls:'m-mixing'},
+    {icon:'🧪',name:'Prepare Mix',desc:'เตรียมผสม',file:'preparemix.html',cls:'m-mixing'},
     {icon:'🌡️',name:'Pasteurize',desc:'บันทึก Past.',file:'pasteurize.html',cls:'m-past'},
     {icon:'🍦',name:'Flavor',desc:'เทสี/กลิ่น',file:'flavor.html',cls:'m-flavor'},
     {icon:'🪣',name:'CIP Man',desc:'ควบคุมถัง',file:'cipman.html',cls:'m-cip'},
+    {icon:'🧹',name:'CIP Mixing',desc:'ล้างถังผสม',file:'cipmixing.html',cls:'m-cip'},
     {icon:'🫙',name:'Aging Tank',desc:'สถานะถัง',file:'aging.html',cls:'m-cip'},
     {icon:'🏭',name:'Filling',desc:'ดู Dashboard',file:'filling.html',cls:'m-filling'},
     {icon:'💧',name:'Flowmeter',desc:'Verify Flow',file:'flowmeter.html',cls:'m-mixing'},
+    {icon:'📜',name:'History',desc:'ประวัติการผลิต',file:'history.html',cls:'m-leadman'},
+    {icon:'⏱️',name:'Shelf Life',desc:'คำนวณอายุ',file:'shelflife.html',cls:'m-past'},
   ],
 };
 
