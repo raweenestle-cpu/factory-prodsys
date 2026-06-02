@@ -2,379 +2,260 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="PROD.SYS">
-<title>PROD.SYS — Smart Factory</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;700&family=Sarabun:wght@400;600;700;800&family=Inter:wght@700;800;900&display=swap" rel="stylesheet">
+  
+  <meta name="theme-color" content="#1e40af">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="PROD.SYS">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PROD.SYS — Login</title>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;600&family=Sarabun:wght@400;500;600;700&display=swap');
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --mono:'DM Mono',monospace;
-  --sans:'Sarabun','Inter',sans-serif;
+  --bg:#0d1117;--s1:#0f172a;--s2:#1e293b;
+  --b1:#1e3a5f;--b2:#2d5a9e;
+  --text:#e2e8f0;--t2:#7c9cbf;--t3:#1e3a5f;
+  --blue:#3b82f6;--blue2:#93c5fd;
+  --green:#22c55e;--yellow:#f59e0b;
+  --cyan:#06b6d4;--purple:#8b5cf6;
+  --mono:'DM Mono',monospace;--sans:'Sarabun',sans-serif;
 }
+html,body{height:100%;margin:0}
 body{
-  min-height:100vh;font-family:var(--sans);color:#f1f5f9;
-  overflow-x:hidden;
-  background:#0d1117;
+  background:var(--bg);
+  font-family:var(--sans);
+  color:var(--text);
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  position:relative;
+  overflow:hidden;
 }
 
-/* BG — factory dark blue gradient */
-.bg-wrap{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
-.bg-wrap::before{
-  content:'';position:absolute;inset:0;
-  background:
-    radial-gradient(ellipse 80% 60% at 10% 20%,rgba(29,78,216,.25),transparent 60%),
-    radial-gradient(ellipse 60% 50% at 90% 80%,rgba(124,58,237,.2),transparent 60%),
-    radial-gradient(ellipse 40% 40% at 50% 50%,rgba(8,145,178,.12),transparent 70%),
-    linear-gradient(180deg,#0d1117 0%,#0f172a 50%,#0d1117 100%);
+/* BG EFFECTS */
+body::before{
+  content:"";position:fixed;inset:0;
+  background-image:linear-gradient(rgba(59,126,246,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(59,126,246,.04) 1px,transparent 1px);
+  background-size:48px 48px;pointer-events:none;
 }
-.bg-wrap::after{
-  content:'';position:absolute;inset:0;
-  background-image:
-    linear-gradient(rgba(59,130,246,.06) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(59,130,246,.06) 1px,transparent 1px);
-  background-size:48px 48px;
+.glow-1{position:fixed;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(59,126,246,.12),transparent 70%);top:-100px;left:-100px;pointer-events:none}
+.glow-2{position:fixed;width:350px;height:350px;border-radius:50%;background:radial-gradient(circle,rgba(155,109,255,.1),transparent 70%);bottom:-80px;right:-80px;pointer-events:none}
+
+/* CARD */
+.card{
+  background:var(--s1);
+  border:1px solid var(--b1);
+  border-radius:24px;
+  padding:36px 28px;
+  width:100%;
+  max-width:400px;
+  position:relative;
+  z-index:1;
+  box-shadow:0 24px 64px rgba(0,0,0,.6);
 }
 
-/* STEPS */
-.step{display:none}.step.on{display:block}.step.on.login-wrap,.step.on.pw-wrap{display:flex}
+/* LOGO */
+.logo{text-align:center;margin-bottom:28px}
+.logo-text{font-family:var(--mono);font-size:32px;font-weight:600;letter-spacing:.06em}
+.logo-text b{color:var(--blue)}
+.logo-text span{color:var(--t2)}
+.logo-sub{font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--t3);margin-top:4px;text-transform:uppercase}
 
-/* OUTER */
-.outer{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column}
+/* STEP 1 — เลือก Role */
+.step{display:none}
+.step.on{display:block}
 
-/* NAV */
-.top-nav{
-  background:rgba(13,17,23,.8);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
-  border-bottom:1px solid rgba(59,130,246,.2);
-  padding:0 28px;height:64px;
-  display:flex;align-items:center;justify-content:space-between;
-  position:sticky;top:0;z-index:50;
-}
-.top-logo{font-family:var(--mono);font-size:20px;font-weight:700;letter-spacing:.1em;display:flex;align-items:center;gap:10px}
-.top-logo span{background:linear-gradient(135deg,#60a5fa,#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.top-logo b{background:linear-gradient(135deg,#34d399,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.top-logo-sub{font-size:9px;font-weight:700;color:#475569;letter-spacing:3px;text-transform:uppercase;display:block;margin-top:-2px}
-.top-right{display:flex;align-items:center;gap:14px}
-.nav-time{font-family:var(--mono);font-size:16px;font-weight:700;color:#e2e8f0}
-.nav-date{font-family:var(--mono);font-size:10px;color:#64748b;font-weight:600;letter-spacing:1px}
-.nav-shift-pill{font-family:var(--mono);font-size:11px;font-weight:800;padding:5px 14px;border-radius:20px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);color:#4ade80}
-.logout-btn{font-family:var(--mono);font-size:11px;font-weight:800;padding:6px 16px;border-radius:20px;border:1px solid rgba(239,68,68,.3);background:rgba(239,68,68,.08);color:#fca5a5;cursor:pointer;transition:all .15s}
-.logout-btn:hover{background:rgba(239,68,68,.15)}
+.step-label{font-family:var(--mono);font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.12em;margin-bottom:14px;text-align:center}
 
-/* STEP 1 LOGIN */
-.login-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100vh - 64px);padding:24px}
+.role-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px}
+.role-btn{
+  background:var(--s2);
+  border:1px solid var(--b1);
+  border-radius:14px;
+  padding:18px 12px;
+  cursor:pointer;
+  text-align:center;
+  transition:all .2s;
+  position:relative;
+  overflow:hidden;
+}
+.role-btn:hover{border-color:var(--blue);background:rgba(59,126,246,.08);transform:translateY(-2px)}
+.role-btn.selected{border-color:var(--blue);background:rgba(59,126,246,.12);box-shadow:0 0 0 1px rgba(59,126,246,.3)}
+.role-btn::after{content:"";position:absolute;top:0;left:0;right:0;height:2px;border-radius:14px 14px 0 0;opacity:0;transition:opacity .2s}
+.role-btn.selected::after,.role-btn:hover::after{opacity:1}
+.role-btn.leadman::after{background:linear-gradient(90deg,var(--yellow),#fbbf24)}
+.role-btn.operator::after{background:linear-gradient(90deg,var(--blue),var(--cyan))}
+.role-icon{font-size:28px;margin-bottom:8px}
+.role-name{font-family:var(--mono);font-size:13px;font-weight:600}
+.role-desc{font-size:10px;color:var(--t2);margin-top:3px;line-height:1.4}
+.role-badge{display:inline-block;font-family:var(--mono);font-size:9px;padding:2px 7px;border-radius:4px;margin-top:6px}
+.badge-lm{background:rgba(245,200,66,.15);color:var(--yellow);border:1px solid rgba(245,200,66,.3)}
+.badge-op{background:rgba(59,126,246,.15);color:var(--blue2);border:1px solid rgba(59,126,246,.3)}
 
-/* HERO TEXT */
-.login-hero{text-align:center;margin-bottom:32px}
-.login-hero-title{
-  font-size:clamp(28px,4vw,48px);font-weight:900;letter-spacing:-.02em;
-  background:linear-gradient(135deg,#93c5fd 0%,#a78bfa 50%,#67e8f9 100%);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  margin-bottom:8px;
-}
-.login-hero-sub{font-size:12px;font-weight:700;color:#475569;letter-spacing:3px;text-transform:uppercase}
+/* STEP 2 — กรอก Password */
+.back-btn{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--t2);cursor:pointer;margin-bottom:20px;width:fit-content}
+.back-btn:hover{color:var(--text)}
+.back-btn svg{width:14px;height:14px}
 
-/* ROLE CARDS ROW */
-.role-cards{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:0}
-.role-card-wrap{
-  background:rgba(15,23,42,.7);
-  border:1px solid rgba(59,130,246,.2);
-  border-radius:20px;padding:28px 20px;
-  width:220px;min-height:340px;
-  display:flex;flex-direction:column;align-items:center;gap:12px;
-  cursor:pointer;transition:all .2s;
-  position:relative;overflow:hidden;
-  backdrop-filter:blur(12px);
-}
-.role-card-wrap::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.03),transparent);pointer-events:none}
-.role-card-wrap:hover{transform:translateY(-6px);border-color:rgba(139,92,246,.5);box-shadow:0 20px 60px rgba(139,92,246,.15)}
-.role-card-wrap.selected{border-color:#818cf8;box-shadow:0 0 0 2px rgba(129,140,248,.3)}
-.role-icon-wrap{
-  width:72px;height:72px;border-radius:50%;
-  background:linear-gradient(135deg,rgba(99,102,241,.3),rgba(139,92,246,.3));
-  border:2px solid rgba(139,92,246,.4);
-  display:flex;align-items:center;justify-content:center;font-size:32px;
-  box-shadow:0 0 20px rgba(139,92,246,.2);
-}
-.role-name{font-family:var(--mono);font-size:18px;font-weight:900;letter-spacing:.05em;
-  background:linear-gradient(135deg,#e2e8f0,#94a3b8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.role-name-sub{font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
-  background:linear-gradient(135deg,#818cf8,#67e8f9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.role-desc{font-size:12px;color:#64748b;text-align:center;line-height:1.6;font-weight:600}
-.role-access{width:100%;margin-top:4px}
-.role-access-title{font-family:var(--mono);font-size:8px;font-weight:900;color:#475569;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
-.role-access-item{display:flex;align-items:center;gap:6px;font-size:11px;color:#94a3b8;font-weight:600;margin-bottom:5px}
-.role-access-item::before{content:'✓';color:#818cf8;font-size:10px;font-weight:900}
-.role-login-btn{
-  width:100%;padding:10px;margin-top:auto;
-  font-family:var(--mono);font-size:12px;font-weight:900;letter-spacing:.05em;
-  background:transparent;border:1px solid rgba(139,92,246,.4);border-radius:10px;
-  color:#a78bfa;cursor:pointer;transition:all .15s;
-  display:flex;align-items:center;justify-content:center;gap:8px;
-}
-.role-login-btn:hover{background:rgba(139,92,246,.15);border-color:#a78bfa}
+.selected-role{display:flex;align-items:center;gap:12px;background:var(--s2);border:1px solid var(--b1);border-radius:12px;padding:12px 16px;margin-bottom:20px}
+.selected-icon{font-size:24px}
+.selected-info{}
+.selected-name{font-family:var(--mono);font-size:14px;font-weight:700}
+.selected-email{font-family:var(--mono);font-size:10px;color:var(--t2);margin-top:2px}
 
-/* STEP 2 PASSWORD */
-.pw-wrap{display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 64px);padding:24px}
-.pw-card{
-  background:rgba(15,23,42,.9);backdrop-filter:blur(20px);
-  border:1px solid rgba(59,130,246,.25);border-radius:24px;
-  padding:40px 36px;max-width:440px;width:100%;
-  box-shadow:0 32px 80px rgba(0,0,0,.5);
-}
-.pw-title{font-family:var(--mono);font-size:20px;font-weight:900;
-  background:linear-gradient(135deg,#93c5fd,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  text-align:center;margin-bottom:4px}
-.pw-sub{font-size:12px;color:#475569;text-align:center;margin-bottom:24px;font-weight:600;letter-spacing:1px}
-.selected-display{
-  background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.3);
-  border-radius:14px;padding:14px;margin-bottom:20px;
-  display:flex;align-items:center;gap:12px;
-}
-.selected-icon{font-size:28px}
-.selected-name{font-family:var(--mono);font-size:15px;font-weight:900;color:#e2e8f0}
-.selected-sub{font-size:11px;color:#64748b;margin-top:2px;font-weight:600}
+.pw-label{font-size:11px;color:var(--t2);margin-bottom:6px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em}
+.pw-wrap{position:relative}
 .pw-input{
-  width:100%;padding:14px 16px;
-  font-family:var(--mono);font-size:16px;font-weight:800;letter-spacing:.2em;text-align:center;
-  background:rgba(15,23,42,.8);border:1px solid rgba(59,130,246,.25);border-radius:12px;
-  color:#e2e8f0;outline:none;transition:all .15s;margin-bottom:8px;
+  width:100%;
+  background:var(--s2);
+  border:1px solid var(--b1);
+  border-radius:10px;
+  color:var(--text);
+  font-family:var(--mono);
+  font-size:16px;
+  padding:12px 44px 12px 14px;
+  outline:none;
+  letter-spacing:.1em;
+  transition:border-color .2s;
 }
-.pw-input:focus{border-color:#818cf8;box-shadow:0 0 0 3px rgba(129,140,248,.15)}
-.err-msg{font-family:var(--mono);font-size:11px;font-weight:700;color:#f87171;min-height:18px;margin-bottom:10px}
+.pw-input:focus{border-color:var(--blue)}
+.pw-toggle{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--t2);cursor:pointer;font-size:16px;padding:4px}
+.pw-toggle:hover{color:var(--text)}
+
+.err-msg{font-size:12px;color:var(--red, #f04f5e);min-height:18px;margin-top:6px;font-family:var(--mono)}
+
 .login-btn{
-  width:100%;padding:14px;font-family:var(--mono);font-size:14px;font-weight:900;letter-spacing:.05em;
-  background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none;border-radius:12px;cursor:pointer;
-  transition:all .15s;box-shadow:0 4px 20px rgba(99,102,241,.4);
+  width:100%;
+  background:linear-gradient(135deg,var(--blue),#6366f1);
+  color:#fff;
+  border:none;
+  border-radius:10px;
+  padding:14px;
+  font-size:15px;
+  font-weight:700;
+  cursor:pointer;
+  font-family:var(--sans);
+  margin-top:14px;
+  transition:all .2s;
+  position:relative;
+  overflow:hidden;
 }
-.login-btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(99,102,241,.5)}
-.login-btn.loading{opacity:.7;cursor:not-allowed}
-.back-btn{width:100%;padding:10px;font-family:var(--mono);font-size:12px;background:transparent;border:1px solid rgba(255,255,255,.1);border-radius:10px;cursor:pointer;color:#475569;margin-top:8px;transition:all .15s}
-.back-btn:hover{border-color:rgba(255,255,255,.2);color:#94a3b8}
+.login-btn:hover{opacity:.9;transform:translateY(-1px)}
+.login-btn:active{transform:translateY(0)}
+.login-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.login-btn.loading::after{
+  content:"";position:absolute;top:0;left:-100%;width:100%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.15),transparent);
+  animation:loading 1s infinite;
+}
 
-/* STEP 3: Menu */
-.step3-hero{text-align:center;padding:24px 24px 8px}
-.step3-title{
-  font-size:clamp(20px,3vw,32px);font-weight:900;
-  background:linear-gradient(135deg,#93c5fd 0%,#a78bfa 50%,#67e8f9 100%);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  margin-bottom:4px;
-}
-.step3-sub{font-size:11px;font-weight:700;color:#475569;letter-spacing:2px;text-transform:uppercase}
-.sec{padding:0 24px 16px;position:relative;z-index:1}
-.sec-title{
-  font-family:var(--mono);font-size:9px;font-weight:900;color:#475569;
-  letter-spacing:2.5px;text-transform:uppercase;
-  padding:10px 0 12px;border-top:1px solid rgba(255,255,255,.06);
-  display:flex;align-items:center;gap:8px;
-}
-.sec-title::before{content:'';width:3px;height:12px;border-radius:2px;background:linear-gradient(#818cf8,#67e8f9)}
+/* STEP 3 — เลือกหน้าที่ต้องการ */
+.welcome{text-align:center;margin-bottom:20px}
+.welcome-icon{font-size:32px;margin-bottom:8px}
+.welcome-name{font-family:var(--mono);font-size:16px;font-weight:700;color:var(--blue2)}
+.welcome-sub{font-size:12px;color:var(--t2);margin-top:4px}
 
-/* MENU GRID */
-.menu-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(145px,1fr));
-  gap:12px;
-}
+.menu-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .menu-btn{
-  background:rgba(15,23,42,.7);backdrop-filter:blur(10px);
-  border:1px solid rgba(59,130,246,.15);
-  border-radius:16px;padding:20px 14px;
-  cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:10px;
-  transition:all .2s cubic-bezier(.4,0,.2,1);
-  position:relative;overflow:hidden;text-decoration:none;
-  box-shadow:0 4px 20px rgba(0,0,0,.2);
+  background:var(--s2);
+  border:1px solid var(--b1);
+  border-radius:12px;
+  padding:14px 10px;
+  cursor:pointer;
+  text-align:center;
+  transition:all .2s;
+  text-decoration:none;
+  display:block;
+  color:var(--text);
+  position:relative;
+  overflow:hidden;
 }
-.menu-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.03),transparent);pointer-events:none}
-.menu-btn:hover{transform:translateY(-4px);border-color:rgba(129,140,248,.4);box-shadow:0 12px 40px rgba(99,102,241,.2)}
-.menu-icon{font-size:34px;line-height:1;filter:drop-shadow(0 2px 8px rgba(99,102,241,.3));transition:transform .2s}
-.menu-btn:hover .menu-icon{transform:scale(1.12)}
-.menu-name{font-family:var(--mono);font-size:11px;font-weight:900;color:#e2e8f0;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;letter-spacing:.02em}
-.menu-desc{font-size:10px;font-weight:600;color:#475569;text-align:center;line-height:1.4}
+.menu-btn::after{content:"";position:absolute;top:0;left:0;right:0;height:2px;opacity:0;transition:opacity .2s}
+.menu-btn:hover{transform:translateY(-2px);border-color:var(--b2)}
+.menu-btn:hover::after{opacity:1}
+.menu-btn.m-leadman::after{background:var(--yellow)}
+.menu-btn.m-mixing::after{background:var(--green)}
+.menu-btn.m-past::after{background:var(--orange, #ff8c42)}
+.menu-btn.m-flavor::after{background:var(--purple)}
+.menu-btn.m-cip::after{background:var(--cyan)}
+.menu-btn.m-filling::after{background:var(--blue)}
+.menu-btn.m-admin::after{background:var(--red, #f04f5e)}
+.menu-icon{font-size:22px;margin-bottom:6px}
+.menu-name{font-family:var(--mono);font-size:11px;font-weight:600}
+.menu-desc{font-size:10px;color:var(--t2);margin-top:2px}
 
-/* CARD VARIANTS */
-.m-leadman{border-color:rgba(96,165,250,.2)} .m-leadman:hover{border-color:rgba(96,165,250,.5);box-shadow:0 12px 40px rgba(96,165,250,.15)}
-.m-mixing{border-color:rgba(6,182,212,.2)} .m-mixing:hover{border-color:rgba(6,182,212,.5);box-shadow:0 12px 40px rgba(6,182,212,.15)}
-.m-past{border-color:rgba(251,146,60,.2)} .m-past:hover{border-color:rgba(251,146,60,.5);box-shadow:0 12px 40px rgba(251,146,60,.15)}
-.m-flavor{border-color:rgba(250,204,21,.2)} .m-flavor:hover{border-color:rgba(250,204,21,.4);box-shadow:0 12px 40px rgba(250,204,21,.1)}
-.m-cip{border-color:rgba(52,211,153,.2)} .m-cip:hover{border-color:rgba(52,211,153,.5);box-shadow:0 12px 40px rgba(52,211,153,.15)}
-.m-filling{border-color:rgba(167,139,250,.2)} .m-filling:hover{border-color:rgba(167,139,250,.5);box-shadow:0 12px 40px rgba(167,139,250,.15)}
-.m-admin{border-color:rgba(248,113,113,.2)} .m-admin:hover{border-color:rgba(248,113,113,.5);box-shadow:0 12px 40px rgba(248,113,113,.15)}
+.logout-btn{width:100%;background:none;border:1px solid var(--b2);border-radius:8px;color:var(--t2);padding:9px;font-size:12px;cursor:pointer;margin-top:12px;font-family:var(--sans)}
+.logout-btn:hover{color:var(--red, #f04f5e);border-color:var(--red, #f04f5e)}
 
-/* WELCOME BAR */
-.welcome-bar{display:flex;align-items:center;justify-content:space-between;padding:8px 24px 4px;position:relative;z-index:1}
-.welcome-info{display:flex;align-items:center;gap:12px}
-.welcome-icon{font-size:30px}
-.welcome-name{font-family:var(--mono);font-size:15px;font-weight:900;color:#e2e8f0}
-.welcome-sub{font-size:11px;color:#475569;font-weight:600;margin-top:2px}
-
-/* PIN MODAL */
-.pin-modal{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:20px}
-.pin-modal.on{display:flex}
-.pin-card{
-  background:rgba(15,23,42,.97);border:1px solid rgba(129,140,248,.3);
-  border-radius:20px;padding:32px;max-width:320px;width:100%;
-  box-shadow:0 32px 80px rgba(0,0,0,.6),0 0 0 1px rgba(129,140,248,.1);text-align:center;
-}
-.pin-title{font-family:var(--mono);font-size:11px;font-weight:900;color:#475569;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
-.pin-sub{font-family:var(--sans);font-size:14px;font-weight:700;color:#e2e8f0;margin-bottom:20px}
-.pin-dots{display:flex;justify-content:center;gap:10px;margin-bottom:16px}
-.pin-dot{width:14px;height:14px;border-radius:50%;border:2px solid #1e293b;background:transparent;transition:all .15s}
-.pin-dot.filled{background:#818cf8;border-color:#818cf8;box-shadow:0 0 8px rgba(129,140,248,.5)}
-.pin-input{
-  width:100%;padding:12px;font-family:var(--mono);font-size:20px;font-weight:900;
-  letter-spacing:.3em;text-align:center;
-  background:rgba(15,23,42,.8);border:1px solid rgba(59,130,246,.25);
-  border-radius:10px;color:#e2e8f0;outline:none;margin-bottom:8px;
-}
-.pin-input:focus{border-color:#818cf8;box-shadow:0 0 0 3px rgba(129,140,248,.15)}
-.pin-err{font-family:var(--mono);font-size:11px;color:#f87171;min-height:16px;margin-bottom:8px}
-.pin-go{width:100%;padding:12px;font-family:var(--mono);font-size:14px;font-weight:900;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none;border-radius:10px;cursor:pointer;box-shadow:0 4px 16px rgba(99,102,241,.4)}
-.pin-cancel{width:100%;padding:10px;font-family:var(--mono);font-size:12px;background:transparent;border:1px solid rgba(255,255,255,.1);border-radius:10px;cursor:pointer;color:#475569;margin-top:8px}
-
-/* FOOTER */
-.footer{text-align:center;padding:16px;font-family:var(--mono);font-size:9px;font-weight:700;color:#1e293b;letter-spacing:1px;text-transform:uppercase;position:relative;z-index:1}
-
-/* TOAST */
-.toast-item{background:rgba(15,23,42,.95);border:1px solid rgba(99,102,241,.3);border-radius:10px;padding:10px 20px;font-family:var(--mono);font-size:12px;color:#e2e8f0;box-shadow:0 8px 24px rgba(0,0,0,.3)}
-
-@media(max-width:600px){
-  .role-cards{flex-direction:column;align-items:center}
-  .role-card-wrap{width:100%;max-width:320px;min-height:auto}
-  .top-nav{padding:0 16px}
-  .sec{padding:0 16px 12px}
-  .menu-grid{grid-template-columns:repeat(3,1fr);gap:8px}
-  .menu-icon{font-size:26px}
-  .menu-name{font-size:10px}
-  .menu-desc{display:none}
-  .pw-card{padding:28px 20px}
-}
+@keyframes loading{0%{left:-100%}100%{left:100%}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.step.on{animation:fadeIn .3s ease}
 </style>
 </head>
 <body>
-<div class="bg-wrap"></div>
-<div class="outer">
+<div class="glow-1"></div>
+<div class="glow-2"></div>
 
-<!-- NAV -->
-<nav class="top-nav">
-  <div class="top-logo">PROD<b>.</b>SYS <span class="top-logo-sub">Smart Factory</span></div>
-  <div class="top-right">
-    <div class="nav-shift-pill" id="nav-shift-pill">Shift —</div>
-    <div class="nav-time" id="nav-clock">--:--</div>
+<div class="card">
+  <div class="logo">
+    <div class="logo-text">PROD<b>.</b>SYS</div>
+    <div class="logo-sub">Production Flow System</div>
   </div>
-</nav>
 
-<!-- STEP 1: เลือก Role -->
-<div class="step on login-wrap" id="step1">
-  <div style="width:100%;max-width:900px">
-    <div class="login-hero">
-      <div class="login-hero-title">WELCOME TO PROD.SYS</div>
-      <div class="login-hero-sub">Smart Factory · Smart Operation · Smart Future</div>
-    </div>
-    <div class="role-cards">
-
-      <!-- LEADMAN -->
-      <div class="role-card-wrap role-btn leadman" onclick="selectRole('leadman')" id="btn-leadman">
-        <div class="role-icon-wrap">👷</div>
-        <div class="role-name">LEADMAN</div>
-        <div class="role-name-sub">MANAGEMENT</div>
-        <div class="role-desc">สำหรับหัวหน้างาน<br>และผู้ควบคุมการผลิต</div>
-        <div class="role-access">
-          <div class="role-access-title">System Access</div>
-          <div class="role-access-item">Production Planning</div>
-          <div class="role-access-item">KPI & OEE Monitoring</div>
-          <div class="role-access-item">Quality Control</div>
-          <div class="role-access-item">Machine Monitoring</div>
-          <div class="role-access-item">Report & Analysis</div>
-        </div>
-        <button class="role-login-btn">CLICK TO LOGIN →</button>
+  <!-- STEP 1: เลือก Role -->
+  <div class="step on" id="step1">
+    <div class="step-label">เลือกตำแหน่งของคุณ</div>
+    <div class="role-grid">
+      <div class="role-btn leadman" onclick="selectRole('leadman')" id="btn-leadman">
+        <div class="role-icon">👷</div>
+        <div class="role-name">Leadman</div>
+        <div class="role-desc">เข้าได้ทุกหน้า<br>จัดการทุกอย่าง</div>
+        <div class="role-badge badge-lm">LEADMAN</div>
       </div>
-
-      <!-- OPERATOR -->
-      <div class="role-card-wrap role-btn operator" onclick="selectRole('operator')" id="btn-operator">
-        <div class="role-icon-wrap">🏭</div>
-        <div class="role-name">OPERATION</div>
-        <div class="role-name-sub">SYSTEM</div>
-        <div class="role-desc">สำหรับพนักงาน<br>ปฏิบัติงาน</div>
-        <div class="role-access">
-          <div class="role-access-title">System Access</div>
-          <div class="role-access-item">Work Instruction</div>
-          <div class="role-access-item">Batch Tracking</div>
-          <div class="role-access-item">Safety Alert</div>
-          <div class="role-access-item">Production Reporting</div>
-          <div class="role-access-item">Record & Log</div>
-        </div>
-        <button class="role-login-btn">CLICK TO LOGIN →</button>
+      <div class="role-btn operator" onclick="selectRole('operator')" id="btn-operator">
+        <div class="role-icon">🏭</div>
+        <div class="role-name">Operation</div>
+        <div class="role-desc">เข้าได้ทุกหน้า<br>ยกเว้น Admin</div>
+        <div class="role-badge badge-op">OPERATOR</div>
       </div>
-
     </div>
   </div>
-</div>
 
-<!-- STEP 2: กรอก Password -->
-<div class="step pw-wrap" id="step2">
-  <div class="pw-card">
-    <div class="pw-title">เข้าสู่ระบบ</div>
-    <div class="pw-sub">กรอกรหัสผ่านเพื่อเข้าสู่ระบบ</div>
-    <div id="selected-display"></div>
+  <!-- STEP 2: กรอก Password -->
+  <div class="step" id="step2">
+    <div class="back-btn" onclick="goBack()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      เลือกตำแหน่งใหม่
+    </div>
+    <div class="selected-role" id="selected-display"></div>
+    <div class="pw-label">รหัสผ่าน</div>
+    <div class="pw-wrap">
+      <input class="pw-input" id="pw" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+      <button class="pw-toggle" onclick="togglePw()" id="pw-toggle">👁️</button>
+    </div>
     <div class="err-msg" id="err-msg"></div>
-    <input type="password" id="pw" class="pw-input" placeholder="••••••" autocomplete="off" onkeydown="if(event.key==='Enter')doLogin()">
-    <button class="login-btn" id="login-btn" onclick="doLogin()">เข้าสู่ระบบ →</button>
-    <button class="back-btn" onclick="window.showStep('step1')">← กลับ</button>
-  </div>
-</div>
-
-<!-- STEP 3: เมนูหลัก -->
-<div class="step" id="step3">
-  <div class="step3-hero">
-    <div class="step3-title">Production Intelligence System</div>
-    <div class="step3-sub">Smart Factory · Realtime Monitoring · AI-Assisted Planning</div>
+    <button class="login-btn" id="login-btn" onclick="doLogin()">เข้าสู่ระบบ</button>
   </div>
 
-  <!-- Welcome bar -->
-  <div class="welcome-bar">
-    <div class="welcome-info">
-      <div class="welcome-icon" id="w-icon"></div>
-      <div>
-        <div class="welcome-name" id="w-name"></div>
-        <div class="welcome-sub" id="w-sub"></div>
+  <!-- STEP 3: เลือกหน้า -->
+  <div class="step" id="step3">
+    <!-- Logout บนสุด เห็นได้ทันที -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span id="w-icon" style="font-size:20px"></span>
+        <div>
+          <div id="w-name" style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--blue2)"></div>
+          <div id="w-sub" style="font-size:10px;color:var(--t2)"></div>
+        </div>
       </div>
+      <button class="logout-btn" onclick="doLogout()" style="margin-top:0;width:auto;padding:7px 12px;white-space:nowrap">🚪 ออก</button>
     </div>
-    <button class="logout-btn" onclick="doLogout()">🚪 ออก</button>
-  </div>
-
-  <!-- Menu Grid -->
-  <div class="sec" style="margin-top:12px">
     <div class="menu-grid" id="menu-grid"></div>
   </div>
-
-  <div class="footer">PROD.SYS v3.0 · Smart Factory Production System · © 2026</div>
-</div>
-
-<!-- PIN Modal -->
-<div class="pin-modal" id="pin-modal">
-  <div class="pin-card">
-    <div class="pin-title">ยืนยันตัวตน</div>
-    <div class="pin-sub" id="pin-target-name">—</div>
-    <div class="pin-dots" id="pin-dots">
-      <div class="pin-dot" id="dp0"></div>
-      <div class="pin-dot" id="dp1"></div>
-      <div class="pin-dot" id="dp2"></div>
-      <div class="pin-dot" id="dp3"></div>
-    </div>
-    <input type="password" id="pin-input" class="pin-input" maxlength="6" placeholder="PIN" autocomplete="off"
-      oninput="updateDots(this.value)" onkeydown="if(event.key==='Enter')submitPin()">
-    <div class="pin-err" id="pin-err"></div>
-    <button class="pin-go" onclick="submitPin()">✓ ยืนยัน</button>
-    <button class="pin-cancel" onclick="closePinModal()">ยกเลิก</button>
-  </div>
-</div>
-
-<div id="toast" style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:999;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none"></div>
-
-</div><!-- outer -->
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -391,10 +272,6 @@ const app=initializeApp({
 });
 const auth=getAuth(app);
 const db=getFirestore(app);
-window._db=db;
-window._collection=collection;
-window._query=query;
-window._getDocs=getDocs;
 
 let selectedRole=null;
 
@@ -402,32 +279,24 @@ let selectedRole=null;
 const MENUS={
   leadman:[
     {icon:'📋',name:'Leadman',desc:'แผนการผลิต',file:'leadman.html',cls:'m-leadman'},
-    {icon:'📅',name:'Daily Plan',desc:'อัปโหลดแผน',file:'dailyplan.html',cls:'m-leadman'},
-    {icon:'🔐',name:'Employee Reg.',desc:'ลงทะเบียนพนักงาน',file:'pinregister.html',cls:'m-leadman'},
     {icon:'🔬',name:'Mixing',desc:'บันทึกผสม',file:'mixing.html',cls:'m-mixing'},
-    {icon:'🧪',name:'Prepare Mix',desc:'เตรียมผสม',file:'preparemix.html',cls:'m-mixing'},
     {icon:'🌡️',name:'Pasteurize',desc:'บันทึก Past.',file:'pasteurize.html',cls:'m-past'},
     {icon:'🍦',name:'Flavor',desc:'เทสี/กลิ่น',file:'flavor.html',cls:'m-flavor'},
     {icon:'🪣',name:'CIP Man',desc:'ควบคุมถัง',file:'cipman.html',cls:'m-cip'},
-    {icon:'🧹',name:'CIP Mixing',desc:'ล้าง+ฆ่าเชื้อถัง',file:'cipmixing.html',cls:'m-cip'},
     {icon:'🫙',name:'Aging Tank',desc:'สถานะถัง',file:'aging.html',cls:'m-cip'},
     {icon:'🏭',name:'Filling',desc:'ดู Dashboard',file:'filling.html',cls:'m-filling'},
     {icon:'💧',name:'Flowmeter',desc:'Verify Flow',file:'flowmeter.html',cls:'m-mixing'},
-    {icon:'⏱️',name:'Shelf Life',desc:'คำนวณอายุ',file:'shelflife.html',cls:'m-past'},
     {icon:'⚙️',name:'Admin',desc:'จัดการระบบ',file:'admin.html',cls:'m-admin'},
   ],
   operator:[
     {icon:'📋',name:'Leadman',desc:'แผนการผลิต',file:'leadman.html',cls:'m-leadman'},
     {icon:'🔬',name:'Mixing',desc:'บันทึกผสม',file:'mixing.html',cls:'m-mixing'},
-    {icon:'🧪',name:'Prepare Mix',desc:'เตรียมผสม',file:'preparemix.html',cls:'m-mixing'},
     {icon:'🌡️',name:'Pasteurize',desc:'บันทึก Past.',file:'pasteurize.html',cls:'m-past'},
     {icon:'🍦',name:'Flavor',desc:'เทสี/กลิ่น',file:'flavor.html',cls:'m-flavor'},
     {icon:'🪣',name:'CIP Man',desc:'ควบคุมถัง',file:'cipman.html',cls:'m-cip'},
-    {icon:'🧹',name:'CIP Mixing',desc:'ล้าง+ฆ่าเชื้อถัง',file:'cipmixing.html',cls:'m-cip'},
     {icon:'🫙',name:'Aging Tank',desc:'สถานะถัง',file:'aging.html',cls:'m-cip'},
     {icon:'🏭',name:'Filling',desc:'ดู Dashboard',file:'filling.html',cls:'m-filling'},
     {icon:'💧',name:'Flowmeter',desc:'Verify Flow',file:'flowmeter.html',cls:'m-mixing'},
-    {icon:'⏱️',name:'Shelf Life',desc:'คำนวณอายุ',file:'shelflife.html',cls:'m-past'},
   ],
 };
 
@@ -452,10 +321,10 @@ onAuthStateChanged(auth,async user=>{
       }
     }catch{}
   }
-  window.showStep('step1');
+  showStep('step1');
 });
 
-window.window.selectRole=(role)=>{
+window.selectRole=(role)=>{
   selectedRole=role;
   document.querySelectorAll('.role-btn').forEach(b=>b.classList.remove('selected'));
   document.getElementById('btn-'+role).classList.add('selected');
@@ -466,13 +335,13 @@ window.window.selectRole=(role)=>{
       <div class="selected-name">${l.name}</div>
       <div class="selected-email">${EMAIL[role]}</div>
     </div>`;
-  setTimeout(()=>window.showStep('step2'),200);
+  setTimeout(()=>showStep('step2'),200);
 };
 
 window.goBack=()=>{
   document.getElementById('pw').value='';
   document.getElementById('err-msg').textContent='';
-  window.showStep('step1');
+  showStep('step1');
 };
 
 window.togglePw=()=>{
@@ -508,11 +377,11 @@ function showMenu(role){
   document.getElementById('w-name').textContent='สวัสดี '+l.name;
   document.getElementById('w-sub').textContent='เลือกหน้าที่ต้องการเข้าใช้งาน';
   document.getElementById('menu-grid').innerHTML=menus.map(m=>`
-    <div class="menu-btn ${m.cls}" onclick="openPinModal('${m.file}','${m.name}')" style="cursor:pointer">
+    <a class="menu-btn ${m.cls}" href="${m.file}">
       <div class="menu-icon">${m.icon}</div>
       <div class="menu-name">${m.name}</div>
       <div class="menu-desc">${m.desc}</div>
-    </div>`).join('');
+    </a>`).join('');
   showStep('step3');
 }
 
@@ -520,165 +389,17 @@ window.doLogout=async()=>{
   await signOut(auth);
   selectedRole=null;
   document.getElementById('pw').value='';
-  window.showStep('step1');
+  showStep('step1');
 };
 
-window.showStep=function(id){
+function showStep(id){
   document.querySelectorAll('.step').forEach(s=>s.classList.remove('on'));
   document.getElementById(id).classList.add('on');
 }
 </script>
-
-<!-- PIN MODAL -->
-<div id="pin-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;align-items:center;justify-content:center">
-  <div style="background:linear-gradient(135deg,#0d1525,#0a0f1e);border:1px solid #1e2535;border-radius:20px;padding:28px 24px;width:320px;text-align:center">
-    <div style="font-size:28px;margin-bottom:6px" id="pin-modal-icon">🔐</div>
-    <div style="font-family:DM Mono,monospace;font-size:16px;font-weight:700;color:#e2e8f0;margin-bottom:4px" id="pin-modal-title">ใส่รหัส PIN</div>
-    <div style="font-size:12px;color:#64748b;margin-bottom:20px" id="pin-modal-page"></div>
-
-    <!-- PIN Display -->
-    <div style="display:flex;justify-content:center;gap:12px;margin-bottom:20px">
-      <div id="pin-d1" style="width:14px;height:14px;border-radius:50%;background:#1e2535;border:2px solid #3b82f6;transition:background .15s"></div>
-      <div id="pin-d2" style="width:14px;height:14px;border-radius:50%;background:#1e2535;border:2px solid #3b82f6;transition:background .15s"></div>
-      <div id="pin-d3" style="width:14px;height:14px;border-radius:50%;background:#1e2535;border:2px solid #3b82f6;transition:background .15s"></div>
-      <div id="pin-d4" style="width:14px;height:14px;border-radius:50%;background:#1e2535;border:2px solid #3b82f6;transition:background .15s"></div>
-    </div>
-
-    <!-- Keypad -->
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px">
-      <button onclick="pinKey('1')" class="pin-key">1</button>
-      <button onclick="pinKey('2')" class="pin-key">2</button>
-      <button onclick="pinKey('3')" class="pin-key">3</button>
-      <button onclick="pinKey('4')" class="pin-key">4</button>
-      <button onclick="pinKey('5')" class="pin-key">5</button>
-      <button onclick="pinKey('6')" class="pin-key">6</button>
-      <button onclick="pinKey('7')" class="pin-key">7</button>
-      <button onclick="pinKey('8')" class="pin-key">8</button>
-      <button onclick="pinKey('9')" class="pin-key">9</button>
-      <button class="pin-key" style="opacity:0;pointer-events:none"></button>
-      <button onclick="pinKey('0')" class="pin-key">0</button>
-      <button onclick="pinKey('⌫')" class="pin-key">⌫</button>
-    </div>
-
-    <button onclick="closePinModal()" style="width:100%;padding:10px;background:none;border:1px solid #1e2535;border-radius:10px;color:#64748b;font-size:13px;cursor:pointer">ยกเลิก</button>
-    <div id="pin-error" style="color:#f04f5e;font-size:12px;margin-top:10px;min-height:16px"></div>
-  </div>
-</div>
-
-
 <script>
-// ══ PIN MODAL ══════════════════════════════════════════════
-var pinTarget='', pinValue='', pinEmployees=[];
-
-window.openPinModal=function(file,name){
-  var noPinPages=['admin.html','shelflife.html','aging.html','filling.html','pinregister.html'];
-  if(noPinPages.indexOf(file)>=0){window.location.href=file;return;}
-  pinTarget=file;pinValue='';
-  document.getElementById('pin-modal-page').textContent=name;
-  document.getElementById('pin-error').textContent='';
-  updatePinDots();
-  var m=document.getElementById('pin-modal');
-  m.style.display='flex';
-  loadPinEmployees();
+;
 }
-
-window.closePinModal=function(){
-  document.getElementById('pin-modal').style.display='none';
-  pinValue='';updatePinDots();
-}
-
-function pinKey(k){
-  if(k===''){return;}
-  if(k==='⌫'){pinValue=pinValue.slice(0,-1);updatePinDots();document.getElementById('pin-error').textContent='';return;}
-  if(pinValue.length>=4)return;
-  pinValue+=k;updatePinDots();
-  if(pinValue.length===4)checkPin();
-}
-
-function updatePinDots(){
-  for(var i=1;i<=4;i++){
-    var el=document.getElementById('pin-d'+i);
-    if(el)el.style.background=i<=pinValue.length?'#3b82f6':'#1e2535';
-  }
-}
-
-function loadPinEmployees(){
-  if(typeof firebase!=='undefined'||window._db){
-    // โหลดจาก Firebase ถ้ามี
-  }
-  // ใช้ค่าที่โหลดไว้แล้ว
-}
-
-async function hashPin(pin){
-  try{
-    var buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('PRODSYS:'+pin));
-    return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
-  }catch(e){
-    console.error('hashPin error:',e);
-    return '';
-  }
-}
-async function checkPin(){
-  // โหลด employees จาก Firebase
-  if(!window._db){
-    document.getElementById('pin-error').textContent='⚠️ กำลังเชื่อมต่อ...';
-    setTimeout(checkPin,800);
-    return;
-  }
-  try{
-    var snap=await window._getDocs(window._query(
-      window._collection(window._db,'employees')
-    ));
-    pinEmployees=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
-  }catch(e){
-    // ถ้าโหลดไม่ได้ใช้ค่าเดิม
-  }
-
-  // verify ด้วย hash (SHA-256)
-  var inputHash=await hashPin(pinValue);
-  var emp=pinEmployees.find(function(e){
-    // รองรับทั้ง pin_hash (ใหม่) และ pin (เก่า)
-    return e.pin_hash===inputHash||(e.pin&&e.pin===pinValue);
-  });
-  if(!emp){
-    document.getElementById('pin-error').textContent='❌ รหัส PIN ไม่ถูกต้อง';
-    pinValue='';updatePinDots();return;
-  }
-  var page=pinTarget.replace('.html','');
-  var perms=emp.permissions||[];
-  if(perms.length>0&&perms.indexOf(page)<0&&perms.indexOf('all')<0){
-    document.getElementById('pin-error').textContent='🚫 ไม่มีสิทธิ์เข้าหน้านี้';
-    pinValue='';updatePinDots();return;
-  }
-  sessionStorage.setItem('emp_name',emp.name||'');
-  sessionStorage.setItem('emp_id',emp.id||'');
-  sessionStorage.setItem('emp_sig',emp.signature||'');
-  window.location.href=pinTarget;
-}
-
-document.addEventListener('keydown',function(e){
-  var m=document.getElementById('pin-modal');
-  if(!m||m.style.display==='none')return;
-  if(e.key>='0'&&e.key<='9')pinKey(e.key);
-  if(e.key==='Backspace')pinKey('⌫');
-  if(e.key==='Escape')closePinModal();
-});
-</script>
-
-<script>
-// CLOCK
-function updateClock(){
-  const now=new Date();
-  const t=now.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
-  const h=now.getHours();
-  const shift=h>=6&&h<14?'Morning 🌅':h>=14&&h<22?'Afternoon 🌞':'Night 🌙';
-  const nc=document.getElementById('nav-clock');
-  const ns=document.getElementById('nav-shift-pill');
-  if(nc)nc.textContent=t;
-  if(ns)ns.textContent=shift;
-}
-setInterval(updateClock,1000);
-updateClock();
 </script>
 </body>
 </html>
