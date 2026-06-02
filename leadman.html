@@ -741,8 +741,8 @@ function _lcCard(line){
   let h=`<div class="lsc ${cardCls}" style="--lsc-c:${lc}">`;
 
   // HEADER with collapse toggle
-  const cid='lsc-body-'+line.id;
   const collapsed=localStorage.getItem('lsc-collapse-'+line.id)==='1';
+  // header เสมอ
   h+=`<div class="lsc-header" style="cursor:pointer" onclick="toggleLscCard('${line.id}')">
     <div>
       <div class="lsc-linename">${line.name.toUpperCase()}</div>
@@ -750,24 +750,33 @@ function _lcCard(line){
     </div>
     <div style="display:flex;align-items:center;gap:8px">
       <div class="lsc-badge ${badgeCls}">${badgeLbl}</div>
-      <div id="lsc-chevron-${line.id}" style="font-size:14px;color:#94a3b8;transition:transform .2s;transform:${collapsed?'rotate(-90deg)':'rotate(0deg)'}"">▼</div>
+      <span style="font-size:12px;color:#94a3b8">${collapsed?'▶':'▼'}</span>
     </div>
   </div>`;
-  if(collapsed){h+='</div>';return h;}
+  // ถ้า collapsed ปิด body เลย
+  if(collapsed){ h+='</div>'; return h; }
 
   h+=`<div class="lsc-body">`;
 
   // PLAN vs ACTUAL — แสดงเสมอถ้ามี mix
+  const remaining=planVol>0?Math.max(0,planVol-actualVol):null;
   if(mixCodes.length<=1){
     // 1 mix — ตารางเดียว
-    h+=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px">
+    h+=`<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:6px">
       <div class="lsc-kpi">
         <div class="lsc-kpi-label">Plan (L)</div>
-        <div class="lsc-kpi-val">${planVol>0?planVol.toLocaleString():'—'}</div>
+        <input type="number" class="ci" style="width:100%;font-family:var(--mono);font-size:18px;font-weight:900;color:#111827;border:none;background:transparent;padding:0;margin-top:2px" 
+          placeholder="กรอก Plan" value="${planVol>0?planVol:''}"
+          onchange="savePlanVol('${line.id}',this.value)"
+          onclick="event.stopPropagation()">
       </div>
       <div class="lsc-kpi highlight">
         <div class="lsc-kpi-label">Actual (L)</div>
         <div class="lsc-kpi-val">${actualVol>0?actualVol.toLocaleString():'—'}</div>
+      </div>
+      <div class="lsc-kpi ${remaining!==null&&remaining<=0?'highlight':remaining!==null&&remaining<500?'warn':''}">
+        <div class="lsc-kpi-label">ขาดอีก (L)</div>
+        <div class="lsc-kpi-val" style="color:${remaining===null?'#94a3b8':remaining<=0?'#059669':remaining<500?'#d97706':'#111827'}">${remaining===null?'—':remaining<=0?'✅ ครบ':remaining.toLocaleString()}</div>
       </div>
     </div>`;
   } else {
@@ -911,6 +920,14 @@ window.addRow = async(m) => {
   }
 };
 
+window.savePlanVol=async function(lineId, val){
+  if(!val||+val<=0) return;
+  try{
+    const {doc,updateDoc}=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+    await updateDoc(doc(db,'lines',lineId),{plan_vol:+val});
+    toast('✅ บันทึก Plan '+Number(val).toLocaleString()+' L','green');
+  }catch(e){toast('❌ '+e.message,'red');}
+};
 window.toggleAllCards=function(){
   const btn=document.getElementById('btn-toggle-all');
   const allCollapsed=(_lcLines||[]).every(l=>localStorage.getItem('lsc-collapse-'+l.id)==='1');
@@ -997,10 +1014,25 @@ function calcSmartPriority(m){
     const fillStartMin=eta?.fillStart?toMin(eta.fillStart):null;
     const minsToFill=fillStartMin!=null?fillStartMin-nowMin:null;
     let score=0,risk='ok',reasons=[];
-    if(agTotal>0&&agingRemMin!==null){
-      if(agingRemMin<240){score+=100;risk='crit';const h=Math.floor(agingRemMin/60),mm=agingRemMin%60;reasons.push(`🔴 Aging เหลือ ${h}ชม.${mm}น.`);}
-      else if(agingRemMin<360){score+=60;risk='warn';const h=Math.floor(agingRemMin/60),mm=agingRemMin%60;reasons.push(`🟡 Aging เหลือ ${h}ชม.${mm}น.`);}
-      else{const h=Math.floor(agingRemMin/60),mm=agingRemMin%60;reasons.push(`🟢 Aging เหลือ ${h}ชม.${mm}น.`);}
+    // Plan - Actual = ขาดอีกเท่าไหร่
+    const lineObj2=(_lcLines||[]).find(l=>l.name===row.filling_line);
+    const planV=+(lineObj2?.plan_vol||_lcStates[lineObj2?.id]?.plan_vol||0);
+    const actV=(_lcRows['m1']||[]).concat(_lcRows['m2']||[])
+      .filter(r=>r.filling_line===row.filling_line&&(r.status==='filling'||r.status==='sent_filling'))
+      .reduce((s,r)=>s+(+(r.volume_liter||0)),0);
+    const shortage=planV>0?Math.max(0,planV-actV):null;
+
+    if(shortage!==null){
+      if(shortage<=0){
+        // ครบแผนแล้ว — ไม่ต้อง priority
+        continue;
+      } else if(shortage<1000){score+=100;risk='crit';reasons.push(`🔴 ขาดอีก ${shortage.toLocaleString()} L`);}
+      else if(shortage<3000){score+=60;risk='warn';reasons.push(`🟡 ขาดอีก ${shortage.toLocaleString()} L`);}
+      else{score+=20;reasons.push(`🟢 ขาดอีก ${shortage.toLocaleString()} L`);}
+    } else if(agTotal>0&&agingRemMin!==null){
+      // ถ้าไม่มี Plan ใช้ aging เป็น fallback
+      if(agingRemMin<240){score+=80;risk='crit';const h=Math.floor(agingRemMin/60),mm=agingRemMin%60;reasons.push(`🔴 Aging เหลือ ${h}ชม.${mm}น.`);}
+      else if(agingRemMin<360){score+=40;risk='warn';const h=Math.floor(agingRemMin/60),mm=agingRemMin%60;reasons.push(`🟡 Aging เหลือ ${h}ชม.${mm}น.`);}
     }
     if(row.filling_line&&(status==='past_done'||status==='ready')){score+=80;if(risk==='ok')risk='warn';reasons.push(`⏳ รอ Line: ${row.filling_line}`);}
     if(status==='filling'){score+=90;if(risk==='ok')risk='warn';reasons.push('🚀 กำลัง Fill');}
