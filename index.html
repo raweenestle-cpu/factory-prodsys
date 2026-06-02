@@ -387,7 +387,7 @@ function showMenu(role){
   document.getElementById('w-name').textContent='สวัสดี '+l.name;
   document.getElementById('w-sub').textContent='เลือกหน้าที่ต้องการเข้าใช้งาน';
   document.getElementById('menu-grid').innerHTML=menus.map(m=>`
-    <a class="menu-btn ${m.cls}" href="${m.file}">
+    <div class="menu-btn ${m.cls}" onclick="window.openPinModal('${m.file}','${m.name}')" style="cursor:pointer">
       <div class="menu-icon">${m.icon}</div>
       <div class="menu-name">${m.name}</div>
       <div class="menu-desc">${m.desc}</div>
@@ -405,10 +405,6 @@ window.doLogout=async()=>{
 function showStep(id){
   document.querySelectorAll('.step').forEach(s=>s.classList.remove('on'));
   document.getElementById(id).classList.add('on');
-}
-</script>
-<script>
-;
 }
 </script>
 </body>
