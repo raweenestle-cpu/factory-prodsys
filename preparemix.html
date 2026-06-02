@@ -343,6 +343,7 @@ tbody tr.row-done{background:#f0fdf4!important;opacity:.7;border-left:4px solid 
   <div class="nav-logo">PROD<b>.</b>SYS</div>
   <button class="nav-tab on" onclick="showTab('m1',this)">🧪 Mix 1</button>
   <button class="nav-tab" onclick="showTab('m2',this)">🧪 Mix 2</button>
+  <button class="nav-tab" onclick="showTab('hist',this)" id="tab-hist-btn">📜 History</button>
   <div class="nav-right">
     <span class="nav-role">PREPARE MIX</span>
     <span class="nav-user" id="nav-user"></span>
@@ -460,6 +461,27 @@ tbody tr.row-done{background:#f0fdf4!important;opacity:.7;border-left:4px solid 
       <tbody id="tbody-m2"></tbody>
     </table>
   </div>
+</div>
+
+
+<!-- HISTORY PAGE -->
+<div class="page" id="tab-hist" style="padding:14px 16px">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+    <div style="display:flex;align-items:center;gap:8px">
+      <button onclick="changeHistDate(-1)" style="font-family:var(--mono);font-size:14px;padding:5px 12px;border-radius:7px;border:1.5px solid var(--b1);background:var(--s2);color:var(--text);cursor:pointer">◀</button>
+      <input type="date" id="hist-date" class="ci" onchange="loadHistory()" style="font-size:14px;font-weight:700">
+      <button onclick="changeHistDate(1)" style="font-family:var(--mono);font-size:14px;padding:5px 12px;border-radius:7px;border:1.5px solid var(--b1);background:var(--s2);color:var(--text);cursor:pointer">▶</button>
+    </div>
+    <div style="display:flex;gap:8px">
+      <select id="hist-mix" class="ci" onchange="loadHistory()" style="font-size:13px">
+        <option value="all">Mix 1 + Mix 2</option>
+        <option value="m1">Mix 1 เท่านั้น</option>
+        <option value="m2">Mix 2 เท่านั้น</option>
+      </select>
+      <button onclick="exportExcel()" style="font-family:var(--mono);font-size:12px;font-weight:800;padding:7px 16px;border-radius:8px;border:1.5px solid #10b981;background:#d1fae5;color:#065f46;cursor:pointer">📥 Export Excel</button>
+    </div>
+  </div>
+  <div id="hist-content"></div>
 </div>
 
 <div id="toast"></div>
@@ -1451,7 +1473,146 @@ function showTab(m, btn){
   document.querySelectorAll('.nav-tab').forEach(b=>b.classList.remove('on'));
   document.getElementById('tab-'+m).classList.add('on');
   btn.classList.add('on');
+  if(m==='hist') window.loadHistory();
 }
+
+// ══ HISTORY ═══════════════════════════════════════════════════════════
+window.loadHistory = async function(){
+  const dateEl = document.getElementById('hist-date');
+  if(!dateEl.value) dateEl.value = today();
+  const d = dateEl.value;
+  const mixSel = document.getElementById('hist-mix').value;
+  const el = document.getElementById('hist-content');
+  el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--t2);font-family:var(--mono)">กำลังโหลด...</div>';
+
+  try {
+    let allRows = [];
+    const mixes = mixSel === 'm1' ? ['m1'] : mixSel === 'm2' ? ['m2'] : ['m1','m2'];
+
+    for(const m of mixes){
+      const col = planCol(m);
+      const snap = await getDocs(query(collection(db, col), where('date','==',d)));
+      snap.forEach(doc => allRows.push({...doc.data(), _id: doc.id, _mix: m}));
+    }
+
+    if(!allRows.length){
+      el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--t2);font-family:var(--mono);font-size:13px">ไม่มีข้อมูลในวันนี้</div>';
+      return;
+    }
+
+    // เรียงตาม mix แล้ว seq
+    allRows.sort((a,b) => {
+      if(a._mix !== b._mix) return a._mix < b._mix ? -1 : 1;
+      return (a.seq||0) - (b.seq||0);
+    });
+
+    window._histRows = allRows;
+    window._histDate = d;
+
+    let html = '';
+    const mGroups = {};
+    allRows.forEach(r => { if(!mGroups[r._mix]) mGroups[r._mix] = []; mGroups[r._mix].push(r); });
+
+    for(const [m, rows] of Object.entries(mGroups)){
+      html += `<div style="font-family:var(--mono);font-size:11px;font-weight:900;color:var(--t3);letter-spacing:2px;text-transform:uppercase;padding:8px 0 6px;border-top:2px solid var(--b1);margin-top:8px">
+        🧪 MIX ${m==='m1'?'1':'2'} — ${rows.length} batches
+      </div>`;
+      html += `<div class="tw" style="margin:0 0 14px">
+        <table>
+          <thead><tr>
+            <th style="width:36px">#</th>
+            <th>Mix Code</th>
+            <th>Mix Name</th>
+            <th style="width:52px;text-align:center">Batch</th>
+            <th style="width:72px;text-align:right">Vol (L)</th>
+            <th style="width:110px">เตรียม</th>
+            <th style="width:90px">Tank</th>
+            <th style="width:80px">เริ่ม</th>
+            <th style="width:80px">เสร็จ</th>
+            <th style="width:58px;text-align:center">Glc</th>
+            <th style="width:58px;text-align:center">Sgr</th>
+            <th style="width:58px;text-align:center">Plm</th>
+            <th style="width:100px">Status</th>
+          </tr></thead>
+          <tbody>`;
+
+      rows.forEach((r, i) => {
+        const p = productMap[r.mix_code] || {};
+        const st = resolveStatus ? resolveStatus(r) : r.status;
+        const badge = statusBadge ? statusBadge(st) : `<span>${st}</span>`;
+        html += `<tr>
+          <td style="text-align:center;font-family:var(--mono)">${(r.seq||i+1)}</td>
+          <td style="font-family:var(--mono);font-size:11px">${r.mix_code||'—'}</td>
+          <td style="font-weight:800">${r.mix_name||p.name||'—'}</td>
+          <td style="text-align:center;font-family:var(--mono)">${r.batch_no||'—'}</td>
+          <td style="text-align:right;font-family:var(--mono)">${(r.volume_liter||0).toLocaleString()}</td>
+          <td style="font-family:var(--mono);font-size:11px">${r.prep_status||'—'}</td>
+          <td style="font-family:var(--mono);font-size:11px">${r.tank||r.mix_tank||'—'}</td>
+          <td style="font-family:var(--mono);font-size:11px">${r.start_time||r.mix_start||'—'}</td>
+          <td style="font-family:var(--mono);font-size:11px">${r.end_time||r.mix_end||'—'}</td>
+          <td style="text-align:center;font-family:var(--mono)">${r.glc_actual??'—'}</td>
+          <td style="text-align:center;font-family:var(--mono)">${r.sgr_actual??'—'}</td>
+          <td style="text-align:center;font-family:var(--mono)">${r.plm_actual??'—'}</td>
+          <td>${badge}</td>
+        </tr>`;
+      });
+
+      html += '</tbody></table></div>';
+    }
+    el.innerHTML = html;
+  } catch(e) {
+    el.innerHTML = `<div style="color:var(--red);padding:20px;font-family:var(--mono)">Error: ${e.message}</div>`;
+  }
+};
+
+window.changeHistDate = function(dir){
+  const el = document.getElementById('hist-date');
+  if(!el.value) el.value = today();
+  const d = new Date(el.value);
+  d.setDate(d.getDate() + dir);
+  el.value = d.toISOString().slice(0,10);
+  loadHistory();
+};
+
+window.exportExcel = function(){
+  const rows = window._histRows;
+  if(!rows || !rows.length){ toast('ไม่มีข้อมูล','red'); return; }
+  const date = window._histDate || today();
+
+  let csv = '\uFEFF'; // BOM for Thai
+  csv += 'Mix,#,Mix Code,Mix Name,Batch,Volume(L),เตรียม,Tank,เริ่ม,เสร็จ,Glc,Sgr,Plm,Status\n';
+  rows.forEach((r,i) => {
+    const p = productMap[r.mix_code] || {};
+    const st = r.status || '';
+    csv += [
+      r._mix==='m1'?'Mix 1':'Mix 2',
+      r.seq||i+1,
+      r.mix_code||'',
+      `"${(r.mix_name||p.name||'').replace(/"/g,'""')}"`,
+      r.batch_no||'',
+      r.volume_liter||0,
+      r.prep_status||'',
+      r.tank||r.mix_tank||'',
+      r.start_time||r.mix_start||'',
+      r.end_time||r.mix_end||'',
+      r.glc_actual??'',
+      r.sgr_actual??'',
+      r.plm_actual??'',
+      st
+    ].join(',') + '\n';
+  });
+
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `preparemix_${date}.csv`;
+  a.click(); URL.revokeObjectURL(url);
+  toast('Export สำเร็จ','green');
+};
+
+// set today on load
+document.addEventListener('DOMContentLoaded', ()=>{
+  const el = document.getElementById('hist-date');
+  if(el) el.value = today();
+});
 </script>
-</body>
-</html>
