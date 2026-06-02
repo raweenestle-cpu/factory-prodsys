@@ -694,92 +694,150 @@ function _lcCard(line){
   const isRun=!!st.running;
   const rv=Math.round(_lcRem(st,fr));
   const sv=+(st.start_vol||0);
-  const pct=sv>0?Math.min(100,Math.max(0,((sv-rv)/sv)*100)):0;
   const ei=isRun?_lcEnd(rv,fr):null;
   const cc=st.mix_code||'';
-  const cp=cc?(typeof productMap!=='undefined'&&productMap[cc])||{}:{};
   const lc=_getLC(line.name)||'#3b82f6';
   const allR=[...(_lcRows['m1']||[]),...(_lcRows['m2']||[])];
-  const q=allR.filter(r=>r.filling_line===line.name&&(r.status==='past_done'||r.status==='ready')&&!r.sent_filling_at);
-  const tq=q.reduce((s,r)=>s+(+(r.volume_liter||0)),0);
 
-  // nom speed จาก productMap
+  // Queue — rows ที่รอ fill บน line นี้
+  const q=allR.filter(r=>r.filling_line===line.name&&(r.status==='past_done'||r.status==='ready')&&!r.sent_filling_at);
+
+  // ถ้าไม่มีแผนผลิต (ไม่ running และไม่มี queue) — ไม่ render
+  if(!isRun&&!q.length) return '';
+
+  // product info
+  const cp=cc?(typeof productMap!=='undefined'&&productMap[cc])||{}:{};
   const nomSpeed=+(cp.speed_m1||cp.speed||fr);
   const flowOk=fr>=nomSpeed*0.98;
   const flowWarn=fr<nomSpeed*0.95;
 
-  // status
+  // รวม rows ที่ running บน line นี้ (อาจมีหลาย mix code)
+  const runRows=allR.filter(r=>r.filling_line===line.name&&(r.status==='filling'||r.status==='ready'));
+  const mixCodes=[...new Set([...runRows.map(r=>r.mix_code),...q.map(r=>r.mix_code)].filter(Boolean))];
+
+  // Plan = plan_vol จาก line doc (leadman กรอก)
+  // Actual = รวม volume ที่ fill แล้ว จาก rows ที่ status=filling หรือ past_done บน line นี้
+  const doneRows=allR.filter(r=>r.filling_line===line.name&&(r.status==='filling'||r.status==='sent_filling'||r.status==='curing'));
+  const actualVol=doneRows.reduce((s,r)=>s+(+(r.volume_liter||0)),0);
+  const planVol=+(st.plan_vol||line.plan_vol||0);
+  const progress=planVol>0?Math.min(100,(actualVol/planVol)*100):0;
+  const barCol=progress>80?'#15803d':progress>50?'#f59e0b':'#3b82f6';
+
+  // Aging balance — รวมทุกถังที่มี mix_code เดียวกัน
+  let agTotal=0;
+  const agCodes=mixCodes.length?mixCodes:[cc];
+  agCodes.forEach(code=>{
+    Object.values(agingStates||{}).forEach(a=>{
+      if(a.mix_code===code||a.product===code) agTotal+=(+(a.current_vol||0));
+    });
+  });
+  const agRemMin=agTotal>0&&fr>0?Math.round((agTotal/fr)*60):null;
+  const agRemH=agRemMin!=null?Math.floor(agRemMin/60):null;
+  const agRemM=agRemMin!=null?agRemMin%60:null;
+  const agTimeTxt=agRemMin!=null?`${agRemH}ชม.${agRemM}น.`:'—';
+  const agRisk=agRemMin!=null?(agRemMin<240?'crit':agRemMin<360?'warn':'ok'):'ok';
+
+  // status badge
   const badgeCls=isRun?'run':q.length?'wait':'idle';
   const badgeLbl=isRun?'RUNNING':q.length?'WAITING':'IDLE';
   const cardCls=isRun?'lsc-running':q.length?'lsc-waiting':'';
+  const etaHrClass=ei?(ei.hr<2?'crit':ei.hr<4?'warn':''):'';
 
-  // ETA styling
-  const etaHrClass=ei?(ei.hr<2?'crit':ei.hr<4?'warn':''):'' ;
-
-  // Progress bar color
-  const barCol=pct>60?'#15803d':pct>30?'#f59e0b':'#ef4444';
-
-  // Volume KPI
-  const nomVol=sv>0?sv.toLocaleString():'—';
-  const actVol=isRun?(sv-rv>0?(sv-rv).toLocaleString():'0'):'—';
-
-  // Aging balance จาก aging_tank_states
-  const agTank=st.aging_tank||cc;
-  let agBal='—';
-  if(typeof agingStates!=='undefined'){
-    const ag=Object.values(agingStates).filter(a=>a.mix_code===cc||a.product===cc);
-    const agTotal=ag.reduce((s,a)=>s+(+(a.current_vol||0)),0);
-    if(agTotal>0) agBal=agTotal.toLocaleString()+' L';
-  }
+  // product name display
+  const prodName=cp.name||runRows[0]?.mix_name||cc||q[0]?.mix_name||q[0]?.mix_code||'—';
 
   let h=`<div class="lsc ${cardCls}" style="--lsc-c:${lc}">`;
 
   // HEADER
   h+=`<div class="lsc-header">
-    <div class="lsc-linename">${line.name}</div>
+    <div>
+      <div class="lsc-linename">${line.name.toUpperCase()}</div>
+      <div style="font-family:var(--sans);font-size:13px;font-weight:800;color:${lc};margin-top:2px">${prodName}</div>
+    </div>
     <div class="lsc-badge ${badgeCls}">${badgeLbl}</div>
   </div>`;
 
-  if(isRun){
-    // PRODUCT NAME
-    h+=`<div class="lsc-product" style="color:${lc}">${cp.name||cc||'—'}</div>`;
+  h+=`<div class="lsc-body">`;
 
-    h+=`<div class="lsc-body">`;
+  // PLAN vs ACTUAL — แสดงเสมอถ้ามี mix
+  if(mixCodes.length<=1){
+    // 1 mix — ตารางเดียว
+    h+=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px">
+      <div class="lsc-kpi">
+        <div class="lsc-kpi-label">Plan (L)</div>
+        <div class="lsc-kpi-val">${planVol>0?planVol.toLocaleString():'—'}</div>
+      </div>
+      <div class="lsc-kpi highlight">
+        <div class="lsc-kpi-label">Actual (L)</div>
+        <div class="lsc-kpi-val">${actualVol>0?actualVol.toLocaleString():'—'}</div>
+      </div>
+    </div>`;
+  } else {
+    // หลาย mix — แสดงแต่ละ mix
+    h+=`<div style="margin-bottom:6px">`;
+    mixCodes.slice(0,3).forEach((code,mi)=>{
+      const mp=(typeof productMap!=='undefined'&&productMap[code])||{};
+      const mName=mp.name||allR.find(r=>r.mix_code===code)?.mix_name||code;
+      const mAct=allR.filter(r=>r.mix_code===code&&r.filling_line===line.name&&(r.status==='filling'||r.status==='sent_filling')).reduce((s,r)=>s+(+(r.volume_liter||0)),0);
+      const mPlan=+(st[`plan_vol_${mi+1}`]||0);
+      h+=`<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:6px;align-items:center">
+        <div style="font-family:var(--mono);font-size:10px;font-weight:800;color:#374151;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${mName}</div>
+        <div class="lsc-kpi" style="padding:5px 8px">
+          <div class="lsc-kpi-label">Plan</div>
+          <div style="font-family:var(--mono);font-size:14px;font-weight:900;color:#111827">${mPlan>0?mPlan.toLocaleString():'—'}</div>
+        </div>
+        <div class="lsc-kpi highlight" style="padding:5px 8px">
+          <div class="lsc-kpi-label">Actual</div>
+          <div style="font-family:var(--mono);font-size:14px;font-weight:900;color:#111827">${mAct>0?mAct.toLocaleString():'—'}</div>
+        </div>
+      </div>`;
+    });
+    h+=`</div>`;
+  }
 
-    // PROGRESS BAR
-    h+=`<div class="lsc-progress-wrap">
+  // PROGRESS BAR (ถ้ามี plan)
+  if(planVol>0){
+    h+=`<div class="lsc-progress-wrap" style="margin-bottom:6px">
       <div class="lsc-progress-labels">
         <span class="lsc-progress-label">Progress</span>
-        <span class="lsc-progress-pct">${pct.toFixed(1)}%</span>
+        <span class="lsc-progress-pct">${progress.toFixed(1)}%</span>
       </div>
-      <div class="lsc-bar"><div class="lsc-bar-fill" style="width:${pct}%;background:${barCol}"></div></div>
+      <div class="lsc-bar"><div class="lsc-bar-fill" style="width:${progress}%;background:${barCol}"></div></div>
     </div>`;
+  }
 
+  // AGING BALANCE
+  h+=`<div class="lsc-flow-row">
+    <span class="lsc-flow-label">🪣 Aging Balance</span>
+    <span class="lsc-flow-val ${agRisk==='crit'?'lsc-flow-warn':''}">${agTotal>0?agTotal.toLocaleString()+' L':'—'}</span>
+  </div>`;
 
+  // เวลาคาดว่าจะหมด
+  h+=`<div class="lsc-flow-row" style="margin-top:4px">
+    <span class="lsc-flow-label">⏱ คาดว่าจะหมด</span>
+    <span class="lsc-flow-val ${agRisk==='crit'?'lsc-flow-warn':agRisk==='warn'?'':''}" style="${agRisk==='crit'?'color:#dc2626':agRisk==='warn'?'color:#d97706':''}">${agTimeTxt}</span>
+  </div>`;
 
-    // ETA ROW
-    h+=`<div class="lsc-eta-row">
+  // ETA (ถ้า running)
+  if(isRun&&ei){
+    h+=`<div class="lsc-eta-row" style="margin-top:6px">
       <div class="lsc-eta-box">
         <div class="lsc-eta-label">ETA Finish</div>
-        <div class="lsc-eta-time ${etaHrClass}">${ei?ei.label:'—'}</div>
+        <div class="lsc-eta-time ${etaHrClass}">${ei.label}</div>
       </div>
       <div class="lsc-eta-box">
         <div class="lsc-eta-label">Remaining</div>
-        <div class="lsc-eta-time ${etaHrClass}">${ei?_lcFmtHr(ei.hr):'—'}</div>
+        <div class="lsc-eta-time ${etaHrClass}">${_lcFmtHr(ei.hr)}</div>
       </div>
     </div>`;
-
-    h+=`</div>`; // lsc-body
-  } else if(q.length){
-    h+=`<div class="lsc-idle-msg" style="color:#b45309">⏳ รอ Start<br><span style="font-size:11px;color:#64748b">${tq.toLocaleString()} L พร้อม Fill</span></div>`;
-  } else {
-    return ''; // ไม่มีแผนผลิต ไม่ render card
   }
 
-  // QUEUE SECTION
+  h+=`</div>`; // lsc-body
+
+  // QUEUE
   if(q.length){
     h+=`<div class="lsc-q-section">
-      <div class="lsc-q-title">📦 Queue — ${tq.toLocaleString()} L</div>`;
+      <div class="lsc-q-title">📦 Queue — ${q.reduce((s,r)=>s+(+(r.volume_liter||0)),0).toLocaleString()} L</div>`;
     h+=q.slice(0,3).map(r=>`<div class="lsc-q-item">
       <div class="lsc-q-code">${r.mix_code||'—'} B.${r.batch_no||'?'}</div>
       <div class="lsc-q-vol">${(+(r.volume_liter||0)).toLocaleString()} L</div>
