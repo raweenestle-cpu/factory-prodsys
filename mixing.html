@@ -384,7 +384,7 @@ import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/fi
 import { getFirestore, collection, query, where, orderBy, onSnapshot, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 
-import {resolveStatus,statusLabel,statusColor,statusBlink,statusBadge} from "./shared.js";
+import {resolveStatus,statusLabel,statusColor,statusBlink,statusBadge,expireBox,calcExpireAt,displayVol,getProductColor,getMaxTemp,tempBox} from "./shared.js";
 
 
 const app  = initializeApp({
@@ -399,6 +399,15 @@ const auth = getAuth(app);
 const db   = getFirestore(app);
 
 let ME=null, productMap={};
+
+// ── AGING TANK STATES real-time ────────────────────────────
+window._agingStates={};
+onSnapshot(collection(db,'aging_tank_states'),snap=>{
+  snap.docs.forEach(d=>{window._agingStates[d.id]={id:d.id,...d.data()};});
+  // re-render เมื่อ aging data เปลี่ยน
+  ['m1','m2'].forEach(m=>renderTanks(m));
+});
+
 let rowsData={m1:[],m2:[]};
 let unsub={m1:null,m2:null};
 let charts={};
@@ -970,7 +979,8 @@ function renderMixTanks(m, rowsArg){
         <div class="tv3-hi">
           <div class="tv3-code">${row.mix_code||'—'} · PROCESS ${row.process_order||'—'}</div>
           <div class="tv3-name">${row.mix_name||'—'}</div>
-          <div class="tv3-meta">Batch ${row.batch_no||'—'} &nbsp;·&nbsp; <span style="font-size:18px;font-weight:900;color:#111827">${(+(row.volume_liter||0)).toLocaleString()} L</span></div>
+          <div class="tv3-meta">Batch ${row.batch_no||'—'} &nbsp;·&nbsp; <span style="font-size:18px;font-weight:900;color:#111827">${displayVol(row)}</span></div>
+          ${(()=>{const _at=row.aging_tank||'';const _as=_at&&window._agingStates?window._agingStates[_at]||{}:{};return _at?(expireBox(_as.expire_at||null)+tempBox(_as)):'';})()}
         </div>
         <div class="tv3-st"><span class="badge ${stInfo.cls}">${stInfo.lbl}</span></div>
       </div>

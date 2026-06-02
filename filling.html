@@ -195,7 +195,7 @@ main{padding:14px;display:flex;flex-direction:column;gap:14px}
 
 
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"; import{getAuth,signOut,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"; import{getFirestore,collection,query,where,onSnapshot,getDocs,doc} from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import {resolveStatus,statusLabel,statusColor,statusBlink,statusBadge} from "./shared.js";
+import {resolveStatus,statusLabel,statusColor,statusBlink,statusBadge,expireBox,calcExpireAt,displayVol,getProductColor,getMaxTemp,tempBox} from "./shared.js";
 const app=initializeApp({apiKey:"AIzaSyC3f6jMuhugE6BNfRfkpOA9BMrIKWR9YgQ",authDomain:"production-filling.firebaseapp.com",projectId:"production-filling",storageBucket:"production-filling.firebasestorage.app",messagingSenderId:"89098393458",appId:"1:89098393458:web:b723f2886e8a341935afeb"});
 const auth=getAuth(app),db=getFirestore(app);
 let lineNames=[],lineMap={},lineStates={},planRows=[],productMap={},selectedLine='all',agingStates={};
@@ -520,26 +520,8 @@ function svg(uid,pct,col,run){
 }
 
 
-function expireBox(expireAt){
-  if(!expireAt) return '';
-  var ed=new Date(expireAt);
-  var now=new Date();
-  var rh=(ed-now)/3600000;
-  var isExp=rh<0;
-  var isCrit=!isExp&&rh<24;
-  var isWarn=!isExp&&rh<48;
-  var bg=isExp?'rgba(185,28,28,.12)':isCrit?'rgba(185,28,28,.08)':isWarn?'rgba(194,65,12,.08)':'rgba(21,128,61,.08)';
-  var bc=isExp?'#b91c1c':isCrit?'#b91c1c':isWarn?'#c2410c':'#15803d';
-  var ic=isExp?'❌':isCrit?'⚠️':isWarn?'🟡':'✅';
-  var dateStr=ed.toLocaleDateString('th-TH',{weekday:'short',day:'2-digit',month:'short'});
-  var timeStr=ed.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
-  var remStr=isExp?'หมดอายุแล้ว':rh<1?Math.round(rh*60)+' นาที':rh<24?rh.toFixed(1)+' ชม.':Math.floor(rh/24)+' วัน '+Math.round(rh%24)+' ชม.';
-  return '<div style="background:'+bg+';border:2px solid '+bc+';border-radius:8px;padding:6px 10px;margin-top:6px;font-family:DM Mono,monospace">'
-    +'<div style="font-size:10px;font-weight:800;color:'+bc+';letter-spacing:.06em">'+ic+' วันหมดอายุ</div>'
-    +'<div style="font-size:13px;font-weight:900;color:'+bc+';margin-top:2px">'+dateStr+' '+timeStr+'</div>'
-    +'<div style="font-size:10px;font-weight:700;color:'+bc+';opacity:.8;margin-top:1px">เหลือ '+remStr+'</div>'
-    +'</div>';
-}
+// expireBox — ใช้จาก shared.js
+
 
 function card(row,isCur,isSingle=false){
   const p=productMap[row.mix_code]||{};
@@ -549,7 +531,7 @@ function card(row,isCur,isSingle=false){
   const isActive=!!row.past_start_time;
   const at=row.aging_tank||'\u2014';
   const agSt=agingStates&&row.aging_tank?agingStates[row.aging_tank]||{}:{};
-  const expHtml=expireBox(agSt.expire_at||null);
+  const expHtml=expireBox(agSt.expire_at||null)+tempBox(agSt);
   const yr=new Date().getFullYear().toString().slice(-1);
   const unit=row._col==='production_plans_m2'?'2':'1';
   const rp=row.prod_suffix?(yr+'0522'+unit+row.prod_suffix):'\u2014';
@@ -692,9 +674,6 @@ function tick(){
 
 
 </script>
-<script>
-;
-}
-</script>
+
 </body>
 </html>

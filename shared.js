@@ -92,3 +92,32 @@ export function getProductColor(productMap, mixCode){
   var p=productMap&&productMap[mixCode];
   return (p&&p.color)||'#3b82f6';
 }
+
+// ══ TEMPERATURE ══════════════════════════════════════════════════════
+// ดึง max temp จาก aging_tank_states — ใช้ร่วมกันทุกหน้า
+export function getMaxTemp(tankState){
+  if(!tankState) return null;
+  var vals=[];
+  if(tankState.max_temp!=null) vals.push(+tankState.max_temp);
+  if(tankState.temps&&typeof tankState.temps==='object'){
+    Object.values(tankState.temps).forEach(function(v){
+      if(v!=null&&!isNaN(+v)) vals.push(+v);
+    });
+  }
+  Object.keys(tankState).forEach(function(k){
+    if(k.startsWith('temps.')&&!isNaN(+tankState[k])) vals.push(+tankState[k]);
+  });
+  return vals.length?Math.max.apply(null,vals):null;
+}
+
+// แสดง temperature badge
+export function tempBox(tankState){
+  var t=getMaxTemp(tankState);
+  if(t==null) return '';
+  var ok=t<=6;
+  var warn=t>6&&t<=8;
+  var bc=ok?'#15803d':warn?'#c2410c':'#b91c1c';
+  var bg=ok?'rgba(21,128,61,.1)':warn?'rgba(194,65,12,.08)':'rgba(185,28,28,.1)';
+  var ic=ok?'🌡️':warn?'⚠️':'🔴';
+  return '<div style="display:inline-flex;align-items:center;gap:4px;background:'+bg+';border:1.5px solid '+bc+';border-radius:7px;padding:3px 9px;font-family:DM Mono,monospace;font-size:12px;font-weight:900;color:'+bc+'">'+ic+' '+t+'°C</div>';
+}
