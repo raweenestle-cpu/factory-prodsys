@@ -178,7 +178,7 @@ body::before{
   background:var(--s2);
   border:1px solid var(--b1);
   border-radius:16px;
-  padding:24px 16px;
+  padding:32px 20px;
   cursor:pointer;
   text-align:center;
   transition:all .2s;
@@ -199,8 +199,8 @@ body::before{
 .menu-btn.m-cip::after{background:var(--cyan)}
 .menu-btn.m-filling::after{background:var(--blue)}
 .menu-btn.m-admin::after{background:var(--red, #f04f5e)}
-.menu-icon{font-size:36px;margin-bottom:10px}
-.menu-name{font-family:var(--mono);font-size:13px;font-weight:700}
+.menu-icon{font-size:52px;margin-bottom:10px}
+.menu-name{font-family:var(--mono);font-size:14px;font-weight:700}
 .menu-desc{font-size:11px;color:var(--t2);margin-top:4px}
 
 .logout-btn{width:100%;background:none;border:1px solid var(--b2);border-radius:8px;color:var(--t2);padding:9px;font-size:12px;cursor:pointer;margin-top:12px;font-family:var(--sans)}
@@ -454,7 +454,7 @@ function showStep(id){
 // ══ PIN MODAL ══════════════════════════════════════════════
 var pinTarget='', pinValue='', pinEmployees=[];
 
-function openPinModal(file,name){
+window.openPinModal=function openPinModal(file,name){
   var noPinPages=['admin.html','shelflife.html','aging.html','filling.html','pinregister.html'];
   if(noPinPages.indexOf(file)>=0){window.location.href=file;return;}
   pinTarget=file;pinValue='';
@@ -466,12 +466,12 @@ function openPinModal(file,name){
   loadPinEmployees();
 }
 
-function closePinModal(){
+window.closePinModal=function closePinModal(){
   document.getElementById('pin-modal').style.display='none';
   pinValue='';updatePinDots();
 }
 
-function pinKey(k){
+window.pinKey=function pinKey(k){
   if(k===''){return;}
   if(k==='⌫'){pinValue=pinValue.slice(0,-1);updatePinDots();document.getElementById('pin-error').textContent='';return;}
   if(pinValue.length>=4)return;
@@ -479,14 +479,14 @@ function pinKey(k){
   if(pinValue.length===4)checkPin();
 }
 
-function updatePinDots(){
+window.updatePinDots=function updatePinDots(){
   for(var i=1;i<=4;i++){
     var el=document.getElementById('pin-d'+i);
     if(el)el.style.background=i<=pinValue.length?'#3b82f6':'#1e2535';
   }
 }
 
-function loadPinEmployees(){
+window.loadPinEmployees=function loadPinEmployees(){
   if(typeof firebase!=='undefined'||window._db){
     // โหลดจาก Firebase ถ้ามี
   }
