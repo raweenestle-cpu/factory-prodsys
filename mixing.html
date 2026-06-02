@@ -2,19 +2,11 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-  
-  <meta name="theme-color" content="#1e40af">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="PROD.SYS">
-  <link rel="apple-touch-icon" href="icons/icon-192.png">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="PROD.SYS">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mixing — PROD.SYS</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js">
-
-
-
-</script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;600&family=Sarabun:wght@400;500;600;700&display=swap');
 *{box-sizing:border-box;margin:0;padding:0}
@@ -344,157 +336,41 @@ tbody tr.row-done{background:#f0fdf4!important;opacity:.7;border-left:4px solid 
 .prep-status-row{display:flex;align-items:center;gap:6px;white-space:nowrap}
 
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 </head>
 <body>
 
 <nav>
   <div class="nav-logo">PROD<b>.</b>SYS</div>
-  <button class="nav-tab on" onclick="showPage('plan','m1',this)">🔵 Mixing 1</button>
-  <button class="nav-tab" onclick="showPage('plan','m2',this)">🟢 Mixing 2</button>
-  <button class="nav-tab" onclick="showPage('chart','m1',this)">📊 กราฟ M1</button>
-  <button class="nav-tab" onclick="showPage('chart','m2',this)">📊 กราฟ M2</button>
+  <button class="nav-tab on" onclick="showPage('m1',this)">⚗️ Mix 1</button>
+  <button class="nav-tab" onclick="showPage('m2',this)">⚗️ Mix 2</button>
   <div class="nav-right">
+    <a href="preparemix.html" style="font-size:11px;padding:5px 12px;border-radius:7px;border:1.5px solid var(--b1);background:#fef3c7;color:#92400e;cursor:pointer;text-decoration:none;font-family:var(--mono);font-weight:800">📋 Prepare Mix</a>
     <span class="nav-role">MIXING</span>
     <span class="nav-user" id="nav-user"></span>
-    <a href="index.html" style="font-size:11px;padding:5px 10px;border-radius:6px;border:1px solid var(--b2);background:none;color:var(--t2);cursor:pointer;text-decoration:none;white-space:nowrap;flex-shrink:0">🏠 Home</a>
+    <a href="index.html" style="font-size:11px;padding:5px 12px;border-radius:7px;border:1.5px solid var(--b1);background:none;color:var(--t2);text-decoration:none;font-family:var(--mono);font-weight:700">🏠 Home</a>
     <button class="btn-logout" onclick="doLogout()">Logout</button>
   </div>
 </nav>
 
-<!-- PLAN M1 -->
-<div class="page on" id="page-plan-m1" style="background:#f8fafc;min-height:100vh">
-  <div style="padding:14px 18px 0">
-    <div style="display:flex;align-items:center;gap:16px;background:var(--s1);border:2px solid var(--b1);border-radius:14px;padding:14px 20px;margin-bottom:14px">
-      <div style="font-family:var(--mono);font-size:11px;font-weight:900;color:var(--t3);letter-spacing:2px;text-transform:uppercase;flex-shrink:0">📅 วันที่ผลิต</div>
-      <input type="date" id="date-m1" class="ci" style="font-family:var(--mono);font-size:20px;font-weight:900;color:#111827;background:transparent;border:none;outline:none;cursor:pointer;flex:1" onchange="loadPlan('m1')">
-      <div id="day-label-m1" style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--t2)"></div>
-    </div>
+<!-- MIX 1 -->
+<div class="page on" id="page-m1">
+  <div class="date-header" style="margin:16px 20px 14px">
+    <div class="date-header-label">📅 วันที่ผลิต</div>
+    <input type="date" id="date-m1" class="date-input-lg" onchange="loadPlan('m1')">
+    <div class="date-day-label" id="day-label-m1"></div>
   </div>
-  <div id="tank-visual-m1" style="margin:0 18px 14px;overflow:hidden;position:relative;z-index:1"></div>
-  <div style="padding:0 18px 4px"><div style="font-family:var(--mono);font-size:10px;font-weight:900;color:#64748b;letter-spacing:2px;text-transform:uppercase;padding:6px 0 8px;border-top:2px solid #e2e8f0;margin-bottom:0">📋 รายการผสม</div></div>
-  <div class="tw" style="position:relative;z-index:2"><table>
-    <colgroup>
-      <col style="width:38px"><col style="width:90px"><col style="width:90px"><col>
-      <col style="width:50px"><col style="width:72px"><col style="width:155px"><col style="width:90px">
-      <col style="width:108px"><col style="width:108px">
-      <col style="width:58px"><col style="width:66px">
-      <col style="width:58px"><col style="width:66px">
-      <col style="width:58px"><col style="width:66px">
-      <col style="width:58px"><col style="width:66px">
-      <col style="width:58px"><col style="width:66px">
-      <col style="width:92px">
-    </colgroup>
-    <thead>
-      <tr>
-        <th rowspan="2" style="text-align:center">#</th>
-        <th rowspan="2">Code</th>
-        <th rowspan="2">Process</th>
-        <th rowspan="2">Mix Name</th>
-        <th rowspan="2" style="text-align:center">Batch</th>
-        <th rowspan="2" style="text-align:right">Vol (L)</th>
-        <th rowspan="2">🔧 การเตรียม</th>
-        <th rowspan="2">Tank</th>
-        <th rowspan="2" style="text-align:center">⏱ เริ่มผสม</th>
-        <th rowspan="2" style="text-align:center">⏹ ผสมเสร็จ</th>
-        <th colspan="2" style="text-align:center;border-bottom:2px solid #93c5fd;background:#dbeafe;color:#1e40af">🍬 GLUCOSE</th>
-        <th colspan="2" style="text-align:center;border-bottom:2px solid #fcd34d;background:#fef3c7;color:#92400e">🧂 SUGAR</th>
-        <th colspan="2" style="text-align:center;border-bottom:2px solid #6ee7b7;background:#d1fae5;color:#065f46">🌴 PALM OIL</th>
-        <th colspan="2" style="text-align:center;border-bottom:2px solid #f9a8d4;background:#fce7f3;color:#9d174d">🛢️ OIL MIX</th>
-        <th colspan="2" style="text-align:center;border-bottom:2px solid #c4b5fd;background:#ede9fe;color:#4c1d95">🥛 FAT MILK</th>
-        <th rowspan="2" style="text-align:center">Status</th>
-      </tr>
-      <tr>
-        <th style="text-align:right;background:#dbeafe;color:#1e40af;font-size:10px;font-weight:900">Set</th><th style="text-align:right;background:#dbeafe;color:#059669;font-size:10px;font-weight:900">Actual</th>
-        <th style="text-align:right;background:#fef3c7;color:#92400e;font-size:10px;font-weight:900">Set</th><th style="text-align:right;background:#fef3c7;color:#059669;font-size:10px;font-weight:900">Actual</th>
-        <th style="text-align:right;background:#d1fae5;color:#065f46;font-size:10px;font-weight:900">Set</th><th style="text-align:right;background:#d1fae5;color:#059669;font-size:10px;font-weight:900">Actual</th>
-        <th style="text-align:right;background:#fce7f3;color:#9d174d;font-size:10px;font-weight:900">Set</th><th style="text-align:right;background:#fce7f3;color:#059669;font-size:10px;font-weight:900">Actual</th>
-        <th style="text-align:right;background:#ede9fe;color:#4c1d95;font-size:10px;font-weight:900">Set</th><th style="text-align:right;background:#ede9fe;color:#059669;font-size:10px;font-weight:900">Actual</th>
-      </tr>
-    </thead>
-    <tbody id="tbody-m1"></tbody>
-  </table></div>
+  <div id="tank-visual-m1" style="margin:0 20px 14px;overflow:hidden;position:relative;z-index:1"></div>
 </div>
 
-<!-- PLAN M2 -->
-<div class="page" id="page-plan-m2" style="background:#f8fafc;min-height:100vh">
-  <div style="padding:14px 18px 0">
-    <div style="display:flex;align-items:center;gap:16px;background:var(--s1);border:2px solid var(--b1);border-radius:14px;padding:14px 20px;margin-bottom:14px">
-      <div style="font-family:var(--mono);font-size:11px;font-weight:900;color:var(--t3);letter-spacing:2px;text-transform:uppercase;flex-shrink:0">📅 วันที่ผลิต</div>
-      <input type="date" id="date-m2" class="ci" style="font-family:var(--mono);font-size:20px;font-weight:900;color:#111827;background:transparent;border:none;outline:none;cursor:pointer;flex:1" onchange="loadPlan('m2')">
-      <div id="day-label-m2" style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--t2)"></div>
-    </div>
+<!-- MIX 2 -->
+<div class="page" id="page-m2">
+  <div class="date-header" style="margin:16px 20px 14px">
+    <div class="date-header-label">📅 วันที่ผลิต</div>
+    <input type="date" id="date-m2" class="date-input-lg" onchange="loadPlan('m2')">
+    <div class="date-day-label" id="day-label-m2"></div>
   </div>
-  <div id="tank-visual-m2" style="margin:0 18px 14px;overflow:hidden;position:relative;z-index:1"></div>
-  <div style="padding:0 18px 4px"><div style="font-family:var(--mono);font-size:10px;font-weight:900;color:#64748b;letter-spacing:2px;text-transform:uppercase;padding:6px 0 8px;border-top:2px solid #e2e8f0;margin-bottom:0">📋 รายการผสม</div></div>
-  <div class="tw" style="position:relative;z-index:2"><table>
-    <colgroup>
-      <col style="width:38px"><col style="width:90px"><col style="width:90px"><col>
-      <col style="width:50px"><col style="width:72px"><col style="width:155px"><col style="width:90px">
-      <col style="width:108px"><col style="width:108px">
-      <col style="width:58px"><col style="width:66px">
-      <col style="width:58px"><col style="width:66px">
-      <col style="width:58px"><col style="width:66px">
-      <col style="width:58px"><col style="width:66px">
-      <col style="width:58px"><col style="width:66px">
-      <col style="width:92px">
-    </colgroup>
-    <thead>
-      <tr>
-        <th rowspan="2" style="text-align:center">#</th>
-        <th rowspan="2">Code</th>
-        <th rowspan="2">Process</th>
-        <th rowspan="2">Mix Name</th>
-        <th rowspan="2" style="text-align:center">Batch</th>
-        <th rowspan="2" style="text-align:right">Vol (L)</th>
-        <th rowspan="2">🔧 การเตรียม</th>
-        <th rowspan="2">Tank</th>
-        <th rowspan="2" style="text-align:center">⏱ เริ่มผสม</th>
-        <th rowspan="2" style="text-align:center">⏹ ผสมเสร็จ</th>
-        <th colspan="2" style="text-align:center;border-bottom:2px solid #93c5fd;background:#dbeafe;color:#1e40af">🍬 GLUCOSE</th>
-        <th colspan="2" style="text-align:center;border-bottom:2px solid #fcd34d;background:#fef3c7;color:#92400e">🧂 SUGAR</th>
-        <th colspan="2" style="text-align:center;border-bottom:2px solid #6ee7b7;background:#d1fae5;color:#065f46">🌴 PALM OIL</th>
-        <th colspan="2" style="text-align:center;border-bottom:2px solid #f9a8d4;background:#fce7f3;color:#9d174d">🛢️ OIL MIX</th>
-        <th colspan="2" style="text-align:center;border-bottom:2px solid #c4b5fd;background:#ede9fe;color:#4c1d95">🥛 FAT MILK</th>
-        <th rowspan="2" style="text-align:center">Status</th>
-      </tr>
-      <tr>
-        <th style="text-align:right;background:#dbeafe;color:#1e40af;font-size:10px;font-weight:900">Set</th><th style="text-align:right;background:#dbeafe;color:#059669;font-size:10px;font-weight:900">Actual</th>
-        <th style="text-align:right;background:#fef3c7;color:#92400e;font-size:10px;font-weight:900">Set</th><th style="text-align:right;background:#fef3c7;color:#059669;font-size:10px;font-weight:900">Actual</th>
-        <th style="text-align:right;background:#d1fae5;color:#065f46;font-size:10px;font-weight:900">Set</th><th style="text-align:right;background:#d1fae5;color:#059669;font-size:10px;font-weight:900">Actual</th>
-        <th style="text-align:right;background:#fce7f3;color:#9d174d;font-size:10px;font-weight:900">Set</th><th style="text-align:right;background:#fce7f3;color:#059669;font-size:10px;font-weight:900">Actual</th>
-        <th style="text-align:right;background:#ede9fe;color:#4c1d95;font-size:10px;font-weight:900">Set</th><th style="text-align:right;background:#ede9fe;color:#059669;font-size:10px;font-weight:900">Actual</th>
-      </tr>
-    </thead>
-    <tbody id="tbody-m2"></tbody>
-  </table></div>
-</div>
-
-<!-- CHART M1 -->
-<div class="page" id="page-chart-m1">
-  <div class="chart-card">
-    <div class="chart-title">📊 Mixing 1 — ผลผลิตต่อกะ (kg)</div>
-    <div class="period-row">
-      <button class="period-btn on" onclick="setPeriod('m1','day',this)">วันนี้</button>
-      <button class="period-btn" onclick="setPeriod('m1','week',this)">สัปดาห์</button>
-      <button class="period-btn" onclick="setPeriod('m1','month',this)">เดือน</button>
-      <button class="period-btn" onclick="setPeriod('m1','year',this)">ปี</button>
-    </div>
-    <div class="chart-wrap"><canvas id="chart-m1"></canvas></div>
-  </div>
-</div>
-
-<!-- CHART M2 -->
-<div class="page" id="page-chart-m2">
-  <div class="chart-card">
-    <div class="chart-title">📊 Mixing 2 — ผลผลิตต่อกะ (kg)</div>
-    <div class="period-row">
-      <button class="period-btn on" onclick="setPeriod('m2','day',this)">วันนี้</button>
-      <button class="period-btn" onclick="setPeriod('m2','week',this)">สัปดาห์</button>
-      <button class="period-btn" onclick="setPeriod('m2','month',this)">เดือน</button>
-      <button class="period-btn" onclick="setPeriod('m2','year',this)">ปี</button>
-    </div>
-    <div class="chart-wrap"><canvas id="chart-m2"></canvas></div>
-  </div>
+  <div id="tank-visual-m2" style="margin:0 20px 14px;overflow:hidden;position:relative;z-index:1"></div>
 </div>
 
 <div id="toast"></div>
@@ -606,8 +482,7 @@ window.loadPlan=(m)=>{
     rows[m]=snap.docs.map(d=>({id:d.id,...d.data()}))
       .filter(r=>(r.mix_code||r.mix_name||r.process_order)&&r.status!=='past_done'&&r.status!=='ready'&&r.status!=='sent_filling'&&r.status!=='filling'&&r.status!=='curing')
       .sort((a,b)=>(a.seq||0)-(b.seq||0));
-    renderPlan(m);
-    // auto assign ถังให้ row ที่พร้อมแล้ว
+    renderMixTanks(m);
     autoAssignTank(m);
   });
 };
@@ -691,34 +566,7 @@ window.editTime=async(col,id,field,current,m)=>{
   await updateDoc(doc(db,col,id),upd);
   toast("แก้ไขเวลาแล้ว","green");
 };
-
-window.saveActual=async(col,id,field,val,m)=>{
-  const upd={[field]:+val};
-  const row=rows[m].find(r=>r.id===id);
-  if(row){
-    // เช็คค่า ±5 จาก set point
-    const setMap={glc_actual:"glc_set",sgr_actual:"sgr_set",plm_actual:"plm_set"};
-    const setField=setMap[field];
-    if(setField&&row[setField]){
-      const diff=Math.abs(+val-(+row[setField]));
-      if(diff>5){
-        const fieldName=field==="glc_actual"?"Glucose":field==="sgr_actual"?"Sugar":"Palm Oil";
-        const comment=prompt(`⚠️ ${fieldName} ต่างจาก Set Point ${diff.toFixed(1)} kg\n\nกรุณาระบุเหตุผล:`);
-        if(comment===null)return; // กด Cancel = ยกเลิก
-        if(!comment.trim()){toast("กรุณาใส่เหตุผล","red");return;}
-        const commentField=field.replace("_actual","_comment");
-        upd[commentField]=comment.trim();
-        toast(`บันทึกพร้อม comment แล้ว`,"green");
-      }
-    }
-    const merged={...row,...upd};
-    const anyActual=(+merged.glc_actual||0)>0||(+merged.plm_actual||0)>0||(+merged.sgr_actual||0)>0;
-    if(anyActual&&(merged.status==="pending"||merged.status==="mixing")){
-      upd.status="mixing";
-    }
-  }
-  await updateDoc(doc(db,col,id),upd);
-};
+;
 
 // ── RENDER PLAN ───────────────────────────────────────────────────────
 // ── TANK VISUAL ──────────────────────────────────────────────────────
@@ -1196,182 +1044,7 @@ async function autoAssignTank(m){
 }
 
 
-function renderPlan(m){
-  const col=planCol(m);
-  const tbody=$(`tbody-${m}`);
-  if(!tbody)return;
-  tbody.innerHTML="";
-  renderMixTanks(m, rows[m]||[]);
-
-  rows[m].forEach((row,i)=>{
-    try{
-    const isMixing=row.status==="mixing";
-    const isPast=row.status==="pasteurising";
-    const isPasting=isPast&&!!row.past_start_time; // กำลัง Past. อยู่
-    const isWaitPast=isPast&&!row.past_start_time; // รอ Past.
-    const isDone=row.status==="past_done"||row.status==="ready";
-
-    const statStyle='';
-    // ใช้ getProcessState เป็น single source
-    const ps3=getProcessState(row);
-    const statText=`<span class="badge ${ps3.cls}" style="font-size:11px;padding:4px 10px">${ps3.lbl}</span>`;
-
-    // Stamp cell builder
-    const stampCell=(field,time,label,color)=>{
-      const hasTime=!!time;
-      const isActive=isMixing&&field==="mix_start_time";
-      return `<td style="padding:5px 8px;text-align:center;vertical-align:middle">
-        <div style="display:flex;align-items:center;justify-content:center;gap:3px">
-          <button class="stamp-btn ${hasTime?"stamped":""}" 
-            style="font-size:11px;font-weight:800;padding:5px 10px;border-radius:8px;cursor:pointer;${isActive?"animation:mixingPulse 1.2s ease-in-out infinite;":""}"
-            onclick="stampTime('${col}','${row.id}','${field}','${m}')">
-            ${hasTime?'⏱ '+time:'⏱ '+label}
-          </button>
-          ${hasTime?`<button style="flex-shrink:0;font-size:11px;padding:4px 6px;border-radius:6px;border:1px solid #e2e8f0;background:#f8fafc;color:#64748b;cursor:pointer" onclick="editTimePrompt('${col}','${row.id}','${field}','${time}')">✏️</button>`:""}
-        </div>
-      </td>`;
-    };
-
-    const tr=document.createElement("tr");
-    // sync row class กับ process state
-    if(ps3.id==='mixing'||ps3.id==='preparing'||ps3.id==='ready_mix') tr.classList.add("row-mixing");
-    else if(ps3.id==='wait_past'||ps3.id==='pasteurising') tr.classList.add("row-past");
-    else if(ps3.id==='past_done') tr.classList.add("row-done");
-
-    tr.innerHTML=`
-      <td style="text-align:center;padding:8px 4px"><span style="font-family:var(--mono);font-size:13px;font-weight:900;color:#64748b">${i+1}</span></td>
-      <td style="padding:8px 6px"><span style="font-family:var(--mono);font-size:12px;font-weight:800;color:#111827">${row.mix_code||"—"}</span></td>
-      <td style="text-align:center;padding:8px 4px"><span style="font-family:var(--mono);font-size:12px;font-weight:900;color:#111827">${row.process_order||'—'}</span></td>
-      <td style="padding:8px 6px"><span style="font-family:var(--sans);font-size:13px;font-weight:800;color:#111827">${row.mix_name||"—"}</span></td>
-      <td style="text-align:center;padding:8px 4px"><span style="font-family:var(--mono);font-size:12px;font-weight:700;color:#111827">${row.batch_no||"—"}</span></td>
-      <td style="text-align:right;padding:8px 8px"><span style="font-family:var(--mono);font-size:13px;font-weight:900;color:#111827">${(+(row.volume_liter||0)).toLocaleString()}</span></td>
-      <td style="padding:6px 8px;vertical-align:middle">
-        <div style="display:flex;flex-direction:column;gap:4px">
-          <div style="display:flex;align-items:center;gap:5px;flex-wrap:nowrap">
-            <select style="font-family:var(--mono);font-size:11px;font-weight:800;padding:4px 7px;border-radius:7px;cursor:pointer;flex-shrink:0;border:2px solid ${row.prep_status==='ready'?'#10b981':row.prep_status==='preparing'?'#f59e0b':row.prep_status==='not_ready'?'#ef4444':'#e2e8f0'};background:${row.prep_status==='ready'?'#d1fae5':row.prep_status==='preparing'?'#fef3c7':row.prep_status==='not_ready'?'#fee2e2':'#f8fafc'};color:${row.prep_status==='ready'?'#065f46':row.prep_status==='preparing'?'#92400e':row.prep_status==='not_ready'?'#991b1b':'#64748b'}"
-              onchange="window._setPrepStatus('${col}','${row.id}',this.value,this)">
-              <option value="">— สถานะ —</option>
-              <option value="preparing" ${row.prep_status==="preparing"?"selected":""}>🔄 กำลังเตรียม</option>
-              <option value="ready" ${row.prep_status==="ready"?"selected":""}>✅ พร้อม</option>
-              <option value="not_ready" ${row.prep_status==="not_ready"?"selected":""}>❌ ยังไม่เสร็จ</option>
-            </select>
-            ${row.prep_sig
-              ?`<img src="${row.prep_sig}" style="height:24px;max-width:44px;object-fit:contain;border:1.5px solid #10b981;border-radius:5px;flex-shrink:0" title="${row.prep_sig_name||''}">`
-              :row.prep_status==='ready'
-                ?`<button style="font-size:13px;padding:2px 6px;border-radius:6px;border:1.5px dashed #94a3b8;background:none;cursor:pointer;flex-shrink:0" onclick="window._stampPrepSig('${col}','${row.id}')">✍️</button>`
-                :''}
-          </div>
-          ${row.prep_sig_name?`<div style="font-family:var(--mono);font-size:9px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px">${row.prep_sig_name}</div>`:''}
-        </div>
-      </td>
-      <td style="padding:6px 8px;vertical-align:middle">
-        <select style="font-family:var(--mono);font-size:11px;font-weight:700;padding:5px 8px;border-radius:7px;background:#f8fafc;color:#111827;border:1.5px solid #e2e8f0;cursor:pointer;width:100%"
-          onchange="_up('${col}','${row.id}','mixing_tank',this.value)">
-          <option value="">— ถัง —</option>
-          <option value="Tank 1" ${row.mixing_tank==="Tank 1"?"selected":""}>Tank 1</option>
-          <option value="Tank 2" ${row.mixing_tank==="Tank 2"?"selected":""}>Tank 2</option>
-        </select>
-      </td>
-      ${stampCell("mix_start_time",row.mix_start_time,"Stamp เริ่ม","yellow")}
-      ${stampCell("mix_end_time",row.mix_end_time,"Stamp เสร็จ","green")}
-      <td style="text-align:right;padding:6px 8px;background:#eff6ff"><span style="font-family:var(--mono);font-size:12px;font-weight:800;color:#1e40af">${row.glc_set||"—"}</span></td>
-      <td style="padding:4px 6px;background:#eff6ff"><div style="display:flex;align-items:center;gap:2px"><input class="act-input" style="background:#ffffff;border-color:#93c5fd;width:100%" type="number" step="0.1" value="${row.glc_actual||""}" placeholder="—" onblur="saveActual('${col}','${row.id}','glc_actual',this.value,'${m}')">${row.glc_comment?`<span title="${row.glc_comment}" style="cursor:help;font-size:11px">⚠️</span>`:""}</div></td>
-      <td style="text-align:right;padding:6px 8px;background:#fefce8"><span style="font-family:var(--mono);font-size:12px;font-weight:800;color:#92400e">${row.sgr_set||"—"}</span></td>
-      <td style="padding:4px 6px;background:#fefce8"><div style="display:flex;align-items:center;gap:2px"><input class="act-input" style="background:#ffffff;border-color:#fcd34d;width:100%" type="number" step="0.1" value="${row.sgr_actual||""}" placeholder="—" onblur="saveActual('${col}','${row.id}','sgr_actual',this.value,'${m}')">${row.sgr_comment?`<span title="${row.sgr_comment}" style="cursor:help;font-size:11px">⚠️</span>`:""}</div></td>
-      <td style="text-align:right;padding:6px 8px;background:#f0fdf4"><span style="font-family:var(--mono);font-size:12px;font-weight:800;color:#065f46">${row.plm_set||"—"}</span></td>
-      <td style="padding:4px 6px;background:#f0fdf4"><div style="display:flex;align-items:center;gap:2px"><input class="act-input" style="background:#ffffff;border-color:#6ee7b7;width:100%" type="number" step="0.1" value="${row.plm_actual||""}" placeholder="—" onblur="saveActual('${col}','${row.id}','plm_actual',this.value,'${m}')">${row.plm_comment?`<span title="${row.plm_comment}" style="cursor:help;font-size:11px">⚠️</span>`:""}</div></td>
-      <td style="text-align:right;padding:6px 8px;background:#fdf2f8"><span style="font-family:var(--mono);font-size:12px;font-weight:800;color:#9d174d">${row.oil_mix_set||"—"}</span></td>
-      <td style="padding:4px 6px;background:#fdf2f8"><input class="act-input" style="background:#ffffff;border-color:#f9a8d4;width:100%" type="number" step="0.1" value="${row.oil_mix_actual||""}" placeholder="—" onblur="saveActual('${col}','${row.id}','oil_mix_actual',this.value,'${m}')"></td>
-      <td style="text-align:right;padding:6px 8px;background:#f5f3ff"><span style="font-family:var(--mono);font-size:12px;font-weight:800;color:#4c1d95">${row.fat_milk_set||"—"}</span></td>
-      <td style="padding:4px 6px;background:#f5f3ff"><input class="act-input" style="background:#ffffff;border-color:#c4b5fd;width:100%" type="number" step="0.1" value="${row.fat_milk_actual||""}" placeholder="—" onblur="saveActual('${col}','${row.id}','fat_milk_actual',this.value,'${m}')"></td>
-      <!-- SIGNATURE -->
-      <td style="text-align:center;min-width:60px">
-        ${row.mix_sig
-          ? `<img src="${row.mix_sig}" style="height:30px;vertical-align:middle;opacity:.95" title="${row.mix_by||''} ${row.mix_sig_time||''}">`
-          : `<button class="sig-btn" onclick="stampSig('${col}','${row.id}','mix_sig','${m}')" title="เซ็นชื่อ">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>
-              </svg>
-            </button>`}
-      </td>
-      <!-- STATUS -->
-      <td>${statText}</td>`;
-    tbody.appendChild(tr);
-    }catch(e){console.error('Row render error row',i,e);const errTr=document.createElement('tr');errTr.innerHTML=`<td colspan="21" style="color:red;font-family:monospace;padding:8px">Row ${i} Error: ${e.message}</td>`;tbody.appendChild(errTr);}
-
-  });
-
-  // KPI — Diff by shift
-  const _tel=$(`${m}-total`); if(_tel) _tel.textContent=rows[m].length;
-
-  // กะ: เช้า 06:00-14:00, บ่าย 14:00-22:00, ดึก 22:00-06:00(+1)
-  function getShift(timeStr){
-    if(!timeStr)return null;
-    const[h,mi]=timeStr.split(':').map(Number);
-    const t=h*60+(mi||0);
-    if(t>=6*60&&t<14*60)return'morning';
-    if(t>=14*60&&t<22*60)return'afternoon';
-    return'night';
-  }
-  function fmtDiff(v){
-    if(v===0)return'0';
-    return(v>0?'+':'')+v.toFixed(1);
-  }
-  function diffColor(v){return v===0?'var(--t2)':Math.abs(v)>5?'var(--red)':'var(--green)';}
-
-  const shifts={morning:{glc:0,sgr:0,plm:0},afternoon:{glc:0,sgr:0,plm:0},night:{glc:0,sgr:0,plm:0}};
-  let totGlc=0,totSgr=0,totPlm=0;
-
-  rows[m].forEach(r=>{
-    const sh=getShift(r.mix_start_time);
-    if(!sh)return;
-    const gd=(+r.glc_set||0)-(+r.glc_actual||0);
-    const sd=(+r.sgr_set||0)-(+r.sgr_actual||0);
-    const pd=(+r.plm_set||0)-(+r.plm_actual||0);
-    if(r.glc_actual){shifts[sh].glc+=gd;totGlc+=gd;}
-    if(r.sgr_actual){shifts[sh].sgr+=sd;totSgr+=sd;}
-    if(r.plm_actual){shifts[sh].plm+=pd;totPlm+=pd;}
-  });
-
-  ['glc','sgr','plm'].forEach(f=>{
-    ['morning','afternoon','night'].forEach(sh=>{
-      const shKey={'morning':'morning','afternoon':'afternoon','night':'night'}[sh];
-      const v=shifts[sh][f];
-      const el=$(`${m}-${f}-${shKey}`);
-      if(el){el.textContent=fmtDiff(v);el.style.color=diffColor(v);}
-    });
-    const totEl=$(`${m}-${f}-total`);
-    const allEl=$(`${m}-${f}-all`);
-    const tot=f==='glc'?totGlc:f==='sgr'?totSgr:totPlm;
-    if(totEl){totEl.textContent=fmtDiff(tot);totEl.style.color=diffColor(tot);}
-    if(allEl){allEl.textContent=fmtDiff(tot);allEl.style.color=diffColor(tot);}
-  });
-}
-
-window.editTimePrompt=async(col,id,field,current)=>{
-  // แสดง dialog ให้เลือก แก้ไข หรือ ลบ
-  const action=confirm(`เวลาปัจจุบัน: ${current}\n\nกด OK = แก้ไขเวลา\nกด Cancel = ลบเวลาออก`);
-  if(action){
-    // แก้ไข
-    const val=prompt("แก้ไขเวลา (HH:MM):",current||"");
-    if(val===null)return;
-    const clean=val.trim();
-    if(!/^\d{2}:\d{2}$/.test(clean)){toast("รูปแบบ HH:MM เท่านั้น","red");return;}
-    const upd={[field]:clean};
-    if(field==="mix_start_time") upd.status="mixing";
-    if(field==="mix_end_time")   upd.status="pasteurising";
-    await updateDoc(doc(db,col,id),upd);
-    toast("แก้ไขเวลาแล้ว","green");
-  } else {
-    // ลบเวลา + reset status
-    if(!confirm("ยืนยันลบเวลานี้ออก?"))return;
-    const upd={[field]:null};
-    if(field==="mix_start_time"){upd.status="pending";upd.mix_end_time=null;}
-    if(field==="mix_end_time") upd.status="mixing";
-    await updateDoc(doc(db,col,id),upd);
-    toast("ลบเวลาแล้ว","green");
-  }
-};
+;
 
 // ── CHART ─────────────────────────────────────────────────────────────
 const SHIFTS=[
@@ -1480,6 +1153,5 @@ window.showPage=(type,m,btn)=>{
   if(type==="chart") renderChart(m);
 };
 </script>
-
 </body>
 </html>
