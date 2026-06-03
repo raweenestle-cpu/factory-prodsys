@@ -73,7 +73,7 @@
 /* FLOW DIAGRAM COMPAT */
 .tv3-card{margin:0 0 12px}
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+
 </head>
 <body>
 
@@ -383,11 +383,15 @@ setInterval(async()=>{
       const elapsedMin=elapsedSec2/60;
       const agVol=totalMin>0?Math.min(totalVol,(elapsedMin/totalMin)*totalVol):0;
 
-      // รวม current_vol จาก batch อื่นที่ process_order + aging_tank เดียวกัน (past_done แล้ว)
+      // prevVol = ดึงจาก aging_tank_states จริง ลบ vol ของ batch ปัจจุบัน (ที่กำลังไหลอยู่)
+      // เพื่อได้ฐานที่สะสมมาจาก batch ก่อนหน้า ไม่ reset
       const allRows=[...(rows['p1']||[]),...(rows['p2']||[])];
       let prevVol=0;
       if(agRow.process_order&&agRow.aging_tank){
-        prevVol=allRows
+        const _agSt=window._agingStates[agRow.aging_tank]||{};
+        const _storeVol=+(_agSt.current_vol||0);
+        // prevVol = max ของ (vol ใน state - vol batch ปัจจุบัน) หรือ คำนวณจาก rows
+        const _rowsPrev=allRows
           .filter(r=>
             r.id!==agRow.id &&
             r.process_order===agRow.process_order &&
@@ -395,6 +399,7 @@ setInterval(async()=>{
             (r.status==='past_done'||r.status==='ready')
           )
           .reduce((sum,r)=>sum+(+(r.volume_liter||0)),0);
+        prevVol=Math.max(_rowsPrev, Math.max(0,_storeVol-agVol));
       }
       const totalCumVol=Math.round((prevVol+agVol)*10)/10;
       await updateDoc(doc(db,planCol(p),agRow.id),{current_vol:totalCumVol});
@@ -482,7 +487,7 @@ setInterval(async()=>{
               r.process_order===agRow.process_order &&
               r.aging_tank===agRow.aging_tank &&
               r.id!==agRow.id &&
-              (r.status==='pasteurising'||r.status==='pending'||r.status==='mixing')
+              (r.status==='pasteurising'||r.status==='pending'||r.status==='mixing'||r.status==='ready_mix')
             );
             if(_hasNext){
               // มี batch ถัดไปใน process เดียวกัน → สะสม volume ต่อ ไม่ clear
@@ -528,14 +533,7 @@ setInterval(async()=>{
               await updateDoc(doc(db,planCol(p),nextRow.id),{aging_tank:agRow.aging_tank});
             }
             if(nextRow){
-              // คำนวณ prevVol สะสมจาก batch ที่ past_done แล้ว
-              const prevCumVol=allRows
-                .filter(r=>
-                  r.process_order===nextRow.process_order&&
-                  r.aging_tank===nextRow.aging_tank&&
-                  (r.status==='past_done'||r.status==='ready')
-                )
-                .reduce((s,r)=>s+(+(r.volume_liter||0)),0);
+              // ใช้ finalCumVol ที่เพิ่งคำนวณไว้ ไม่คำนวณใหม่จาก rows (rows อาจยังไม่ update)
               await updateDoc(doc(db,planCol(p),nextRow.id),{
                 past_start_time:agRow.expected_finish_time||endTime,
                 expected_finish_time:(()=>{
@@ -549,10 +547,10 @@ setInterval(async()=>{
                 status:'pasteurising',
                 past_end_time:null,
               });
-              // sync aging_tank_states ต่อเนื่อง
+              // sync aging_tank_states ต่อเนื่อง — สะสม vol จาก finalCumVol
               if(nextRow.aging_tank){
                 try{await setDoc(doc(db,'aging_tank_states',nextRow.aging_tank),{
-                  current_vol:prevCumVol,
+                  current_vol:finalCumVol,
                   mix_code:nextRow.mix_code||'',
                   mix_name:nextRow.mix_name||'',
                   batch_no:nextRow.batch_no||'',
@@ -762,13 +760,13 @@ function buildStepHtml(st, i, stepsLen, pcol, rid){
   } else if(st.id==='aging'){
     const _agId = window._pastRow?.aging_tank||'';
     const _agSt = window._agingStates&&_agId?window._agingStates[_agId]||{}:{};
-    const _expHtml = _agId?expireBox(_agSt.expire_at||null):'';
-    const _tempHtml = _agId?tempBox(_agSt):'';
     const _v = +(_agSt.current_vol||0);
     const _cap = _agId?getTankCapacity(_agId):0;
     const _p = _cap>0?Math.min(100,(_v/_cap)*100):0;
     const _col = _agSt.status==='pasteurising'?'#ea580c':'#3b82f6';
     const _svgAg = (()=>{try{return _agId&&window.cipTankSVG?window.cipTankSVG(_agId,_p,_col,_agSt.status==='pasteurising','🪣 '+_agId,_col,100,220):'';} catch(e){return '';}})();
+    const _expHtml = expireBox(_agSt.expire_at||null);
+    const _tempHtml = tempBox(_agSt);
     nodeHtml = _svgAg
       ? `<div class="tv3-step" style="width:100px">${_svgAg}<div class="tv3-sn ${snCls}" style="margin-top:4px">${st.name}</div><div class="tv3-sv ${svCls}">${st.kg}</div>${_expHtml}${_tempHtml}</div>`
       : `<div class="tv3-step"><div class="tv3-circle ${cls}"><span style="font-size:28px">${st.ico}</span></div><div class="tv3-sn ${snCls}">${st.name}</div><div class="tv3-sv ${svCls}">${st.kg}</div></div>`;
@@ -1104,7 +1102,7 @@ function renderPastCard(row, i, col, p){
       <div class="tv3-seq"><div style="font-family:var(--mono);font-size:13px;font-weight:900;color:#111827;text-align:center;padding:0 4px">${i+1}</div></div>
       <div class="tv3-hi">
         <div class="tv3-code">${row.mix_code||'—'} · ${row.process_order||'—'}</div>
-        <div class="tv3-name">${row.mix_name||'—'} · <span style="font-size:18px">${displayVol(row)}</span> · <span style="font-size:16px">Batch ${row.batch_no||'—'}</span></div>
+        <div class="tv3-name">${row.mix_name||'—'} · <span style="font-size:18px">${(+(row.volume_liter||0)).toLocaleString()} L</span> · <span style="font-size:16px">Batch ${row.batch_no||'—'}</span></div>
         <div class="tv3-meta">${(()=>{const _p=(window.productMap||{})[row.mix_code||'']||{};const _spd=p==='p1'?(_p.speed_m1||_p.speed||'—'):(_p.speed_m2||_p.speed||'—');const _den=_p.density||'—';return 'Density: '+_den+' kg/L · Speed: '+_spd+' L/hr';})()}</div>
       </div>
       <div class="tv3-st"><span class="badge ${ps.cls}" style="font-size:13px;padding:8px 18px">${ps.lbl}</span></div>
@@ -1597,7 +1595,7 @@ function renderPlan(p){
       <td style="text-align:center;padding:8px 4px"><span style="font-family:var(--mono);font-size:12px;font-weight:900;color:#111827">${row.process_order||'—'}</span></td>
       <td style="padding:8px 6px"><span style="font-family:var(--sans);font-size:13px;font-weight:800;color:#111827">${row.mix_name||"—"}</span></td>
       <td style="text-align:center;padding:8px 4px"><span style="font-family:var(--mono);font-size:12px;font-weight:700;color:#111827">${row.batch_no||"—"}</span></td>
-      <td style="text-align:right;padding:8px 8px"><span style="font-family:var(--mono);font-size:13px;font-weight:900;color:#111827">${displayVol(row)}</span></td>
+      <td style="text-align:right;padding:8px 8px"><span style="font-family:var(--mono);font-size:13px;font-weight:900;color:#111827">${(+(row.volume_liter||0)).toLocaleString()}</span></td>
 
       <td>
         <span style="font-family:var(--mono);font-size:12px;font-weight:800;color:#111827">${row.mixing_tank||"—"}</span>
