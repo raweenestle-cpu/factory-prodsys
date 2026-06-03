@@ -973,27 +973,55 @@ function calcVol(row){
     <!-- BODY -->
     <div style="display:flex;flex-direction:column;gap:0">
 
-      <!-- แถว 1: ถัง + flow + fp controls ในแถวเดียว -->
+      <!-- แถว 1: ถัง + flow diagram ใหญ่ชัด -->
       <div style="padding:12px 16px;background:#fff;border-bottom:1.5px solid #e2e8f0;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-        <div style="flex-shrink:0">${tankSVG('S'+line.id,pct,col,hasLiquid,current.status==='pasteurising'?'♨️':isRunning?'🔵':curing.done?'✅':'🌡️',current.status==='pasteurising'?'#fb923c':curing.done?'#4ade80':'#fde047',90,170,rem)}</div>
-        <div style="flex:1;height:3px;background:${isRunning?col:'#e2e8f0'};border-radius:2px;min-width:20px"></div>
-        <div style="display:flex;flex-direction:column;align-items:center;gap:2px;flex-shrink:0">
-          <div style="width:46px;height:46px;border-radius:50%;background:${isRunning?col+'22':'#f1f5f9'};border:2px solid ${isRunning?col:'#cbd5e1'};display:flex;align-items:center;justify-content:center;${isRunning?'animation:pumpSpin 1s linear infinite':''}"><span style="font-size:22px">⚙️</span></div>
-          <div style="font-family:var(--mono);font-size:9px;font-weight:900;color:#111827">PUMP</div>
-          <div style="font-family:var(--mono);font-size:9px;font-weight:700;color:#111827">${fr}</div>
+        <!-- ถังปัจจุบัน — ขนาดเท่า queue card -->
+        <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:2px">
+          <div style="font-family:var(--mono);font-size:13px;font-weight:900;color:#111827;background:#e2e8f0;border:2px solid #b0bac8;border-radius:6px;padding:2px 10px;margin-bottom:2px">${agingTank}</div>
+          <div style="position:relative;display:flex;justify-content:center">
+            ${tankSVG('S'+line.id,pct,col,hasLiquid,current.status==='pasteurising'?'♨️':isRunning?'🔵':curing.done?'✅':'🌡️',current.status==='pasteurising'?'#fb923c':curing.done?'#4ade80':'#fde047',150,200,rem)}
+            <div style="position:absolute;bottom:28px;left:50%;transform:translateX(-50%);background:${isRunning?col:'#111827'}cc;color:#fff;font-family:var(--mono);font-size:11px;font-weight:800;padding:3px 10px;border-radius:999px;white-space:nowrap;pointer-events:none">${isRunning?'▶ กำลังเดิน':curing.done?'✅ พร้อม':'⏳ รอบ่ม'}</div>
+          </div>
+          <div style="font-family:var(--mono);font-size:11px;font-weight:800;color:#111827">Batch ${current.batch_no||'—'}</div>
         </div>
-        <div style="flex:1;height:3px;background:${isRunning?col:'#e2e8f0'};border-radius:2px;min-width:20px"></div>
-        <div style="display:flex;flex-direction:column;align-items:center;gap:2px;flex-shrink:0">
-          <div style="width:52px;height:46px;border-radius:10px;background:${isRunning?col+'22':'#f1f5f9'};border:2px solid ${isRunning?col:'#cbd5e1'};display:flex;align-items:center;justify-content:center"><span style="font-size:22px">❄️</span></div>
-          <div style="font-family:var(--mono);font-size:9px;font-weight:900;color:#111827">FREEZER</div>
-          <div style="font-family:var(--mono);font-size:9px;font-weight:700;color:#111827">${(lineStates[line.id]||{}).fz_A||'—'}</div>
+        <!-- Flow line -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;min-width:180px">
+          <div style="width:100%;display:flex;align-items:center;gap:6px">
+            <div style="flex:1;height:${isRunning?4:3}px;background:${isRunning?col:'#e2e8f0'};border-radius:2px;transition:all .3s"></div>
+            <!-- PUMP -->
+            <div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0">
+              <div style="width:54px;height:54px;border-radius:50%;background:${isRunning?col+'33':'#f1f5f9'};border:${isRunning?'3px solid '+col:'2px solid #cbd5e1'};display:flex;align-items:center;justify-content:center;${isRunning?'animation:pumpSpin 1s linear infinite;box-shadow:0 0 12px '+col+'66':''}">
+                <span style="font-size:26px">⚙️</span>
+              </div>
+              <div style="font-family:var(--mono);font-size:11px;font-weight:900;color:${isRunning?col:'#111827'}">PUMP</div>
+              <div style="font-family:var(--mono);font-size:12px;font-weight:900;color:#111827;background:${isRunning?col+'22':'#f1f5f9'};border:1.5px solid ${isRunning?col:'#e2e8f0'};border-radius:6px;padding:2px 8px">${fr} L/hr</div>
+            </div>
+            <div style="flex:1;height:${isRunning?4:3}px;background:${isRunning?col:'#e2e8f0'};border-radius:2px;transition:all .3s"></div>
+            <!-- FREEZER -->
+            <div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0">
+              <div style="width:58px;height:54px;border-radius:12px;background:${isRunning?col+'33':'#f1f5f9'};border:${isRunning?'3px solid '+col:'2px solid #cbd5e1'};display:flex;align-items:center;justify-content:center;${isRunning?'box-shadow:0 0 12px '+col+'66':''}">
+                <span style="font-size:26px">❄️</span>
+              </div>
+              <div style="font-family:var(--mono);font-size:11px;font-weight:900;color:${isRunning?col:'#111827'}">FREEZER</div>
+              <div style="font-family:var(--mono);font-size:12px;font-weight:900;color:#111827;background:${isRunning?col+'22':'#f1f5f9'};border:1.5px solid ${isRunning?col:'#e2e8f0'};border-radius:6px;padding:2px 8px">${(lineStates[line.id]||{}).fz_A||'—'}</div>
+            </div>
+            <div style="flex:1;height:${isRunning?4:3}px;background:${isRunning?col:'#e2e8f0'};border-radius:2px;transition:all .3s"></div>
+            <!-- LINE -->
+            <div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0">
+              <div style="width:58px;height:54px;border-radius:12px;background:${isRunning?col+'33':'#f1f5f9'};border:${isRunning?'3px solid '+col:'2px solid #cbd5e1'};display:flex;align-items:center;justify-content:center;${isRunning?'box-shadow:0 0 12px '+col+'66':''}">
+                <span style="font-size:26px">🏭</span>
+              </div>
+              <div style="font-family:var(--mono);font-size:11px;font-weight:900;color:${isRunning?col:'#111827'}">${line.name.toUpperCase()}</div>
+              <div style="font-family:var(--mono);font-size:10px;font-weight:700;color:#64748b;padding:2px 8px">Filling</div>
+            </div>
+          </div>
+          <!-- mix code + name ใต้ flow -->
+          <div style="width:100%;background:${isRunning?col+'11':'#f8fafc'};border:1.5px solid ${isRunning?col+'44':'#e2e8f0'};border-radius:10px;padding:8px 12px;margin-top:4px">
+            <div style="font-family:var(--mono);font-size:14px;font-weight:900;color:#111827">${current.mix_code||'—'}</div>
+            <div style="font-size:13px;font-weight:800;color:#111827;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${current.mix_name||'—'}</div>
+            <div style="font-family:var(--mono);font-size:12px;font-weight:700;color:#374151;margin-top:2px">Batch <span style="color:#111827;font-weight:900">${current.batch_no||'—'}</span></div>
+          </div>
         </div>
-        <div style="flex:1;height:3px;background:${isRunning?col:'#e2e8f0'};border-radius:2px;min-width:20px"></div>
-        <div style="display:flex;flex-direction:column;align-items:center;gap:2px;flex-shrink:0">
-          <div style="width:52px;height:46px;border-radius:10px;background:${isRunning?col+'22':'#f1f5f9'};border:2px solid ${isRunning?col:'#cbd5e1'};display:flex;align-items:center;justify-content:center"><span style="font-size:22px">🏭</span></div>
-          <div style="font-family:var(--mono);font-size:9px;font-weight:900;color:#111827">${line.name.toUpperCase()}</div>
-        </div>
-        <div style="flex:1;height:3px;min-width:8px"></div>
         <div style="flex-shrink:0">${fpPanel(line.id,'A')}</div>
       </div>
 
@@ -1024,14 +1052,16 @@ function calcVol(row){
   const q="'";
   const qLbl=qi===0?'<span style="font-family:var(--mono);font-size:11px;font-weight:900;color:#dc2626;background:#fee2e2;border:1.5px solid #fca5a5;border-radius:5px;padding:1px 7px">คิว 1 ▶</span>':'<span style="font-family:var(--mono);font-size:10px;font-weight:900;color:#111827;background:#e2e8f0;border:1.5px solid #b0bac8;border-radius:5px;padding:1px 7px">คิว '+(qi+1)+'</span>';
   return '<div style="flex-shrink:0;width:200px;background:#fff;border:2px solid '+(qi===0?'#fca5a5':'#e2e8f0')+';border-radius:14px;padding:12px;display:flex;flex-direction:column;align-items:center;gap:4px">'
-    +'<div style="width:100%;display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">'+qLbl+'<span style="font-family:var(--mono);font-size:10px;font-weight:900;color:#111827">'+qTank+'</span></div>'
+    +'<div style="width:100%;display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">'+qLbl+'</div>'
     +'<div style="position:relative;width:100%;display:flex;justify-content:center">'
       +tankSVG('Q'+qi+'_'+line.id,qPct,qcol,qVol>0,null,null,150,200,qVol)
+      +'<div style="position:absolute;top:6px;left:50%;transform:translateX(-50%);background:#111827;color:#fff;font-family:var(--mono);font-size:15px;font-weight:900;padding:2px 12px;border-radius:8px;white-space:nowrap;pointer-events:none;letter-spacing:.04em">'+qTank+'</div>'
       +'<div style="position:absolute;bottom:28px;left:50%;transform:translateX(-50%);background:#111827cc;color:#fff;font-family:var(--mono);font-size:11px;font-weight:800;padding:3px 10px;border-radius:999px;white-space:nowrap;pointer-events:none">⏳ รอ</div>'
     +'</div>'
     +'<div style="width:100%;margin-top:4px">'
       +'<div style="font-family:var(--mono);font-size:12px;font-weight:900;color:#111827">'+(r.mix_code||'—')+'</div>'
       +'<div style="font-size:11px;font-weight:800;color:#111827;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:176px">'+(qp.name||r.mix_name||'—')+'</div>'
+      +'<div style="font-family:var(--mono);font-size:11px;font-weight:800;color:#374151;margin-top:2px">Batch <span style="color:#111827;font-weight:900">'+(r.batch_no||'—')+'</span></div>'
       +'<div style="width:100%;background:#e2e8f0;border-radius:4px;height:6px;margin-top:5px;overflow:hidden"><div style="height:100%;border-radius:4px;background:'+qPctC+';width:'+qPct.toFixed(1)+'%"></div></div>'
       +'<div style="font-family:var(--mono);font-size:11px;font-weight:900;color:'+qPctC+';margin-top:2px">'+(qVol>0?qVol.toLocaleString()+' L ('+qPct.toFixed(0)+'%)':'—')+'</div>'
     +'</div>'
