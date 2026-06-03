@@ -431,7 +431,7 @@ function makeTankCard(tankId){
 
   // SVG ถัง
   const uid='ag'+tankId.replace(/[^a-z0-9]/gi,'');
-  const svgHtml=svg?svg(uid,pct,col,!isEmpty):'';
+  const svgHtml=typeof tankSVG==='function'?tankSVG(tankId,pct,col,!isEmpty,stLabel,col):'';
 
   const div=document.createElement('div');
   div.className='tc'+(status==='filling'||status==='past_done'?' active':status==='aging'?' curing':status==='empty'?' empty':'');
