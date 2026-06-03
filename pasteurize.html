@@ -755,7 +755,7 @@ function buildStepHtml(st, i, stepsLen, pcol, rid){
   if(st.id==='tank'){
     const _svgMix = (()=>{try{return window.mixTankSVG&&window._pastRow?window.mixTankSVG(window._pastRow,3000):'';} catch(e){return '';}})();
     nodeHtml = _svgMix
-      ? `<div class="tv3-step" style="width:100px">${_svgMix}<div class="tv3-sn ${snCls}" style="margin-top:4px">${st.name}</div><div class="tv3-sv ${svCls}">${st.kg}</div></div>`
+      ? `<div class="tv3-step" style="width:130px">${_svgMix}<div class="tv3-sn ${snCls}" style="margin-top:4px">${st.name}</div><div class="tv3-sv ${svCls}">${st.kg}</div></div>`
       : `<div class="tv3-step"><div class="tv3-circle ${cls}"><span style="font-size:28px">${st.ico}</span></div><div class="tv3-sn ${snCls}">${st.name}</div><div class="tv3-sv ${svCls}">${st.kg}</div></div>`;
   } else if(st.id==='aging'){
     const _agId = window._pastRow?.aging_tank||'';
@@ -764,11 +764,11 @@ function buildStepHtml(st, i, stepsLen, pcol, rid){
     const _cap = _agId?getTankCapacity(_agId):0;
     const _p = _cap>0?Math.min(100,(_v/_cap)*100):0;
     const _col = _agSt.status==='pasteurising'?'#ea580c':'#3b82f6';
-    const _svgAg = (()=>{try{return _agId&&window.cipTankSVG?window.cipTankSVG(_agId,_p,_col,_agSt.status==='pasteurising','🪣 '+_agId,_col,100,220):'';} catch(e){return '';}})();
+    const _svgAg = (()=>{try{return _agId&&window.cipTankSVG?window.cipTankSVG(_agId,_p,_col,_agSt.status==='pasteurising',null,null,120,220):'';} catch(e){return '';}})();
     const _expHtml = expireBox(_agSt.expire_at||null);
     const _tempHtml = tempBox(_agSt);
     nodeHtml = _svgAg
-      ? `<div class="tv3-step" style="width:100px">${_svgAg}<div class="tv3-sn ${snCls}" style="margin-top:4px">${st.name}</div><div class="tv3-sv ${svCls}">${st.kg}</div>${_expHtml}${_tempHtml}</div>`
+      ? `<div class="tv3-step" style="width:130px">${_svgAg}<div class="tv3-sn ${snCls}" style="margin-top:4px">${_agId||st.name}</div><div class="tv3-sv ${svCls}">${_v>0?Math.round(_v).toLocaleString()+' L':st.kg}</div>${_expHtml}${_tempHtml}</div>`
       : `<div class="tv3-step"><div class="tv3-circle ${cls}"><span style="font-size:28px">${st.ico}</span></div><div class="tv3-sn ${snCls}">${st.name}</div><div class="tv3-sv ${svCls}">${st.kg}</div></div>`;
   } else {
     const ccpStyle = st.isCCP&&st.autoDone ? 'background:#d1fae5;border-color:#10b981;border-width:3px' : '';
@@ -964,7 +964,7 @@ window.mixTankSVG=function(row,cap){
   const isActive=['mixing','pasteurising','past_done','waiting_past','ready','busy'].includes(st);
   const pct=isActive&&vol>0?Math.min(100,(vol/cap)*100):0;
   const hasLiq=pct>0;
-  const sw=100,sh=210,bX=10,bY=40,bW=80,bH=138;
+  const sw=120,sh=220,bX=10,bY=40,bW=100,bH=148;
   const fillH=Math.max(0,Math.min(bH-4,(pct/100)*(bH-4)*0.92));
   const wy=Math.max(bY+2,bY+bH-fillH);
   const A=5,midY=bY+bH/2;
