@@ -79,12 +79,12 @@ main{padding:14px;display:flex;flex-direction:column;gap:14px}
 .ch-dot{color:var(--t3);font-size:10px}
 .ch-prod{font-size:14px;font-weight:800;color:#111827}
 .ch-code{font-family:var(--mono);font-size:13px;font-weight:900;color:#111827}
-.ch-name{font-size:12px;font-weight:700;color:#374151}
-.ch-batch{font-family:var(--mono);font-size:11px;color:#374151;margin-top:3px;font-weight:700}
+.ch-name{font-size:12px;font-weight:700;color:#111827}
+.ch-batch{font-family:var(--mono);font-size:11px;color:#111827;margin-top:3px;font-weight:700}
 .ch-rp{font-family:var(--mono);font-size:11px;font-weight:800;color:#7c3aed;letter-spacing:.08em;margin-top:3px}
 
 /* AGING */
-.ab{font-family:var(--mono);font-size:13px;font-weight:900;color:#0e7490;
+.ab{font-family:var(--mono);font-size:13px;font-weight:900;color:#111827;
   background:rgba(14,116,144,.1);border:1.5px solid rgba(14,116,144,.3);
   border-radius:8px;text-align:center;margin:10px 12px 0;padding:5px 0;letter-spacing:.06em}
 
@@ -111,7 +111,7 @@ main{padding:14px;display:flex;flex-direction:column;gap:14px}
 .lsel-lbl{font-family:var(--mono);font-size:10px;color:var(--t2);flex-shrink:0}
 .lsel-btn{font-family:var(--mono);font-size:11px;padding:5px 12px;border-radius:6px;border:1px solid var(--b2);background:none;color:var(--t2);cursor:pointer;white-space:nowrap;transition:all .2s}
 .lsel-btn:hover,.lsel-btn.on{border-color:var(--orange);color:var(--orange);background:rgba(255,140,66,.1)}
-.lsel-btn.all.on{border-color:var(--cyan);color:var(--cyan);background:rgba(0,212,255,.08)}
+.lsel-btn.all.on{border-color:#111827;color:#111827;background:rgba(0,212,255,.08)}
 @keyframes wave{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 @keyframes wave2{0%{transform:translateX(-30%)}100%{transform:translateX(20%)}}
 @keyframes rise{0%{transform:translateY(0);opacity:.6}100%{transform:translateY(-30px);opacity:0}}
@@ -545,7 +545,7 @@ function card(row,isCur,isSingle=false){
         +'<span class="ch-line">'+(at!=='—'?at:(row.filling_line||'—'))+'</span>'
         +'<span style="font-family:var(--mono);font-size:10px;font-weight:800;padding:2px 8px;border-radius:5px;background:'+(isCur?'#ea580c':'#6b7280')+';color:#fff;margin-left:6px">'+(isCur?'● เดิน':'○ คิว')+'</span>'
       +'</div>'
-      +'<div style="font-family:var(--mono);font-size:12px;font-weight:900;color:#374151;margin-bottom:2px">'+(row.mix_code||'—')+'</div>'
+      +'<div style="font-family:var(--mono);font-size:12px;font-weight:900;color:#111827;margin-bottom:2px">'+(row.mix_code||'—')+'</div>'
       +'<div class="ch-prod">'+(row.mix_name||row.product_name||'—')+(filled>0?' <span style="font-family:var(--mono);font-size:13px;font-weight:900;color:'+pctC+'">'+filled.toLocaleString()+' L</span>':'')+'</div>'
       +(rp!=='\u2014'?'<div style="font-family:var(--mono);font-size:11px;color:#6b7280;margin-top:4px;font-weight:700">รหัสผลิต: <span style="color:#111827">'+rp+'</span></div>':'')
     +'</div>'
