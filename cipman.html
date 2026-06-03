@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- updated 2026-06-03 08:00:37 -->
 <!-- v2 updated 2026-06-03 07:51:20 -->
 <!-- PROD.SYS cipman.html — updated 2026-06-03 01:20:55 -->
 <html lang="th">
@@ -658,8 +659,8 @@ function fpPanel(lineId,tank){
   const st=lineStates[lineId]||{};
   const hotOk=st[`hot_${tank}`]||false;
   const cipOk=st[`cip_${tank}`]||false;
-  const fzO=freezers.map(f=>`<option value="${f}"${fp.fz===f?' selected':''}>${f}</option>`).join('');
-  const ppO=pipes.map(p=>`<option value="${p}"${fp.pp===p?' selected':''}>${p}</option>`).join('');
+  const fzO=freezers.map(f=>'<option value="'+f+'"'+(fp.fz===f?' selected':'')+'>'+f+'</option>').join('');
+  const ppO=pipes.map(p=>'<option value="'+p+'"'+(fp.pp===p?' selected':'')+'>'+p+'</option>').join('');
   const selStyle='width:100%;background:#fff;border:2px solid #b0bac8;border-radius:8px;color:#111827;font-family:var(--mono);font-size:13px;font-weight:700;padding:8px 10px;outline:none;cursor:pointer';
   const lblStyle='font-family:var(--mono);font-size:11px;font-weight:800;color:#111827;margin-bottom:5px;text-transform:uppercase;letter-spacing:.06em';
   return`<div style="background:var(--s1);border:1.5px solid var(--b1);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px">
@@ -835,7 +836,7 @@ function queueList(q,accent,lineId){
     const p=productMap[item.mix_code];
     const ce=(stat==='curing'||stat==='ready')&&item.past_end_time?calcCuringEnd(item.past_end_time,+(p?.aging_time||4)):'';
     const col=p?.color||'#60a5fa';
-    const hwKey=`hw_${item.id}`;const hwDone=!!hwState[hwKey];
+    const hwKey='hw_'+item.id;const hwDone=!!hwState[hwKey];
     const showHW=stat==='curing'||stat==='ready';
     return`<div class="qitem ${stat}">
       <div class="qrow1">
@@ -1033,7 +1034,7 @@ function calcVol(row){
       </div>
       ${queue.length?('<div style="padding:12px 16px;background:#f8fafc;border-top:1px solid #e2e8f0"><div style="font-family:var(--mono);font-size:9px;font-weight:900;color:#94a3b8;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px">คิวถัดไป — '+queue.length+' ถัง</div><div style="display:flex;gap:12px;flex-wrap:wrap">'+queue.map((r,qi)=>{const qp=productMap[r.mix_code]||{};const qcol=qp.color||'#60a5fa';const qAts=agingStates[r.aging_tank]||{};const qVol=+(qAts.current_vol??r.volume_liter??0);const qTot=+(r.volume_liter||0);const qPct=qTot>0?Math.min(100,(qVol/qTot)*100):0;return '<div style="flex:1;min-width:160px;max-width:240px;background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:12px;display:flex;gap:12px;align-items:center">'+tankSVG('Q'+qi+'_'+line.id,qPct,qcol,qVol>0,'⏳ รอ','#94a3b8',70,130,qVol)+'<div style="flex:1;min-width:0"><div style="font-family:var(--mono);font-size:10px;font-weight:900;color:#94a3b8;margin-bottom:2px">คิว '+(qi+1)+'</div><div style="font-family:var(--mono);font-size:13px;font-weight:900;color:#111827">'+(r.aging_tank||'—')+'</div><div style="font-family:var(--mono);font-size:11px;font-weight:800;color:#111827;margin-top:2px">'+(r.mix_code||'—')+'</div><div style="font-size:12px;font-weight:700;color:#111827;margin-top:1px">'+(qp.name||r.mix_name||'—')+'</div><div style="font-family:var(--mono);font-size:12px;font-weight:900;color:#111827;margin-top:3px">'+(qVol>0?qVol.toLocaleString()+' L':'—')+'</div></div></div>';}).join('')+'</div></div>'):''}
     </div>
-  </div>``;
+  </div>`;
 }
 
 // RENDER ALL
@@ -1132,21 +1133,7 @@ function renderQueuePage(){
   list.innerHTML=ready.map((row,i)=>{
     const p=productMap[row.mix_code];const col=p?.color||'#60a5fa';
     const ce=row.past_end_time?calcCuringEnd(row.past_end_time,+(p?.aging_time||4)):'—';
-    return`<div class="queue-page-item">
-      <div class="queue-page-row">
-        <span style="font-family:var(--mono);font-size:11px;color:var(--t3)">${i+1}</span>
-        <span style="font-family:var(--mono);font-weight:700;color:#111827">${row.filling_line||'—'}</span>
-        <span style="width:10px;height:10px;border-radius:50%;background:${col};flex-shrink:0;display:inline-block"></span>
-        <span style="font-family:var(--mono);font-size:12px;color:var(--blue2)">${row.mix_code||'—'}</span>
-        <span style="font-size:12px;color:var(--t2)">${row.mix_name||''}</span>
-      </div>
-      <div class="queue-page-row">
-        <span style="font-family:var(--mono);font-size:11px;color:var(--t3)">Batch ${row.batch_no||'—'}</span>
-        <span style="font-family:var(--mono);font-size:12px;color:#111827">${displayVol(row)}</span>
-        <span style="font-family:var(--mono);font-size:11px;color:var(--t3);margin-left:auto">บ่มเสร็จ ${ce}</span>
-      </div>
-      ${(()=>{const agSt2=agingStates&&row.aging_tank?agingStates[row.aging_tank]||{}:{};return expireBox(agSt2.expire_at||null);})()}
-    </div>`;
+    return '<div class="queue-page-item"><div class="queue-page-row"><span style="font-family:var(--mono);font-size:11px;color:var(--t3)">'+(i+1)+'</span><span style="font-family:var(--mono);font-weight:700;color:#111827">'+(row.filling_line||'—')+'</span><span style="width:10px;height:10px;border-radius:50%;background:'+col+';flex-shrink:0;display:inline-block"></span><span style="font-family:var(--mono);font-size:12px;color:var(--blue2)">'+(row.mix_code||'—')+'</span><span style="font-size:12px;color:var(--t2)">'+(row.mix_name||'')+'</span></div><div class="queue-page-row"><span style="font-family:var(--mono);font-size:11px;color:var(--t3)">Batch '+(row.batch_no||'—')+'</span><span style="font-family:var(--mono);font-size:12px;color:#111827">'+displayVol(row)+'</span><span style="font-family:var(--mono);font-size:11px;color:var(--t3);margin-left:auto">บ่มเสร็จ '+ce+'</span></div>'+(()=>{const agSt2=agingStates&&row.aging_tank?agingStates[row.aging_tank]||{}:{};return expireBox(agSt2.expire_at||null);})()+'</div>';
   }).join('');
 }
 
@@ -1183,7 +1170,7 @@ window.resetLine=async(lineId)=>{
 let pendingEmpty=null;
 window.askEmpty=(lineId,col,planId,lineName)=>{
   pendingEmpty={lineId,col,planId,lineName};
-  $('m-empty-sub').textContent=`LINE ${lineName} จะถูกบันทึกและถังถัดไปโหลดขึ้นมา`;
+  $('m-empty-sub').textContent='LINE '+lineName+' จะถูกบันทึกและถังถัดไปโหลดขึ้นมา';
   $('m-empty').classList.add('show');
   $('m-empty-confirm').onclick=confirmEmpty;
 };
@@ -1211,8 +1198,8 @@ $('m-empty').addEventListener('click',e=>{if(e.target===$('m-empty'))window.clos
 
 // MANAGE
 function renderManageList(){
-  const fl=$('fz-list');if(fl)fl.innerHTML=freezers.map((f,i)=>`<div class="mlist-item"><span>🧊</span><span class="mlist-name">${f}</span><button class="mdel" onclick="delFreezer(${i})">✕</button></div>`).join('');
-  const pl=$('pp-list');if(pl)pl.innerHTML=pipes.map((p,i)=>`<div class="mlist-item"><span>🔧</span><span class="mlist-name">${p}</span><button class="mdel" onclick="delPipe(${i})">✕</button></div>`).join('');
+  const fl=$('fz-list');if(fl)fl.innerHTML=freezers.map((f,i)=>'<div class="mlist-item"><span>🧊</span><span class="mlist-name">'+f+'</span><button class="mdel" onclick="delFreezer('+i+')">✕</button></div>').join('');
+  const pl=$('pp-list');if(pl)pl.innerHTML=pipes.map((p,i)=>'<div class="mlist-item"><span>🔧</span><span class="mlist-name">'+p+'</span><button class="mdel" onclick="delPipe('+i+')">✕</button></div>').join('');
 }
 window.openManage=()=>{renderManageList();$('m-manage').classList.add('show');};
 window.closeManage=()=>$('m-manage').classList.remove('show');
@@ -1267,7 +1254,7 @@ function tickCountdowns(){
 window.showPage=(p,btn)=>{
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('on'));
   document.querySelectorAll('.ntab').forEach(el=>el.classList.remove('on'));
-  $(`page-${p}`).classList.add('on');btn.classList.add('on');
+  $('page-'+p).classList.add('on');btn.classList.add('on');
 };
 
 
