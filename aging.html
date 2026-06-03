@@ -205,6 +205,50 @@ import{getAuth,signOut,onAuthStateChanged}from"https://www.gstatic.com/firebasej
 import{getFirestore,collection,query,where,onSnapshot,doc,setDoc,getDocs}
   from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+
+// ── Inline fallback functions (จาก shared.js) ──────────────
+function expireBox(expireAt){
+  if(!expireAt) return '';
+  var ed=new Date(expireAt);
+  var now=new Date();
+  var rh=(ed-now)/3600000;
+  var isExp=rh<0;
+  var isCrit=!isExp&&rh<24;
+  var isWarn=!isExp&&rh<48;
+  var bc=isExp?'#b91c1c':isCrit?'#b91c1c':isWarn?'#c2410c':'#15803d';
+  var bg=isExp?'rgba(185,28,28,.12)':isCrit?'rgba(185,28,28,.08)':isWarn?'rgba(194,65,12,.08)':'rgba(21,128,61,.08)';
+  var ic=isExp?'❌':isCrit?'⚠️':isWarn?'🟡':'✅';
+  var dateStr=ed.toLocaleDateString('th-TH',{weekday:'short',day:'2-digit',month:'short'});
+  var timeStr=ed.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+  var rh2=Math.abs(rh);
+  var remStr=isExp?'หมดอายุแล้ว':rh2<1?Math.round(rh2*60)+' นาที':rh2<24?rh2.toFixed(1)+' ชม.':Math.floor(rh2/24)+' วัน '+Math.round(rh2%24)+' ชม.';
+  return '<div style="background:'+bg+';border:2px solid '+bc+';border-radius:8px;padding:6px 10px;margin:6px 12px 0;font-family:DM Mono,monospace">'
+    +'<div style="font-size:10px;font-weight:800;color:'+bc+'">'+ic+' วันหมดอายุ</div>'
+    +'<div style="font-size:13px;font-weight:900;color:'+bc+';margin-top:2px">'+dateStr+' '+timeStr+'</div>'
+    +'<div style="font-size:10px;font-weight:700;color:'+bc+';opacity:.8;margin-top:1px">เหลือ '+remStr+'</div>'
+    +'</div>';
+}
+function getMaxTemp(ts){
+  if(!ts) return null;
+  var vals=[];
+  if(ts.max_temp!=null) vals.push(+ts.max_temp);
+  if(ts.temps&&typeof ts.temps==='object') Object.values(ts.temps).forEach(function(v){if(v!=null&&!isNaN(+v))vals.push(+v);});
+  return vals.length?Math.max.apply(null,vals):null;
+}
+function tempBox(ts){
+  var t=getMaxTemp(ts);
+  if(t==null) return '';
+  var ok=t<=6,warn=t>6&&t<=8;
+  var bc=ok?'#15803d':warn?'#c2410c':'#b91c1c';
+  var bg=ok?'rgba(21,128,61,.1)':warn?'rgba(194,65,12,.08)':'rgba(185,28,28,.1)';
+  var ic=ok?'🌡️':warn?'⚠️':'🔴';
+  return '<div style="display:inline-flex;align-items:center;gap:4px;background:'+bg+';border:1.5px solid '+bc+';border-radius:7px;padding:3px 9px;margin:4px 12px 0;font-family:DM Mono,monospace;font-size:12px;font-weight:900;color:'+bc+'">'+ic+' '+t+'°C</div>';
+}
+function displayVol(row){
+  var v=row&&row.current_vol!=null?+row.current_vol:+(row&&row.volume_liter||0);
+  return Math.round(v).toLocaleString()+' L';
+}
+
 const app=initializeApp({
   apiKey:"AIzaSyC3f6jMuhugE6BNfRfkpOA9BMrIKWR9YgQ",
   authDomain:"production-filling.firebaseapp.com",
