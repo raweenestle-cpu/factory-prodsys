@@ -387,7 +387,7 @@ import{getFirestore,collection,query,where,orderBy,limit,getDocs,onSnapshot,doc,
 const app=initializeApp({apiKey:"AIzaSyC3f6jMuhugE6BNfRfkpOA9BMrIKWR9YgQ",authDomain:"production-filling.firebaseapp.com",projectId:"production-filling",storageBucket:"production-filling.firebasestorage.app",messagingSenderId:"89098393458",appId:"1:89098393458:web:b723f2886e8a341935afeb"});
 const auth=getAuth(app);const db=getFirestore(app);
 const $=id=>document.getElementById(id);
-const today=()=>new Date().toISOString().slice(0,10);
+const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
 const nowHMS=()=>{const d=new Date();return[d.getHours(),d.getMinutes(),d.getSeconds()].map(x=>x.toString().padStart(2,'0')).join(':');};
 window.tankStates={};window.planRows={m1:[],m2:[]};const tankStates=window.tankStates;const planRows=window.planRows;let linesData=[],curTab='m1',unsubSt=null;
 const TEMP_TIMES=['02:00','06:00','10:00','14:00','18:00','22:00'];
@@ -459,15 +459,15 @@ function getShift(timeStr){
 }
 function renderShiftSummary(){
   const counts={morning:{cip:0,san:0},afternoon:{cip:0,san:0},night:{cip:0,san:0}};
-  const today=new Date().toISOString().split('T')[0];
+  const today2=today();
   Object.values(tankStates).forEach(ts=>{
     // CIP
-    if(ts.cip_start_time&&(ts.cip_date===today||!ts.cip_date)){
+    if(ts.cip_start_time&&(ts.cip_date===today2||!ts.cip_date)){
       const sh=getShift(ts.cip_start_time);
       if(sh) counts[sh].cip++;
     }
     // Sanitize
-    if(ts.san_start_time&&(ts.san_date===today||!ts.san_date)){
+    if(ts.san_start_time&&(ts.san_date===today2||!ts.san_date)){
       const sh=getShift(ts.san_start_time);
       if(sh) counts[sh].san++;
     }
