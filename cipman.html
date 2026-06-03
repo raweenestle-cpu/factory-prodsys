@@ -8,6 +8,7 @@
 <meta charset="UTF-8">
   
   <meta name="theme-color" content="#1e40af">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="PROD.SYS">
@@ -663,16 +664,15 @@ function fpPanel(lineId,tank){
   const fzO=freezers.map(f=>'<option value="'+f+'"'+(fp.fz===f?' selected':'')+'>'+f+'</option>').join('');
   const ppO=pipes.map(p=>'<option value="'+p+'"'+(fp.pp===p?' selected':'')+'>'+p+'</option>').join('');
   const sel='background:#fff;border:1.5px solid #b0bac8;border-radius:7px;color:#111827;font-family:var(--mono);font-size:12px;font-weight:700;padding:5px 8px;cursor:pointer;height:32px';
-  const q="'";
   return '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">'
-    +'<select style="'+sel+';width:110px" onchange="setFP('+q+lineId+q+','+q+tank+q+','+q+'fz'+q+',this.value)"><option value="">🧊 Freezer</option>'+fzO+'</select>'
-    +'<select style="'+sel+';width:100px" onchange="setFP('+q+lineId+q+','+q+tank+q+','+q+'pp'+q+',this.value)"><option value="">⚙️ ท่อ</option>'+ppO+'</select>'
-    +'<input type="number" value="'+(st.flow_rate||300)+'" min="50" max="2000" step="10" placeholder="L/hr" style="'+sel+';width:80px" onchange="setFP('+q+lineId+q+','+q+tank+q+','+q+'flow_rate'+q+',+this.value)">'
+    +'<select style="'+sel+';width:110px" onchange="setFP(''+lineId+'',''+tank+'','fz',this.value)"><option value="">🧊 Freezer</option>'+fzO+'</select>'
+    +'<select style="'+sel+';width:100px" onchange="setFP(''+lineId+'',''+tank+'','pp',this.value)"><option value="">⚙️ ท่อ</option>'+ppO+'</select>'
+    +'<input type="number" value="'+(st.flow_rate||300)+'" min="50" max="2000" step="10" placeholder="L/hr" style="'+sel+';width:80px" onchange="setFP(''+lineId+'',''+tank+'','flow_rate',+this.value)">'
     +'<label style="display:flex;align-items:center;gap:5px;cursor:pointer;padding:4px 10px;border-radius:7px;background:'+(hotOk?'rgba(21,128,61,.12)':'#f8fafc')+';border:1.5px solid '+(hotOk?'#15803d':'#e2e8f0')+'">'
-    +'<input type="checkbox" '+(hotOk?'checked':'')+' onchange="setFP('+q+lineId+q+','+q+tank+q+','+q+'hot_'+tank+q+',this.checked)" style="width:16px;height:16px;accent-color:#15803d;cursor:pointer">'
+    +'<input type="checkbox" '+(hotOk?'checked':'')+' onchange="setFP(''+lineId+'',''+tank+'','hot_'+tank+'',this.checked)" style="width:16px;height:16px;accent-color:#15803d;cursor:pointer">'
     +'<span style="font-family:var(--mono);font-size:11px;font-weight:800;color:'+(hotOk?'#15803d':'#374151')+'">🌡️ น้ำร้อน</span></label>'
     +'<label style="display:flex;align-items:center;gap:5px;cursor:pointer;padding:4px 10px;border-radius:7px;background:'+(cipOk?'rgba(21,128,61,.12)':'#f8fafc')+';border:1.5px solid '+(cipOk?'#15803d':'#e2e8f0')+'">'
-    +'<input type="checkbox" '+(cipOk?'checked':'')+' onchange="setFP('+q+lineId+q+','+q+tank+q+','+q+'cip_'+tank+q+',this.checked)" style="width:16px;height:16px;accent-color:#15803d;cursor:pointer">'
+    +'<input type="checkbox" '+(cipOk?'checked':'')+' onchange="setFP(''+lineId+'',''+tank+'','cip_'+tank+'',this.checked)" style="width:16px;height:16px;accent-color:#15803d;cursor:pointer">'
     +'<span style="font-family:var(--mono);font-size:11px;font-weight:800;color:'+(cipOk?'#15803d':'#374151')+'">🧹 CIP</span></label>'
     +'</div>';
 }
@@ -1007,7 +1007,44 @@ function calcVol(row){
       </div>
 
       <!-- แถว 3: Queue tanks แนวนอน ใหญ่ -->
-      ${queue.length?('<div style="padding:12px 16px;background:#f8fafc"><div style="font-family:var(--mono);font-size:9px;font-weight:900;color:#94a3b8;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px">คิวถัดไป — '+queue.length+' ถัง</div><div style="display:flex;gap:12px;flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px">'+queue.map((r,qi)=>{const qp=productMap[r.mix_code]||{};const qcol=r.color||qp.color||'#60a5fa';const qAts=agingStates[r.aging_tank]||{};const qVol=+(qAts.current_vol??r.volume_liter??0);const qTot=+(r.volume_liter||0);const qPct=qTot>0?Math.min(100,(qVol/qTot)*100):0;return '<div style="flex-shrink:0;width:150px;background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:12px;display:flex;flex-direction:column;align-items:center;gap:4px"><div style="font-family:var(--mono);font-size:9px;font-weight:900;color:#94a3b8;align-self:flex-start">คิว '+(qi+1)+'</div>'+tankSVG('Q'+qi+'_'+line.id,qPct,qcol,qVol>0,'⏳','#94a3b8',90,170,qVol)+'<div style="width:100%;margin-top:4px"><div style="font-family:var(--mono);font-size:13px;font-weight:900;color:#111827">'+(r.aging_tank||'—')+'</div><div style="font-family:var(--mono);font-size:11px;font-weight:800;color:#111827">'+(r.mix_code||'—')+'</div><div style="font-size:11px;font-weight:700;color:#111827;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(qp.name||r.mix_name||'—')+'</div><div style="font-family:var(--mono);font-size:12px;font-weight:900;color:#111827;margin-top:2px">'+(qVol>0?qVol.toLocaleString()+' L':'—')+'</div></div></div>';}).join('')+'</div></div>'):''}
+      ${queue.length?('<div style="padding:12px 16px;background:#f8fafc"><div style="font-family:var(--mono);font-size:10px;font-weight:900;color:#111827;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px">📋 คิวถัดไป — '+queue.length+' ถัง</div><div style="display:flex;gap:12px;flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px">'+queue.map((r,qi)=>{
+  const qp=productMap[r.mix_code]||{};
+  const qcol=r.color||qp.color||'#60a5fa';
+  const qAts=agingStates[r.aging_tank]||{};
+  const qVol=+(qAts.current_vol??r.volume_liter??0);
+  const qTot=+(r.volume_liter||0);
+  const qPct=qTot>0?Math.min(100,(qVol/qTot)*100):0;
+  const qPctC=qPct>50?'#15803d':qPct>20?'#b45309':'#b91c1c';
+  const qTank=r.aging_tank||'—';
+  const qSt=lineStates[line.id]||{};
+  const hotOk=qSt['hot_'+qTank]||false;
+  const cipOk=qSt['cip_'+qTank]||false;
+  const q="'";
+  const qLbl=qi===0?'<span style="font-family:var(--mono);font-size:11px;font-weight:900;color:#dc2626;background:#fee2e2;border:1.5px solid #fca5a5;border-radius:5px;padding:1px 7px">คิว 1 ▶</span>':'<span style="font-family:var(--mono);font-size:10px;font-weight:900;color:#111827;background:#e2e8f0;border:1.5px solid #b0bac8;border-radius:5px;padding:1px 7px">คิว '+(qi+1)+'</span>';
+  return '<div style="flex-shrink:0;width:200px;background:#fff;border:2px solid '+(qi===0?'#fca5a5':'#e2e8f0')+';border-radius:14px;padding:12px;display:flex;flex-direction:column;align-items:center;gap:4px">'
+    +'<div style="width:100%;display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">'+qLbl+'<span style="font-family:var(--mono);font-size:10px;font-weight:900;color:#111827">'+qTank+'</span></div>'
+    +'<div style="position:relative;width:100%;display:flex;justify-content:center">'
+      +tankSVG('Q'+qi+'_'+line.id,qPct,qcol,qVol>0,null,null,150,200,qVol)
+      +'<div style="position:absolute;bottom:28px;left:50%;transform:translateX(-50%);background:#111827cc;color:#fff;font-family:var(--mono);font-size:11px;font-weight:800;padding:3px 10px;border-radius:999px;white-space:nowrap;pointer-events:none">⏳ รอ</div>'
+    +'</div>'
+    +'<div style="width:100%;margin-top:4px">'
+      +'<div style="font-family:var(--mono);font-size:12px;font-weight:900;color:#111827">'+(r.mix_code||'—')+'</div>'
+      +'<div style="font-size:11px;font-weight:800;color:#111827;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:176px">'+(qp.name||r.mix_name||'—')+'</div>'
+      +'<div style="width:100%;background:#e2e8f0;border-radius:4px;height:6px;margin-top:5px;overflow:hidden"><div style="height:100%;border-radius:4px;background:'+qPctC+';width:'+qPct.toFixed(1)+'%"></div></div>'
+      +'<div style="font-family:var(--mono);font-size:11px;font-weight:900;color:'+qPctC+';margin-top:2px">'+(qVol>0?qVol.toLocaleString()+' L ('+qPct.toFixed(0)+'%)':'—')+'</div>'
+    +'</div>'
+    +'<div style="width:100%;border-top:1px solid #e2e8f0;margin-top:6px;padding-top:6px;display:flex;flex-direction:column;gap:5px">'
+      +'<label style="display:flex;align-items:center;gap:5px;cursor:pointer;padding:4px 8px;border-radius:7px;background:'+(hotOk?'rgba(21,128,61,.12)':'#f8fafc')+';border:1.5px solid '+(hotOk?'#15803d':'#e2e8f0')+'">'
+        +'<input type="checkbox" '+(hotOk?'checked':'')+' onchange="setFP('+q+line.id+q+','+q+qTank+q+','+q+'hot_'+qTank+q+',this.checked)" style="width:15px;height:15px;accent-color:#15803d;cursor:pointer">'
+        +'<span style="font-family:var(--mono);font-size:11px;font-weight:800;color:'+(hotOk?'#15803d':'#374151')+'">🌡️ น้ำร้อน</span>'
+      +'</label>'
+      +'<label style="display:flex;align-items:center;gap:5px;cursor:pointer;padding:4px 8px;border-radius:7px;background:'+(cipOk?'rgba(21,128,61,.12)':'#f8fafc')+';border:1.5px solid '+(cipOk?'#15803d':'#e2e8f0')+'">'
+        +'<input type="checkbox" '+(cipOk?'checked':'')+' onchange="setFP('+q+line.id+q+','+q+qTank+q+','+q+'cip_'+qTank+q+',this.checked)" style="width:15px;height:15px;accent-color:#15803d;cursor:pointer">'
+        +'<span style="font-family:var(--mono);font-size:11px;font-weight:800;color:'+(cipOk?'#15803d':'#374151')+'">🧹 CIP</span>'
+      +'</label>'
+    +'</div>'
+  +'</div>';
+}).join('')+'</div></div>'):''}
 
     </div>
   </div>`;
