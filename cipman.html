@@ -958,16 +958,16 @@ function calcVol(row){
     <!-- HEADER -->
     <div style="padding:10px 14px;border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between;gap:8px">
       <div style="min-width:0;flex:1">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
           <span style="font-family:var(--mono);font-size:14px;font-weight:800;color:var(--orange)">${line.name.toUpperCase()}</span>
-          <span class="spill ${pm[cardStatus]}" style="font-family:var(--mono);font-size:10px">${(()=>{
-            const matched=(line.products||[]).find(p=>(p.mix_codes||[]).some(m=>m.code===current.mix_code));
-            return matched?matched.name:pt[cardStatus];
-          })()}</span>
+          <span class="spill ${pm[cardStatus]}" style="font-family:var(--mono);font-size:10px">${pt[cardStatus]}</span>
         </div>
-        <div style="font-family:var(--mono);font-size:13px;font-weight:700;color:${col};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
-          ${current.mix_name||'—'} &nbsp;·&nbsp; Batch ${current.batch_no||'—'} &nbsp;·&nbsp; ${(+(current.volume_liter||0)).toLocaleString()} L
+        <div style="font-family:var(--mono);font-size:12px;font-weight:900;color:var(--t2);margin-bottom:2px">${agingTank!=='—'?agingTank:''}</div>
+        <div style="font-family:var(--mono);font-size:12px;font-weight:900;color:#374151;margin-bottom:2px">${current.mix_code||'—'}</div>
+        <div style="font-size:14px;font-weight:800;color:${col};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+          ${current.mix_name||'—'} <span style="font-family:var(--mono);font-size:13px;font-weight:900;color:${pctC}">${rem>0?rem.toLocaleString(undefined,{maximumFractionDigits:0})+' L':''}</span>
         </div>
+        ${prodCode!=='—'?`<div style="font-family:var(--mono);font-size:11px;color:#6b7280;margin-top:4px;font-weight:700">รหัสผลิต: <span style="color:#111827">${prodCode}</span></div>`:''}
         <div style="font-family:var(--mono);font-size:12px;color:var(--purple);font-weight:700;margin-top:2px">รหัส: ${prodCodeLabel||prodCode}</div>
       </div>
       <div style="display:flex;gap:4px;flex-shrink:0">
