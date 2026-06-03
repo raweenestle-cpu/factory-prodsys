@@ -60,7 +60,7 @@ main{position:relative;z-index:1;padding:10px 12px;}
 
 /* LINE CARD */
 .lcard{background:var(--s1);border:2px solid var(--b1);border-radius:18px;overflow:hidden;margin-bottom:12px;width:100%}
-.lcard.running{border-color:#15803d;box-shadow:0 4px 20px rgba(21,128,61,.12)}
+.lcard.running{border-color:#15803d;box-shadow:0 4px 20px rgba(21,128,61,.18);animation:runningGlow 1.6s ease-in-out infinite;--glow:rgba(21,128,61,.4)}
 .lcard.curing{border-color:#b45309;box-shadow:0 4px 20px rgba(180,83,9,.12)}
 .lcard.stopped{border-color:#1d4ed8;box-shadow:0 4px 20px rgba(29,78,216,.1)}
 .lcard.empty{opacity:.5}
@@ -276,7 +276,10 @@ main{position:relative;z-index:1;padding:10px 12px;}
 .sig-preview{height:28px;vertical-align:middle;opacity:.95;}
 
 @keyframes pumpSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes pumpGlow{0%,100%{box-shadow:0 0 0 3px currentColor,0 0 16px currentColor}50%{box-shadow:0 0 0 6px currentColor,0 0 32px currentColor}}
+@keyframes cipPumpPulse{0%,100%{box-shadow:0 0 0 0 rgba(37,99,235,.7),0 0 0 0 rgba(37,99,235,.3)}50%{box-shadow:0 0 0 8px rgba(37,99,235,.2),0 0 0 16px rgba(37,99,235,0)}}
 @keyframes flowShine{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+@keyframes runningGlow{0%,100%{box-shadow:0 0 0 0 var(--glow,rgba(59,130,246,.5)),0 4px 20px rgba(0,0,0,.08)}50%{box-shadow:0 0 0 4px var(--glow,rgba(59,130,246,.15)),0 4px 20px rgba(0,0,0,.08)}}
 </style>
 </head>
 <body>
@@ -948,6 +951,7 @@ function calcVol(row){
 
   return`<div class="lcard ${cardStatus}" id="card-${line.id}">
     <div class="accent"></div>
+    ${isRunning?`<div style="background:linear-gradient(90deg,#15803d,#16a34a,#15803d);background-size:200%;animation:shimmer 2s linear infinite;padding:5px 14px;display:flex;align-items:center;gap:8px"><div style="width:8px;height:8px;border-radius:50%;background:#fff;animation:blink .8s ease-in-out infinite;flex-shrink:0"></div><span style="font-family:var(--mono);font-size:11px;font-weight:900;color:#fff;letter-spacing:.08em">● RUNNING — ${line.name.toUpperCase()} · ${fr} L/hr · ${rem>0?rem.toLocaleString(undefined,{maximumFractionDigits:0})+' L เหลือ':'กำลังผลิต'}</span></div>`:''}
 
     <!-- HEADER — ซ้าย: ข้อมูล | ขวา: fpPanel + Force Clear + หมดถัง -->
     <div style="padding:12px 14px;border-bottom:1px solid var(--b1);display:flex;align-items:flex-start;gap:12px">
@@ -983,7 +987,7 @@ function calcVol(row){
     <div style="display:flex;flex-direction:column;gap:0">
 
       <!-- แถว 1: ถัง + flow diagram ใหญ่ชัด -->
-      <div style="padding:12px 16px;background:#fff;border-bottom:1.5px solid #e2e8f0;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <div style="padding:12px 16px;background:${isRunning?col+'0d':'#fff'};border-bottom:1.5px solid ${isRunning?col:'#e2e8f0'};display:flex;align-items:center;gap:10px;flex-wrap:wrap;${isRunning?'box-shadow:inset 0 0 0 2px '+col+'44':''}transition:all .3s">
         <!-- ถังปัจจุบัน — ขนาดเท่า queue card -->
         <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:2px">
           <div style="font-family:var(--mono);font-size:13px;font-weight:900;color:#111827;background:#e2e8f0;border:2px solid #b0bac8;border-radius:6px;padding:2px 10px;margin-bottom:2px">${agingTank}</div>
@@ -999,11 +1003,12 @@ function calcVol(row){
             <div style="flex:1;height:${isRunning?4:3}px;background:${isRunning?col:'#e2e8f0'};border-radius:2px;transition:all .3s"></div>
             <!-- PUMP -->
             <div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0">
-              <div style="width:54px;height:54px;border-radius:50%;background:${isRunning?col+'33':'#f1f5f9'};border:${isRunning?'3px solid '+col:'2px solid #cbd5e1'};display:flex;align-items:center;justify-content:center;${isRunning?'animation:pumpSpin 1s linear infinite;box-shadow:0 0 12px '+col+'66':''}">
-                <span style="font-size:26px">⚙️</span>
+              <div style="width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .3s;position:relative;${isRunning?'border:3px solid #2563eb;background:#dbeafe;animation:pumpSpin .8s linear infinite,cipPumpPulse 1.2s ease-in-out infinite':'border:2.5px solid #b0bac8;background:#f1f5f9'}">
+                <span style="font-size:32px">⚙️</span>
+                ${isRunning?'<div style="position:absolute;bottom:-4px;right:-4px;width:20px;height:20px;border-radius:50%;background:#2563eb;border:2.5px solid #fff;display:flex;align-items:center;justify-content:center"><div style="width:7px;height:7px;border-radius:50%;background:#fff;animation:blink .6s ease-in-out infinite"></div></div>':''}
               </div>
-              <div style="font-family:var(--mono);font-size:11px;font-weight:900;color:${isRunning?col:'#111827'}">PUMP</div>
-              <div style="font-family:var(--mono);font-size:12px;font-weight:900;color:#111827;background:${isRunning?col+'22':'#f1f5f9'};border:1.5px solid ${isRunning?col:'#e2e8f0'};border-radius:6px;padding:2px 8px">${fr} L/hr</div>
+              <div style="font-family:var(--mono);font-size:12px;font-weight:900;color:${isRunning?'#1e40af':'#111827'}">PUMP</div>
+              <div style="font-family:var(--mono);font-size:12px;font-weight:900;color:${isRunning?'#fff':'#111827'};background:${isRunning?'#2563eb':'#f1f5f9'};border:1.5px solid ${isRunning?'#2563eb':'#e2e8f0'};border-radius:6px;padding:2px 8px">${fr} L/hr</div>
             </div>
             <div style="flex:1;height:${isRunning?4:3}px;background:${isRunning?col:'#e2e8f0'};border-radius:2px;transition:all .3s"></div>
             <!-- FREEZER -->
@@ -1031,7 +1036,6 @@ function calcVol(row){
             <div style="font-family:var(--mono);font-size:12px;font-weight:700;color:#374151;margin-top:2px">Batch <span style="color:#111827;font-weight:900">${current.batch_no||'—'}</span></div>
           </div>
         </div>
-        <div style="flex-shrink:0">${fpPanel(line.id,'A')}</div>
       </div>
 
       <!-- แถว 2 (queue): Queue tanks แนวนอน ใหญ่ -->
