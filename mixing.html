@@ -463,7 +463,7 @@ onAuthStateChanged(auth, async user=>{
     snap.docs.forEach(d=>{const p={id:d.id,...d.data()};if(p.mix_code)productMap[p.mix_code]=p;});
     window._productMap=productMap;
     // re-render ถังเมื่อ product colors โหลดแล้ว
-    ['m1','m2'].forEach(m=>renderMixTanks(m, rows[m]||[]));
+    ['m1','m2'].forEach(m=>renderMixTanks(m, rowsData[m]||[]));
   }, e=>console.error('products error:',e));
 
   $("nav-user").textContent=user.email.replace("@filling.local","");
@@ -507,7 +507,7 @@ window._up=async(col,id,field,val)=>{
 window.stampTime=async(col,id,field,m)=>{
   const now=nowHHMM();
   const upd={[field]:now};
-  const row=rows[m]?.find(r=>r.id===id);
+  const row=rowsData[m]?.find(r=>r.id===id);
 
   if(field==="mix_start_time"){
     upd.status="mixing";
@@ -540,8 +540,13 @@ window.stampTime=async(col,id,field,m)=>{
     }
   }
 
-  await updateDoc(doc(db,col,id),upd);
-  toast(`Stamp ${now} แล้ว`,"green");
+  try{
+    await updateDoc(doc(db,col,id),upd);
+    toast(`Stamp ${now} แล้ว`,"green");
+  }catch(e){
+    toast(`❌ บันทึกไม่สำเร็จ: ${e.message}`,"red");
+    console.error('stampTime error:',e);
+  }
 };
 
 window.editTime=async(col,id,field,current,m)=>{
@@ -552,7 +557,7 @@ window.editTime=async(col,id,field,current,m)=>{
   const upd={[field]:clean};
   if(field==="mix_start_time"&&clean) upd.status="mixing";
   if(field==="mix_end_time"&&clean){
-    const row=rows[m]?.find(r=>r.id===id);
+    const row=rowsData[m]?.find(r=>r.id===id);
     if(row){
       const glcOk2=+(row.glc_set||0)<=0||(+(row.glc_actual||0)>0);
       const sgrOk2=+(row.sgr_set||0)<=0||(+(row.sgr_actual||0)>0);
@@ -572,8 +577,13 @@ window.editTime=async(col,id,field,current,m)=>{
     }
     upd.status="pasteurising";
   }
-  await updateDoc(doc(db,col,id),upd);
-  toast("แก้ไขเวลาแล้ว","green");
+  try{
+    await updateDoc(doc(db,col,id),upd);
+    toast("แก้ไขเวลาแล้ว","green");
+  }catch(e){
+    toast(`❌ บันทึกไม่สำเร็จ: ${e.message}`,"red");
+    console.error('editTime error:',e);
+  }
 };
 ;
 
