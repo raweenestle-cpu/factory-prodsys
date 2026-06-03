@@ -9,6 +9,7 @@
   
   <meta name="theme-color" content="#1e40af">
   <meta name="mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="PROD.SYS">
@@ -664,15 +665,16 @@ function fpPanel(lineId,tank){
   const fzO=freezers.map(f=>'<option value="'+f+'"'+(fp.fz===f?' selected':'')+'>'+f+'</option>').join('');
   const ppO=pipes.map(p=>'<option value="'+p+'"'+(fp.pp===p?' selected':'')+'>'+p+'</option>').join('');
   const sel='background:#fff;border:1.5px solid #b0bac8;border-radius:7px;color:#111827;font-family:var(--mono);font-size:12px;font-weight:700;padding:5px 8px;cursor:pointer;height:32px';
+  const q="'";
   return '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">'
-    +'<select style="'+sel+';width:110px" onchange="setFP(''+lineId+'',''+tank+'','fz',this.value)"><option value="">🧊 Freezer</option>'+fzO+'</select>'
-    +'<select style="'+sel+';width:100px" onchange="setFP(''+lineId+'',''+tank+'','pp',this.value)"><option value="">⚙️ ท่อ</option>'+ppO+'</select>'
-    +'<input type="number" value="'+(st.flow_rate||300)+'" min="50" max="2000" step="10" placeholder="L/hr" style="'+sel+';width:80px" onchange="setFP(''+lineId+'',''+tank+'','flow_rate',+this.value)">'
+    +'<select style="'+sel+';width:110px" onchange="setFP('+q+lineId+q+','+q+tank+q+','+q+'fz'+q+',this.value)"><option value="">🧊 Freezer</option>'+fzO+'</select>'
+    +'<select style="'+sel+';width:100px" onchange="setFP('+q+lineId+q+','+q+tank+q+','+q+'pp'+q+',this.value)"><option value="">⚙️ ท่อ</option>'+ppO+'</select>'
+    +'<input type="number" value="'+(st.flow_rate||300)+'" min="50" max="2000" step="10" placeholder="L/hr" style="'+sel+';width:80px" onchange="setFP('+q+lineId+q+','+q+tank+q+','+q+'flow_rate'+q+',+this.value)">'
     +'<label style="display:flex;align-items:center;gap:5px;cursor:pointer;padding:4px 10px;border-radius:7px;background:'+(hotOk?'rgba(21,128,61,.12)':'#f8fafc')+';border:1.5px solid '+(hotOk?'#15803d':'#e2e8f0')+'">'
-    +'<input type="checkbox" '+(hotOk?'checked':'')+' onchange="setFP(''+lineId+'',''+tank+'','hot_'+tank+'',this.checked)" style="width:16px;height:16px;accent-color:#15803d;cursor:pointer">'
+    +'<input type="checkbox" '+(hotOk?'checked':'')+' onchange="setFP('+q+lineId+q+','+q+tank+q+','+q+'hot_'+tank+q+',this.checked)" style="width:16px;height:16px;accent-color:#15803d;cursor:pointer">'
     +'<span style="font-family:var(--mono);font-size:11px;font-weight:800;color:'+(hotOk?'#15803d':'#374151')+'">🌡️ น้ำร้อน</span></label>'
     +'<label style="display:flex;align-items:center;gap:5px;cursor:pointer;padding:4px 10px;border-radius:7px;background:'+(cipOk?'rgba(21,128,61,.12)':'#f8fafc')+';border:1.5px solid '+(cipOk?'#15803d':'#e2e8f0')+'">'
-    +'<input type="checkbox" '+(cipOk?'checked':'')+' onchange="setFP(''+lineId+'',''+tank+'','cip_'+tank+'',this.checked)" style="width:16px;height:16px;accent-color:#15803d;cursor:pointer">'
+    +'<input type="checkbox" '+(cipOk?'checked':'')+' onchange="setFP('+q+lineId+q+','+q+tank+q+','+q+'cip_'+tank+q+',this.checked)" style="width:16px;height:16px;accent-color:#15803d;cursor:pointer">'
     +'<span style="font-family:var(--mono);font-size:11px;font-weight:800;color:'+(cipOk?'#15803d':'#374151')+'">🧹 CIP</span></label>'
     +'</div>';
 }
