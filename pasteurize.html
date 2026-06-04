@@ -367,8 +367,11 @@ setInterval(async()=>{
       const totalMin=(totalVol*density*60)/speed;
       const _tParts=agRow.past_start_time.split(':').map(Number);
       const[h,mm,ss]=[_tParts[0]||0,_tParts[1]||0,_tParts[2]||0];
-      const start=new Date((agRow.date||new Date().toISOString().slice(0,10))+'T'+String(h).padStart(2,'0')+':'+String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0'));
-      const elapsedSec2=Math.max(0,(Date.now()-start)/1000);
+      const now15=new Date();
+      const nowSec15=now15.getHours()*3600+now15.getMinutes()*60+now15.getSeconds();
+      const startSec15=h*3600+mm*60+ss;
+      let elapsedSec2=nowSec15-startSec15;
+      if(elapsedSec2<0)elapsedSec2+=86400; // ข้ามคืน
       const elapsedMin=elapsedSec2/60;
       const agVol=totalMin>0?Math.min(totalVol,(elapsedMin/totalMin)*totalVol):0;
 
@@ -588,8 +591,11 @@ setInterval(async()=>{
     const totalMin=(totalVol*density*60)/speed;
     const totalSec=totalMin*60;
     const _tp=agRow.past_start_time.split(':').map(Number);
-    const start=new Date((agRow.date||new Date().toISOString().slice(0,10))+'T'+String(_tp[0]||0).padStart(2,'0')+':'+String(_tp[1]||0).padStart(2,'0')+':'+String(_tp[2]||0).padStart(2,'0'));
-    const elapsedSec=Math.max(0,(Date.now()-start)/1000);
+    const now5=new Date();
+    const nowSec5=now5.getHours()*3600+now5.getMinutes()*60+now5.getSeconds();
+    const startSec5=(_tp[0]||0)*3600+(_tp[1]||0)*60+(_tp[2]||0);
+    let elapsedSec=nowSec5-startSec5;
+    if(elapsedSec<0)elapsedSec+=86400; // ข้ามคืน
     if(!agRow.past_end_time&&totalSec>0&&elapsedSec>=(totalSec-10)){
       // ถึง ETA — stamp ทันทีโดยไม่รอ 15 วินาที
       const _wmKey=p+'_'+(agRow.process_order||'')+'_'+(agRow.aging_tank||'');
