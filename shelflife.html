@@ -157,7 +157,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;heigh
 
   <!-- SEARCH -->
   <div class="search-bar">
-    <input id="inp-po" type="text" placeholder="กรอก Process Order เช่น PO-2506-001" onkeydown="if(event.key==='Enter')fetchAll()">
+    <input id="inp-po" type="text" placeholder="Process Order เช่น 39885480" onkeydown="if(event.key==='Enter')fetchAll()">
+    <input id="inp-prodcode" type="text" placeholder="รหัสผลิต 10 หลัก เช่น 6053220001" maxlength="10" style="max-width:220px" onkeydown="if(event.key==='Enter')fetchAll()">
     <button class="btn-search" id="btn-fetch" onclick="fetchAll()">🔍 ดึงข้อมูล</button>
   </div>
 
@@ -208,8 +209,8 @@ window.fetchAll=async()=>{
     return;
   }
   const poRaw=$('inp-po').value.trim();
-  if(!poRaw){toast('กรุณากรอก Process Order','#ff4560');return;}
-  // ลอง query ทั้ง string และ number
+  const prodCodeRaw=($('inp-prodcode')?.value||'').trim();
+  if(!poRaw&&!prodCodeRaw){toast('กรุณากรอก Process Order หรือ รหัสผลิต','#ff4560');return;}
   const poStr=poRaw;
   const poNum=isNaN(poRaw)?null:+poRaw;
   const btn=$('btn-fetch');
@@ -217,13 +218,32 @@ window.fetchAll=async()=>{
   $('result-area').innerHTML='<div class="state-box"><div class="ico">⏳</div><div>กำลังดึงข้อมูล...</div></div>';
 
   try{
-    // ดึงจากทุก collection — ลอง number และ string
     const queries=[];
     const cols=['production_plans','production_plans_m2','past_history'];
-    for(const col of cols){
-      queries.push(getDocs(query(collection(db,col),where('process_order','==',poStr))));
-      if(poNum!==null) queries.push(getDocs(query(collection(db,col),where('process_order','==',poNum))));
+
+    if(poRaw){
+      // ค้นหาด้วย process_order
+      for(const col of cols){
+        queries.push(getDocs(query(collection(db,col),where('process_order','==',poStr))));
+        if(poNum!==null) queries.push(getDocs(query(collection(db,col),where('process_order','==',poNum))));
+      }
     }
+
+    if(prodCodeRaw&&prodCodeRaw.length>=6){
+      // รหัสผลิต 10 หลัก = product_code (6) + prod_suffix (4)
+      const _prefix=prodCodeRaw.slice(0,6);
+      const _suffix=prodCodeRaw.length>=10?prodCodeRaw.slice(6):'';
+      for(const col of cols){
+        if(_suffix){
+          // ค้นทั้ง prefix+suffix
+          queries.push(getDocs(query(collection(db,col),where('product_code','==',_prefix),where('prod_suffix','==',_suffix))));
+        } else {
+          // ค้นแค่ prefix
+          queries.push(getDocs(query(collection(db,col),where('product_code','==',_prefix))));
+        }
+      }
+    }
+
     const results=await Promise.all(queries);
     const s1=results[0],s2=results[2]||results[0],s3=results[4]||results[0];
     // รวม docs ทั้งหมด dedup by id
