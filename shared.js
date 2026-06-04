@@ -150,6 +150,8 @@ export function renderExpireAlertBar(agingStates, targetEl){
   targetEl.innerHTML = html;
 }
 
+// แสดง temperature badge
+export function tempBox(tankState){
   var t=getMaxTemp(tankState);
   if(t==null) return '';
   var ok=t<=6;
