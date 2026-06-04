@@ -295,6 +295,7 @@ main{position:relative;z-index:1;padding:10px 12px;}
     <button class="btn-logout" onclick="doLogout()">ออก</button>
   </div>
 </nav>
+<div id="expire-alert-bar" style="padding:0 16px;background:#fff;border-bottom:1px solid var(--b1);min-height:0"></div>
 <div class="line-sel-bar" id="cip-lsb"><span class="lsel-lbl">แสดง LINE:</span><button class="lsel-btn all on" onclick="cipSel('all',this)">ทั้งหมด</button></div>
 <main>
   <!-- BANGCHAN -->
@@ -397,7 +398,7 @@ main{position:relative;z-index:1;padding:10px 12px;}
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import {resolveStatus,statusLabel,statusColor,statusBlink,statusBadge,expireBox,calcExpireAt,displayVol,getProductColor,getMaxTemp,tempBox} from "./shared.js";
+import {resolveStatus,statusLabel,statusColor,statusBlink,statusBadge,expireBox,calcExpireAt,displayVol,getProductColor,getMaxTemp,tempBox,renderExpireAlertBar} from "./shared.js";
 import { getFirestore, collection, query, where, onSnapshot,    updateDoc, addDoc, getDocs, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const app=initializeApp({
@@ -518,6 +519,7 @@ async function init(){
   onSnapshot(collection(db,'aging_tank_states'),snap=>{
     agingStates={};snap.docs.forEach(d=>{agingStates[d.id]={id:d.id,...d.data()};});
     renderAll();
+    renderExpireAlertBar(agingStates, document.getElementById('expire-alert-bar'));
   });
 
   const d=today();
