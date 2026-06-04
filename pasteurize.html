@@ -1082,12 +1082,14 @@ window.mixTankSVG=function(row,cap){
   }
   let s=`<svg width="${sw}" height="${sh}" viewBox="0 0 ${sw} ${sh}" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto">`;
   s+=`<defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${col}" stop-opacity=".55"/><stop offset="100%" stop-color="${col}" stop-opacity=".9"/></linearGradient><clipPath id="${cid}"><rect x="${bX-1}" y="${bY-1}" width="${bW+2}" height="${bH+2}" rx="10"/></clipPath></defs>`;
-  // cap
-  s+=`<rect x="${bX+(bW-24)/2}" y="${bY-8}" width="24" height="10" rx="4" fill="${hasLiq?'#16a34a':'rgba(255,255,255,.1)'}" stroke="${hasLiq?col:'#475569'}" stroke-width="1.5" stroke-opacity=".7"/>`;
-  s+=`<rect x="${bX+(bW-14)/2}" y="${bY-14}" width="14" height="8" rx="3" fill="${hasLiq?'#16a34a':'rgba(255,255,255,.1)'}" stroke="${hasLiq?col:'#475569'}" stroke-width="1.5" stroke-opacity=".6"/>`;
+  // หัวถัง style เดียวกับ cipTankSVG — nozzle + cap
+  const nW=24,nH=10,cW=34,cH=6;
+  const nX=bX+(bW-nW)/2,cX=bX+(bW-cW)/2;
+  s+=`<rect x="${nX}" y="${bY-nH}" width="${nW}" height="${nH+5}" rx="4" fill="${hasLiq?'#16a34a':'rgba(100,116,139,.2)'}" stroke="${hasLiq?col:'#475569'}" stroke-width="1.5" stroke-opacity=".6"/>`;
+  s+=`<rect x="${cX}" y="${bY-nH-cH}" width="${cW}" height="${cH+3}" rx="4" fill="${hasLiq?'#16a34a':'rgba(100,116,139,.15)'}" stroke="${hasLiq?col:'#475569'}" stroke-width="1.5" stroke-opacity=".5"/>`;
   if(hasLiq){
-    s+=`<circle cx="${sw/2}" cy="${bY-11}" r="4" fill="#22c55e" opacity=".9"/>`;
-    s+=`<circle cx="${sw/2}" cy="${bY-11}" r="4" fill="none" stroke="#22c55e" stroke-width="1.5"><animate attributeName="r" from="4" to="10" dur="1.6s" repeatCount="indefinite"/><animate attributeName="opacity" from=".7" to="0" dur="1.6s" repeatCount="indefinite"/></circle>`;
+    s+=`<circle cx="${sw/2}" cy="${bY-nH-2}" r="4" fill="#22c55e" opacity=".9"/>`;
+    s+=`<circle cx="${sw/2}" cy="${bY-nH-2}" r="4" fill="none" stroke="#22c55e" stroke-width="1.5"><animate attributeName="r" from="4" to="10" dur="1.6s" repeatCount="indefinite"/><animate attributeName="opacity" from=".7" to="0" dur="1.6s" repeatCount="indefinite"/></circle>`;
   }
   // body
   s+=`<rect x="${bX}" y="${bY}" width="${bW}" height="${bH}" rx="10" fill="${hasLiq?`rgba(${r2},${g2},${b2},.07)`:'rgba(71,85,105,.2)'}" stroke="${hasLiq?col:'#475569'}" stroke-width="2" stroke-opacity="${hasLiq?'.35':'.5'}"/>`;
@@ -1177,8 +1179,7 @@ window.cipTankSVG=function(uid,pct,col,run,statusTxt,statusCol,sw,sh){
   if(hasLiq){
     s+='<text x="'+(sw/2)+'" y="'+(midY+20)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="'+col+'" font-weight="700" opacity=".8">'+Math.round(pct)+'%</text>';
   }
-  // label ถัง
-  s+='<text x="'+(sw/2)+'" y="'+(bY-8)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="'+tc+'" font-weight="900">'+uid+'</text>';
+  // label ถัง — ไม่แสดงเบอร์ถังที่หัวถัง (แสดงในส่วน header แทน)
   s+='</svg>';
   return s;
 }
