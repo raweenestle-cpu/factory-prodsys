@@ -869,19 +869,18 @@ function buildStepHtml(st, i, stepsLen, pcol, rid, row){
 function buildStepsForPast(row){
   const steps = [];
   const prod = window.productMap&&row.mix_code ? (window.productMap[row.mix_code]||{}) : {};
-  const ptype = prod.Type||prod.type||'';
+  const ptype = prod.Type||prod.type||prod.product_type||'';
+  const _pm = (window.productMap||{})[row.mix_code||'']||{};
+  const ptype2 = _pm.Type||_pm.type||_pm.product_type||ptype;
+  const homoS1 = _pm.homo_stage1||_pm['Homo Stage 1']||_pm.homo_st1||prod.homo_stage1||'—';
+  const homoS2 = _pm.homo_stage2||_pm['Homo Stage 2']||_pm.homo_st2||prod.homo_stage2||'—';
   const isJelly = ptype.toLowerCase().includes('jelly')
     || ptype2.toLowerCase().includes('jelly')
     || (row.mix_name||'').toLowerCase().includes('jell')
     || (row.mix_name||'').toLowerCase().includes('เจลลี่');
-  // ดึงจาก productmaster ผ่าน mix_code
-  const _pm = (window.productMap||{})[row.mix_code||'']||{};
-  const homoS1 = _pm.homo_stage1||_pm['Homo Stage 1']||_pm.homo_st1||prod.homo_stage1||'—';
-  const homoS2 = _pm.homo_stage2||_pm['Homo Stage 2']||_pm.homo_st2||prod.homo_stage2||'—';
-  const ptype2 = _pm.Type||_pm.type||ptype;
   const isJelly2 = isJelly;
-  const tempRange = (isJelly||isJelly2) ? '38–42' : '0–4';
-  const iceWater = (isJelly||isJelly2) ? 'CLOSE' : 'OPEN';
+  const tempRange = isJelly ? '38–42' : '0–4';
+  const iceWater = isJelly ? 'CLOSE' : 'OPEN';
 
   const st2 = row.status||'';
   const isPasteurising = st2==='pasteurising'||st2==='past_done'||st2==='ready';
@@ -1499,12 +1498,12 @@ window.stampTime=async(col,id,field,p)=>{
       const eff=actualSec>0?(reqMin*60/actualSec)*100:0;
       upd.eff=Math.round(eff*10)/10;
 
-      if(eff<97||eff>100){
-        const msg=eff<97
-          ?`⚠️ Eff% = ${eff.toFixed(1)}% ต่ำกว่า 97% — ใช้เวลานานเกินไป`
+      if(eff<97.5||eff>100.5){
+        const effMsg=eff<97.5
+          ?`⚠️ Eff% = ${eff.toFixed(1)}% ต่ำกว่า 97.5% — ใช้เวลานานเกินไป`
           :`⚠️ Eff% = ${eff.toFixed(1)}% เกิน 100% — เวลาน้อยกว่าที่ควร`;
-        const confirm=window.confirm(`${msg}\n\nยืนยัน Stamp Past.เสร็จหรือไม่?`);
-        if(!confirm) return;
+        const effConfirm=window.confirm(`${effMsg}\n\nยืนยันส่งข้อมูลหรือไม่?`);
+        if(!effConfirm) return;
       }
     }
     upd.status="past_done";
@@ -1512,11 +1511,14 @@ window.stampTime=async(col,id,field,p)=>{
     upd.mix_end_time="";
   }
 
-  await updateDoc(doc(db,col,id),upd);
-  toast(`Stamp ${now} แล้ว`,"green");
+  try{
+    await updateDoc(doc(db,col,id),upd);
+    toast(`Stamp ${now} แล้ว`,"green");
+  }catch(e){
+    toast(`❌ บันทึกไม่สำเร็จ: ${e.message}`,"red");
+    console.error('stampTime error:',e);
+  }
 };
-
-// ── EDIT / DELETE TIME ────────────────────────────────────────────────
 window.editTimePrompt=async(col,id,field,current)=>{
   const val=prompt("แก้ไขเวลา (HH:MM หรือ HH:MM:SS) :",current||"");
   if(val===null)return;
