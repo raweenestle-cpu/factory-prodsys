@@ -219,7 +219,21 @@
 <div class="page" id="page-history-all">
   <div style="padding:20px">
     <div style="background:#ffffff;border:2px solid var(--b1);border-radius:14px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.04)">
-      <div style="font-family:var(--mono);font-size:13px;font-weight:900;color:var(--text);margin-bottom:16px">📋 ประวัติการ Pasteurize</div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+        <div style="font-family:var(--mono);font-size:13px;font-weight:900;color:var(--text)">📋 ประวัติการ Pasteurize</div>
+        <div style="flex:1"></div>
+        <span id="hist-count" style="font-family:var(--mono);font-size:11px;color:var(--t2)"></span>
+        <button onclick="window.exportHistoryExcel()" style="padding:7px 14px;border-radius:8px;background:#15803d;color:#fff;border:none;font-family:var(--mono);font-size:12px;font-weight:900;cursor:pointer">📥 Export Excel</button>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+        <input id="hist-search" type="text" placeholder="🔍 ค้นหา Process Order, Mix Code, Unit..." style="flex:1;min-width:200px;padding:8px 12px;border:1.5px solid var(--b1);border-radius:8px;font-family:var(--mono);font-size:12px;outline:none" oninput="window.filterHistory()">
+        <select id="hist-unit" onchange="window.filterHistory()" style="padding:7px 12px;border:1.5px solid var(--b1);border-radius:8px;font-family:var(--mono);font-size:12px;outline:none;background:#fff">
+          <option value="">ทุก Unit</option>
+          <option value="p1">P1</option>
+          <option value="p2">P2</option>
+        </select>
+        <button onclick="document.getElementById('hist-search').value='';document.getElementById('hist-unit').value='';window.filterHistory()" style="padding:7px 12px;border-radius:8px;background:#f1f5f9;color:#374151;border:1.5px solid var(--b1);font-family:var(--mono);font-size:12px;cursor:pointer">✕ ล้าง</button>
+      </div>
       <div id="history-content"></div>
     </div>
   </div>
@@ -1904,13 +1918,17 @@ window.filterHistory=function(){
   if(!el)return;
   const rows=window._historyRows||[];
   const q=($('hist-search')?.value||'').trim().toLowerCase();
-  const filtered=q?rows.filter(r=>{
+  const unit=($('hist-unit')?.value||'').toLowerCase();
+  const filtered=rows.filter(r=>{
+    if(unit&&(r.mixing_unit||'').toLowerCase()!==unit)return false;
+    if(!q)return true;
     const po=(r.process_order||'').toLowerCase();
-    const prodCode=((r.product_code||'')+(r.prod_suffix||'')).toLowerCase();
     const mc=(r.mix_code||'').toLowerCase();
-    return po.includes(q)||prodCode.includes(q)||mc.includes(q);
-  }):rows;
-  if($('hist-count'))$('hist-count').textContent=filtered.length+' รายการ'+(q?' (กรองจาก '+rows.length+')':'');
+    const mn=(r.mix_name||'').toLowerCase();
+    return po.includes(q)||mc.includes(q)||mn.includes(q);
+  });
+  window._filteredRows=filtered;
+  if($('hist-count'))$('hist-count').textContent=filtered.length+' รายการ'+(q||unit?' (กรองจาก '+rows.length+')':'');
   if(!filtered.length){
     el.innerHTML=`<div style="text-align:center;padding:30px;color:var(--t3);font-family:var(--mono)">ไม่พบข้อมูล${q?' สำหรับ "'+q+'"':''}</div>`;
     return;
@@ -1919,6 +1937,7 @@ window.filterHistory=function(){
     <thead><tr style="background:#f8fafc">
       <th style="padding:8px;text-align:left;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1.5px solid var(--b1)">วันที่</th>
       <th style="padding:8px;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1.5px solid var(--b1)">เวลา</th>
+      <th style="padding:8px;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1.5px solid var(--b1)">Unit</th>
       <th style="padding:8px;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1.5px solid var(--b1)">Mix Code</th>
       <th style="padding:8px;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1.5px solid var(--b1)">Process Order</th>
       <th style="padding:8px;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1.5px solid var(--b1)">ชื่อ Mix</th>
@@ -1941,17 +1960,36 @@ window.filterHistory=function(){
       return`<tr style="border-bottom:1px solid var(--b1)">
         <td style="padding:7px 8px;font-family:var(--mono);font-size:11px;color:var(--t2)">${r.archived_date||'—'}</td>
         <td style="padding:7px 8px;font-family:var(--mono);font-size:11px;color:var(--t2)">${r.archived_at||'—'}</td>
+        <td style="padding:7px 8px;text-align:center"><span style="font-family:var(--mono);font-size:11px;font-weight:900;color:#fff;background:${(r.mixing_unit||'').toLowerCase()==='p1'?'#1d4ed8':'#7c3aed'};padding:2px 8px;border-radius:4px">${(r.mixing_unit||'').toUpperCase()||'—'}</span></td>
         <td style="padding:7px 8px;font-family:var(--mono);font-weight:700">${hl(r.mix_code)}</td>
         <td style="padding:7px 8px;font-family:var(--mono);font-weight:700;color:#2563eb">${hl(r.process_order)}</td>
         <td style="padding:7px 8px">${r.mix_name||'—'}</td>
         <td style="padding:7px 8px;font-family:var(--mono)">${r.volume_liter||'—'}</td>
         <td style="padding:7px 8px;font-family:var(--mono);color:var(--t2);font-size:11px">${r.past_start_time||'—'} → ${r.past_end_time||'—'}</td>
         <td style="padding:7px 8px;font-family:var(--mono);color:#a78bfa;font-weight:700">${r.aging_tank||'—'}</td>
-        <td style="padding:7px 8px;font-family:var(--mono);color:var(--t3)">${(r.mixing_unit||'').toUpperCase()||'—'}</td>
         <td style="padding:7px 8px;font-family:var(--mono);font-weight:700;color:${ec}">${el2} ${eff?eff+'%':'—'}</td>
       </tr>`;
     }).join('')}</tbody>
   </table></div>`;
+};
+
+window.exportHistoryExcel=function(){
+  const rows=window._filteredRows||window._historyRows||[];
+  if(!rows.length){alert('ไม่มีข้อมูลที่จะ Export');return;}
+  const headers=['วันที่','เวลา Archive','Unit','Mix Code','Process Order','ชื่อ Mix','Batch','Vol (L)','เริ่ม Past.','Past.เสร็จ','Aging Tank','Eff%'];
+  const esc=v=>'"'+(String(v||'').replace(/"/g,'""'))+'"';
+  const csv=[headers.map(esc).join(','),...rows.map(r=>[
+    r.archived_date||'',r.archived_at||'',(r.mixing_unit||'').toUpperCase(),
+    r.mix_code||'',r.process_order||'',r.mix_name||'',r.batch_no||'',
+    r.volume_liter||'',r.past_start_time||'',r.past_end_time||'',
+    r.aging_tank||'',r.eff?r.eff+'%':''
+  ].map(esc).join(','))].join('\n');
+  const bom='\uFEFF';
+  const blob=new Blob([bom+csv],{type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='past_history_'+(new Date().toISOString().slice(0,10))+'.csv';
+  a.click();URL.revokeObjectURL(url);
 };
 </script>
 </body>
