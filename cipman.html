@@ -1236,10 +1236,24 @@ async function confirmEmpty(){
   // Reset aging_tank_states current_vol เมื่อถังออกไป
   const agTank=st.aging_tank||'';
   if(agTank){
+    // ── Archive ข้อมูลถังทั้งหมด (รวม temps) ลง cip_mixing_records ก่อน clear ──
+    const _agSt=agingStates[agTank]||{};
+    try{await addDoc(collection(db,'cip_mixing_records'),{
+      tank:agTank,type:'emptied',
+      mix_code:_agSt.mix_code||'—',mix_name:_agSt.mix_name||'—',
+      batch_no:_agSt.batch_no||'—',
+      process_order:_agSt.process_order||'—',
+      volume_liter:_agSt.volume_liter||0,
+      current_vol:_agSt.current_vol||0,
+      past_start_time:_agSt.past_start_time||'—',
+      past_end_time:_agSt.past_end_time||'—',
+      temps:_agSt.temps||{},
+      line_id:lineId,line_name:lineName,
+      emptied_at:nowHHMM(),emptied_by:_empName||ME.email,
+      date:today(),created_at:new Date().toISOString()
+    });}catch(e){console.warn('archive temps error:',e);}
     try{await setDoc(doc(db,'aging_tank_states',agTank),{
-      current_vol:0,
-      temps:{},
-      updated_at:new Date().toISOString()
+      current_vol:0,temps:{},updated_at:new Date().toISOString()
     },{merge:true});}catch{}
   }
   await setDoc(doc(db,'cip_line_states',lineId),{running:false,start_ts:null,start_vol:0,aging_tank:'',curing_done:false},{merge:true});
@@ -1315,6 +1329,23 @@ window.forceClearTank=async(agTank)=>{
   if(!agTank){toast('ไม่มี Aging Tank','red');return;}
   if(!confirm('Force Clear ถัง '+agTank+'?'))return;
   try{
+    // ── Archive ข้อมูลถัง (รวม temps) ลง cip_mixing_records ก่อน clear ──
+    const _agSt=agingStates[agTank]||{};
+    if(_agSt.mix_code||_agSt.current_vol){
+      try{await addDoc(collection(db,'cip_mixing_records'),{
+        tank:agTank,type:'force_clear',
+        mix_code:_agSt.mix_code||'—',mix_name:_agSt.mix_name||'—',
+        batch_no:_agSt.batch_no||'—',
+        process_order:_agSt.process_order||'—',
+        volume_liter:_agSt.volume_liter||0,
+        current_vol:_agSt.current_vol||0,
+        past_start_time:_agSt.past_start_time||'—',
+        past_end_time:_agSt.past_end_time||'—',
+        temps:_agSt.temps||{},
+        cleared_by:ME?.email||'—',
+        date:today(),created_at:new Date().toISOString()
+      });}catch(e){console.warn('archive error:',e);}
+    }
     await setDoc(doc(db,'aging_tank_states',agTank),{
       status:'empty',current_vol:0,mix_code:'',mix_name:'',
       batch_no:'',product_code:'',prod_suffix:'',
