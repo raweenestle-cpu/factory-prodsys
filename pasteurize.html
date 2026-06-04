@@ -1879,65 +1879,79 @@ window.showPage=(type,p,btn)=>{
 
 // ── HISTORY ────────────────────────────────────────────────────────────
 async function loadHistory(){
-  const el=$('history-tbody');
+  const el=$('history-content');
   if(!el)return;
-  el.innerHTML=`<tr><td colspan="10" style="text-align:center;padding:20px;color:var(--t3)">⏳ กำลังโหลด...</td></tr>`;
+  el.innerHTML=`<div style="text-align:center;padding:30px;color:var(--t3);font-family:var(--mono)">⏳ กำลังโหลด...</div>`;
   try{
     const {getDocs,query,collection,orderBy,limit}=await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
-    const q=query(collection(db,"past_history"),orderBy("archived_date","desc"),orderBy("archived_at","desc"),limit(200));
+    const q=query(collection(db,"past_history"),orderBy("archived_date","desc"),orderBy("archived_at","desc"),limit(500));
     const snap=await getDocs(q);
-    if(snap.empty){el.innerHTML=`<tr><td colspan="10" style="text-align:center;padding:20px;color:var(--t3)">ไม่มีข้อมูล</td></tr>`;return;}
-    el.innerHTML=snap.docs.map(d=>{
-      const r=d.data();
-      const eff=r.eff||0;
-      const effColor=eff>=99.9&&eff<=100?"#22c55e":eff>100?"#f97316":eff>0?"#ef4444":"var(--t3)";
-      const effLabel=eff>=99.9&&eff<=100?"✅":eff>100?"⚠️":eff>0?"❌":"—";
-      return`<tr>
-        <td style="font-family:var(--mono);font-size:11px;color:var(--t2)">${r.archived_date||'—'}</td>
-        <td style="font-family:var(--mono);font-size:11px;color:var(--t2)">${r.archived_at||'—'}</td>
-        <td style="font-family:var(--mono);font-weight:700">${r.mix_code||'—'}</td>
-        <td style="font-family:var(--mono);color:#111827">${r.process_order||'—'}</td>
-        <td>${r.mix_name||'—'}</td>
-        <td style="font-family:var(--mono)">${r.volume_liter||'—'}</td>
-        <td style="font-family:var(--mono);color:var(--t2)">${r.past_start_time||'—'} → ${r.past_end_time||'—'}</td>
-        <td style="font-family:var(--mono);color:#a78bfa">${(()=>{
-  const _tid=r.aging_tank||'';
-  if(!_tid)return'—';
-  const _st=window._agingStates&&window._agingStates[_tid]?window._agingStates[_tid]:{};
-  const _status=_st.status||'';
-  const _sanStop=_st.san_stop_time||'';
-  let _badge='';
-  if(_status==='san_done'&&_sanStop){
+    if(snap.empty){el.innerHTML=`<div style="text-align:center;padding:30px;color:var(--t3);font-family:var(--mono)">ไม่มีข้อมูล</div>`;return;}
+    window._historyRows=snap.docs.map(d=>({id:d.id,...d.data()}));
+    window.filterHistory();
     // นับถอยหลัง 20 นาที
     const _sp=_sanStop.split(':').map(Number);
     const _sanSec=(_sp[0]||0)*3600+(_sp[1]||0)*60+(_sp[2]||0);
-    const _now=new Date();
-    const _nowSec=_now.getHours()*3600+_now.getMinutes()*60+_now.getSeconds();
-    let _diff=_nowSec-_sanSec;if(_diff<0)_diff+=86400;
-    const _wait=20*60;
-    if(_diff<_wait){
-      const _rem=_wait-_diff;
-      const _m=String(Math.floor(_rem/60)).padStart(2,'0');
-      const _s=String(_rem%60).padStart(2,'0');
-      _badge='<span style="color:#3b82f6;font-weight:700;animation:blink 1s step-start infinite">🔵 San เสร็จ รอ '+_m+':'+_s+'</span>';
-    } else {
-      _badge='<span style="color:#22c55e;font-weight:700">✅ พร้อม Past</span>';
-    }
-  } else if(_status==='cip'){
-    _badge='<span style="color:#f97316;font-size:10px">🔄 CIP</span>';
-  } else if(_status==='san'){
-    _badge='<span style="color:#8b5cf6;font-size:10px">🧴 San</span>';
-  }
-  return _tid+(_badge?'<br>'+_badge:'');
-})()}</td>
-        <td style="font-family:var(--mono);font-size:11px;color:var(--t3)">${r.mixing_unit?.toUpperCase()||'—'}</td>
-        <td style="font-family:var(--mono);font-weight:700;color:${effColor}">${effLabel} ${eff?eff+'%':'—'}</td>
-      </tr>`;
-    }).join('');
   }catch(e){
-    el.innerHTML=`<tr><td colspan="10" style="text-align:center;padding:20px;color:var(--red)">โหลดไม่ได้: ${e.message}</td></tr>`;
+    el.innerHTML=`<div style="text-align:center;padding:20px;color:var(--red);font-family:var(--mono)">❌ โหลดไม่สำเร็จ: ${e.message}</div>`;
+    console.error('loadHistory error:',e);
   }
 }
+
+window.filterHistory=function(){
+  const el=$('history-content');
+  if(!el)return;
+  const rows=window._historyRows||[];
+  const q=($('hist-search')?.value||'').trim().toLowerCase();
+  const filtered=q?rows.filter(r=>{
+    const po=(r.process_order||'').toLowerCase();
+    const prodCode=((r.product_code||'')+(r.prod_suffix||'')).toLowerCase();
+    const mc=(r.mix_code||'').toLowerCase();
+    return po.includes(q)||prodCode.includes(q)||mc.includes(q);
+  }):rows;
+  if($('hist-count'))$('hist-count').textContent=filtered.length+' รายการ'+(q?' (กรองจาก '+rows.length+')':'');
+  if(!filtered.length){
+    el.innerHTML=`<div style="text-align:center;padding:30px;color:var(--t3);font-family:var(--mono)">ไม่พบข้อมูล${q?' สำหรับ "'+q+'"':''}</div>`;
+    return;
+  }
+  el.innerHTML=`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px">
+    <thead><tr style="background:#f8fafc">
+      <th style="padding:8px;text-align:left;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1.5px solid var(--b1)">วันที่</th>
+      <th style="padding:8px;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1.5px solid var(--b1)">เวลา</th>
+      <th style="padding:8px;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1.5px solid var(--b1)">Mix Code</th>
+      <th style="padding:8px;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1.5px solid var(--b1)">Process Order</th>
+      <th style="padding:8px;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1.5px solid var(--b1)">ชื่อ Mix</th>
+      <th style="padding:8px;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1.5px solid var(--b1)">Vol (L)</th>
+      <th style="padding:8px;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1.5px solid var(--b1)">เวลา Past.</th>
+      <th style="padding:8px;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1.5px solid var(--b1)">Aging Tank</th>
+      <th style="padding:8px;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1.5px solid var(--b1)">Unit</th>
+      <th style="padding:8px;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1.5px solid var(--b1)">Eff%</th>
+    </tr></thead>
+    <tbody>${filtered.map(r=>{
+      const eff=r.eff||0;
+      const ec=eff>=99.9&&eff<=100?'#22c55e':eff>100?'#f97316':eff>0?'#ef4444':'var(--t2)';
+      const el2=eff>=99.9&&eff<=100?'✅':eff>100?'⚠️':eff>0?'❌':'—';
+      const hl=(txt)=>{
+        if(!q||!txt)return txt||'—';
+        const idx=txt.toLowerCase().indexOf(q);
+        if(idx<0)return txt;
+        return txt.slice(0,idx)+'<mark style="background:#fef08a;border-radius:2px">'+txt.slice(idx,idx+q.length)+'</mark>'+txt.slice(idx+q.length);
+      };
+      return`<tr style="border-bottom:1px solid var(--b1)">
+        <td style="padding:7px 8px;font-family:var(--mono);font-size:11px;color:var(--t2)">${r.archived_date||'—'}</td>
+        <td style="padding:7px 8px;font-family:var(--mono);font-size:11px;color:var(--t2)">${r.archived_at||'—'}</td>
+        <td style="padding:7px 8px;font-family:var(--mono);font-weight:700">${hl(r.mix_code)}</td>
+        <td style="padding:7px 8px;font-family:var(--mono);font-weight:700;color:#2563eb">${hl(r.process_order)}</td>
+        <td style="padding:7px 8px">${r.mix_name||'—'}</td>
+        <td style="padding:7px 8px;font-family:var(--mono)">${r.volume_liter||'—'}</td>
+        <td style="padding:7px 8px;font-family:var(--mono);color:var(--t2);font-size:11px">${r.past_start_time||'—'} → ${r.past_end_time||'—'}</td>
+        <td style="padding:7px 8px;font-family:var(--mono);color:#a78bfa;font-weight:700">${r.aging_tank||'—'}</td>
+        <td style="padding:7px 8px;font-family:var(--mono);color:var(--t3)">${(r.mixing_unit||'').toUpperCase()||'—'}</td>
+        <td style="padding:7px 8px;font-family:var(--mono);font-weight:700;color:${ec}">${el2} ${eff?eff+'%':'—'}</td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table></div>`;
+};
 </script>
 </body>
 </html>
