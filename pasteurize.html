@@ -1682,7 +1682,7 @@ function renderPlan(p){
     const allChecked=!needGlc&&!needSgr&&!needPlm;
     const canStampStart=!needTank;
     const blockReason=needTank?'เลือก Aging Tank ก่อน':'';
-    if((row.status==='past_done'||row.status==='ready')&&allChecked)continue;
+    if((row.status==='past_done'||row.status==='ready')&&allChecked)return;
 
     const stampCell=(field,time,label,isPulse=false,blocked=false,blockMsg='')=>`
       <td style="min-width:130px;padding:5px 7px;white-space:nowrap">
