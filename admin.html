@@ -322,7 +322,7 @@ tbody td{padding:7px 10px;vertical-align:middle}
     <div class="tw">
       <table>
         <thead><tr>
-          <th>Mix Code</th><th>Mix Name</th><th>Density</th><th>Aging (hr)</th><th>Speed M1</th><th>Speed M2</th><th>Homo St.1</th><th>Homo St.2</th><th>Type</th><th>สีถัง</th><th>จัดการ</th>
+          <th>Mix Code</th><th>Mix Name</th><th>Density</th><th>Aging (hr)</th><th>Speed M1</th><th>Speed M2</th><th>Homo St.1</th><th>Homo St.2</th><th>Type</th><th>สีถัง</th><th>Flavor</th><th>Citric Acid</th><th>Color</th><th>Salt</th><th>จัดการ</th>
         </tr></thead>
         <tbody id="product-list"></tbody>
       </table>
@@ -384,6 +384,23 @@ tbody td{padding:7px 10px;vertical-align:middle}
       <div style="display:flex;align-items:center;gap:8px">
         <input id="ep-color" type="color" value="#60a5fa" style="width:44px;height:36px;border-radius:6px;border:1px solid var(--b1);background:var(--s2);cursor:pointer;padding:2px">
         <span id="ep-color-val" style="font-family:var(--mono);font-size:11px;color:var(--t2)">#60a5fa</span>
+      </div>
+    </div>
+    <div class="modal-field" style="grid-column:1/-1">
+      <div class="modal-label">ส่วนประกอบเพิ่มเติม</div>
+      <div style="display:flex;gap:20px;flex-wrap:wrap;margin-top:6px">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-family:var(--mono);font-size:12px;font-weight:700">
+          <input type="checkbox" id="ep-flavor" style="width:16px;height:16px;cursor:pointer"> Flavor
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-family:var(--mono);font-size:12px;font-weight:700">
+          <input type="checkbox" id="ep-citric" style="width:16px;height:16px;cursor:pointer"> Citric Acid
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-family:var(--mono);font-size:12px;font-weight:700">
+          <input type="checkbox" id="ep-hascolor" style="width:16px;height:16px;cursor:pointer"> Color
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-family:var(--mono);font-size:12px;font-weight:700">
+          <input type="checkbox" id="ep-salt" style="width:16px;height:16px;cursor:pointer"> Salt
+        </label>
       </div>
     </div>
     <div class="modal-actions">
@@ -992,6 +1009,10 @@ function renderProducts(){
           <span style="font-family:var(--mono);font-size:10px;color:var(--t2)">${p.color||'—'}</span>
         </div>
       </td>
+      <td style="text-align:center">${p.has_flavor?'<span style="color:#16a34a;font-size:16px">✓</span>':'<span style="color:#d1d5db;font-size:14px">—</span>'}</td>
+      <td style="text-align:center">${p.has_citric?'<span style="color:#16a34a;font-size:16px">✓</span>':'<span style="color:#d1d5db;font-size:14px">—</span>'}</td>
+      <td style="text-align:center">${p.has_color?'<span style="color:#16a34a;font-size:16px">✓</span>':'<span style="color:#d1d5db;font-size:14px">—</span>'}</td>
+      <td style="text-align:center">${p.has_salt?'<span style="color:#16a34a;font-size:16px">✓</span>':'<span style="color:#d1d5db;font-size:14px">—</span>'}</td>
       <td>
         <button class="edit-btn" onclick="openEditProduct('${p.id}')">✏️</button>
         <button class="db" onclick="deleteProduct('${p.id}','${p.mix_code}')">✕</button>
@@ -1050,6 +1071,10 @@ window.openEditProduct=(id)=>{
   $("ep-color").value=p.color||"#60a5fa";
   $("ep-color-val").textContent=p.color||"#60a5fa";
   if($("ep-crank"))$("ep-crank").value=p.color_rank||1;
+  if($("ep-flavor"))$("ep-flavor").checked=!!p.has_flavor;
+  if($("ep-citric"))$("ep-citric").checked=!!p.has_citric;
+  if($("ep-hascolor"))$("ep-hascolor").checked=!!p.has_color;
+  if($("ep-salt"))$("ep-salt").checked=!!p.has_salt;
   $("modal-product").classList.add("show");
 };
 
@@ -1069,6 +1094,10 @@ window.saveEditProduct=async()=>{
     product_type:$("ep-type").value.trim(),
     color:$("ep-color").value||"#60a5fa",
     color_rank:+$("ep-crank").value||1,
+    has_flavor:!!$("ep-flavor")?.checked,
+    has_citric:!!$("ep-citric")?.checked,
+    has_color:!!$("ep-hascolor")?.checked,
+    has_salt:!!$("ep-salt")?.checked,
   });
   closeModal("modal-product");
   toast("แก้ไขผลิตภัณฑ์แล้ว","green");
