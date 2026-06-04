@@ -1412,15 +1412,8 @@ async function checkAndArchive(p){
   const col=planCol(p);
   const done=rows[p].filter(r=>r.status==="past_done"||r.status==="ready");
   if(!done.length) return;
-
-  // นับ process_order ที่เสร็จแล้ว (past_done/ready) ใน line นี้
-  const doneOrders=[...new Set(
-    done.map(r=>r.process_order).filter(Boolean)
-  )];
-
-  // ต้องมี process order ที่เสร็จแล้ว >= 5 จึงจะ archive อันเก่าสุดออก
+  const doneOrders=[...new Set(done.map(r=>r.process_order).filter(Boolean))];
   if(doneOrders.length < 5) return;
-
   const oldest=done.sort((a,b)=>(a.seq||0)-(b.seq||0))[0];
   const needGlc=(+oldest.glc_actual||0)>0&&!oldest.glc_confirmed;
   const needSgr=(+oldest.sgr_actual||0)>0&&!oldest.sgr_confirmed;
@@ -1434,19 +1427,49 @@ async function checkAndArchive(p){
     return;
   }
   try{
-    await addDoc(collection(db,"past_history"),{
-      ...oldest,
-      archived_at:nowHHMM(),
-      archived_date:today(),
-      mixing_unit:p,
-    });
+    await addDoc(collection(db,"past_history"),{...oldest,archived_at:nowHHMM(),archived_date:today(),mixing_unit:p});
     await deleteDoc(doc(db,col,oldest.id));
     rows[p]=rows[p].filter(r=>r.id!==oldest.id);
     toast(`Archive ${oldest.mix_code||''} แล้ว`,"green");
-  }catch(e){
-    toast("Archive ไม่สำเร็จ: "+e.message,"red");
-  }
+  }catch(e){toast("Archive ไม่สำเร็จ: "+e.message,"red");}
 }
+
+// ── SEND & ARCHIVE (manual) ───────────────────────────────────────────
+window.sendAndArchive=async(col,id,p)=>{
+  const row=rows[p]?.find(r=>r.id===id);
+  if(!row){toast('ไม่พบข้อมูล','red');return;}
+  if(!window.confirm(`ยืนยันส่ง Batch ${row.batch_no||''} · ${row.mix_name||''} ?\nหลังส่งแล้วจะย้ายไปที่ประวัติ`))return;
+  try{
+    await addDoc(collection(db,'past_history'),{
+      ...row,
+      archived_at:nowHHMM(),
+      archived_date:today(),
+      mixing_unit:p,
+      sent_manual:true,
+    });
+    await deleteDoc(doc(db,col,id));
+    rows[p]=rows[p].filter(r=>r.id!==id);
+    window._rows[p]=rows[p];
+    toast(`✅ ส่ง Batch ${row.batch_no||''} แล้ว`,'green');
+  }catch(e){toast('❌ ส่งไม่สำเร็จ: '+e.message,'red');}
+};
+
+// ── RECALL BATCH ──────────────────────────────────────────────────────
+window.recallBatch=async(histId,p)=>{
+  if(!window.confirm('ดึงกลับมาแก้ไข?\nBatch จะกลับมาใน production_plans'))return;
+  try{
+    const {getDoc:_getDoc}=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+    const hSnap=await getDoc(doc(db,'past_history',histId));
+    if(!hSnap.exists()){toast('ไม่พบข้อมูลในประวัติ','red');return;}
+    const data=hSnap.data();
+    const col=p==='p1'?'production_plans':'production_plans_m2';
+    // ลบ archived fields ออก
+    const {archived_at,archived_date,mixing_unit,sent_manual,...restData}=data;
+    await addDoc(collection(db,col),{...restData,status:'past_done',recalled:true,recalled_at:nowHHMM()});
+    await deleteDoc(doc(db,'past_history',histId));
+    toast('↩ ดึง Batch กลับมาแล้ว','green');
+  }catch(e){toast('❌ ดึงกลับไม่สำเร็จ: '+e.message,'red');}
+};
 
 // ── STAMP ─────────────────────────────────────────────────────────────
 window.stampTime=async(col,id,field,p)=>{
@@ -1688,7 +1711,8 @@ function renderPlan(p){
     const allChecked=!needGlc&&!needSgr&&!needPlm;
     const canStampStart=!needTank;
     const blockReason=needTank?'เลือก Aging Tank ก่อน':'';
-    if((row.status==='past_done'||row.status==='ready')&&allChecked)return;
+    // ไม่ auto hide — แสดงปุ่ม "ส่ง" เมื่อ past_done + past_end_time + checkbox ครบ
+    const readyToSend=(row.status==='past_done'||row.status==='ready')&&!!row.past_end_time&&allChecked&&!!row.past_sig;
 
     const stampCell=(field,time,label,isPulse=false,blocked=false,blockMsg='')=>`
       <td style="min-width:130px;padding:5px 7px;white-space:nowrap">
@@ -1805,7 +1829,16 @@ function renderPlan(p){
               </svg>
             </button>`}
       </td>
-      <td>${statText}</td>`;
+      <td>${statText}</td>
+      <td style="padding:4px 8px">
+        ${readyToSend
+          ? `<button onclick="window.sendAndArchive('${col}','${row.id}','${p}')" style="padding:6px 14px;border-radius:8px;background:#15803d;color:#fff;border:none;font-family:var(--mono);font-size:12px;font-weight:900;cursor:pointer;white-space:nowrap;box-shadow:0 0 0 2px #bbf7d0">✅ ส่ง</button>`
+          : (row.status==='past_done'||row.status==='ready')&&!!row.past_end_time&&allChecked&&!row.past_sig
+            ? `<span style="font-family:var(--mono);font-size:10px;color:#b45309">✍️ เซ็นชื่อก่อนส่ง</span>`
+            : (row.status==='past_done'||row.status==='ready')&&!!row.past_end_time&&!allChecked
+              ? `<span style="font-family:var(--mono);font-size:10px;color:#b45309">⚠️ ติ๊ก checkbox ก่อน</span>`
+              : ''}
+      </td>`;
     tbody.appendChild(tr);
   });
 
@@ -1969,6 +2002,9 @@ window.filterHistory=function(){
         <td style="padding:7px 8px;font-family:var(--mono);color:var(--t2);font-size:11px">${r.past_start_time||'—'} → ${r.past_end_time||'—'}</td>
         <td style="padding:7px 8px;font-family:var(--mono);color:#a78bfa;font-weight:700">${r.aging_tank||'—'}</td>
         <td style="padding:7px 8px;font-family:var(--mono);font-weight:700;color:${ec}">${el2} ${eff?eff+'%':'—'}</td>
+        <td style="padding:7px 8px">
+          <button onclick="window.recallBatch('${r.id}','${(r.mixing_unit||'p1').toLowerCase()}')" style="padding:4px 10px;border-radius:6px;background:#fff3cd;color:#b45309;border:1.5px solid #fbbf24;font-family:var(--mono);font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">↩ Recall</button>
+        </td>
       </tr>`;
     }).join('')}</tbody>
   </table></div>`;
