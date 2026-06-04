@@ -1883,10 +1883,15 @@ async function loadHistory(){
   if(!el)return;
   el.innerHTML=`<div style="text-align:center;padding:30px;color:var(--t3);font-family:var(--mono)">⏳ กำลังโหลด...</div>`;
   try{
-    const q=query(collection(db,"past_history"),orderBy("archived_date","desc"),orderBy("archived_at","desc"),limit(500));
+    const q=query(collection(db,"past_history"),orderBy("archived_date","desc"),limit(500));
     const snap=await getDocs(q);
     if(snap.empty){el.innerHTML=`<div style="text-align:center;padding:30px;color:var(--t3);font-family:var(--mono)">ไม่มีข้อมูล</div>`;return;}
-    window._historyRows=snap.docs.map(d=>({id:d.id,...d.data()}));
+    window._historyRows=snap.docs.map(d=>({id:d.id,...d.data()}))
+      .sort((a,b)=>{
+        const dc=(b.archived_date||'').localeCompare(a.archived_date||'');
+        if(dc!==0)return dc;
+        return (b.archived_at||'').localeCompare(a.archived_at||'');
+      });
     window.filterHistory();
     // นับถอยหลัง 20 นาที
     const _sp=_sanStop.split(':').map(Number);
