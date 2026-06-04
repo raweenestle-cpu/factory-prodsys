@@ -510,7 +510,18 @@ function renderTemp(){
     let row=[];
     row.push('<td style="position:sticky;left:0;z-index:2;background:#fff;padding:5px 8px"><span style="font-family:var(--mono);font-weight:900;color:'+sc.color+'">'+tank.id+'</span></td>');
     row.push('<td style="position:sticky;left:52px;z-index:2;background:#fff;padding:5px 5px"><span class="badge badge-cyan" style="font-size:10px">'+(tank.mix_code||'—')+'</span></td>');
-    row.push('<td style="position:sticky;left:108px;z-index:2;background:#fff;padding:5px 8px;border-right:2px solid var(--b1);font-size:11px;color:var(--t2)">'+(tank.mix_name||'—').slice(0,10)+'</td>');
+    row.push('<td style="position:sticky;left:108px;z-index:2;background:#fff;padding:5px 8px;font-size:11px;color:var(--t2)">'+(tank.mix_name||'—').slice(0,10)+'</td>');
+    // Vol ในถัง real-time
+    const _cv=+(tank.current_vol||0);
+    const _volLiter=+(tank.volume_liter||0);
+    const _pct=_volLiter>0?Math.min(100,(_cv/_volLiter)*100):0;
+    const _vc=_pct>50?'#15803d':_pct>20?'#b45309':'#b91c1c';
+    row.push('<td style="position:sticky;left:188px;z-index:2;background:#fff;padding:5px 8px;border-right:2px solid var(--b1);text-align:right">'+
+      (_cv>0
+        ?'<span style="font-family:var(--mono);font-size:12px;font-weight:900;color:'+_vc+'">'+Math.round(_cv).toLocaleString()+'</span><span style="font-family:var(--mono);font-size:10px;color:var(--t2)"> L</span>'+
+         '<div style="width:52px;background:#e2e8f0;border-radius:3px;height:4px;margin-top:2px;overflow:hidden"><div style="height:4px;border-radius:3px;background:'+_vc+';width:'+_pct.toFixed(1)+'%"></div></div>'
+        :'<span style="color:var(--t3);font-size:11px">—</span>')
+    +'</td>');
     days.forEach(function(d,di){
       TEMP_TIMES.forEach(function(t){
         const isN=d===td&&t===cr;
@@ -532,7 +543,7 @@ function renderTemp(){
     });
     rows.push('<tr>'+row.join('')+'</tr>');
   });
-  let h='<thead><tr><th style="position:sticky;left:0;z-index:4;background:var(--s2);padding:8px 10px">ถัง</th><th style="position:sticky;left:52px;z-index:4;background:var(--s2);padding:8px 6px">Code</th><th style="position:sticky;left:108px;z-index:4;background:var(--s2);padding:8px 8px;border-right:2px solid var(--b1)">Mix</th>';
+  let h='<thead><tr><th style="position:sticky;left:0;z-index:4;background:var(--s2);padding:8px 10px">ถัง</th><th style="position:sticky;left:52px;z-index:4;background:var(--s2);padding:8px 6px">Code</th><th style="position:sticky;left:108px;z-index:4;background:var(--s2);padding:8px 8px">Mix</th><th style="position:sticky;left:188px;z-index:4;background:var(--s2);padding:8px 8px;border-right:2px solid var(--b1);text-align:right;white-space:nowrap">Vol (L)</th>';
   days.forEach(function(d,di){
     const isT=d===td;
     TEMP_TIMES.forEach(function(t){
@@ -544,7 +555,7 @@ function renderTemp(){
   });
   // row ลายเซ็นด้านล่าง
   let sigRow='<tr style="border-top:2px solid var(--b1)">';
-  sigRow+='<td colspan="3" style="position:sticky;left:0;z-index:2;background:#f8fafc;padding:5px 8px;font-size:11px;font-weight:700;color:var(--t2);white-space:nowrap">ลายเซ็น</td>';
+  sigRow+='<td colspan="4" style="position:sticky;left:0;z-index:2;background:#f8fafc;padding:5px 8px;font-size:11px;font-weight:700;color:var(--t2);white-space:nowrap">ลายเซ็น</td>';
   days.forEach(function(d,di){
     TEMP_TIMES.forEach(function(t){
       var sigKey='sig_'+(d+'_'+t.replace(':','')).replace(/-/g,'');
