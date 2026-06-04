@@ -60,8 +60,13 @@ td.sep{border-right:2px solid var(--b1)}
 #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);padding:9px 20px;border-radius:9px;font-size:12px;opacity:0;transition:all .3s;z-index:9999;pointer-events:none;font-family:var(--mono);color:#fff;font-weight:700}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
-.shift-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:0}
+.shift-summary{display:grid;grid-template-columns:repeat(3,1fr) 1fr;gap:12px;padding:0}
 .ss-card{background:#fff;border:1.5px solid var(--b1);border-radius:14px;padding:16px 20px;box-shadow:0 2px 8px rgba(0,0,0,.07)}
+.ss-priority{border-top:4px solid #f59e0b;grid-column:4;grid-row:1;min-width:0}
+@keyframes blinkRed{0%,100%{background:rgba(239,68,68,.13)}50%{background:rgba(239,68,68,.04)}}
+@keyframes blinkYellow{0%,100%{background:rgba(234,179,8,.13)}50%{background:rgba(234,179,8,.04)}}
+.prio-item-red{animation:blinkRed 1s ease-in-out infinite;border-radius:8px;padding:7px 10px;margin-bottom:5px;border:1px solid rgba(239,68,68,.25)}
+.prio-item-yellow{animation:blinkYellow 1.6s ease-in-out infinite;border-radius:8px;padding:7px 10px;margin-bottom:5px;border:1px solid rgba(234,179,8,.25)}
 .ss-title{font-family:var(--mono);font-size:13px;font-weight:900;color:var(--t2);margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid var(--s2);letter-spacing:.04em}
 .ss-morning{border-top:4px solid #f59e0b}
 .ss-afternoon{border-top:4px solid #f97316}
@@ -151,6 +156,13 @@ td.sep{border-right:2px solid var(--b1)}
         <div class="ss-cell ss-cell-cip"><div class="ss-num ss-cip-col" id="cip-night">0</div><div class="ss-label ss-cip-col">ครั้ง</div></div>
         <div class="ss-cell ss-cell-san"><div class="ss-num ss-san-col" id="san-night">0</div><div class="ss-label ss-san-col">ครั้ง</div></div>
         <div class="ss-cell ss-cell-total"><div class="ss-num ss-total-col" id="total-night">0</div><div class="ss-label ss-total-col">ครั้ง</div></div>
+      </div>
+    </div>
+    <!-- priority card -->
+    <div class="ss-card ss-priority" id="priority-card">
+      <div class="ss-title" style="color:#b45309">⚠️ ถังกำลังจะว่าง</div>
+      <div id="priority-list" style="margin-top:8px">
+        <div style="font-family:var(--mono);font-size:11px;color:var(--t3);text-align:center;padding:16px 0">กำลังโหลด...</div>
       </div>
     </div>
   </div>
@@ -425,7 +437,7 @@ window.loadAll=async()=>{
 const SHELF={'Ice Cream':[96,96,96,96,92,76,62,51,43,37,32],'Water Ice':[96,96,96,96,96,96,96,93,81,71,63],'Jelly':[24,24,24,24,24,24,24,24,24,24,24]};
 const ST={empty:{color:'#94a3b8',label:'ว่าง',pulse:false},cip:{color:'#3b82f6',label:'CIP',pulse:true},cip_done:{color:'#3b82f6',label:'CIP✓',pulse:false},san:{color:'#22c55e',label:'San.',pulse:true},san_done:{color:'#22c55e',label:'San.✓',pulse:false},busy:{color:'#ef4444',label:'มีของ',pulse:false},pasteurising:{color:'#ef4444',label:'Past.',pulse:true},ready:{color:'#22c55e',label:'พร้อม',pulse:false},filling:{color:'#f97316',label:'Fill.',pulse:true}};
 const LC={};
-function renderAll(){linesData.forEach(l=>{if(l.name)LC[l.name]=l.color||'#6b7280';});renderSummary();renderShiftSummary();renderPlans('m1');renderPlans('m2');if(curTab==='temp')renderTemp();}
+function renderAll(){linesData.forEach(l=>{if(l.name)LC[l.name]=l.color||'#6b7280';});renderSummary();renderShiftSummary();renderPriorityCard();renderPlans('m1');renderPlans('m2');if(curTab==='temp')renderTemp();}
 window.renderAll=renderAll;
 window.renderPlans=renderPlans;
 function renderSummary(){const all=[...planRows.m1,...planRows.m2];if(!all.length){$('sum-row-top').innerHTML='';return;}const grps={};all.forEach(r=>{const g=tankStates[r.aging_tank]?.cip_group||'—';if(!grps[g])grps[g]=[];grps[g].push(r);});const GC={A:'#1d4ed8',B:'#0e7490',C:'#15803d',D:'#b45309',E:'#7c3aed'};const total=all.filter(r=>r.aging_tank).length;const inprog=all.filter(r=>{const s=tankStates[r.aging_tank]?.status;return s==='cip'||s==='san';}).length;const done=all.filter(r=>tankStates[r.aging_tank]?.status==='san_done').length;let h='<div class="sum-card"><div style="font-family:var(--mono);font-size:10px;color:var(--t2);font-weight:800;margin-bottom:6px">ภาพรวม</div><div style="font-family:var(--mono);font-size:22px;font-weight:900">'+total+'</div><div style="font-size:11px;color:var(--t2);margin-top:2px">ถังทั้งหมด</div><div style="display:flex;gap:6px;margin-top:8px"><span class="badge badge-blue">กำลัง:'+inprog+'</span><span class="badge badge-green">เสร็จ:'+done+'</span></div></div>';['A','B','C','D','E'].forEach(g=>{const rows=grps[g]||[];if(!rows.length)return;const gc=GC[g]||'#6b7280';const w=rows.filter(r=>!tankStates[r.aging_tank]?.status||tankStates[r.aging_tank]?.status==='empty').length;const a=rows.filter(r=>{const s=tankStates[r.aging_tank]?.status;return s==='cip'||s==='san';}).length;const cd=rows.filter(r=>tankStates[r.aging_tank]?.status==='cip_done').length;const sd=rows.filter(r=>tankStates[r.aging_tank]?.status==='san_done').length;const pct=rows.length>0?Math.round((sd/rows.length)*100):0;h+='<div class="sum-card" style="border-left:4px solid '+gc+'"><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><div style="width:26px;height:26px;border-radius:50%;background:'+gc+';display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;font-weight:900;color:#fff">'+g+'</div><div><div style="font-family:var(--mono);font-size:12px;font-weight:900">Group '+g+'</div><div style="font-size:11px;color:var(--t2)">'+rows.length+' ถัง</div></div></div><div style="background:var(--s2);border-radius:4px;height:6px;margin-bottom:8px;overflow:hidden"><div style="height:6px;border-radius:4px;background:'+gc+';width:'+pct+'%"></div></div><div style="display:flex;gap:4px;flex-wrap:wrap">'+(w>0?'<span class="badge" style="background:var(--s2);color:var(--t2);border:1px solid var(--b1)">ว่าง:'+w+'</span>':'')+(a>0?'<span class="badge badge-blue">กำลัง:'+a+'</span>':'')+(cd>0?'<span class="badge badge-cyan">CIP✓:'+cd+'</span>':'')+(sd>0?'<span class="badge badge-green">พร้อม:'+sd+'</span>':'')+'</div></div>';});$('sum-row-top').innerHTML=h;}
@@ -467,7 +479,59 @@ function getShift(timeStr){
   if(h>=14&&h<22) return 'afternoon';
   return 'night';
 }
-function renderShiftSummary(){
+function renderPriorityCard(){
+  const el=document.getElementById('priority-list');
+  if(!el)return;
+  const items=[];
+  Object.values(tankStates).forEach(ts=>{
+    if(!ts.id)return;
+    const cv=+(ts.current_vol||0);
+    const total=+(ts.volume_liter||0);
+    if(cv<=0)return; // ถังว่างแล้ว ไม่แสดง
+    // หา line ที่กำลังใช้ถังนี้อยู่และ running
+    const lineEntry=Object.values(lineStatesForRec||{}).find(ls=>
+      (ls.aging_tank||'')===(ts.id||'') && ls.is_running
+    );
+    if(!lineEntry)return; // ถังนี้ไม่มี line เดินอยู่ ข้าม
+    const fr=+(lineEntry.flow_rate||300);
+    if(fr<=0)return;
+    // เวลาที่เหลือ = current_vol / flow_rate * 60 (นาที)
+    const remMin=Math.round((cv/fr)*60);
+    const pct=total>0?Math.min(100,(cv/total)*100):0;
+    items.push({id:ts.id,pct,cv,total,mix_code:ts.mix_code||'—',mix_name:ts.mix_name||'—',remMin,fr,lineId:lineEntry.id||'—'});
+  });
+  items.sort((a,b)=>a.remMin-b.remMin);
+  const top5=items.slice(0,5);
+  if(!top5.length){
+    el.innerHTML='<div style="font-family:var(--mono);font-size:11px;color:var(--t3);text-align:center;padding:16px 0">✅ ไม่มีถังที่กำลังจะว่าง</div>';
+    return;
+  }
+  el.innerHTML=top5.map((t,i)=>{
+    const isRed=t.remMin<30;
+    const isYellow=t.remMin>=30&&t.remMin<90;
+    const cls=isRed?'prio-item-red':isYellow?'prio-item-yellow':'';
+    const pctColor=isRed?'#ef4444':isYellow?'#ca8a04':'#15803d';
+    const timeStr=t.remMin>=60
+      ?`${Math.floor(t.remMin/60)}ชม.${t.remMin%60?Math.round(t.remMin%60)+'น.':''}`
+      :`${t.remMin} นาที`;
+    return`<div class="${cls}" style="${!cls?'padding:7px 10px;margin-bottom:5px;border-radius:8px;border:1px solid var(--b1)':''}">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:6px">
+        <div style="display:flex;align-items:center;gap:6px;min-width:0">
+          <span style="font-family:var(--mono);font-size:10px;font-weight:900;color:#6b7280;flex-shrink:0">${i+1}</span>
+          <span style="font-family:var(--mono);font-size:12px;font-weight:900;color:#111827;flex-shrink:0">${t.id}</span>
+          <span style="font-size:11px;color:#374151;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.mix_name}</span>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-family:var(--mono);font-size:13px;font-weight:900;color:${pctColor}">~${timeStr}</div>
+          <div style="font-family:var(--mono);font-size:10px;color:#6b7280">${Math.round(t.cv).toLocaleString()} L · ${t.fr} L/hr</div>
+        </div>
+      </div>
+      <div style="width:100%;background:#e5e7eb;border-radius:3px;height:4px;margin-top:5px;overflow:hidden">
+        <div style="height:4px;border-radius:3px;background:${pctColor};width:${t.pct.toFixed(1)}%;transition:width .4s"></div>
+      </div>
+    </div>`;
+  }).join('');
+}
   const counts={morning:{cip:0,san:0},afternoon:{cip:0,san:0},night:{cip:0,san:0}};
   const today2=today();
   Object.values(tankStates).forEach(ts=>{
