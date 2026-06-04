@@ -352,12 +352,12 @@ setInterval(()=>{
   });
 },10000);
 
-// เขียน current_vol ลง Firebase ทุก 3 วินาที + Auto Stamp เมื่อถึง ETA
+// PROD.SYS pasteurize.html — patch: init _prevVolMap _prevContribMap fix vol accumulation
+
 // Subscribe aging_tank_states real-time
 window._agingStates={};
-onSnapshot(collection(db,'aging_tank_states'),snap=>{
-  snap.docs.forEach(d=>{window._agingStates[d.id]={id:d.id,...d.data()};});
-});
+window._prevVolMap={};
+window._prevContribMap={};
 onSnapshot(collection(db,'aging_tank_states'),snap=>{
   snap.docs.forEach(d=>{window._agingStates[d.id]={id:d.id,...d.data()};});
 });
