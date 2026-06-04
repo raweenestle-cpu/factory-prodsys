@@ -185,22 +185,8 @@
 <!-- CHART P1 -->
 <!-- DASHBOARD -->
 <div class="page" id="page-dashboard-all">
-  <div style="padding:20px">
-    <!-- Filter bar -->
-    <div style="display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap">
-      <div style="font-family:var(--mono);font-size:14px;font-weight:900;color:var(--text)">📊 Dashboard การผลิต</div>
-      <div style="flex:1"></div>
-      <select id="dash-period" onchange="window.loadDashboard()" style="padding:7px 12px;border:1.5px solid var(--b1);border-radius:8px;font-family:var(--mono);font-size:12px;background:#fff;outline:none">
-        <option value="day">วันนี้</option>
-        <option value="week" selected>สัปดาห์นี้</option>
-        <option value="month">เดือนนี้</option>
-        <option value="year">ปีนี้</option>
-      </select>
-      <button onclick="window.loadDashboard()" style="padding:7px 14px;border-radius:8px;background:#2563eb;color:#fff;border:none;font-family:var(--mono);font-size:12px;font-weight:900;cursor:pointer">🔄 โหลด</button>
-    </div>
-    <div id="dashboard-content">
-      <div style="text-align:center;padding:40px;color:var(--t3);font-family:var(--mono)">กด 🔄 โหลด เพื่อดูข้อมูล</div>
-    </div>
+  <div id="dashboard-content" style="min-height:400px">
+    <div style="display:flex;align-items:center;justify-content:center;height:400px;color:#475569;font-family:'DM Mono',monospace;font-size:13px">กด Dashboard เพื่อโหลดข้อมูล</div>
   </div>
 </div>
 
@@ -1881,126 +1867,6 @@ window.showPage=(type,p,btn)=>{
   if(type==="dashboard")window.loadDashboard();
 };
 
-window.loadDashboard=async function(){
-  const el=$('dashboard-content');
-  if(!el)return;
-  el.innerHTML=`<div style="text-align:center;padding:30px;color:var(--t3);font-family:var(--mono)">⏳ กำลังโหลด...</div>`;
-  const period=$('dash-period')?.value||'week';
-  const now=new Date();
-  const todayStr=now.toISOString().slice(0,10);
-  let fromDate='';
-  if(period==='day') fromDate=todayStr;
-  else if(period==='week'){const d=new Date(now);d.setDate(d.getDate()-6);fromDate=d.toISOString().slice(0,10);}
-  else if(period==='month'){const d=new Date(now);d.setDate(1);fromDate=d.toISOString().slice(0,10);}
-  else if(period==='year'){fromDate=now.getFullYear()+'-01-01';}
-  try{
-    const q=query(collection(db,'past_history'),
-      where('archived_date','>=',fromDate),
-      where('archived_date','<=',todayStr),
-      orderBy('archived_date','asc')
-    );
-    const snap=await getDocs(q);
-    const rows=snap.docs.map(d=>d.data());
-    if(!rows.length){el.innerHTML=`<div style="text-align:center;padding:40px;color:var(--t3);font-family:var(--mono)">ไม่มีข้อมูลในช่วงนี้</div>`;return;}
-
-    // ── คำนวณ stats ──
-    const totalVol=rows.reduce((s,r)=>s+(+(r.volume_liter||0)),0);
-    const totalBatch=rows.length;
-    const effRows=rows.filter(r=>r.eff>0);
-    const avgEff=effRows.length?effRows.reduce((s,r)=>s+(+r.eff),0)/effRows.length:0;
-
-    // แยกตาม product type
-    const typeMap={};
-    rows.forEach(r=>{
-      const pt=(window._productMap&&r.mix_code&&window._productMap[r.mix_code])
-        ?window._productMap[r.mix_code].Type||window._productMap[r.mix_code].type||'Other'
-        :'Other';
-      const key=pt.includes('Ice Cream')?'Ice Cream':pt.includes('Water Ice')?'Water Ice':pt.includes('Jelly')?'Jelly':'Other';
-      if(!typeMap[key])typeMap[key]={vol:0,batch:0,color:key==='Ice Cream'?'#f97316':key==='Water Ice'?'#0ea5e9':key==='Jelly'?'#a855f7':'#64748b'};
-      typeMap[key].vol+=+(r.volume_liter||0);
-      typeMap[key].batch++;
-    });
-
-    // แยกตามวัน
-    const dayMap={};
-    rows.forEach(r=>{
-      const d=r.archived_date||'';
-      if(!dayMap[d])dayMap[d]={vol:0,batch:0};
-      dayMap[d].vol+=+(r.volume_liter||0);
-      dayMap[d].batch++;
-    });
-    const days=Object.keys(dayMap).sort();
-    const maxVol=Math.max(...days.map(d=>dayMap[d].vol),1);
-
-    const periodLabel={day:'วันนี้',week:'7 วันล่าสุด',month:'เดือนนี้',year:'ปีนี้'}[period];
-    const effColor=avgEff>=97.5?'#15803d':avgEff>=90?'#b45309':'#b91c1c';
-
-    el.innerHTML=`
-    <!-- KPI cards -->
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-bottom:20px">
-      <div style="background:#fff;border:1.5px solid var(--b1);border-radius:12px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,.06)">
-        <div style="font-family:var(--mono);font-size:10px;color:var(--t2);font-weight:700;margin-bottom:6px">📦 Vol รวม</div>
-        <div style="font-family:var(--mono);font-size:22px;font-weight:900;color:#111827">${(totalVol/1000).toFixed(1)}<span style="font-size:12px;color:var(--t2)"> kL</span></div>
-        <div style="font-family:var(--mono);font-size:10px;color:var(--t3)">${totalVol.toLocaleString()} L</div>
-      </div>
-      <div style="background:#fff;border:1.5px solid var(--b1);border-radius:12px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,.06)">
-        <div style="font-family:var(--mono);font-size:10px;color:var(--t2);font-weight:700;margin-bottom:6px">🔢 Batch รวม</div>
-        <div style="font-family:var(--mono);font-size:22px;font-weight:900;color:#111827">${totalBatch}</div>
-        <div style="font-family:var(--mono);font-size:10px;color:var(--t3)">${periodLabel}</div>
-      </div>
-      <div style="background:#fff;border:1.5px solid var(--b1);border-radius:12px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,.06)">
-        <div style="font-family:var(--mono);font-size:10px;color:var(--t2);font-weight:700;margin-bottom:6px">⚡ Eff% เฉลี่ย</div>
-        <div style="font-family:var(--mono);font-size:22px;font-weight:900;color:${effColor}">${avgEff.toFixed(1)}<span style="font-size:12px">%</span></div>
-        <div style="font-family:var(--mono);font-size:10px;color:var(--t3)">${effRows.length} batch มีข้อมูล</div>
-      </div>
-      ${Object.entries(typeMap).map(([t,v])=>`
-      <div style="background:#fff;border:1.5px solid ${v.color}44;border-radius:12px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,.06)">
-        <div style="font-family:var(--mono);font-size:10px;color:${v.color};font-weight:700;margin-bottom:6px">${t==='Ice Cream'?'🍦':t==='Water Ice'?'🧊':t==='Jelly'?'🍮':'📦'} ${t}</div>
-        <div style="font-family:var(--mono);font-size:20px;font-weight:900;color:#111827">${(v.vol/1000).toFixed(1)}<span style="font-size:11px;color:var(--t2)"> kL</span></div>
-        <div style="font-family:var(--mono);font-size:10px;color:var(--t3)">${v.batch} batch</div>
-      </div>`).join('')}
-    </div>
-
-    <!-- Bar chart -->
-    <div style="background:#fff;border:1.5px solid var(--b1);border-radius:12px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.06);margin-bottom:16px">
-      <div style="font-family:var(--mono);font-size:11px;font-weight:900;color:var(--text);margin-bottom:14px">📈 Vol ต่อวัน (L)</div>
-      <div style="display:flex;align-items:flex-end;gap:4px;height:120px;padding-bottom:20px;position:relative">
-        ${days.map(d=>{
-          const pct=(dayMap[d].vol/maxVol)*100;
-          const isToday=d===todayStr;
-          const label=d.slice(5); // MM-DD
-          return`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;position:relative">
-            <div style="font-family:var(--mono);font-size:9px;color:var(--t2);position:absolute;top:-16px">${dayMap[d].vol>=1000?(dayMap[d].vol/1000).toFixed(1)+'k':dayMap[d].vol}</div>
-            <div style="width:100%;border-radius:4px 4px 0 0;background:${isToday?'#2563eb':'#93c5fd'};height:${Math.max(4,pct)}%;min-height:4px;transition:height .3s"></div>
-            <div style="font-family:var(--mono);font-size:9px;color:${isToday?'#2563eb':'var(--t3)'};font-weight:${isToday?'900':'400'};position:absolute;bottom:-18px;white-space:nowrap">${label}</div>
-          </div>`;
-        }).join('')}
-      </div>
-    </div>
-
-    <!-- Top mix codes -->
-    <div style="background:#fff;border:1.5px solid var(--b1);border-radius:12px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.06)">
-      <div style="font-family:var(--mono);font-size:11px;font-weight:900;color:var(--text);margin-bottom:12px">🏆 Top Mix (Vol)</div>
-      ${(()=>{
-        const mx={};
-        rows.forEach(r=>{const k=(r.mix_code||'—')+' '+( r.mix_name||'');if(!mx[k])mx[k]=0;mx[k]+=(+(r.volume_liter||0));});
-        const sorted=Object.entries(mx).sort((a,b)=>b[1]-a[1]).slice(0,5);
-        const max2=sorted[0]?sorted[0][1]:1;
-        return sorted.map(([k,v],i)=>`
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-            <div style="font-family:var(--mono);font-size:11px;color:var(--t3);width:16px">${i+1}</div>
-            <div style="font-size:12px;font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${k}</div>
-            <div style="font-family:var(--mono);font-size:11px;font-weight:900;color:#111827;min-width:60px;text-align:right">${v.toLocaleString()} L</div>
-            <div style="width:80px;background:var(--b1);border-radius:3px;height:6px;overflow:hidden"><div style="height:6px;border-radius:3px;background:#2563eb;width:${(v/max2*100).toFixed(0)}%"></div></div>
-          </div>`).join('');
-      })()}
-    </div>`;
-  }catch(e){
-    el.innerHTML=`<div style="text-align:center;padding:20px;color:var(--red);font-family:var(--mono)">❌ โหลดไม่สำเร็จ: ${e.message}</div>`;
-    console.error('loadDashboard error:',e);
-  }
-};
-
 // ── HISTORY ────────────────────────────────────────────────────────────
 async function loadHistory(){
   const el=$('history-content');
@@ -2100,6 +1966,228 @@ window.exportHistoryExcel=function(){
   const a=document.createElement('a');
   a.href=url;a.download='past_history_'+(new Date().toISOString().slice(0,10))+'.csv';
   a.click();URL.revokeObjectURL(url);
+};
+
+// ── DASHBOARD ─────────────────────────────────────────────────────────
+window._dashPeriod='week';
+window.loadDashboard=async function(period){
+  if(period)window._dashPeriod=period;
+  const el=$('dashboard-content');
+  if(!el)return;
+  // Loading skeleton
+  el.innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:300px;gap:16px">
+    <div style="width:48px;height:48px;border:3px solid #334155;border-top-color:#38bdf8;border-radius:50%;animation:dashSpin .8s linear infinite"></div>
+    <div style="font-family:'DM Mono',monospace;font-size:12px;color:#475569;letter-spacing:.08em">LOADING PRODUCTION DATA...</div>
+  </div>`;
+  const p=window._dashPeriod||'week';
+  const now=new Date();
+  const todayStr=now.toISOString().slice(0,10);
+  let fromDate='';
+  if(p==='day')fromDate=todayStr;
+  else if(p==='week'){const d=new Date(now);d.setDate(d.getDate()-6);fromDate=d.toISOString().slice(0,10);}
+  else if(p==='month'){const d=new Date(now);d.setDate(1);fromDate=d.toISOString().slice(0,10);}
+  else if(p==='year')fromDate=now.getFullYear()+'-01-01';
+  try{
+    const q2=query(collection(db,'past_history'),where('archived_date','>=',fromDate),where('archived_date','<=',todayStr),orderBy('archived_date','asc'));
+    const snap=await getDocs(q2);
+    const rows=snap.docs.map(d=>d.data());
+
+    // ── compute stats ──
+    const totalVol=rows.reduce((s,r)=>s+(+(r.volume_liter||0)),0);
+    const totalBatch=rows.length;
+    const effRows=rows.filter(r=>(+r.eff||0)>0);
+    const avgEff=effRows.length?effRows.reduce((s,r)=>s+(+r.eff),0)/effRows.length:0;
+    const typeMap={'Ice Cream':{vol:0,batch:0,color:'#f97316',glow:'rgba(249,115,22,.35)',icon:'🍦'},
+      'Water Ice':{vol:0,batch:0,color:'#38bdf8',glow:'rgba(56,189,248,.35)',icon:'🧊'},
+      'Jelly':{vol:0,batch:0,color:'#a78bfa',glow:'rgba(167,139,250,.35)',icon:'🍮'},
+      'Other':{vol:0,batch:0,color:'#64748b',glow:'rgba(100,116,139,.35)',icon:'📦'}};
+    rows.forEach(r=>{
+      const pm=(window._productMap||{})[r.mix_code||'']||{};
+      const pt=(pm.Type||pm.type||pm.product_type||r.mix_name||'').toLowerCase();
+      const key=pt.includes('ice cream')?'Ice Cream':pt.includes('water ice')?'Water Ice':pt.includes('jell')?'Jelly':'Other';
+      typeMap[key].vol+=+(r.volume_liter||0);typeMap[key].batch++;
+    });
+    const dayMap={};
+    rows.forEach(r=>{const d=r.archived_date||'';if(!dayMap[d])dayMap[d]={vol:0,batch:0,p1:0,p2:0};dayMap[d].vol+=+(r.volume_liter||0);dayMap[d].batch++;if((r.mixing_unit||'').toLowerCase()==='p1')dayMap[d].p1+=+(r.volume_liter||0);else dayMap[d].p2+=+(r.volume_liter||0);});
+    const days=Object.keys(dayMap).sort();
+    const maxVol=Math.max(...days.map(d=>dayMap[d].vol),1);
+    const periodLabel={day:'TODAY',week:'7 DAYS',month:'THIS MONTH',year:'THIS YEAR'}[p];
+    const effColor=avgEff>=97.5?'#4ade80':avgEff>=90?'#fbbf24':'#f87171';
+    const p1Vol=rows.filter(r=>(r.mixing_unit||'').toLowerCase()==='p1').reduce((s,r)=>s+(+(r.volume_liter||0)),0);
+    const p2Vol=rows.filter(r=>(r.mixing_unit||'').toLowerCase()==='p2').reduce((s,r)=>s+(+(r.volume_liter||0)),0);
+    const mxMap={};rows.forEach(r=>{const k=r.mix_code||'?';if(!mxMap[k])mxMap[k]={name:r.mix_name||k,vol:0,batch:0};mxMap[k].vol+=+(r.volume_liter||0);mxMap[k].batch++;});
+    const topMix=Object.entries(mxMap).sort((a,b)=>b[1].vol-a[1].vol).slice(0,5);
+    const maxMx=topMix[0]?topMix[0][1].vol:1;
+
+    el.innerHTML=`
+<style>
+@keyframes dashSpin{to{transform:rotate(360deg)}}
+@keyframes dashFadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes dashPulse{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes dashBar{from{width:0}to{width:var(--w)}}
+@keyframes dashCount{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:scale(1)}}
+.dash-wrap{background:#0a0f1a;min-height:100vh;padding:24px;font-family:'DM Mono',monospace;animation:dashFadeUp .5s ease both}
+.dash-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px}
+.dash-title{font-size:11px;font-weight:900;letter-spacing:.18em;color:#38bdf8;text-transform:uppercase}
+.dash-subtitle{font-size:20px;font-weight:900;color:#f1f5f9;letter-spacing:-.01em;margin-top:2px}
+.dash-period-pills{display:flex;gap:6px}
+.dash-pill{padding:6px 14px;border-radius:999px;font-family:'DM Mono',monospace;font-size:11px;font-weight:700;cursor:pointer;border:1.5px solid #1e293b;background:transparent;color:#64748b;letter-spacing:.06em;transition:all .2s}
+.dash-pill.active{background:#38bdf8;color:#0a0f1a;border-color:#38bdf8;box-shadow:0 0 16px rgba(56,189,248,.4)}
+.dash-pill:hover:not(.active){border-color:#38bdf8;color:#38bdf8}
+.dash-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-bottom:24px}
+.dash-kpi{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:20px;position:relative;overflow:hidden;animation:dashFadeUp .4s ease both;transition:transform .2s,box-shadow .2s}
+.dash-kpi:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.4)}
+.dash-kpi::before{content:'';position:absolute;inset:0;border-radius:16px;background:var(--glow,transparent);opacity:.06;pointer-events:none}
+.dash-kpi-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:#475569;text-transform:uppercase;margin-bottom:10px}
+.dash-kpi-val{font-size:28px;font-weight:900;line-height:1;color:#f1f5f9;letter-spacing:-.02em;animation:dashCount .5s ease both}
+.dash-kpi-unit{font-size:11px;color:#64748b;margin-top:4px;font-weight:600}
+.dash-kpi-badge{position:absolute;top:16px;right:16px;font-size:22px;opacity:.6}
+.dash-row{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:24px}
+.dash-card{background:linear-gradient(135deg,rgba(255,255,255,.03),rgba(255,255,255,.01));backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:20px;animation:dashFadeUp .5s ease both}
+.dash-card-title{font-size:9px;font-weight:900;letter-spacing:.14em;color:#38bdf8;text-transform:uppercase;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.dash-card-title::before{content:'';width:3px;height:14px;background:#38bdf8;border-radius:2px;box-shadow:0 0 8px #38bdf8}
+.dash-bar-track{display:flex;align-items:flex-end;gap:5px;height:100px;padding-bottom:24px;position:relative}
+.dash-bar-col{flex:1;display:flex;flex-direction:column;align-items:center;position:relative}
+.dash-bar-seg{width:100%;border-radius:3px 3px 0 0;transition:height .4s ease;min-height:2px}
+.dash-bar-label{position:absolute;bottom:-20px;font-size:8px;color:#334155;white-space:nowrap;font-weight:700}
+.dash-bar-val{position:absolute;top:-18px;font-size:9px;color:#94a3b8;white-space:nowrap}
+.dash-type-row{display:flex;flex-direction:column;gap:10px}
+.dash-type-item{display:flex;align-items:center;gap:10px}
+.dash-type-label{font-size:11px;font-weight:700;color:#94a3b8;width:80px;flex-shrink:0}
+.dash-type-bar-track{flex:1;height:8px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden}
+.dash-type-bar-fill{height:100%;border-radius:4px;transition:width .6s ease}
+.dash-type-val{font-size:11px;font-weight:900;color:#f1f5f9;min-width:52px;text-align:right}
+.dash-mix-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.dash-mix-row:last-child{border-bottom:none}
+.dash-unit-split{display:flex;gap:8px;margin-top:10px}
+.dash-unit-block{flex:1;background:rgba(255,255,255,.03);border-radius:10px;padding:12px;text-align:center;border:1px solid rgba(255,255,255,.06)}
+.dash-live-dot{width:6px;height:6px;background:#4ade80;border-radius:50%;animation:dashPulse 1.2s ease-in-out infinite;display:inline-block;margin-right:6px}
+</style>
+<div class="dash-wrap">
+  <!-- Header -->
+  <div class="dash-header">
+    <div>
+      <div class="dash-title">🏭 PRODUCTION.SYS · PASTEURIZE MODULE</div>
+      <div class="dash-subtitle">Smart Factory Dashboard</div>
+    </div>
+    <div class="dash-period-pills">
+      ${['day','week','month','year'].map(v=>`<button class="dash-pill${p===v?' active':''}" onclick="window.loadDashboard('${v}')">${{day:'TODAY',week:'7D',month:'1M',year:'1Y'}[v]}</button>`).join('')}
+    </div>
+  </div>
+
+  <!-- KPI Grid -->
+  <div class="dash-grid">
+    <div class="dash-kpi" style="--glow:rgba(56,189,248,.8)">
+      <div class="dash-kpi-badge">📦</div>
+      <div class="dash-kpi-label">Total Volume</div>
+      <div class="dash-kpi-val">${(totalVol/1000).toFixed(2)}</div>
+      <div class="dash-kpi-unit">kilo-Litres · ${totalVol.toLocaleString()} L</div>
+    </div>
+    <div class="dash-kpi" style="--glow:rgba(168,85,247,.8)">
+      <div class="dash-kpi-badge">🔢</div>
+      <div class="dash-kpi-label">Total Batches</div>
+      <div class="dash-kpi-val">${totalBatch}</div>
+      <div class="dash-kpi-unit">batches · ${periodLabel}</div>
+    </div>
+    <div class="dash-kpi" style="--glow:${effColor==='#4ade80'?'rgba(74,222,128,.8)':effColor==='#fbbf24'?'rgba(251,191,36,.8)':'rgba(248,113,113,.8)'}">
+      <div class="dash-kpi-badge">⚡</div>
+      <div class="dash-kpi-label">Avg Efficiency</div>
+      <div class="dash-kpi-val" style="color:${effColor}">${avgEff.toFixed(1)}<span style="font-size:14px">%</span></div>
+      <div class="dash-kpi-unit">${effRows.length} batches recorded</div>
+    </div>
+    <div class="dash-kpi" style="--glow:rgba(249,115,22,.8)">
+      <div class="dash-kpi-badge">📊</div>
+      <div class="dash-kpi-label">Avg per Batch</div>
+      <div class="dash-kpi-val">${totalBatch?Math.round(totalVol/totalBatch).toLocaleString():'—'}</div>
+      <div class="dash-kpi-unit">Litres / batch</div>
+    </div>
+  </div>
+
+  <!-- Charts Row -->
+  <div class="dash-row">
+    <!-- Daily volume bar chart -->
+    <div class="dash-card">
+      <div class="dash-card-title">Volume Trend · Daily (L)</div>
+      ${days.length?`
+      <div class="dash-bar-track">
+        ${days.map(d=>{
+          const h1=Math.max(2,(dayMap[d].p1/maxVol)*90);
+          const h2=Math.max(2,(dayMap[d].p2/maxVol)*90);
+          const isT=d===todayStr;
+          const lbl=d.slice(5);
+          const tot=dayMap[d].vol;
+          return`<div class="dash-bar-col">
+            <div class="dash-bar-val" style="color:${isT?'#38bdf8':'#475569'}">${tot>=1000?(tot/1000).toFixed(1)+'k':tot}</div>
+            <div style="width:100%;display:flex;flex-direction:column;align-items:center;gap:1px">
+              <div class="dash-bar-seg" style="height:${h1}px;background:${isT?'#38bdf8':'#1d4ed8'};box-shadow:${isT?'0 0 10px rgba(56,189,248,.5)':'none'}"></div>
+              <div class="dash-bar-seg" style="height:${h2}px;background:${isT?'#a78bfa':'#5b21b6'};box-shadow:${isT?'0 0 10px rgba(167,139,250,.5)':'none'}"></div>
+            </div>
+            <div class="dash-bar-label" style="color:${isT?'#38bdf8':'#334155'};font-weight:${isT?900:600}">${lbl}</div>
+          </div>`;
+        }).join('')}
+      </div>
+      <div style="display:flex;gap:16px;margin-top:8px">
+        <div style="display:flex;align-items:center;gap:5px"><div style="width:10px;height:10px;border-radius:2px;background:#1d4ed8"></div><span style="font-size:9px;color:#475569">P1</span></div>
+        <div style="display:flex;align-items:center;gap:5px"><div style="width:10px;height:10px;border-radius:2px;background:#5b21b6"></div><span style="font-size:9px;color:#475569">P2</span></div>
+      </div>`:'<div style="text-align:center;padding:30px;color:#334155;font-size:11px">No data</div>'}
+    </div>
+
+    <!-- Product type breakdown -->
+    <div class="dash-card">
+      <div class="dash-card-title">Product Mix</div>
+      <div class="dash-type-row">
+        ${Object.entries(typeMap).filter(([k,v])=>v.vol>0).map(([t,v])=>{
+          const pct=totalVol>0?(v.vol/totalVol*100):0;
+          return`<div class="dash-type-item">
+            <div style="font-size:16px">${v.icon}</div>
+            <div class="dash-type-label">${t}</div>
+            <div class="dash-type-bar-track">
+              <div class="dash-type-bar-fill" style="width:${pct.toFixed(1)}%;background:${v.color};box-shadow:0 0 8px ${v.glow}"></div>
+            </div>
+            <div class="dash-type-val" style="color:${v.color}">${(v.vol/1000).toFixed(1)}k</div>
+          </div>`;
+        }).join('')}
+      </div>
+      <!-- P1 vs P2 split -->
+      <div class="dash-unit-split">
+        <div class="dash-unit-block">
+          <div style="font-size:9px;color:#1d4ed8;font-weight:900;letter-spacing:.1em;margin-bottom:4px">P1</div>
+          <div style="font-size:18px;font-weight:900;color:#f1f5f9">${(p1Vol/1000).toFixed(1)}<span style="font-size:10px;color:#475569"> kL</span></div>
+        </div>
+        <div class="dash-unit-block">
+          <div style="font-size:9px;color:#7c3aed;font-weight:900;letter-spacing:.1em;margin-bottom:4px">P2</div>
+          <div style="font-size:18px;font-weight:900;color:#f1f5f9">${(p2Vol/1000).toFixed(1)}<span style="font-size:10px;color:#475569"> kL</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top Mix -->
+  <div class="dash-card">
+    <div class="dash-card-title">Top Performing Mix Codes</div>
+    ${topMix.map(([code,v],i)=>`
+    <div class="dash-mix-row" style="animation:dashFadeUp ${.3+i*.07}s ease both">
+      <div style="font-size:11px;color:#334155;width:18px;font-weight:900">${i+1}</div>
+      <div style="font-size:12px;font-weight:900;color:#38bdf8;min-width:80px">${code}</div>
+      <div style="flex:1;font-size:11px;color:#64748b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${v.name}</div>
+      <div style="width:120px;height:5px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden;margin:0 12px">
+        <div style="height:100%;border-radius:3px;background:linear-gradient(90deg,#38bdf8,#a78bfa);width:${(v.vol/maxMx*100).toFixed(0)}%;transition:width .6s ease"></div>
+      </div>
+      <div style="font-size:12px;font-weight:900;color:#f1f5f9;min-width:72px;text-align:right">${v.vol.toLocaleString()} L</div>
+      <div style="font-size:10px;color:#475569;min-width:44px;text-align:right">${v.batch} btch</div>
+    </div>`).join('')}
+  </div>
+
+  <!-- Footer -->
+  <div style="margin-top:20px;display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:rgba(255,255,255,.02);border-radius:10px;border:1px solid rgba(255,255,255,.04)">
+    <div style="font-size:9px;color:#334155;letter-spacing:.1em"><span class="dash-live-dot"></span>PROD.SYS · PASTEURIZE ANALYTICS</div>
+    <div style="font-size:9px;color:#334155">Updated: ${new Date().toLocaleTimeString('th-TH')} · ${rows.length} records · ${fromDate} → ${todayStr}</div>
+  </div>
+</div>`;
+  }catch(e){
+    el.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;height:200px"><div style="font-family:'DM Mono',monospace;color:#f87171;font-size:12px">❌ ${e.message}</div></div>`;
+    console.error('loadDashboard error:',e);
+  }
 };
 </script>
 </body>
