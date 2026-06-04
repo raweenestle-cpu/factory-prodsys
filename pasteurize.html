@@ -569,7 +569,6 @@ setInterval(async()=>{
                   updated_at:new Date().toISOString()
                 },{merge:false});}catch(e){console.warn('nextRow aging write error:',e);}
               }
-              }
               toast(`🔄 Auto เริ่ม Past. Batch ${nextRow.batch_no} (${nextRow.mixing_tank||''}) ต่อเนื่อง`,"green");
             }
           }
