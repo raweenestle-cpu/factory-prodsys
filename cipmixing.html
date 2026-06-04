@@ -532,6 +532,7 @@ function renderPriorityCard(){
     </div>`;
   }).join('');
 }
+function renderShiftSummary(){
   const counts={morning:{cip:0,san:0},afternoon:{cip:0,san:0},night:{cip:0,san:0}};
   const today2=today();
   Object.values(tankStates).forEach(ts=>{
