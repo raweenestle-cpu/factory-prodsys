@@ -856,7 +856,7 @@ function buildStepHtml(st, i, stepsLen, pcol, rid, row){
     nodeHtml = `<div class="tv3-step">
       <div class="tv3-circle ${cls}" style="${ccpStyle}"><span style="font-size:28px">${st.ico}</span></div>
       <div class="tv3-sn ${snCls}">${st.name}</div>
-      <div class="tv3-sv ${svCls}">${isSkip?'—':st.kg}</div>
+      <div class="tv3-sv ${svCls}" style="${st.kg==='CLOSE'?'color:#dc2626!important;font-weight:900!important':''}">${isSkip?'—':st.kg}</div>
       ${st.kg2?`<div class="tv3-sv ${svCls}" style="font-size:10px">${st.kg2}</div>`:''}
       ${sv2}${btnH}
     </div>`;
@@ -870,13 +870,16 @@ function buildStepsForPast(row){
   const steps = [];
   const prod = window.productMap&&row.mix_code ? (window.productMap[row.mix_code]||{}) : {};
   const ptype = prod.Type||prod.type||'';
-  const isJelly = ptype.toLowerCase().includes('jelly');
+  const isJelly = ptype.toLowerCase().includes('jelly')
+    || ptype2.toLowerCase().includes('jelly')
+    || (row.mix_name||'').toLowerCase().includes('jell')
+    || (row.mix_name||'').toLowerCase().includes('เจลลี่');
   // ดึงจาก productmaster ผ่าน mix_code
   const _pm = (window.productMap||{})[row.mix_code||'']||{};
   const homoS1 = _pm.homo_stage1||_pm['Homo Stage 1']||_pm.homo_st1||prod.homo_stage1||'—';
   const homoS2 = _pm.homo_stage2||_pm['Homo Stage 2']||_pm.homo_st2||prod.homo_stage2||'—';
   const ptype2 = _pm.Type||_pm.type||ptype;
-  const isJelly2 = ptype2.toLowerCase().includes('jelly');
+  const isJelly2 = isJelly;
   const tempRange = (isJelly||isJelly2) ? '38–42' : '0–4';
   const iceWater = (isJelly||isJelly2) ? 'CLOSE' : 'OPEN';
 
@@ -1202,7 +1205,7 @@ function renderPastCard(row, i, col, p){
     <div class="tv3-head">
       <div class="tv3-seq"><div style="font-family:var(--mono);font-size:13px;font-weight:900;color:#111827;text-align:center;padding:0 4px">${i+1}</div></div>
       <div class="tv3-hi">
-        <div class="tv3-code">${row.mix_code||'—'} · ${row.process_order||'—'}</div>
+        <div class="tv3-code"><span style="color:#6b7280;font-weight:600">Material:</span> ${row.mix_code||'—'} · <span style="color:#6b7280;font-weight:600">Process Order:</span> ${row.process_order||'—'}</div>
         <div class="tv3-name">${row.mix_name||'—'} · <span style="font-size:18px">${(+(row.volume_liter||0)).toLocaleString()} L</span> · <span style="font-size:16px">Batch ${row.batch_no||'—'}</span></div>
         <div class="tv3-meta">${(()=>{const _p=(window.productMap||{})[row.mix_code||'']||{};const _spd=p==='p1'?(_p.speed_m1||_p.speed||'—'):(_p.speed_m2||_p.speed||'—');const _den=_p.density||'—';return 'Density: '+_den+' kg/L · Speed: '+_spd+' L/hr';})()}</div>
       </div>
