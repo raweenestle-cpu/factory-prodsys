@@ -1471,7 +1471,33 @@ window.recallBatch=async(histId,p)=>{
   }catch(e){toast('❌ ดึงกลับไม่สำเร็จ: '+e.message,'red');}
 };
 
-// ── STAMP ─────────────────────────────────────────────────────────────
+// ── STAMP SIG ──────────────────────────────────────────────────────────
+window.stampSig=async(col,id,field,p)=>{
+  const sig=sessionStorage.getItem('emp_sig')||'';
+  const name=sessionStorage.getItem('emp_name')||ME?.displayName||'';
+  if(!sig){
+    toast('กรุณา Login ก่อนเซ็นชื่อ','red');
+    return;
+  }
+  try{
+    await updateDoc(doc(db,col,id),{
+      [field]:sig,
+      [field+'_by']:name,
+      [field+'_time']:nowHHMM(),
+      updated_at:new Date().toISOString()
+    });
+    // update local rows ทันที
+    if(rows[p]){
+      const idx=rows[p].findIndex(r=>r.id===id);
+      if(idx>=0){
+        rows[p][idx]={...rows[p][idx],[field]:sig,[field+'_by']:name};
+        window._rows[p]=rows[p];
+        renderPlan(p);
+      }
+    }
+    toast('✅ เซ็นชื่อแล้ว','green');
+  }catch(e){toast('❌ เซ็นชื่อไม่สำเร็จ: '+e.message,'red');}
+};
 window.stampTime=async(col,id,field,p)=>{
   const now=field==="past_end_time"?nowHHMMSS():nowHHMMSS();
   const upd={[field]:now};
