@@ -352,18 +352,17 @@ setInterval(()=>{
   });
 },10000);
 
-// เขียน current_vol ลง Firebase ทุก 1 วินาที + Auto Stamp เมื่อถึง ETA
+// เขียน current_vol ลง Firebase ทุก 3 วินาที + Auto Stamp เมื่อถึง ETA
 // Subscribe aging_tank_states real-time
 window._agingStates={};
 onSnapshot(collection(db,'aging_tank_states'),snap=>{
   snap.docs.forEach(d=>{window._agingStates[d.id]={id:d.id,...d.data()};});
 });
+onSnapshot(collection(db,'aging_tank_states'),snap=>{
+  snap.docs.forEach(d=>{window._agingStates[d.id]={id:d.id,...d.data()};});
+});
 
-// ── HIGH WATERMARK: prevVol สะสมต่อถัง in-memory ──
-// key = process_order_aging_tank, value = vol ที่ past_done แล้ว
-window._prevVolMap={};
-
-const _autoStamping=new Set();
+const _autoStamping=new Set(); // ป้องกัน stamp ซ้ำ
 
 setInterval(async()=>{
   for(const p of["p1","p2"]){
@@ -375,153 +374,262 @@ setInterval(async()=>{
       const prod=window._productMap[agRow.mix_code]||{};
       const density=+(prod.density||1);
       const speed=p==='p1'?+(prod.speed_m1||prod.speed||0):+(prod.speed_m2||prod.speed||0);
-      if(!speed||!totalVol){console.warn('SKIP',p,agRow.mix_code,'speed:',speed,'vol:',totalVol);continue;}
+      if(!speed||!totalVol){console.warn('SKIP',p,agRow.mix_code,'speed:',speed,'vol:',totalVol,'prod:',JSON.stringify(prod));continue;}
       const totalMin=(totalVol*density*60)/speed;
       const _tParts=agRow.past_start_time.split(':').map(Number);
-      const[h,mm,ss]=[_tParts[0]||0,_tParts[1]||0,_tParts[2]||0];
+      const[h,mm,ss]=[ _tParts[0]||0, _tParts[1]||0, _tParts[2]||0 ];
       const start=new Date((agRow.date||new Date().toISOString().slice(0,10))+'T'+String(h).padStart(2,'0')+':'+String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0'));
       const elapsedSec2=Math.max(0,(Date.now()-start)/1000);
       const elapsedMin=elapsedSec2/60;
       const agVol=totalMin>0?Math.min(totalVol,(elapsedMin/totalMin)*totalVol):0;
 
-      // ── prevVol: in-memory watermark เป็นหลัก ──
-      const _wmKey=(agRow.process_order||'')+'_'+(agRow.aging_tank||'');
-      if(window._prevVolMap[_wmKey]===undefined){
-        // bootstrap ครั้งแรก: ดึงจาก rows past_done หรือ aging_tank_states
-        const _allR=[...(rows['p1']||[]),...(rows['p2']||[])];
-        const _rowsPrev=_allR
-          .filter(r=>r.id!==agRow.id&&r.process_order===agRow.process_order&&
-            r.aging_tank===agRow.aging_tank&&(r.status==='past_done'||r.status==='ready'))
-          .reduce((s,r)=>s+(+(r.volume_liter||0)),0);
-        const _storeVol=+(( window._agingStates[agRow.aging_tank]||{}).current_vol||0);
-        window._prevVolMap[_wmKey]=Math.max(_rowsPrev,Math.max(0,_storeVol-agVol));
+      // prevVol = ดึงจาก aging_tank_states จริง ลบ vol ของ batch ปัจจุบัน (ที่กำลังไหลอยู่)
+      // เพื่อได้ฐานที่สะสมมาจาก batch ก่อนหน้า ไม่ reset
+      const allRows=[...(rows['p1']||[]),...(rows['p2']||[])];
+      let prevVol=0;
+      if(agRow.process_order&&agRow.aging_tank){
+        const _agSt=window._agingStates[agRow.aging_tank]||{};
+        const _storeVol=+(_agSt.current_vol||0);
+        // prevVol = max ของ (vol ใน state - vol batch ปัจจุบัน) หรือ คำนวณจาก rows
+        const _rowsPrev=allRows
+          .filter(r=>
+            r.id!==agRow.id &&
+            r.process_order===agRow.process_order &&
+            r.aging_tank===agRow.aging_tank &&
+            (r.status==='past_done'||r.status==='ready')
+          )
+          .reduce((sum,r)=>sum+(+(r.volume_liter||0)),0);
+        prevVol=Math.max(_rowsPrev, Math.max(0,_storeVol-agVol));
       }
-      const prevVol=window._prevVolMap[_wmKey]||0;
       const totalCumVol=Math.round((prevVol+agVol)*10)/10;
-
       await updateDoc(doc(db,planCol(p),agRow.id),{current_vol:totalCumVol});
+      // sync ข้อมูลลง aging_tank_states
       if(agRow.aging_tank){
+        const prod2=productMap[agRow.mix_code]||{};
         try{await setDoc(doc(db,'aging_tank_states',agRow.aging_tank),{
           current_vol:totalCumVol,
-          mix_code:agRow.mix_code||'',mix_name:agRow.mix_name||'',
-          batch_no:agRow.batch_no||'',product_code:agRow.product_code||'',
-          prod_suffix:agRow.prod_suffix||'',date:agRow.date||'',
-          past_start_time:agRow.past_start_time||'',past_end_time:agRow.past_end_time||'',
-          volume_liter:agRow.volume_liter||0,process_order:agRow.process_order||'',
-          status:agRow.status||'',updated_at:new Date().toISOString()
+          mix_code:agRow.mix_code||'',
+          mix_name:agRow.mix_name||'',
+          batch_no:agRow.batch_no||'',
+          product_code:agRow.product_code||'',
+          prod_suffix:agRow.prod_suffix||'',
+          date:agRow.date||'',
+          past_start_time:agRow.past_start_time||'',
+          past_end_time:agRow.past_end_time||'',
+          volume_liter:agRow.volume_liter||0,
+          process_order:agRow.process_order||'',
+          status:agRow.status||'',
+          updated_at:new Date().toISOString()
         },{merge:true});}catch{}
       }
 
       // ── AUTO STAMP ──────────────────────────────────────────
+      // ถ้าถึงเวลา ETA และยังไม่มี past_end_time
       const totalSec2=totalMin*60;
-      if(!agRow.past_end_time&&totalSec2>0&&elapsedSec2>=(totalSec2-10)){
-        if(!agRow.aging_tank){toast('⚠️ Auto Stamp หยุด — กรุณาเลือก Aging Tank ก่อน','red');continue;}
+      if(!agRow.past_end_time && totalSec2>0 && elapsedSec2>=(totalSec2-10)){
+        // ต้องมี aging_tank ก่อนถึง auto stamp ได้
+        if(!agRow.aging_tank){
+          toast(`⚠️ Auto Stamp หยุด — กรุณาเลือก Aging Tank ก่อน`,"red");
+          continue;
+        }
         const key=agRow.id;
         if(!_autoStamping.has(key)){
           _autoStamping.add(key);
           const endTime=agRow.expected_finish_time||nowHHMMSS();
+          // endTime = expected_finish_time ซึ่งคำนวณจาก stdSec พอดี → Eff = 100% เสมอ
+          const eff=100;
           const effOk=true;
+          // Stamp Past.เสร็จ — current_vol = cumulative รวม batch ก่อนหน้าด้วย
+          const donePrevVol=allRows
+            .filter(r=>r.id!==agRow.id&&
+              r.process_order===agRow.process_order&&
+              r.aging_tank===agRow.aging_tank&&
+              (r.status==='past_done'||r.status==='ready'))
+            .reduce((s,r)=>s+(+(r.volume_liter||0)),0);
+          const finalCumVol=donePrevVol+(+(agRow.volume_liter||0));
 
-          // finalCumVol = watermark + totalVol batch นี้เต็ม
-          const finalCumVol=prevVol+(+(agRow.volume_liter||0));
-
-          // ── อัปเดต watermark ทันที ก่อนทำอย่างอื่น ──
-          window._prevVolMap[_wmKey]=finalCumVol;
-
-          // ── หา nextRow ก่อน delete ──
-          const _allRowsBefore=[...(rows['p1']||[]),...(rows['p2']||[])];
-          const nextRow=agRow.process_order&&agRow.aging_tank
-            ?_allRowsBefore.filter(r=>
-                r.process_order===agRow.process_order&&
-                (!r.aging_tank||r.aging_tank===agRow.aging_tank)&&
-                r.id!==agRow.id&&!r.past_start_time&&
-                (r.status==='pending'||r.status==='mixing'||r.status==='pasteurising'||r.status==='ready_mix')
-              ).sort((a,b)=>(a.seq||0)-(b.seq||0))[0]
-            :null;
-          const hasNext=!!nextRow||_allRowsBefore.some(r=>
-            r.process_order===agRow.process_order&&r.aging_tank===agRow.aging_tank&&
-            r.id!==agRow.id&&(r.status==='pasteurising'||r.status==='pending'||r.status==='mixing'||r.status==='ready_mix')
-          );
-
-          // ── stamp past_done ──
           await updateDoc(doc(db,planCol(p),agRow.id),{
-            past_end_time:endTime,eff:100,status:'past_done',
-            current_vol:finalCumVol,mix_start_time:'',mix_end_time:'',
+            past_end_time:endTime,
+            eff:Math.round(eff*10)/10,
+            status:'past_done',
+            current_vol:finalCumVol,
+            mix_start_time:"",mix_end_time:"",
           });
+          // อัปเดต rows local ทันทีก่อน Firebase onSnapshot กลับมา
           const _lIdx=(rows[p]||[]).findIndex(r=>r.id===agRow.id);
-          if(_lIdx>=0){rows[p][_lIdx]={...rows[p][_lIdx],status:'past_done',past_end_time:endTime,current_vol:finalCumVol};window._rows[p]=rows[p];}
+          if(_lIdx>=0){
+            rows[p][_lIdx]={...rows[p][_lIdx],status:'past_done',past_end_time:endTime,current_vol:finalCumVol};
+            window._rows[p]=rows[p];
+          }
 
-          // ── aging_tank_states: set finalCumVol ก่อน archive เสมอ ──
+          // ── ARCHIVE → past_history แล้ว DELETE ออกจาก production_plans ──
+          try{
+            await addDoc(collection(db,'past_history'),{
+              ...agRow,
+              past_end_time:endTime,
+              eff:Math.round(eff*10)/10,
+              status:'past_done',
+              current_vol:finalCumVol,
+              archived_at:nowHHMM(),
+              archived_date:today(),
+              mixing_unit:p,
+            });
+            await deleteDoc(doc(db,planCol(p),agRow.id));
+            // ลบออกจาก rows local ด้วย
+            rows[p]=(rows[p]||[]).filter(r=>r.id!==agRow.id);
+            window._rows[p]=rows[p];
+          }catch(e){console.error('archive error:',e);}
+
+          // ── UPDATE aging_tank_states ──
           if(agRow.aging_tank){
-            if(hasNext){
+            const _allRowsNow=[...(rows['p1']||[]),...(rows['p2']||[])];
+            const _hasNext=_allRowsNow.some(r=>
+              r.process_order===agRow.process_order &&
+              r.aging_tank===agRow.aging_tank &&
+              r.id!==agRow.id &&
+              (r.status==='pasteurising'||r.status==='pending'||r.status==='mixing'||r.status==='ready_mix')
+            );
+            if(_hasNext){
+              // มี batch ถัดไปใน process เดียวกัน → สะสม volume ต่อ ไม่ clear
               try{await setDoc(doc(db,'aging_tank_states',agRow.aging_tank),{
-                current_vol:finalCumVol,updated_at:new Date().toISOString()
+                current_vol:finalCumVol,
+                updated_at:new Date().toISOString()
               },{merge:true});}catch{}
             } else {
+              // ไม่มี batch ถัดไป → clear ให้ว่าง รอรับ mix ใหม่
               try{await setDoc(doc(db,'aging_tank_states',agRow.aging_tank),{
-                current_vol:0,mix_code:'',mix_name:'',batch_no:'',
-                process_order:'',status:'empty',past_end_time:null,
+                current_vol:0,
+                mix_code:'',
+                mix_name:'',
+                batch_no:'',
+                process_order:'',
+                status:'empty',
+                past_end_time:null,
                 updated_at:new Date().toISOString()
               },{merge:false});}catch{}
             }
           }
 
-          // ── archive + delete ──
-          try{
-            await addDoc(collection(db,'past_history'),{
-              ...agRow,past_end_time:endTime,eff:100,status:'past_done',
-              current_vol:finalCumVol,archived_at:nowHHMM(),archived_date:today(),mixing_unit:p,
-            });
-            await deleteDoc(doc(db,planCol(p),agRow.id));
-            rows[p]=(rows[p]||[]).filter(r=>r.id!==agRow.id);
-            window._rows[p]=rows[p];
-          }catch(e){console.error('archive error:',e);}
+          if(!effOk){
+            toast(`⚠️ Auto Stamp Past.เสร็จ — Eff% ${eff.toFixed(1)}% ต่ำกว่า 97%`,"red");
+          } else {
+            toast(`✅ Auto Stamp Past.เสร็จ เวลา ${endTime} — Archive แล้ว`,"green");
+          }
 
-          toast(effOk?`✅ Auto Stamp Past.เสร็จ เวลา ${endTime} — Archive แล้ว`:`⚠️ Eff% ต่ำกว่า 97%`,effOk?'green':'red');
-
-          // ── start nextRow ต่อเนื่อง ──
-          if(nextRow){
-            if(!nextRow.aging_tank){
+          // หา batch ถัดไปจาก process_order + aging_tank เดียวกัน
+          if(agRow.process_order&&agRow.aging_tank){
+            const nextRow=allRows
+              .filter(r=>
+                r.process_order===agRow.process_order&&
+                // aging_tank เดียวกัน หรือยังไม่ได้กำหนด (จะใช้อันเดียวกัน)
+                (!r.aging_tank||r.aging_tank===agRow.aging_tank)&&
+                r.id!==agRow.id&&
+                !r.past_start_time&&
+                (r.status==='pending'||r.status==='mixing'||r.status==='pasteurising'||r.status==='ready_mix')
+              )
+              .sort((a,b)=>(a.seq||0)-(b.seq||0))[0];
+            // ถ้า nextRow ยังไม่มี aging_tank ให้ inherit จาก agRow
+            if(nextRow&&!nextRow.aging_tank){
               await updateDoc(doc(db,planCol(p),nextRow.id),{aging_tank:agRow.aging_tank});
-              nextRow.aging_tank=agRow.aging_tank;
             }
-            const _np=productMap[nextRow.mix_code]||{};
-            const _nd=+(_np.density||1);
-            const _ns=planCol(p)==='production_plans'?+(_np.speed_m1||_np.speed||0):+(_np.speed_m2||_np.speed||0);
-            const _nv=+(nextRow.volume_liter||0);
-            let _nEta=null;
-            if(_ns&&_nv){
-              const _nr=Math.round(_nv*_nd*3600/_ns);
-              const _nst=(agRow.expected_finish_time||endTime).split(':').map(Number);
-              const _nss=(_nst[0]||0)*3600+(_nst[1]||0)*60+(_nst[2]||0);
-              const _nes=(_nss+_nr+2)%86400;
-              _nEta=String(Math.floor(_nes/3600)).padStart(2,'0')+':'+String(Math.floor((_nes%3600)/60)).padStart(2,'0')+':'+String(_nes%60).padStart(2,'0');
-            }
-            await updateDoc(doc(db,planCol(p),nextRow.id),{
-              past_start_time:agRow.expected_finish_time||endTime,
-              expected_finish_time:_nEta,status:'pasteurising',past_end_time:null,
-            });
-            if(nextRow.aging_tank){
-              // merge:false เพื่อ overwrite สะอาด ไม่ให้ค่าเก่าหลงเหลือ
-              try{await setDoc(doc(db,'aging_tank_states',nextRow.aging_tank),{
-                current_vol:finalCumVol,
-                mix_code:nextRow.mix_code||'',mix_name:nextRow.mix_name||'',
-                batch_no:nextRow.batch_no||'',process_order:nextRow.process_order||'',
+            if(nextRow){
+              // ใช้ finalCumVol ที่เพิ่งคำนวณไว้ ไม่คำนวณใหม่จาก rows (rows อาจยังไม่ update)
+              await updateDoc(doc(db,planCol(p),nextRow.id),{
                 past_start_time:agRow.expected_finish_time||endTime,
-                past_end_time:null,status:'pasteurising',
-                updated_at:new Date().toISOString()
-              },{merge:false});}catch{}
+                expected_finish_time:(()=>{
+                  const _p=productMap[nextRow.mix_code]||{};
+                  const _d=+(_p.density||1),_s=planCol(p)==='production_plans'?+(_p.speed_m1||_p.speed||0):+(_p.speed_m2||_p.speed||0),_v=+(nextRow.volume_liter||0);
+                  if(!_s||!_v)return null;
+                  const _r=Math.round(_v*_d*3600/_s),_st=(agRow.expected_finish_time||endTime).split(':').map(Number);
+                  const _ss=(_st[0]||0)*3600+(_st[1]||0)*60+(_st[2]||0),_es=(_ss+_r+2)%86400;
+                  return String(Math.floor(_es/3600)).padStart(2,'0')+':'+String(Math.floor((_es%3600)/60)).padStart(2,'0')+':'+String(_es%60).padStart(2,'0');
+                })(),
+                status:'pasteurising',
+                past_end_time:null,
+              });
+              // sync aging_tank_states ต่อเนื่อง — สะสม vol จาก finalCumVol
+              if(nextRow.aging_tank){
+                try{await setDoc(doc(db,'aging_tank_states',nextRow.aging_tank),{
+                  current_vol:finalCumVol,
+                  mix_code:nextRow.mix_code||'',
+                  mix_name:nextRow.mix_name||'',
+                  batch_no:nextRow.batch_no||'',
+                  process_order:nextRow.process_order||'',
+                  past_start_time:endTime,
+                  past_end_time:null,
+                  status:'pasteurising',
+                  updated_at:new Date().toISOString()
+                },{merge:true});}catch{}
+              }
+              toast(`🔄 Auto เริ่ม Past. Batch ${nextRow.batch_no} (${nextRow.mixing_tank||''}) ต่อเนื่อง`,"green");
             }
-            // set watermark ของ nextRow = finalCumVol เพื่อให้ setInterval รอบถัดไปใช้ต่อได้ทันที
-            const _nextWmKey=(nextRow.process_order||'')+'_'+(nextRow.aging_tank||'');
-            window._prevVolMap[_nextWmKey]=finalCumVol;
-            toast(`🔄 Auto เริ่ม Past. Batch ${nextRow.batch_no} (${nextRow.mixing_tank||''}) ต่อเนื่อง`,'green');
           }
         }
       }
     }catch(e){console.error('auto stamp error:',e);_autoStamping.delete(agRow?.id);}
   }
-},1000);
+},15000);
+
+// ── CHECK ETA ทุก 5 วินาที — stamp ทันทีเมื่อถึงเวลา ──
+setInterval(async()=>{
+  for(const p of["p1","p2"]){
+    const pRows=window._rows[p]||[];
+    const agRow=pRows.find(r=>r.status==='pasteurising'&&r.past_start_time&&!r.past_end_time)||null;
+    if(!agRow||!agRow.aging_tank)continue;
+    if(_autoStamping.has(agRow.id))continue;
+    const prod=window._productMap[agRow.mix_code]||{};
+    const density=+(prod.density||1);
+    const speed=p==='p1'?+(prod.speed_m1||prod.speed||0):+(prod.speed_m2||prod.speed||0);
+    const totalVol=+(agRow.volume_liter||0);
+    if(!speed||!totalVol)continue;
+    const totalMin=(totalVol*density*60)/speed;
+    const totalSec=totalMin*60;
+    const _tp=agRow.past_start_time.split(':').map(Number);
+    const start=new Date((agRow.date||new Date().toISOString().slice(0,10))+'T'+String(_tp[0]||0).padStart(2,'0')+':'+String(_tp[1]||0).padStart(2,'0')+':'+String(_tp[2]||0).padStart(2,'0'));
+    const elapsedSec=Math.max(0,(Date.now()-start)/1000);
+    if(!agRow.past_end_time&&totalSec>0&&elapsedSec>=(totalSec-10)){
+      // ถึง ETA — stamp ทันทีโดยไม่รอ 15 วินาที
+      const _wmKey=(agRow.process_order||'')+'_'+(agRow.aging_tank||'');
+      const prevVol=window._prevVolMap[_wmKey]||0;
+      const finalCumVol=prevVol+(+(agRow.volume_liter||0));
+      window._prevVolMap[_wmKey]=finalCumVol;
+      _autoStamping.add(agRow.id);
+
+      const endTime=agRow.expected_finish_time||nowHHMMSS();
+      const allRowsBefore=[...(rows['p1']||[]),...(rows['p2']||[])];
+      const nextRow=agRow.process_order&&agRow.aging_tank
+        ?allRowsBefore.filter(r=>r.process_order===agRow.process_order&&(!r.aging_tank||r.aging_tank===agRow.aging_tank)&&r.id!==agRow.id&&!r.past_start_time&&(r.status==='pending'||r.status==='mixing'||r.status==='pasteurising'||r.status==='ready_mix')).sort((a,b)=>(a.seq||0)-(b.seq||0))[0]
+        :null;
+      const hasNext=!!nextRow||allRowsBefore.some(r=>r.process_order===agRow.process_order&&r.aging_tank===agRow.aging_tank&&r.id!==agRow.id&&(r.status==='pasteurising'||r.status==='pending'||r.status==='mixing'||r.status==='ready_mix'));
+
+      try{
+        await updateDoc(doc(db,planCol(p),agRow.id),{past_end_time:endTime,eff:100,status:'past_done',current_vol:finalCumVol,mix_start_time:'',mix_end_time:''});
+        const _li=(rows[p]||[]).findIndex(r=>r.id===agRow.id);
+        if(_li>=0){rows[p][_li]={...rows[p][_li],status:'past_done',past_end_time:endTime,current_vol:finalCumVol};window._rows[p]=rows[p];}
+        if(agRow.aging_tank){
+          if(hasNext){await setDoc(doc(db,'aging_tank_states',agRow.aging_tank),{current_vol:finalCumVol,updated_at:new Date().toISOString()},{merge:true});}
+          else{await setDoc(doc(db,'aging_tank_states',agRow.aging_tank),{current_vol:0,mix_code:'',mix_name:'',batch_no:'',process_order:'',status:'empty',past_end_time:null,updated_at:new Date().toISOString()},{merge:false});}
+        }
+        await addDoc(collection(db,'past_history'),{...agRow,past_end_time:endTime,eff:100,status:'past_done',current_vol:finalCumVol,archived_at:nowHHMM(),archived_date:today(),mixing_unit:p});
+        await deleteDoc(doc(db,planCol(p),agRow.id));
+        rows[p]=(rows[p]||[]).filter(r=>r.id!==agRow.id);window._rows[p]=rows[p];
+        toast(`✅ Auto Stamp Past.เสร็จ เวลา ${endTime}`,'green');
+        if(nextRow){
+          if(!nextRow.aging_tank){await updateDoc(doc(db,planCol(p),nextRow.id),{aging_tank:agRow.aging_tank});nextRow.aging_tank=agRow.aging_tank;}
+          const _np=productMap[nextRow.mix_code]||{};
+          const _ns=planCol(p)==='production_plans'?+(_np.speed_m1||_np.speed||0):+(_np.speed_m2||_np.speed||0);
+          const _nv=+(nextRow.volume_liter||0);const _nd=+(_np.density||1);
+          let _nEta=null;
+          if(_ns&&_nv){const _nr=Math.round(_nv*_nd*3600/_ns);const _nst=(agRow.expected_finish_time||endTime).split(':').map(Number);const _nss=(_nst[0]||0)*3600+(_nst[1]||0)*60+(_nst[2]||0);const _nes=(_nss+_nr+2)%86400;_nEta=String(Math.floor(_nes/3600)).padStart(2,'0')+':'+String(Math.floor((_nes%3600)/60)).padStart(2,'0')+':'+String(_nes%60).padStart(2,'0');}
+          await updateDoc(doc(db,planCol(p),nextRow.id),{past_start_time:agRow.expected_finish_time||endTime,expected_finish_time:_nEta,status:'pasteurising',past_end_time:null});
+          if(nextRow.aging_tank){await setDoc(doc(db,'aging_tank_states',nextRow.aging_tank),{current_vol:finalCumVol,mix_code:nextRow.mix_code||'',mix_name:nextRow.mix_name||'',batch_no:nextRow.batch_no||'',process_order:nextRow.process_order||'',past_start_time:agRow.expected_finish_time||endTime,past_end_time:null,status:'pasteurising',updated_at:new Date().toISOString()},{merge:false});}
+          const _nk=(nextRow.process_order||'')+'_'+(nextRow.aging_tank||'');window._prevVolMap[_nk]=finalCumVol;
+          toast(`🔄 Auto เริ่ม Batch ${nextRow.batch_no} ต่อเนื่อง`,'green');
+        }
+      }catch(e){console.error('ETA stamp error:',e);_autoStamping.delete(agRow.id);}
+    }
+  }
+},5000);
 window.doLogout=async()=>{
   if(unsub.p1)unsub.p1();
   if(unsub.p2)unsub.p2();
