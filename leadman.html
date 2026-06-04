@@ -1125,6 +1125,12 @@ function renderPlan(m){
     const setInput = (col,id,field,bg,bc,val) =>
       `<input class="ci" style="width:64px;text-align:right;background:${bg};border-color:${bc}" type="number" step="0.1" value="${val||""}" placeholder="0" onchange="_up('${col}','${id}','${field}',+this.value)">`;
 
+    // เช็ค product type เพื่อ block Palm Oil / Oil Mix / Fat Milk สำหรับ Water Ice และ Jelly
+    const _prod = productMap[row.mix_code]||{};
+    const _ptype = (_prod.Type||_prod.type||_prod.product_type||row.mix_name||'').toLowerCase();
+    const _isNoOil = _ptype.includes('water ice')||_ptype.includes('jelly')||_ptype.includes('jell')||_ptype.includes('เจลลี่');
+    const blockedInput = (field,val) => `<div style="width:64px;text-align:center;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:6px;padding:4px;font-family:var(--mono);font-size:11px;color:#94a3b8;cursor:not-allowed" title="ไม่ใช้สำหรับ Water Ice / Jelly">—</div>`;
+
     const tr = document.createElement("tr");
     if(row.status==="mixing")       tr.classList.add("row-mixing");
     else if(row.status==="pasteurising") tr.classList.add("row-past");
@@ -1140,9 +1146,9 @@ function renderPlan(m){
       <td><input class="ci" style="width:66px;text-align:right" type="number" value="${row.volume_liter||""}" onchange="_up('${col}','${row.id}','volume_liter',+this.value)"></td>
       <td style="background:var(--s1)">${setInput(col,row.id,"glc_set","var(--b1)","var(--b1)",row.glc_set)}</td>
       <td style="background:var(--s1)">${setInput(col,row.id,"sgr_set","var(--b1)","var(--b1)",row.sgr_set)}</td>
-      <td style="background:var(--s1)">${setInput(col,row.id,"plm_set","var(--b1)","var(--b1)",row.plm_set)}</td>
-      <td style="background:var(--s1)">${setInput(col,row.id,"oil_mix_set","var(--s2)","var(--b1)",row.oil_mix_set)}</td>
-      <td style="background:var(--s1)">${setInput(col,row.id,"fat_milk_set","var(--s2)","var(--b1)",row.fat_milk_set)}</td>
+      <td style="background:var(--s1)">${_isNoOil?blockedInput('plm_set',row.plm_set):setInput(col,row.id,"plm_set","var(--b1)","var(--b1)",row.plm_set)}</td>
+      <td style="background:var(--s1)">${_isNoOil?blockedInput('oil_mix_set',row.oil_mix_set):setInput(col,row.id,"oil_mix_set","var(--s2)","var(--b1)",row.oil_mix_set)}</td>
+      <td style="background:var(--s1)">${_isNoOil?blockedInput('fat_milk_set',row.fat_milk_set):setInput(col,row.id,"fat_milk_set","var(--s2)","var(--b1)",row.fat_milk_set)}</td>
       <td style="background:var(--s2)">${setInput(col,row.id,"rework_kg","var(--s2)","var(--b1)",row.rework_kg)}</td>
       <td style="background:var(--s2)">${setInput(col,row.id,"rework_tanks","var(--s2)","var(--b1)",row.rework_tanks)}</td>
       <td><select class="ci" style="width:110px" onchange="_up('${col}','${row.id}','filling_line',this.value);renderPlan('${m}')">
