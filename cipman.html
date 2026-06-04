@@ -1236,7 +1236,11 @@ async function confirmEmpty(){
   // Reset aging_tank_states current_vol เมื่อถังออกไป
   const agTank=st.aging_tank||'';
   if(agTank){
-    try{await setDoc(doc(db,'aging_tank_states',agTank),{current_vol:0,updated_at:new Date().toISOString()},{merge:true});}catch{}
+    try{await setDoc(doc(db,'aging_tank_states',agTank),{
+      current_vol:0,
+      temps:{},
+      updated_at:new Date().toISOString()
+    },{merge:true});}catch{}
   }
   await setDoc(doc(db,'cip_line_states',lineId),{running:false,start_ts:null,start_vol:0,aging_tank:'',curing_done:false},{merge:true});
   toast('บันทึกแล้ว ✅','green');window.closeEmpty();
@@ -1316,6 +1320,7 @@ window.forceClearTank=async(agTank)=>{
       batch_no:'',product_code:'',prod_suffix:'',
       date:'',past_start_time:'',past_end_time:'',
       volume_liter:0,process_order:'',
+      temps:{},
       updated_at:new Date().toISOString()
     });
     toast('✅ Clear ถัง '+agTank+' แล้ว','green');
