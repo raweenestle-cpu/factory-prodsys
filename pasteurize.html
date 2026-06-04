@@ -231,7 +231,7 @@
 import { initializeApp }     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-import { getFirestore, collection, query, where, orderBy, onSnapshot, updateDoc, doc, addDoc, deleteDoc, getDocs, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, collection, query, where, orderBy, onSnapshot, updateDoc, doc, addDoc, deleteDoc, getDocs, getDoc, setDoc, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 import {resolveStatus,statusLabel,statusColor,statusBlink,statusBadge,expireBox,calcExpireAt,displayVol,getProductColor,getMaxTemp,tempBox} from "./shared.js";
 
@@ -383,44 +383,51 @@ setInterval(async()=>{
       const elapsedMin=elapsedSec2/60;
       const agVol=totalMin>0?Math.min(totalVol,(elapsedMin/totalMin)*totalVol):0;
 
-      // prevVol = ดึงจาก aging_tank_states จริง ลบ vol ของ batch ปัจจุบัน (ที่กำลังไหลอยู่)
-      // เพื่อได้ฐานที่สะสมมาจาก batch ก่อนหน้า ไม่ reset
-      const allRows=[...(rows['p1']||[]),...(rows['p2']||[])];
-      let prevVol=0;
-      if(agRow.process_order&&agRow.aging_tank){
-        const _agSt=window._agingStates[agRow.aging_tank]||{};
-        const _storeVol=+(_agSt.current_vol||0);
-        // prevVol = max ของ (vol ใน state - vol batch ปัจจุบัน) หรือ คำนวณจาก rows
-        const _rowsPrev=allRows
-          .filter(r=>
-            r.id!==agRow.id &&
-            r.process_order===agRow.process_order &&
-            r.aging_tank===agRow.aging_tank &&
-            (r.status==='past_done'||r.status==='ready')
-          )
-          .reduce((sum,r)=>sum+(+(r.volume_liter||0)),0);
-        prevVol=Math.max(_rowsPrev, Math.max(0,_storeVol-agVol));
+      // ── prevVol: in-memory watermark (รวม p เพื่อไม่ให้ p1/p2 key ชนกัน) ──
+      const _wmKey=p+'_'+(agRow.process_order||'')+'_'+(agRow.aging_tank||'');
+      if(window._prevVolMap[_wmKey]===undefined){
+        // bootstrap ครั้งแรก
+        const _allR=[...(rows['p1']||[]),...(rows['p2']||[])];
+        const _rowsPrev=_allR
+          .filter(r=>r.id!==agRow.id&&r.process_order===agRow.process_order&&
+            r.aging_tank===agRow.aging_tank&&(r.status==='past_done'||r.status==='ready'))
+          .reduce((s,r)=>s+(+(r.volume_liter||0)),0);
+        const _storeVol=+((window._agingStates[agRow.aging_tank]||{}).current_vol||0);
+        window._prevVolMap[_wmKey]=Math.max(_rowsPrev,Math.max(0,_storeVol-agVol));
       }
+      const prevVol=window._prevVolMap[_wmKey]||0;
       const totalCumVol=Math.round((prevVol+agVol)*10)/10;
       await updateDoc(doc(db,planCol(p),agRow.id),{current_vol:totalCumVol});
-      // sync ข้อมูลลง aging_tank_states
+      // sync aging_tank_states ด้วย transaction — บวกเฉพาะส่วนที่ p นี้ contribute ใหม่
       if(agRow.aging_tank){
-        const prod2=productMap[agRow.mix_code]||{};
-        try{await setDoc(doc(db,'aging_tank_states',agRow.aging_tank),{
-          current_vol:totalCumVol,
-          mix_code:agRow.mix_code||'',
-          mix_name:agRow.mix_name||'',
-          batch_no:agRow.batch_no||'',
-          product_code:agRow.product_code||'',
-          prod_suffix:agRow.prod_suffix||'',
-          date:agRow.date||'',
-          past_start_time:agRow.past_start_time||'',
-          past_end_time:agRow.past_end_time||'',
-          volume_liter:agRow.volume_liter||0,
-          process_order:agRow.process_order||'',
-          status:agRow.status||'',
-          updated_at:new Date().toISOString()
-        },{merge:true});}catch{}
+        const _contribKey=p+'_contrib_'+(agRow.aging_tank||'');
+        const _prevContrib=window._prevContribMap&&window._prevContribMap[_contribKey]!==undefined?window._prevContribMap[_contribKey]:null;
+        if(!window._prevContribMap)window._prevContribMap={};
+        try{
+          await runTransaction(db,async tx=>{
+            const tankRef=doc(db,'aging_tank_states',agRow.aging_tank);
+            const tankSnap=await tx.get(tankRef);
+            const existingVol=+(tankSnap.exists()?tankSnap.data().current_vol||0:0);
+            // คำนวณ vol รวมใหม่: เอาค่าเดิม ลบส่วนที่ p นี้เคย contribute แล้วบวกใหม่
+            const prevC=_prevContrib!==null?_prevContrib:Math.max(0,existingVol-(()=>{
+              // ประมาณ contribution ของ p อีกฝั่ง
+              const _otherP=p==='p1'?'p2':'p1';
+              const _otherKey=_otherP+'_contrib_'+(agRow.aging_tank||'');
+              return window._prevContribMap[_otherKey]||0;
+            })());
+            const newVol=Math.max(0,existingVol-prevC)+totalCumVol;
+            window._prevContribMap[_contribKey]=totalCumVol;
+            tx.set(tankRef,{
+              current_vol:Math.round(newVol*10)/10,
+              mix_code:agRow.mix_code||'',mix_name:agRow.mix_name||'',
+              batch_no:agRow.batch_no||'',product_code:agRow.product_code||'',
+              prod_suffix:agRow.prod_suffix||'',date:agRow.date||'',
+              past_start_time:agRow.past_start_time||'',past_end_time:agRow.past_end_time||'',
+              volume_liter:agRow.volume_liter||0,process_order:agRow.process_order||'',
+              status:agRow.status||'',updated_at:new Date().toISOString()
+            },{merge:true});
+          });
+        }catch(e){console.warn('transaction vol error:',e);}
       }
 
       // ── AUTO STAMP ──────────────────────────────────────────
@@ -439,14 +446,11 @@ setInterval(async()=>{
           // endTime = expected_finish_time ซึ่งคำนวณจาก stdSec พอดี → Eff = 100% เสมอ
           const eff=100;
           const effOk=true;
-          // Stamp Past.เสร็จ — current_vol = cumulative รวม batch ก่อนหน้าด้วย
-          const donePrevVol=allRows
-            .filter(r=>r.id!==agRow.id&&
-              r.process_order===agRow.process_order&&
-              r.aging_tank===agRow.aging_tank&&
-              (r.status==='past_done'||r.status==='ready'))
-            .reduce((s,r)=>s+(+(r.volume_liter||0)),0);
-          const finalCumVol=donePrevVol+(+(agRow.volume_liter||0));
+          // finalCumVol = watermark ของ p นี้ (ไม่รวม p อื่น — จะรวมใน transaction)
+          const _wmKeyStamp=p+'_'+(agRow.process_order||'')+'_'+(agRow.aging_tank||'');
+          const _prevVolStamp=window._prevVolMap[_wmKeyStamp]||0;
+          const finalCumVol=_prevVolStamp+(+(agRow.volume_liter||0));
+          window._prevVolMap[_wmKeyStamp]=finalCumVol;
 
           await updateDoc(doc(db,planCol(p),agRow.id),{
             past_end_time:endTime,
@@ -455,7 +459,6 @@ setInterval(async()=>{
             current_vol:finalCumVol,
             mix_start_time:"",mix_end_time:"",
           });
-          // อัปเดต rows local ทันทีก่อน Firebase onSnapshot กลับมา
           const _lIdx=(rows[p]||[]).findIndex(r=>r.id===agRow.id);
           if(_lIdx>=0){
             rows[p][_lIdx]={...rows[p][_lIdx],status:'past_done',past_end_time:endTime,current_vol:finalCumVol};
@@ -480,33 +483,59 @@ setInterval(async()=>{
             window._rows[p]=rows[p];
           }catch(e){console.error('archive error:',e);}
 
-          // ── UPDATE aging_tank_states ──
+          // ── UPDATE aging_tank_states ด้วย transaction ──
           if(agRow.aging_tank){
-            const _allRowsNow=[...(rows['p1']||[]),...(rows['p2']||[])];
-            const _hasNext=_allRowsNow.some(r=>
-              r.process_order===agRow.process_order &&
-              r.aging_tank===agRow.aging_tank &&
-              r.id!==agRow.id &&
-              (r.status==='pasteurising'||r.status==='pending'||r.status==='mixing'||r.status==='ready_mix')
+            const _hasNext=[...(rows['p1']||[]),...(rows['p2']||[])].some(r=>
+              r.process_order===agRow.process_order&&r.aging_tank===agRow.aging_tank&&
+              r.id!==agRow.id&&(r.status==='pasteurising'||r.status==='pending'||r.status==='mixing'||r.status==='ready_mix')
             );
+            const _contribKey=p+'_contrib_'+(agRow.aging_tank||'');
+            if(!window._prevContribMap)window._prevContribMap={};
             if(_hasNext){
-              // มี batch ถัดไปใน process เดียวกัน → สะสม volume ต่อ ไม่ clear
-              try{await setDoc(doc(db,'aging_tank_states',agRow.aging_tank),{
-                current_vol:finalCumVol,
-                updated_at:new Date().toISOString()
-              },{merge:true});}catch{}
+              try{
+                await runTransaction(db,async tx=>{
+                  const tankRef=doc(db,'aging_tank_states',agRow.aging_tank);
+                  const tankSnap=await tx.get(tankRef);
+                  const existingVol=+(tankSnap.exists()?tankSnap.data().current_vol||0:0);
+                  const prevC=window._prevContribMap[_contribKey]||0;
+                  const otherVol=Math.max(0,existingVol-prevC);
+                  const newVol=otherVol+finalCumVol;
+                  window._prevContribMap[_contribKey]=finalCumVol;
+                  tx.set(tankRef,{current_vol:Math.round(newVol*10)/10,updated_at:new Date().toISOString()},{merge:true});
+                });
+              }catch(e){console.warn('stamp transaction error:',e);}
             } else {
-              // ไม่มี batch ถัดไป → clear ให้ว่าง รอรับ mix ใหม่
-              try{await setDoc(doc(db,'aging_tank_states',agRow.aging_tank),{
-                current_vol:0,
-                mix_code:'',
-                mix_name:'',
-                batch_no:'',
-                process_order:'',
-                status:'empty',
-                past_end_time:null,
-                updated_at:new Date().toISOString()
-              },{merge:false});}catch{}
+              // ไม่มี batch ถัดไปจากทุก p → clear ถัง
+              // ตรวจอีกครั้งว่า p อื่นก็ไม่มี batch ไปถังนี้แล้วจริงๆ
+              const _otherP=p==='p1'?'p2':'p1';
+              const _otherHas=(rows[_otherP]||[]).some(r=>
+                r.aging_tank===agRow.aging_tank&&
+                (r.status==='pasteurising'||r.status==='pending'||r.status==='mixing'||r.status==='ready_mix')
+              );
+              if(!_otherHas){
+                try{await setDoc(doc(db,'aging_tank_states',agRow.aging_tank),{
+                  current_vol:0,mix_code:'',mix_name:'',batch_no:'',
+                  process_order:'',status:'empty',past_end_time:null,
+                  updated_at:new Date().toISOString()
+                },{merge:false});}catch{}
+                // reset contrib map ของถังนี้
+                delete window._prevContribMap[p+'_contrib_'+agRow.aging_tank];
+                const _otherPKey=_otherP+'_contrib_'+agRow.aging_tank;
+                delete window._prevContribMap[_otherPKey];
+              } else {
+                // p อื่นยังมี batch ไปถังนี้ → ลบแค่ contrib ของ p นี้
+                try{
+                  await runTransaction(db,async tx=>{
+                    const tankRef=doc(db,'aging_tank_states',agRow.aging_tank);
+                    const tankSnap=await tx.get(tankRef);
+                    const existingVol=+(tankSnap.exists()?tankSnap.data().current_vol||0:0);
+                    const prevC=window._prevContribMap[_contribKey]||0;
+                    const newVol=Math.max(0,existingVol-prevC+finalCumVol);
+                    window._prevContribMap[_contribKey]=finalCumVol;
+                    tx.set(tankRef,{current_vol:Math.round(newVol*10)/10,updated_at:new Date().toISOString()},{merge:true});
+                  });
+                }catch(e){console.warn('stamp transaction error:',e);}
+              }
             }
           }
 
@@ -547,19 +576,28 @@ setInterval(async()=>{
                 status:'pasteurising',
                 past_end_time:null,
               });
-              // sync aging_tank_states ต่อเนื่อง — สะสม vol จาก finalCumVol
+              // sync aging_tank_states ต่อเนื่อง ด้วย transaction
               if(nextRow.aging_tank){
-                try{await setDoc(doc(db,'aging_tank_states',nextRow.aging_tank),{
-                  current_vol:finalCumVol,
-                  mix_code:nextRow.mix_code||'',
-                  mix_name:nextRow.mix_name||'',
-                  batch_no:nextRow.batch_no||'',
-                  process_order:nextRow.process_order||'',
-                  past_start_time:endTime,
-                  past_end_time:null,
-                  status:'pasteurising',
-                  updated_at:new Date().toISOString()
-                },{merge:true});}catch{}
+                const _nContribKey=p+'_contrib_'+nextRow.aging_tank;
+                if(!window._prevContribMap)window._prevContribMap={};
+                try{
+                  await runTransaction(db,async tx=>{
+                    const tankRef=doc(db,'aging_tank_states',nextRow.aging_tank);
+                    const tankSnap=await tx.get(tankRef);
+                    const existingVol=+(tankSnap.exists()?tankSnap.data().current_vol||0:0);
+                    const prevC=window._prevContribMap[_nContribKey]||0;
+                    const otherVol=Math.max(0,existingVol-prevC);
+                    const newVol=otherVol+finalCumVol;
+                    window._prevContribMap[_nContribKey]=finalCumVol;
+                    tx.set(tankRef,{
+                      current_vol:Math.round(newVol*10)/10,
+                      mix_code:nextRow.mix_code||'',mix_name:nextRow.mix_name||'',
+                      batch_no:nextRow.batch_no||'',process_order:nextRow.process_order||'',
+                      past_start_time:endTime,past_end_time:null,status:'pasteurising',
+                      updated_at:new Date().toISOString()
+                    },{merge:false});
+                  });
+                }catch(e){console.warn('nextRow transaction error:',e);}
               }
               toast(`🔄 Auto เริ่ม Past. Batch ${nextRow.batch_no} (${nextRow.mixing_tank||''}) ต่อเนื่อง`,"green");
             }
@@ -589,7 +627,7 @@ setInterval(async()=>{
     const elapsedSec=Math.max(0,(Date.now()-start)/1000);
     if(!agRow.past_end_time&&totalSec>0&&elapsedSec>=(totalSec-10)){
       // ถึง ETA — stamp ทันทีโดยไม่รอ 15 วินาที
-      const _wmKey=(agRow.process_order||'')+'_'+(agRow.aging_tank||'');
+      const _wmKey=p+'_'+(agRow.process_order||'')+'_'+(agRow.aging_tank||'');
       const prevVol=window._prevVolMap[_wmKey]||0;
       const finalCumVol=prevVol+(+(agRow.volume_liter||0));
       window._prevVolMap[_wmKey]=finalCumVol;
@@ -623,7 +661,7 @@ setInterval(async()=>{
           if(_ns&&_nv){const _nr=Math.round(_nv*_nd*3600/_ns);const _nst=(agRow.expected_finish_time||endTime).split(':').map(Number);const _nss=(_nst[0]||0)*3600+(_nst[1]||0)*60+(_nst[2]||0);const _nes=(_nss+_nr+2)%86400;_nEta=String(Math.floor(_nes/3600)).padStart(2,'0')+':'+String(Math.floor((_nes%3600)/60)).padStart(2,'0')+':'+String(_nes%60).padStart(2,'0');}
           await updateDoc(doc(db,planCol(p),nextRow.id),{past_start_time:agRow.expected_finish_time||endTime,expected_finish_time:_nEta,status:'pasteurising',past_end_time:null});
           if(nextRow.aging_tank){await setDoc(doc(db,'aging_tank_states',nextRow.aging_tank),{current_vol:finalCumVol,mix_code:nextRow.mix_code||'',mix_name:nextRow.mix_name||'',batch_no:nextRow.batch_no||'',process_order:nextRow.process_order||'',past_start_time:agRow.expected_finish_time||endTime,past_end_time:null,status:'pasteurising',updated_at:new Date().toISOString()},{merge:false});}
-          const _nk=(nextRow.process_order||'')+'_'+(nextRow.aging_tank||'');window._prevVolMap[_nk]=finalCumVol;
+          const _nk=p+'_'+(nextRow.process_order||'')+'_'+(nextRow.aging_tank||'');window._prevVolMap[_nk]=finalCumVol;
           toast(`🔄 Auto เริ่ม Batch ${nextRow.batch_no} ต่อเนื่อง`,'green');
         }
       }catch(e){console.error('ETA stamp error:',e);_autoStamping.delete(agRow.id);}
