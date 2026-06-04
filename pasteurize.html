@@ -1893,9 +1893,6 @@ async function loadHistory(){
         return (b.archived_at||'').localeCompare(a.archived_at||'');
       });
     window.filterHistory();
-    // นับถอยหลัง 20 นาที
-    const _sp=_sanStop.split(':').map(Number);
-    const _sanSec=(_sp[0]||0)*3600+(_sp[1]||0)*60+(_sp[2]||0);
   }catch(e){
     el.innerHTML=`<div style="text-align:center;padding:20px;color:var(--red);font-family:var(--mono)">❌ โหลดไม่สำเร็จ: ${e.message}</div>`;
     console.error('loadHistory error:',e);
