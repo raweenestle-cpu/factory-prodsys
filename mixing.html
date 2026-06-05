@@ -662,9 +662,9 @@ function buildFlowSteps(row){
     s.push({id:'salt',ico:'\uD83E\uDDC2',name:'Salt',kg:'',done:saltDone,active:p&&!saltDone,btn:true,skip:false,pwd:false});
     p=p&&saltDone;
   }
-  // ── Final Volume ──
-  var fvDone=!!(row.final_volume&&+(row.final_volume)>0);
-  s.push({id:'fvol',ico:'\uD83E\uDDEA',name:'Final Vol.',kg:fvDone?(+(row.final_volume)).toLocaleString()+' L':'',done:fvDone,active:p&&!fvDone,btn:false,skip:false,pwd:false,isInput:true,actField:'final_volume',actVal:row.final_volume||''});
+  // ── Final Flush ──
+  var fvDone=!!(row.final_flush&&+(row.final_flush)>0);
+  s.push({id:'fflush',ico:'\uD83E\uDDEA',name:'Final Flush',kg:fvDone?(+(row.final_flush)).toLocaleString()+' L':'',done:fvDone,active:p&&!fvDone,btn:false,skip:false,pwd:false,isInput:true,actField:'final_flush',actVal:row.final_flush||''});
   p=p&&fvDone;
   // 7
   s.push({id:'done',ico:'\u2705',name:'\u0E1C\u0E2A\u0E21\u0E40\u0E2A\u0E23\u0E47\u0E08',kg:'',done:!!row.mix_end_time,active:p&&!row.mix_end_time,btn:false,skip:false,pwd:false});
@@ -688,9 +688,9 @@ function renderFlowBar(row,pcol,rid){
         btnH='<button class="fbtn" style="background:'+bg+'" onclick="window._cfm(\'' +pcol+ '\'\,' +'\'' +rid+ '\'\,' +'\'' +st.id+ '\')">'+lbl+'</button>';
       }
     }
-    // Final Volume — input box
-    if(st.id==='fvol'&&isActive){
-      btnH='<div style="display:flex;gap:4px;margin-top:4px"><input id="fvol-'+rid+'" type="number" min="0" step="1" placeholder="ลิตร" style="width:56px;font-family:var(--mono);font-size:11px;padding:3px 6px;border:1.5px solid #1d4ed8;border-radius:6px;outline:none" value="'+(st.actVal||'')+'"><button class="fbtn" style="background:#1d4ed8;padding:4px 8px" onclick="window._setFinalVol(\''+pcol+'\',\''+rid+'\')">OK</button></div>';
+    // Final Flush — input box
+    if(st.id==='fflush'&&isActive){
+      btnH='<div style="display:flex;gap:4px;margin-top:4px"><input id="fflush-'+rid+'" type="number" min="0" step="1" placeholder="ลิตร" style="width:56px;font-family:var(--mono);font-size:11px;padding:3px 6px;border:1.5px solid #1d4ed8;border-radius:6px;outline:none" value="'+(st.actVal||'')+'"><button class="fbtn" style="background:#1d4ed8;padding:4px 8px" onclick="window._setFinalVol(\''+pcol+'\',\''+rid+'\')">OK</button></div>';
     }
     html+='<div class="sw"><div class="stepc" style="width:80px"><div class="fsc '+cls+'"><div class="fic">'+st.ico+'</div></div><div class="snm" style="color:'+fc+'">'+st.name+'</div><div class="skg" style="color:'+fc+'">'+(isSkip?'':st.kg)+'</div>'+btnH+'</div>'+(i<steps.length-1?'<div class="fconn'+(isDone?' done':'')+'"></div>':'')+'</div>';
   });
@@ -751,14 +751,14 @@ window._cfm=async function(pcol,rid,field){
 };
 
 window._setFinalVol=async function(pcol,rid){
-  var el=document.getElementById('fvol-'+rid);
+  var el=document.getElementById('fflush-'+rid);
   if(!el)return;
   var val=+(el.value||0);
   if(!val||val<=0){alert('กรุณากรอกปริมาตรให้ถูกต้อง');return;}
   var sig=sessionStorage.getItem('emp_sig')||'';
   var name=sessionStorage.getItem('emp_name')||'';
-  var upd={final_volume:val,updated_at:new Date().toISOString()};
-  if(sig){upd.final_volume_sig=sig;upd.final_volume_sig_name=name;}
+  var upd={final_flush:val,updated_at:new Date().toISOString()};
+  if(sig){upd.final_flush_sig=sig;upd.final_flush_sig_name=name;}
   try{await updateDoc(doc(db,pcol,rid),upd);}catch(e){console.warn(e);}
 };
 
@@ -806,12 +806,14 @@ function renderMixTanks(m, rowsArg){
     }
     let s=`<svg width="${sw}" height="${sh}" viewBox="0 0 ${sw} ${sh}" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto">`;
     s+=`<defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${col}" stop-opacity=".55"/><stop offset="100%" stop-color="${col}" stop-opacity=".9"/></linearGradient><clipPath id="${cid}"><rect x="${bX-1}" y="${bY-1}" width="${bW+2}" height="${bH+2}" rx="10"/></clipPath></defs>`;
-    // cap
-    s+=`<rect x="${bX+(bW-24)/2}" y="${bY-8}" width="24" height="10" rx="4" fill="${hasLiq?'#16a34a':'rgba(255,255,255,.1)'}" stroke="${hasLiq?col:'#475569'}" stroke-width="1.5" stroke-opacity=".7"/>`;
-    s+=`<rect x="${bX+(bW-14)/2}" y="${bY-14}" width="14" height="8" rx="3" fill="${hasLiq?'#16a34a':'rgba(255,255,255,.1)'}" stroke="${hasLiq?col:'#475569'}" stroke-width="1.5" stroke-opacity=".6"/>`;
+    // หัวถัง style เดียวกับ aging — nozzle + cap
+    const nW=24,nH=10,cW=34,cH=6;
+    const nX=bX+(bW-nW)/2,cX=bX+(bW-cW)/2;
+    s+=`<rect x="${nX}" y="${bY-nH}" width="${nW}" height="${nH+5}" rx="4" fill="${hasLiq?'#16a34a':'rgba(100,116,139,.2)'}" stroke="${hasLiq?col:'#475569'}" stroke-width="1.5" stroke-opacity=".6"/>`;
+    s+=`<rect x="${cX}" y="${bY-nH-cH}" width="${cW}" height="${cH+3}" rx="4" fill="${hasLiq?'#16a34a':'rgba(100,116,139,.15)'}" stroke="${hasLiq?col:'#475569'}" stroke-width="1.5" stroke-opacity=".5"/>`;
     if(hasLiq){
-      s+=`<circle cx="${sw/2}" cy="${bY-11}" r="4" fill="#22c55e" opacity=".9"/>`;
-      s+=`<circle cx="${sw/2}" cy="${bY-11}" r="4" fill="none" stroke="#22c55e" stroke-width="1.5"><animate attributeName="r" from="4" to="10" dur="1.6s" repeatCount="indefinite"/><animate attributeName="opacity" from=".7" to="0" dur="1.6s" repeatCount="indefinite"/></circle>`;
+      s+=`<circle cx="${sw/2}" cy="${bY-nH-2}" r="4" fill="#22c55e" opacity=".9"/>`;
+      s+=`<circle cx="${sw/2}" cy="${bY-nH-2}" r="4" fill="none" stroke="#22c55e" stroke-width="1.5"><animate attributeName="r" from="4" to="10" dur="1.6s" repeatCount="indefinite"/><animate attributeName="opacity" from=".7" to="0" dur="1.6s" repeatCount="indefinite"/></circle>`;
     }
     // body
     s+=`<rect x="${bX}" y="${bY}" width="${bW}" height="${bH}" rx="10" fill="${hasLiq?`rgba(${r2},${g2},${b2},.07)`:'rgba(71,85,105,.2)'}" stroke="${hasLiq?col:'#475569'}" stroke-width="2" stroke-opacity="${hasLiq?'.35':'.5'}"/>`;
@@ -827,12 +829,12 @@ function renderMixTanks(m, rowsArg){
     s+=`<rect x="${bX+6}" y="${bY+bH}" width="7" height="13" rx="2" fill="${hasLiq?`rgba(${r2},${g2},${b2},.2)`:'rgba(71,85,105,.3)'}" stroke="${hasLiq?col:'#475569'}" stroke-width="1.5" stroke-opacity=".5"/>`;
     s+=`<rect x="${bX+bW-13}" y="${bY+bH}" width="7" height="13" rx="2" fill="${hasLiq?`rgba(${r2},${g2},${b2},.2)`:'rgba(71,85,105,.3)'}" stroke="${hasLiq?col:'#475569'}" stroke-width="1.5" stroke-opacity=".5"/>`;
     s+=`<rect x="${bX+2}" y="${bY+bH+12}" width="${bW-4}" height="4" rx="2" fill="${hasLiq?`rgba(${r2},${g2},${b2},.15)`:'rgba(71,85,105,.2)'}" stroke="${hasLiq?col:'#475569'}" stroke-width="1" stroke-opacity=".4"/>`;
-    // text
-    s+=`<text x="${sw/2}" y="${midY-2}" text-anchor="middle" font-family="DM Mono,monospace" font-size="18" fill="#ffffff" font-weight="900">${hasLiq?vol.toLocaleString():'ว่าง'}</text>`;
+    // text — สีดำเข้มทั้งหมด
+    s+=`<text x="${sw/2}" y="${midY-2}" text-anchor="middle" font-family="DM Mono,monospace" font-size="18" fill="#111827" font-weight="900">${hasLiq?vol.toLocaleString():'ว่าง'}</text>`;
     if(hasLiq){
-      s+=`<text x="${sw/2}" y="${midY+13}" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="${col}" font-weight="700" opacity=".75">ลิตร · ${Math.round(pct)}%</text>`;
+      s+=`<text x="${sw/2}" y="${midY+13}" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="#111827" font-weight="700" opacity=".8">ลิตร · ${Math.round(pct)}%</text>`;
       s+=`<rect x="${bX+5}" y="${midY+16}" width="${bW-10}" height="16" rx="8" fill="${col}" fill-opacity="1" stroke="rgba(255,255,255,.3)" stroke-width="1"/>`;
-      s+=`<text x="${sw/2}" y="${midY+27}" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#ffffff" font-weight="900">${stTxt} ${stLbl}</text>`;
+      s+=`<text x="${sw/2}" y="${midY+27}" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#111827" font-weight="900">${stTxt} ${stLbl}</text>`;
     }
     s+=`</svg>`;
     return s;
@@ -875,15 +877,15 @@ function renderMixTanks(m, rowsArg){
       const bg=st.pwd?'pwr':'rw';
       const lbl=st.pwd?'✅ Powder':'✅ Rework';
       btnH=`<button class="tv3-fbtn ${bg}" onclick="window._cfm('${pcol}','${rid}','${st.id}')">${lbl}</button>`;
-    } else if(st.id==='fvol'&&isActive){
+    } else if(st.id==='fflush'&&isActive){
       btnH=`<div style="display:flex;flex-direction:column;align-items:center;gap:3px;margin-top:3px">
-        <input id="fvol-${rid}" type="number" min="0" step="1" placeholder="ลิตร"
+        <input id="fflush-${rid}" type="number" min="0" step="1" placeholder="ลิตร"
           style="width:72px;font-family:var(--mono);font-size:11px;font-weight:900;padding:3px 6px;border:2px solid #0891b2;border-radius:6px;text-align:center;background:#fff;color:#111827"
           value="${st.actVal||''}"
           onkeydown="if(event.key==='Enter')window._setFinalVol('${pcol}','${rid}')">
         <button class="tv3-fbtn" style="background:#0891b2" onclick="window._setFinalVol('${pcol}','${rid}')">✅ OK</button>
       </div>`;
-    } else if(st.id==='fvol'&&isDone){
+    } else if(st.id==='fflush'&&isDone){
       btnH=`<div style="font-family:var(--mono);font-size:11px;font-weight:900;color:#0891b2">${(+(st.actVal)).toLocaleString()} L</div>`;
     }
     let sv2='';
@@ -1037,7 +1039,7 @@ function renderMixTanks(m, rowsArg){
         <div class="tv3-hi">
           <div class="tv3-code">${row.mix_code||'—'} · PROCESS ${row.process_order||'—'}</div>
           <div class="tv3-name">${row.mix_name||'—'}</div>
-          <div class="tv3-meta">Batch ${row.batch_no||'—'} &nbsp;·&nbsp; <span style="font-size:18px;font-weight:900;color:#111827">${displayVol(row)}</span>${row.final_volume?'&nbsp;·&nbsp;<span style="font-family:var(--mono);font-size:13px;font-weight:900;color:#0891b2">🧪 Final: '+(+(row.final_volume)).toLocaleString()+' L</span>':''}</div>
+          <div class="tv3-meta">Batch ${row.batch_no||'—'} &nbsp;·&nbsp; <span style="font-size:18px;font-weight:900;color:#111827">${displayVol(row)}</span>${row.final_flush?'&nbsp;·&nbsp;<span style="font-family:var(--mono);font-size:13px;font-weight:900;color:#0891b2">🧪 Flush: '+(+(row.final_flush)).toLocaleString()+' L</span>':''}</div>
           ${(()=>{const _at=row.aging_tank||'';const _as=_at&&window._agingStates?window._agingStates[_at]||{}:{};return _at?(expireBox(_as.expire_at||null)+tempBox(_as)):'';})()}
         </div>
         <div class="tv3-st"><span class="badge ${stInfo.cls}">${stInfo.lbl}</span></div>
