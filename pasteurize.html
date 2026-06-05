@@ -872,7 +872,7 @@ function buildStepHtml(st, i, stepsLen, pcol, rid, row){
       return '';
     })();
     nodeHtml = _svgAg
-      ? `<div class="tv3-step" style="width:130px">${_svgAg}<div class="tv3-sn ${snCls}" style="margin-top:4px">Aging Tank</div><div class="tv3-sv ${svCls}">${_agId||(_v>0?Math.round(_v).toLocaleString()+' L':st.kg)}</div>${_agStatusHtml}${_expHtml}${_tempHtml}</div>`
+      ? `<div class="tv3-step" style="width:130px">${_svgAg}<div class="tv3-sn ${snCls}" style="margin-top:4px">${_agId||st.name}</div><div class="tv3-sv ${svCls}">${_v>0?Math.round(_v).toLocaleString()+' L':st.kg}</div>${_agStatusHtml}${_expHtml}${_tempHtml}</div>`
       : `<div class="tv3-step"><div class="tv3-circle ${cls}"><span style="font-size:28px">${st.ico}</span></div><div class="tv3-sn ${snCls}">${st.name}</div><div class="tv3-sv ${svCls}">${st.kg}</div></div>`;
   } else {
     const ccpStyle = st.isCCP&&st.autoDone ? 'background:#d1fae5;border-color:#10b981;border-width:3px' : '';
@@ -1550,12 +1550,13 @@ window.stampTime=async(col,id,field,p)=>{
       }
     }
     // ── เช็คสถานะ aging tank ก่อน stamp ──
+    const _allRows2=[...(rows['p1']||[]),...(rows['p2']||[])];
     if(_thisRow&&_thisRow.aging_tank){
       const _tid=_thisRow.aging_tank;
       const _ts=window._agingStates?.[_tid]||{};
       const _tst=_ts.status||'empty';
       // continuous past — ถ้ามี batch อื่นกำลัง past อยู่ในถังเดียวกัน → กดได้เลย
-      const _isCont=_allRows.some(r=>
+      const _isCont=_allRows2.some(r=>
         r.id!==id&&r.aging_tank===_tid&&
         r.status==='pasteurising'&&!!r.past_start_time&&!r.past_end_time
       );
