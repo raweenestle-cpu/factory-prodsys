@@ -81,8 +81,7 @@
   <div class="nav-logo">PROD<b>.</b>SYS</div>
   <button class="nav-tab on" onclick="showPage('plan','p1',this)">♨️ Past. 1</button>
   <button class="nav-tab" onclick="showPage('plan','p2',this)">♨️ Past. 2</button>
-  <button class="nav-tab" onclick="showPage('chart','p1',this)">📊 กราฟ P1</button>
-  <button class="nav-tab" onclick="showPage('chart','p2',this)">📊 กราฟ P2</button>
+  <button class="nav-tab" onclick="showPage('dashboard','all',this)">📊 Dashboard</button>
   <button class="nav-tab" onclick="showPage('history','all',this)">📋 ประวัติ</button>
   <div class="nav-right">
     <span class="nav-role">PASTEURIZE</span>
@@ -184,34 +183,10 @@
 </div>
 
 <!-- CHART P1 -->
-<div class="page" id="page-chart-p1">
-  <div style="padding:20px">
-    <div style="background:#ffffff;border:2px solid var(--b1);border-radius:14px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.04)">
-      <div style="font-family:var(--mono);font-size:13px;font-weight:900;color:var(--orange);margin-bottom:16px">📊 Pasteurize 1 — ผลผลิตต่อกะ (kg)</div>
-      <div class="kpi-row" style="margin:0 0 16px;padding:0;border:none">
-        <div class="kpi-card"><div class="kpi-label">เช้า</div><div class="kpi-val" id="p1-kg-morning">—</div></div>
-        <div class="kpi-card"><div class="kpi-label">บ่าย</div><div class="kpi-val" id="p1-kg-afternoon">—</div></div>
-        <div class="kpi-card"><div class="kpi-label">ดึก</div><div class="kpi-val" id="p1-kg-night">—</div></div>
-        <div class="kpi-card" style="background:var(--orange2);border-color:rgba(234,88,12,.3)"><div class="kpi-label" style="color:var(--orange)">รวม</div><div class="kpi-val" style="color:var(--orange)" id="p1-kg-total">—</div></div>
-      </div>
-      <div style="max-height:300px"><canvas id="chart-p1"></canvas></div>
-    </div>
-  </div>
-</div>
-
-<!-- CHART P2 -->
-<div class="page" id="page-chart-p2">
-  <div style="padding:20px">
-    <div style="background:#ffffff;border:2px solid var(--b1);border-radius:14px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.04)">
-      <div style="font-family:var(--mono);font-size:13px;font-weight:900;color:var(--cyan);margin-bottom:16px">📊 Pasteurize 2 — ผลผลิตต่อกะ (kg)</div>
-      <div class="kpi-row" style="margin:0 0 16px;padding:0;border:none">
-        <div class="kpi-card"><div class="kpi-label">เช้า</div><div class="kpi-val" id="p2-kg-morning">—</div></div>
-        <div class="kpi-card"><div class="kpi-label">บ่าย</div><div class="kpi-val" id="p2-kg-afternoon">—</div></div>
-        <div class="kpi-card"><div class="kpi-label">ดึก</div><div class="kpi-val" id="p2-kg-night">—</div></div>
-        <div class="kpi-card" style="background:var(--cyan2);border-color:rgba(8,145,178,.3)"><div class="kpi-label" style="color:var(--cyan)">รวม</div><div class="kpi-val" style="color:var(--cyan)" id="p2-kg-total">—</div></div>
-      </div>
-      <div style="max-height:300px"><canvas id="chart-p2"></canvas></div>
-    </div>
+<!-- DASHBOARD -->
+<div class="page" id="page-dashboard-all">
+  <div id="dashboard-content" style="min-height:400px">
+    <div style="display:flex;align-items:center;justify-content:center;height:400px;color:#475569;font-family:'DM Mono',monospace;font-size:13px">กด Dashboard เพื่อโหลดข้อมูล</div>
   </div>
 </div>
 
@@ -219,7 +194,21 @@
 <div class="page" id="page-history-all">
   <div style="padding:20px">
     <div style="background:#ffffff;border:2px solid var(--b1);border-radius:14px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.04)">
-      <div style="font-family:var(--mono);font-size:13px;font-weight:900;color:var(--text);margin-bottom:16px">📋 ประวัติการ Pasteurize</div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+        <div style="font-family:var(--mono);font-size:13px;font-weight:900;color:var(--text)">📋 ประวัติการ Pasteurize</div>
+        <div style="flex:1"></div>
+        <span id="hist-count" style="font-family:var(--mono);font-size:11px;color:var(--t2)"></span>
+        <button onclick="window.exportHistoryExcel()" style="padding:7px 14px;border-radius:8px;background:#15803d;color:#fff;border:none;font-family:var(--mono);font-size:12px;font-weight:900;cursor:pointer">📥 Export Excel</button>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+        <input id="hist-search" type="text" placeholder="🔍 ค้นหา Process Order, Mix Code, Unit..." style="flex:1;min-width:200px;padding:8px 12px;border:1.5px solid var(--b1);border-radius:8px;font-family:var(--mono);font-size:12px;outline:none" oninput="window.filterHistory()">
+        <select id="hist-unit" onchange="window.filterHistory()" style="padding:7px 12px;border:1.5px solid var(--b1);border-radius:8px;font-family:var(--mono);font-size:12px;outline:none;background:#fff">
+          <option value="">ทุก Unit</option>
+          <option value="p1">P1</option>
+          <option value="p2">P2</option>
+        </select>
+        <button onclick="document.getElementById('hist-search').value='';document.getElementById('hist-unit').value='';window.filterHistory()" style="padding:7px 12px;border-radius:8px;background:#f1f5f9;color:#374151;border:1.5px solid var(--b1);font-family:var(--mono);font-size:12px;cursor:pointer">✕ ล้าง</button>
+      </div>
       <div id="history-content"></div>
     </div>
   </div>
@@ -231,7 +220,7 @@
 import { initializeApp }     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-import { getFirestore, collection, query, where, orderBy, onSnapshot, updateDoc, doc, addDoc, deleteDoc, getDocs, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, collection, query, where, orderBy, onSnapshot, updateDoc, doc, addDoc, deleteDoc, getDocs, getDoc, setDoc, runTransaction, limit } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 import {resolveStatus,statusLabel,statusColor,statusBlink,statusBadge,expireBox,calcExpireAt,displayVol,getProductColor,getMaxTemp,tempBox} from "./shared.js";
 
@@ -352,12 +341,12 @@ setInterval(()=>{
   });
 },10000);
 
-// เขียน current_vol ลง Firebase ทุก 3 วินาที + Auto Stamp เมื่อถึง ETA
+// PROD.SYS pasteurize.html — patch: init _prevVolMap _prevContribMap fix vol accumulation
+// เขียน current_vol ลง Firebase ทุก 15 วินาที + Auto Stamp เมื่อถึง ETA
 // Subscribe aging_tank_states real-time
 window._agingStates={};
-onSnapshot(collection(db,'aging_tank_states'),snap=>{
-  snap.docs.forEach(d=>{window._agingStates[d.id]={id:d.id,...d.data()};});
-});
+window._prevVolMap={};
+window._prevContribMap={};
 onSnapshot(collection(db,'aging_tank_states'),snap=>{
   snap.docs.forEach(d=>{window._agingStates[d.id]={id:d.id,...d.data()};});
 });
@@ -374,53 +363,50 @@ setInterval(async()=>{
       const prod=window._productMap[agRow.mix_code]||{};
       const density=+(prod.density||1);
       const speed=p==='p1'?+(prod.speed_m1||prod.speed||0):+(prod.speed_m2||prod.speed||0);
-      if(!speed||!totalVol){console.warn('SKIP',p,agRow.mix_code,'speed:',speed,'vol:',totalVol,'prod:',JSON.stringify(prod));continue;}
+      if(!speed||!totalVol){console.warn('SKIP',p,agRow.mix_code,'speed:',speed,'vol:',totalVol);continue;}
       const totalMin=(totalVol*density*60)/speed;
       const _tParts=agRow.past_start_time.split(':').map(Number);
-      const[h,mm,ss]=[ _tParts[0]||0, _tParts[1]||0, _tParts[2]||0 ];
+      const[h,mm,ss]=[_tParts[0]||0,_tParts[1]||0,_tParts[2]||0];
       const start=new Date((agRow.date||new Date().toISOString().slice(0,10))+'T'+String(h).padStart(2,'0')+':'+String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0'));
       const elapsedSec2=Math.max(0,(Date.now()-start)/1000);
       const elapsedMin=elapsedSec2/60;
       const agVol=totalMin>0?Math.min(totalVol,(elapsedMin/totalMin)*totalVol):0;
 
-      // prevVol = ดึงจาก aging_tank_states จริง ลบ vol ของ batch ปัจจุบัน (ที่กำลังไหลอยู่)
-      // เพื่อได้ฐานที่สะสมมาจาก batch ก่อนหน้า ไม่ reset
-      const allRows=[...(rows['p1']||[]),...(rows['p2']||[])];
-      let prevVol=0;
-      if(agRow.process_order&&agRow.aging_tank){
-        const _agSt=window._agingStates[agRow.aging_tank]||{};
-        const _storeVol=+(_agSt.current_vol||0);
-        // prevVol = max ของ (vol ใน state - vol batch ปัจจุบัน) หรือ คำนวณจาก rows
-        const _rowsPrev=allRows
-          .filter(r=>
-            r.id!==agRow.id &&
-            r.process_order===agRow.process_order &&
-            r.aging_tank===agRow.aging_tank &&
-            (r.status==='past_done'||r.status==='ready')
-          )
-          .reduce((sum,r)=>sum+(+(r.volume_liter||0)),0);
-        prevVol=Math.max(_rowsPrev, Math.max(0,_storeVol-agVol));
+      // ── prevVol: in-memory watermark ──
+      const _wmKey=p+'_'+(agRow.process_order||'')+'_'+(agRow.aging_tank||'');
+      if(window._prevVolMap[_wmKey]===undefined){
+        const _allR=[...(rows['p1']||[]),...(rows['p2']||[])];
+        const _rowsPrev=_allR
+          .filter(r=>r.id!==agRow.id&&r.process_order===agRow.process_order&&
+            r.aging_tank===agRow.aging_tank&&(r.status==='past_done'||r.status==='ready'))
+          .reduce((s,r)=>s+(+(r.volume_liter||0)),0);
+        const _storeVol=+(window._agingStates[agRow.aging_tank]?.current_vol||0);
+        window._prevVolMap[_wmKey]=Math.max(_rowsPrev,Math.max(0,_storeVol-agVol));
       }
+      const prevVol=window._prevVolMap[_wmKey]||0;
       const totalCumVol=Math.round((prevVol+agVol)*10)/10;
+
+      // เขียน production_plans row
       await updateDoc(doc(db,planCol(p),agRow.id),{current_vol:totalCumVol});
-      // sync ข้อมูลลง aging_tank_states
+
+      // ── เขียน aging_tank_states โดยไม่ read (ไม่ใช้ transaction) ──
+      // ใช้ in-memory contrib map คำนวณ vol รวม p1+p2 ไม่ต้อง read Firebase
       if(agRow.aging_tank){
-        const prod2=productMap[agRow.mix_code]||{};
+        const _contribKey=p+'_contrib_'+(agRow.aging_tank||'');
+        const _otherP=p==='p1'?'p2':'p1';
+        const _otherKey=_otherP+'_contrib_'+(agRow.aging_tank||'');
+        const _otherVol=window._prevContribMap[_otherKey]||0;
+        const _newCombined=Math.round((totalCumVol+_otherVol)*10)/10;
+        window._prevContribMap[_contribKey]=totalCumVol;
         try{await setDoc(doc(db,'aging_tank_states',agRow.aging_tank),{
-          current_vol:totalCumVol,
-          mix_code:agRow.mix_code||'',
-          mix_name:agRow.mix_name||'',
-          batch_no:agRow.batch_no||'',
-          product_code:agRow.product_code||'',
-          prod_suffix:agRow.prod_suffix||'',
-          date:agRow.date||'',
-          past_start_time:agRow.past_start_time||'',
-          past_end_time:agRow.past_end_time||'',
-          volume_liter:agRow.volume_liter||0,
-          process_order:agRow.process_order||'',
-          status:agRow.status||'',
-          updated_at:new Date().toISOString()
-        },{merge:true});}catch{}
+          current_vol:_newCombined,
+          mix_code:agRow.mix_code||'',mix_name:agRow.mix_name||'',
+          batch_no:agRow.batch_no||'',product_code:agRow.product_code||'',
+          prod_suffix:agRow.prod_suffix||'',date:agRow.date||'',
+          past_start_time:agRow.past_start_time||'',past_end_time:agRow.past_end_time||'',
+          volume_liter:agRow.volume_liter||0,process_order:agRow.process_order||'',
+          status:agRow.status||'',updated_at:new Date().toISOString()
+        },{merge:true});}catch(e){console.warn('aging write error:',e);}
       }
 
       // ── AUTO STAMP ──────────────────────────────────────────
@@ -439,14 +425,11 @@ setInterval(async()=>{
           // endTime = expected_finish_time ซึ่งคำนวณจาก stdSec พอดี → Eff = 100% เสมอ
           const eff=100;
           const effOk=true;
-          // Stamp Past.เสร็จ — current_vol = cumulative รวม batch ก่อนหน้าด้วย
-          const donePrevVol=allRows
-            .filter(r=>r.id!==agRow.id&&
-              r.process_order===agRow.process_order&&
-              r.aging_tank===agRow.aging_tank&&
-              (r.status==='past_done'||r.status==='ready'))
-            .reduce((s,r)=>s+(+(r.volume_liter||0)),0);
-          const finalCumVol=donePrevVol+(+(agRow.volume_liter||0));
+          // finalCumVol = watermark ของ p นี้ (ไม่รวม p อื่น — จะรวมใน transaction)
+          const _wmKeyStamp=p+'_'+(agRow.process_order||'')+'_'+(agRow.aging_tank||'');
+          const _prevVolStamp=window._prevVolMap[_wmKeyStamp]||0;
+          const finalCumVol=_prevVolStamp+(+(agRow.volume_liter||0));
+          window._prevVolMap[_wmKeyStamp]=finalCumVol;
 
           await updateDoc(doc(db,planCol(p),agRow.id),{
             past_end_time:endTime,
@@ -455,7 +438,6 @@ setInterval(async()=>{
             current_vol:finalCumVol,
             mix_start_time:"",mix_end_time:"",
           });
-          // อัปเดต rows local ทันทีก่อน Firebase onSnapshot กลับมา
           const _lIdx=(rows[p]||[]).findIndex(r=>r.id===agRow.id);
           if(_lIdx>=0){
             rows[p][_lIdx]={...rows[p][_lIdx],status:'past_done',past_end_time:endTime,current_vol:finalCumVol};
@@ -480,33 +462,44 @@ setInterval(async()=>{
             window._rows[p]=rows[p];
           }catch(e){console.error('archive error:',e);}
 
-          // ── UPDATE aging_tank_states ──
+          // ── UPDATE aging_tank_states ด้วย transaction ──
           if(agRow.aging_tank){
-            const _allRowsNow=[...(rows['p1']||[]),...(rows['p2']||[])];
-            const _hasNext=_allRowsNow.some(r=>
-              r.process_order===agRow.process_order &&
-              r.aging_tank===agRow.aging_tank &&
-              r.id!==agRow.id &&
-              (r.status==='pasteurising'||r.status==='pending'||r.status==='mixing'||r.status==='ready_mix')
+            const _hasNext=[...(rows['p1']||[]),...(rows['p2']||[])].some(r=>
+              r.process_order===agRow.process_order&&r.aging_tank===agRow.aging_tank&&
+              r.id!==agRow.id&&(r.status==='pasteurising'||r.status==='pending'||r.status==='mixing'||r.status==='ready_mix')
             );
+            const _contribKey=p+'_contrib_'+(agRow.aging_tank||'');
+            const _otherP=p==='p1'?'p2':'p1';
+            const _otherKey=_otherP+'_contrib_'+(agRow.aging_tank||'');
             if(_hasNext){
-              // มี batch ถัดไปใน process เดียวกัน → สะสม volume ต่อ ไม่ clear
+              // รวม vol ของ p นี้กับ p อื่นจาก in-memory map
+              const _otherVol=window._prevContribMap[_otherKey]||0;
+              const _newCombined=Math.round((finalCumVol+_otherVol)*10)/10;
+              window._prevContribMap[_contribKey]=finalCumVol;
               try{await setDoc(doc(db,'aging_tank_states',agRow.aging_tank),{
-                current_vol:finalCumVol,
-                updated_at:new Date().toISOString()
-              },{merge:true});}catch{}
+                current_vol:_newCombined,updated_at:new Date().toISOString()
+              },{merge:true});}catch(e){console.warn('stamp aging write error:',e);}
             } else {
-              // ไม่มี batch ถัดไป → clear ให้ว่าง รอรับ mix ใหม่
-              try{await setDoc(doc(db,'aging_tank_states',agRow.aging_tank),{
-                current_vol:0,
-                mix_code:'',
-                mix_name:'',
-                batch_no:'',
-                process_order:'',
-                status:'empty',
-                past_end_time:null,
-                updated_at:new Date().toISOString()
-              },{merge:false});}catch{}
+              const _otherHas=(rows[_otherP]||[]).some(r=>
+                r.aging_tank===agRow.aging_tank&&
+                (r.status==='pasteurising'||r.status==='pending'||r.status==='mixing'||r.status==='ready_mix')
+              );
+              if(!_otherHas){
+                try{await setDoc(doc(db,'aging_tank_states',agRow.aging_tank),{
+                  current_vol:0,mix_code:'',mix_name:'',batch_no:'',
+                  process_order:'',status:'empty',past_end_time:null,
+                  updated_at:new Date().toISOString()
+                },{merge:false});}catch{}
+                delete window._prevContribMap[_contribKey];
+                delete window._prevContribMap[_otherKey];
+              } else {
+                const _otherVol=window._prevContribMap[_otherKey]||0;
+                const _newCombined=Math.round((finalCumVol+_otherVol)*10)/10;
+                window._prevContribMap[_contribKey]=finalCumVol;
+                try{await setDoc(doc(db,'aging_tank_states',agRow.aging_tank),{
+                  current_vol:_newCombined,updated_at:new Date().toISOString()
+                },{merge:true});}catch(e){console.warn('stamp aging write error:',e);}
+              }
             }
           }
 
@@ -533,33 +526,43 @@ setInterval(async()=>{
               await updateDoc(doc(db,planCol(p),nextRow.id),{aging_tank:agRow.aging_tank});
             }
             if(nextRow){
-              // ใช้ finalCumVol ที่เพิ่งคำนวณไว้ ไม่คำนวณใหม่จาก rows (rows อาจยังไม่ update)
+              const _nEta15=(()=>{
+                const _p=productMap[nextRow.mix_code]||{};
+                const _d=+(_p.density||1),_s=planCol(p)==='production_plans'?+(_p.speed_m1||_p.speed||0):+(_p.speed_m2||_p.speed||0),_v=+(nextRow.volume_liter||0);
+                if(!_s||!_v)return null;
+                const _r=Math.round(_v*_d*3600/_s),_st=(agRow.expected_finish_time||endTime).split(':').map(Number);
+                const _ss=(_st[0]||0)*3600+(_st[1]||0)*60+(_st[2]||0),_es=(_ss+_r+2)%86400;
+                return String(Math.floor(_es/3600)).padStart(2,'0')+':'+String(Math.floor((_es%3600)/60)).padStart(2,'0')+':'+String(_es%60).padStart(2,'0');
+              })();
               await updateDoc(doc(db,planCol(p),nextRow.id),{
                 past_start_time:agRow.expected_finish_time||endTime,
-                expected_finish_time:(()=>{
-                  const _p=productMap[nextRow.mix_code]||{};
-                  const _d=+(_p.density||1),_s=planCol(p)==='production_plans'?+(_p.speed_m1||_p.speed||0):+(_p.speed_m2||_p.speed||0),_v=+(nextRow.volume_liter||0);
-                  if(!_s||!_v)return null;
-                  const _r=Math.round(_v*_d*3600/_s),_st=(agRow.expected_finish_time||endTime).split(':').map(Number);
-                  const _ss=(_st[0]||0)*3600+(_st[1]||0)*60+(_st[2]||0),_es=(_ss+_r+2)%86400;
-                  return String(Math.floor(_es/3600)).padStart(2,'0')+':'+String(Math.floor((_es%3600)/60)).padStart(2,'0')+':'+String(_es%60).padStart(2,'0');
-                })(),
+                expected_finish_time:_nEta15,
                 status:'pasteurising',
                 past_end_time:null,
               });
-              // sync aging_tank_states ต่อเนื่อง — สะสม vol จาก finalCumVol
+              // update local rows ทันที
+              const _nIdx15=(rows[p]||[]).findIndex(r=>r.id===nextRow.id);
+              if(_nIdx15>=0){
+                rows[p][_nIdx15]={...rows[p][_nIdx15],past_start_time:agRow.expected_finish_time||endTime,expected_finish_time:_nEta15,status:'pasteurising',past_end_time:null,_col:planCol(p)};
+                window._rows[p]=rows[p];
+              }
+              // sync aging_tank_states nextRow ด้วย in-memory contrib
               if(nextRow.aging_tank){
+                const _nContribKey=p+'_contrib_'+nextRow.aging_tank;
+                const _nOtherKey=(_otherP||(_p==='p1'?'p2':'p1'))+'_contrib_'+nextRow.aging_tank;
+                const _nOtherVol=window._prevContribMap[_nOtherKey]||0;
+                const _nCombined=Math.round((finalCumVol+_nOtherVol)*10)/10;
+                window._prevContribMap[_nContribKey]=finalCumVol;
+                // set watermark ของ nextRow
+                const _nWmKey=p+'_'+(nextRow.process_order||'')+'_'+(nextRow.aging_tank||'');
+                window._prevVolMap[_nWmKey]=finalCumVol;
                 try{await setDoc(doc(db,'aging_tank_states',nextRow.aging_tank),{
-                  current_vol:finalCumVol,
-                  mix_code:nextRow.mix_code||'',
-                  mix_name:nextRow.mix_name||'',
-                  batch_no:nextRow.batch_no||'',
-                  process_order:nextRow.process_order||'',
-                  past_start_time:endTime,
-                  past_end_time:null,
-                  status:'pasteurising',
+                  current_vol:_nCombined,
+                  mix_code:nextRow.mix_code||'',mix_name:nextRow.mix_name||'',
+                  batch_no:nextRow.batch_no||'',process_order:nextRow.process_order||'',
+                  past_start_time:endTime,past_end_time:null,status:'pasteurising',
                   updated_at:new Date().toISOString()
-                },{merge:true});}catch{}
+                },{merge:false});}catch(e){console.warn('nextRow aging write error:',e);}
               }
               toast(`🔄 Auto เริ่ม Past. Batch ${nextRow.batch_no} (${nextRow.mixing_tank||''}) ต่อเนื่อง`,"green");
             }
@@ -568,7 +571,74 @@ setInterval(async()=>{
       }
     }catch(e){console.error('auto stamp error:',e);_autoStamping.delete(agRow?.id);}
   }
-},1000);
+},15000);
+
+// ── CHECK ETA ทุก 5 วินาที — stamp ทันทีเมื่อถึงเวลา ──
+setInterval(async()=>{
+  for(const p of["p1","p2"]){
+    const pRows=window._rows[p]||[];
+    const agRow=pRows.find(r=>r.status==='pasteurising'&&r.past_start_time&&!r.past_end_time)||null;
+    if(!agRow||!agRow.aging_tank)continue;
+    if(_autoStamping.has(agRow.id))continue;
+    const prod=window._productMap[agRow.mix_code]||{};
+    const density=+(prod.density||1);
+    const speed=p==='p1'?+(prod.speed_m1||prod.speed||0):+(prod.speed_m2||prod.speed||0);
+    const totalVol=+(agRow.volume_liter||0);
+    if(!speed||!totalVol)continue;
+    const totalMin=(totalVol*density*60)/speed;
+    const totalSec=totalMin*60;
+    const _tp=agRow.past_start_time.split(':').map(Number);
+    const start=new Date((agRow.date||new Date().toISOString().slice(0,10))+'T'+String(_tp[0]||0).padStart(2,'0')+':'+String(_tp[1]||0).padStart(2,'0')+':'+String(_tp[2]||0).padStart(2,'0'));
+    const elapsedSec=Math.max(0,(Date.now()-start)/1000);
+    if(!agRow.past_end_time&&totalSec>0&&elapsedSec>=(totalSec-10)){
+      // ถึง ETA — stamp ทันทีโดยไม่รอ 15 วินาที
+      const _wmKey=p+'_'+(agRow.process_order||'')+'_'+(agRow.aging_tank||'');
+      const prevVol=window._prevVolMap[_wmKey]||0;
+      const finalCumVol=prevVol+(+(agRow.volume_liter||0));
+      window._prevVolMap[_wmKey]=finalCumVol;
+      _autoStamping.add(agRow.id);
+
+      const endTime=agRow.expected_finish_time||nowHHMMSS();
+      const allRowsBefore=[...(rows['p1']||[]),...(rows['p2']||[])];
+      const nextRow=agRow.process_order&&agRow.aging_tank
+        ?allRowsBefore.filter(r=>r.process_order===agRow.process_order&&(!r.aging_tank||r.aging_tank===agRow.aging_tank)&&r.id!==agRow.id&&!r.past_start_time&&(r.status==='pending'||r.status==='mixing'||r.status==='pasteurising'||r.status==='ready_mix')).sort((a,b)=>(a.seq||0)-(b.seq||0))[0]
+        :null;
+      const hasNext=!!nextRow||allRowsBefore.some(r=>r.process_order===agRow.process_order&&r.aging_tank===agRow.aging_tank&&r.id!==agRow.id&&(r.status==='pasteurising'||r.status==='pending'||r.status==='mixing'||r.status==='ready_mix'));
+
+      try{
+        await updateDoc(doc(db,planCol(p),agRow.id),{past_end_time:endTime,eff:100,status:'past_done',current_vol:finalCumVol,mix_start_time:'',mix_end_time:''});
+        const _li=(rows[p]||[]).findIndex(r=>r.id===agRow.id);
+        if(_li>=0){rows[p][_li]={...rows[p][_li],status:'past_done',past_end_time:endTime,current_vol:finalCumVol};window._rows[p]=rows[p];}
+        if(agRow.aging_tank){
+          if(hasNext){await setDoc(doc(db,'aging_tank_states',agRow.aging_tank),{current_vol:finalCumVol,updated_at:new Date().toISOString()},{merge:true});}
+          else{await setDoc(doc(db,'aging_tank_states',agRow.aging_tank),{current_vol:0,mix_code:'',mix_name:'',batch_no:'',process_order:'',status:'empty',past_end_time:null,updated_at:new Date().toISOString()},{merge:false});}
+        }
+        await addDoc(collection(db,'past_history'),{...agRow,past_end_time:endTime,eff:100,status:'past_done',current_vol:finalCumVol,archived_at:nowHHMM(),archived_date:today(),mixing_unit:p});
+        await deleteDoc(doc(db,planCol(p),agRow.id));
+        rows[p]=(rows[p]||[]).filter(r=>r.id!==agRow.id);window._rows[p]=rows[p];
+        toast(`✅ Auto Stamp Past.เสร็จ เวลา ${endTime}`,'green');
+        if(nextRow){
+          if(!nextRow.aging_tank){await updateDoc(doc(db,planCol(p),nextRow.id),{aging_tank:agRow.aging_tank});nextRow.aging_tank=agRow.aging_tank;}
+          const _np=productMap[nextRow.mix_code]||{};
+          const _ns=planCol(p)==='production_plans'?+(_np.speed_m1||_np.speed||0):+(_np.speed_m2||_np.speed||0);
+          const _nv=+(nextRow.volume_liter||0);const _nd=+(_np.density||1);
+          let _nEta=null;
+          if(_ns&&_nv){const _nr=Math.round(_nv*_nd*3600/_ns);const _nst=(agRow.expected_finish_time||endTime).split(':').map(Number);const _nss=(_nst[0]||0)*3600+(_nst[1]||0)*60+(_nst[2]||0);const _nes=(_nss+_nr+2)%86400;_nEta=String(Math.floor(_nes/3600)).padStart(2,'0')+':'+String(Math.floor((_nes%3600)/60)).padStart(2,'0')+':'+String(_nes%60).padStart(2,'0');}
+          await updateDoc(doc(db,planCol(p),nextRow.id),{past_start_time:agRow.expected_finish_time||endTime,expected_finish_time:_nEta,status:'pasteurising',past_end_time:null});
+          // update local rows ทันที ไม่รอ onSnapshot
+          const _nIdx=(rows[p]||[]).findIndex(r=>r.id===nextRow.id);
+          if(_nIdx>=0){
+            rows[p][_nIdx]={...rows[p][_nIdx],past_start_time:agRow.expected_finish_time||endTime,expected_finish_time:_nEta,status:'pasteurising',past_end_time:null,_col:planCol(p)};
+            window._rows[p]=rows[p];
+          }
+          if(nextRow.aging_tank){await setDoc(doc(db,'aging_tank_states',nextRow.aging_tank),{current_vol:finalCumVol,mix_code:nextRow.mix_code||'',mix_name:nextRow.mix_name||'',batch_no:nextRow.batch_no||'',process_order:nextRow.process_order||'',past_start_time:agRow.expected_finish_time||endTime,past_end_time:null,status:'pasteurising',updated_at:new Date().toISOString()},{merge:false});}
+          const _nk=p+'_'+(nextRow.process_order||'')+'_'+(nextRow.aging_tank||'');window._prevVolMap[_nk]=finalCumVol;
+          toast(`🔄 Auto เริ่ม Batch ${nextRow.batch_no} ต่อเนื่อง`,'green');
+        }
+      }catch(e){console.error('ETA stamp error:',e);_autoStamping.delete(agRow.id);}
+    }
+  }
+},5000);
 window.doLogout=async()=>{
   if(unsub.p1)unsub.p1();
   if(unsub.p2)unsub.p2();
@@ -716,7 +786,7 @@ function buildFlowSteps(row){
   return s;
 }
 
-function buildStepHtml(st, i, stepsLen, pcol, rid){
+function buildStepHtml(st, i, stepsLen, pcol, rid, row){
   const isDone=st.done;
   const isSkip=st.skip;
   const isActive=st.active&&!isDone&&!isSkip;
@@ -753,12 +823,12 @@ function buildStepHtml(st, i, stepsLen, pcol, rid){
   // step tank และ aging ใช้ SVG ถัง
   let nodeHtml = '';
   if(st.id==='tank'){
-    const _svgMix = (()=>{try{return window.mixTankSVG&&window._pastRow?window.mixTankSVG(window._pastRow,3000):'';} catch(e){return '';}})();
+    const _svgMix = (()=>{try{return window.mixTankSVG&&row?window.mixTankSVG(row,3000):'';} catch(e){return '';}})();
     nodeHtml = _svgMix
       ? `<div class="tv3-step" style="width:130px">${_svgMix}<div class="tv3-sn ${snCls}" style="margin-top:4px">${st.name}</div><div class="tv3-sv ${svCls}">${st.kg}</div></div>`
       : `<div class="tv3-step"><div class="tv3-circle ${cls}"><span style="font-size:28px">${st.ico}</span></div><div class="tv3-sn ${snCls}">${st.name}</div><div class="tv3-sv ${svCls}">${st.kg}</div></div>`;
   } else if(st.id==='aging'){
-    const _agId = window._pastRow?.aging_tank||'';
+    const _agId = row?.aging_tank||'';
     const _agSt = window._agingStates&&_agId?window._agingStates[_agId]||{}:{};
     const _v = +(_agSt.current_vol||0);
     const _cap = _agId?getTankCapacity(_agId):0;
@@ -767,15 +837,31 @@ function buildStepHtml(st, i, stepsLen, pcol, rid){
     const _svgAg = (()=>{try{return _agId&&window.cipTankSVG?window.cipTankSVG(_agId,_p,_col,_agSt.status==='pasteurising',null,null,120,220):'';} catch(e){return '';}})();
     const _expHtml = expireBox(_agSt.expire_at||null);
     const _tempHtml = tempBox(_agSt);
+    const _sanHtml = (()=>{
+      if(_agSt.status!=='san_done'||!_agSt.san_stop_time) return '';
+      const _sp=_agSt.san_stop_time.split(':').map(Number);
+      const _sanSec=(_sp[0]||0)*3600+(_sp[1]||0)*60+(_sp[2]||0);
+      const _now=new Date();
+      const _nowSec=_now.getHours()*3600+_now.getMinutes()*60+_now.getSeconds();
+      let _diff=_nowSec-_sanSec; if(_diff<0)_diff+=86400;
+      const _wait=20*60;
+      if(_diff<_wait){
+        const _rem=_wait-_diff;
+        const _m=String(Math.floor(_rem/60)).padStart(2,'0');
+        const _s=String(_rem%60).padStart(2,'0');
+        return `<div style="font-family:var(--mono);font-size:10px;font-weight:800;color:#3b82f6;text-align:center;margin-top:3px;animation:blink 1s step-start infinite">🔵 รอ ${_m}:${_s}</div>`;
+      }
+      return `<div style="font-family:var(--mono);font-size:10px;font-weight:800;color:#22c55e;text-align:center;margin-top:3px">✅ พร้อม Past</div>`;
+    })();
     nodeHtml = _svgAg
-      ? `<div class="tv3-step" style="width:130px">${_svgAg}<div class="tv3-sn ${snCls}" style="margin-top:4px">Aging Tank</div><div class="tv3-sv ${svCls}">${_agId||(_v>0?Math.round(_v).toLocaleString()+' L':st.kg)}</div>${_expHtml}${_tempHtml}</div>`
+      ? `<div class="tv3-step" style="width:130px">${_svgAg}<div class="tv3-sn ${snCls}" style="margin-top:4px">Aging Tank</div><div class="tv3-sv ${svCls}">${_agId||(_v>0?Math.round(_v).toLocaleString()+' L':st.kg)}</div>${_sanHtml}${_expHtml}${_tempHtml}</div>`
       : `<div class="tv3-step"><div class="tv3-circle ${cls}"><span style="font-size:28px">${st.ico}</span></div><div class="tv3-sn ${snCls}">${st.name}</div><div class="tv3-sv ${svCls}">${st.kg}</div></div>`;
   } else {
     const ccpStyle = st.isCCP&&st.autoDone ? 'background:#d1fae5;border-color:#10b981;border-width:3px' : '';
     nodeHtml = `<div class="tv3-step">
       <div class="tv3-circle ${cls}" style="${ccpStyle}"><span style="font-size:28px">${st.ico}</span></div>
       <div class="tv3-sn ${snCls}">${st.name}</div>
-      <div class="tv3-sv ${svCls}">${isSkip?'—':st.kg}</div>
+      <div class="tv3-sv ${svCls}" style="${st.kg==='CLOSE'?'color:#dc2626!important;font-weight:900!important':''}">${isSkip?'—':st.kg}</div>
       ${st.kg2?`<div class="tv3-sv ${svCls}" style="font-size:10px">${st.kg2}</div>`:''}
       ${sv2}${btnH}
     </div>`;
@@ -788,16 +874,18 @@ function buildStepHtml(st, i, stepsLen, pcol, rid){
 function buildStepsForPast(row){
   const steps = [];
   const prod = window.productMap&&row.mix_code ? (window.productMap[row.mix_code]||{}) : {};
-  const ptype = prod.Type||prod.type||'';
-  const isJelly = ptype.toLowerCase().includes('jelly');
-  // ดึงจาก productmaster ผ่าน mix_code
+  const ptype = prod.Type||prod.type||prod.product_type||'';
   const _pm = (window.productMap||{})[row.mix_code||'']||{};
+  const ptype2 = _pm.Type||_pm.type||_pm.product_type||ptype;
   const homoS1 = _pm.homo_stage1||_pm['Homo Stage 1']||_pm.homo_st1||prod.homo_stage1||'—';
   const homoS2 = _pm.homo_stage2||_pm['Homo Stage 2']||_pm.homo_st2||prod.homo_stage2||'—';
-  const ptype2 = _pm.Type||_pm.type||ptype;
-  const isJelly2 = ptype2.toLowerCase().includes('jelly');
-  const tempRange = (isJelly||isJelly2) ? '38–42' : '0–4';
-  const iceWater = (isJelly||isJelly2) ? 'CLOSE' : 'OPEN';
+  const isJelly = ptype.toLowerCase().includes('jelly')
+    || ptype2.toLowerCase().includes('jelly')
+    || (row.mix_name||'').toLowerCase().includes('jell')
+    || (row.mix_name||'').toLowerCase().includes('เจลลี่');
+  const isJelly2 = isJelly;
+  const tempRange = isJelly ? '38–42' : '0–4';
+  const iceWater = isJelly ? 'CLOSE' : 'OPEN';
 
   const st2 = row.status||'';
   const isPasteurising = st2==='pasteurising'||st2==='past_done'||st2==='ready';
@@ -957,8 +1045,27 @@ window.mixTankSVG=function(row,cap){
   cap=cap||3000;
   const st=row?.status||'';
   const totalVol=+(row?.volume_liter||0);
-  const flowed=st==='pasteurising'||st==='past_done'?+(row?.current_vol||0):0;
-  const vol=st==='pasteurising'?Math.max(0,totalVol-flowed):totalVol;
+
+  // คำนวณ vol เหลือใน mixing tank จาก elapsed time
+  let vol=totalVol;
+  if(st==='pasteurising'&&row?.past_start_time){
+    try{
+      const prod=(window.productMap||{})[row?.mix_code||'']||{};
+      const density=+(prod.density||1);
+      const _col2=row?._col||'production_plans';
+      const speed=_col2==='production_plans'?+(prod.speed_m1||prod.speed||0):+(prod.speed_m2||prod.speed||0);
+      if(speed&&totalVol){
+        const totalMin=(totalVol*density*60)/speed;
+        const _tp=(row.past_start_time||'').split(':').map(Number);
+        const start=new Date((row.date||new Date().toISOString().slice(0,10))+'T'+String(_tp[0]||0).padStart(2,'0')+':'+String(_tp[1]||0).padStart(2,'0')+':'+String(_tp[2]||0).padStart(2,'0'));
+        const elapsedMin=Math.max(0,(Date.now()-start)/60000);
+        const flowed=totalMin>0?Math.min(totalVol,(elapsedMin/totalMin)*totalVol):0;
+        vol=Math.max(0,totalVol-flowed);
+      }
+    }catch(e){vol=totalVol;}
+  } else if(st==='past_done'||st==='ready'){
+    vol=0;
+  }
   const prod=(window.productMap||{})[row?.mix_code||'']||{};
   const col=prod.color||'#3b82f6';
   const isActive=['mixing','pasteurising','past_done','waiting_past','ready','busy'].includes(st);
@@ -982,12 +1089,14 @@ window.mixTankSVG=function(row,cap){
   }
   let s=`<svg width="${sw}" height="${sh}" viewBox="0 0 ${sw} ${sh}" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto">`;
   s+=`<defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${col}" stop-opacity=".55"/><stop offset="100%" stop-color="${col}" stop-opacity=".9"/></linearGradient><clipPath id="${cid}"><rect x="${bX-1}" y="${bY-1}" width="${bW+2}" height="${bH+2}" rx="10"/></clipPath></defs>`;
-  // cap
-  s+=`<rect x="${bX+(bW-24)/2}" y="${bY-8}" width="24" height="10" rx="4" fill="${hasLiq?'#16a34a':'rgba(255,255,255,.1)'}" stroke="${hasLiq?col:'#475569'}" stroke-width="1.5" stroke-opacity=".7"/>`;
-  s+=`<rect x="${bX+(bW-14)/2}" y="${bY-14}" width="14" height="8" rx="3" fill="${hasLiq?'#16a34a':'rgba(255,255,255,.1)'}" stroke="${hasLiq?col:'#475569'}" stroke-width="1.5" stroke-opacity=".6"/>`;
+  // หัวถัง style เดียวกับ cipTankSVG — nozzle + cap
+  const nW=24,nH=10,cW=34,cH=6;
+  const nX=bX+(bW-nW)/2,cX=bX+(bW-cW)/2;
+  s+=`<rect x="${nX}" y="${bY-nH}" width="${nW}" height="${nH+5}" rx="4" fill="${hasLiq?'#16a34a':'rgba(100,116,139,.2)'}" stroke="${hasLiq?col:'#475569'}" stroke-width="1.5" stroke-opacity=".6"/>`;
+  s+=`<rect x="${cX}" y="${bY-nH-cH}" width="${cW}" height="${cH+3}" rx="4" fill="${hasLiq?'#16a34a':'rgba(100,116,139,.15)'}" stroke="${hasLiq?col:'#475569'}" stroke-width="1.5" stroke-opacity=".5"/>`;
   if(hasLiq){
-    s+=`<circle cx="${sw/2}" cy="${bY-11}" r="4" fill="#22c55e" opacity=".9"/>`;
-    s+=`<circle cx="${sw/2}" cy="${bY-11}" r="4" fill="none" stroke="#22c55e" stroke-width="1.5"><animate attributeName="r" from="4" to="10" dur="1.6s" repeatCount="indefinite"/><animate attributeName="opacity" from=".7" to="0" dur="1.6s" repeatCount="indefinite"/></circle>`;
+    s+=`<circle cx="${sw/2}" cy="${bY-nH-2}" r="4" fill="#22c55e" opacity=".9"/>`;
+    s+=`<circle cx="${sw/2}" cy="${bY-nH-2}" r="4" fill="none" stroke="#22c55e" stroke-width="1.5"><animate attributeName="r" from="4" to="10" dur="1.6s" repeatCount="indefinite"/><animate attributeName="opacity" from=".7" to="0" dur="1.6s" repeatCount="indefinite"/></circle>`;
   }
   // body
   s+=`<rect x="${bX}" y="${bY}" width="${bW}" height="${bH}" rx="10" fill="${hasLiq?`rgba(${r2},${g2},${b2},.07)`:'rgba(71,85,105,.2)'}" stroke="${hasLiq?col:'#475569'}" stroke-width="2" stroke-opacity="${hasLiq?'.35':'.5'}"/>`;
@@ -1077,8 +1186,7 @@ window.cipTankSVG=function(uid,pct,col,run,statusTxt,statusCol,sw,sh){
   if(hasLiq){
     s+='<text x="'+(sw/2)+'" y="'+(midY+20)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="'+col+'" font-weight="700" opacity=".8">'+Math.round(pct)+'%</text>';
   }
-  // label ถัง
-  s+='<text x="'+(sw/2)+'" y="'+(bY-8)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="'+tc+'" font-weight="900">'+uid+'</text>';
+  // label ถัง — ไม่แสดงเบอร์ถังที่หัวถัง (แสดงในส่วน header แทน)
   s+='</svg>';
   return s;
 }
@@ -1093,15 +1201,15 @@ function renderPastCard(row, i, col, p){
   else if(ps.id==='wait_past') cardCls += ' tv3-mixing';
   else if(ps.id==='submitted'||ps.id==='done') cardCls += ' tv3-done';
 
-  window._pastRow = row; // ให้ buildStepHtml เข้าถึง row ได้
+  window._pastRow = row; // keep for backward compat
   const steps = buildStepsForPast(row);
-  const stepsHtml = steps.map((st,idx)=>buildStepHtml(st,idx,steps.length,col,row.id)).join('');
+  const stepsHtml = steps.map((st,idx)=>buildStepHtml(st,idx,steps.length,col,row.id,row)).join('');
 
   return `<div class="${cardCls}">
     <div class="tv3-head">
       <div class="tv3-seq"><div style="font-family:var(--mono);font-size:13px;font-weight:900;color:#111827;text-align:center;padding:0 4px">${i+1}</div></div>
       <div class="tv3-hi">
-        <div class="tv3-code">${row.mix_code||'—'} · ${row.process_order||'—'}</div>
+        <div class="tv3-code"><span style="color:#6b7280;font-weight:600">Material:</span> ${row.mix_code||'—'} · <span style="color:#6b7280;font-weight:600">Process Order:</span> ${row.process_order||'—'}</div>
         <div class="tv3-name">${row.mix_name||'—'} · <span style="font-size:18px">${(+(row.volume_liter||0)).toLocaleString()} L</span> · <span style="font-size:16px">Batch ${row.batch_no||'—'}</span></div>
         <div class="tv3-meta">${(()=>{const _p=(window.productMap||{})[row.mix_code||'']||{};const _spd=p==='p1'?(_p.speed_m1||_p.speed||'—'):(_p.speed_m2||_p.speed||'—');const _den=_p.density||'—';return 'Density: '+_den+' kg/L · Speed: '+_spd+' L/hr';})()}</div>
       </div>
@@ -1357,6 +1465,23 @@ window.stampTime=async(col,id,field,p)=>{
 
   if(field==="past_start_time"){
     upd.status="pasteurising";
+    // ── เช็คลำดับ mix_end_time ก่อน stamp ──
+    const _thisRow=rows[p]?.find(r=>r.id===id);
+    if(_thisRow){
+      const _allRows=[...(rows['p1']||[]),...(rows['p2']||[])];
+      const _thisMixEnd=_thisRow.mix_end_time||'';
+      const _earlierBatches=_allRows.filter(r=>
+        r.id!==id&&r.mix_end_time&&!r.past_start_time&&
+        (r.status==='ready_mix'||r.status==='mixing'||r.status==='pending')&&
+        r.mix_end_time<_thisMixEnd
+      );
+      if(_thisMixEnd&&_earlierBatches.length>0){
+        const _earliest=_earlierBatches.sort((a,b)=>a.mix_end_time.localeCompare(b.mix_end_time))[0];
+        const _minAgo=(()=>{const _tp=_earliest.mix_end_time.split(':').map(Number);const _np=_thisMixEnd.split(':').map(Number);return Math.round(((_np[0]||0)*60+(_np[1]||0)-((_tp[0]||0)*60+(_tp[1]||0))));})();
+        const _ok=window.confirm(`⚠️ ข้ามลำดับการ Pasteurise!\n\nมี batch ที่ผสมเสร็จก่อนหน้านี้ยังรอ Past อยู่:\n📦 ${_earliest.mixing_tank||'—'} · ${_earliest.mix_name||_earliest.mix_code||'—'}\n⏰ Mixing เสร็จ: ${_earliest.mix_end_time} (${_minAgo} นาทีก่อน)\n\nคุณกำลัง Start: ${_thisRow.mixing_tank||'—'} · ${_thisRow.mix_name||_thisRow.mix_code||'—'}\n⏰ Mixing เสร็จ: ${_thisMixEnd}\n\nยืนยันที่จะ Past ข้ามลำดับไหม?`);
+        if(!_ok)return;
+      }
+    }
     // คำนวณ expected_finish_time ทันที
     const _row=rows[p]?.find(r=>r.id===id);
     if(_row){
@@ -1395,12 +1520,12 @@ window.stampTime=async(col,id,field,p)=>{
       const eff=actualSec>0?(reqMin*60/actualSec)*100:0;
       upd.eff=Math.round(eff*10)/10;
 
-      if(eff<97||eff>100){
-        const msg=eff<97
-          ?`⚠️ Eff% = ${eff.toFixed(1)}% ต่ำกว่า 97% — ใช้เวลานานเกินไป`
+      if(eff<97.5||eff>100.5){
+        const effMsg=eff<97.5
+          ?`⚠️ Eff% = ${eff.toFixed(1)}% ต่ำกว่า 97.5% — ใช้เวลานานเกินไป`
           :`⚠️ Eff% = ${eff.toFixed(1)}% เกิน 100% — เวลาน้อยกว่าที่ควร`;
-        const confirm=window.confirm(`${msg}\n\nยืนยัน Stamp Past.เสร็จหรือไม่?`);
-        if(!confirm) return;
+        const effConfirm=window.confirm(`${effMsg}\n\nยืนยันส่งข้อมูลหรือไม่?`);
+        if(!effConfirm) return;
       }
     }
     upd.status="past_done";
@@ -1408,11 +1533,14 @@ window.stampTime=async(col,id,field,p)=>{
     upd.mix_end_time="";
   }
 
-  await updateDoc(doc(db,col,id),upd);
-  toast(`Stamp ${now} แล้ว`,"green");
+  try{
+    await updateDoc(doc(db,col,id),upd);
+    toast(`Stamp ${now} แล้ว`,"green");
+  }catch(e){
+    toast(`❌ บันทึกไม่สำเร็จ: ${e.message}`,"red");
+    console.error('stampTime error:',e);
+  }
 };
-
-// ── EDIT / DELETE TIME ────────────────────────────────────────────────
 window.editTimePrompt=async(col,id,field,current)=>{
   const val=prompt("แก้ไขเวลา (HH:MM หรือ HH:MM:SS) :",current||"");
   if(val===null)return;
@@ -1562,13 +1690,15 @@ function renderPlan(p){
       effHTML=`<div style="font-family:var(--mono);font-size:10px;color:#64748b">เป้า ${targetLabel}</div>`;
     }
 
-    // เช็ค checkbox ก่อนให้ Stamp เริ่ม Past.
+    // เช็คว่า checkbox ครบหรือยัง (ถ้าครบจะซ่อนแถว)
     const needGlc=(+row.glc_actual||0)>0&&!row.glc_confirmed;
     const needSgr=(+row.sgr_actual||0)>0&&!row.sgr_confirmed;
     const needPlm=(+row.plm_actual||0)>0&&!row.plm_confirmed;
-    const needTank=!row.aging_tank; // ต้องเลือกถังก่อน
-    const canStampStart=!needGlc&&!needSgr&&!needPlm&&!needTank;
-    const blockReason=needTank?'เลือก Aging Tank ก่อน':needGlc?'ติ๊ก Glc ก่อน':needSgr?'ติ๊ก Sgr ก่อน':needPlm?'ติ๊ก Plm ก่อน':'';
+    const needTank=!row.aging_tank;
+    const allChecked=!needGlc&&!needSgr&&!needPlm;
+    const canStampStart=!needTank;
+    const blockReason=needTank?'เลือก Aging Tank ก่อน':'';
+    if((row.status==='past_done'||row.status==='ready')&&allChecked)return;
 
     const stampCell=(field,time,label,isPulse=false,blocked=false,blockMsg='')=>`
       <td style="min-width:130px;padding:5px 7px;white-space:nowrap">
@@ -1769,69 +1899,331 @@ window.showPage=(type,p,btn)=>{
   $(`page-${type}-${p}`).classList.add('on');
   btn.classList.add('on');
   if(type==="history")loadHistory();
+  if(type==="dashboard")window.loadDashboard();
 };
 
 // ── HISTORY ────────────────────────────────────────────────────────────
 async function loadHistory(){
-  const el=$('history-tbody');
+  const el=$('history-content');
   if(!el)return;
-  el.innerHTML=`<tr><td colspan="10" style="text-align:center;padding:20px;color:var(--t3)">⏳ กำลังโหลด...</td></tr>`;
+  el.innerHTML=`<div style="text-align:center;padding:30px;color:var(--t3);font-family:var(--mono)">⏳ กำลังโหลด...</div>`;
   try{
-    const {getDocs,query,collection,orderBy,limit}=await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
-    const q=query(collection(db,"past_history"),orderBy("archived_date","desc"),orderBy("archived_at","desc"),limit(200));
+    const q=query(collection(db,"past_history"),orderBy("archived_date","desc"),limit(500));
     const snap=await getDocs(q);
-    if(snap.empty){el.innerHTML=`<tr><td colspan="10" style="text-align:center;padding:20px;color:var(--t3)">ไม่มีข้อมูล</td></tr>`;return;}
-    el.innerHTML=snap.docs.map(d=>{
-      const r=d.data();
-      const eff=r.eff||0;
-      const effColor=eff>=99.9&&eff<=100?"#22c55e":eff>100?"#f97316":eff>0?"#ef4444":"var(--t3)";
-      const effLabel=eff>=99.9&&eff<=100?"✅":eff>100?"⚠️":eff>0?"❌":"—";
-      return`<tr>
-        <td style="font-family:var(--mono);font-size:11px;color:var(--t2)">${r.archived_date||'—'}</td>
-        <td style="font-family:var(--mono);font-size:11px;color:var(--t2)">${r.archived_at||'—'}</td>
-        <td style="font-family:var(--mono);font-weight:700">${r.mix_code||'—'}</td>
-        <td style="font-family:var(--mono);color:#111827">${r.process_order||'—'}</td>
-        <td>${r.mix_name||'—'}</td>
-        <td style="font-family:var(--mono)">${r.volume_liter||'—'}</td>
-        <td style="font-family:var(--mono);color:var(--t2)">${r.past_start_time||'—'} → ${r.past_end_time||'—'}</td>
-        <td style="font-family:var(--mono);color:#a78bfa">${(()=>{
-  const _tid=r.aging_tank||'';
-  if(!_tid)return'—';
-  const _st=window._agingStates&&window._agingStates[_tid]?window._agingStates[_tid]:{};
-  const _status=_st.status||'';
-  const _sanStop=_st.san_stop_time||'';
-  let _badge='';
-  if(_status==='san_done'&&_sanStop){
-    // นับถอยหลัง 20 นาที
-    const _sp=_sanStop.split(':').map(Number);
-    const _sanSec=(_sp[0]||0)*3600+(_sp[1]||0)*60+(_sp[2]||0);
-    const _now=new Date();
-    const _nowSec=_now.getHours()*3600+_now.getMinutes()*60+_now.getSeconds();
-    let _diff=_nowSec-_sanSec;if(_diff<0)_diff+=86400;
-    const _wait=20*60;
-    if(_diff<_wait){
-      const _rem=_wait-_diff;
-      const _m=String(Math.floor(_rem/60)).padStart(2,'0');
-      const _s=String(_rem%60).padStart(2,'0');
-      _badge='<span style="color:#3b82f6;font-weight:700;animation:blink 1s step-start infinite">🔵 San เสร็จ รอ '+_m+':'+_s+'</span>';
-    } else {
-      _badge='<span style="color:#22c55e;font-weight:700">✅ พร้อม Past</span>';
-    }
-  } else if(_status==='cip'){
-    _badge='<span style="color:#f97316;font-size:10px">🔄 CIP</span>';
-  } else if(_status==='san'){
-    _badge='<span style="color:#8b5cf6;font-size:10px">🧴 San</span>';
-  }
-  return _tid+(_badge?'<br>'+_badge:'');
-})()}</td>
-        <td style="font-family:var(--mono);font-size:11px;color:var(--t3)">${r.mixing_unit?.toUpperCase()||'—'}</td>
-        <td style="font-family:var(--mono);font-weight:700;color:${effColor}">${effLabel} ${eff?eff+'%':'—'}</td>
-      </tr>`;
-    }).join('');
+    if(snap.empty){el.innerHTML=`<div style="text-align:center;padding:30px;color:var(--t3);font-family:var(--mono)">ไม่มีข้อมูล</div>`;return;}
+    window._historyRows=snap.docs.map(d=>({id:d.id,...d.data()}))
+      .sort((a,b)=>{
+        const dc=(b.archived_date||'').localeCompare(a.archived_date||'');
+        if(dc!==0)return dc;
+        return (b.archived_at||'').localeCompare(a.archived_at||'');
+      });
+    window.filterHistory();
   }catch(e){
-    el.innerHTML=`<tr><td colspan="10" style="text-align:center;padding:20px;color:var(--red)">โหลดไม่ได้: ${e.message}</td></tr>`;
+    el.innerHTML=`<div style="text-align:center;padding:20px;color:var(--red);font-family:var(--mono)">❌ โหลดไม่สำเร็จ: ${e.message}</div>`;
+    console.error('loadHistory error:',e);
   }
 }
+
+window.filterHistory=function(){
+  const el=$('history-content');
+  if(!el)return;
+  const rows=window._historyRows||[];
+  const q=($('hist-search')?.value||'').trim().toLowerCase();
+  const unit=($('hist-unit')?.value||'').toLowerCase();
+  const filtered=rows.filter(r=>{
+    if(unit&&(r.mixing_unit||'').toLowerCase()!==unit)return false;
+    if(!q)return true;
+    const po=(r.process_order||'').toLowerCase();
+    const mc=(r.mix_code||'').toLowerCase();
+    const mn=(r.mix_name||'').toLowerCase();
+    return po.includes(q)||mc.includes(q)||mn.includes(q);
+  });
+  window._filteredRows=filtered;
+  if($('hist-count'))$('hist-count').textContent=filtered.length+' รายการ'+(q||unit?' (กรองจาก '+rows.length+')':'');
+  if(!filtered.length){
+    el.innerHTML=`<div style="text-align:center;padding:30px;color:var(--t3);font-family:var(--mono)">ไม่พบข้อมูล${q?' สำหรับ "'+q+'"':''}</div>`;
+    return;
+  }
+  el.innerHTML=`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px">
+    <thead><tr style="background:#f8fafc">
+      <th style="padding:8px;text-align:left;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1.5px solid var(--b1)">วันที่</th>
+      <th style="padding:8px;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1.5px solid var(--b1)">เวลา</th>
+      <th style="padding:8px;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1.5px solid var(--b1)">Unit</th>
+      <th style="padding:8px;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1.5px solid var(--b1)">Mix Code</th>
+      <th style="padding:8px;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1.5px solid var(--b1)">Process Order</th>
+      <th style="padding:8px;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1.5px solid var(--b1)">ชื่อ Mix</th>
+      <th style="padding:8px;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1.5px solid var(--b1)">Vol (L)</th>
+      <th style="padding:8px;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1.5px solid var(--b1)">เวลา Past.</th>
+      <th style="padding:8px;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1.5px solid var(--b1)">Aging Tank</th>
+      <th style="padding:8px;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1.5px solid var(--b1)">Unit</th>
+      <th style="padding:8px;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1.5px solid var(--b1)">Eff%</th>
+    </tr></thead>
+    <tbody>${filtered.map(r=>{
+      const eff=r.eff||0;
+      const ec=eff>=99.9&&eff<=100?'#22c55e':eff>100?'#f97316':eff>0?'#ef4444':'var(--t2)';
+      const el2=eff>=99.9&&eff<=100?'✅':eff>100?'⚠️':eff>0?'❌':'—';
+      const hl=(txt)=>{
+        if(!q||!txt)return txt||'—';
+        const idx=txt.toLowerCase().indexOf(q);
+        if(idx<0)return txt;
+        return txt.slice(0,idx)+'<mark style="background:#fef08a;border-radius:2px">'+txt.slice(idx,idx+q.length)+'</mark>'+txt.slice(idx+q.length);
+      };
+      return`<tr style="border-bottom:1px solid var(--b1)">
+        <td style="padding:7px 8px;font-family:var(--mono);font-size:11px;color:var(--t2)">${r.archived_date||'—'}</td>
+        <td style="padding:7px 8px;font-family:var(--mono);font-size:11px;color:var(--t2)">${r.archived_at||'—'}</td>
+        <td style="padding:7px 8px;text-align:center"><span style="font-family:var(--mono);font-size:11px;font-weight:900;color:#fff;background:${(r.mixing_unit||'').toLowerCase()==='p1'?'#1d4ed8':'#7c3aed'};padding:2px 8px;border-radius:4px">${(r.mixing_unit||'').toUpperCase()||'—'}</span></td>
+        <td style="padding:7px 8px;font-family:var(--mono);font-weight:700">${hl(r.mix_code)}</td>
+        <td style="padding:7px 8px;font-family:var(--mono);font-weight:700;color:#2563eb">${hl(r.process_order)}</td>
+        <td style="padding:7px 8px">${r.mix_name||'—'}</td>
+        <td style="padding:7px 8px;font-family:var(--mono)">${r.volume_liter||'—'}</td>
+        <td style="padding:7px 8px;font-family:var(--mono);color:var(--t2);font-size:11px">${r.past_start_time||'—'} → ${r.past_end_time||'—'}</td>
+        <td style="padding:7px 8px;font-family:var(--mono);color:#a78bfa;font-weight:700">${r.aging_tank||'—'}</td>
+        <td style="padding:7px 8px;font-family:var(--mono);font-weight:700;color:${ec}">${el2} ${eff?eff+'%':'—'}</td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table></div>`;
+};
+
+window.exportHistoryExcel=function(){
+  const rows=window._filteredRows||window._historyRows||[];
+  if(!rows.length){alert('ไม่มีข้อมูลที่จะ Export');return;}
+  const headers=['วันที่','เวลา Archive','Unit','Mix Code','Process Order','ชื่อ Mix','Batch','Vol (L)','เริ่ม Past.','Past.เสร็จ','Aging Tank','Eff%'];
+  const esc=v=>'"'+(String(v||'').replace(/"/g,'""'))+'"';
+  const csv=[headers.map(esc).join(','),...rows.map(r=>[
+    r.archived_date||'',r.archived_at||'',(r.mixing_unit||'').toUpperCase(),
+    r.mix_code||'',r.process_order||'',r.mix_name||'',r.batch_no||'',
+    r.volume_liter||'',r.past_start_time||'',r.past_end_time||'',
+    r.aging_tank||'',r.eff?r.eff+'%':''
+  ].map(esc).join(','))].join('\n');
+  const bom='\uFEFF';
+  const blob=new Blob([bom+csv],{type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='past_history_'+(new Date().toISOString().slice(0,10))+'.csv';
+  a.click();URL.revokeObjectURL(url);
+};
+
+// ── DASHBOARD ─────────────────────────────────────────────────────────
+window._dashPeriod='week';
+window.loadDashboard=async function(period){
+  if(period)window._dashPeriod=period;
+  const el=$('dashboard-content');
+  if(!el)return;
+  // Loading skeleton
+  el.innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:300px;gap:16px">
+    <div style="width:48px;height:48px;border:3px solid #334155;border-top-color:#38bdf8;border-radius:50%;animation:dashSpin .8s linear infinite"></div>
+    <div style="font-family:'DM Mono',monospace;font-size:12px;color:#475569;letter-spacing:.08em">LOADING PRODUCTION DATA...</div>
+  </div>`;
+  const p=window._dashPeriod||'week';
+  const now=new Date();
+  const todayStr=now.toISOString().slice(0,10);
+  let fromDate='';
+  if(p==='day')fromDate=todayStr;
+  else if(p==='week'){const d=new Date(now);d.setDate(d.getDate()-6);fromDate=d.toISOString().slice(0,10);}
+  else if(p==='month'){const d=new Date(now);d.setDate(1);fromDate=d.toISOString().slice(0,10);}
+  else if(p==='year')fromDate=now.getFullYear()+'-01-01';
+  try{
+    const q2=query(collection(db,'past_history'),where('archived_date','>=',fromDate),where('archived_date','<=',todayStr),orderBy('archived_date','asc'));
+    const snap=await getDocs(q2);
+    const rows=snap.docs.map(d=>d.data());
+
+    // ── compute stats ──
+    const totalVol=rows.reduce((s,r)=>s+(+(r.volume_liter||0)),0);
+    const totalBatch=rows.length;
+    const effRows=rows.filter(r=>(+r.eff||0)>0);
+    const avgEff=effRows.length?effRows.reduce((s,r)=>s+(+r.eff),0)/effRows.length:0;
+    const typeMap={'Ice Cream':{vol:0,batch:0,color:'#f97316',glow:'rgba(249,115,22,.35)',icon:'🍦'},
+      'Water Ice':{vol:0,batch:0,color:'#38bdf8',glow:'rgba(56,189,248,.35)',icon:'🧊'},
+      'Jelly':{vol:0,batch:0,color:'#a78bfa',glow:'rgba(167,139,250,.35)',icon:'🍮'},
+      'Other':{vol:0,batch:0,color:'#64748b',glow:'rgba(100,116,139,.35)',icon:'📦'}};
+    rows.forEach(r=>{
+      const pm=(window._productMap||{})[r.mix_code||'']||{};
+      const pt=(pm.Type||pm.type||pm.product_type||r.mix_name||'').toLowerCase();
+      const key=pt.includes('ice cream')?'Ice Cream':pt.includes('water ice')?'Water Ice':pt.includes('jell')?'Jelly':'Other';
+      typeMap[key].vol+=+(r.volume_liter||0);typeMap[key].batch++;
+    });
+    const dayMap={};
+    rows.forEach(r=>{const d=r.archived_date||'';if(!dayMap[d])dayMap[d]={vol:0,batch:0,p1:0,p2:0};dayMap[d].vol+=+(r.volume_liter||0);dayMap[d].batch++;if((r.mixing_unit||'').toLowerCase()==='p1')dayMap[d].p1+=+(r.volume_liter||0);else dayMap[d].p2+=+(r.volume_liter||0);});
+    const days=Object.keys(dayMap).sort();
+    const maxVol=Math.max(...days.map(d=>dayMap[d].vol),1);
+    const periodLabel={day:'TODAY',week:'7 DAYS',month:'THIS MONTH',year:'THIS YEAR'}[p];
+    const effColor=avgEff>=97.5?'#4ade80':avgEff>=90?'#fbbf24':'#f87171';
+    const p1Vol=rows.filter(r=>(r.mixing_unit||'').toLowerCase()==='p1').reduce((s,r)=>s+(+(r.volume_liter||0)),0);
+    const p2Vol=rows.filter(r=>(r.mixing_unit||'').toLowerCase()==='p2').reduce((s,r)=>s+(+(r.volume_liter||0)),0);
+    const mxMap={};rows.forEach(r=>{const k=r.mix_code||'?';if(!mxMap[k])mxMap[k]={name:r.mix_name||k,vol:0,batch:0};mxMap[k].vol+=+(r.volume_liter||0);mxMap[k].batch++;});
+    const topMix=Object.entries(mxMap).sort((a,b)=>b[1].vol-a[1].vol).slice(0,5);
+    const maxMx=topMix[0]?topMix[0][1].vol:1;
+
+    el.innerHTML=`
+<style>
+@keyframes dashSpin{to{transform:rotate(360deg)}}
+@keyframes dashFadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes dashPulse{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes dashBar{from{width:0}to{width:var(--w)}}
+@keyframes dashCount{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:scale(1)}}
+.dash-wrap{background:#0a0f1a;min-height:100vh;padding:24px;font-family:'DM Mono',monospace;animation:dashFadeUp .5s ease both}
+.dash-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px}
+.dash-title{font-size:11px;font-weight:900;letter-spacing:.18em;color:#38bdf8;text-transform:uppercase}
+.dash-subtitle{font-size:20px;font-weight:900;color:#f1f5f9;letter-spacing:-.01em;margin-top:2px}
+.dash-period-pills{display:flex;gap:6px}
+.dash-pill{padding:6px 14px;border-radius:999px;font-family:'DM Mono',monospace;font-size:11px;font-weight:700;cursor:pointer;border:1.5px solid #1e293b;background:transparent;color:#64748b;letter-spacing:.06em;transition:all .2s}
+.dash-pill.active{background:#38bdf8;color:#0a0f1a;border-color:#38bdf8;box-shadow:0 0 16px rgba(56,189,248,.4)}
+.dash-pill:hover:not(.active){border-color:#38bdf8;color:#38bdf8}
+.dash-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-bottom:24px}
+.dash-kpi{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:20px;position:relative;overflow:hidden;animation:dashFadeUp .4s ease both;transition:transform .2s,box-shadow .2s}
+.dash-kpi:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.4)}
+.dash-kpi::before{content:'';position:absolute;inset:0;border-radius:16px;background:var(--glow,transparent);opacity:.06;pointer-events:none}
+.dash-kpi-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:#475569;text-transform:uppercase;margin-bottom:10px}
+.dash-kpi-val{font-size:28px;font-weight:900;line-height:1;color:#f1f5f9;letter-spacing:-.02em;animation:dashCount .5s ease both}
+.dash-kpi-unit{font-size:11px;color:#64748b;margin-top:4px;font-weight:600}
+.dash-kpi-badge{position:absolute;top:16px;right:16px;font-size:22px;opacity:.6}
+.dash-row{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:24px}
+.dash-card{background:linear-gradient(135deg,rgba(255,255,255,.03),rgba(255,255,255,.01));backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:20px;animation:dashFadeUp .5s ease both}
+.dash-card-title{font-size:9px;font-weight:900;letter-spacing:.14em;color:#38bdf8;text-transform:uppercase;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.dash-card-title::before{content:'';width:3px;height:14px;background:#38bdf8;border-radius:2px;box-shadow:0 0 8px #38bdf8}
+.dash-bar-track{display:flex;align-items:flex-end;gap:5px;height:100px;padding-bottom:24px;position:relative}
+.dash-bar-col{flex:1;display:flex;flex-direction:column;align-items:center;position:relative}
+.dash-bar-seg{width:100%;border-radius:3px 3px 0 0;transition:height .4s ease;min-height:2px}
+.dash-bar-label{position:absolute;bottom:-20px;font-size:8px;color:#334155;white-space:nowrap;font-weight:700}
+.dash-bar-val{position:absolute;top:-18px;font-size:9px;color:#94a3b8;white-space:nowrap}
+.dash-type-row{display:flex;flex-direction:column;gap:10px}
+.dash-type-item{display:flex;align-items:center;gap:10px}
+.dash-type-label{font-size:11px;font-weight:700;color:#94a3b8;width:80px;flex-shrink:0}
+.dash-type-bar-track{flex:1;height:8px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden}
+.dash-type-bar-fill{height:100%;border-radius:4px;transition:width .6s ease}
+.dash-type-val{font-size:11px;font-weight:900;color:#f1f5f9;min-width:52px;text-align:right}
+.dash-mix-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.dash-mix-row:last-child{border-bottom:none}
+.dash-unit-split{display:flex;gap:8px;margin-top:10px}
+.dash-unit-block{flex:1;background:rgba(255,255,255,.03);border-radius:10px;padding:12px;text-align:center;border:1px solid rgba(255,255,255,.06)}
+.dash-live-dot{width:6px;height:6px;background:#4ade80;border-radius:50%;animation:dashPulse 1.2s ease-in-out infinite;display:inline-block;margin-right:6px}
+</style>
+<div class="dash-wrap">
+  <!-- Header -->
+  <div class="dash-header">
+    <div>
+      <div class="dash-title">🏭 PRODUCTION.SYS · PASTEURIZE MODULE</div>
+      <div class="dash-subtitle">Smart Factory Dashboard</div>
+    </div>
+    <div class="dash-period-pills">
+      ${['day','week','month','year'].map(v=>`<button class="dash-pill${p===v?' active':''}" onclick="window.loadDashboard('${v}')">${{day:'TODAY',week:'7D',month:'1M',year:'1Y'}[v]}</button>`).join('')}
+    </div>
+  </div>
+
+  <!-- KPI Grid -->
+  <div class="dash-grid">
+    <div class="dash-kpi" style="--glow:rgba(56,189,248,.8)">
+      <div class="dash-kpi-badge">📦</div>
+      <div class="dash-kpi-label">Total Volume</div>
+      <div class="dash-kpi-val">${(totalVol/1000).toFixed(2)}</div>
+      <div class="dash-kpi-unit">kilo-Litres · ${totalVol.toLocaleString()} L</div>
+    </div>
+    <div class="dash-kpi" style="--glow:rgba(168,85,247,.8)">
+      <div class="dash-kpi-badge">🔢</div>
+      <div class="dash-kpi-label">Total Batches</div>
+      <div class="dash-kpi-val">${totalBatch}</div>
+      <div class="dash-kpi-unit">batches · ${periodLabel}</div>
+    </div>
+    <div class="dash-kpi" style="--glow:${effColor==='#4ade80'?'rgba(74,222,128,.8)':effColor==='#fbbf24'?'rgba(251,191,36,.8)':'rgba(248,113,113,.8)'}">
+      <div class="dash-kpi-badge">⚡</div>
+      <div class="dash-kpi-label">Avg Efficiency</div>
+      <div class="dash-kpi-val" style="color:${effColor}">${avgEff.toFixed(1)}<span style="font-size:14px">%</span></div>
+      <div class="dash-kpi-unit">${effRows.length} batches recorded</div>
+    </div>
+    <div class="dash-kpi" style="--glow:rgba(249,115,22,.8)">
+      <div class="dash-kpi-badge">📊</div>
+      <div class="dash-kpi-label">Avg per Batch</div>
+      <div class="dash-kpi-val">${totalBatch?Math.round(totalVol/totalBatch).toLocaleString():'—'}</div>
+      <div class="dash-kpi-unit">Litres / batch</div>
+    </div>
+  </div>
+
+  <!-- Charts Row -->
+  <div class="dash-row">
+    <!-- Daily volume bar chart -->
+    <div class="dash-card">
+      <div class="dash-card-title">Volume Trend · Daily (L)</div>
+      ${days.length?`
+      <div class="dash-bar-track">
+        ${days.map(d=>{
+          const h1=Math.max(2,(dayMap[d].p1/maxVol)*90);
+          const h2=Math.max(2,(dayMap[d].p2/maxVol)*90);
+          const isT=d===todayStr;
+          const lbl=d.slice(5);
+          const tot=dayMap[d].vol;
+          return`<div class="dash-bar-col">
+            <div class="dash-bar-val" style="color:${isT?'#38bdf8':'#475569'}">${tot>=1000?(tot/1000).toFixed(1)+'k':tot}</div>
+            <div style="width:100%;display:flex;flex-direction:column;align-items:center;gap:1px">
+              <div class="dash-bar-seg" style="height:${h1}px;background:${isT?'#38bdf8':'#1d4ed8'};box-shadow:${isT?'0 0 10px rgba(56,189,248,.5)':'none'}"></div>
+              <div class="dash-bar-seg" style="height:${h2}px;background:${isT?'#a78bfa':'#5b21b6'};box-shadow:${isT?'0 0 10px rgba(167,139,250,.5)':'none'}"></div>
+            </div>
+            <div class="dash-bar-label" style="color:${isT?'#38bdf8':'#334155'};font-weight:${isT?900:600}">${lbl}</div>
+          </div>`;
+        }).join('')}
+      </div>
+      <div style="display:flex;gap:16px;margin-top:8px">
+        <div style="display:flex;align-items:center;gap:5px"><div style="width:10px;height:10px;border-radius:2px;background:#1d4ed8"></div><span style="font-size:9px;color:#475569">P1</span></div>
+        <div style="display:flex;align-items:center;gap:5px"><div style="width:10px;height:10px;border-radius:2px;background:#5b21b6"></div><span style="font-size:9px;color:#475569">P2</span></div>
+      </div>`:'<div style="text-align:center;padding:30px;color:#334155;font-size:11px">No data</div>'}
+    </div>
+
+    <!-- Product type breakdown -->
+    <div class="dash-card">
+      <div class="dash-card-title">Product Mix</div>
+      <div class="dash-type-row">
+        ${Object.entries(typeMap).filter(([k,v])=>v.vol>0).map(([t,v])=>{
+          const pct=totalVol>0?(v.vol/totalVol*100):0;
+          return`<div class="dash-type-item">
+            <div style="font-size:16px">${v.icon}</div>
+            <div class="dash-type-label">${t}</div>
+            <div class="dash-type-bar-track">
+              <div class="dash-type-bar-fill" style="width:${pct.toFixed(1)}%;background:${v.color};box-shadow:0 0 8px ${v.glow}"></div>
+            </div>
+            <div class="dash-type-val" style="color:${v.color}">${(v.vol/1000).toFixed(1)}k</div>
+          </div>`;
+        }).join('')}
+      </div>
+      <!-- P1 vs P2 split -->
+      <div class="dash-unit-split">
+        <div class="dash-unit-block">
+          <div style="font-size:9px;color:#1d4ed8;font-weight:900;letter-spacing:.1em;margin-bottom:4px">P1</div>
+          <div style="font-size:18px;font-weight:900;color:#f1f5f9">${(p1Vol/1000).toFixed(1)}<span style="font-size:10px;color:#475569"> kL</span></div>
+        </div>
+        <div class="dash-unit-block">
+          <div style="font-size:9px;color:#7c3aed;font-weight:900;letter-spacing:.1em;margin-bottom:4px">P2</div>
+          <div style="font-size:18px;font-weight:900;color:#f1f5f9">${(p2Vol/1000).toFixed(1)}<span style="font-size:10px;color:#475569"> kL</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top Mix -->
+  <div class="dash-card">
+    <div class="dash-card-title">Top Performing Mix Codes</div>
+    ${topMix.map(([code,v],i)=>`
+    <div class="dash-mix-row" style="animation:dashFadeUp ${.3+i*.07}s ease both">
+      <div style="font-size:11px;color:#334155;width:18px;font-weight:900">${i+1}</div>
+      <div style="font-size:12px;font-weight:900;color:#38bdf8;min-width:80px">${code}</div>
+      <div style="flex:1;font-size:11px;color:#64748b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${v.name}</div>
+      <div style="width:120px;height:5px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden;margin:0 12px">
+        <div style="height:100%;border-radius:3px;background:linear-gradient(90deg,#38bdf8,#a78bfa);width:${(v.vol/maxMx*100).toFixed(0)}%;transition:width .6s ease"></div>
+      </div>
+      <div style="font-size:12px;font-weight:900;color:#f1f5f9;min-width:72px;text-align:right">${v.vol.toLocaleString()} L</div>
+      <div style="font-size:10px;color:#475569;min-width:44px;text-align:right">${v.batch} btch</div>
+    </div>`).join('')}
+  </div>
+
+  <!-- Footer -->
+  <div style="margin-top:20px;display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:rgba(255,255,255,.02);border-radius:10px;border:1px solid rgba(255,255,255,.04)">
+    <div style="font-size:9px;color:#334155;letter-spacing:.1em"><span class="dash-live-dot"></span>PROD.SYS · PASTEURIZE ANALYTICS</div>
+    <div style="font-size:9px;color:#334155">Updated: ${new Date().toLocaleTimeString('th-TH')} · ${rows.length} records · ${fromDate} → ${todayStr}</div>
+  </div>
+</div>`;
+  }catch(e){
+    el.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;height:200px"><div style="font-family:'DM Mono',monospace;color:#f87171;font-size:12px">❌ ${e.message}</div></div>`;
+    console.error('loadDashboard error:',e);
+  }
+};
 </script>
 </body>
 </html>
