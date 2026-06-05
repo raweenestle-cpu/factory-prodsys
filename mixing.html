@@ -1026,7 +1026,7 @@ function renderMixTanks(m, rowsArg){
         <div class="tv3-hi">
           <div class="tv3-code">${row.mix_code||'—'} · PROCESS ${row.process_order||'—'}</div>
           <div class="tv3-name">${row.mix_name||'—'}</div>
-          <div class="tv3-meta">Batch ${row.batch_no||'—'} &nbsp;·&nbsp; <span style="font-size:18px;font-weight:900;color:#111827">${displayVol(row)}</span></div>
+          <div class="tv3-meta">Batch ${row.batch_no||'—'} &nbsp;·&nbsp; <span style="font-size:18px;font-weight:900;color:#111827">${displayVol(row)}</span>${row.final_volume?'&nbsp;·&nbsp;<span style="font-family:var(--mono);font-size:13px;font-weight:900;color:#0891b2">🧪 Final: '+(+(row.final_volume)).toLocaleString()+' L</span>':''}</div>
           ${(()=>{const _at=row.aging_tank||'';const _as=_at&&window._agingStates?window._agingStates[_at]||{}:{};return _at?(expireBox(_as.expire_at||null)+tempBox(_as)):'';})()}
         </div>
         <div class="tv3-st"><span class="badge ${stInfo.cls}">${stInfo.lbl}</span></div>
