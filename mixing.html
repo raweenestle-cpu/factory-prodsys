@@ -656,6 +656,17 @@ function buildFlowSteps(row){
   if(plmKg>0){var d=+(row.plm_actual||0)>0;s.push({id:'plm',ico:'\uD83C\uDF34',name:'Palm Oil',kg:plmKg+' kg',done:d,active:p&&!d,btn:false,skip:false,pwd:false,isIngr:true,actField:'plm_actual',actVal:row.plm_actual||''});p=p&&d;}
   else if(oilKg>0){var d=+(row.oil_mix_actual||0)>0;s.push({id:'oil',ico:'\uD83D\uDEE2\uFE0F',name:'Oil Mix',kg:oilKg+' kg',done:d,active:p&&!d,btn:false,skip:false,pwd:false,isIngr:true,actField:'oil_mix_actual',actVal:row.oil_mix_actual||''});p=p&&d;}
   else if(fatKg>0){var d=+(row.fat_milk_actual||0)>0;s.push({id:'fat',ico:'\uD83E\uDD5B',name:'Fat Milk',kg:fatKg+' kg',done:d,active:p&&!d,btn:false,skip:false,pwd:false,isIngr:true,actField:'fat_milk_actual',actVal:row.fat_milk_actual||''});p=p&&d;}
+  // ── Salt (เฉพาะถ้า has_salt = true ใน product master) ──
+  var _prod=productMap[row.mix_code||'']||{};
+  if(!!_prod.has_salt){
+    var saltDone=!!row.salt_confirmed;
+    s.push({id:'salt',ico:'\uD83E\uDDC2',name:'Salt',kg:'',done:saltDone,active:p&&!saltDone,btn:true,skip:false,pwd:false});
+    p=p&&saltDone;
+  }
+  // ── Final Volume ──
+  var fvDone=!!(row.final_volume&&+(row.final_volume)>0);
+  s.push({id:'fvol',ico:'\uD83E\uDDEA',name:'Final Vol.',kg:fvDone?(+(row.final_volume)).toLocaleString()+' L':'',done:fvDone,active:p&&!fvDone,btn:false,skip:false,pwd:false,isInput:true,actField:'final_volume',actVal:row.final_volume||''});
+  p=p&&fvDone;
   // 7
   s.push({id:'done',ico:'\u2705',name:'\u0E1C\u0E2A\u0E21\u0E40\u0E2A\u0E23\u0E47\u0E08',kg:'',done:!!row.mix_end_time,active:p&&!row.mix_end_time,btn:false,skip:false,pwd:false});
   return s;
@@ -670,9 +681,17 @@ function renderFlowBar(row,pcol,rid){
     var fc=isDone?'#15803d':isActive?(st.pwd?'#c2410c':'#1d4ed8'):'#6b7280';
     var btnH='';
     if(st.btn&&isActive){
-      var bg=st.pwd?'#c2410c':'#1d4ed8';
-      var lbl=st.pwd?'\u2705 Powder':'\u2705 Rework';
-      btnH='<button class="fbtn" style="background:'+bg+'" onclick="window._cfm(\'' +pcol+ '\'\,' +'\'' +rid+ '\'\,' +'\'' +st.id+ '\')">'+lbl+'</button>';
+      if(st.id==='salt'){
+        btnH='<button class="fbtn" style="background:#0891b2" onclick="window._cfm(\''+pcol+'\',\''+rid+'\',\'salt\')">🧂 Salt OK</button>';
+      } else {
+        var bg=st.pwd?'#c2410c':'#1d4ed8';
+        var lbl=st.pwd?'\u2705 Powder':'\u2705 Rework';
+        btnH='<button class="fbtn" style="background:'+bg+'" onclick="window._cfm(\'' +pcol+ '\'\,' +'\'' +rid+ '\'\,' +'\'' +st.id+ '\')">'+lbl+'</button>';
+      }
+    }
+    // Final Volume — input box
+    if(st.id==='fvol'&&isActive){
+      btnH='<div style="display:flex;gap:4px;margin-top:4px"><input id="fvol-'+rid+'" type="number" min="0" step="1" placeholder="ลิตร" style="width:56px;font-family:var(--mono);font-size:11px;padding:3px 6px;border:1.5px solid #1d4ed8;border-radius:6px;outline:none" value="'+(st.actVal||'')+'"><button class="fbtn" style="background:#1d4ed8;padding:4px 8px" onclick="window._setFinalVol(\''+pcol+'\',\''+rid+'\')">OK</button></div>';
     }
     html+='<div class="sw"><div class="stepc" style="width:80px"><div class="fsc '+cls+'"><div class="fic">'+st.ico+'</div></div><div class="snm" style="color:'+fc+'">'+st.name+'</div><div class="skg" style="color:'+fc+'">'+(isSkip?'':st.kg)+'</div>'+btnH+'</div>'+(i<steps.length-1?'<div class="fconn'+(isDone?' done':'')+'"></div>':'')+'</div>';
   });
@@ -723,6 +742,24 @@ window._cfm=async function(pcol,rid,field){
   var upd={updated_at:new Date().toISOString()};
   if(field==='rw') upd.rw_confirmed=true;
   if(field==='pwd') upd.pwd_confirmed=true;
+  if(field==='salt'){
+    upd.salt_confirmed=true;
+    var sig=sessionStorage.getItem('emp_sig')||'';
+    var name=sessionStorage.getItem('emp_name')||'';
+    if(sig){upd.salt_sig=sig;upd.salt_sig_name=name;}
+  }
+  try{await updateDoc(doc(db,pcol,rid),upd);}catch(e){console.warn(e);}
+};
+
+window._setFinalVol=async function(pcol,rid){
+  var el=document.getElementById('fvol-'+rid);
+  if(!el)return;
+  var val=+(el.value||0);
+  if(!val||val<=0){alert('กรุณากรอกปริมาตรให้ถูกต้อง');return;}
+  var sig=sessionStorage.getItem('emp_sig')||'';
+  var name=sessionStorage.getItem('emp_name')||'';
+  var upd={final_volume:val,updated_at:new Date().toISOString()};
+  if(sig){upd.final_volume_sig=sig;upd.final_volume_sig_name=name;}
   try{await updateDoc(doc(db,pcol,rid),upd);}catch(e){console.warn(e);}
 };
 
