@@ -445,6 +445,7 @@ function makeTankCard(tankId){
     +tempHtml;
 
   div.innerHTML=header+body+footer;
+  div.onclick=()=>openModal(tankId);
   return div;
 }
 
