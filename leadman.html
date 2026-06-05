@@ -542,6 +542,11 @@ function calcFillETA(row){
 }
 // Auto assign — จับคู่ batch กับ line
 let autoMode=false;
+window.mixCodeEnter=function(el){
+  var all=document.querySelectorAll('input[list^="mixcode-list-"]');
+  var i=Array.from(all).indexOf(el);
+  if(i>=0&&all[i+1])all[i+1].focus();
+};
 window.toggleAutoMode=function(el){
   autoMode=el.checked;
   if(autoMode) runAutoAssign();
@@ -1138,7 +1143,7 @@ function renderPlan(m){
     tr.innerHTML=`
       <td><div class="dh" draggable="true">⠿</div></td>
       <td><span class="cr">${i+1}</span></td>
-      <td><input class="ci" list="mixcode-list-${m}" style="width:110px;font-family:var(--mono);font-size:12px" value="${row.mix_code||''}" placeholder="พิมพ์หรือเลือก" onchange="_up('${col}','${row.id}','mix_code',this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();const _all=document.querySelectorAll('input[list^=\"mixcode-list-\"]');const _i=Array.from(_all).indexOf(this);if(_i>=0&&_all[_i+1])_all[_i+1].focus();}"></td>
+      <td><input class="ci" list="mixcode-list-${m}" style="width:110px;font-family:var(--mono);font-size:12px" value="${row.mix_code||''}" placeholder="พิมพ์หรือเลือก" onchange="_up('${col}','${row.id}','mix_code',this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();mixCodeEnter(this);}"></td>
       <td><input class="ci" style="width:90px;text-align:center;font-family:var(--mono);font-size:13px;font-weight:700;color:var(--cyan)" value="${row.process_order||''}" placeholder="—" onchange="_up('${col}','${row.id}','process_order',this.value)"></td>
       <td><span class="ca" style="min-width:110px">${row.mix_name||"—"}</span></td>
       <td><input class="ci" style="width:66px" value="${row.batch_no||""}" placeholder="B001" onchange="_up('${col}','${row.id}','batch_no',this.value)"></td>
