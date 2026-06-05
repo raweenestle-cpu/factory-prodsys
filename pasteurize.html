@@ -872,7 +872,7 @@ function buildStepHtml(st, i, stepsLen, pcol, rid, row){
       return '';
     })();
     nodeHtml = _svgAg
-      ? `<div class="tv3-step" style="width:130px">${_svgAg}<div class="tv3-sn ${snCls}" style="margin-top:4px">${_agId||st.name}</div><div class="tv3-sv ${svCls}">${_v>0?Math.round(_v).toLocaleString()+' L':st.kg}</div>${_agStatusHtml}${_expHtml}${_tempHtml}</div>`
+      ? `<div class="tv3-step" style="width:130px">${_svgAg}<div class="tv3-sn ${snCls}" style="margin-top:4px">Aging Tank</div><div class="tv3-sv ${svCls}">${_agId||(_v>0?Math.round(_v).toLocaleString()+' L':st.kg)}</div>${_agStatusHtml}${_expHtml}${_tempHtml}</div>`
       : `<div class="tv3-step"><div class="tv3-circle ${cls}"><span style="font-size:28px">${st.ico}</span></div><div class="tv3-sn ${snCls}">${st.name}</div><div class="tv3-sv ${svCls}">${st.kg}</div></div>`;
   } else {
     const ccpStyle = st.isCCP&&st.autoDone ? 'background:#d1fae5;border-color:#10b981;border-width:3px' : '';
@@ -1547,43 +1547,6 @@ window.stampTime=async(col,id,field,p)=>{
         const _minAgo=(()=>{const _tp=_earliest.mix_end_time.split(':').map(Number);const _np=_thisMixEnd.split(':').map(Number);return Math.round(((_np[0]||0)*60+(_np[1]||0)-((_tp[0]||0)*60+(_tp[1]||0))));})();
         const _ok=window.confirm(`⚠️ ข้ามลำดับการ Pasteurise!\n\nมี batch ที่ผสมเสร็จก่อนหน้านี้ยังรอ Past อยู่:\n📦 ${_earliest.mixing_tank||'—'} · ${_earliest.mix_name||_earliest.mix_code||'—'}\n⏰ Mixing เสร็จ: ${_earliest.mix_end_time} (${_minAgo} นาทีก่อน)\n\nคุณกำลัง Start: ${_thisRow.mixing_tank||'—'} · ${_thisRow.mix_name||_thisRow.mix_code||'—'}\n⏰ Mixing เสร็จ: ${_thisMixEnd}\n\nยืนยันที่จะ Past ข้ามลำดับไหม?`);
         if(!_ok)return;
-      }
-    }
-    // ── เช็คสถานะ aging tank ก่อน stamp ──
-    const _allRows2=[...(rows['p1']||[]),...(rows['p2']||[])];
-    if(_thisRow&&_thisRow.aging_tank){
-      const _tid=_thisRow.aging_tank;
-      const _ts=window._agingStates?.[_tid]||{};
-      const _tst=_ts.status||'empty';
-      // continuous past — ถ้ามี batch อื่นกำลัง past อยู่ในถังเดียวกัน → กดได้เลย
-      const _isCont=_allRows2.some(r=>
-        r.id!==id&&r.aging_tank===_tid&&
-        r.status==='pasteurising'&&!!r.past_start_time&&!r.past_end_time
-      );
-      if(!_isCont){
-        if(_tst==='cip'){
-          toast(`🔴 ถัง ${_tid} ยัง CIP อยู่ — ยังไม่สามารถ Past ได้`,'red');
-          return;
-        }
-        if(_tst==='san'){
-          toast(`🔴 ถัง ${_tid} ยัง Sanitize อยู่ — ยังไม่สามารถ Past ได้`,'red');
-          return;
-        }
-        if(_tst==='san_done'&&_ts.san_stop_time){
-          const _sp2=_ts.san_stop_time.split(':').map(Number);
-          const _now2=new Date();
-          const _ns2=_now2.getHours()*3600+_now2.getMinutes()*60+_now2.getSeconds();
-          const _ss2=(_sp2[0]||0)*3600+(_sp2[1]||0)*60+(_sp2[2]||0);
-          let _diff2=_ns2-_ss2;if(_diff2<0)_diff2+=86400;
-          const _wait2=20*60;
-          if(_diff2<_wait2){
-            const _rem2=Math.ceil((_wait2-_diff2)/60);
-            const _canForce=window.confirm(
-              `⚠️ ถัง ${_tid} Sanitize เสร็จแล้ว แต่รอไม่ครบ 20 นาที\nเหลืออีก ${_rem2} นาที\n\nยืนยันที่จะ Past ก่อนครบเวลาไหม?`
-            );
-            if(!_canForce)return;
-          }
-        }
       }
     }
     // คำนวณ expected_finish_time ทันที
