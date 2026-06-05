@@ -63,6 +63,9 @@
 @keyframes glow-g{0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,.6)}50%{box-shadow:0 0 0 10px rgba(16,185,129,0)}}
 @keyframes glow-p{0%,100%{box-shadow:0 0 0 0 rgba(139,92,246,.6)}50%{box-shadow:0 0 0 10px rgba(139,92,246,0)}}
 @keyframes mixingPulse{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,.6)}50%{box-shadow:0 0 0 8px rgba(245,158,11,0)}}
+@keyframes blinkRed{0%,100%{opacity:1}50%{opacity:.25}}
+@keyframes blinkYellow{0%,100%{opacity:1}50%{opacity:.25}}
+@keyframes blinkPurple{0%,100%{opacity:1}50%{opacity:.25}}
 @keyframes tv3gy{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,.7),0 0 0 0 rgba(245,158,11,.3)}50%{box-shadow:0 0 0 8px rgba(245,158,11,.2),0 0 0 16px rgba(245,158,11,0)}}
 @keyframes tv3go{0%,100%{box-shadow:0 0 0 0 rgba(234,88,12,.7),0 0 0 0 rgba(234,88,12,.3)}50%{box-shadow:0 0 0 8px rgba(234,88,12,.2),0 0 0 16px rgba(234,88,12,0)}}
 @keyframes tv3gb{0%,100%{box-shadow:0 0 0 0 rgba(37,99,235,.7),0 0 0 0 rgba(37,99,235,.3)}50%{box-shadow:0 0 0 8px rgba(37,99,235,.2),0 0 0 16px rgba(37,99,235,0)}}
@@ -843,8 +846,33 @@ function buildStepHtml(st, i, stepsLen, pcol, rid, row){
     const _svgAg = (()=>{try{return _agId&&window.cipTankSVG?window.cipTankSVG(_agId,_p,_col,_agSt.status==='pasteurising',null,null,120,220):'';} catch(e){return '';}})();
     const _expHtml = expireBox(_agSt.expire_at||null);
     const _tempHtml = tempBox(_agSt);
+    // ── status badge กระพริบ ──
+    const _tst = _agSt.status||'';
+    const _agStatusHtml = (()=>{
+      if(!_agId) return '';
+      if(_tst==='cip') return `<div style="margin-top:4px;padding:2px 8px;border-radius:6px;background:rgba(239,68,68,.12);border:1.5px solid #ef4444;font-family:var(--mono);font-size:10px;font-weight:900;color:#b91c1c;animation:blinkRed .8s step-start infinite;text-align:center">🔴 CIP อยู่</div>`;
+      if(_tst==='san') return `<div style="margin-top:4px;padding:2px 8px;border-radius:6px;background:rgba(139,92,246,.12);border:1.5px solid #8b5cf6;font-family:var(--mono);font-size:10px;font-weight:900;color:#6d28d9;animation:blinkPurple 1s step-start infinite;text-align:center">🟣 San อยู่</div>`;
+      if(_tst==='san_done'){
+        const _sp=(_agSt.san_stop_time||'').split(':').map(Number);
+        if(_sp.length>=2){
+          const _now=new Date();
+          const _ns=_now.getHours()*3600+_now.getMinutes()*60+_now.getSeconds();
+          const _ss=(_sp[0]||0)*3600+(_sp[1]||0)*60+(_sp[2]||0);
+          let _diff=_ns-_ss;if(_diff<0)_diff+=86400;
+          const _wait=20*60;
+          if(_diff<_wait){
+            const _rem=Math.ceil((_wait-_diff)/60);
+            return `<div style="margin-top:4px;padding:2px 8px;border-radius:6px;background:rgba(234,179,8,.12);border:1.5px solid #eab308;font-family:var(--mono);font-size:10px;font-weight:900;color:#b45309;animation:blinkYellow 1s step-start infinite;text-align:center">🟡 รออีก ${_rem} น.</div>`;
+          }
+        }
+        return `<div style="margin-top:4px;padding:2px 8px;border-radius:6px;background:rgba(34,197,94,.12);border:1.5px solid #22c55e;font-family:var(--mono);font-size:10px;font-weight:900;color:#15803d;text-align:center">✅ พร้อม Past</div>`;
+      }
+      if(_tst==='empty') return `<div style="margin-top:4px;padding:2px 8px;border-radius:6px;background:rgba(100,116,139,.08);border:1.5px solid #94a3b8;font-family:var(--mono);font-size:10px;color:#475569;text-align:center">⬜ ว่าง</div>`;
+      if(_tst==='pasteurising') return `<div style="margin-top:4px;padding:2px 8px;border-radius:6px;background:rgba(234,88,12,.12);border:1.5px solid #ea580c;font-family:var(--mono);font-size:10px;font-weight:900;color:#c2410c;text-align:center">🔥 Pasteurising</div>`;
+      return '';
+    })();
     nodeHtml = _svgAg
-      ? `<div class="tv3-step" style="width:130px">${_svgAg}<div class="tv3-sn ${snCls}" style="margin-top:4px">${_agId||st.name}</div><div class="tv3-sv ${svCls}">${_v>0?Math.round(_v).toLocaleString()+' L':st.kg}</div>${_expHtml}${_tempHtml}</div>`
+      ? `<div class="tv3-step" style="width:130px">${_svgAg}<div class="tv3-sn ${snCls}" style="margin-top:4px">${_agId||st.name}</div><div class="tv3-sv ${svCls}">${_v>0?Math.round(_v).toLocaleString()+' L':st.kg}</div>${_agStatusHtml}${_expHtml}${_tempHtml}</div>`
       : `<div class="tv3-step"><div class="tv3-circle ${cls}"><span style="font-size:28px">${st.ico}</span></div><div class="tv3-sn ${snCls}">${st.name}</div><div class="tv3-sv ${svCls}">${st.kg}</div></div>`;
   } else {
     const ccpStyle = st.isCCP&&st.autoDone ? 'background:#d1fae5;border-color:#10b981;border-width:3px' : '';
