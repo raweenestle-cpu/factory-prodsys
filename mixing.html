@@ -869,10 +869,22 @@ function renderMixTanks(m, rowsArg){
     } else if(st.isIngr&&isDone){
       // ingredient done — แสดงค่า actual
       btnH=`<div style="font-family:var(--mono);font-size:11px;font-weight:900;color:#059669">${st.actVal} kg</div>`;
+    } else if(st.id==='salt'&&st.btn&&isActive){
+      btnH=`<button class="tv3-fbtn" style="background:#0891b2" onclick="window._cfm('${pcol}','${rid}','salt')">🧂 Salt OK</button>`;
     } else if(st.btn&&isActive){
       const bg=st.pwd?'pwr':'rw';
       const lbl=st.pwd?'✅ Powder':'✅ Rework';
       btnH=`<button class="tv3-fbtn ${bg}" onclick="window._cfm('${pcol}','${rid}','${st.id}')">${lbl}</button>`;
+    } else if(st.id==='fvol'&&isActive){
+      btnH=`<div style="display:flex;flex-direction:column;align-items:center;gap:3px;margin-top:3px">
+        <input id="fvol-${rid}" type="number" min="0" step="1" placeholder="ลิตร"
+          style="width:72px;font-family:var(--mono);font-size:11px;font-weight:900;padding:3px 6px;border:2px solid #0891b2;border-radius:6px;text-align:center;background:#fff;color:#111827"
+          value="${st.actVal||''}"
+          onkeydown="if(event.key==='Enter')window._setFinalVol('${pcol}','${rid}')">
+        <button class="tv3-fbtn" style="background:#0891b2" onclick="window._setFinalVol('${pcol}','${rid}')">✅ OK</button>
+      </div>`;
+    } else if(st.id==='fvol'&&isDone){
+      btnH=`<div style="font-family:var(--mono);font-size:11px;font-weight:900;color:#0891b2">${(+(st.actVal)).toLocaleString()} L</div>`;
     }
     let sv2='';
     if(st.id==='rw'&&isDone&&st.tanks) sv2=`<div class="tv3-sv2">${st.tanks} ถัง</div>`;
