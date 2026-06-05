@@ -404,8 +404,7 @@ let ME=null, productMap={};
 window._agingStates={};
 onSnapshot(collection(db,'aging_tank_states'),snap=>{
   snap.docs.forEach(d=>{window._agingStates[d.id]={id:d.id,...d.data()};});
-  // re-render เมื่อ aging data เปลี่ยน
-  ['m1','m2'].forEach(m=>renderTanks(m));
+  ['m1','m2'].forEach(m=>renderMixTanks(m, rowsData[m]||[]));
 });
 
 let rowsData={m1:[],m2:[]};
