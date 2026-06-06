@@ -395,11 +395,16 @@ body { font-family: var(--sans); background: var(--bg); color: var(--text); min-
 
     <div class="f-row f-row-2">
       <div>
-        <label class="f-lbl">เวลาที่เกิดขึ้น *</label>
+        <label class="f-lbl">เวลาเริ่ม *</label>
         <input class="f-input" type="time" id="f-time">
       </div>
       <div>
-        <label class="f-lbl">สถานะ</label>
+        <label class="f-lbl">เวลาจบ (ไม่บังคับ)</label>
+        <input class="f-input" type="time" id="f-time-end" placeholder="—">
+      </div>
+    </div>
+    <div class="f-row">
+      <label class="f-lbl">สถานะ</label>
         <select class="f-select" id="f-status">
           <option value="normal">🔵 ปกติ — ทำตามขั้นตอน</option>
           <option value="ok">🟢 สำเร็จ — ผ่าน / เสร็จแล้ว</option>
@@ -569,7 +574,14 @@ function render() {
     evs.forEach(ev => {
       const x = timeToX(ev.time);
       if (x===null) return;
-      const w = Math.max(COL_W, Math.min((ev.title.length*7.5)+60, COL_W*4));
+      // width จาก time_end ถ้ามี ไม่งั้นใช้ title length
+      let w;
+      if (ev.time_end) {
+        const ms = parseTime(ev.time); const me = parseTime(ev.time_end);
+        if (ms!==null && me!==null && me>ms) {
+          w = Math.max(44, ((me-ms)/STEP)*COL_W);
+        } else { w = Math.max(COL_W, Math.min((ev.title.length*7.5)+60, COL_W*4)); }
+      } else { w = Math.max(COL_W, Math.min((ev.title.length*7.5)+60, COL_W*4)); }
 
       const bar = document.createElement('div');
       bar.className = 'ev-bar st-'+ev.status;
@@ -589,10 +601,11 @@ function render() {
         bar.appendChild(thumbRow);
       }
 
+      const timeStr = ev.time_end ? ev.time+'–'+ev.time_end : ev.time;
       bar.innerHTML +=
         '<div class="ev-dot"></div>'+
         '<div class="ev-label">'+esc(ev.title)+'</div>'+
-        '<div class="ev-time">'+ev.time+'</div>';
+        '<div class="ev-time">'+timeStr+'</div>';
       bar.addEventListener('click', ()=>openDetail(ev));
       evLayer.appendChild(bar);
     });
@@ -628,7 +641,10 @@ function openDetail(ev) {
   const sc = SC[ev.status]||SC.normal;
   document.getElementById('dp-title').textContent = ev.title;
   let html = '';
-  html += '<div class="dp-row"><div class="dp-lbl">เวลา</div><div class="dp-val" style="font-family:var(--mono)">'+ev.time+'</div></div>';
+  const dpTime = ev.time_end ? ev.time+' – '+ev.time_end : ev.time;
+  const dpDur  = (ev.time_end && parseTime(ev.time_end)>parseTime(ev.time))
+    ? ' <span style="color:var(--text-muted);font-size:11px">('+( parseTime(ev.time_end)-parseTime(ev.time) )+' นาที)</span>' : '';
+  html += '<div class="dp-row"><div class="dp-lbl">เวลา</div><div class="dp-val" style="font-family:var(--mono)">'+dpTime+dpDur+'</div></div>';
   html += '<div class="dp-row"><div class="dp-lbl">สถานะ</div><div class="dp-val"><span class="dp-badge" style="background:'+sc.bg+';color:'+sc.color+';border:1px solid '+sc.border+'">'+sc.lbl+'</span></div></div>';
   if (ev.reason) html += '<div class="dp-row"><div class="dp-lbl">หมายเหตุ</div><div class="dp-val">'+esc(ev.reason)+'</div></div>';
   if (ev.images&&ev.images.length>0) html += '<div class="dp-imgs">'+ev.images.map(img=>'<img class="dp-img" src="'+img.src+'" onclick="openLb(\''+img.src+'\')">').join('')+'</div>';
@@ -650,6 +666,7 @@ function openModal() {
   modalImgs=[];
   document.getElementById('f-title').value='';
   document.getElementById('f-time').value=nowTime();
+  document.getElementById('f-time-end').value='';
   document.getElementById('f-status').value='normal';
   document.getElementById('f-reason').value='';
   document.getElementById('img-previews').innerHTML='';
@@ -694,6 +711,7 @@ function submitEvent() {
   events.push({
     id:genId(), title,
     time:document.getElementById('f-time').value||nowTime(),
+    time_end:document.getElementById('f-time-end').value||'',
     status:document.getElementById('f-status').value,
     reason:document.getElementById('f-reason').value.trim(),
     images:[...modalImgs],
