@@ -597,7 +597,8 @@ function renderTemp(){
         const key=(d+'_'+t.replace(':','')).replace(/-/g,'');
         const rawVal=tank.temps&&tank.temps[key]!=null?tank.temps[key]:'';
         const filled=rawVal!=='';
-        const _tankPt=(window._pmMap&&tank.mix_code&&window._pmMap[tank.mix_code])||tank.product_type||'';
+        const _mc=tank.mix_code||tank.next_mix_code||tank.last_mix_code||'';
+        const _tankPt=(window._pmMap&&_mc&&window._pmMap[_mc])||tank.product_type||'';
         const isHot=filled&&(_tankPt==='Jelly'?(+rawVal<38||+rawVal>42):(+rawVal<0||+rawVal>4));
         const bg=isHot?'background:#fee2e2':isN?'background:rgba(29,78,216,.04)':'';
         const bdr=isHot?'#ef4444':filled?'#15803d':'#d1d5db';
@@ -663,7 +664,8 @@ window.setTempVal=async function(tid,key,val){
   var newTemp=+val;
   var ts=tankStates[tid]||{};
   // ── เช็ค range อุณหภูมิตาม product_type ──
-  var _pt=(window._pmMap&&ts.mix_code&&window._pmMap[ts.mix_code])||ts.product_type||'';
+  var _mc2=ts.mix_code||ts.next_mix_code||ts.last_mix_code||'';
+  var _pt=(window._pmMap&&_mc2&&window._pmMap[_mc2])||ts.product_type||'';
   var _inRange=true;
   var _rangeMsg='';
   if(_pt==='Jelly'){
