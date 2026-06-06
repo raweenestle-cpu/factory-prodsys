@@ -611,7 +611,7 @@ setInterval(async()=>{
         if(_li>=0){rows[p][_li]={...rows[p][_li],status:'past_done',past_end_time:endTime,current_vol:finalCumVol};window._rows[p]=rows[p];}
         if(agRow.aging_tank){
           if(hasNext){await setDoc(doc(db,'aging_tank_states',agRow.aging_tank),{current_vol:finalCumVol,updated_at:new Date().toISOString()},{merge:true});}
-          else{await setDoc(doc(db,'aging_tank_states',agRow.aging_tank),{current_vol:0,mix_code:'',mix_name:'',batch_no:'',process_order:'',status:'empty',past_end_time:null,updated_at:new Date().toISOString()},{merge:false});}
+          else{await setDoc(doc(db,'aging_tank_states',agRow.aging_tank),{current_vol:finalCumVol,status:'aging',past_end_time:endTime,updated_at:new Date().toISOString()},{merge:true});}
         }
         await addDoc(collection(db,'past_history'),{...agRow,past_end_time:endTime,eff:100,status:'past_done',current_vol:finalCumVol,archived_at:nowHHMM(),archived_date:today(),mixing_unit:p});
         await deleteDoc(doc(db,planCol(p),agRow.id));
