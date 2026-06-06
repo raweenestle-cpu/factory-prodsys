@@ -597,12 +597,13 @@ function renderTemp(){
         const key=(d+'_'+t.replace(':','')).replace(/-/g,'');
         const rawVal=tank.temps&&tank.temps[key]!=null?tank.temps[key]:'';
         const filled=rawVal!=='';
-        const isHot=filled&&+rawVal>5;
+        const _tankPt=tank.product_type||(window._pmMap&&tank.mix_code&&window._pmMap[tank.mix_code])||'';
+        const isHot=filled&&(_tankPt==='Jelly'?(+rawVal<38||+rawVal>42):(+rawVal<0||+rawVal>4));
         const bg=isHot?'background:#fee2e2':isN?'background:rgba(29,78,216,.04)':'';
         const bdr=isHot?'#ef4444':filled?'#15803d':'#d1d5db';
         const inputBg=isHot?'#fee2e2':filled?'#f0fdf4':'#fff';
         if(isPast){
-          row.push('<td style="padding:2px;text-align:center;'+bg+'"><input type="number" min="0" max="10" step="1"'+(filled?' value="'+rawVal+'"':'')+' data-tid="'+tank.id+'" data-key="'+key+'" style="width:40px;text-align:center;font-family:var(--mono);font-size:13px;font-weight:700;border:1px solid '+bdr+';border-radius:4px;padding:2px 1px;background:'+inputBg+';" onchange="window.setTempVal(this.dataset.tid,this.dataset.key,this.value)"></td>');
+          row.push('<td style="padding:2px;text-align:center;'+bg+'"><input type="number" min="0" max="50" step="0.1"'+(filled?' value="'+rawVal+'"':'')+' data-tid="'+tank.id+'" data-key="'+key+'" style="width:40px;text-align:center;font-family:var(--mono);font-size:13px;font-weight:700;border:1px solid '+bdr+';border-radius:4px;padding:2px 1px;background:'+inputBg+';" onchange="window.setTempVal(this.dataset.tid,this.dataset.key,this.value)"></td>');
         } else {
           row.push('<td style="padding:2px;text-align:center"><span style="color:var(--b1);font-size:11px">—</span></td>');
         }
@@ -661,6 +662,22 @@ window.setTempVal=async function(tid,key,val){
   if(val===''||val===null||val===undefined||isNaN(+val))return;
   var newTemp=+val;
   var ts=tankStates[tid]||{};
+  // ── เช็ค range อุณหภูมิตาม product_type ──
+  var _pt=ts.product_type||(window._pmMap&&ts.mix_code&&window._pmMap[ts.mix_code])||'';
+  var _inRange=true;
+  var _rangeMsg='';
+  if(_pt==='Jelly'){
+    if(newTemp<38||newTemp>42){_inRange=false;_rangeMsg='⚠️ อุณหภูมิ Jelly ควรอยู่ที่ 38-42°C (ค่าที่กรอก: '+newTemp+'°C)';}
+  } else {
+    // Ice Cream, Water Ice และอื่นๆ
+    if(newTemp<0||newTemp>4){_inRange=false;_rangeMsg='⚠️ อุณหภูมิควรอยู่ที่ 0-4°C (ค่าที่กรอก: '+newTemp+'°C)';}
+  }
+  if(!_inRange){
+    toast(_rangeMsg,'red');
+    if(!window.confirm(_rangeMsg+'
+
+ยืนยันบันทึกต่อไหม?'))return;
+  }
   try{
     // ใช้ object ซ้อน temps แทน dot-notation เพราะ key มี - และตัวเลข
     var tempsUpdate={};
