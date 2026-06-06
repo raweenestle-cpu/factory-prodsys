@@ -143,6 +143,9 @@ nav{position:sticky;top:0;z-index:100;background:rgba(7,9,15,.95);border-bottom:
 .tc-vol-pct{font-family:var(--mono);font-size:16px;font-weight:800;margin-top:2px}
 .tc-info{padding:6px 12px 10px;border-top:1px solid var(--s2);margin-top:6px}
 .tc-st{font-family:var(--mono);font-size:11px;font-weight:900;padding:4px 12px;border-radius:20px;text-align:center;margin:6px 12px 0}
+
+.tc.pasteurising{border-color:#3b82f6!important;box-shadow:0 0 0 3px rgba(59,130,246,.18),0 4px 16px rgba(59,130,246,.12)!important;animation:agPastPulse 1.6s ease-in-out infinite}
+@keyframes agPastPulse{0%,100%{box-shadow:0 0 0 3px rgba(59,130,246,.18),0 4px 16px rgba(59,130,246,.1)}50%{box-shadow:0 0 0 8px rgba(59,130,246,.28),0 4px 20px rgba(59,130,246,.2)}}
 </style>
 </head>
 <body>
@@ -409,8 +412,8 @@ function makeTankCard(tankId){
   const cap=getTankCapacity(tankId);
   const pct=cap>0?Math.min(100,(currentVol/cap)*100):0;
   const pctC=pct>50?'#15803d':pct>20?'#b45309':'#b91c1c';
-  const stMap={empty:'○ ว่าง',pending:'⏳ รอ',aging:'🌡️ บ่ม',past_done:'✅ Past Done',filling:'🔵 Filling',cip:'🟣 CIP',ready:'✅ พร้อม'};
-  const stColor=status==='empty'?'#6b7280':status==='aging'?'#0e7490':status==='past_done'?'#15803d':status==='filling'?'#ea580c':'#374151';
+  const stMap={empty:'○ ว่าง',pending:'⏳ รอ',pasteurising:'⏳ รอ Pasteurize',past_done:'✅ Past Done',aging:'🌡️ บ่ม',filling:'🔵 Filling',cip:'🟣 CIP',ready:'✅ พร้อม'};
+  const stColor=status==='empty'?'#6b7280':status==='pasteurising'?'#2563eb':status==='aging'?'#0e7490':status==='past_done'?'#15803d':status==='filling'?'#ea580c':'#374151';
   const stLabel=stMap[status]||status;
   const yr=new Date().getFullYear().toString().slice(-2);
   const prodCode=ts.prod_code||(ts.prod_suffix?(''+yr+'0522'+(ts._col==='production_plans_m2'?'2':'1')+ts.prod_suffix):null);
@@ -421,7 +424,7 @@ function makeTankCard(tankId){
   const svgHtml=typeof tankSVG==='function'?tankSVG(uid,pct,col,!isEmpty,stLabel,stColor):'';
 
   const div=document.createElement('div');
-  div.className='tc'+(status==='filling'||status==='past_done'?' active':status==='aging'?' curing':status==='empty'?' empty':'');
+  div.className='tc'+(status==='filling'||status==='past_done'?' active':status==='pasteurising'?' pasteurising':status==='aging'?' curing':status==='empty'?' empty':'');
 
   const header=
     '<div style="padding:12px 14px 10px;border-bottom:1.5px solid #f1f5f9">'
