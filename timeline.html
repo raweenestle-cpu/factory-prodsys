@@ -1,747 +1,836 @@
 <!DOCTYPE html>
-<!-- v1.2.0 -->
+<!-- timeline-pro v1.0 -->
 <html lang="th">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Production Timeline</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --ink: #1a1a2e;
-    --ink-soft: #4a4a6a;
-    --ink-muted: #9090b0;
-    --line: #e0e0f0;
-    --bg: #f7f7fc;
-    --card: #ffffff;
-    --accent: #2563eb;
-    --accent-light: #eff6ff;
-    --ok: #059669;
-    --ok-light: #ecfdf5;
-    --warn: #d97706;
-    --warn-light: #fffbeb;
-    --danger: #dc2626;
-    --danger-light: #fef2f2;
-    --neutral: #6b7280;
-    --neutral-light: #f9fafb;
-    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
-    --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
-  }
+:root {
+  --bg: #f4f6fb;
+  --surface: #ffffff;
+  --surface2: #f8faff;
+  --border: rgba(30,50,120,0.07);
+  --border2: rgba(30,50,120,0.13);
+  --text: #1e2640;
+  --text-soft: #4a5580;
+  --text-muted: #9aa3c0;
+  --accent: #2563eb;
+  --ok: #059669;
+  --warn: #d97706;
+  --danger: #dc2626;
+  --neutral: #64748b;
+  --now-line: #d97706;
+  --mono: 'IBM Plex Mono', monospace;
+  --sans: 'IBM Plex Sans Thai', sans-serif;
+  --row-h: 130px;
+  --col-w: 90px;
+  --label-w: 180px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--sans); color: var(--text); min-height: 100vh; overflow-x: hidden;
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(37,99,235,0.055) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(5,150,105,0.04) 0%, transparent 50%),
+    linear-gradient(to bottom right, #f0f4ff 0%, #f4f6fb 50%, #eef4f0 100%);
+}
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+/* ── TOP BAR ── */
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border2);
+  padding: 0 32px;
+  height: 56px;
+  display: flex; align-items: center; justify-content: space-between; gap: 24px;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 1px 12px rgba(37,99,235,0.06);
+}
+.topbar-left { display: flex; align-items: center; gap: 16px; }
+.logo { font-family: var(--mono); font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); font-weight: 600; }
+.divider-v { width: 1px; height: 20px; background: var(--border2); }
+.meta-pill {
+  display: flex; align-items: center; gap: 8px;
+  background: #f0f4ff; border: 1px solid rgba(37,99,235,0.15);
+  border-radius: 6px; padding: 4px 10px;
+  font-family: var(--mono); font-size: 11px; color: var(--text-soft);
+}
+.meta-pill input, .meta-pill select {
+  background: transparent; border: none; outline: none;
+  color: var(--text); font-family: var(--mono); font-size: 11px;
+  min-width: 80px; cursor: pointer;
+}
+.meta-pill select option { background: #f0f4ff; }
+.meta-pill .pill-label { color: var(--accent); font-size: 10px; letter-spacing: 1px; text-transform: uppercase; font-weight: 600; }
+.topbar-right { display: flex; align-items: center; gap: 8px; }
+.tbtn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 500;
+  font-family: var(--sans); cursor: pointer; border: none; transition: all 0.15s;
+}
+.tbtn-ghost { background: #f0f4ff; color: var(--text-soft); border: 1px solid rgba(37,99,235,0.2); }
+.tbtn-ghost:hover { background: #e0eaff; color: var(--text); }
+.tbtn-accent { background: var(--accent); color: white; }
+.tbtn-accent:hover { background: #2563eb; }
 
-  body {
-    font-family: 'IBM Plex Sans Thai', sans-serif;
-    background: var(--bg);
-    color: var(--ink);
-    min-height: 100vh;
-    padding: 0 0 80px 0;
-  }
+/* ── SUMMARY ROW ── */
+.summary-row {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 32px;
+  display: flex; gap: 24px; align-items: center; flex-wrap: wrap;
+  box-shadow: 0 1px 8px rgba(37,99,235,0.04);
+}
+.stat-chip {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; color: var(--text-soft);
+}
+.stat-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.stat-chip strong { color: var(--text); font-weight: 600; }
+.stat-sep { width: 1px; height: 16px; background: var(--border2); }
+.stat-dur { font-family: var(--mono); font-size: 12px; color: var(--text-soft); margin-left: auto; }
+.stat-dur strong { color: var(--accent); font-size: 14px; }
 
-  /* ── HEADER ── */
-  .page-header {
-    background: var(--ink);
-    color: white;
-    padding: 28px 40px 24px;
+/* ── TIMELINE WRAPPER ── */
+.tl-outer {
+  padding: 24px 32px 40px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  cursor: grab;
+}
+.tl-outer:active { cursor: grabbing; }
+
+.tl-canvas {
+  display: flex;
+  flex-direction: column;
+  min-width: max-content;
+  position: relative;
+}
+
+/* ── TIME RULER ── */
+.tl-ruler {
+  display: flex;
+  margin-left: var(--label-w);
+  border-bottom: 1px solid var(--border2);
+  margin-bottom: 0;
+  position: sticky; /* เกาะ sticky ถ้า browser support */
+}
+.ruler-tick {
+  width: var(--col-w);
+  flex-shrink: 0;
+  padding: 6px 0 6px 8px;
+  font-family: var(--mono); font-size: 10px; color: var(--text-muted);
+  letter-spacing: 0.5px;
+  border-left: 1px solid var(--border);
+  position: relative;
+  background: var(--surface);
+}
+.ruler-tick.major { color: var(--accent); font-weight: 600; border-left-color: var(--border2); background: #f5f8ff; }
+
+/* ── ROWS ── */
+.tl-rows { position: relative; }
+
+/* current time line */
+.now-line {
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 2px;
+  background: var(--now-line);
+  z-index: 10;
+  pointer-events: none;
+}
+.now-line::before {
+  content: 'NOW';
+  position: absolute;
+  top: -18px; left: 50%; transform: translateX(-50%);
+  font-family: var(--mono); font-size: 9px; font-weight: 600;
+  color: var(--now-line); letter-spacing: 1px;
+  background: var(--bg); padding: 1px 4px; border-radius: 2px;
+}
+
+.tl-row {
+  display: flex;
+  align-items: stretch;
+  min-height: var(--row-h);
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+.tl-row:hover { background: rgba(255,255,255,0.015); }
+
+/* label */
+.row-label {
+  width: var(--label-w);
+  flex-shrink: 0;
+  display: flex; align-items: center;
+  padding: 0 16px;
+  border-right: 1px solid var(--border2);
+  position: sticky; left: 0; z-index: 5;
+  background: var(--bg);
+  backdrop-filter: blur(4px);
+}
+.row-label-text { font-size: 12px; font-weight: 600; color: var(--text-soft); letter-spacing: 0.3px; }
+
+/* grid cols */
+.row-grid {
+  display: flex;
+  flex: 1;
+  position: relative;
+}
+.grid-col {
+  width: var(--col-w); flex-shrink: 0;
+  border-left: 1px solid var(--border);
+}
+.grid-col.major { border-left-color: var(--border2); background: rgba(37,99,235,0.012); }
+
+/* ── EVENTS ── */
+.row-events {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+}
+.tl-event {
+  position: absolute;
+  top: 65%; transform: translateY(-50%);
+  height: 44px;
+  border-radius: 6px;
+  display: flex; align-items: center;
+  padding: 0 12px;
+  pointer-events: all;
+  cursor: pointer;
+  transition: filter 0.15s, transform 0.15s;
+  overflow: hidden;
+  min-width: 44px;
+  border: 1px solid transparent;
+  z-index: 3;
+}
+.tl-event:hover { filter: brightness(1.15); transform: translateY(-50%) scaleY(1.06); z-index: 10; }
+
+.tl-event.st-normal  { background: #eff6ff; border-color: #93c5fd; box-shadow: 0 2px 8px rgba(37,99,235,0.1); }
+.tl-event.st-ok      { background: #f0fdf4; border-color: #6ee7b7; box-shadow: 0 2px 8px rgba(5,150,105,0.1); }
+.tl-event.st-warn    { background: #fffbeb; border-color: #fcd34d; box-shadow: 0 2px 8px rgba(217,119,6,0.1); }
+.tl-event.st-danger  { background: #fef2f2; border-color: #fca5a5; box-shadow: 0 2px 8px rgba(220,38,38,0.1); }
+.tl-event.st-neutral { background: #f8fafc; border-color: #cbd5e1; box-shadow: 0 2px 8px rgba(100,116,139,0.08); }
+
+.event-dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-right: 8px;
+}
+.st-normal  .event-dot { background: var(--accent); }
+.st-ok      .event-dot { background: var(--ok); }
+.st-warn    .event-dot { background: var(--warn); }
+.st-danger  .event-dot { background: var(--danger); }
+.st-neutral .event-dot { background: var(--neutral); }
+
+.event-label {
+  font-size: 12px; font-weight: 600; color: var(--text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.event-time {
+  font-family: var(--mono); font-size: 10px; color: var(--text-soft);
+  margin-left: auto; padding-left: 8px; flex-shrink: 0;
+}
+
+/* ── ADD ROW BUTTON ── */
+.add-row-btn {
+  width: var(--label-w);
+  flex-shrink: 0;
+  display: flex; align-items: center;
+  padding: 0 16px;
+  border-right: 1px solid var(--border2);
+  border-bottom: none;
+}
+.add-row-inner {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; color: var(--text-muted);
+  cursor: pointer; padding: 6px 0;
+  transition: color 0.15s;
+  background: none; border: none; font-family: var(--sans);
+}
+.add-row-inner:hover { color: var(--accent); }
+
+/* ── TOOLTIP / EVENT DETAIL PANEL ── */
+.detail-panel {
+  position: fixed; right: 24px; top: 80px;
+  width: 300px;
+  background: white;
+  border: 1px solid rgba(37,99,235,0.15);
+  border-radius: 10px;
+  padding: 18px;
+  box-shadow: 0 8px 40px rgba(37,99,235,0.12), 0 2px 8px rgba(0,0,0,0.06);
+  z-index: 200;
+  display: none;
+  animation: panelIn 0.18s ease;
+}
+@keyframes panelIn { from { opacity:0; transform:translateX(12px); } to { opacity:1; transform:translateX(0); } }
+.detail-panel.open { display: block; }
+.dp-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
+.dp-title { font-size: 14px; font-weight: 700; color: var(--text); line-height: 1.4; }
+.dp-close { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 18px; line-height: 1; padding: 0; }
+.dp-close:hover { color: var(--text); }
+.dp-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: flex-start; }
+.dp-lbl { font-family: var(--mono); font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); min-width: 60px; padding-top: 1px; }
+.dp-val { font-size: 12px; color: var(--text-soft); line-height: 1.5; }
+.dp-badge {
+  display: inline-block; font-family: var(--mono); font-size: 10px; font-weight: 700;
+  padding: 2px 8px; border-radius: 20px; letter-spacing: 0.5px;
+}
+.dp-imgs { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.dp-img { width: 72px; height: 72px; object-fit: cover; border-radius: 5px; border: 1px solid var(--border2); cursor: pointer; }
+
+/* ── ADD EVENT MODAL ── */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(15,25,60,0.45); backdrop-filter: blur(4px);
+  z-index: 500; display: none;
+  align-items: center; justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: white;
+  border: 1px solid rgba(37,99,235,0.12);
+  border-radius: 12px; padding: 24px;
+  width: 440px; max-width: 95vw;
+  box-shadow: 0 24px 64px rgba(37,99,235,0.15), 0 4px 16px rgba(0,0,0,0.08);
+}
+.modal-title { font-size: 16px; font-weight: 700; margin-bottom: 20px; }
+.form-row { margin-bottom: 14px; }
+.form-label { font-family: var(--mono); font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; display: block; }
+.form-input, .form-select, .form-textarea {
+  width: 100%; background: #f8faff; border: 1px solid rgba(37,99,235,0.18);
+  color: var(--text); font-family: var(--sans); font-size: 13px;
+  padding: 8px 12px; border-radius: 6px; outline: none; transition: border-color 0.15s;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--accent); }
+.form-select { cursor: pointer; }
+.form-select option { background: var(--surface2); }
+.form-textarea { resize: vertical; min-height: 72px; }
+.form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.modal-footer { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+.img-upload-area {
+  display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px;
+  padding: 10px; border: 1.5px dashed var(--border2);
+  border-radius: 6px; cursor: pointer; align-items: center;
+  transition: border-color 0.15s;
+}
+.img-upload-area:hover { border-color: var(--accent); }
+.img-upload-label { font-size: 12px; color: var(--text-muted); }
+.modal-thumb { width: 52px; height: 52px; object-fit: cover; border-radius: 4px; border: 1px solid var(--border2); }
+
+/* ── EMPTY ── */
+.empty-row {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 160px;
+  color: var(--text-muted); font-size: 13px;
+  flex-direction: column; gap: 8px;
+}
+.empty-row .ei { font-size: 32px; }
+
+/* ── PRINT ── */
+@media print {
+  body { background: white; color: #111; }
+  .topbar, .summary-row, .tbtn-accent, .tbtn-ghost, .add-row-btn, .detail-panel, .modal-overlay { display: none !important; }
+  .row-label { background: white; }
+  .tl-event { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+
+  /* ── THUMBNAIL ON BAR ── */
+  .tl-event { overflow: visible; }
+  .bar-thumb-row {
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 0;
     display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 24px;
+    gap: 4px;
+    z-index: 20;
+    pointer-events: all;
   }
-  .header-left { flex: 1; }
-  .header-label {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.45);
-    margin-bottom: 6px;
+  .bar-thumb {
+    width: 44px; height: 44px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 2px solid white;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.18);
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    display: block;
   }
-  .header-title { font-size: 22px; font-weight: 600; letter-spacing: -0.3px; }
-  .header-meta { display: flex; gap: 20px; align-items: center; margin-top: 10px; flex-wrap: wrap; }
-  .meta-field { display: flex; flex-direction: column; gap: 2px; }
-  .meta-label {
-    font-size: 10px; letter-spacing: 1px; text-transform: uppercase;
-    color: rgba(255,255,255,0.4); font-family: 'IBM Plex Mono', monospace;
+  .bar-thumb:hover {
+    transform: scale(1.18) translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.22);
+    z-index: 30;
   }
-  .meta-input {
-    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
-    color: white; font-family: 'IBM Plex Mono', monospace; font-size: 13px;
-    padding: 5px 10px; border-radius: 4px; outline: none; min-width: 140px;
-  }
-  .meta-input:focus { border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.12); }
-  .meta-input::placeholder { color: rgba(255,255,255,0.25); }
-  .header-right { display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
-  .btn {
-    display: inline-flex; align-items: center; gap: 7px; padding: 8px 16px;
-    border-radius: 6px; font-size: 13px; font-weight: 500;
-    font-family: 'IBM Plex Sans Thai', sans-serif; cursor: pointer;
-    border: none; transition: all 0.15s; white-space: nowrap;
-  }
-  .btn-ghost { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.85); border: 1px solid rgba(255,255,255,0.2); }
-  .btn-ghost:hover { background: rgba(255,255,255,0.18); }
-  .btn-primary { background: var(--accent); color: white; }
-  .btn-primary:hover { background: #1d4ed8; }
-
-  /* ── SUMMARY BAR ── */
-  .summary-bar {
-    background: white; border-bottom: 1px solid var(--line);
-    padding: 14px 40px; display: flex; gap: 32px; align-items: center; flex-wrap: wrap;
-  }
-  .summary-item { display: flex; align-items: center; gap: 10px; }
-  .summary-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-  .summary-text { font-size: 13px; color: var(--ink-soft); }
-  .summary-text strong { color: var(--ink); font-weight: 600; }
-  .summary-divider { width: 1px; height: 20px; background: var(--line); }
-  .total-duration { font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: var(--ink-soft); margin-left: auto; }
-  .total-duration strong { color: var(--accent); font-size: 15px; }
-
-  /* ── MAIN ── */
-  .main { max-width: 860px; margin: 0 auto; padding: 36px 40px; }
-
-  /* ── TIMELINE ── */
-  .timeline { position: relative; }
-  .timeline-spine {
-    position: absolute; left: 103px; top: 0; bottom: 0;
-    width: 2px; background: linear-gradient(to bottom, var(--accent) 0%, var(--line) 100%); z-index: 0;
-  }
-  .timeline-entry {
-    display: grid; grid-template-columns: 100px 1fr;
-    gap: 0 24px; margin-bottom: 8px; position: relative;
-    animation: slideIn 0.25s ease forwards;
-  }
-  @keyframes slideIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
-
-  .entry-time { text-align: right; padding-top: 14px; z-index: 1; }
-  .time-display { font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 500; color: var(--ink); display: block; line-height: 1.2; }
-  .time-elapsed { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--ink-muted); margin-top: 2px; display: block; }
-
-  .entry-dot {
-    position: absolute; left: 97px; top: 16px;
-    width: 14px; height: 14px; border-radius: 50%;
-    border: 2px solid white; z-index: 2; transition: transform 0.2s;
-  }
-  .timeline-entry:hover .entry-dot { transform: scale(1.3); }
-
-  .entry-card {
-    background: var(--card); border: 1px solid var(--line); border-radius: 8px;
-    padding: 14px 16px; box-shadow: var(--shadow); position: relative;
-    transition: box-shadow 0.15s; z-index: 1;
-  }
-  .entry-card:hover { box-shadow: var(--shadow-md); }
-  .entry-card::before {
-    content: ''; position: absolute; left: 0; top: 8px; bottom: 8px;
-    width: 3px; border-radius: 0 2px 2px 0;
-  }
-  .entry-card.status-normal::before { background: var(--accent); }
-  .entry-card.status-ok::before     { background: var(--ok); }
-  .entry-card.status-warn::before   { background: var(--warn); }
-  .entry-card.status-danger::before { background: var(--danger); }
-  .entry-card.status-neutral::before{ background: var(--neutral); }
-
-  .entry-dot.status-normal  { background: var(--accent); }
-  .entry-dot.status-ok      { background: var(--ok); }
-  .entry-dot.status-warn    { background: var(--warn); }
-  .entry-dot.status-danger  { background: var(--danger); }
-  .entry-dot.status-neutral { background: var(--neutral); }
-
-  .card-row1 { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
-  .card-title-wrap { flex: 1; }
-  .card-tag {
-    display: inline-block; font-size: 10px; font-family: 'IBM Plex Mono', monospace;
-    letter-spacing: 0.5px; padding: 2px 7px; border-radius: 3px;
-    margin-bottom: 5px; text-transform: uppercase; font-weight: 500;
-  }
-  .tag-normal  { background: var(--accent-light); color: var(--accent); }
-  .tag-ok      { background: var(--ok-light);     color: var(--ok); }
-  .tag-warn    { background: var(--warn-light);   color: var(--warn); }
-  .tag-danger  { background: var(--danger-light); color: var(--danger); }
-  .tag-neutral { background: var(--neutral-light);color: var(--neutral); }
-
-  .card-title {
-    font-size: 14px; font-weight: 600; color: var(--ink);
-    border: none; outline: none; width: 100%;
-    font-family: 'IBM Plex Sans Thai', sans-serif; background: transparent; padding: 0;
-  }
-  .card-title::placeholder { color: var(--ink-muted); font-weight: 400; }
-
-  .card-actions { display: flex; gap: 6px; flex-shrink: 0; }
-  .icon-btn {
-    width: 28px; height: 28px; border-radius: 5px; border: 1px solid var(--line);
-    background: white; cursor: pointer; display: flex; align-items: center; justify-content: center;
-    color: var(--ink-muted); font-size: 13px; transition: all 0.15s; outline: none;
-  }
-  .icon-btn:hover { background: var(--bg); color: var(--ink); border-color: var(--ink-muted); }
-  .icon-btn.delete:hover { background: #fef2f2; color: var(--danger); border-color: var(--danger); }
-
-  .card-row2 { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; flex-wrap: wrap; }
-  .time-input {
-    font-family: 'IBM Plex Mono', monospace; font-size: 12px; padding: 4px 8px;
-    border: 1px solid var(--line); border-radius: 4px; outline: none; color: var(--ink); background: var(--bg); width: 130px;
-  }
-  .time-input:focus { border-color: var(--accent); background: white; }
-  .status-select {
-    font-family: 'IBM Plex Sans Thai', sans-serif; font-size: 12px; padding: 4px 8px;
-    border: 1px solid var(--line); border-radius: 4px; outline: none; color: var(--ink); background: var(--bg); cursor: pointer;
-  }
-  .status-select:focus { border-color: var(--accent); background: white; }
-
-  .card-reason {
-    font-size: 13px; color: var(--ink-soft); border: none; outline: none;
-    width: 100%; font-family: 'IBM Plex Sans Thai', sans-serif;
-    background: transparent; resize: none; min-height: 36px; line-height: 1.5; padding: 0;
-  }
-  .card-reason::placeholder { color: var(--ink-muted); font-style: italic; }
-
-  /* ── IMAGE SECTION ── */
-  .img-section { margin-top: 10px; }
-
-  .img-upload-bar {
-    display: flex; gap: 8px; align-items: center; margin-bottom: 8px;
-  }
-  .img-btn {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 5px 12px; border-radius: 5px; font-size: 12px;
-    font-family: 'IBM Plex Sans Thai', sans-serif; cursor: pointer;
-    border: 1px solid var(--line); background: var(--bg); color: var(--ink-soft);
-    transition: all 0.15s; white-space: nowrap;
-  }
-  .img-btn:hover { background: var(--accent-light); border-color: var(--accent); color: var(--accent); }
-  .img-btn-camera:hover { background: var(--ok-light); border-color: var(--ok); color: var(--ok); }
-  .img-count { font-size: 11px; color: var(--ink-muted); font-family: 'IBM Plex Mono', monospace; }
-
-  .img-grid {
-    display: flex; flex-wrap: wrap; gap: 8px;
-    margin-top: 4px;
-  }
-  .img-thumb-wrap {
-    position: relative; width: 90px; height: 90px;
-    border-radius: 6px; overflow: hidden;
-    border: 1px solid var(--line); background: var(--bg);
-    flex-shrink: 0;
-  }
-  .img-thumb {
-    width: 100%; height: 100%; object-fit: cover;
-    display: block; cursor: pointer;
-    transition: opacity 0.15s;
-  }
-  .img-thumb:hover { opacity: 0.85; }
-  .img-del-btn {
-    position: absolute; top: 3px; right: 3px;
-    width: 20px; height: 20px; border-radius: 50%;
-    background: rgba(0,0,0,0.55); color: white;
-    border: none; cursor: pointer; font-size: 11px;
-    display: flex; align-items: center; justify-content: center;
-    opacity: 0; transition: opacity 0.15s;
-  }
-  .img-thumb-wrap:hover .img-del-btn { opacity: 1; }
-
-  /* hidden file inputs */
-  .file-input-hidden { display: none; }
-
-  /* ── LIGHTBOX ── */
-  .lightbox {
-    display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,0.88); z-index: 9999;
-    align-items: center; justify-content: center;
-    flex-direction: column; gap: 12px;
-  }
-  .lightbox.open { display: flex; }
-  .lightbox-img {
-    max-width: 92vw; max-height: 82vh;
-    border-radius: 6px; object-fit: contain;
-    box-shadow: 0 8px 40px rgba(0,0,0,0.6);
-  }
-  .lightbox-nav {
-    display: flex; gap: 16px; align-items: center;
-  }
-  .lb-btn {
-    background: rgba(255,255,255,0.15); border: none;
-    color: white; padding: 8px 20px; border-radius: 6px;
-    font-size: 18px; cursor: pointer; transition: background 0.15s;
-  }
-  .lb-btn:hover { background: rgba(255,255,255,0.28); }
-  .lb-counter { color: rgba(255,255,255,0.6); font-family: 'IBM Plex Mono', monospace; font-size: 13px; }
-  .lb-close {
-    position: absolute; top: 16px; right: 20px;
-    background: none; border: none; color: white;
-    font-size: 28px; cursor: pointer; line-height: 1;
-    opacity: 0.7; transition: opacity 0.15s;
-  }
-  .lb-close:hover { opacity: 1; }
-
-  /* ── ADD / EMPTY ── */
-  .add-row { display: grid; grid-template-columns: 100px 1fr; gap: 0 24px; margin-top: 4px; }
-  .add-btn {
-    display: flex; align-items: center; gap: 8px; padding: 12px 16px;
-    border: 1.5px dashed var(--line); border-radius: 8px; background: transparent;
-    color: var(--ink-muted); font-size: 13px; font-family: 'IBM Plex Sans Thai', sans-serif;
-    cursor: pointer; transition: all 0.15s; width: 100%; justify-content: center;
-  }
-  .add-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
-
-  .empty-state { text-align: center; padding: 60px 20px; color: var(--ink-muted); }
-  .empty-icon { font-size: 40px; margin-bottom: 12px; }
-  .empty-text { font-size: 14px; }
-
-  /* ── PRINT ── */
-  @media print {
-    body { background: white; padding: 0; }
-    .page-header { background: #1a1a2e !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; padding: 20px 30px; }
-    .no-print { display: none !important; }
-    .entry-card { box-shadow: none; border-color: #ddd; }
-    .icon-btn, .add-row, .img-upload-bar, .img-del-btn, .lightbox { display: none !important; }
-    .main { padding: 20px 30px; }
-    .card-title, .card-reason, .time-input, .status-select, .meta-input { border: none !important; background: transparent !important; }
-    .img-grid { gap: 6px; }
-    .img-thumb-wrap { width: 110px; height: 110px; }
-    .timeline-entry { break-inside: avoid; margin-bottom: 16px; }
+  /* เส้นต่อจากรูปลงมาถึง bar */
+  .bar-thumb-row::after {
+    content: '';
+    position: absolute;
+    bottom: -6px; left: 16px;
+    width: 1.5px; height: 6px;
+    background: var(--border2);
   }
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
-<div class="page-header">
-  <div class="header-left">
-    <div class="header-label">Production Timeline Record</div>
-    <div class="header-title">บันทึกเหตุการณ์สายการผลิต</div>
-    <div class="header-meta">
-      <div class="meta-field">
-        <span class="meta-label">Line</span>
-        <select class="meta-input" id="meta-line" onchange="onLineChange()" style="min-width:160px;cursor:pointer">
-          <option value="">— เลือก Line —</option>
-          <optgroup label="BANGCHAN LINES">
-            <option>Polo 12A</option>
-            <option>Polo 12B</option>
-            <option>Comet</option>
-            <option>Bolo Plus</option>
-            <option>Maxti</option>
-            <option>Sandwich</option>
-          </optgroup>
-          <optgroup label="POLA LINES">
-            <option>Hoyer</option>
-            <option>Diamond</option>
-            <option>Glacé</option>
-            <option>Scooping</option>
-          </optgroup>
-          <optgroup label="MIXING">
-            <option>Mixing 1</option>
-            <option>Mixing 2</option>
-          </optgroup>
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="logo">PROD.SYS · Timeline</div>
+    <div class="divider-v"></div>
+    <div class="meta-pill">
+      <span class="pill-label">Line</span>
+      <select id="meta-line" onchange="onLineChange()">
+        <option value="">— เลือก —</option>
+        <optgroup label="BANGCHAN">
+          <option>Polo 12A</option><option>Polo 12B</option>
+          <option>Comet</option><option>Bolo Plus</option>
+          <option>Maxti</option><option>Sandwich</option>
+        </optgroup>
+        <optgroup label="POLA">
+          <option>Hoyer</option><option>Diamond</option>
+          <option>Glacé</option><option>Scooping</option>
+        </optgroup>
+        <optgroup label="MIXING">
+          <option>Mixing 1</option><option>Mixing 2</option>
+        </optgroup>
+      </select>
+    </div>
+    <div class="meta-pill">
+      <span class="pill-label">Product</span>
+      <select id="meta-product"><option value="">— เลือก Line ก่อน —</option></select>
+    </div>
+    <div class="meta-pill">
+      <span class="pill-label">Date</span>
+      <input type="date" id="meta-date">
+    </div>
+    <div class="meta-pill">
+      <span class="pill-label">Shift</span>
+      <input type="text" id="meta-shift" placeholder="A / Day" style="min-width:60px">
+    </div>
+  </div>
+  <div class="topbar-right">
+    <button class="tbtn tbtn-ghost" onclick="window.print()">🖨 Print</button>
+    <button class="tbtn tbtn-accent" onclick="openModal()">＋ เพิ่ม Event</button>
+  </div>
+</div>
+
+<!-- SUMMARY -->
+<div class="summary-row" id="summary-row">
+  <div class="stat-chip"><div class="stat-dot" style="background:var(--accent)"></div><strong id="cnt-normal">0</strong> ปกติ</div>
+  <div class="stat-chip"><div class="stat-dot" style="background:var(--ok)"></div><strong id="cnt-ok">0</strong> สำเร็จ</div>
+  <div class="stat-chip"><div class="stat-dot" style="background:var(--warn)"></div><strong id="cnt-warn">0</strong> แจ้งเตือน</div>
+  <div class="stat-chip"><div class="stat-dot" style="background:var(--danger)"></div><strong id="cnt-danger">0</strong> ปัญหา</div>
+  <div class="stat-sep"></div>
+  <div class="stat-dur">รวม <strong id="cnt-total">0</strong> events · ระยะเวลา <strong id="dur-total">—</strong></div>
+</div>
+
+<!-- TIMELINE -->
+<div class="tl-outer" id="tl-outer">
+  <div class="tl-canvas" id="tl-canvas">
+    <!-- ruler injected by JS -->
+    <div class="tl-rows" id="tl-rows">
+      <div class="empty-row" id="empty-row">
+        <div class="ei">📋</div>
+        <div>กด <strong>+ เพิ่ม Event</strong> เพื่อเริ่มบันทึก</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL PANEL -->
+<div class="detail-panel" id="detail-panel">
+  <div class="dp-header">
+    <div class="dp-title" id="dp-title">—</div>
+    <button class="dp-close" onclick="closeDetail()">✕</button>
+  </div>
+  <div id="dp-body"></div>
+</div>
+
+<!-- ADD EVENT MODAL -->
+<div class="modal-overlay" id="modal-overlay" onclick="overlayClick(event)">
+  <div class="modal">
+    <div class="modal-title">＋ เพิ่ม Event ใหม่</div>
+    <div class="form-row">
+      <label class="form-label">ชื่อ Event / ขั้นตอน</label>
+      <input class="form-input" id="f-title" placeholder="เช่น CIP เสร็จสิ้น, อุณหภูมิผิดปกติ...">
+    </div>
+    <div class="form-row form-row-2">
+      <div>
+        <label class="form-label">เวลา</label>
+        <input class="form-input" type="time" id="f-time">
+      </div>
+      <div>
+        <label class="form-label">สถานะ</label>
+        <select class="form-select" id="f-status">
+          <option value="normal">🔵 ปกติ</option>
+          <option value="ok">🟢 สำเร็จ</option>
+          <option value="warn">🟡 แจ้งเตือน</option>
+          <option value="danger">🔴 ปัญหา</option>
+          <option value="neutral">⚪ ข้อมูล</option>
         </select>
       </div>
-      <div class="meta-field">
-        <span class="meta-label">Product</span>
-        <select class="meta-input" id="meta-product" style="min-width:200px;cursor:pointer">
-          <option value="">— เลือก Line ก่อน —</option>
-        </select>
-      </div>
-      <div class="meta-field">
-        <span class="meta-label">Date</span>
-        <input class="meta-input" id="meta-date" type="date">
-      </div>
-      <div class="meta-field">
-        <span class="meta-label">Shift</span>
-        <input class="meta-input" id="meta-shift" placeholder="เช่น A / Day" maxlength="20" style="min-width:100px">
-      </div>
-      <div class="meta-field">
-        <span class="meta-label">Operator</span>
-        <input class="meta-input" id="meta-op" placeholder="ชื่อผู้บันทึก" maxlength="40">
-      </div>
     </div>
-  </div>
-  <div class="header-right no-print">
-    <button class="btn btn-ghost" onclick="window.print()">🖨 Print / PDF</button>
-    <button class="btn btn-primary" onclick="addEntry()">+ เพิ่ม Event</button>
-  </div>
-</div>
-
-<!-- SUMMARY BAR -->
-<div class="summary-bar">
-  <div class="summary-item">
-    <div class="summary-dot" style="background:var(--accent)"></div>
-    <div class="summary-text"><strong id="count-normal">0</strong> ปกติ</div>
-  </div>
-  <div class="summary-item">
-    <div class="summary-dot" style="background:var(--ok)"></div>
-    <div class="summary-text"><strong id="count-ok">0</strong> สำเร็จ</div>
-  </div>
-  <div class="summary-item">
-    <div class="summary-dot" style="background:var(--warn)"></div>
-    <div class="summary-text"><strong id="count-warn">0</strong> แจ้งเตือน</div>
-  </div>
-  <div class="summary-item">
-    <div class="summary-dot" style="background:var(--danger)"></div>
-    <div class="summary-text"><strong id="count-danger">0</strong> ปัญหา</div>
-  </div>
-  <div class="summary-divider"></div>
-  <div class="total-duration">
-    รวม <strong id="total-events">0</strong> events &nbsp;·&nbsp; ระยะเวลา <strong id="total-dur">—</strong>
-  </div>
-</div>
-
-<!-- MAIN -->
-<div class="main">
-  <div class="timeline" id="timeline-container">
-    <div class="timeline-spine" id="timeline-spine"></div>
-    <div id="entries-list"></div>
-    <div class="empty-state" id="empty-state">
-      <div class="empty-icon">📋</div>
-      <div class="empty-text">ยังไม่มี event — กด <strong>+ เพิ่ม Event</strong> เพื่อเริ่มบันทึก</div>
+    <div class="form-row">
+      <label class="form-label">เหตุผล / หมายเหตุ</label>
+      <textarea class="form-textarea" id="f-reason" placeholder="รายละเอียด สิ่งที่ทำ หรือสาเหตุ..."></textarea>
     </div>
-    <div class="add-row no-print">
-      <div></div>
-      <button class="add-btn" onclick="addEntry()">＋ เพิ่ม Event ใหม่</button>
+    <div class="form-row">
+      <label class="form-label">รูปภาพ (ไม่บังคับ)</label>
+      <div class="img-upload-area">
+        <button type="button" onclick="document.getElementById('f-file').click()" style="background:#f0f4ff;border:1px solid rgba(37,99,235,0.2);color:var(--accent);padding:5px 12px;border-radius:5px;font-size:12px;cursor:pointer;font-family:var(--sans)">📁 เลือกรูป</button>
+        <button type="button" onclick="document.getElementById('f-cam').click()" style="background:#f0fdf4;border:1px solid rgba(5,150,105,0.2);color:var(--ok);padding:5px 12px;border-radius:5px;font-size:12px;cursor:pointer;font-family:var(--sans)">📷 ถ่ายรูป</button>
+        <div id="modal-thumbs" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px"></div>
+      </div>
+      <input type="file" id="f-file" multiple accept="image/*" style="display:none" onchange="handleModalFiles(this.files)">
+      <input type="file" id="f-cam" accept="image/*" capture="environment" style="display:none" onchange="handleModalFiles(this.files)">
     </div>
-  </div>
-</div>
-
-<!-- LIGHTBOX -->
-<div class="lightbox" id="lightbox" onclick="lbClickOutside(event)">
-  <button class="lb-close" onclick="closeLightbox()">✕</button>
-  <img class="lightbox-img" id="lb-img" src="" alt="">
-  <div class="lightbox-nav">
-    <button class="lb-btn" onclick="lbPrev()">‹</button>
-    <span class="lb-counter" id="lb-counter"></span>
-    <button class="lb-btn" onclick="lbNext()">›</button>
+    <div class="modal-footer">
+      <button class="tbtn tbtn-ghost" onclick="closeModal()">ยกเลิก</button>
+      <button class="tbtn tbtn-accent" onclick="submitEvent()">บันทึก Event</button>
+    </div>
   </div>
 </div>
 
 <script>
-let entries = [];
+/* ── CONFIG ── */
+const STEP = 30;       // นาทีต่อ 1 col
+const COL_W = 90;      // px ต่อ col (ต้องตรง CSS --col-w)
+const LABEL_W = 180;   // px label (ต้องตรง CSS)
+const SHIFT_START = 6; // เริ่ม 06:00
+const SHIFT_END   = 23; // จบ 23:00
+const TOTAL_COLS  = ((SHIFT_END - SHIFT_START) * 60) / STEP; // cols
 
-// Lightbox state
-let lbEntryId = null;
-let lbIndex = 0;
+let events  = [];
+let modalImgs = [];
 
-const statusConfig = {
-  normal:  { label: 'ปกติ',      tag: 'tag-normal',  cls: 'status-normal'  },
-  ok:      { label: 'สำเร็จ',    tag: 'tag-ok',      cls: 'status-ok'      },
-  warn:    { label: 'แจ้งเตือน', tag: 'tag-warn',    cls: 'status-warn'    },
-  danger:  { label: 'ปัญหา',     tag: 'tag-danger',  cls: 'status-danger'  },
-  neutral: { label: 'ข้อมูล',    tag: 'tag-neutral', cls: 'status-neutral' },
+const statusCfg = {
+  normal:  { label:'ปกติ',      color:'var(--accent)', cls:'st-normal'  },
+  ok:      { label:'สำเร็จ',    color:'var(--ok)',     cls:'st-ok'      },
+  warn:    { label:'แจ้งเตือน', color:'var(--warn)',   cls:'st-warn'    },
+  danger:  { label:'ปัญหา',     color:'var(--danger)', cls:'st-danger'  },
+  neutral: { label:'ข้อมูล',    color:'var(--neutral)',cls:'st-neutral' },
 };
 
-function genId() { return Date.now() + Math.random().toString(36).slice(2,6); }
+const LINE_PRODUCTS = {
+  'Polo 12A':  ['Nestle Jelly Lychee','Milo Magma Stick','Eski Nomyen Stick','Milo Chocolate Malt Stk'],
+  'Polo 12B':  ['La Frutta 5 Wonder Fruits','La Frutta Yogurt Lychee','La Frutta Yen Yen Longan','Eski Extra Turbo Stick'],
+  'Comet':     ['Oreo Cup FS','Milo Cup','Kit Kat Cup FS','Milo Medium Cone','Milo Intense Cone'],
+  'Bolo Plus': ['Drumsticks Plus Buff','Drumsticks Plus Choc','Nestle Tart Stk','Milo Honey'],
+  'Maxti':     ['10% Lactose','Ice Cream Yogurt Strawberry','10% Cream Mix'],
+  'Sandwich':  ['Milo Sandwich','Oreo Sandwich','Nestle Milo Sandwich','Kite Sandwich Stk'],
+  'Hoyer':     ['Icecream TM Vanilla Minis','Nestle Tart Top Stk','Nestle Drumstick Stick'],
+  'Diamond':   ['Eski Bar Nestle Milk','Nestle Drumstick Milk','Brookside Strawberry Milk','Extreme HP Mimi Stk'],
+  'Glacé':     ['Vari Burnely Mult','Vari Tango Stk','Nestle Laban Kk Stk'],
+  'Scooping':  ['Nestle Cone Vanilla','Nestle Cone Choc 5.6kg','Nestle Cone Choc 3.8kg','Nestle Cone French Van'],
+  'Mixing 1':  [], 'Mixing 2':  [],
+};
+
+/* ── TIME UTILS ── */
+function parseTime(s) {
+  if (!s) return null;
+  const m = s.match(/^(\d{1,2}):(\d{2})$/);
+  return m ? parseInt(m[1])*60 + parseInt(m[2]) : null;
+}
+function minToStr(m) {
+  const h = Math.floor(m/60).toString().padStart(2,'0');
+  return h + ':' + (m%60).toString().padStart(2,'0');
+}
+function timeToX(timeStr) {
+  const m = parseTime(timeStr);
+  if (m === null) return null;
+  const offset = m - SHIFT_START * 60;
+  if (offset < 0) return 0;
+  return (offset / STEP) * COL_W;
+}
 function nowTime() { return new Date().toTimeString().slice(0,5); }
 
-/* ── ENTRY CRUD ── */
-function addEntry(afterId = null) {
-  const id = genId();
-  const entry = { id, time: nowTime(), title: '', reason: '', status: 'normal', images: [] };
-  if (afterId) {
-    const idx = entries.findIndex(e => e.id === afterId);
-    entries.splice(idx + 1, 0, entry);
-  } else {
-    entries.push(entry);
+/* ── RULER ── */
+function buildRuler() {
+  const canvas = document.getElementById('tl-canvas');
+  let old = canvas.querySelector('.tl-ruler');
+  if (old) old.remove();
+  const ruler = document.createElement('div');
+  ruler.className = 'tl-ruler';
+  for (let i = 0; i < TOTAL_COLS; i++) {
+    const tick = document.createElement('div');
+    const minVal = SHIFT_START * 60 + i * STEP;
+    const isMajor = (minVal % 60 === 0);
+    tick.className = 'ruler-tick' + (isMajor ? ' major' : '');
+    tick.textContent = isMajor ? minToStr(minVal) : (STEP < 60 ? minToStr(minVal).slice(3) : '');
+    ruler.appendChild(tick);
   }
-  render();
-  setTimeout(() => {
-    const el = document.querySelector('[data-id="' + id + '"] .card-title');
-    if (el) el.focus();
-  }, 50);
+  canvas.insertBefore(ruler, document.getElementById('tl-rows'));
 }
 
-function removeEntry(id) {
-  entries = entries.filter(e => e.id !== id);
-  render();
+/* ── NOW LINE ── */
+function updateNowLine() {
+  const rows = document.getElementById('tl-rows');
+  let line = document.getElementById('now-line');
+  if (!line) {
+    line = document.createElement('div');
+    line.className = 'now-line';
+    line.id = 'now-line';
+    rows.appendChild(line);
+  }
+  const x = timeToX(nowTime());
+  if (x !== null && events.length > 0) {
+    line.style.display = 'block';
+    line.style.left = (LABEL_W + x) + 'px';
+  } else {
+    line.style.display = 'none';
+  }
 }
 
-function updateEntry(id, field, value) {
-  const e = entries.find(e => e.id === id);
-  if (e) { e[field] = value; updateSummary(); }
+/* ── GROUP events by row label ── */
+function getRows() {
+  // Row = แต่ละสถานะที่ต่างกัน หรือ group ตาม label
+  // ใช้ 1 row เดียว "Events" + แยก row ตาม status
+  const statusRows = ['normal','ok','warn','danger','neutral'];
+  const rows = [];
+  statusRows.forEach(st => {
+    const evs = events.filter(e => e.status === st);
+    if (evs.length > 0) rows.push({ label: statusCfg[st].label, status: st, events: evs });
+  });
+  if (rows.length === 0) rows.push({ label: 'Events', status: 'normal', events: [] });
+  return rows;
 }
 
-/* ── IMAGE HANDLING ── */
-function triggerFileInput(id) {
-  document.getElementById('file-input-' + id).click();
-}
-function triggerCameraInput(id) {
-  document.getElementById('camera-input-' + id).click();
+/* ── RENDER ── */
+function render() {
+  buildRuler();
+  const rowsEl = document.getElementById('tl-rows');
+  rowsEl.innerHTML = '';
+
+  const emptyDiv = document.createElement('div');
+  emptyDiv.className = 'empty-row';
+  emptyDiv.id = 'empty-row';
+  emptyDiv.innerHTML = '<div class="ei">📋</div><div>กด <strong>+ เพิ่ม Event</strong> เพื่อเริ่มบันทึก</div>';
+  emptyDiv.style.display = events.length === 0 ? 'flex' : 'none';
+  rowsEl.appendChild(emptyDiv);
+
+  if (events.length > 0) {
+    const rows = getRows();
+    rows.forEach(row => {
+      const rowEl = document.createElement('div');
+      rowEl.className = 'tl-row';
+
+      // label
+      const lbl = document.createElement('div');
+      lbl.className = 'row-label';
+      const sc = statusCfg[row.status];
+      lbl.innerHTML = '<span class="row-label-text" style="color:' + sc.color + '">' + row.label + '</span>';
+      rowEl.appendChild(lbl);
+
+      // grid cols
+      const grid = document.createElement('div');
+      grid.className = 'row-grid';
+      for (let i = 0; i < TOTAL_COLS; i++) {
+        const col = document.createElement('div');
+        const minVal = SHIFT_START * 60 + i * STEP;
+        col.className = 'grid-col' + (minVal % 60 === 0 ? ' major' : '');
+        grid.appendChild(col);
+      }
+
+      // events layer
+      const evLayer = document.createElement('div');
+      evLayer.className = 'row-events';
+      row.events.forEach(ev => {
+        const x = timeToX(ev.time);
+        if (x === null) return;
+
+        // width = 30 min default, ยืดตาม title length
+        const minWidth = Math.max(COL_W, Math.min(ev.title.length * 8 + 60, COL_W * 4));
+
+        const evEl = document.createElement('div');
+        evEl.className = 'tl-event ' + statusCfg[ev.status].cls;
+        evEl.style.left = x + 'px';
+        evEl.style.width = minWidth + 'px';
+        // thumbnail row เหนือ bar
+        let thumbHtml = '';
+        if (ev.images && ev.images.length > 0) {
+          thumbHtml = '<div class="bar-thumb-row">' +
+            ev.images.map((img, ii) =>
+              '<img class="bar-thumb" src="' + img.src + '" ' +
+              'onclick="event.stopPropagation();openLightbox(\'' + ev.id + '\',' + ii + ')" ' +
+              'title="' + esc(img.name||'') + '">'
+            ).join('') +
+          '</div>';
+        }
+
+        evEl.innerHTML =
+          thumbHtml +
+          '<div class="event-dot"></div>' +
+          '<div class="event-label">' + esc(ev.title) + '</div>' +
+          '<div class="event-time">' + ev.time + '</div>';
+        evEl.addEventListener('click', () => openDetail(ev));
+        evLayer.appendChild(evEl);
+      });
+
+      grid.appendChild(evLayer);
+      rowEl.appendChild(grid);
+      rowsEl.appendChild(rowEl);
+    });
+
+    // add row button
+    const addRow = document.createElement('div');
+    addRow.style.display = 'flex';
+    addRow.innerHTML = '<button class="add-row-inner" onclick="openModal()">＋ เพิ่ม Event</button>';
+    addRow.style.padding = '10px 16px';
+    rowsEl.appendChild(addRow);
+  }
+
+  updateNowLine();
+  updateSummary();
 }
 
-function handleFiles(id, files) {
-  const entry = entries.find(e => e.id === id);
-  if (!entry) return;
-  if (!entry.images) entry.images = [];
-  const toLoad = Array.from(files);
-  let loaded = 0;
-  toLoad.forEach(file => {
+/* ── SUMMARY ── */
+function updateSummary() {
+  const cnt = {normal:0,ok:0,warn:0,danger:0,neutral:0};
+  events.forEach(e => { if (cnt[e.status]!==undefined) cnt[e.status]++; });
+  document.getElementById('cnt-normal').textContent  = cnt.normal;
+  document.getElementById('cnt-ok').textContent      = cnt.ok;
+  document.getElementById('cnt-warn').textContent    = cnt.warn;
+  document.getElementById('cnt-danger').textContent  = cnt.danger;
+  document.getElementById('cnt-total').textContent   = events.length;
+
+  if (events.length >= 2) {
+    const sorted = [...events].sort((a,b)=>(parseTime(a.time)||0)-(parseTime(b.time)||0));
+    const t1 = parseTime(sorted[0].time), t2 = parseTime(sorted[sorted.length-1].time);
+    if (t1!==null && t2!==null) {
+      let diff = t2 - t1;
+      const h = Math.floor(diff/60), m = diff%60;
+      document.getElementById('dur-total').textContent = h > 0 ? h+'h '+m+'m' : m+' นาที';
+    }
+  } else {
+    document.getElementById('dur-total').textContent = '—';
+  }
+}
+
+/* ── DETAIL PANEL ── */
+function openDetail(ev) {
+  const sc = statusCfg[ev.status];
+  document.getElementById('dp-title').textContent = ev.title;
+  let html = '';
+  html += '<div class="dp-row"><div class="dp-lbl">เวลา</div><div class="dp-val" style="font-family:var(--mono)">' + ev.time + '</div></div>';
+  html += '<div class="dp-row"><div class="dp-lbl">สถานะ</div><div class="dp-val"><span class="dp-badge" style="background:' + sc.color + '22;color:' + sc.color + ';border:1px solid ' + sc.color + '44">' + sc.label + '</span></div></div>';
+  if (ev.reason) html += '<div class="dp-row"><div class="dp-lbl">หมายเหตุ</div><div class="dp-val">' + esc(ev.reason) + '</div></div>';
+  if (ev.images && ev.images.length > 0) {
+    html += '<div class="dp-imgs">' + ev.images.map((img,i) => '<img class="dp-img" src="'+img.src+'" onclick="openLightbox(\''+ev.id+'\','+i+')">').join('') + '</div>';
+  }
+  document.getElementById('dp-body').innerHTML = html;
+  document.getElementById('detail-panel').classList.add('open');
+}
+function closeDetail() { document.getElementById('detail-panel').classList.remove('open'); }
+
+/* ── MODAL ── */
+function openModal() {
+  modalImgs = [];
+  document.getElementById('f-title').value  = '';
+  document.getElementById('f-time').value   = nowTime();
+  document.getElementById('f-status').value = 'normal';
+  document.getElementById('f-reason').value = '';
+  document.getElementById('modal-thumbs').innerHTML = '';
+  document.getElementById('modal-overlay').classList.add('open');
+  setTimeout(() => document.getElementById('f-title').focus(), 100);
+}
+function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
+function overlayClick(e) { if (e.target === document.getElementById('modal-overlay')) closeModal(); }
+
+function handleModalFiles(files) {
+  Array.from(files).forEach(file => {
     if (!file.type.startsWith('image/')) return;
     const reader = new FileReader();
-    reader.onload = function(ev) {
-      entry.images.push({ src: ev.target.result, name: file.name });
-      loaded++;
-      if (loaded === toLoad.length) renderImages(id);
+    reader.onload = ev => {
+      modalImgs.push({ src: ev.target.result, name: file.name });
+      const img = document.createElement('img');
+      img.className = 'modal-thumb';
+      img.src = ev.target.result;
+      document.getElementById('modal-thumbs').appendChild(img);
     };
     reader.readAsDataURL(file);
   });
 }
 
-function removeImage(entryId, imgIndex) {
-  const entry = entries.find(e => e.id === entryId);
-  if (!entry || !entry.images) return;
-  entry.images.splice(imgIndex, 1);
-  renderImages(entryId);
-}
-
-function renderImages(id) {
-  const entry = entries.find(e => e.id === id);
-  if (!entry) return;
-  const grid = document.querySelector('[data-id="' + id + '"] .img-grid');
-  const countEl = document.querySelector('[data-id="' + id + '"] .img-count');
-  if (!grid) return;
-  const imgs = entry.images || [];
-  if (countEl) countEl.textContent = imgs.length > 0 ? imgs.length + ' รูป' : '';
-  grid.innerHTML = imgs.map((img, i) =>
-    '<div class="img-thumb-wrap">' +
-      '<img class="img-thumb" src="' + img.src + '" alt="' + esc(img.name || '') + '" ' +
-        'onclick="openLightbox(\'' + id + '\',' + i + ')" title="คลิกเพื่อขยาย">' +
-      '<button class="img-del-btn no-print" onclick="removeImage(\'' + id + '\',' + i + ')">✕</button>' +
-    '</div>'
-  ).join('');
+function submitEvent() {
+  const title = document.getElementById('f-title').value.trim();
+  if (!title) { document.getElementById('f-title').focus(); return; }
+  const ev = {
+    id: Date.now() + Math.random().toString(36).slice(2,5),
+    title,
+    time:   document.getElementById('f-time').value || nowTime(),
+    status: document.getElementById('f-status').value,
+    reason: document.getElementById('f-reason').value.trim(),
+    images: [...modalImgs],
+  };
+  events.push(ev);
+  events.sort((a,b) => (parseTime(a.time)||0) - (parseTime(b.time)||0));
+  closeModal();
+  render();
 }
 
 /* ── LIGHTBOX ── */
-function openLightbox(entryId, index) {
-  lbEntryId = entryId;
-  lbIndex = index;
-  showLb();
-  document.getElementById('lightbox').classList.add('open');
-}
-function closeLightbox() {
-  document.getElementById('lightbox').classList.remove('open');
-  lbEntryId = null;
-}
-function lbClickOutside(e) {
-  if (e.target === document.getElementById('lightbox')) closeLightbox();
-}
-function showLb() {
-  const entry = entries.find(e => e.id === lbEntryId);
-  if (!entry || !entry.images) return;
-  const imgs = entry.images;
-  document.getElementById('lb-img').src = imgs[lbIndex].src;
-  document.getElementById('lb-counter').textContent = (lbIndex + 1) + ' / ' + imgs.length;
-}
-function lbPrev() {
-  const entry = entries.find(e => e.id === lbEntryId);
-  if (!entry) return;
-  lbIndex = (lbIndex - 1 + entry.images.length) % entry.images.length;
-  showLb();
-}
-function lbNext() {
-  const entry = entries.find(e => e.id === lbEntryId);
-  if (!entry) return;
-  lbIndex = (lbIndex + 1) % entry.images.length;
-  showLb();
-}
-document.addEventListener('keydown', e => {
-  if (!document.getElementById('lightbox').classList.contains('open')) return;
-  if (e.key === 'ArrowLeft')  lbPrev();
-  if (e.key === 'ArrowRight') lbNext();
-  if (e.key === 'Escape')     closeLightbox();
-});
-
-/* ── TIME / SUMMARY ── */
-function calcElapsed(entries) {
-  return entries.map((e, i) => {
-    if (i === 0) return '';
-    const prev = parseTime(entries[0].time);
-    const cur  = parseTime(e.time);
-    if (prev === null || cur === null) return '';
-    let diff = cur - prev;
-    if (diff < 0) diff += 24 * 60;
-    return '+' + diff + 'm';
-  });
-}
-function parseTime(s) {
-  const m = s && s.match(/^(\d{1,2}):(\d{2})$/);
-  if (!m) return null;
-  return parseInt(m[1]) * 60 + parseInt(m[2]);
-}
-function totalDuration(entries) {
-  if (entries.length < 2) return '—';
-  const first = parseTime(entries[0].time);
-  const last  = parseTime(entries[entries.length - 1].time);
-  if (first === null || last === null) return '—';
-  let diff = last - first;
-  if (diff < 0) diff += 24 * 60;
-  const h = Math.floor(diff / 60), m = diff % 60;
-  return h > 0 ? h + 'h ' + m + 'm' : m + ' นาที';
-}
-function updateSummary() {
-  const counts = { normal:0, ok:0, warn:0, danger:0, neutral:0 };
-  entries.forEach(e => { if (counts[e.status] !== undefined) counts[e.status]++; });
-  Object.keys(counts).forEach(k => {
-    const el = document.getElementById('count-' + k);
-    if (el) el.textContent = counts[k];
-  });
-  document.getElementById('total-events').textContent = entries.length;
-  document.getElementById('total-dur').textContent = totalDuration(entries);
+let lbId=null, lbIdx=0;
+function openLightbox(id,idx) {
+  lbId=id; lbIdx=idx;
+  const ev = events.find(e=>e.id===id);
+  if (!ev||!ev.images) return;
+  // simple fullscreen
+  const overlay = document.createElement('div');
+  overlay.id = 'lb-tmp';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:9999;display:flex;align-items:center;justify-content:center;cursor:zoom-out';
+  overlay.innerHTML = '<img src="'+ev.images[idx].src+'" style="max-width:90vw;max-height:88vh;border-radius:6px">';
+  overlay.onclick = () => overlay.remove();
+  document.body.appendChild(overlay);
 }
 
-/* ── RENDER ── */
-function render() {
-  const list  = document.getElementById('entries-list');
-  const empty = document.getElementById('empty-state');
-  const spine = document.getElementById('timeline-spine');
-
-  empty.style.display = entries.length === 0 ? 'block' : 'none';
-  spine.style.display = entries.length === 0 ? 'none'  : 'block';
-
-  const elapsed = calcElapsed(entries);
-
-  list.innerHTML = entries.map((e, i) => {
-    const sc   = statusConfig[e.status] || statusConfig.normal;
-    const imgs = e.images || [];
-    return (
-      '<div class="timeline-entry" data-id="' + e.id + '">' +
-        '<div class="entry-time">' +
-          '<span class="time-display">' + (e.time || '—:—') + '</span>' +
-          '<span class="time-elapsed">' + elapsed[i] + '</span>' +
-        '</div>' +
-        '<div class="entry-dot ' + sc.cls + '"></div>' +
-        '<div class="entry-card ' + sc.cls + '">' +
-
-          /* row 1: tag + title + action buttons */
-          '<div class="card-row1">' +
-            '<div class="card-title-wrap">' +
-              '<span class="card-tag ' + sc.tag + '">' + sc.label + '</span><br>' +
-              '<input class="card-title" placeholder="ชื่อ Event / ขั้นตอน..." value="' + esc(e.title) + '" ' +
-                'oninput="updateEntry(\'' + e.id + '\',\'title\',this.value)">' +
-            '</div>' +
-            '<div class="card-actions no-print">' +
-              '<button class="icon-btn" title="เพิ่ม event ต่อจากนี้" onclick="addEntry(\'' + e.id + '\')">＋</button>' +
-              '<button class="icon-btn delete" title="ลบ" onclick="removeEntry(\'' + e.id + '\')">✕</button>' +
-            '</div>' +
-          '</div>' +
-
-          /* row 2: time + status */
-          '<div class="card-row2">' +
-            '<input class="time-input" type="time" value="' + e.time + '" ' +
-              'oninput="updateEntry(\'' + e.id + '\',\'time\',this.value); renderTimes()">' +
-            '<select class="status-select" onchange="updateEntry(\'' + e.id + '\',\'status\',this.value); renderStatus(\'' + e.id + '\',this.value)">' +
-              '<option value="normal"  ' + (e.status==='normal'  ?'selected':'') + '>🔵 ปกติ</option>' +
-              '<option value="ok"      ' + (e.status==='ok'      ?'selected':'') + '>🟢 สำเร็จ</option>' +
-              '<option value="warn"    ' + (e.status==='warn'    ?'selected':'') + '>🟡 แจ้งเตือน</option>' +
-              '<option value="danger"  ' + (e.status==='danger'  ?'selected':'') + '>🔴 ปัญหา</option>' +
-              '<option value="neutral" ' + (e.status==='neutral' ?'selected':'') + '>⚪ ข้อมูล</option>' +
-            '</select>' +
-          '</div>' +
-
-          /* reason */
-          '<textarea class="card-reason" placeholder="เหตุผล / หมายเหตุ / สิ่งที่ทำ..." ' +
-            'oninput="updateEntry(\'' + e.id + '\',\'reason\',this.value); autoResize(this)">' + esc(e.reason) + '</textarea>' +
-
-          /* ── IMAGE SECTION ── */
-          '<div class="img-section">' +
-            /* hidden inputs */
-            '<input type="file" id="file-input-' + e.id + '" class="file-input-hidden" multiple accept="image/*" ' +
-              'onchange="handleFiles(\'' + e.id + '\', this.files)">' +
-            '<input type="file" id="camera-input-' + e.id + '" class="file-input-hidden" accept="image/*" capture="environment" ' +
-              'onchange="handleFiles(\'' + e.id + '\', this.files)">' +
-
-            /* upload bar */
-            '<div class="img-upload-bar no-print">' +
-              '<button class="img-btn" onclick="triggerFileInput(\'' + e.id + '\')" title="เลือกรูปจากไฟล์">📁 เลือกรูปภาพ</button>' +
-              '<button class="img-btn img-btn-camera" onclick="triggerCameraInput(\'' + e.id + '\')" title="ถ่ายรูปจากกล้อง">📷 ถ่ายรูป</button>' +
-              '<span class="img-count">' + (imgs.length > 0 ? imgs.length + ' รูป' : '') + '</span>' +
-            '</div>' +
-
-            /* image grid */
-            '<div class="img-grid">' +
-              imgs.map((img, idx) =>
-                '<div class="img-thumb-wrap">' +
-                  '<img class="img-thumb" src="' + img.src + '" alt="' + esc(img.name||'') + '" ' +
-                    'onclick="openLightbox(\'' + e.id + '\',' + idx + ')" title="คลิกเพื่อขยาย">' +
-                  '<button class="img-del-btn no-print" onclick="removeImage(\'' + e.id + '\',' + idx + ')">✕</button>' +
-                '</div>'
-              ).join('') +
-            '</div>' +
-          '</div>' +
-
-        '</div>' +
-      '</div>'
-    );
-  }).join('');
-
-  list.querySelectorAll('.card-reason').forEach(ta => autoResize(ta));
-  updateSummary();
-}
-
-function renderTimes() {
-  const elapsed = calcElapsed(entries);
-  entries.forEach((e, i) => {
-    const wrap = document.querySelector('[data-id="' + e.id + '"]');
-    if (!wrap) return;
-    const td = wrap.querySelector('.time-display');
-    const te = wrap.querySelector('.time-elapsed');
-    if (td) td.textContent = e.time || '—:—';
-    if (te) te.textContent = elapsed[i];
-  });
-  updateSummary();
-}
-
-function renderStatus(id, status) {
-  const sc   = statusConfig[status] || statusConfig.normal;
-  const wrap = document.querySelector('[data-id="' + id + '"]');
-  if (!wrap) return;
-  wrap.querySelector('.entry-dot').className  = 'entry-dot '  + sc.cls;
-  wrap.querySelector('.entry-card').className = 'entry-card ' + sc.cls;
-  const tag = wrap.querySelector('.card-tag');
-  tag.className   = 'card-tag ' + sc.tag;
-  tag.textContent = sc.label;
-}
-
-function autoResize(el) {
-  el.style.height = 'auto';
-  el.style.height = el.scrollHeight + 'px';
-}
-
-function esc(s) {
-  return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-/* ── LINE → PRODUCT MAP ── */
-const LINE_PRODUCTS = {
-  'Polo 12A':  ['Nestle Jelly Lychee','Milo Magma Stick','Eski Nomyen Stick','Milo Chocolate Malt Stk','Milo Chocolate Malt Stick'],
-  'Polo 12B':  ['La Frutta 5 Wonder Fruits Stk','La Frutta Yogurt Lychee','La Frutta Yen Yen Longan','La Frutta Coconut Pandan','Vanilla Strw Stk','Eski Extra Turbo Stick','Eski Power Missile','Nestle Bear Milk Monkey Stick'],
-  'Comet':     ['Oreo Cup FS','Milo Cup','Nestle Milo Cup FS','Kit Kat Cup FS','Nestle Chocolate Chip Cup','Milo Medium Cone','Milo Cone','Nestea Thai Tea Cup FS','Chocolate Chip Cup','DSTK Stranger Things Cone','Nestle Coconut Cup FS','Milo Intense Cone','Extreme Vanilla Cone'],
-  'Bolo Plus': ['Drumsticks Plus Buff','Drumsticks Plus Choc','Eski Stic Buff','Milo Honey','Nestle Tart Stk','Nestle Tart Mix Tea Stk','Nestle Tart Yogurt','Nestle Bear Pick Pandan Tree Stk'],
-  'Maxti':     ['10% Lactose','Ice Cream Yogurt Strawberry','10% Cream Mix'],
-  'Sandwich':  ['Milo Sandwich','Oreo Sandwich','Nestle Milo Sandwich','Oreo Sandwich Mix','Nestle Sandwich Mix Stk','Kite Sandwich Stk'],
-  'Hoyer':     ['Icecream TM Vanilla Minis','Nestle Tart Top Stk','Nestle Tama Stk','Nestle Drumstick Stick','Extreme TM Lwy Stk'],
-  'Diamond':   ['Eski Bar Nestle Milk','Nestle Drumstick Milk','Brookside Strawberry Milk','Eski Bar Nesvita Milk','Kit Kat Nestle Milk','Eski Bar Mini Drum','Eski Bar Taro','Snow Blue Stick','Eski Bar Fruit Stk','Snow Cram Stamp','La Frutta Jelly Frozen Apple Stk','Extreme HP Mimi Stk'],
-  'Glacé':     ['Vari Burnely Mult','Vari Tango Stk','Nestle Laban Kk Stk'],
-  'Scooping':  ['Nestle Cone Vanilla','Nestle Cone Choc 5.6kg','Nestle Cone Choc 3.8kg','Nestle Cone Van 3.8kg','Nestle Cone Thai 3.8kg','Nestle Cone 6.1kg','Nestle Cone 4.1kg','Nestle Cone French Van','Nestle Bean Ton 5.6kg'],
-  'Mixing 1':  [],
-  'Mixing 2':  [],
-};
-
+/* ── LINE → PRODUCT ── */
 function onLineChange() {
-  const line  = document.getElementById('meta-line').value;
-  const sel   = document.getElementById('meta-product');
+  const line = document.getElementById('meta-line').value;
+  const sel  = document.getElementById('meta-product');
   const prods = LINE_PRODUCTS[line] || [];
   if (!line) {
     sel.innerHTML = '<option value="">— เลือก Line ก่อน —</option>';
-  } else if (prods.length === 0) {
+  } else if (!prods.length) {
     sel.innerHTML = '<option value="">— (ยังไม่มีข้อมูล) —</option>';
   } else {
-    sel.innerHTML = '<option value="">— เลือกผลิตภัณฑ์ —</option>' +
-      prods.map(p => '<option>' + p + '</option>').join('');
+    sel.innerHTML = '<option value="">— เลือกผลิตภัณฑ์ —</option>' + prods.map(p=>'<option>'+p+'</option>').join('');
   }
 }
+
+/* ── DRAG SCROLL ── */
+(function(){
+  const el = document.getElementById('tl-outer');
+  let down=false, sx, sl;
+  el.addEventListener('mousedown', e => { down=true; sx=e.pageX-el.offsetLeft; sl=el.scrollLeft; });
+  el.addEventListener('mouseleave', ()=>down=false);
+  el.addEventListener('mouseup',    ()=>down=false);
+  el.addEventListener('mousemove', e => {
+    if (!down) return; e.preventDefault();
+    el.scrollLeft = sl-(e.pageX-el.offsetLeft-sx);
+  });
+})();
+
+/* ── UTILS ── */
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 /* ── INIT ── */
 document.getElementById('meta-date').value = new Date().toISOString().slice(0,10);
 
-entries = [
-  { id: genId(), time: '08:00', title: 'เริ่มต้น Production', reason: 'เริ่ม shift เช้า ตรวจสอบความพร้อมของเครื่องจักรและวัตถุดิบ', status: 'normal', images: [] },
-  { id: genId(), time: '09:30', title: 'CIP เสร็จสิ้น', reason: 'ล้าง tank เสร็จตามขั้นตอน ผ่าน conductivity check', status: 'ok', images: [] },
-  { id: genId(), time: '10:15', title: 'อุณหภูมิ pasteurize ต่ำกว่า spec', reason: 'อุณหภูมิลดลงเหลือ 78°C (spec ≥80°C) แจ้ง supervisor และปรับ steam valve', status: 'warn', images: [] },
+// sample events
+events = [
+  { id:'1', time:'07:00', title:'เริ่ม Shift เช้า',           status:'normal', reason:'ตรวจสอบความพร้อมเครื่องจักรและวัตถุดิบ', images:[] },
+  { id:'2', time:'08:15', title:'CIP เสร็จสิ้น',               status:'ok',     reason:'ผ่าน conductivity check ครบทุกขั้นตอน', images:[] },
+  { id:'3', time:'09:00', title:'เริ่ม Pasteurize',             status:'normal', reason:'อุณหภูมิ 85°C ปกติ', images:[] },
+  { id:'4', time:'10:15', title:'อุณหภูมิต่ำกว่า Spec',         status:'warn',   reason:'ลดเหลือ 78°C แจ้ง supervisor ปรับ steam valve', images:[] },
+  { id:'5', time:'10:45', title:'อุณหภูมิกลับสู่ปกติ',          status:'ok',     reason:'85°C ตรงตาม spec แล้ว', images:[] },
+  { id:'6', time:'13:00', title:'หยุด Line ฉุกเฉิน',            status:'danger', reason:'Conveyor belt หัก รอช่างซ่อม', images:[] },
+  { id:'7', time:'14:30', title:'กลับมา Production',            status:'ok',     reason:'ซ่อมเสร็จ ทดสอบ run ผ่าน', images:[] },
+  { id:'8', time:'17:00', title:'End of Shift',                 status:'neutral',reason:'ส่งมอบ batch ครบ target', images:[] },
 ];
+events.sort((a,b)=>(parseTime(a.time)||0)-(parseTime(b.time)||0));
 render();
+
+setInterval(updateNowLine, 60000);
 </script>
 </body>
 </html>
