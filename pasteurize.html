@@ -853,8 +853,13 @@ function buildStepHtml(st, i, stepsLen, pcol, rid, row){
       }
       return `<div style="font-family:var(--mono);font-size:10px;font-weight:800;color:#065f46;text-align:center;margin-top:4px;padding:3px 6px;border-radius:6px;background:rgba(5,150,105,.15);border:1.5px solid #059669">✅ พร้อม Past</div>`;
     })();
+    const _stMap={empty:'○ ว่าง',pending:'⏳ รอ',san_done:'✨ พร้อม Past',pasteurising:'♨️ กำลัง Past',past_done:'✅ Past Done',aging:'🌡️ บ่ม',filling:'🔵 Filling',cip:'🟣 CIP',san:'🧴 Sanitize',ready:'✅ พร้อม'};
+    const _stColor=_agSt.status==='empty'?'#6b7280':_agSt.status==='san_done'?'#059669':_agSt.status==='pasteurising'?'#2563eb':_agSt.status==='aging'?'#0e7490':_agSt.status==='past_done'?'#15803d':_agSt.status==='filling'?'#ea580c':_agSt.status==='cip'?'#7c3aed':_agSt.status==='san'?'#0891b2':'#374151';
+    const _stLabel=_stMap[_agSt.status||'']||(_agSt.status||'');
+    const _agStatusHtml=_agId?`<div style="font-family:var(--mono);font-size:10px;font-weight:800;padding:2px 8px;border-radius:20px;margin-top:3px;display:inline-block;background:${_stColor}22;color:${_stColor};border:1.5px solid ${_stColor}55">${_stLabel}</div>`:'';
+    const _agInfoHtml=(_agSt.mix_name||_agSt.mix_code)?`<div style="font-size:9px;font-weight:700;color:#374151;margin-top:2px;line-height:1.2;text-align:center">${_agSt.mix_name||_agSt.mix_code||''}${_v>0?' · '+Math.round(_v).toLocaleString()+' L':''}</div>`:'';
     nodeHtml = _svgAg
-      ? `<div class="tv3-step" style="width:130px">${_svgAg}<div class="tv3-sn ${snCls}" style="margin-top:4px">Aging Tank</div><div class="tv3-sv ${svCls}">${_agId||(_v>0?Math.round(_v).toLocaleString()+' L':st.kg)}</div>${_sanHtml}${_expHtml}${_tempHtml}</div>`
+      ? `<div class="tv3-step" style="width:130px">${_svgAg}<div class="tv3-sn ${snCls}" style="margin-top:4px">Aging Tank</div><div class="tv3-sv ${svCls}">${_agId||(_v>0?Math.round(_v).toLocaleString()+' L':st.kg)}</div>${_agStatusHtml}${_agInfoHtml}${_sanHtml}${_expHtml}${_tempHtml}</div>`
       : `<div class="tv3-step"><div class="tv3-circle ${cls}"><span style="font-size:28px">${st.ico}</span></div><div class="tv3-sn ${snCls}">${st.name}</div><div class="tv3-sv ${svCls}">${st.kg}</div></div>`;
   } else {
     const ccpStyle = st.isCCP&&st.autoDone ? 'background:#d1fae5;border-color:#10b981;border-width:3px' : '';
@@ -1480,6 +1485,50 @@ window.stampTime=async(col,id,field,p)=>{
         const _minAgo=(()=>{const _tp=_earliest.mix_end_time.split(':').map(Number);const _np=_thisMixEnd.split(':').map(Number);return Math.round(((_np[0]||0)*60+(_np[1]||0)-((_tp[0]||0)*60+(_tp[1]||0))));})();
         const _ok=window.confirm(`⚠️ ข้ามลำดับการ Pasteurise!\n\nมี batch ที่ผสมเสร็จก่อนหน้านี้ยังรอ Past อยู่:\n📦 ${_earliest.mixing_tank||'—'} · ${_earliest.mix_name||_earliest.mix_code||'—'}\n⏰ Mixing เสร็จ: ${_earliest.mix_end_time} (${_minAgo} นาทีก่อน)\n\nคุณกำลัง Start: ${_thisRow.mixing_tank||'—'} · ${_thisRow.mix_name||_thisRow.mix_code||'—'}\n⏰ Mixing เสร็จ: ${_thisMixEnd}\n\nยืนยันที่จะ Past ข้ามลำดับไหม?`);
         if(!_ok)return;
+      }
+    }
+    // ── เช็คสถานะ aging_tank ก่อน stamp ──
+    const _chkRow=rows[p]?.find(r=>r.id===id);
+    if(_chkRow?.aging_tank){
+      const _tid=_chkRow.aging_tank;
+      const _ts=window._agingStates?.[_tid]||{};
+      const _tst=_ts.status||'empty';
+      // เช็ค continuous past ก่อน — ถ้ามี batch กำลัง past ในถังเดียวกัน PO เดียวกัน → ผ่านเลย
+      const _allRowsChk=[...(rows['p1']||[]),...(rows['p2']||[])];
+      const _isCont=_allRowsChk.some(r=>
+        r.id!==id&&
+        r.aging_tank===_tid&&
+        r.process_order===_chkRow.process_order&&
+        r.status==='pasteurising'&&
+        !!r.past_start_time&&!r.past_end_time
+      );
+      if(!_isCont){
+        // san_done — เช็คครบ 20 นาทีไหม
+        if(_tst==='san_done'){
+          if(_ts.san_stop_time){
+            const _sp=_ts.san_stop_time.split(':').map(Number);
+            const _now2=new Date();
+            const _nowSec=_now2.getHours()*3600+_now2.getMinutes()*60+_now2.getSeconds();
+            const _sanSec=(_sp[0]||0)*3600+(_sp[1]||0)*60+(_sp[2]||0);
+            let _diff=_nowSec-_sanSec;if(_diff<0)_diff+=86400;
+            const _wait=20*60;
+            if(_diff<_wait){
+              const _rem=Math.ceil((_wait-_diff)/60);
+              toast(`🔵 ถัง ${_tid} Sanitize เสร็จแล้ว แต่รอไม่ครบ 20 นาที — เหลืออีก ${_rem} นาที`,'red');
+              return;
+            }
+            // ครบ 20 นาทีแล้ว → ผ่าน
+          } else {
+            toast(`🔵 ถัง ${_tid} Sanitize เสร็จแล้ว กรุณารอครบ 20 นาทีก่อน`,'red');
+            return;
+          }
+        } else {
+          // status อื่นทั้งหมด → บล็อก
+          const _stMap={empty:'○ ว่าง',aging:'🌡️ บ่มอยู่',filling:'🔵 Filling อยู่',cip:'🟣 CIP อยู่',san:'🧴 Sanitize อยู่',past_done:'✅ Past Done',ready:'✅ พร้อม',pasteurising:'♨️ กำลัง Past อยู่'};
+          const _stLbl=_stMap[_tst]||_tst;
+          toast(`🔒 ถัง ${_tid} สถานะ: ${_stLbl} — ไม่สามารถ Past ได้ตอนนี้`,'red');
+          return;
+        }
       }
     }
     // คำนวณ expected_finish_time ทันที
