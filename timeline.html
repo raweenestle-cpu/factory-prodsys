@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<!-- v1.2.0 -->
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Production Timeline</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a2e;
+    --ink-soft: #4a4a6a;
+    --ink-muted: #9090b0;
+    --line: #e0e0f0;
+    --bg: #f7f7fc;
+    --card: #ffffff;
+    --accent: #2563eb;
+    --accent-light: #eff6ff;
+    --ok: #059669;
+    --ok-light: #ecfdf5;
+    --warn: #d97706;
+    --warn-light: #fffbeb;
+    --danger: #dc2626;
+    --danger-light: #fef2f2;
+    --neutral: #6b7280;
+    --neutral-light: #f9fafb;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'IBM Plex Sans Thai', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 0 0 80px 0;
+  }
+
+  /* ── HEADER ── */
+  .page-header {
+    background: var(--ink);
+    color: white;
+    padding: 28px 40px 24px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+  }
+  .header-left { flex: 1; }
+  .header-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.45);
+    margin-bottom: 6px;
+  }
+  .header-title { font-size: 22px; font-weight: 600; letter-spacing: -0.3px; }
+  .header-meta { display: flex; gap: 20px; align-items: center; margin-top: 10px; flex-wrap: wrap; }
+  .meta-field { display: flex; flex-direction: column; gap: 2px; }
+  .meta-label {
+    font-size: 10px; letter-spacing: 1px; text-transform: uppercase;
+    color: rgba(255,255,255,0.4); font-family: 'IBM Plex Mono', monospace;
+  }
+  .meta-input {
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+    color: white; font-family: 'IBM Plex Mono', monospace; font-size: 13px;
+    padding: 5px 10px; border-radius: 4px; outline: none; min-width: 140px;
+  }
+  .meta-input:focus { border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.12); }
+  .meta-input::placeholder { color: rgba(255,255,255,0.25); }
+  .header-right { display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 7px; padding: 8px 16px;
+    border-radius: 6px; font-size: 13px; font-weight: 500;
+    font-family: 'IBM Plex Sans Thai', sans-serif; cursor: pointer;
+    border: none; transition: all 0.15s; white-space: nowrap;
+  }
+  .btn-ghost { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.85); border: 1px solid rgba(255,255,255,0.2); }
+  .btn-ghost:hover { background: rgba(255,255,255,0.18); }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: #1d4ed8; }
+
+  /* ── SUMMARY BAR ── */
+  .summary-bar {
+    background: white; border-bottom: 1px solid var(--line);
+    padding: 14px 40px; display: flex; gap: 32px; align-items: center; flex-wrap: wrap;
+  }
+  .summary-item { display: flex; align-items: center; gap: 10px; }
+  .summary-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .summary-text { font-size: 13px; color: var(--ink-soft); }
+  .summary-text strong { color: var(--ink); font-weight: 600; }
+  .summary-divider { width: 1px; height: 20px; background: var(--line); }
+  .total-duration { font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: var(--ink-soft); margin-left: auto; }
+  .total-duration strong { color: var(--accent); font-size: 15px; }
+
+  /* ── MAIN ── */
+  .main { max-width: 860px; margin: 0 auto; padding: 36px 40px; }
+
+  /* ── TIMELINE ── */
+  .timeline { position: relative; }
+  .timeline-spine {
+    position: absolute; left: 103px; top: 0; bottom: 0;
+    width: 2px; background: linear-gradient(to bottom, var(--accent) 0%, var(--line) 100%); z-index: 0;
+  }
+  .timeline-entry {
+    display: grid; grid-template-columns: 100px 1fr;
+    gap: 0 24px; margin-bottom: 8px; position: relative;
+    animation: slideIn 0.25s ease forwards;
+  }
+  @keyframes slideIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+  .entry-time { text-align: right; padding-top: 14px; z-index: 1; }
+  .time-display { font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 500; color: var(--ink); display: block; line-height: 1.2; }
+  .time-elapsed { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--ink-muted); margin-top: 2px; display: block; }
+
+  .entry-dot {
+    position: absolute; left: 97px; top: 16px;
+    width: 14px; height: 14px; border-radius: 50%;
+    border: 2px solid white; z-index: 2; transition: transform 0.2s;
+  }
+  .timeline-entry:hover .entry-dot { transform: scale(1.3); }
+
+  .entry-card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 8px;
+    padding: 14px 16px; box-shadow: var(--shadow); position: relative;
+    transition: box-shadow 0.15s; z-index: 1;
+  }
+  .entry-card:hover { box-shadow: var(--shadow-md); }
+  .entry-card::before {
+    content: ''; position: absolute; left: 0; top: 8px; bottom: 8px;
+    width: 3px; border-radius: 0 2px 2px 0;
+  }
+  .entry-card.status-normal::before { background: var(--accent); }
+  .entry-card.status-ok::before     { background: var(--ok); }
+  .entry-card.status-warn::before   { background: var(--warn); }
+  .entry-card.status-danger::before { background: var(--danger); }
+  .entry-card.status-neutral::before{ background: var(--neutral); }
+
+  .entry-dot.status-normal  { background: var(--accent); }
+  .entry-dot.status-ok      { background: var(--ok); }
+  .entry-dot.status-warn    { background: var(--warn); }
+  .entry-dot.status-danger  { background: var(--danger); }
+  .entry-dot.status-neutral { background: var(--neutral); }
+
+  .card-row1 { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+  .card-title-wrap { flex: 1; }
+  .card-tag {
+    display: inline-block; font-size: 10px; font-family: 'IBM Plex Mono', monospace;
+    letter-spacing: 0.5px; padding: 2px 7px; border-radius: 3px;
+    margin-bottom: 5px; text-transform: uppercase; font-weight: 500;
+  }
+  .tag-normal  { background: var(--accent-light); color: var(--accent); }
+  .tag-ok      { background: var(--ok-light);     color: var(--ok); }
+  .tag-warn    { background: var(--warn-light);   color: var(--warn); }
+  .tag-danger  { background: var(--danger-light); color: var(--danger); }
+  .tag-neutral { background: var(--neutral-light);color: var(--neutral); }
+
+  .card-title {
+    font-size: 14px; font-weight: 600; color: var(--ink);
+    border: none; outline: none; width: 100%;
+    font-family: 'IBM Plex Sans Thai', sans-serif; background: transparent; padding: 0;
+  }
+  .card-title::placeholder { color: var(--ink-muted); font-weight: 400; }
+
+  .card-actions { display: flex; gap: 6px; flex-shrink: 0; }
+  .icon-btn {
+    width: 28px; height: 28px; border-radius: 5px; border: 1px solid var(--line);
+    background: white; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    color: var(--ink-muted); font-size: 13px; transition: all 0.15s; outline: none;
+  }
+  .icon-btn:hover { background: var(--bg); color: var(--ink); border-color: var(--ink-muted); }
+  .icon-btn.delete:hover { background: #fef2f2; color: var(--danger); border-color: var(--danger); }
+
+  .card-row2 { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; flex-wrap: wrap; }
+  .time-input {
+    font-family: 'IBM Plex Mono', monospace; font-size: 12px; padding: 4px 8px;
+    border: 1px solid var(--line); border-radius: 4px; outline: none; color: var(--ink); background: var(--bg); width: 130px;
+  }
+  .time-input:focus { border-color: var(--accent); background: white; }
+  .status-select {
+    font-family: 'IBM Plex Sans Thai', sans-serif; font-size: 12px; padding: 4px 8px;
+    border: 1px solid var(--line); border-radius: 4px; outline: none; color: var(--ink); background: var(--bg); cursor: pointer;
+  }
+  .status-select:focus { border-color: var(--accent); background: white; }
+
+  .card-reason {
+    font-size: 13px; color: var(--ink-soft); border: none; outline: none;
+    width: 100%; font-family: 'IBM Plex Sans Thai', sans-serif;
+    background: transparent; resize: none; min-height: 36px; line-height: 1.5; padding: 0;
+  }
+  .card-reason::placeholder { color: var(--ink-muted); font-style: italic; }
+
+  /* ── IMAGE SECTION ── */
+  .img-section { margin-top: 10px; }
+
+  .img-upload-bar {
+    display: flex; gap: 8px; align-items: center; margin-bottom: 8px;
+  }
+  .img-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 12px; border-radius: 5px; font-size: 12px;
+    font-family: 'IBM Plex Sans Thai', sans-serif; cursor: pointer;
+    border: 1px solid var(--line); background: var(--bg); color: var(--ink-soft);
+    transition: all 0.15s; white-space: nowrap;
+  }
+  .img-btn:hover { background: var(--accent-light); border-color: var(--accent); color: var(--accent); }
+  .img-btn-camera:hover { background: var(--ok-light); border-color: var(--ok); color: var(--ok); }
+  .img-count { font-size: 11px; color: var(--ink-muted); font-family: 'IBM Plex Mono', monospace; }
+
+  .img-grid {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    margin-top: 4px;
+  }
+  .img-thumb-wrap {
+    position: relative; width: 90px; height: 90px;
+    border-radius: 6px; overflow: hidden;
+    border: 1px solid var(--line); background: var(--bg);
+    flex-shrink: 0;
+  }
+  .img-thumb {
+    width: 100%; height: 100%; object-fit: cover;
+    display: block; cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  .img-thumb:hover { opacity: 0.85; }
+  .img-del-btn {
+    position: absolute; top: 3px; right: 3px;
+    width: 20px; height: 20px; border-radius: 50%;
+    background: rgba(0,0,0,0.55); color: white;
+    border: none; cursor: pointer; font-size: 11px;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; transition: opacity 0.15s;
+  }
+  .img-thumb-wrap:hover .img-del-btn { opacity: 1; }
+
+  /* hidden file inputs */
+  .file-input-hidden { display: none; }
+
+  /* ── LIGHTBOX ── */
+  .lightbox {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.88); z-index: 9999;
+    align-items: center; justify-content: center;
+    flex-direction: column; gap: 12px;
+  }
+  .lightbox.open { display: flex; }
+  .lightbox-img {
+    max-width: 92vw; max-height: 82vh;
+    border-radius: 6px; object-fit: contain;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+  }
+  .lightbox-nav {
+    display: flex; gap: 16px; align-items: center;
+  }
+  .lb-btn {
+    background: rgba(255,255,255,0.15); border: none;
+    color: white; padding: 8px 20px; border-radius: 6px;
+    font-size: 18px; cursor: pointer; transition: background 0.15s;
+  }
+  .lb-btn:hover { background: rgba(255,255,255,0.28); }
+  .lb-counter { color: rgba(255,255,255,0.6); font-family: 'IBM Plex Mono', monospace; font-size: 13px; }
+  .lb-close {
+    position: absolute; top: 16px; right: 20px;
+    background: none; border: none; color: white;
+    font-size: 28px; cursor: pointer; line-height: 1;
+    opacity: 0.7; transition: opacity 0.15s;
+  }
+  .lb-close:hover { opacity: 1; }
+
+  /* ── ADD / EMPTY ── */
+  .add-row { display: grid; grid-template-columns: 100px 1fr; gap: 0 24px; margin-top: 4px; }
+  .add-btn {
+    display: flex; align-items: center; gap: 8px; padding: 12px 16px;
+    border: 1.5px dashed var(--line); border-radius: 8px; background: transparent;
+    color: var(--ink-muted); font-size: 13px; font-family: 'IBM Plex Sans Thai', sans-serif;
+    cursor: pointer; transition: all 0.15s; width: 100%; justify-content: center;
+  }
+  .add-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--ink-muted); }
+  .empty-icon { font-size: 40px; margin-bottom: 12px; }
+  .empty-text { font-size: 14px; }
+
+  /* ── PRINT ── */
+  @media print {
+    body { background: white; padding: 0; }
+    .page-header { background: #1a1a2e !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; padding: 20px 30px; }
+    .no-print { display: none !important; }
+    .entry-card { box-shadow: none; border-color: #ddd; }
+    .icon-btn, .add-row, .img-upload-bar, .img-del-btn, .lightbox { display: none !important; }
+    .main { padding: 20px 30px; }
+    .card-title, .card-reason, .time-input, .status-select, .meta-input { border: none !important; background: transparent !important; }
+    .img-grid { gap: 6px; }
+    .img-thumb-wrap { width: 110px; height: 110px; }
+    .timeline-entry { break-inside: avoid; margin-bottom: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="page-header">
+  <div class="header-left">
+    <div class="header-label">Production Timeline Record</div>
+    <div class="header-title">บันทึกเหตุการณ์สายการผลิต</div>
+    <div class="header-meta">
+      <div class="meta-field">
+        <span class="meta-label">Line</span>
+        <select class="meta-input" id="meta-line" onchange="onLineChange()" style="min-width:160px;cursor:pointer">
+          <option value="">— เลือก Line —</option>
+          <optgroup label="BANGCHAN LINES">
+            <option>Polo 12A</option>
+            <option>Polo 12B</option>
+            <option>Comet</option>
+            <option>Bolo Plus</option>
+            <option>Maxti</option>
+            <option>Sandwich</option>
+          </optgroup>
+          <optgroup label="POLA LINES">
+            <option>Hoyer</option>
+            <option>Diamond</option>
+            <option>Glacé</option>
+            <option>Scooping</option>
+          </optgroup>
+          <optgroup label="MIXING">
+            <option>Mixing 1</option>
+            <option>Mixing 2</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="meta-field">
+        <span class="meta-label">Product</span>
+        <select class="meta-input" id="meta-product" style="min-width:200px;cursor:pointer">
+          <option value="">— เลือก Line ก่อน —</option>
+        </select>
+      </div>
+      <div class="meta-field">
+        <span class="meta-label">Date</span>
+        <input class="meta-input" id="meta-date" type="date">
+      </div>
+      <div class="meta-field">
+        <span class="meta-label">Shift</span>
+        <input class="meta-input" id="meta-shift" placeholder="เช่น A / Day" maxlength="20" style="min-width:100px">
+      </div>
+      <div class="meta-field">
+        <span class="meta-label">Operator</span>
+        <input class="meta-input" id="meta-op" placeholder="ชื่อผู้บันทึก" maxlength="40">
+      </div>
+    </div>
+  </div>
+  <div class="header-right no-print">
+    <button class="btn btn-ghost" onclick="window.print()">🖨 Print / PDF</button>
+    <button class="btn btn-primary" onclick="addEntry()">+ เพิ่ม Event</button>
+  </div>
+</div>
+
+<!-- SUMMARY BAR -->
+<div class="summary-bar">
+  <div class="summary-item">
+    <div class="summary-dot" style="background:var(--accent)"></div>
+    <div class="summary-text"><strong id="count-normal">0</strong> ปกติ</div>
+  </div>
+  <div class="summary-item">
+    <div class="summary-dot" style="background:var(--ok)"></div>
+    <div class="summary-text"><strong id="count-ok">0</strong> สำเร็จ</div>
+  </div>
+  <div class="summary-item">
+    <div class="summary-dot" style="background:var(--warn)"></div>
+    <div class="summary-text"><strong id="count-warn">0</strong> แจ้งเตือน</div>
+  </div>
+  <div class="summary-item">
+    <div class="summary-dot" style="background:var(--danger)"></div>
+    <div class="summary-text"><strong id="count-danger">0</strong> ปัญหา</div>
+  </div>
+  <div class="summary-divider"></div>
+  <div class="total-duration">
+    รวม <strong id="total-events">0</strong> events &nbsp;·&nbsp; ระยะเวลา <strong id="total-dur">—</strong>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="timeline" id="timeline-container">
+    <div class="timeline-spine" id="timeline-spine"></div>
+    <div id="entries-list"></div>
+    <div class="empty-state" id="empty-state">
+      <div class="empty-icon">📋</div>
+      <div class="empty-text">ยังไม่มี event — กด <strong>+ เพิ่ม Event</strong> เพื่อเริ่มบันทึก</div>
+    </div>
+    <div class="add-row no-print">
+      <div></div>
+      <button class="add-btn" onclick="addEntry()">＋ เพิ่ม Event ใหม่</button>
+    </div>
+  </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="lbClickOutside(event)">
+  <button class="lb-close" onclick="closeLightbox()">✕</button>
+  <img class="lightbox-img" id="lb-img" src="" alt="">
+  <div class="lightbox-nav">
+    <button class="lb-btn" onclick="lbPrev()">‹</button>
+    <span class="lb-counter" id="lb-counter"></span>
+    <button class="lb-btn" onclick="lbNext()">›</button>
+  </div>
+</div>
+
+<script>
+let entries = [];
+
+// Lightbox state
+let lbEntryId = null;
+let lbIndex = 0;
+
+const statusConfig = {
+  normal:  { label: 'ปกติ',      tag: 'tag-normal',  cls: 'status-normal'  },
+  ok:      { label: 'สำเร็จ',    tag: 'tag-ok',      cls: 'status-ok'      },
+  warn:    { label: 'แจ้งเตือน', tag: 'tag-warn',    cls: 'status-warn'    },
+  danger:  { label: 'ปัญหา',     tag: 'tag-danger',  cls: 'status-danger'  },
+  neutral: { label: 'ข้อมูล',    tag: 'tag-neutral', cls: 'status-neutral' },
+};
+
+function genId() { return Date.now() + Math.random().toString(36).slice(2,6); }
+function nowTime() { return new Date().toTimeString().slice(0,5); }
+
+/* ── ENTRY CRUD ── */
+function addEntry(afterId = null) {
+  const id = genId();
+  const entry = { id, time: nowTime(), title: '', reason: '', status: 'normal', images: [] };
+  if (afterId) {
+    const idx = entries.findIndex(e => e.id === afterId);
+    entries.splice(idx + 1, 0, entry);
+  } else {
+    entries.push(entry);
+  }
+  render();
+  setTimeout(() => {
+    const el = document.querySelector('[data-id="' + id + '"] .card-title');
+    if (el) el.focus();
+  }, 50);
+}
+
+function removeEntry(id) {
+  entries = entries.filter(e => e.id !== id);
+  render();
+}
+
+function updateEntry(id, field, value) {
+  const e = entries.find(e => e.id === id);
+  if (e) { e[field] = value; updateSummary(); }
+}
+
+/* ── IMAGE HANDLING ── */
+function triggerFileInput(id) {
+  document.getElementById('file-input-' + id).click();
+}
+function triggerCameraInput(id) {
+  document.getElementById('camera-input-' + id).click();
+}
+
+function handleFiles(id, files) {
+  const entry = entries.find(e => e.id === id);
+  if (!entry) return;
+  if (!entry.images) entry.images = [];
+  const toLoad = Array.from(files);
+  let loaded = 0;
+  toLoad.forEach(file => {
+    if (!file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      entry.images.push({ src: ev.target.result, name: file.name });
+      loaded++;
+      if (loaded === toLoad.length) renderImages(id);
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function removeImage(entryId, imgIndex) {
+  const entry = entries.find(e => e.id === entryId);
+  if (!entry || !entry.images) return;
+  entry.images.splice(imgIndex, 1);
+  renderImages(entryId);
+}
+
+function renderImages(id) {
+  const entry = entries.find(e => e.id === id);
+  if (!entry) return;
+  const grid = document.querySelector('[data-id="' + id + '"] .img-grid');
+  const countEl = document.querySelector('[data-id="' + id + '"] .img-count');
+  if (!grid) return;
+  const imgs = entry.images || [];
+  if (countEl) countEl.textContent = imgs.length > 0 ? imgs.length + ' รูป' : '';
+  grid.innerHTML = imgs.map((img, i) =>
+    '<div class="img-thumb-wrap">' +
+      '<img class="img-thumb" src="' + img.src + '" alt="' + esc(img.name || '') + '" ' +
+        'onclick="openLightbox(\'' + id + '\',' + i + ')" title="คลิกเพื่อขยาย">' +
+      '<button class="img-del-btn no-print" onclick="removeImage(\'' + id + '\',' + i + ')">✕</button>' +
+    '</div>'
+  ).join('');
+}
+
+/* ── LIGHTBOX ── */
+function openLightbox(entryId, index) {
+  lbEntryId = entryId;
+  lbIndex = index;
+  showLb();
+  document.getElementById('lightbox').classList.add('open');
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+  lbEntryId = null;
+}
+function lbClickOutside(e) {
+  if (e.target === document.getElementById('lightbox')) closeLightbox();
+}
+function showLb() {
+  const entry = entries.find(e => e.id === lbEntryId);
+  if (!entry || !entry.images) return;
+  const imgs = entry.images;
+  document.getElementById('lb-img').src = imgs[lbIndex].src;
+  document.getElementById('lb-counter').textContent = (lbIndex + 1) + ' / ' + imgs.length;
+}
+function lbPrev() {
+  const entry = entries.find(e => e.id === lbEntryId);
+  if (!entry) return;
+  lbIndex = (lbIndex - 1 + entry.images.length) % entry.images.length;
+  showLb();
+}
+function lbNext() {
+  const entry = entries.find(e => e.id === lbEntryId);
+  if (!entry) return;
+  lbIndex = (lbIndex + 1) % entry.images.length;
+  showLb();
+}
+document.addEventListener('keydown', e => {
+  if (!document.getElementById('lightbox').classList.contains('open')) return;
+  if (e.key === 'ArrowLeft')  lbPrev();
+  if (e.key === 'ArrowRight') lbNext();
+  if (e.key === 'Escape')     closeLightbox();
+});
+
+/* ── TIME / SUMMARY ── */
+function calcElapsed(entries) {
+  return entries.map((e, i) => {
+    if (i === 0) return '';
+    const prev = parseTime(entries[0].time);
+    const cur  = parseTime(e.time);
+    if (prev === null || cur === null) return '';
+    let diff = cur - prev;
+    if (diff < 0) diff += 24 * 60;
+    return '+' + diff + 'm';
+  });
+}
+function parseTime(s) {
+  const m = s && s.match(/^(\d{1,2}):(\d{2})$/);
+  if (!m) return null;
+  return parseInt(m[1]) * 60 + parseInt(m[2]);
+}
+function totalDuration(entries) {
+  if (entries.length < 2) return '—';
+  const first = parseTime(entries[0].time);
+  const last  = parseTime(entries[entries.length - 1].time);
+  if (first === null || last === null) return '—';
+  let diff = last - first;
+  if (diff < 0) diff += 24 * 60;
+  const h = Math.floor(diff / 60), m = diff % 60;
+  return h > 0 ? h + 'h ' + m + 'm' : m + ' นาที';
+}
+function updateSummary() {
+  const counts = { normal:0, ok:0, warn:0, danger:0, neutral:0 };
+  entries.forEach(e => { if (counts[e.status] !== undefined) counts[e.status]++; });
+  Object.keys(counts).forEach(k => {
+    const el = document.getElementById('count-' + k);
+    if (el) el.textContent = counts[k];
+  });
+  document.getElementById('total-events').textContent = entries.length;
+  document.getElementById('total-dur').textContent = totalDuration(entries);
+}
+
+/* ── RENDER ── */
+function render() {
+  const list  = document.getElementById('entries-list');
+  const empty = document.getElementById('empty-state');
+  const spine = document.getElementById('timeline-spine');
+
+  empty.style.display = entries.length === 0 ? 'block' : 'none';
+  spine.style.display = entries.length === 0 ? 'none'  : 'block';
+
+  const elapsed = calcElapsed(entries);
+
+  list.innerHTML = entries.map((e, i) => {
+    const sc   = statusConfig[e.status] || statusConfig.normal;
+    const imgs = e.images || [];
+    return (
+      '<div class="timeline-entry" data-id="' + e.id + '">' +
+        '<div class="entry-time">' +
+          '<span class="time-display">' + (e.time || '—:—') + '</span>' +
+          '<span class="time-elapsed">' + elapsed[i] + '</span>' +
+        '</div>' +
+        '<div class="entry-dot ' + sc.cls + '"></div>' +
+        '<div class="entry-card ' + sc.cls + '">' +
+
+          /* row 1: tag + title + action buttons */
+          '<div class="card-row1">' +
+            '<div class="card-title-wrap">' +
+              '<span class="card-tag ' + sc.tag + '">' + sc.label + '</span><br>' +
+              '<input class="card-title" placeholder="ชื่อ Event / ขั้นตอน..." value="' + esc(e.title) + '" ' +
+                'oninput="updateEntry(\'' + e.id + '\',\'title\',this.value)">' +
+            '</div>' +
+            '<div class="card-actions no-print">' +
+              '<button class="icon-btn" title="เพิ่ม event ต่อจากนี้" onclick="addEntry(\'' + e.id + '\')">＋</button>' +
+              '<button class="icon-btn delete" title="ลบ" onclick="removeEntry(\'' + e.id + '\')">✕</button>' +
+            '</div>' +
+          '</div>' +
+
+          /* row 2: time + status */
+          '<div class="card-row2">' +
+            '<input class="time-input" type="time" value="' + e.time + '" ' +
+              'oninput="updateEntry(\'' + e.id + '\',\'time\',this.value); renderTimes()">' +
+            '<select class="status-select" onchange="updateEntry(\'' + e.id + '\',\'status\',this.value); renderStatus(\'' + e.id + '\',this.value)">' +
+              '<option value="normal"  ' + (e.status==='normal'  ?'selected':'') + '>🔵 ปกติ</option>' +
+              '<option value="ok"      ' + (e.status==='ok'      ?'selected':'') + '>🟢 สำเร็จ</option>' +
+              '<option value="warn"    ' + (e.status==='warn'    ?'selected':'') + '>🟡 แจ้งเตือน</option>' +
+              '<option value="danger"  ' + (e.status==='danger'  ?'selected':'') + '>🔴 ปัญหา</option>' +
+              '<option value="neutral" ' + (e.status==='neutral' ?'selected':'') + '>⚪ ข้อมูล</option>' +
+            '</select>' +
+          '</div>' +
+
+          /* reason */
+          '<textarea class="card-reason" placeholder="เหตุผล / หมายเหตุ / สิ่งที่ทำ..." ' +
+            'oninput="updateEntry(\'' + e.id + '\',\'reason\',this.value); autoResize(this)">' + esc(e.reason) + '</textarea>' +
+
+          /* ── IMAGE SECTION ── */
+          '<div class="img-section">' +
+            /* hidden inputs */
+            '<input type="file" id="file-input-' + e.id + '" class="file-input-hidden" multiple accept="image/*" ' +
+              'onchange="handleFiles(\'' + e.id + '\', this.files)">' +
+            '<input type="file" id="camera-input-' + e.id + '" class="file-input-hidden" accept="image/*" capture="environment" ' +
+              'onchange="handleFiles(\'' + e.id + '\', this.files)">' +
+
+            /* upload bar */
+            '<div class="img-upload-bar no-print">' +
+              '<button class="img-btn" onclick="triggerFileInput(\'' + e.id + '\')" title="เลือกรูปจากไฟล์">📁 เลือกรูปภาพ</button>' +
+              '<button class="img-btn img-btn-camera" onclick="triggerCameraInput(\'' + e.id + '\')" title="ถ่ายรูปจากกล้อง">📷 ถ่ายรูป</button>' +
+              '<span class="img-count">' + (imgs.length > 0 ? imgs.length + ' รูป' : '') + '</span>' +
+            '</div>' +
+
+            /* image grid */
+            '<div class="img-grid">' +
+              imgs.map((img, idx) =>
+                '<div class="img-thumb-wrap">' +
+                  '<img class="img-thumb" src="' + img.src + '" alt="' + esc(img.name||'') + '" ' +
+                    'onclick="openLightbox(\'' + e.id + '\',' + idx + ')" title="คลิกเพื่อขยาย">' +
+                  '<button class="img-del-btn no-print" onclick="removeImage(\'' + e.id + '\',' + idx + ')">✕</button>' +
+                '</div>'
+              ).join('') +
+            '</div>' +
+          '</div>' +
+
+        '</div>' +
+      '</div>'
+    );
+  }).join('');
+
+  list.querySelectorAll('.card-reason').forEach(ta => autoResize(ta));
+  updateSummary();
+}
+
+function renderTimes() {
+  const elapsed = calcElapsed(entries);
+  entries.forEach((e, i) => {
+    const wrap = document.querySelector('[data-id="' + e.id + '"]');
+    if (!wrap) return;
+    const td = wrap.querySelector('.time-display');
+    const te = wrap.querySelector('.time-elapsed');
+    if (td) td.textContent = e.time || '—:—';
+    if (te) te.textContent = elapsed[i];
+  });
+  updateSummary();
+}
+
+function renderStatus(id, status) {
+  const sc   = statusConfig[status] || statusConfig.normal;
+  const wrap = document.querySelector('[data-id="' + id + '"]');
+  if (!wrap) return;
+  wrap.querySelector('.entry-dot').className  = 'entry-dot '  + sc.cls;
+  wrap.querySelector('.entry-card').className = 'entry-card ' + sc.cls;
+  const tag = wrap.querySelector('.card-tag');
+  tag.className   = 'card-tag ' + sc.tag;
+  tag.textContent = sc.label;
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = el.scrollHeight + 'px';
+}
+
+function esc(s) {
+  return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ── LINE → PRODUCT MAP ── */
+const LINE_PRODUCTS = {
+  'Polo 12A':  ['Nestle Jelly Lychee','Milo Magma Stick','Eski Nomyen Stick','Milo Chocolate Malt Stk','Milo Chocolate Malt Stick'],
+  'Polo 12B':  ['La Frutta 5 Wonder Fruits Stk','La Frutta Yogurt Lychee','La Frutta Yen Yen Longan','La Frutta Coconut Pandan','Vanilla Strw Stk','Eski Extra Turbo Stick','Eski Power Missile','Nestle Bear Milk Monkey Stick'],
+  'Comet':     ['Oreo Cup FS','Milo Cup','Nestle Milo Cup FS','Kit Kat Cup FS','Nestle Chocolate Chip Cup','Milo Medium Cone','Milo Cone','Nestea Thai Tea Cup FS','Chocolate Chip Cup','DSTK Stranger Things Cone','Nestle Coconut Cup FS','Milo Intense Cone','Extreme Vanilla Cone'],
+  'Bolo Plus': ['Drumsticks Plus Buff','Drumsticks Plus Choc','Eski Stic Buff','Milo Honey','Nestle Tart Stk','Nestle Tart Mix Tea Stk','Nestle Tart Yogurt','Nestle Bear Pick Pandan Tree Stk'],
+  'Maxti':     ['10% Lactose','Ice Cream Yogurt Strawberry','10% Cream Mix'],
+  'Sandwich':  ['Milo Sandwich','Oreo Sandwich','Nestle Milo Sandwich','Oreo Sandwich Mix','Nestle Sandwich Mix Stk','Kite Sandwich Stk'],
+  'Hoyer':     ['Icecream TM Vanilla Minis','Nestle Tart Top Stk','Nestle Tama Stk','Nestle Drumstick Stick','Extreme TM Lwy Stk'],
+  'Diamond':   ['Eski Bar Nestle Milk','Nestle Drumstick Milk','Brookside Strawberry Milk','Eski Bar Nesvita Milk','Kit Kat Nestle Milk','Eski Bar Mini Drum','Eski Bar Taro','Snow Blue Stick','Eski Bar Fruit Stk','Snow Cram Stamp','La Frutta Jelly Frozen Apple Stk','Extreme HP Mimi Stk'],
+  'Glacé':     ['Vari Burnely Mult','Vari Tango Stk','Nestle Laban Kk Stk'],
+  'Scooping':  ['Nestle Cone Vanilla','Nestle Cone Choc 5.6kg','Nestle Cone Choc 3.8kg','Nestle Cone Van 3.8kg','Nestle Cone Thai 3.8kg','Nestle Cone 6.1kg','Nestle Cone 4.1kg','Nestle Cone French Van','Nestle Bean Ton 5.6kg'],
+  'Mixing 1':  [],
+  'Mixing 2':  [],
+};
+
+function onLineChange() {
+  const line  = document.getElementById('meta-line').value;
+  const sel   = document.getElementById('meta-product');
+  const prods = LINE_PRODUCTS[line] || [];
+  if (!line) {
+    sel.innerHTML = '<option value="">— เลือก Line ก่อน —</option>';
+  } else if (prods.length === 0) {
+    sel.innerHTML = '<option value="">— (ยังไม่มีข้อมูล) —</option>';
+  } else {
+    sel.innerHTML = '<option value="">— เลือกผลิตภัณฑ์ —</option>' +
+      prods.map(p => '<option>' + p + '</option>').join('');
+  }
+}
+
+/* ── INIT ── */
+document.getElementById('meta-date').value = new Date().toISOString().slice(0,10);
+
+entries = [
+  { id: genId(), time: '08:00', title: 'เริ่มต้น Production', reason: 'เริ่ม shift เช้า ตรวจสอบความพร้อมของเครื่องจักรและวัตถุดิบ', status: 'normal', images: [] },
+  { id: genId(), time: '09:30', title: 'CIP เสร็จสิ้น', reason: 'ล้าง tank เสร็จตามขั้นตอน ผ่าน conductivity check', status: 'ok', images: [] },
+  { id: genId(), time: '10:15', title: 'อุณหภูมิ pasteurize ต่ำกว่า spec', reason: 'อุณหภูมิลดลงเหลือ 78°C (spec ≥80°C) แจ้ง supervisor และปรับ steam valve', status: 'warn', images: [] },
+];
+render();
+</script>
+</body>
+</html>
