@@ -236,7 +236,7 @@ tbody tr:hover td{background:rgba(244,114,182,.04)!important}
           <th rowspan="2">Rework (kg)</th>
           <th rowspan="2" style="color:var(--cyan)">🪣 Aging Tank</th>
           <th rowspan="2" style="color:var(--yellow)">คาดว่า Past.เสร็จ</th>
-          <th colspan="3" style="text-align:center;color:var(--purple);border-bottom:1px solid var(--b2)">🧪 Flavor / Color / กรดมะนาว</th>
+          <th colspan="4" style="text-align:center;color:var(--purple);border-bottom:1px solid var(--b2)">🧪 Flavor / Color / กรดมะนาว / Salt</th>
           <th rowspan="2">เวลาเท</th>
           <th rowspan="2">Status</th>
           <th rowspan="2">หมายเหตุ</th>
@@ -457,22 +457,29 @@ window.completeFlavor=async(col,id,m)=>{
   toast('Flavor เสร็จแล้ว ✅','green');
 };
 
-function flvBox(col,id,type,row){
-  const labels={flavor:{icon:'🍶',color:'#d8b4fe',field:'flavor'},color:{icon:'🎨',color:'#f9a8d4',field:'color'},acid:{icon:'🍋',color:'#86efac',field:'acid'}};
-  const{icon,color,field}=labels[type];
+function flvBox(col,id,type,row,p){
+  const labels={flavor:{icon:'🍶',color:'#d8b4fe',field:'flavor',hasKey:'has_flavor'},color:{icon:'🎨',color:'#f9a8d4',field:'color',hasKey:'has_color'},acid:{icon:'🍋',color:'#86efac',field:'acid',hasKey:'has_citric'},salt:{icon:'🧂',color:'#fcd34d',field:'salt',hasKey:'has_salt'}};
+  const{icon,color,field,hasKey}=labels[type];
+  const needed=p?!!p[hasKey]:true;
   const qty=row[`${field}_qty`]||0;
   const prep=!!row[`${field}_prep`];
   const pour=!!row[`${field}_pour`];
   const notify=!!row[`${field}_notify`];
   const allDone=prep&&pour&&notify;
 
-  // ติ๊กได้เสมอทุก checkbox
+  if(!needed){
+    return`<div class="flv-box" style="opacity:.28;pointer-events:none;filter:grayscale(1)">
+    <div class="flv-title" style="color:#6b7280">${icon} ${type==='flavor'?'Flavor':type==='color'?'Color':type==='acid'?'กรดมะนาว':'Salt'}</div>
+    <div style="text-align:center;font-size:11px;color:#6b7280;padding:8px 0">ไม่ใช้</div>
+  </div>`;
+  }
+
   const canPrep=true;
   const canPour=true;
   const canNotify=true;
 
   return`<div class="flv-box${allDone?' all-done':''}">
-    <div class="flv-title" style="color:${color}">${icon} ${type==='flavor'?'Flavor':type==='color'?'Color':'กรดมะนาว'}</div>
+    <div class="flv-title" style="color:${color}">${icon} ${type==='flavor'?'Flavor':type==='color'?'Color':type==='acid'?'กรดมะนาว':'Salt'}</div>
     <div class="flv-qty">
       <input type="number" min="0" value="${qty}" placeholder="0"
         style="accent-color:${color}"
@@ -551,9 +558,12 @@ function renderPlan(m){
     else if(row.status==='mixing')rowClass='row-mixing';
 
     // Flavor done check
-    const allFlvDone=row.flavor_prep&&row.flavor_pour&&row.flavor_notify
-      &&row.color_prep&&row.color_pour&&row.color_notify
-      &&row.acid_prep&&row.acid_pour&&row.acid_notify;
+    const _needFlv=!!p.has_flavor,_needCol=!!p.has_color,_needAcid=!!p.has_citric,_needSalt=!!p.has_salt;
+    const allFlvDone=
+      (!_needFlv||(row.flavor_prep&&row.flavor_pour&&row.flavor_notify))&&
+      (!_needCol||(row.color_prep&&row.color_pour&&row.color_notify))&&
+      (!_needAcid||(row.acid_prep&&row.acid_pour&&row.acid_notify))&&
+      (!_needSalt||(row.salt_prep&&row.salt_pour&&row.salt_notify));
     const canDone=row.status==='past_done'&&allFlvDone;
 
     const tr=document.createElement('tr');
@@ -569,9 +579,10 @@ function renderPlan(m){
       <td><span style="font-family:var(--mono);font-size:12px;color:var(--purple)">${row.rework_kg||'—'} kg</span></td>
       <td><span style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--cyan);background:rgba(6,182,212,.1);padding:3px 10px;border-radius:6px;border:1px solid rgba(6,182,212,.25)">${row.aging_tank||'—'}</span></td>
       <td><span style="font-family:var(--mono);font-size:12px;color:var(--yellow)">${curingEnd}</span></td>
-      <td class="flv-cell"><div class="flv-wrap">${flvBox(col,row.id,'flavor',row)}</div></td>
-      <td class="flv-cell"><div class="flv-wrap">${flvBox(col,row.id,'color',row)}</div></td>
-      <td class="flv-cell"><div class="flv-wrap">${flvBox(col,row.id,'acid',row)}</div></td>
+      <td class="flv-cell"><div class="flv-wrap">${flvBox(col,row.id,'flavor',row,p)}</div></td>
+      <td class="flv-cell"><div class="flv-wrap">${flvBox(col,row.id,'color',row,p)}</div></td>
+      <td class="flv-cell"><div class="flv-wrap">${flvBox(col,row.id,'acid',row,p)}</div></td>
+      <td class="flv-cell"><div class="flv-wrap">${flvBox(col,row.id,'salt',row,p)}</div></td>
       <td>
         <button class="stamp-btn ${row.flavor_pour_time?'stamped':''}"
           ${row.flavor_pour_time||(row.status==='mixing'||row.status==='pending')?'disabled':''}
