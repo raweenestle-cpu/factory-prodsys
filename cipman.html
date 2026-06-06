@@ -852,12 +852,27 @@ function buildCard(line){
   const st=lineStates[line.id]||{};
   const isRunning=st.running&&!!st.start_ts;
   const hasLiquid=!!current&&+(current.volume_liter||0)>0; // wave ทุกครั้งที่มีของ
+  const _atsKeyEarly=st.aging_tank||(current&&current.aging_tank)||'';
+  const _atsStatusRaw=_atsKeyEarly&&agingStates[_atsKeyEarly]?agingStates[_atsKeyEarly].status||'':'';
+  // map aging_tank_states.status → cardStatus
+  const _atsToCard={
+    'pasteurising':'curing','past_done':'curing','aging':'curing',
+    'filling':'running','cip':'cip','san':'cip','san_done':'cip',
+    'empty':'empty','ready':'stopped','':(current?'stopped':'empty')
+  };
   const isPasteurising=current&&current.status==='pasteurising';
   const isPastDone=current&&current.status==='past_done';
   const curing=current&&(isPastDone||(!isPasteurising&&current.past_end_time))?getCuringInfo(current,line.id):{done:false,endTime:'—'};
-  const cardStatus=isRunning?'running':isPasteurising?'curing':(isPastDone&&!curing.done)?'curing':current&&!curing.done?'curing':current?'stopped':'empty';
-  const pm={running:'sp-run',curing:'sp-cur',stopped:'sp-stp',empty:'sp-emp'};
-  const pt={running:'● กำลังเดิน',curing:'⏳',stopped:'⏸ หยุด',empty:'○ ว่าง'};
+  const cardStatus=isRunning?'running':(_atsStatusRaw&&_atsToCard[_atsStatusRaw]?_atsToCard[_atsStatusRaw]:isPasteurising?'curing':(isPastDone&&!curing.done)?'curing':current&&!curing.done?'curing':current?'stopped':'empty');
+  // label จาก aging_tank_states.status
+  const _atsLabelMap={
+    'pasteurising':'♨️ กำลัง Past.','past_done':'✅ พร้อมพาส','aging':'⏳ รอบ่ม',
+    'filling':'🔵 Filling','cip':'🟣 CIP','san':'🧴 Sanitize','san_done':'🧴 San เสร็จ',
+    'empty':'○ ว่าง','ready':'✅ พร้อม'
+  };
+  const pm={running:'sp-run',curing:'sp-cur',stopped:'sp-stp',empty:'sp-emp',cip:'sp-cur'};
+  const _atsLabel=_atsStatusRaw&&_atsLabelMap[_atsStatusRaw]?_atsLabelMap[_atsStatusRaw]:'';
+  const pt={running:'● กำลังเดิน',curing:_atsLabel||'⏳',stopped:_atsLabel||'⏸ หยุด',empty:'○ ว่าง',cip:_atsLabel||'🟣 CIP'};
 
   if(!current)return`<div class="lcard empty" id="card-${line.id}">
     <div class="accent"></div>
