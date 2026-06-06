@@ -412,6 +412,13 @@ body {
     </div>
   </div>
   <div class="topbar-right">
+    <div class="meta-pill" style="gap:6px">
+      <span class="pill-label">Focus</span>
+      <input type="time" id="focus-start" value="06:00" onchange="applyFocus()" style="width:70px">
+      <span style="color:var(--text-muted);font-size:11px">–</span>
+      <input type="time" id="focus-end" value="23:00" onchange="applyFocus()" style="width:70px">
+      <button onclick="resetFocus()" title="Reset" style="background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:13px;padding:0 2px">↺</button>
+    </div>
     <button class="tbtn tbtn-ghost" onclick="window.print()">🖨 Print</button>
     <button class="tbtn tbtn-accent" onclick="openModal()">＋ เพิ่ม Event</button>
   </div>
@@ -496,12 +503,37 @@ body {
 
 <script>
 /* ── CONFIG ── */
-const STEP = 30;       // นาทีต่อ 1 col
-const COL_W = 90;      // px ต่อ col (ต้องตรง CSS --col-w)
-const LABEL_W = 180;   // px label (ต้องตรง CSS)
-const SHIFT_START = 6; // เริ่ม 06:00
-const SHIFT_END   = 23; // จบ 23:00
-const TOTAL_COLS  = ((SHIFT_END - SHIFT_START) * 60) / STEP; // cols
+const STEP     = 30;
+const COL_W    = 90;
+const LABEL_W  = 180;
+
+// focus range — ปรับได้
+let SHIFT_START = 6;
+let SHIFT_END   = 23;
+let TOTAL_COLS  = ((SHIFT_END - SHIFT_START) * 60) / STEP;
+
+function applyFocus() {
+  const s = document.getElementById('focus-start').value;
+  const e = document.getElementById('focus-end').value;
+  const sm = parseTime(s), em = parseTime(e);
+  if (sm === null || em === null || em <= sm) return;
+  SHIFT_START = sm / 60;
+  SHIFT_END   = em / 60;
+  TOTAL_COLS  = ((SHIFT_END - SHIFT_START) * 60) / STEP;
+  render();
+  // scroll ไปที่ event แรกที่อยู่ในช่วง
+  const outer = document.getElementById('tl-outer');
+  if (outer) outer.scrollLeft = 0;
+}
+
+function resetFocus() {
+  SHIFT_START = 6; SHIFT_END = 23;
+  TOTAL_COLS  = ((SHIFT_END - SHIFT_START) * 60) / STEP;
+  document.getElementById('focus-start').value = '06:00';
+  document.getElementById('focus-end').value   = '23:00';
+  render();
+  document.getElementById('tl-outer').scrollLeft = 0;
+}
 
 let events  = [];
 let modalImgs = [];
