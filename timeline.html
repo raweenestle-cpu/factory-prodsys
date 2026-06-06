@@ -1,18 +1,17 @@
 <!DOCTYPE html>
-<!-- timeline-pro v1.0 -->
+<!-- timeline v2.0 -->
 <html lang="th">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Production Timeline</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #f4f6fb;
+  --bg: #f0f4fb;
   --surface: #ffffff;
-  --surface2: #f8faff;
-  --border: rgba(30,50,120,0.07);
-  --border2: rgba(30,50,120,0.13);
+  --border: rgba(30,50,120,0.1);
+  --border2: rgba(30,50,120,0.18);
   --text: #1e2640;
   --text-soft: #4a5580;
   --text-muted: #9aa3c0;
@@ -21,367 +20,297 @@
   --warn: #d97706;
   --danger: #dc2626;
   --neutral: #64748b;
-  --now-line: #d97706;
   --mono: 'IBM Plex Mono', monospace;
   --sans: 'IBM Plex Sans Thai', sans-serif;
-  --row-h: 130px;
-  --col-w: 90px;
-  --label-w: 180px;
+  --col-w: 88px;
+  --label-w: 160px;
+  --row-h: 120px;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  font-family: var(--sans); color: var(--text); min-height: 100vh; overflow-x: hidden;
-  background-color: var(--bg);
-  background-image:
-    radial-gradient(circle at 20% 20%, rgba(37,99,235,0.055) 0%, transparent 50%),
-    radial-gradient(circle at 80% 80%, rgba(5,150,105,0.04) 0%, transparent 50%),
-    linear-gradient(to bottom right, #f0f4ff 0%, #f4f6fb 50%, #eef4f0 100%);
-}
+body { font-family: var(--sans); background: var(--bg); color: var(--text); min-height: 100vh; }
 
-/* ── TOP BAR ── */
+/* ── TOPBAR ── */
 .topbar {
-  background: var(--surface);
-  border-bottom: 1px solid var(--border2);
-  padding: 0 32px;
-  height: 56px;
-  display: flex; align-items: center; justify-content: space-between; gap: 24px;
+  background: var(--surface); border-bottom: 1px solid var(--border2);
+  padding: 0 24px; height: 54px;
+  display: flex; align-items: center; justify-content: space-between;
   position: sticky; top: 0; z-index: 100;
-  box-shadow: 0 1px 12px rgba(37,99,235,0.06);
+  box-shadow: 0 1px 10px rgba(37,99,235,0.07);
 }
-.topbar-left { display: flex; align-items: center; gap: 16px; }
-.logo { font-family: var(--mono); font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); font-weight: 600; }
-.divider-v { width: 1px; height: 20px; background: var(--border2); }
-.meta-pill {
-  display: flex; align-items: center; gap: 8px;
-  background: #f0f4ff; border: 1px solid rgba(37,99,235,0.15);
-  border-radius: 6px; padding: 4px 10px;
-  font-family: var(--mono); font-size: 11px; color: var(--text-soft);
-}
-.meta-pill input, .meta-pill select {
-  background: transparent; border: none; outline: none;
-  color: var(--text); font-family: var(--mono); font-size: 11px;
-  min-width: 80px; cursor: pointer;
-}
-.meta-pill select option { background: #f0f4ff; }
-.meta-pill .pill-label { color: var(--accent); font-size: 10px; letter-spacing: 1px; text-transform: uppercase; font-weight: 600; }
-.topbar-right { display: flex; align-items: center; gap: 8px; }
-.tbtn {
+.logo { font-family: var(--mono); font-size: 11px; letter-spacing: 2px; color: var(--accent); font-weight: 600; }
+.topbar-meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.mpill {
   display: flex; align-items: center; gap: 6px;
-  padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 500;
+  background: #eef2ff; border: 1px solid rgba(37,99,235,0.15);
+  border-radius: 6px; padding: 3px 10px;
+  font-family: var(--mono); font-size: 11px;
+}
+.mpill-lbl { color: var(--accent); font-size: 9px; letter-spacing: 1px; text-transform: uppercase; font-weight: 700; }
+.mpill input, .mpill select {
+  background: transparent; border: none; outline: none;
+  color: var(--text); font-family: var(--mono); font-size: 11px; cursor: pointer;
+}
+.topbar-actions { display: flex; gap: 8px; align-items: center; }
+
+/* focus range */
+.focus-pill {
+  display: flex; align-items: center; gap: 6px;
+  background: #fffbeb; border: 1px solid rgba(217,119,6,0.2);
+  border-radius: 6px; padding: 3px 10px;
+  font-family: var(--mono); font-size: 11px;
+}
+.focus-pill-lbl { color: var(--warn); font-size: 9px; letter-spacing: 1px; text-transform: uppercase; font-weight: 700; }
+.focus-pill input { background: transparent; border: none; outline: none; color: var(--text); font-family: var(--mono); font-size: 11px; cursor: pointer; width: 68px; }
+.focus-pill .sep { color: var(--text-muted); }
+.focus-pill .reset-btn { background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 14px; padding: 0; line-height: 1; transition: color 0.15s; }
+.focus-pill .reset-btn:hover { color: var(--warn); }
+
+.btn {
+  padding: 6px 16px; border-radius: 6px; font-size: 12px; font-weight: 600;
   font-family: var(--sans); cursor: pointer; border: none; transition: all 0.15s;
+  display: flex; align-items: center; gap: 6px;
 }
-.tbtn-ghost { background: #f0f4ff; color: var(--text-soft); border: 1px solid rgba(37,99,235,0.2); }
-.tbtn-ghost:hover { background: #e0eaff; color: var(--text); }
-.tbtn-accent { background: var(--accent); color: white; }
-.tbtn-accent:hover { background: #2563eb; }
+.btn-outline { background: #eef2ff; color: var(--accent); border: 1px solid rgba(37,99,235,0.2); }
+.btn-outline:hover { background: #dce8ff; }
+.btn-primary { background: var(--accent); color: white; }
+.btn-primary:hover { background: #1d4ed8; }
+.btn-danger-sm {
+  background: #fef2f2; color: var(--danger); border: 1px solid rgba(220,38,38,0.2);
+  padding: 3px 8px; border-radius: 4px; font-size: 11px; cursor: pointer;
+  font-family: var(--sans); transition: all 0.15s;
+}
+.btn-danger-sm:hover { background: #fee2e2; }
 
-/* ── SUMMARY ROW ── */
-.summary-row {
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  padding: 10px 32px;
-  display: flex; gap: 24px; align-items: center; flex-wrap: wrap;
-  box-shadow: 0 1px 8px rgba(37,99,235,0.04);
+/* ── SUMMARY ── */
+.summary {
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  padding: 8px 24px; display: flex; gap: 20px; align-items: center; flex-wrap: wrap;
 }
-.stat-chip {
-  display: flex; align-items: center; gap: 8px;
-  font-size: 12px; color: var(--text-soft);
-}
-.stat-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-.stat-chip strong { color: var(--text); font-weight: 600; }
-.stat-sep { width: 1px; height: 16px; background: var(--border2); }
-.stat-dur { font-family: var(--mono); font-size: 12px; color: var(--text-soft); margin-left: auto; }
-.stat-dur strong { color: var(--accent); font-size: 14px; }
+.s-chip { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-soft); }
+.s-dot { width: 8px; height: 8px; border-radius: 50%; }
+.s-chip strong { color: var(--text); }
+.s-sep { width: 1px; height: 14px; background: var(--border2); }
+.s-dur { font-family: var(--mono); font-size: 11px; color: var(--text-soft); margin-left: auto; }
+.s-dur strong { color: var(--accent); }
 
-/* ── TIMELINE WRAPPER ── */
-.tl-outer {
-  padding: 24px 32px 40px;
-  overflow-x: auto;
+/* ── TIMELINE AREA ── */
+.tl-wrap {
+  padding: 20px 24px 60px;
+  overflow-x: auto; overflow-y: visible;
   -webkit-overflow-scrolling: touch;
   cursor: grab;
 }
-.tl-outer:active { cursor: grabbing; }
+.tl-wrap:active { cursor: grabbing; }
 
-.tl-canvas {
-  display: flex;
-  flex-direction: column;
-  min-width: max-content;
-  position: relative;
-}
+.tl-canvas { display: flex; flex-direction: column; min-width: max-content; }
 
-/* ── TIME RULER ── */
-.tl-ruler {
-  display: flex;
-  margin-left: var(--label-w);
-  border-bottom: 1px solid var(--border2);
-  margin-bottom: 0;
-  position: sticky; /* เกาะ sticky ถ้า browser support */
-}
-.ruler-tick {
-  width: var(--col-w);
-  flex-shrink: 0;
-  padding: 6px 0 6px 8px;
-  font-family: var(--mono); font-size: 10px; color: var(--text-muted);
-  letter-spacing: 0.5px;
-  border-left: 1px solid var(--border);
-  position: relative;
+/* ruler */
+.ruler {
+  display: flex; margin-left: var(--label-w);
+  border-bottom: 2px solid var(--border2);
   background: var(--surface);
+  border-radius: 8px 8px 0 0;
+  overflow: hidden;
 }
-.ruler-tick.major { color: var(--accent); font-weight: 600; border-left-color: var(--border2); background: #f5f8ff; }
+.r-tick {
+  width: var(--col-w); flex-shrink: 0; padding: 7px 0 7px 8px;
+  font-family: var(--mono); font-size: 10px; color: var(--text-muted);
+  border-left: 1px solid var(--border);
+}
+.r-tick.major { color: var(--accent); font-weight: 600; border-left-color: var(--border2); background: #f5f8ff; }
 
-/* ── ROWS ── */
-.tl-rows { position: relative; }
+/* rows */
+.tl-rows { position: relative; background: var(--surface); border-radius: 0 0 8px 8px; overflow: hidden; }
 
-/* current time line */
 .now-line {
-  position: absolute;
-  top: 0; bottom: 0;
-  width: 2px;
-  background: var(--now-line);
-  z-index: 10;
-  pointer-events: none;
+  position: absolute; top: 0; bottom: 0; width: 2px;
+  background: var(--warn); z-index: 10; pointer-events: none;
 }
 .now-line::before {
-  content: 'NOW';
-  position: absolute;
-  top: -18px; left: 50%; transform: translateX(-50%);
-  font-family: var(--mono); font-size: 9px; font-weight: 600;
-  color: var(--now-line); letter-spacing: 1px;
-  background: var(--bg); padding: 1px 4px; border-radius: 2px;
+  content: 'NOW'; position: absolute; top: -18px; left: 50%; transform: translateX(-50%);
+  font-family: var(--mono); font-size: 9px; font-weight: 700; color: var(--warn);
+  letter-spacing: 1px; background: var(--bg); padding: 1px 4px; border-radius: 3px;
+  white-space: nowrap;
 }
 
 .tl-row {
-  display: flex;
-  align-items: stretch;
+  display: flex; align-items: stretch;
   min-height: var(--row-h);
   border-bottom: 1px solid var(--border);
-  position: relative;
 }
-.tl-row:hover { background: rgba(255,255,255,0.015); }
+.tl-row:last-child { border-bottom: none; }
+.tl-row:hover { background: rgba(37,99,235,0.012); }
 
-/* label */
 .row-label {
-  width: var(--label-w);
-  flex-shrink: 0;
-  display: flex; align-items: center;
-  padding: 0 16px;
-  border-right: 1px solid var(--border2);
+  width: var(--label-w); flex-shrink: 0;
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 0 14px; border-right: 2px solid var(--border2);
   position: sticky; left: 0; z-index: 5;
-  background: var(--bg);
-  backdrop-filter: blur(4px);
+  background: var(--surface);
 }
-.row-label-text { font-size: 12px; font-weight: 600; color: var(--text-soft); letter-spacing: 0.3px; }
+.row-lbl-name { font-size: 12px; font-weight: 700; }
+.row-lbl-count { font-size: 10px; color: var(--text-muted); margin-top: 2px; font-family: var(--mono); }
 
-/* grid cols */
-.row-grid {
-  display: flex;
-  flex: 1;
-  position: relative;
-}
-.grid-col {
-  width: var(--col-w); flex-shrink: 0;
-  border-left: 1px solid var(--border);
-}
-.grid-col.major { border-left-color: var(--border2); background: rgba(37,99,235,0.012); }
+.row-grid { display: flex; flex: 1; position: relative; }
+.g-col { width: var(--col-w); flex-shrink: 0; border-left: 1px solid var(--border); }
+.g-col.major { border-left-color: var(--border2); background: rgba(37,99,235,0.01); }
 
-/* ── EVENTS ── */
-.row-events {
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  pointer-events: none;
-}
-.tl-event {
-  position: absolute;
-  top: 65%; transform: translateY(-50%);
-  height: 44px;
-  border-radius: 6px;
-  display: flex; align-items: center;
-  padding: 0 12px;
-  pointer-events: all;
-  cursor: pointer;
+/* events */
+.row-events { position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; }
+
+.ev-bar {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  height: 40px; border-radius: 7px;
+  display: flex; align-items: center; padding: 0 10px; gap: 7px;
+  pointer-events: all; cursor: pointer;
   transition: filter 0.15s, transform 0.15s;
-  overflow: hidden;
-  min-width: 44px;
-  border: 1px solid transparent;
-  z-index: 3;
+  min-width: 40px; z-index: 3;
+  border: 1.5px solid transparent;
 }
-.tl-event:hover { filter: brightness(1.15); transform: translateY(-50%) scaleY(1.06); z-index: 10; }
+.ev-bar:hover { filter: brightness(1.06); transform: translateY(-50%) scaleY(1.07); z-index: 10; }
+.ev-bar.st-normal  { background: #eff6ff; border-color: #93c5fd; }
+.ev-bar.st-ok      { background: #f0fdf4; border-color: #6ee7b7; }
+.ev-bar.st-warn    { background: #fffbeb; border-color: #fcd34d; }
+.ev-bar.st-danger  { background: #fef2f2; border-color: #fca5a5; }
+.ev-bar.st-neutral { background: #f8fafc; border-color: #cbd5e1; }
 
-.tl-event.st-normal  { background: #eff6ff; border-color: #93c5fd; box-shadow: 0 2px 8px rgba(37,99,235,0.1); }
-.tl-event.st-ok      { background: #f0fdf4; border-color: #6ee7b7; box-shadow: 0 2px 8px rgba(5,150,105,0.1); }
-.tl-event.st-warn    { background: #fffbeb; border-color: #fcd34d; box-shadow: 0 2px 8px rgba(217,119,6,0.1); }
-.tl-event.st-danger  { background: #fef2f2; border-color: #fca5a5; box-shadow: 0 2px 8px rgba(220,38,38,0.1); }
-.tl-event.st-neutral { background: #f8fafc; border-color: #cbd5e1; box-shadow: 0 2px 8px rgba(100,116,139,0.08); }
+.ev-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.st-normal  .ev-dot { background: var(--accent); }
+.st-ok      .ev-dot { background: var(--ok); }
+.st-warn    .ev-dot { background: var(--warn); }
+.st-danger  .ev-dot { background: var(--danger); }
+.st-neutral .ev-dot { background: var(--neutral); }
 
-.event-dot {
-  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-right: 8px;
-}
-.st-normal  .event-dot { background: var(--accent); }
-.st-ok      .event-dot { background: var(--ok); }
-.st-warn    .event-dot { background: var(--warn); }
-.st-danger  .event-dot { background: var(--danger); }
-.st-neutral .event-dot { background: var(--neutral); }
+.ev-label { font-size: 12px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px; }
+.ev-time  { font-family: var(--mono); font-size: 10px; color: var(--text-soft); margin-left: auto; flex-shrink: 0; }
 
-.event-label {
-  font-size: 12px; font-weight: 600; color: var(--text);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+/* thumbnail above bar */
+.ev-thumbs {
+  position: absolute; bottom: calc(100% + 5px); left: 0;
+  display: flex; gap: 4px; pointer-events: all; z-index: 20;
 }
-.event-time {
-  font-family: var(--mono); font-size: 10px; color: var(--text-soft);
-  margin-left: auto; padding-left: 8px; flex-shrink: 0;
+.ev-thumb {
+  width: 42px; height: 42px; object-fit: cover;
+  border-radius: 5px; border: 2px solid white;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  cursor: pointer; transition: transform 0.15s;
 }
-
-/* ── ADD ROW BUTTON ── */
-.add-row-btn {
-  width: var(--label-w);
-  flex-shrink: 0;
-  display: flex; align-items: center;
-  padding: 0 16px;
-  border-right: 1px solid var(--border2);
-  border-bottom: none;
-}
-.add-row-inner {
-  display: flex; align-items: center; gap: 8px;
-  font-size: 12px; color: var(--text-muted);
-  cursor: pointer; padding: 6px 0;
-  transition: color 0.15s;
-  background: none; border: none; font-family: var(--sans);
-}
-.add-row-inner:hover { color: var(--accent); }
-
-/* ── TOOLTIP / EVENT DETAIL PANEL ── */
-.detail-panel {
-  position: fixed; right: 24px; top: 80px;
-  width: 300px;
-  background: white;
-  border: 1px solid rgba(37,99,235,0.15);
-  border-radius: 10px;
-  padding: 18px;
-  box-shadow: 0 8px 40px rgba(37,99,235,0.12), 0 2px 8px rgba(0,0,0,0.06);
-  z-index: 200;
-  display: none;
-  animation: panelIn 0.18s ease;
-}
-@keyframes panelIn { from { opacity:0; transform:translateX(12px); } to { opacity:1; transform:translateX(0); } }
-.detail-panel.open { display: block; }
-.dp-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
-.dp-title { font-size: 14px; font-weight: 700; color: var(--text); line-height: 1.4; }
-.dp-close { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 18px; line-height: 1; padding: 0; }
-.dp-close:hover { color: var(--text); }
-.dp-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: flex-start; }
-.dp-lbl { font-family: var(--mono); font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); min-width: 60px; padding-top: 1px; }
-.dp-val { font-size: 12px; color: var(--text-soft); line-height: 1.5; }
-.dp-badge {
-  display: inline-block; font-family: var(--mono); font-size: 10px; font-weight: 700;
-  padding: 2px 8px; border-radius: 20px; letter-spacing: 0.5px;
-}
-.dp-imgs { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
-.dp-img { width: 72px; height: 72px; object-fit: cover; border-radius: 5px; border: 1px solid var(--border2); cursor: pointer; }
-
-/* ── ADD EVENT MODAL ── */
-.modal-overlay {
-  position: fixed; inset: 0;
-  background: rgba(15,25,60,0.45);
-  backdrop-filter: blur(4px);
-  z-index: 500;
-  display: none;
-  align-items: center;
-  justify-content: center;
-}
-.modal-overlay.open { display: flex !important; }
-.modal {
-  background: white;
-  border: 1px solid rgba(37,99,235,0.12);
-  border-radius: 12px; padding: 24px;
-  width: 440px; max-width: 95vw;
-  box-shadow: 0 24px 64px rgba(37,99,235,0.15), 0 4px 16px rgba(0,0,0,0.08);
-}
-.modal-title { font-size: 16px; font-weight: 700; margin-bottom: 20px; }
-.form-row { margin-bottom: 14px; }
-.form-label { font-family: var(--mono); font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; display: block; }
-.form-input, .form-select, .form-textarea {
-  width: 100%; background: #f8faff; border: 1px solid rgba(37,99,235,0.18);
-  color: var(--text); font-family: var(--sans); font-size: 13px;
-  padding: 8px 12px; border-radius: 6px; outline: none; transition: border-color 0.15s;
-}
-.form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--accent); }
-.form-select { cursor: pointer; }
-.form-select option { background: var(--surface2); }
-.form-textarea { resize: vertical; min-height: 72px; }
-.form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.modal-footer { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
-.img-upload-area {
-  display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px;
-  padding: 10px; border: 1.5px dashed var(--border2);
-  border-radius: 6px; cursor: pointer; align-items: center;
-  transition: border-color 0.15s;
-}
-.img-upload-area:hover { border-color: var(--accent); }
-.img-upload-label { font-size: 12px; color: var(--text-muted); }
-.modal-thumb { width: 52px; height: 52px; object-fit: cover; border-radius: 4px; border: 1px solid var(--border2); }
+.ev-thumb:hover { transform: scale(1.2) translateY(-3px); }
 
 /* ── EMPTY ── */
-.empty-row {
-  display: flex; align-items: center; justify-content: center;
-  min-height: 160px;
-  color: var(--text-muted); font-size: 13px;
-  flex-direction: column; gap: 8px;
+.empty-state {
+  padding: 60px 20px; text-align: center; color: var(--text-muted);
 }
-.empty-row .ei { font-size: 32px; }
+.empty-icon { font-size: 36px; margin-bottom: 12px; }
+.empty-hint { font-size: 13px; line-height: 1.8; }
+.empty-hint strong { color: var(--accent); }
 
-/* ── PRINT ── */
+/* ── MODAL ── */
+.overlay {
+  position: fixed; inset: 0;
+  background: rgba(15,25,60,0.4); backdrop-filter: blur(4px);
+  z-index: 500; display: none; align-items: center; justify-content: center;
+}
+.overlay.open { display: flex !important; }
+.modal {
+  background: white; border-radius: 14px; padding: 26px;
+  width: 460px; max-width: 96vw; max-height: 90vh; overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(37,99,235,0.15);
+  animation: modalIn 0.2s ease;
+}
+@keyframes modalIn { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+.modal-hd { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.modal-title { font-size: 16px; font-weight: 700; }
+.modal-close { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-muted); line-height: 1; padding: 0; }
+.modal-close:hover { color: var(--text); }
+
+.f-row { margin-bottom: 14px; }
+.f-lbl {
+  display: block; font-size: 10px; font-family: var(--mono);
+  letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted);
+  margin-bottom: 6px; font-weight: 600;
+}
+.f-input, .f-select, .f-textarea {
+  width: 100%; background: #f5f8ff; border: 1.5px solid rgba(37,99,235,0.15);
+  color: var(--text); font-family: var(--sans); font-size: 13px;
+  padding: 9px 12px; border-radius: 7px; outline: none; transition: border-color 0.15s;
+}
+.f-input:focus, .f-select:focus, .f-textarea:focus { border-color: var(--accent); background: white; }
+.f-select { cursor: pointer; }
+.f-textarea { resize: vertical; min-height: 70px; }
+.f-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+.img-zone {
+  border: 1.5px dashed rgba(37,99,235,0.25); border-radius: 8px;
+  padding: 12px; background: #f5f8ff; transition: border-color 0.15s;
+}
+.img-zone:hover { border-color: var(--accent); }
+.img-btns { display: flex; gap: 8px; }
+.img-btn {
+  padding: 6px 14px; border-radius: 5px; font-size: 12px; font-weight: 500;
+  font-family: var(--sans); cursor: pointer; border: none; transition: all 0.15s;
+}
+.img-btn-file { background: #eef2ff; color: var(--accent); border: 1px solid rgba(37,99,235,0.2); }
+.img-btn-cam  { background: #f0fdf4; color: var(--ok);     border: 1px solid rgba(5,150,105,0.2); }
+.img-btn-file:hover { background: #dce8ff; }
+.img-btn-cam:hover  { background: #dcfce7; }
+.img-previews { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.img-preview-wrap { position: relative; }
+.img-preview { width: 56px; height: 56px; object-fit: cover; border-radius: 5px; border: 1.5px solid var(--border2); display: block; }
+.img-remove {
+  position: absolute; top: -5px; right: -5px;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--danger); color: white; border: none; cursor: pointer;
+  font-size: 9px; display: flex; align-items: center; justify-content: center;
+}
+.modal-ft { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+
+/* ── EVENT DETAIL PANEL ── */
+.detail-panel {
+  position: fixed; right: 20px; top: 70px;
+  width: 290px; background: white;
+  border: 1px solid rgba(37,99,235,0.15); border-radius: 12px;
+  padding: 18px; z-index: 200; display: none;
+  box-shadow: 0 8px 32px rgba(37,99,235,0.12);
+  animation: panelIn 0.18s ease;
+}
+@keyframes panelIn { from { opacity:0; transform:translateX(10px); } to { opacity:1; transform:translateX(0); } }
+.detail-panel.open { display: block; }
+.dp-hd { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 14px; }
+.dp-title { font-size: 14px; font-weight: 700; color: var(--text); flex: 1; line-height: 1.4; }
+.dp-close { background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 18px; flex-shrink: 0; }
+.dp-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: flex-start; }
+.dp-lbl { font-family: var(--mono); font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); min-width: 55px; padding-top: 2px; font-weight: 600; }
+.dp-val { font-size: 12px; color: var(--text-soft); line-height: 1.5; }
+.dp-badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 10px; border-radius: 20px; }
+.dp-imgs { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+.dp-img { width: 68px; height: 68px; object-fit: cover; border-radius: 5px; border: 1px solid var(--border2); cursor: pointer; }
+.dp-actions { display: flex; justify-content: flex-end; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); }
+
+/* ── LIGHTBOX ── */
+.lb {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.88);
+  z-index: 9999; display: none; align-items: center; justify-content: center;
+}
+.lb.open { display: flex !important; }
+.lb img { max-width: 92vw; max-height: 88vh; border-radius: 8px; object-fit: contain; }
+.lb-close { position: absolute; top: 16px; right: 20px; background: none; border: none; color: white; font-size: 28px; cursor: pointer; opacity: 0.7; }
+.lb-close:hover { opacity: 1; }
+
 @media print {
-  body { background: white; color: #111; }
-  .topbar, .summary-row, .tbtn-accent, .tbtn-ghost, .add-row-btn, .detail-panel, .modal-overlay { display: none !important; }
-  .row-label { background: white; }
-  .tl-event { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .topbar, .summary, .overlay, .detail-panel, .lb, .btn, .img-btns { display: none !important; }
+  body { background: white; }
 }
-
-  /* ── THUMBNAIL ON BAR ── */
-  .tl-event { overflow: visible; }
-  .bar-thumb-row {
-    position: absolute;
-    bottom: calc(100% + 6px);
-    left: 0;
-    display: flex;
-    gap: 4px;
-    z-index: 20;
-    pointer-events: all;
-  }
-  .bar-thumb {
-    width: 44px; height: 44px;
-    object-fit: cover;
-    border-radius: 6px;
-    border: 2px solid white;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.18);
-    cursor: pointer;
-    transition: transform 0.15s, box-shadow 0.15s;
-    display: block;
-  }
-  .bar-thumb:hover {
-    transform: scale(1.18) translateY(-3px);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.22);
-    z-index: 30;
-  }
-  /* เส้นต่อจากรูปลงมาถึง bar */
-  .bar-thumb-row::after {
-    content: '';
-    position: absolute;
-    bottom: -6px; left: 16px;
-    width: 1.5px; height: 6px;
-    background: var(--border2);
-  }
 </style>
 </head>
 <body>
 
-<!-- TOP BAR -->
+<!-- TOPBAR -->
 <div class="topbar">
-  <div class="topbar-left">
-    <div class="logo">PROD.SYS · Timeline</div>
-    <div class="divider-v"></div>
-    <div class="meta-pill">
-      <span class="pill-label">Line</span>
+  <div class="logo">PROD.SYS · Timeline</div>
+  <div class="topbar-meta">
+    <div class="mpill">
+      <span class="mpill-lbl">Line</span>
       <select id="meta-line" onchange="onLineChange()">
         <option value="">— เลือก —</option>
         <optgroup label="BANGCHAN">
@@ -398,155 +327,145 @@ body {
         </optgroup>
       </select>
     </div>
-    <div class="meta-pill">
-      <span class="pill-label">Product</span>
-      <select id="meta-product"><option value="">— เลือก Line ก่อน —</option></select>
+    <div class="mpill">
+      <span class="mpill-lbl">Product</span>
+      <select id="meta-product"><option>— เลือก Line ก่อน —</option></select>
     </div>
-    <div class="meta-pill">
-      <span class="pill-label">Date</span>
+    <div class="mpill">
+      <span class="mpill-lbl">Date</span>
       <input type="date" id="meta-date">
     </div>
-    <div class="meta-pill">
-      <span class="pill-label">Shift</span>
-      <input type="text" id="meta-shift" placeholder="A / Day" style="min-width:60px">
+    <div class="mpill">
+      <span class="mpill-lbl">Shift</span>
+      <input type="text" id="meta-shift" placeholder="A / Day" style="width:60px">
+    </div>
+    <div class="focus-pill">
+      <span class="focus-pill-lbl">Focus</span>
+      <input type="time" id="focus-s" value="06:00" onchange="applyFocus()">
+      <span class="sep">–</span>
+      <input type="time" id="focus-e" value="23:00" onchange="applyFocus()">
+      <button class="reset-btn" onclick="resetFocus()" title="Reset">↺</button>
     </div>
   </div>
-  <div class="topbar-right">
-    <div class="meta-pill" style="gap:6px">
-      <span class="pill-label">Focus</span>
-      <input type="time" id="focus-start" value="06:00" onchange="applyFocus()" style="width:70px">
-      <span style="color:var(--text-muted);font-size:11px">–</span>
-      <input type="time" id="focus-end" value="23:00" onchange="applyFocus()" style="width:70px">
-      <button onclick="resetFocus()" title="Reset" style="background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:13px;padding:0 2px">↺</button>
-    </div>
-    <button class="tbtn tbtn-ghost" onclick="window.print()">🖨 Print</button>
-    <button class="tbtn tbtn-accent" onclick="openModal()">＋ เพิ่ม Event</button>
+  <div class="topbar-actions">
+    <button class="btn btn-outline" onclick="window.print()">🖨 Print</button>
+    <button class="btn btn-primary" onclick="openModal()">＋ เพิ่ม Event</button>
   </div>
 </div>
 
 <!-- SUMMARY -->
-<div class="summary-row" id="summary-row">
-  <div class="stat-chip"><div class="stat-dot" style="background:var(--accent)"></div><strong id="cnt-normal">0</strong> ปกติ</div>
-  <div class="stat-chip"><div class="stat-dot" style="background:var(--ok)"></div><strong id="cnt-ok">0</strong> สำเร็จ</div>
-  <div class="stat-chip"><div class="stat-dot" style="background:var(--warn)"></div><strong id="cnt-warn">0</strong> แจ้งเตือน</div>
-  <div class="stat-chip"><div class="stat-dot" style="background:var(--danger)"></div><strong id="cnt-danger">0</strong> ปัญหา</div>
-  <div class="stat-sep"></div>
-  <div class="stat-dur">รวม <strong id="cnt-total">0</strong> events · ระยะเวลา <strong id="dur-total">—</strong></div>
+<div class="summary">
+  <div class="s-chip"><div class="s-dot" style="background:var(--accent)"></div><strong id="cn">0</strong>&nbsp;ปกติ</div>
+  <div class="s-chip"><div class="s-dot" style="background:var(--ok)"></div><strong id="co">0</strong>&nbsp;สำเร็จ</div>
+  <div class="s-chip"><div class="s-dot" style="background:var(--warn)"></div><strong id="cw">0</strong>&nbsp;แจ้งเตือน</div>
+  <div class="s-chip"><div class="s-dot" style="background:var(--danger)"></div><strong id="cd">0</strong>&nbsp;ปัญหา</div>
+  <div class="s-sep"></div>
+  <div class="s-dur">รวม <strong id="ct">0</strong> events · <strong id="dur">—</strong></div>
 </div>
 
 <!-- TIMELINE -->
-<div class="tl-outer" id="tl-outer">
-  <div class="tl-canvas" id="tl-canvas">
-    <!-- ruler injected by JS -->
-    <div class="tl-rows" id="tl-rows">
-      <div class="empty-row" id="empty-row">
-        <div class="ei">📋</div>
-        <div>กด <strong>+ เพิ่ม Event</strong> เพื่อเริ่มบันทึก</div>
-      </div>
-    </div>
-  </div>
+<div class="tl-wrap" id="tl-wrap">
+  <div class="tl-canvas" id="tl-canvas"></div>
 </div>
 
 <!-- DETAIL PANEL -->
-<div class="detail-panel" id="detail-panel">
-  <div class="dp-header">
-    <div class="dp-title" id="dp-title">—</div>
+<div class="detail-panel" id="dp">
+  <div class="dp-hd">
+    <div class="dp-title" id="dp-title"></div>
     <button class="dp-close" onclick="closeDetail()">✕</button>
   </div>
   <div id="dp-body"></div>
+  <div class="dp-actions">
+    <button class="btn-danger-sm" id="dp-del-btn">🗑 ลบ Event นี้</button>
+  </div>
 </div>
 
-<!-- ADD EVENT MODAL -->
-<div class="modal-overlay" id="modal-overlay" onclick="overlayClick(event)">
+<!-- ADD/EDIT MODAL -->
+<div class="overlay" id="overlay" onclick="overlayBg(event)">
   <div class="modal">
-    <div class="modal-title">＋ เพิ่ม Event ใหม่</div>
-    <div class="form-row">
-      <label class="form-label">ชื่อ Event / ขั้นตอน</label>
-      <input class="form-input" id="f-title" placeholder="เช่น CIP เสร็จสิ้น, อุณหภูมิผิดปกติ...">
+    <div class="modal-hd">
+      <div class="modal-title">＋ เพิ่ม Event ใหม่</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
-    <div class="form-row form-row-2">
+
+    <div class="f-row">
+      <label class="f-lbl">ชื่อ Event / ขั้นตอน *</label>
+      <input class="f-input" id="f-title" placeholder="เช่น CIP เสร็จ, อุณหภูมิผิดปกติ, เริ่ม Pasteurize...">
+    </div>
+
+    <div class="f-row f-row-2">
       <div>
-        <label class="form-label">เวลา</label>
-        <input class="form-input" type="time" id="f-time">
+        <label class="f-lbl">เวลาที่เกิดขึ้น *</label>
+        <input class="f-input" type="time" id="f-time">
       </div>
       <div>
-        <label class="form-label">สถานะ</label>
-        <select class="form-select" id="f-status">
-          <option value="normal">🔵 ปกติ</option>
-          <option value="ok">🟢 สำเร็จ</option>
-          <option value="warn">🟡 แจ้งเตือน</option>
-          <option value="danger">🔴 ปัญหา</option>
-          <option value="neutral">⚪ ข้อมูล</option>
+        <label class="f-lbl">สถานะ</label>
+        <select class="f-select" id="f-status">
+          <option value="normal">🔵 ปกติ — ทำตามขั้นตอน</option>
+          <option value="ok">🟢 สำเร็จ — ผ่าน / เสร็จแล้ว</option>
+          <option value="warn">🟡 แจ้งเตือน — ผิดปกตินิดหน่อย</option>
+          <option value="danger">🔴 ปัญหา — หยุด / แก้ไขด่วน</option>
+          <option value="neutral">⚪ ข้อมูล — บันทึกทั่วไป</option>
         </select>
       </div>
     </div>
-    <div class="form-row">
-      <label class="form-label">เหตุผล / หมายเหตุ</label>
-      <textarea class="form-textarea" id="f-reason" placeholder="รายละเอียด สิ่งที่ทำ หรือสาเหตุ..."></textarea>
+
+    <div class="f-row">
+      <label class="f-lbl">รายละเอียด / เหตุผล (ไม่บังคับ)</label>
+      <textarea class="f-textarea" id="f-reason" placeholder="บอกสิ่งที่เกิดขึ้น สาเหตุ หรือสิ่งที่ทำ..."></textarea>
     </div>
-    <div class="form-row">
-      <label class="form-label">รูปภาพ (ไม่บังคับ)</label>
-      <div class="img-upload-area">
-        <button type="button" onclick="document.getElementById('f-file').click()" style="background:#f0f4ff;border:1px solid rgba(37,99,235,0.2);color:var(--accent);padding:5px 12px;border-radius:5px;font-size:12px;cursor:pointer;font-family:var(--sans)">📁 เลือกรูป</button>
-        <button type="button" onclick="document.getElementById('f-cam').click()" style="background:#f0fdf4;border:1px solid rgba(5,150,105,0.2);color:var(--ok);padding:5px 12px;border-radius:5px;font-size:12px;cursor:pointer;font-family:var(--sans)">📷 ถ่ายรูป</button>
-        <div id="modal-thumbs" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px"></div>
+
+    <div class="f-row">
+      <label class="f-lbl">รูปภาพประกอบ (ไม่บังคับ)</label>
+      <div class="img-zone">
+        <div class="img-btns">
+          <button type="button" class="img-btn img-btn-file" onclick="document.getElementById('f-file').click()">📁 เลือกรูปจากเครื่อง</button>
+          <button type="button" class="img-btn img-btn-cam"  onclick="document.getElementById('f-cam').click()">📷 ถ่ายรูป</button>
+        </div>
+        <div class="img-previews" id="img-previews"></div>
       </div>
-      <input type="file" id="f-file" multiple accept="image/*" style="display:none" onchange="handleModalFiles(this.files)">
-      <input type="file" id="f-cam" accept="image/*" capture="environment" style="display:none" onchange="handleModalFiles(this.files)">
+      <input type="file" id="f-file" multiple accept="image/*" style="display:none" onchange="handleFiles(this.files)">
+      <input type="file" id="f-cam" accept="image/*" capture="environment" style="display:none" onchange="handleFiles(this.files)">
     </div>
-    <div class="modal-footer">
-      <button class="tbtn tbtn-ghost" onclick="closeModal()">ยกเลิก</button>
-      <button class="tbtn tbtn-accent" onclick="submitEvent()">บันทึก Event</button>
+
+    <div class="modal-ft">
+      <button class="btn btn-outline" onclick="closeModal()">ยกเลิก</button>
+      <button class="btn btn-primary" onclick="submitEvent()">✓ บันทึก Event</button>
     </div>
   </div>
 </div>
 
+<!-- LIGHTBOX -->
+<div class="lb" id="lb" onclick="this.classList.remove('open')">
+  <button class="lb-close">✕</button>
+  <img id="lb-img" src="" alt="">
+</div>
+
 <script>
-/* ── CONFIG ── */
-const STEP     = 30;
-const COL_W    = 90;
-const LABEL_W  = 180;
-
-// focus range — ปรับได้
-let SHIFT_START = 6;
-let SHIFT_END   = 23;
-let TOTAL_COLS  = ((SHIFT_END - SHIFT_START) * 60) / STEP;
-
-function applyFocus() {
-  const s = document.getElementById('focus-start').value;
-  const e = document.getElementById('focus-end').value;
-  const sm = parseTime(s), em = parseTime(e);
-  if (sm === null || em === null || em <= sm) return;
-  SHIFT_START = sm / 60;
-  SHIFT_END   = em / 60;
-  TOTAL_COLS  = ((SHIFT_END - SHIFT_START) * 60) / STEP;
-  render();
-  // scroll ไปที่ event แรกที่อยู่ในช่วง
-  const outer = document.getElementById('tl-outer');
-  if (outer) outer.scrollLeft = 0;
-}
-
-function resetFocus() {
-  SHIFT_START = 6; SHIFT_END = 23;
-  TOTAL_COLS  = ((SHIFT_END - SHIFT_START) * 60) / STEP;
-  document.getElementById('focus-start').value = '06:00';
-  document.getElementById('focus-end').value   = '23:00';
-  render();
-  document.getElementById('tl-outer').scrollLeft = 0;
-}
-
-let events  = [];
+/* ── DATA ── */
+let events = [];
 let modalImgs = [];
+let activeEventId = null;
 
-const statusCfg = {
-  normal:  { label:'ปกติ',      color:'var(--accent)', cls:'st-normal'  },
-  ok:      { label:'สำเร็จ',    color:'var(--ok)',     cls:'st-ok'      },
-  warn:    { label:'แจ้งเตือน', color:'var(--warn)',   cls:'st-warn'    },
-  danger:  { label:'ปัญหา',     color:'var(--danger)', cls:'st-danger'  },
-  neutral: { label:'ข้อมูล',    color:'var(--neutral)',cls:'st-neutral' },
+/* ── TIMELINE CONFIG ── */
+const STEP   = 30;
+const COL_W  = 88;
+const LABEL_W = 160;
+let TL_START = 6;   // hour
+let TL_END   = 23;  // hour
+function totalCols() { return ((TL_END - TL_START) * 60) / STEP; }
+
+/* ── STATUS CONFIG ── */
+const SC = {
+  normal:  { lbl:'ปกติ',      color:'var(--accent)', bg:'#eff6ff', border:'#93c5fd' },
+  ok:      { lbl:'สำเร็จ',    color:'var(--ok)',     bg:'#f0fdf4', border:'#6ee7b7' },
+  warn:    { lbl:'แจ้งเตือน', color:'var(--warn)',   bg:'#fffbeb', border:'#fcd34d' },
+  danger:  { lbl:'ปัญหา',     color:'var(--danger)', bg:'#fef2f2', border:'#fca5a5' },
+  neutral: { lbl:'ข้อมูล',    color:'var(--neutral)',bg:'#f8fafc', border:'#cbd5e1' },
 };
 
-const LINE_PRODUCTS = {
+/* ── LINE PRODUCTS ── */
+const LP = {
   'Polo 12A':  ['Nestle Jelly Lychee','Milo Magma Stick','Eski Nomyen Stick','Milo Chocolate Malt Stk'],
   'Polo 12B':  ['La Frutta 5 Wonder Fruits','La Frutta Yogurt Lychee','La Frutta Yen Yen Longan','Eski Extra Turbo Stick'],
   'Comet':     ['Oreo Cup FS','Milo Cup','Kit Kat Cup FS','Milo Medium Cone','Milo Intense Cone'],
@@ -557,315 +476,277 @@ const LINE_PRODUCTS = {
   'Diamond':   ['Eski Bar Nestle Milk','Nestle Drumstick Milk','Brookside Strawberry Milk','Extreme HP Mimi Stk'],
   'Glacé':     ['Vari Burnely Mult','Vari Tango Stk','Nestle Laban Kk Stk'],
   'Scooping':  ['Nestle Cone Vanilla','Nestle Cone Choc 5.6kg','Nestle Cone Choc 3.8kg','Nestle Cone French Van'],
-  'Mixing 1':  [], 'Mixing 2':  [],
+  'Mixing 1':[],'Mixing 2':[],
 };
 
-/* ── TIME UTILS ── */
+/* ── UTILS ── */
+function genId() { return Date.now()+Math.random().toString(36).slice(2,5); }
+function nowTime() { return new Date().toTimeString().slice(0,5); }
 function parseTime(s) {
   if (!s) return null;
   const m = s.match(/^(\d{1,2}):(\d{2})$/);
-  return m ? parseInt(m[1])*60 + parseInt(m[2]) : null;
+  return m ? parseInt(m[1])*60+parseInt(m[2]) : null;
 }
-function minToStr(m) {
-  const h = Math.floor(m/60).toString().padStart(2,'0');
-  return h + ':' + (m%60).toString().padStart(2,'0');
+function minToStr(m) { return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0'); }
+function timeToX(t) {
+  const m = parseTime(t); if (m===null) return null;
+  const off = m - TL_START*60; if (off<0) return 0;
+  return (off/STEP)*COL_W;
 }
-function timeToX(timeStr) {
-  const m = parseTime(timeStr);
-  if (m === null) return null;
-  const offset = m - SHIFT_START * 60;
-  if (offset < 0) return 0;
-  return (offset / STEP) * COL_W;
-}
-function nowTime() { return new Date().toTimeString().slice(0,5); }
-
-/* ── RULER ── */
-function buildRuler() {
-  const canvas = document.getElementById('tl-canvas');
-  let old = canvas.querySelector('.tl-ruler');
-  if (old) old.remove();
-  const ruler = document.createElement('div');
-  ruler.className = 'tl-ruler';
-  for (let i = 0; i < TOTAL_COLS; i++) {
-    const tick = document.createElement('div');
-    const minVal = SHIFT_START * 60 + i * STEP;
-    const isMajor = (minVal % 60 === 0);
-    tick.className = 'ruler-tick' + (isMajor ? ' major' : '');
-    tick.textContent = isMajor ? minToStr(minVal) : (STEP < 60 ? minToStr(minVal).slice(3) : '');
-    ruler.appendChild(tick);
-  }
-  canvas.insertBefore(ruler, document.getElementById('tl-rows'));
-}
-
-/* ── NOW LINE ── */
-function updateNowLine() {
-  const rows = document.getElementById('tl-rows');
-  let line = document.getElementById('now-line');
-  if (!line) {
-    line = document.createElement('div');
-    line.className = 'now-line';
-    line.id = 'now-line';
-    rows.appendChild(line);
-  }
-  const x = timeToX(nowTime());
-  if (x !== null && events.length > 0) {
-    line.style.display = 'block';
-    line.style.left = (LABEL_W + x) + 'px';
-  } else {
-    line.style.display = 'none';
-  }
-}
-
-/* ── GROUP events by row label ── */
-function getRows() {
-  // Row = แต่ละสถานะที่ต่างกัน หรือ group ตาม label
-  // ใช้ 1 row เดียว "Events" + แยก row ตาม status
-  const statusRows = ['normal','ok','warn','danger','neutral'];
-  const rows = [];
-  statusRows.forEach(st => {
-    const evs = events.filter(e => e.status === st);
-    if (evs.length > 0) rows.push({ label: statusCfg[st].label, status: st, events: evs });
-  });
-  if (rows.length === 0) rows.push({ label: 'Events', status: 'normal', events: [] });
-  return rows;
-}
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
 /* ── RENDER ── */
 function render() {
-  buildRuler();
-  const rowsEl = document.getElementById('tl-rows');
-  rowsEl.innerHTML = '';
+  const canvas = document.getElementById('tl-canvas');
+  canvas.innerHTML = '';
 
-  const emptyDiv = document.createElement('div');
-  emptyDiv.className = 'empty-row';
-  emptyDiv.id = 'empty-row';
-  emptyDiv.innerHTML = '<div class="ei">📋</div><div>กด <strong>+ เพิ่ม Event</strong> เพื่อเริ่มบันทึก</div>';
-  emptyDiv.style.display = events.length === 0 ? 'flex' : 'none';
-  rowsEl.appendChild(emptyDiv);
-
-  if (events.length > 0) {
-    const rows = getRows();
-    rows.forEach(row => {
-      const rowEl = document.createElement('div');
-      rowEl.className = 'tl-row';
-
-      // label
-      const lbl = document.createElement('div');
-      lbl.className = 'row-label';
-      const sc = statusCfg[row.status];
-      lbl.innerHTML = '<span class="row-label-text" style="color:' + sc.color + '">' + row.label + '</span>';
-      rowEl.appendChild(lbl);
-
-      // grid cols
-      const grid = document.createElement('div');
-      grid.className = 'row-grid';
-      for (let i = 0; i < TOTAL_COLS; i++) {
-        const col = document.createElement('div');
-        const minVal = SHIFT_START * 60 + i * STEP;
-        col.className = 'grid-col' + (minVal % 60 === 0 ? ' major' : '');
-        grid.appendChild(col);
-      }
-
-      // events layer
-      const evLayer = document.createElement('div');
-      evLayer.className = 'row-events';
-      row.events.forEach(ev => {
-        const x = timeToX(ev.time);
-        if (x === null) return;
-
-        // width = 30 min default, ยืดตาม title length
-        const minWidth = Math.max(COL_W, Math.min(ev.title.length * 8 + 60, COL_W * 4));
-
-        const evEl = document.createElement('div');
-        evEl.className = 'tl-event ' + statusCfg[ev.status].cls;
-        evEl.style.left = x + 'px';
-        evEl.style.width = minWidth + 'px';
-        // thumbnail row เหนือ bar
-        let thumbHtml = '';
-        if (ev.images && ev.images.length > 0) {
-          thumbHtml = '<div class="bar-thumb-row">' +
-            ev.images.map((img, ii) =>
-              '<img class="bar-thumb" src="' + img.src + '" ' +
-              'onclick="event.stopPropagation();openLightbox(\'' + ev.id + '\',' + ii + ')" ' +
-              'title="' + esc(img.name||'') + '">'
-            ).join('') +
-          '</div>';
-        }
-
-        evEl.innerHTML =
-          thumbHtml +
-          '<div class="event-dot"></div>' +
-          '<div class="event-label">' + esc(ev.title) + '</div>' +
-          '<div class="event-time">' + ev.time + '</div>';
-        evEl.addEventListener('click', () => openDetail(ev));
-        evLayer.appendChild(evEl);
-      });
-
-      grid.appendChild(evLayer);
-      rowEl.appendChild(grid);
-      rowsEl.appendChild(rowEl);
-    });
-
-    // add row button
-    const addRow = document.createElement('div');
-    addRow.style.display = 'flex';
-    addRow.innerHTML = '<button class="add-row-inner" onclick="openModal()">＋ เพิ่ม Event</button>';
-    addRow.style.padding = '10px 16px';
-    rowsEl.appendChild(addRow);
+  if (events.length === 0) {
+    canvas.innerHTML =
+      '<div class="empty-state">' +
+      '<div class="empty-icon">📋</div>' +
+      '<div class="empty-hint">ยังไม่มี Event<br>กด <strong>＋ เพิ่ม Event</strong> มุมขวาบน เพื่อเริ่มบันทึก<br><span style="font-size:11px;color:var(--text-muted)">กรอกชื่อ + เวลา + สถานะ แล้วกด บันทึก</span></div>' +
+      '</div>';
+    updateSummary(); return;
   }
 
-  updateNowLine();
+  // ruler
+  const ruler = document.createElement('div');
+  ruler.className = 'ruler';
+  const cols = totalCols();
+  for (let i=0; i<cols; i++) {
+    const m = TL_START*60 + i*STEP;
+    const tick = document.createElement('div');
+    tick.className = 'r-tick' + (m%60===0?' major':'');
+    tick.textContent = m%60===0 ? minToStr(m) : minToStr(m).slice(3);
+    ruler.appendChild(tick);
+  }
+  canvas.appendChild(ruler);
+
+  // rows by status
+  const rowsEl = document.createElement('div');
+  rowsEl.className = 'tl-rows';
+
+  // now line
+  const nowX = timeToX(nowTime());
+  if (nowX!==null) {
+    const nl = document.createElement('div');
+    nl.className = 'now-line';
+    nl.style.left = (LABEL_W+nowX)+'px';
+    rowsEl.appendChild(nl);
+  }
+
+  // group by status
+  const statusOrder = ['normal','ok','warn','danger','neutral'];
+  statusOrder.forEach(st => {
+    const evs = events.filter(e=>e.status===st);
+    if (!evs.length) return;
+    const sc = SC[st];
+
+    const row = document.createElement('div');
+    row.className = 'tl-row';
+
+    // label
+    const lbl = document.createElement('div');
+    lbl.className = 'row-label';
+    lbl.innerHTML =
+      '<div class="row-lbl-name" style="color:'+sc.color+'">'+sc.lbl+'</div>'+
+      '<div class="row-lbl-count">'+evs.length+' event'+(evs.length>1?'s':'')+'</div>';
+    row.appendChild(lbl);
+
+    // grid
+    const grid = document.createElement('div');
+    grid.className = 'row-grid';
+    for (let i=0; i<cols; i++) {
+      const gc = document.createElement('div');
+      const m = TL_START*60+i*STEP;
+      gc.className='g-col'+(m%60===0?' major':'');
+      grid.appendChild(gc);
+    }
+
+    // events layer
+    const evLayer = document.createElement('div');
+    evLayer.className = 'row-events';
+    evs.forEach(ev => {
+      const x = timeToX(ev.time);
+      if (x===null) return;
+      const w = Math.max(COL_W, Math.min((ev.title.length*7.5)+60, COL_W*4));
+
+      const bar = document.createElement('div');
+      bar.className = 'ev-bar st-'+ev.status;
+      bar.style.left = x+'px';
+      bar.style.width = w+'px';
+
+      // thumbnails above bar
+      if (ev.images && ev.images.length>0) {
+        const thumbRow = document.createElement('div');
+        thumbRow.className = 'ev-thumbs';
+        ev.images.forEach((img,ii)=>{
+          const t = document.createElement('img');
+          t.className='ev-thumb'; t.src=img.src;
+          t.onclick = e => { e.stopPropagation(); openLb(img.src); };
+          thumbRow.appendChild(t);
+        });
+        bar.appendChild(thumbRow);
+      }
+
+      bar.innerHTML +=
+        '<div class="ev-dot"></div>'+
+        '<div class="ev-label">'+esc(ev.title)+'</div>'+
+        '<div class="ev-time">'+ev.time+'</div>';
+      bar.addEventListener('click', ()=>openDetail(ev));
+      evLayer.appendChild(bar);
+    });
+
+    grid.appendChild(evLayer);
+    row.appendChild(grid);
+    rowsEl.appendChild(row);
+  });
+
+  canvas.appendChild(rowsEl);
   updateSummary();
 }
 
 /* ── SUMMARY ── */
 function updateSummary() {
-  const cnt = {normal:0,ok:0,warn:0,danger:0,neutral:0};
-  events.forEach(e => { if (cnt[e.status]!==undefined) cnt[e.status]++; });
-  document.getElementById('cnt-normal').textContent  = cnt.normal;
-  document.getElementById('cnt-ok').textContent      = cnt.ok;
-  document.getElementById('cnt-warn').textContent    = cnt.warn;
-  document.getElementById('cnt-danger').textContent  = cnt.danger;
-  document.getElementById('cnt-total').textContent   = events.length;
-
-  if (events.length >= 2) {
-    const sorted = [...events].sort((a,b)=>(parseTime(a.time)||0)-(parseTime(b.time)||0));
-    const t1 = parseTime(sorted[0].time), t2 = parseTime(sorted[sorted.length-1].time);
-    if (t1!==null && t2!==null) {
-      let diff = t2 - t1;
-      const h = Math.floor(diff/60), m = diff%60;
-      document.getElementById('dur-total').textContent = h > 0 ? h+'h '+m+'m' : m+' นาที';
-    }
-  } else {
-    document.getElementById('dur-total').textContent = '—';
-  }
+  const c={normal:0,ok:0,warn:0,danger:0};
+  events.forEach(e=>{ if(c[e.status]!==undefined) c[e.status]++; });
+  document.getElementById('cn').textContent=c.normal;
+  document.getElementById('co').textContent=c.ok;
+  document.getElementById('cw').textContent=c.warn;
+  document.getElementById('cd').textContent=c.danger;
+  document.getElementById('ct').textContent=events.length;
+  if (events.length>=2) {
+    const s=[...events].sort((a,b)=>(parseTime(a.time)||0)-(parseTime(b.time)||0));
+    const d=(parseTime(s[s.length-1].time)||0)-(parseTime(s[0].time)||0);
+    document.getElementById('dur').textContent=d>=60?Math.floor(d/60)+'h '+(d%60)+'m':d+' นาที';
+  } else { document.getElementById('dur').textContent='—'; }
 }
 
 /* ── DETAIL PANEL ── */
 function openDetail(ev) {
-  const sc = statusCfg[ev.status];
+  activeEventId = ev.id;
+  const sc = SC[ev.status]||SC.normal;
   document.getElementById('dp-title').textContent = ev.title;
   let html = '';
-  html += '<div class="dp-row"><div class="dp-lbl">เวลา</div><div class="dp-val" style="font-family:var(--mono)">' + ev.time + '</div></div>';
-  html += '<div class="dp-row"><div class="dp-lbl">สถานะ</div><div class="dp-val"><span class="dp-badge" style="background:' + sc.color + '22;color:' + sc.color + ';border:1px solid ' + sc.color + '44">' + sc.label + '</span></div></div>';
-  if (ev.reason) html += '<div class="dp-row"><div class="dp-lbl">หมายเหตุ</div><div class="dp-val">' + esc(ev.reason) + '</div></div>';
-  if (ev.images && ev.images.length > 0) {
-    html += '<div class="dp-imgs">' + ev.images.map((img,i) => '<img class="dp-img" src="'+img.src+'" onclick="openLightbox(\''+ev.id+'\','+i+')">').join('') + '</div>';
-  }
+  html += '<div class="dp-row"><div class="dp-lbl">เวลา</div><div class="dp-val" style="font-family:var(--mono)">'+ev.time+'</div></div>';
+  html += '<div class="dp-row"><div class="dp-lbl">สถานะ</div><div class="dp-val"><span class="dp-badge" style="background:'+sc.bg+';color:'+sc.color+';border:1px solid '+sc.border+'">'+sc.lbl+'</span></div></div>';
+  if (ev.reason) html += '<div class="dp-row"><div class="dp-lbl">หมายเหตุ</div><div class="dp-val">'+esc(ev.reason)+'</div></div>';
+  if (ev.images&&ev.images.length>0) html += '<div class="dp-imgs">'+ev.images.map(img=>'<img class="dp-img" src="'+img.src+'" onclick="openLb(\''+img.src+'\')">').join('')+'</div>';
   document.getElementById('dp-body').innerHTML = html;
-  document.getElementById('detail-panel').classList.add('open');
+  document.getElementById('dp-del-btn').onclick = () => deleteEvent(ev.id);
+  document.getElementById('dp').classList.add('open');
 }
-function closeDetail() { document.getElementById('detail-panel').classList.remove('open'); }
+function closeDetail() { document.getElementById('dp').classList.remove('open'); activeEventId=null; }
+
+/* ── DELETE ── */
+function deleteEvent(id) {
+  if (!confirm('ลบ Event นี้ใช่ไหม?')) return;
+  events = events.filter(e=>e.id!==id);
+  closeDetail(); render();
+}
 
 /* ── MODAL ── */
 function openModal() {
-  modalImgs = [];
-  document.getElementById('f-title').value  = '';
-  document.getElementById('f-time').value   = nowTime();
-  document.getElementById('f-status').value = 'normal';
-  document.getElementById('f-reason').value = '';
-  document.getElementById('modal-thumbs').innerHTML = '';
-  document.getElementById('modal-overlay').classList.add('open');
-  setTimeout(() => document.getElementById('f-title').focus(), 100);
+  modalImgs=[];
+  document.getElementById('f-title').value='';
+  document.getElementById('f-time').value=nowTime();
+  document.getElementById('f-status').value='normal';
+  document.getElementById('f-reason').value='';
+  document.getElementById('img-previews').innerHTML='';
+  document.getElementById('overlay').classList.add('open');
+  setTimeout(()=>document.getElementById('f-title').focus(),120);
 }
-function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
-function overlayClick(e) { if (e.target === document.getElementById('modal-overlay')) closeModal(); }
+function closeModal() { document.getElementById('overlay').classList.remove('open'); }
+function overlayBg(e) { if(e.target===document.getElementById('overlay')) closeModal(); }
 
-function handleModalFiles(files) {
-  Array.from(files).forEach(file => {
+function handleFiles(files) {
+  Array.from(files).forEach(file=>{
     if (!file.type.startsWith('image/')) return;
-    const reader = new FileReader();
-    reader.onload = ev => {
-      modalImgs.push({ src: ev.target.result, name: file.name });
-      const img = document.createElement('img');
-      img.className = 'modal-thumb';
-      img.src = ev.target.result;
-      document.getElementById('modal-thumbs').appendChild(img);
+    const r=new FileReader();
+    r.onload=ev=>{
+      const idx=modalImgs.length;
+      modalImgs.push({src:ev.target.result,name:file.name});
+      const wrap=document.createElement('div');
+      wrap.className='img-preview-wrap';
+      wrap.innerHTML='<img class="img-preview" src="'+ev.target.result+'"><button class="img-remove" onclick="removeModalImg('+idx+')">✕</button>';
+      document.getElementById('img-previews').appendChild(wrap);
     };
-    reader.readAsDataURL(file);
+    r.readAsDataURL(file);
+  });
+}
+function removeModalImg(idx) {
+  modalImgs.splice(idx,1);
+  // re-render previews
+  const prev=document.getElementById('img-previews');
+  prev.innerHTML='';
+  modalImgs.forEach((img,i)=>{
+    const wrap=document.createElement('div');
+    wrap.className='img-preview-wrap';
+    wrap.innerHTML='<img class="img-preview" src="'+img.src+'"><button class="img-remove" onclick="removeModalImg('+i+')">✕</button>';
+    prev.appendChild(wrap);
   });
 }
 
 function submitEvent() {
-  const title = document.getElementById('f-title').value.trim();
-  if (!title) { document.getElementById('f-title').focus(); return; }
-  const ev = {
-    id: Date.now() + Math.random().toString(36).slice(2,5),
-    title,
-    time:   document.getElementById('f-time').value || nowTime(),
-    status: document.getElementById('f-status').value,
-    reason: document.getElementById('f-reason').value.trim(),
-    images: [...modalImgs],
-  };
-  events.push(ev);
-  events.sort((a,b) => (parseTime(a.time)||0) - (parseTime(b.time)||0));
-  closeModal();
-  render();
+  const title=document.getElementById('f-title').value.trim();
+  if (!title) { document.getElementById('f-title').focus(); document.getElementById('f-title').style.borderColor='var(--danger)'; return; }
+  document.getElementById('f-title').style.borderColor='';
+  events.push({
+    id:genId(), title,
+    time:document.getElementById('f-time').value||nowTime(),
+    status:document.getElementById('f-status').value,
+    reason:document.getElementById('f-reason').value.trim(),
+    images:[...modalImgs],
+  });
+  events.sort((a,b)=>(parseTime(a.time)||0)-(parseTime(b.time)||0));
+  closeModal(); render();
 }
 
 /* ── LIGHTBOX ── */
-let lbId=null, lbIdx=0;
-function openLightbox(id,idx) {
-  lbId=id; lbIdx=idx;
-  const ev = events.find(e=>e.id===id);
-  if (!ev||!ev.images) return;
-  // simple fullscreen
-  const overlay = document.createElement('div');
-  overlay.id = 'lb-tmp';
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:9999;display:flex;align-items:center;justify-content:center;cursor:zoom-out';
-  overlay.innerHTML = '<img src="'+ev.images[idx].src+'" style="max-width:90vw;max-height:88vh;border-radius:6px">';
-  overlay.onclick = () => overlay.remove();
-  document.body.appendChild(overlay);
+function openLb(src) {
+  document.getElementById('lb-img').src=src;
+  document.getElementById('lb').classList.add('open');
+}
+
+/* ── FOCUS RANGE ── */
+function applyFocus() {
+  const sm=parseTime(document.getElementById('focus-s').value);
+  const em=parseTime(document.getElementById('focus-e').value);
+  if (!sm||!em||em<=sm) return;
+  TL_START=sm/60; TL_END=em/60;
+  render(); document.getElementById('tl-wrap').scrollLeft=0;
+}
+function resetFocus() {
+  TL_START=6; TL_END=23;
+  document.getElementById('focus-s').value='06:00';
+  document.getElementById('focus-e').value='23:00';
+  render();
 }
 
 /* ── LINE → PRODUCT ── */
 function onLineChange() {
-  const line = document.getElementById('meta-line').value;
-  const sel  = document.getElementById('meta-product');
-  const prods = LINE_PRODUCTS[line] || [];
-  if (!line) {
-    sel.innerHTML = '<option value="">— เลือก Line ก่อน —</option>';
-  } else if (!prods.length) {
-    sel.innerHTML = '<option value="">— (ยังไม่มีข้อมูล) —</option>';
-  } else {
-    sel.innerHTML = '<option value="">— เลือกผลิตภัณฑ์ —</option>' + prods.map(p=>'<option>'+p+'</option>').join('');
-  }
+  const line=document.getElementById('meta-line').value;
+  const sel=document.getElementById('meta-product');
+  const p=LP[line]||[];
+  sel.innerHTML=!line?'<option>— เลือก Line ก่อน —</option>':
+    !p.length?'<option>— (ยังไม่มีข้อมูล) —</option>':
+    '<option>— เลือกผลิตภัณฑ์ —</option>'+p.map(x=>'<option>'+x+'</option>').join('');
 }
 
 /* ── DRAG SCROLL ── */
 (function(){
-  const el = document.getElementById('tl-outer');
-  let down=false, sx, sl;
-  el.addEventListener('mousedown', e => { down=true; sx=e.pageX-el.offsetLeft; sl=el.scrollLeft; });
-  el.addEventListener('mouseleave', ()=>down=false);
-  el.addEventListener('mouseup',    ()=>down=false);
-  el.addEventListener('mousemove', e => {
-    if (!down) return; e.preventDefault();
-    el.scrollLeft = sl-(e.pageX-el.offsetLeft-sx);
-  });
+  const el=document.getElementById('tl-wrap');
+  let dn=false,sx,sl;
+  el.addEventListener('mousedown',e=>{dn=true;sx=e.pageX-el.offsetLeft;sl=el.scrollLeft;});
+  el.addEventListener('mouseleave',()=>dn=false);
+  el.addEventListener('mouseup',()=>dn=false);
+  el.addEventListener('mousemove',e=>{if(!dn)return;e.preventDefault();el.scrollLeft=sl-(e.pageX-el.offsetLeft-sx);});
 })();
 
-/* ── UTILS ── */
-function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
 /* ── INIT ── */
-document.getElementById('meta-date').value = new Date().toISOString().slice(0,10);
-
-// sample events
-events = [
-  { id:'1', time:'07:00', title:'เริ่ม Shift เช้า',           status:'normal', reason:'ตรวจสอบความพร้อมเครื่องจักรและวัตถุดิบ', images:[] },
-  { id:'2', time:'08:15', title:'CIP เสร็จสิ้น',               status:'ok',     reason:'ผ่าน conductivity check ครบทุกขั้นตอน', images:[] },
-  { id:'3', time:'09:00', title:'เริ่ม Pasteurize',             status:'normal', reason:'อุณหภูมิ 85°C ปกติ', images:[] },
-  { id:'4', time:'10:15', title:'อุณหภูมิต่ำกว่า Spec',         status:'warn',   reason:'ลดเหลือ 78°C แจ้ง supervisor ปรับ steam valve', images:[] },
-  { id:'5', time:'10:45', title:'อุณหภูมิกลับสู่ปกติ',          status:'ok',     reason:'85°C ตรงตาม spec แล้ว', images:[] },
-  { id:'6', time:'13:00', title:'หยุด Line ฉุกเฉิน',            status:'danger', reason:'Conveyor belt หัก รอช่างซ่อม', images:[] },
-  { id:'7', time:'14:30', title:'กลับมา Production',            status:'ok',     reason:'ซ่อมเสร็จ ทดสอบ run ผ่าน', images:[] },
-  { id:'8', time:'17:00', title:'End of Shift',                 status:'neutral',reason:'ส่งมอบ batch ครบ target', images:[] },
-];
-events.sort((a,b)=>(parseTime(a.time)||0)-(parseTime(b.time)||0));
+document.getElementById('meta-date').value=new Date().toISOString().slice(0,10);
 render();
-
-setInterval(updateNowLine, 60000);
+setInterval(()=>{ if(events.length>0) render(); },60000);
 </script>
 </body>
 </html>
