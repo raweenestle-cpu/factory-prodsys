@@ -674,9 +674,7 @@ window.setTempVal=async function(tid,key,val){
   }
   if(!_inRange){
     toast(_rangeMsg,'red');
-    if(!window.confirm(_rangeMsg+'
-
-ยืนยันบันทึกต่อไหม?'))return;
+    if(!window.confirm(_rangeMsg+'\n\nยืนยันบันทึกต่อไหม?'))return;
   }
   try{
     // ใช้ object ซ้อน temps แทน dot-notation เพราะ key มี - และตัวเลข
