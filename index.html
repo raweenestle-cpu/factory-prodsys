@@ -1,248 +1,491 @@
-<!DOCTYPE html>
+<!DOCTYPE html><!-- v2026.06.06 -->
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-  
-  <meta name="theme-color" content="#1e40af">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="PROD.SYS">
-  <link rel="apple-touch-icon" href="icons/icon-192.png">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PROD.SYS — Login</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f0f6ff">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<title>PROD.SYS — Smart Factory</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=DM+Mono:wght@400;500&family=Noto+Sans+Thai:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;600&family=Sarabun:wght@400;500;600;700&display=swap');
-*{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#0d1117;--s1:#0f172a;--s2:#1e293b;
-  --b1:#1e3a5f;--b2:#2d5a9e;
-  --text:#e4eaf8;--t2:#5e6e90;--t3:#2a3450;
-  --blue:#3b82f6;--blue2:#7ab3ff;
-  --green:#1fd17a;--yellow:#f5c842;
-  --cyan:#06b6d4;--purple:#9b6dff;
-  --mono:'DM Mono',monospace;--sans:'Sarabun',sans-serif;
+  --bg:#f0f6ff;
+  --bg2:#e6effc;
+  --card:#ffffff;
+  --border:#d0e2f8;
+  --blue1:#1a56db;
+  --blue2:#3b82f6;
+  --blue3:#93c5fd;
+  --teal:#0891b2;
+  --green:#059669;
+  --amber:#d97706;
+  --red:#dc2626;
+  --t1:#0f1c2e;
+  --t2:#334e68;
+  --t3:#64748b;
+  --mono:'DM Mono',monospace;
+  --sans:'Rajdhani','Noto Sans Thai',sans-serif;
 }
-html,body{height:100%;margin:0}
+*{box-sizing:border-box;margin:0;padding:0}
 body{
+  font-family:var(--sans);
   background:var(--bg);
-  font-family:var(--sans);
-  color:var(--text);
   min-height:100vh;
-  padding:20px;
-  position:relative;
-  overflow-y:auto;
+  overflow-x:hidden;
 }
 
-/* BG EFFECTS */
-body::before{
-  content:"";position:fixed;inset:0;
-  background-image:linear-gradient(rgba(59,126,246,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(59,126,246,.04) 1px,transparent 1px);
-  background-size:48px 48px;pointer-events:none;
+/* ── BACKGROUND ── */
+.bg-scene{
+  position:fixed;inset:0;z-index:0;
+  background:linear-gradient(135deg,#e8f4ff 0%,#f0f9ff 40%,#e8f0fe 100%);
+  overflow:hidden;
 }
-.glow-1{position:fixed;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(59,126,246,.12),transparent 70%);top:-100px;left:-100px;pointer-events:none}
-.glow-2{position:fixed;width:350px;height:350px;border-radius:50%;background:radial-gradient(circle,rgba(155,109,255,.1),transparent 70%);bottom:-80px;right:-80px;pointer-events:none}
+.bg-grid{
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(59,130,246,.07) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(59,130,246,.07) 1px,transparent 1px);
+  background-size:48px 48px;
+  animation:gridMove 20s linear infinite;
+}
+@keyframes gridMove{to{background-position:48px 48px;}}
+.bg-blob{
+  position:absolute;border-radius:50%;filter:blur(80px);opacity:.18;
+  animation:blobFloat 8s ease-in-out infinite alternate;
+}
+.bb1{width:500px;height:500px;background:#3b82f6;top:-150px;left:-100px;animation-delay:0s;}
+.bb2{width:400px;height:400px;background:#0891b2;top:30%;right:-120px;animation-delay:2s;}
+.bb3{width:350px;height:350px;background:#6366f1;bottom:-100px;left:30%;animation-delay:4s;}
+@keyframes blobFloat{from{transform:translate(0,0) scale(1);}to{transform:translate(30px,20px) scale(1.08);}}
 
-/* CARD */
-.card{
-  background:var(--s1);
-  border:1px solid var(--b1);
+/* floating particles */
+.particle{
+  position:absolute;border-radius:50%;
+  background:rgba(59,130,246,.15);
+  animation:particleFloat linear infinite;
+}
+@keyframes particleFloat{
+  0%{transform:translateY(100vh) scale(0);opacity:0;}
+  10%{opacity:.6;}
+  90%{opacity:.3;}
+  100%{transform:translateY(-100px) scale(1);opacity:0;}
+}
+
+/* ── HEADER ── */
+.topbar{
+  position:relative;z-index:10;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 24px;
+  background:rgba(255,255,255,.72);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(59,130,246,.15);
+  box-shadow:0 2px 20px rgba(59,130,246,.08);
+}
+.logo{display:flex;align-items:center;gap:12px;}
+.logo-icon{
+  width:38px;height:38px;border-radius:10px;
+  background:linear-gradient(135deg,#1a56db,#3b82f6);
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;
+  box-shadow:0 4px 12px rgba(59,130,246,.35);
+}
+.logo-text{font-family:var(--mono);font-size:16px;font-weight:700;color:var(--t1);letter-spacing:.08em;}
+.logo-sub{font-size:10px;color:var(--t3);font-family:var(--mono);letter-spacing:.12em;}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.badge-live{
+  display:flex;align-items:center;gap:5px;
+  background:rgba(5,150,105,.1);border:1px solid rgba(5,150,105,.3);
+  border-radius:20px;padding:4px 10px;
+  font-family:var(--mono);font-size:10px;font-weight:700;color:#059669;
+  letter-spacing:.08em;
+}
+.live-dot{width:6px;height:6px;border-radius:50%;background:#059669;animation:livePulse 1.5s ease-in-out infinite;}
+@keyframes livePulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.7);}}
+
+/* ── STEPS ── */
+.step{display:none;}
+.step.on{display:block;}
+
+/* ── LOGIN SCREEN ── */
+#step1,#step2{
+  position:fixed;inset:0;z-index:50;
+  display:none;
+  align-items:center;justify-content:center;
+  background:rgba(240,246,255,.92);
+  backdrop-filter:blur(12px);
+}
+#step1.on,#step2.on{display:flex;}
+
+.login-card{
+  background:white;
+  border:1px solid var(--border);
   border-radius:24px;
-  padding:36px 28px;
-  width:100%;
-  max-width:400px;
-  margin:0 auto;
-  position:relative;
-  z-index:1;
-  box-shadow:0 24px 64px rgba(0,0,0,.6);
+  padding:40px 36px;
+  width:360px;
+  box-shadow:0 20px 60px rgba(59,130,246,.15),0 4px 20px rgba(0,0,0,.08);
+  animation:cardIn .4s cubic-bezier(.34,1.56,.64,1);
 }
+@keyframes cardIn{from{opacity:0;transform:translateY(30px) scale(.95);}to{opacity:1;transform:translateY(0) scale(1);}}
+.login-title{font-size:22px;font-weight:700;color:var(--t1);margin-bottom:4px;}
+.login-sub{font-size:12px;color:var(--t3);margin-bottom:28px;font-family:var(--mono);}
 
-/* LOGO */
-.logo{text-align:center;margin-bottom:28px}
-.logo-text{font-family:var(--mono);font-size:32px;font-weight:600;letter-spacing:.06em}
-.logo-text b{color:var(--blue)}
-.logo-text span{color:var(--t2)}
-.logo-sub{font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--t3);margin-top:4px;text-transform:uppercase}
-
-/* STEP 1 — เลือก Role */
-.step{display:none}
-.step.on{display:block}
-
-.step-label{font-family:var(--mono);font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.12em;margin-bottom:14px;text-align:center}
-
-.role-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px}
+.role-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:8px;}
 .role-btn{
-  background:var(--s2);
-  border:1px solid var(--b1);
-  border-radius:14px;
-  padding:18px 12px;
-  cursor:pointer;
-  text-align:center;
-  transition:all .2s;
-  position:relative;
-  overflow:hidden;
+  border:2px solid var(--border);
+  border-radius:14px;padding:16px 12px;
+  text-align:center;cursor:pointer;
+  transition:all .2s;background:var(--bg);
 }
-.role-btn:hover{border-color:var(--blue);background:rgba(59,126,246,.08);transform:translateY(-2px)}
-.role-btn.selected{border-color:var(--blue);background:rgba(59,126,246,.12);box-shadow:0 0 0 1px rgba(59,126,246,.3)}
-.role-btn::after{content:"";position:absolute;top:0;left:0;right:0;height:2px;border-radius:14px 14px 0 0;opacity:0;transition:opacity .2s}
-.role-btn.selected::after,.role-btn:hover::after{opacity:1}
-.role-btn.leadman::after{background:linear-gradient(90deg,var(--yellow),#fbbf24)}
-.role-btn.operator::after{background:linear-gradient(90deg,var(--blue),var(--cyan))}
-.role-icon{font-size:28px;margin-bottom:8px}
-.role-name{font-family:var(--mono);font-size:13px;font-weight:600}
-.role-desc{font-size:10px;color:var(--t2);margin-top:3px;line-height:1.4}
-.role-badge{display:inline-block;font-family:var(--mono);font-size:9px;padding:2px 7px;border-radius:4px;margin-top:6px}
-.badge-lm{background:rgba(245,200,66,.15);color:var(--yellow);border:1px solid rgba(245,200,66,.3)}
-.badge-op{background:rgba(59,126,246,.15);color:var(--blue2);border:1px solid rgba(59,126,246,.3)}
+.role-btn:hover{border-color:var(--blue2);background:#eff6ff;transform:translateY(-2px);}
+.role-btn.selected{border-color:var(--blue1);background:linear-gradient(135deg,#eff6ff,#dbeafe);box-shadow:0 4px 16px rgba(59,130,246,.2);}
+.role-icon{font-size:28px;margin-bottom:6px;}
+.role-name{font-size:13px;font-weight:700;color:var(--t1);}
+.role-desc{font-size:10px;color:var(--t3);margin-top:2px;font-family:var(--mono);}
 
-/* STEP 2 — กรอก Password */
-.back-btn{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--t2);cursor:pointer;margin-bottom:20px;width:fit-content}
-.back-btn:hover{color:var(--text)}
-.back-btn svg{width:14px;height:14px}
-
-.selected-role{display:flex;align-items:center;gap:12px;background:var(--s2);border:1px solid var(--b1);border-radius:12px;padding:12px 16px;margin-bottom:20px}
-.selected-icon{font-size:24px}
-.selected-info{}
-.selected-name{font-family:var(--mono);font-size:14px;font-weight:700}
-.selected-email{font-family:var(--mono);font-size:10px;color:var(--t2);margin-top:2px}
-
-.pw-label{font-size:11px;color:var(--t2);margin-bottom:6px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em}
-.pw-wrap{position:relative}
+.pw-wrap{position:relative;margin-bottom:14px;}
 .pw-input{
-  width:100%;
-  background:var(--s2);
-  border:1px solid var(--b1);
-  border-radius:10px;
-  color:var(--text);
-  font-family:var(--mono);
-  font-size:16px;
-  padding:12px 44px 12px 14px;
-  outline:none;
-  letter-spacing:.1em;
-  transition:border-color .2s;
+  width:100%;padding:12px 42px 12px 16px;
+  border:2px solid var(--border);border-radius:12px;
+  font-size:15px;font-family:var(--mono);
+  background:var(--bg);color:var(--t1);
+  transition:border-color .2s;outline:none;
 }
-.pw-input:focus{border-color:var(--blue)}
-.pw-toggle{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--t2);cursor:pointer;font-size:16px;padding:4px}
-.pw-toggle:hover{color:var(--text)}
-
-.err-msg{font-size:12px;color:var(--red, #f04f5e);min-height:18px;margin-top:6px;font-family:var(--mono)}
-
+.pw-input:focus{border-color:var(--blue2);background:white;}
+.pw-toggle{
+  position:absolute;right:12px;top:50%;transform:translateY(-50%);
+  background:none;border:none;cursor:pointer;font-size:16px;
+}
 .login-btn{
-  width:100%;
-  background:linear-gradient(135deg,var(--blue),#6366f1);
-  color:#fff;
-  border:none;
-  border-radius:10px;
-  padding:14px;
-  font-size:15px;
-  font-weight:700;
-  cursor:pointer;
-  font-family:var(--sans);
-  margin-top:14px;
-  transition:all .2s;
+  width:100%;padding:13px;border:none;border-radius:12px;
+  background:linear-gradient(135deg,#1a56db,#3b82f6);
+  color:white;font-size:14px;font-weight:700;font-family:var(--sans);
+  cursor:pointer;transition:all .2s;
+  box-shadow:0 4px 16px rgba(59,130,246,.35);
+}
+.login-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(59,130,246,.45);}
+.login-btn:disabled{opacity:.6;transform:none;}
+.back-btn{
+  display:flex;align-items:center;gap:6px;
+  color:var(--t3);font-size:12px;cursor:pointer;margin-bottom:18px;
+  font-family:var(--mono);
+}
+.back-btn:hover{color:var(--blue2);}
+.err-msg{color:var(--red);font-size:12px;min-height:16px;margin-top:8px;font-family:var(--mono);}
+#selected-display{
+  display:flex;align-items:center;gap:10px;
+  background:var(--bg);border:1px solid var(--border);
+  border-radius:12px;padding:12px;margin-bottom:16px;
+}
+.selected-icon{font-size:24px;}
+.selected-name{font-size:14px;font-weight:700;color:var(--t1);}
+.selected-email{font-size:10px;color:var(--t3);font-family:var(--mono);}
+
+/* ── MENU SCREEN ── */
+#step3{position:relative;z-index:5;padding:20px 20px 40px;}
+
+.menu-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:24px;
+}
+.user-info{display:flex;align-items:center;gap:10px;}
+.user-avatar{
+  width:40px;height:40px;border-radius:12px;
+  background:linear-gradient(135deg,#1a56db,#3b82f6);
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;
+  box-shadow:0 4px 12px rgba(59,130,246,.3);
+}
+.user-name{font-size:15px;font-weight:700;color:var(--t1);}
+.user-sub{font-size:10px;color:var(--t3);font-family:var(--mono);letter-spacing:.08em;}
+.logout-btn{
+  display:flex;align-items:center;gap:6px;
+  padding:8px 14px;border-radius:10px;
+  background:rgba(220,38,38,.08);border:1px solid rgba(220,38,38,.2);
+  color:var(--red);font-size:12px;font-weight:700;cursor:pointer;
+  transition:all .2s;font-family:var(--mono);
+}
+.logout-btn:hover{background:rgba(220,38,38,.14);}
+
+/* HERO BANNER */
+.hero{
   position:relative;
-  overflow:hidden;
+  background:linear-gradient(135deg,#0f2460 0%,#1a56db 50%,#0891b2 100%);
+  border-radius:20px;padding:28px 28px;
+  margin-bottom:28px;overflow:hidden;
+  box-shadow:0 8px 32px rgba(26,86,219,.3);
 }
-.login-btn:hover{opacity:.9;transform:translateY(-1px)}
-.login-btn:active{transform:translateY(0)}
-.login-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
-.login-btn.loading::after{
-  content:"";position:absolute;top:0;left:-100%;width:100%;height:100%;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,.15),transparent);
-  animation:loading 1s infinite;
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+.hero-circuit{
+  position:absolute;right:-20px;top:-20px;
+  width:220px;height:220px;opacity:.12;
+  background:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 20h160v160H20z' fill='none' stroke='white' stroke-width='1'/%3E%3Cpath d='M20 60h60v-40M80 60h40M140 60h20v-40M20 100h40M80 100h80M20 140h20v40M60 140h80M160 140v40' fill='none' stroke='white' stroke-width='1'/%3E%3Ccircle cx='60' cy='60' r='4' fill='white'/%3E%3Ccircle cx='120' cy='60' r='4' fill='white'/%3E%3Ccircle cx='60' cy='100' r='4' fill='white'/%3E%3Ccircle cx='160' cy='100' r='4' fill='white'/%3E%3Ccircle cx='60' cy='140' r='4' fill='white'/%3E%3Ccircle cx='140' cy='140' r='4' fill='white'/%3E%3C/svg%3E");
+}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);
+  border-radius:20px;padding:4px 12px;
+  font-family:var(--mono);font-size:10px;font-weight:700;color:rgba(255,255,255,.9);
+  letter-spacing:.12em;margin-bottom:10px;
+}
+.hero-title{
+  font-size:26px;font-weight:700;color:white;
+  line-height:1.15;margin-bottom:6px;
+  text-shadow:0 2px 8px rgba(0,0,0,.2);
+}
+.hero-sub{font-size:12px;color:rgba(255,255,255,.7);font-family:var(--mono);margin-bottom:18px;}
+.hero-stats{display:flex;gap:20px;}
+.hero-stat{text-align:center;}
+.hero-stat-n{font-family:var(--mono);font-size:20px;font-weight:700;color:white;}
+.hero-stat-l{font-size:10px;color:rgba(255,255,255,.6);font-family:var(--mono);}
+
+/* safety icons row */
+.safety-row{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  margin-bottom:24px;
+}
+.safety-chip{
+  display:flex;align-items:center;gap:5px;
+  background:rgba(255,255,255,.85);border:1px solid var(--border);
+  border-radius:20px;padding:5px 10px;
+  font-size:11px;font-weight:600;color:var(--t2);
+  backdrop-filter:blur(8px);
 }
 
-/* STEP 3 — เลือกหน้าที่ต้องการ */
-.welcome{text-align:center;margin-bottom:20px}
-.welcome-icon{font-size:32px;margin-bottom:8px}
-.welcome-name{font-family:var(--mono);font-size:16px;font-weight:700;color:var(--blue2)}
-.welcome-sub{font-size:12px;color:var(--t2);margin-top:4px}
+/* GROUP SECTIONS */
+.groups-wrap{display:flex;flex-direction:column;gap:20px;}
+.group-section{
+  background:rgba(255,255,255,.85);
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:18px;
+  backdrop-filter:blur(12px);
+  box-shadow:0 4px 20px rgba(59,130,246,.07);
+  animation:sectionIn .5s ease both;
+}
+.group-section:nth-child(1){animation-delay:.1s;}
+.group-section:nth-child(2){animation-delay:.2s;}
+.group-section:nth-child(3){animation-delay:.3s;}
+@keyframes sectionIn{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
 
-.menu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:14px}
+.group-header{
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:14px;padding-bottom:12px;
+  border-bottom:1px solid var(--border);
+}
+.group-dot{
+  width:10px;height:10px;border-radius:50%;
+  flex-shrink:0;
+}
+.group-label{font-size:13px;font-weight:700;color:var(--t1);letter-spacing:.04em;}
+.group-desc{font-size:10px;color:var(--t3);font-family:var(--mono);}
+.group-count{
+  margin-left:auto;
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:10px;padding:2px 8px;
+  font-family:var(--mono);font-size:10px;font-weight:700;color:var(--t2);
+}
+
+/* MENU GRID inside group */
+.menu-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+}
+@media(min-width:480px){.menu-grid{grid-template-columns:repeat(4,1fr);}}
+
 .menu-btn{
-  background:var(--s2);
-  border:1px solid var(--b1);
-  border-radius:16px;
-  padding:24px 16px;
-  cursor:pointer;
-  text-align:center;
-  transition:all .2s;
-  text-decoration:none;
-  display:block;
-  color:var(--text);
   position:relative;
+  background:white;
+  border:1.5px solid var(--border);
+  border-radius:14px;
+  padding:14px 8px 10px;
+  text-align:center;cursor:pointer;
+  transition:all .22s cubic-bezier(.34,1.56,.64,1);
   overflow:hidden;
 }
-.menu-btn::after{content:"";position:absolute;top:0;left:0;right:0;height:2px;opacity:0;transition:opacity .2s}
-.menu-btn:hover{transform:translateY(-2px);border-color:var(--b2)}
-.menu-btn:hover::after{opacity:1}
-.menu-btn.m-leadman::after{background:var(--yellow)}
-.menu-btn.m-daily::after{background:#0891b2}
-.menu-btn.m-mixing::after{background:var(--green)}
-.menu-btn.m-past::after{background:var(--orange, #ff8c42)}
-.menu-btn.m-flavor::after{background:var(--purple)}
-.menu-btn.m-cip::after{background:var(--cyan)}
-.menu-btn.m-filling::after{background:var(--blue)}
-.menu-btn.m-admin::after{background:var(--red, #f04f5e)}
-.menu-icon{font-size:36px;margin-bottom:10px}
-.menu-name{font-family:var(--mono);font-size:13px;font-weight:700}
-.menu-desc{font-size:11px;color:var(--t2);margin-top:4px}
+.menu-btn::before{
+  content:'';position:absolute;inset:0;opacity:0;
+  transition:opacity .2s;
+  border-radius:14px;
+}
+.menu-btn:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(59,130,246,.18);}
+.menu-btn:hover::before{opacity:1;}
+.menu-btn:active{transform:scale(.96);}
 
-.logout-btn{width:100%;background:none;border:1px solid var(--b2);border-radius:8px;color:var(--t2);padding:9px;font-size:12px;cursor:pointer;margin-top:12px;font-family:var(--sans)}
-.logout-btn:hover{color:var(--red, #f04f5e);border-color:var(--red, #f04f5e)}
+/* group color themes */
+.grp-manage .menu-btn{border-color:#bfdbfe;}
+.grp-manage .menu-btn::before{background:linear-gradient(135deg,#eff6ff,#dbeafe);}
+.grp-manage .menu-btn:hover{border-color:#3b82f6;}
 
-@keyframes loading{0%{left:-100%}100%{left:100%}}
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.step.on{animation:fadeIn .3s ease}
-.pin-key{padding:16px;font-size:20px;font-weight:700;font-family:DM Mono,monospace;background:#0d1525;border:1px solid #1e2535;border-radius:12px;color:#e2e8f0;cursor:pointer;transition:background .1s}
-.pin-key:active{background:#1e3a5f}
+.grp-process .menu-btn{border-color:#a7f3d0;}
+.grp-process .menu-btn::before{background:linear-gradient(135deg,#f0fdf4,#d1fae5);}
+.grp-process .menu-btn:hover{border-color:#059669;}
+
+.grp-ops .menu-btn{border-color:#fed7aa;}
+.grp-ops .menu-btn::before{background:linear-gradient(135deg,#fffbeb,#fef3c7);}
+.grp-ops .menu-btn:hover{border-color:#d97706;}
+
+.menu-icon{font-size:24px;margin-bottom:6px;display:block;}
+.menu-name{font-size:11px;font-weight:700;color:var(--t1);line-height:1.2;margin-bottom:2px;}
+.menu-desc{font-size:9px;color:var(--t3);font-family:var(--mono);}
+
+/* PIN MODAL */
+.pin-key{
+  background:var(--bg);border:1.5px solid var(--border);border-radius:12px;
+  padding:14px;font-size:18px;font-family:var(--mono);font-weight:700;color:var(--t1);
+  cursor:pointer;transition:all .15s;
+}
+.pin-key:hover{background:#dbeafe;border-color:#3b82f6;transform:scale(1.05);}
+.pin-key:active{transform:scale(.95);}
 </style>
 </head>
 <body>
-<div class="glow-1"></div>
-<div class="glow-2"></div>
 
-<div class="card">
+<!-- BACKGROUND -->
+<div class="bg-scene">
+  <div class="bg-grid"></div>
+  <div class="bg-blob bb1"></div>
+  <div class="bg-blob bb2"></div>
+  <div class="bg-blob bb3"></div>
+  <div id="particles"></div>
+</div>
+
+<!-- TOP BAR -->
+<div class="topbar">
   <div class="logo">
-    <div class="logo-text">PROD<b>.</b>SYS</div>
-    <div class="logo-sub">Production Flow System</div>
+    <div class="logo-icon">🏭</div>
+    <div>
+      <div class="logo-text">PROD.SYS</div>
+      <div class="logo-sub">SMART DIGITAL FACTORY</div>
+    </div>
   </div>
+  <div class="topbar-right">
+    <div class="badge-live"><div class="live-dot"></div>ONLINE</div>
+  </div>
+</div>
 
-  <!-- STEP 1: เลือก Role -->
-  <div class="step on" id="step1">
-    <div class="step-label">เลือกตำแหน่งของคุณ</div>
+<!-- STEP 1: เลือก Role -->
+<div class="step on" id="step1">
+  <div class="login-card">
+    <div style="font-size:32px;margin-bottom:10px">🏭</div>
+    <div class="login-title">PROD.SYS</div>
+    <div class="login-sub">Smart Digital Factory · เลือกบทบาทของคุณ</div>
     <div class="role-grid">
-      <div class="role-btn leadman" onclick="selectRole('leadman')" id="btn-leadman">
+      <div class="role-btn" onclick="selectRole('leadman')" id="btn-leadman">
         <div class="role-icon">👷</div>
         <div class="role-name">Leadman</div>
-        <div class="role-desc">เข้าได้ทุกหน้า<br>จัดการทุกอย่าง</div>
-        <div class="role-badge badge-lm">LEADMAN</div>
+        <div class="role-desc">ผู้ควบคุมการผลิต</div>
       </div>
-      <div class="role-btn operator" onclick="selectRole('operator')" id="btn-operator">
+      <div class="role-btn" onclick="selectRole('operator')" id="btn-operator">
         <div class="role-icon">🏭</div>
-        <div class="role-name">Operation</div>
-        <div class="role-desc">เข้าได้ทุกหน้า<br>ยกเว้น Admin</div>
-        <div class="role-badge badge-op">OPERATOR</div>
+        <div class="role-name">Operator</div>
+        <div class="role-desc">พนักงานปฏิบัติการ</div>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- STEP 2: กรอก Password -->
-  <div class="step" id="step2">
-    <div class="back-btn" onclick="goBack()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-      เลือกตำแหน่งใหม่
-    </div>
-    <div class="selected-role" id="selected-display"></div>
-    <div class="pw-label">รหัสผ่าน</div>
+<!-- STEP 2: กรอกรหัสผ่าน -->
+<div class="step" id="step2">
+  <div class="login-card">
+    <div class="back-btn" onclick="goBack()">← ย้อนกลับ</div>
+    <div id="selected-display"></div>
     <div class="pw-wrap">
       <input class="pw-input" id="pw" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
       <button class="pw-toggle" onclick="togglePw()" id="pw-toggle">👁️</button>
     </div>
-    <div class="err-msg" id="err-msg"></div>
     <button class="login-btn" id="login-btn" onclick="doLogin()">เข้าสู่ระบบ</button>
+    <div class="err-msg" id="err-msg"></div>
+  </div>
+</div>
+
+<!-- STEP 3: เมนูหลัก -->
+<div class="step" id="step3">
+  <div class="menu-header">
+    <div class="user-info">
+      <div class="user-avatar" id="w-icon"></div>
+      <div>
+        <div class="user-name" id="w-name"></div>
+        <div class="user-sub" id="w-sub"></div>
+      </div>
+    </div>
+    <button class="logout-btn" onclick="doLogout()">🚪 ออก</button>
   </div>
 
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-circuit"></div>
+    <div class="hero-badge">⚡ DIGITAL FACTORY OPERATIONS</div>
+    <div class="hero-title">Smart Production<br>Management System</div>
+    <div class="hero-sub">ระบบบริหารจัดการสายการผลิตอัจฉริยะ</div>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="hero-stat-n">24/7</div><div class="hero-stat-l">MONITORING</div></div>
+      <div class="hero-stat"><div class="hero-stat-n">RT</div><div class="hero-stat-l">REAL-TIME</div></div>
+      <div class="hero-stat"><div class="hero-stat-n">100%</div><div class="hero-stat-l">DIGITAL</div></div>
+    </div>
+  </div>
 
+  <!-- SAFETY CHIPS -->
+  <div class="safety-row">
+    <div class="safety-chip">⛑️ Safety First</div>
+    <div class="safety-chip">🥽 PPE Required</div>
+    <div class="safety-chip">🧤 Hygiene Zone</div>
+    <div class="safety-chip">🤖 Smart Monitoring</div>
+    <div class="safety-chip">📊 Data Driven</div>
+  </div>
+
+  <!-- GROUPS -->
+  <div class="groups-wrap" id="menu-grid"></div>
+</div>
+
+<!-- PIN MODAL -->
+<div id="pin-modal" style="display:none;position:fixed;inset:0;background:rgba(15,28,46,.75);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(8px)">
+  <div style="background:white;border:1.5px solid var(--border);border-radius:24px;padding:28px 24px;width:320px;text-align:center;box-shadow:0 20px 60px rgba(59,130,246,.2);animation:cardIn .3s ease">
+    <div style="font-size:32px;margin-bottom:8px" id="pin-modal-icon">🔐</div>
+    <div style="font-family:var(--mono);font-size:16px;font-weight:700;color:var(--t1);margin-bottom:4px">ใส่รหัส PIN</div>
+    <div style="font-size:12px;color:var(--t3);margin-bottom:20px;font-family:var(--mono)" id="pin-modal-page"></div>
+    <div style="display:flex;justify-content:center;gap:12px;margin-bottom:20px">
+      <div id="pin-d1" style="width:14px;height:14px;border-radius:50%;background:var(--bg2);border:2px solid var(--blue2);transition:background .15s"></div>
+      <div id="pin-d2" style="width:14px;height:14px;border-radius:50%;background:var(--bg2);border:2px solid var(--blue2);transition:background .15s"></div>
+      <div id="pin-d3" style="width:14px;height:14px;border-radius:50%;background:var(--bg2);border:2px solid var(--blue2);transition:background .15s"></div>
+      <div id="pin-d4" style="width:14px;height:14px;border-radius:50%;background:var(--bg2);border:2px solid var(--blue2);transition:background .15s"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px">
+      <button onclick="pinKey('1')" class="pin-key">1</button>
+      <button onclick="pinKey('2')" class="pin-key">2</button>
+      <button onclick="pinKey('3')" class="pin-key">3</button>
+      <button onclick="pinKey('4')" class="pin-key">4</button>
+      <button onclick="pinKey('5')" class="pin-key">5</button>
+      <button onclick="pinKey('6')" class="pin-key">6</button>
+      <button onclick="pinKey('7')" class="pin-key">7</button>
+      <button onclick="pinKey('8')" class="pin-key">8</button>
+      <button onclick="pinKey('9')" class="pin-key">9</button>
+      <button class="pin-key" style="opacity:0;pointer-events:none"></button>
+      <button onclick="pinKey('0')" class="pin-key">0</button>
+      <button onclick="pinKey('⌫')" class="pin-key">⌫</button>
+    </div>
+    <button onclick="closePinModal()" style="width:100%;padding:10px;background:none;border:1.5px solid var(--border);border-radius:10px;color:var(--t3);font-size:13px;cursor:pointer;font-family:var(--mono)">ยกเลิก</button>
+    <div id="pin-error" style="color:var(--red);font-size:12px;margin-top:10px;min-height:16px;font-family:var(--mono)"></div>
+  </div>
+</div>
+
+<!-- PARTICLES JS -->
+<script>
+(function(){
+  var c=document.getElementById('particles');
+  for(var i=0;i<18;i++){
+    var p=document.createElement('div');
+    p.className='particle';
+    var s=Math.random()*8+4;
+    p.style.cssText='width:'+s+'px;height:'+s+'px;left:'+Math.random()*100+'%;animation-duration:'+(Math.random()*15+10)+'s;animation-delay:'+Math.random()*15+'s;';
+    c.appendChild(p);
+  }
+})();
+</script>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -266,59 +509,86 @@ window._getDocs=getDocs;
 
 let selectedRole=null;
 
-// MENUS
-const MENUS={
-  leadman:[
-    {icon:'📋',name:'Leadman',desc:'แผนการผลิต',file:'leadman.html',cls:'m-leadman'},
-    {icon:'📅',name:'Daily Plan',desc:'อัปโหลดแผน',file:'dailyplan.html',cls:'m-leadman'},
-    {icon:'🔐',name:'Employee Reg.',desc:'ลงทะเบียนพนักงาน',file:'pinregister.html',cls:'m-leadman'},
-    {icon:'🔬',name:'Mixing',desc:'บันทึกผสม',file:'mixing.html',cls:'m-mixing'},
-    {icon:'🧪',name:'Prepare Mix',desc:'เตรียมผสม',file:'preparemix.html',cls:'m-mixing'},
-    {icon:'🌡️',name:'Pasteurize',desc:'บันทึก Past.',file:'pasteurize.html',cls:'m-past'},
-    {icon:'🍦',name:'Flavor',desc:'เทสี/กลิ่น',file:'flavor.html',cls:'m-flavor'},
-    {icon:'🪣',name:'CIP Man',desc:'ควบคุมถัง',file:'cipman.html',cls:'m-cip'},
-    {icon:'🧹',name:'CIP Mixing',desc:'ล้าง+ฆ่าเชื้อถัง',file:'cipmixing.html',cls:'m-cip'},
-    {icon:'🫙',name:'Aging Tank',desc:'สถานะถัง',file:'aging.html',cls:'m-cip'},
-    {icon:'🏭',name:'Filling',desc:'ดู Dashboard',file:'filling.html',cls:'m-filling'},
-    {icon:'💧',name:'Flowmeter',desc:'Verify Flow',file:'flowmeter.html',cls:'m-mixing'},
-    {icon:'⏱️',name:'Shelf Life',desc:'คำนวณอายุ',file:'shelflife.html',cls:'m-past'},
-    {icon:'📌',name:'Timeline',desc:'บันทึก Event',file:'timeline.html',cls:'m-past'},
-    {icon:'⚙️',name:'Admin',desc:'จัดการระบบ',file:'admin.html',cls:'m-admin'},
-  ],
-  operator:[
-    {icon:'📋',name:'Leadman',desc:'แผนการผลิต',file:'leadman.html',cls:'m-leadman'},
-    {icon:'🔬',name:'Mixing',desc:'บันทึกผสม',file:'mixing.html',cls:'m-mixing'},
-    {icon:'🧪',name:'Prepare Mix',desc:'เตรียมผสม',file:'preparemix.html',cls:'m-mixing'},
-    {icon:'🌡️',name:'Pasteurize',desc:'บันทึก Past.',file:'pasteurize.html',cls:'m-past'},
-    {icon:'🍦',name:'Flavor',desc:'เทสี/กลิ่น',file:'flavor.html',cls:'m-flavor'},
-    {icon:'🪣',name:'CIP Man',desc:'ควบคุมถัง',file:'cipman.html',cls:'m-cip'},
-    {icon:'🧹',name:'CIP Mixing',desc:'ล้าง+ฆ่าเชื้อถัง',file:'cipmixing.html',cls:'m-cip'},
-    {icon:'🫙',name:'Aging Tank',desc:'สถานะถัง',file:'aging.html',cls:'m-cip'},
-    {icon:'🏭',name:'Filling',desc:'ดู Dashboard',file:'filling.html',cls:'m-filling'},
-    {icon:'💧',name:'Flowmeter',desc:'Verify Flow',file:'flowmeter.html',cls:'m-mixing'},
-    {icon:'⏱️',name:'Shelf Life',desc:'คำนวณอายุ',file:'shelflife.html',cls:'m-past'},
-    {icon:'📌',name:'Timeline',desc:'บันทึก Event',file:'timeline.html',cls:'m-past'},
-  ],
-};
+// ── MENUS (grouped) ──
+const GROUPS_LEADMAN=[
+  {
+    id:'manage',label:'การจัดการ & แผนงาน',desc:'MANAGEMENT & PLANNING',
+    dot:'#3b82f6',cls:'grp-manage',
+    items:[
+      {icon:'📋',name:'Leadman',desc:'แผนการผลิต',file:'leadman.html'},
+      {icon:'📅',name:'Daily Plan',desc:'อัปโหลดแผน',file:'dailyplan.html'},
+      {icon:'👥',name:'Employee',desc:'ลงทะเบียน',file:'pinregister.html'},
+      {icon:'⚙️',name:'Admin',desc:'จัดการระบบ',file:'admin.html'},
+      {icon:'📌',name:'Timeline',desc:'บันทึก Event',file:'timeline.html'},
+      {icon:'⏱️',name:'Shelf Life',desc:'คำนวณอายุ',file:'shelflife.html'},
+    ]
+  },
+  {
+    id:'process',label:'กระบวนการผลิต',desc:'PRODUCTION PROCESS',
+    dot:'#059669',cls:'grp-process',
+    items:[
+      {icon:'🧪',name:'Prepare Mix',desc:'เตรียมผสม',file:'preparemix.html'},
+      {icon:'🔬',name:'Mixing',desc:'บันทึกผสม',file:'mixing.html'},
+      {icon:'🌡️',name:'Pasteurize',desc:'บันทึก Past.',file:'pasteurize.html'},
+      {icon:'🍦',name:'Flavor',desc:'เทสี/กลิ่น',file:'flavor.html'},
+      {icon:'💧',name:'Flowmeter',desc:'Verify Flow',file:'flowmeter.html'},
+    ]
+  },
+  {
+    id:'ops',label:'ถัง & Filling & CIP',desc:'TANK · FILLING · SANITATION',
+    dot:'#d97706',cls:'grp-ops',
+    items:[
+      {icon:'🫙',name:'Aging Tank',desc:'สถานะถัง',file:'aging.html'},
+      {icon:'🏭',name:'Filling',desc:'ดู Dashboard',file:'filling.html'},
+      {icon:'🪣',name:'CIP Man',desc:'ควบคุมถัง',file:'cipman.html'},
+      {icon:'🧹',name:'CIP Mixing',desc:'ล้าง+ฆ่าเชื้อ',file:'cipmixing.html'},
+    ]
+  },
+];
 
-const EMAIL={
-  leadman:'leadman@filling.local',
-  operator:'operation@filling.local',
-};
+const GROUPS_OPERATOR=[
+  {
+    id:'process',label:'กระบวนการผลิต',desc:'PRODUCTION PROCESS',
+    dot:'#059669',cls:'grp-process',
+    items:[
+      {icon:'📋',name:'Leadman',desc:'แผนการผลิต',file:'leadman.html'},
+      {icon:'🧪',name:'Prepare Mix',desc:'เตรียมผสม',file:'preparemix.html'},
+      {icon:'🔬',name:'Mixing',desc:'บันทึกผสม',file:'mixing.html'},
+      {icon:'🌡️',name:'Pasteurize',desc:'บันทึก Past.',file:'pasteurize.html'},
+      {icon:'🍦',name:'Flavor',desc:'เทสี/กลิ่น',file:'flavor.html'},
+      {icon:'💧',name:'Flowmeter',desc:'Verify Flow',file:'flowmeter.html'},
+      {icon:'⏱️',name:'Shelf Life',desc:'คำนวณอายุ',file:'shelflife.html'},
+      {icon:'📌',name:'Timeline',desc:'บันทึก Event',file:'timeline.html'},
+    ]
+  },
+  {
+    id:'ops',label:'ถัง & Filling & CIP',desc:'TANK · FILLING · SANITATION',
+    dot:'#d97706',cls:'grp-ops',
+    items:[
+      {icon:'🫙',name:'Aging Tank',desc:'สถานะถัง',file:'aging.html'},
+      {icon:'🏭',name:'Filling',desc:'ดู Dashboard',file:'filling.html'},
+      {icon:'🪣',name:'CIP Man',desc:'ควบคุมถัง',file:'cipman.html'},
+      {icon:'🧹',name:'CIP Mixing',desc:'ล้าง+ฆ่าเชื้อ',file:'cipmixing.html'},
+    ]
+  },
+];
+
+// legacy MENUS สำหรับ compatibility
+const MENUS={leadman:GROUPS_LEADMAN[0].items,operator:GROUPS_OPERATOR[0].items};
+
+const EMAIL={leadman:'leadman@filling.local',operator:'operation@filling.local'};
 const LABEL={
   leadman:{icon:'👷',name:'Leadman',badge:'LEADMAN'},
   operator:{icon:'🏭',name:'Operation',badge:'OPERATOR'},
 };
 
-// Check if already logged in
 onAuthStateChanged(auth,async user=>{
   if(user){
     try{
       const snap=await getDocs(query(collection(db,'users'),where('uid','==',user.uid)));
       if(!snap.empty){
         const role=snap.docs[0].data().role||'operator';
-        showMenu(role);
-        return;
+        showMenu(role);return;
       }
     }catch{}
   }
@@ -358,30 +628,41 @@ window.doLogin=async()=>{
   const btn=document.getElementById('login-btn');
   err.textContent='';
   if(!pw){err.textContent='กรุณากรอกรหัสผ่าน';return;}
-  btn.disabled=true;btn.classList.add('loading');btn.textContent='กำลังเข้าสู่ระบบ...';
+  btn.disabled=true;btn.textContent='กำลังเข้าสู่ระบบ...';
   try{
-    const email=EMAIL[selectedRole];
-    await signInWithEmailAndPassword(auth,email,pw);
+    await signInWithEmailAndPassword(auth,EMAIL[selectedRole],pw);
     showMenu(selectedRole);
   }catch(e){
     err.textContent=e.code==='auth/invalid-credential'||e.code==='auth/wrong-password'
-      ?'❌ รหัสผ่านไม่ถูกต้อง'
-      :'❌ เข้าสู่ระบบไม่สำเร็จ กรุณาลองใหม่';
-    btn.disabled=false;btn.classList.remove('loading');btn.textContent='เข้าสู่ระบบ';
+      ?'❌ รหัสผ่านไม่ถูกต้อง':'❌ เข้าสู่ระบบไม่สำเร็จ';
+    btn.disabled=false;btn.textContent='เข้าสู่ระบบ';
   }
 };
 
 function showMenu(role){
   const l=LABEL[role]||LABEL.operator;
-  const menus=MENUS[role]||MENUS.operator;
+  const groups=role==='leadman'?GROUPS_LEADMAN:GROUPS_OPERATOR;
   document.getElementById('w-icon').textContent=l.icon;
   document.getElementById('w-name').textContent='สวัสดี '+l.name;
-  document.getElementById('w-sub').textContent='เลือกหน้าที่ต้องการเข้าใช้งาน';
-  document.getElementById('menu-grid').innerHTML=menus.map(m=>`
-    <div class="menu-btn ${m.cls}" onclick="openPinModal('${m.file}','${m.name}')" style="cursor:pointer">
-      <div class="menu-icon">${m.icon}</div>
-      <div class="menu-name">${m.name}</div>
-      <div class="menu-desc">${m.desc}</div>
+  document.getElementById('w-sub').textContent='PROD.SYS · SMART DIGITAL FACTORY';
+  document.getElementById('menu-grid').innerHTML=groups.map(g=>`
+    <div class="group-section ${g.cls}">
+      <div class="group-header">
+        <div class="group-dot" style="background:${g.dot}"></div>
+        <div>
+          <div class="group-label">${g.label}</div>
+          <div class="group-desc">${g.desc}</div>
+        </div>
+        <div class="group-count">${g.items.length} modules</div>
+      </div>
+      <div class="menu-grid">
+        ${g.items.map(m=>`
+          <div class="menu-btn" onclick="openPinModal('${m.file}','${m.name}')">
+            <div class="menu-icon">${m.icon}</div>
+            <div class="menu-name">${m.name}</div>
+            <div class="menu-desc">${m.desc}</div>
+          </div>`).join('')}
+      </div>
     </div>`).join('');
   showStep('step3');
 }
@@ -399,62 +680,9 @@ function showStep(id){
 }
 </script>
 
-<!-- PIN MODAL -->
-  <!-- STEP 3: เลือกหน้า -->
-  <div class="step" id="step3" style="position:fixed;inset:0;background:var(--bg);z-index:100;overflow-y:auto;padding:24px">
-    <!-- Logout บนสุด เห็นได้ทันที -->
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-      <div style="display:flex;align-items:center;gap:8px">
-        <span id="w-icon" style="font-size:20px"></span>
-        <div>
-          <div id="w-name" style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--blue2)"></div>
-          <div id="w-sub" style="font-size:10px;color:var(--t2)"></div>
-        </div>
-      </div>
-      <button class="logout-btn" onclick="doLogout()" style="margin-top:0;width:auto;padding:7px 12px;white-space:nowrap">🚪 ออก</button>
-    </div>
-    <div class="menu-grid" id="menu-grid"></div>
-  </div>
-
-<div id="pin-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;align-items:center;justify-content:center">
-  <div style="background:linear-gradient(135deg,#0d1525,#0a0f1e);border:1px solid #1e2535;border-radius:20px;padding:28px 24px;width:320px;text-align:center">
-    <div style="font-size:28px;margin-bottom:6px" id="pin-modal-icon">🔐</div>
-    <div style="font-family:DM Mono,monospace;font-size:16px;font-weight:700;color:#e2e8f0;margin-bottom:4px" id="pin-modal-title">ใส่รหัส PIN</div>
-    <div style="font-size:12px;color:#64748b;margin-bottom:20px" id="pin-modal-page"></div>
-
-    <!-- PIN Display -->
-    <div style="display:flex;justify-content:center;gap:12px;margin-bottom:20px">
-      <div id="pin-d1" style="width:14px;height:14px;border-radius:50%;background:#1e2535;border:2px solid #3b82f6;transition:background .15s"></div>
-      <div id="pin-d2" style="width:14px;height:14px;border-radius:50%;background:#1e2535;border:2px solid #3b82f6;transition:background .15s"></div>
-      <div id="pin-d3" style="width:14px;height:14px;border-radius:50%;background:#1e2535;border:2px solid #3b82f6;transition:background .15s"></div>
-      <div id="pin-d4" style="width:14px;height:14px;border-radius:50%;background:#1e2535;border:2px solid #3b82f6;transition:background .15s"></div>
-    </div>
-
-    <!-- Keypad -->
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px">
-      <button onclick="pinKey('1')" class="pin-key">1</button>
-      <button onclick="pinKey('2')" class="pin-key">2</button>
-      <button onclick="pinKey('3')" class="pin-key">3</button>
-      <button onclick="pinKey('4')" class="pin-key">4</button>
-      <button onclick="pinKey('5')" class="pin-key">5</button>
-      <button onclick="pinKey('6')" class="pin-key">6</button>
-      <button onclick="pinKey('7')" class="pin-key">7</button>
-      <button onclick="pinKey('8')" class="pin-key">8</button>
-      <button onclick="pinKey('9')" class="pin-key">9</button>
-      <button class="pin-key" style="opacity:0;pointer-events:none"></button>
-      <button onclick="pinKey('0')" class="pin-key">0</button>
-      <button onclick="pinKey('⌫')" class="pin-key">⌫</button>
-    </div>
-
-    <button onclick="closePinModal()" style="width:100%;padding:10px;background:none;border:1px solid #1e2535;border-radius:10px;color:#64748b;font-size:13px;cursor:pointer">ยกเลิก</button>
-    <div id="pin-error" style="color:#f04f5e;font-size:12px;margin-top:10px;min-height:16px"></div>
-  </div>
-</div>
-
-
+<!-- PIN MODAL LOGIC -->
 <script>
-// ══ PIN MODAL ══════════════════════════════════════════════
-var pinTarget='', pinValue='', pinEmployees=[];
+var pinTarget='',pinValue='',pinEmployees=[];
 
 function openPinModal(file,name){
   var noPinPages=['admin.html','shelflife.html','aging.html','filling.html','pinregister.html'];
@@ -463,8 +691,7 @@ function openPinModal(file,name){
   document.getElementById('pin-modal-page').textContent=name;
   document.getElementById('pin-error').textContent='';
   updatePinDots();
-  var m=document.getElementById('pin-modal');
-  m.style.display='flex';
+  document.getElementById('pin-modal').style.display='flex';
   loadPinEmployees();
 }
 
@@ -484,46 +711,32 @@ function pinKey(k){
 function updatePinDots(){
   for(var i=1;i<=4;i++){
     var el=document.getElementById('pin-d'+i);
-    if(el)el.style.background=i<=pinValue.length?'#3b82f6':'#1e2535';
+    if(el)el.style.background=i<=pinValue.length?'#3b82f6':'var(--bg2)';
   }
 }
 
 function loadPinEmployees(){
-  if(typeof firebase!=='undefined'||window._db){
-    // โหลดจาก Firebase ถ้ามี
-  }
-  // ใช้ค่าที่โหลดไว้แล้ว
+  if(typeof firebase!=='undefined'||window._db){}
 }
 
 async function hashPin(pin){
   try{
     var buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('PRODSYS:'+pin));
     return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
-  }catch(e){
-    console.error('hashPin error:',e);
-    return '';
-  }
+  }catch(e){return '';}
 }
+
 async function checkPin(){
-  // โหลด employees จาก Firebase
   if(!window._db){
     document.getElementById('pin-error').textContent='⚠️ กำลังเชื่อมต่อ...';
-    setTimeout(checkPin,800);
-    return;
+    setTimeout(checkPin,800);return;
   }
   try{
-    var snap=await window._getDocs(window._query(
-      window._collection(window._db,'employees')
-    ));
+    var snap=await window._getDocs(window._query(window._collection(window._db,'employees')));
     pinEmployees=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
-  }catch(e){
-    // ถ้าโหลดไม่ได้ใช้ค่าเดิม
-  }
-
-  // verify ด้วย hash (SHA-256)
+  }catch(e){}
   var inputHash=await hashPin(pinValue);
   var emp=pinEmployees.find(function(e){
-    // รองรับทั้ง pin_hash (ใหม่) และ pin (เก่า)
     return e.pin_hash===inputHash||(e.pin&&e.pin===pinValue);
   });
   if(!emp){
@@ -550,6 +763,5 @@ document.addEventListener('keydown',function(e){
   if(e.key==='Escape')closePinModal();
 });
 </script>
-
 </body>
 </html>
