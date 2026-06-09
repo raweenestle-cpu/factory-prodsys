@@ -218,7 +218,17 @@ td.sep{border-right:2px solid var(--b1)}
   <div style="padding:16px">
     <!-- ถังรอ CIP -->
     <div id="cip-waiting-section" style="background:#fff;border:1.5px solid #fca5a5;border-radius:14px;padding:14px;margin-bottom:16px;display:none">
-      <div style="font-family:var(--mono);font-size:12px;font-weight:900;color:#b91c1c;margin-bottom:10px" id="cip-waiting-title">🔴 ถังรอ CIP / กำลัง CIP</div>
+      <div style="display:flex;align-items:center;margin-bottom:10px">
+        <div style="font-family:var(--mono);font-size:12px;font-weight:900;color:#b91c1c">🔴 ถังรอ CIP / กำลัง CIP</div>
+        <button onclick="window._openGrpSetting()" style="margin-left:auto;background:none;border:1px solid var(--b1);border-radius:6px;padding:3px 10px;cursor:pointer;font-family:var(--mono);font-size:11px;font-weight:700;color:var(--t2)">⚙️ ตั้งค่า Group</button>
+      </div>
+      <div id="cip-grp-setting" style="display:none;background:#f8fafc;border:1.5px solid var(--b1);border-radius:10px;padding:12px;margin-bottom:12px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <span style="font-family:var(--mono);font-size:11px;font-weight:900">⚙️ ตั้งค่า Group ถัง</span>
+          <button onclick="document.getElementById('cip-grp-setting').style.display='none'" style="margin-left:auto;background:none;border:none;cursor:pointer;font-size:14px;color:#94a3b8">✕</button>
+        </div>
+        <div id="cip-grp-list" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+      </div>
       <div id="cip-waiting-list" style="display:flex;gap:8px;flex-wrap:wrap"></div>
     </div>
     <!-- ตารางอยู่บน -->
@@ -344,6 +354,38 @@ window._signConfirm = function(){
   _pendingAct = null;
 };
 
+// ── Group Setting ──
+window._openGrpSetting = function(){
+  const panel = document.getElementById('cip-grp-setting');
+  const list = document.getElementById('cip-grp-list');
+  if(!panel||!list) return;
+  panel.style.display = panel.style.display==='none'?'block':'none';
+  if(panel.style.display==='none') return;
+  const tanks = Object.values(tankStates).filter(ts=>ts.id).sort((a,b)=>a.id.localeCompare(b.id));
+  const GC={A:'#1d4ed8',B:'#0e7490',C:'#15803d',D:'#b45309',E:'#7c3aed'};
+  list.innerHTML = tanks.map(ts=>{
+    const grp = ts.cip_group||'';
+    return '<div style="display:flex;align-items:center;gap:5px;background:#fff;border:1.5px solid var(--b1);border-radius:7px;padding:5px 8px">'
+      +'<span style="font-family:var(--mono);font-size:12px;font-weight:900;min-width:38px">'+ts.id+'</span>'
+      +'<select data-tid="'+ts.id+'" onchange="window._saveGrp(this)" style="font-family:var(--mono);font-size:11px;font-weight:800;border:1.5px solid var(--b1);border-radius:5px;padding:2px 5px;color:'+(GC[grp]||'#374151')+'">'
+      +'<option value="">—</option>'
+      +['A','B','C','D','E','M','S'].map(g=>'<option value="'+g+'"'+(grp===g?' selected':'')+'>'+g+'</option>').join('')
+      +'</select></div>';
+  }).join('');
+};
+
+window._saveGrp = async function(sel){
+  const tid=sel.dataset.tid; const val=sel.value;
+  const GC={A:'#1d4ed8',B:'#0e7490',C:'#15803d',D:'#b45309',E:'#7c3aed'};
+  sel.style.color=GC[val]||'#374151';
+  try{
+    await setDoc(doc(db,'aging_tank_states',tid),{cip_group:val,updated_at:new Date().toISOString()},{merge:true});
+    if(tankStates[tid]) tankStates[tid].cip_group=val;
+    renderCipWaiting();
+    toast('✅ ถัง '+tid+' = Group '+val,'green');
+  }catch(e){toast('❌ '+e.message,'red');}
+};
+
 async function _doActReal(tid, act){
   const map={start_cip:'cip',stop_cip:'cip_done',start_san:'san',stop_san:'san_done'};
   const newSt=map[act];if(!newSt)return;
@@ -439,8 +481,14 @@ async function _doActReal(tid, act){
   }
   try{
     await setDoc(doc(db,'aging_tank_states',tid),upd,{merge:true});
+    // อัพเดท local tankStates ทันที ไม่ต้องรอ onSnapshot
+    if(!tankStates[tid]) tankStates[tid]={id:tid};
+    Object.assign(tankStates[tid], upd);
     const lb={start_cip:'▶ CIP เริ่ม',stop_cip:'✅ CIP เสร็จ',start_san:'▶ San เริ่ม',stop_san:'✅ San เสร็จ'};
     toast(lb[act]+' ถัง '+tid,'green');
+    // re-render ทันที
+    renderCipWaiting();
+    if(curTab==='ciplog' && window.renderCipLog) window.renderCipLog();
   }catch(e){toast('Error: '+e.message,'red');}
 }
 
@@ -929,6 +977,7 @@ function _fmtRemain(ms){
 }
 
 function renderCipWaiting(){
+  if(window._focusingTime) return;
   const sec = document.getElementById('cip-waiting-section');
   const list = document.getElementById('cip-waiting-list');
   if(!sec||!list) return;
@@ -975,8 +1024,8 @@ function renderCipWaiting(){
     }
     // เวลา — แก้ไขได้
     let timeHtml='';
-    if(ts.cip_start_time!=null) timeHtml+='<div style="font-family:var(--mono);font-size:10px;color:#1d4ed8;margin-top:3px;display:flex;align-items:center;gap:3px">CIP: <input type="time" value="'+(ts.cip_start_time||'')+'" data-tid="'+ts.id+'" data-f="cip_start_time" onchange="window._editTankTime(this)" style="font-family:var(--mono);font-size:10px;border:1px solid #93c5fd;border-radius:3px;padding:1px 2px;width:68px;color:#1d4ed8"> → '+(ts.cip_stop_time||'...')+'</div>';
-    if(ts.san_start_time!=null) timeHtml+='<div style="font-family:var(--mono);font-size:10px;color:#15803d;margin-top:2px;display:flex;align-items:center;gap:3px">San: <input type="time" value="'+(ts.san_start_time||'')+'" data-tid="'+ts.id+'" data-f="san_start_time" onchange="window._editTankTime(this)" style="font-family:var(--mono);font-size:10px;border:1px solid #86efac;border-radius:3px;padding:1px 2px;width:68px;color:#15803d"> → '+(ts.san_stop_time||'...')+'</div>';
+    if(ts.cip_start_time!=null) timeHtml+='<div style="font-family:var(--mono);font-size:10px;color:#1d4ed8;margin-top:3px;display:flex;align-items:center;gap:3px">CIP: <input type="time" value="'+(ts.cip_start_time||'')+'" data-tid="'+ts.id+'" data-f="cip_start_time" onblur="window._editTankTime(this)" onfocus="window._focusingTime=true" style="font-family:var(--mono);font-size:10px;border:1px solid #93c5fd;border-radius:3px;padding:1px 2px;width:68px;color:#1d4ed8"> → '+(ts.cip_stop_time||'...')+'</div>';
+    if(ts.san_start_time!=null) timeHtml+='<div style="font-family:var(--mono);font-size:10px;color:#15803d;margin-top:2px;display:flex;align-items:center;gap:3px">San: <input type="time" value="'+(ts.san_start_time||'')+'" data-tid="'+ts.id+'" data-f="san_start_time" onblur="window._editTankTime(this)" onfocus="window._focusingTime=true" style="font-family:var(--mono);font-size:10px;border:1px solid #86efac;border-radius:3px;padding:1px 2px;width:68px;color:#15803d"> → '+(ts.san_stop_time||'...')+'</div>';
     // ── เช็ค 1 group 1 กิจกรรม ──
     let blockedBy = null;
     if(grp && (st==='empty'||st==='cip_done')){
@@ -1021,13 +1070,16 @@ function renderCipWaiting(){
   list.innerHTML = html;
 }
 
+window._focusingTime = false;
 window._editTankTime = async function(el){
+  window._focusingTime = false;
   const tid=el.dataset.tid; const field=el.dataset.f; const val=el.value;
   if(!tid||!val) return;
   try{
     await setDoc(doc(db,'aging_tank_states',tid),{[field]:val,updated_at:new Date().toISOString()},{merge:true});
     if(tankStates[tid]) tankStates[tid][field]=val;
     toast('✅ แก้เวลา '+tid+' → '+val,'green');
+    renderCipWaiting();
   }catch(e){toast('❌ '+e.message,'red');}
 }
 // ── CIP SPEC (ค่าตุ๊กตา — ปรับได้ภายหลัง) ──
