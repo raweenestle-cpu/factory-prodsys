@@ -220,7 +220,7 @@ td.sep{border-right:2px solid var(--b1)}
       <div style="font-family:var(--mono);font-size:13px;font-weight:900;margin-bottom:12px">+ Add CIP Record</div>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-bottom:10px">
         <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">Date</div><input id="cip-date" type="date" class="ci" style="width:100%"></div>
-        <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">Circuit/Line</div><input id="cip-line" type="text" class="ci" placeholder="e.g. AFC Tank" style="width:100%"></div>
+        <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">Circuit/Line</div><input id="cip-line" list="cip-line-list" class="ci" placeholder="เลือกหรือพิมพ์เอง" style="width:100%" autocomplete="off"><datalist id="cip-line-list"></datalist></div>
         <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">Group</div><select id="cip-group" class="ci" style="width:100%"><option value="">-</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>M</option><option>S</option></select></div>
         <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">Program</div><select id="cip-program" class="ci" style="width:100%"><option>Hot water</option><option>Alkaline</option><option>Acid</option><option>Sanitize</option></select></div>
         <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">Start</div><input id="cip-start" type="time" class="ci" style="width:100%"></div>
@@ -249,24 +249,25 @@ td.sep{border-right:2px solid var(--b1)}
       <div style="overflow-x:auto">
         <table style="width:100%;border-collapse:collapse;font-size:11px">
           <thead><tr style="background:#f8fafc;font-family:var(--mono)">
-            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1)">#</th>
+            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1);text-align:center">No.</th>
             <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1);white-space:nowrap">Date</th>
-            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1);white-space:nowrap">Circuit</th>
-            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1)">Grp</th>
-            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1)">Program</th>
-            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1)">Start</th>
-            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1)">End</th>
-            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1)">Cond.</th>
-            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1)">Temp</th>
-            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1)">Flow</th>
+            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1);white-space:nowrap">Loop</th>
+            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1);white-space:nowrap">กลุ่ม CIP</th>
+            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1);white-space:nowrap">Circuit/Program</th>
+            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1);white-space:nowrap">เวลา เริ่ม</th>
+            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1);white-space:nowrap">เวลา จบ</th>
+            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1);white-space:nowrap">Conductivity</th>
+            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1);white-space:nowrap">อุณหภูมิ (°C)</th>
+            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1);white-space:nowrap">Flow</th>
             <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1)">pH</th>
-            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1)">CIP</th>
-            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1)">San</th>
-            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1)">Operator</th>
+            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1);white-space:nowrap">ผลการทำ CIP ✓</th>
+            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1);white-space:nowrap">ผลการ San ✓</th>
+            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1);white-space:nowrap">ผู้ปฏิบัติงาน</th>
+            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1);white-space:nowrap">✏️ ลายเซ็น</th>
             <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1)">Remark</th>
             <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1)"></th>
           </tr></thead>
-          <tbody id="ciplog-tbody"><tr><td colspan="16" style="text-align:center;padding:20px;color:var(--t3)">Loading...</td></tr></tbody>
+          <tbody id="ciplog-tbody"><tr><td colspan="17" style="text-align:center;padding:20px;color:var(--t3)">Loading...</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -879,11 +880,155 @@ window._recFilter = function(f, btn){
   renderRecords();
 };
 
-window.showTab=(id,btn)=>{document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));btn.classList.add('on');document.getElementById('page-'+id).classList.add('on');curTab=id;if(id==='m1')renderPlans('m1');else if(id==='m2')renderPlans('m2');else if(id==='temp')renderTemp();else if(id==='rec')renderRecords();else if(id==='ciplog'){if(window.renderCipLog)window.renderCipLog();}};
+window.showTab=(id,btn)=>{document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));btn.classList.add('on');document.getElementById('page-'+id).classList.add('on');curTab=id;if(id==='m1')renderPlans('m1');else if(id==='m2')renderPlans('m2');else if(id==='temp')renderTemp();else if(id==='rec')renderRecords();else if(id==='ciplog'){populateCipLineSel();if(window.renderCipLog)window.renderCipLog();}};
 function toast(msg,col='blue'){const el=$('toast');el.textContent=msg;el.style.background=col==='green'?'#15803d':col==='red'?'#991b1b':'#1d4ed8';el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2500);}
 window.doLogout=async()=>{await signOut(auth);location.href='index.html';};
 
 window._cipLogRows = [];
+
+// ── populate dropdown ถังใน CIP Log form ──
+function populateCipLineSel(){
+  const dl = document.getElementById("cip-line-list");
+  if(!dl) return;
+  const tanks = Object.values(tankStates).map(ts=>ts.id).filter(Boolean).sort();
+  dl.innerHTML = tanks.map(id=>"<option value=\""+id+"\">").join("");
+}
+// เรียกทุกครั้งที่ tankStates อัพเดท
+const _origInitSt = window.initSt || null;
+// hook เข้า onSnapshot ของ aging_tank_states โดยเรียก populate หลัง renderAll
+const _origRenderAll = window.renderAll;
+window.renderAll = function(){
+  if(_origRenderAll) _origRenderAll();
+  populateCipLineSel();
+};
+
+// ── saveCipLog ──
+window.saveCipLog = async function(){
+  const d = document.getElementById('cip-date')?.value||'';
+  const line = document.getElementById('cip-line')?.value||'';
+  const group = document.getElementById('cip-group')?.value||'';
+  const program = document.getElementById('cip-program')?.value||'';
+  const start = document.getElementById('cip-start')?.value||'';
+  const end = document.getElementById('cip-end')?.value||'';
+  const conduct = document.getElementById('cip-conduct')?.value||'';
+  const temp = document.getElementById('cip-temp')?.value||'';
+  const flow = document.getElementById('cip-flow')?.value||'';
+  const ph = document.getElementById('cip-ph')?.value||'';
+  const operator = document.getElementById('cip-operator')?.value||'';
+  const remark = document.getElementById('cip-remark')?.value||'';
+  const cipDone = document.getElementById('cip-done')?.checked||false;
+  const sanDone = document.getElementById('cip-san-done')?.checked||false;
+  if(!d||!line){toast('กรุณาเลือก Date และถัง','red');return;}
+  try{
+    await addDoc(collection(db,'cip_log_sheets'),{
+      date:d, circuit:line, group, program,
+      start_time:start, end_time:end,
+      conductivity: conduct!==''?+conduct:null,
+      temp: temp!==''?+temp:null,
+      flow: flow!==''?+flow:null,
+      ph: ph!==''?+ph:null,
+      operator, remark,
+      cip_done:cipDone, san_done:sanDone,
+      created_at:new Date().toISOString()
+    });
+    toast('✅ บันทึก CIP Log แล้ว','green');
+    // clear form ยกเว้น date
+    ['cip-line','cip-group','cip-start','cip-end','cip-conduct','cip-temp','cip-flow','cip-ph','cip-operator','cip-remark'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el) el.value='';
+    });
+    document.getElementById('cip-done').checked=false;
+    document.getElementById('cip-san-done').checked=false;
+    if(window.renderCipLog) window.renderCipLog();
+  }catch(e){toast('❌ '+e.message,'red');}
+};
+
+// ── renderCipLog ──
+window.renderCipLog = async function(){
+  const d = document.getElementById('ciplog-date')?.value||'';
+  const tbody = document.getElementById('ciplog-tbody');
+  const countEl = document.getElementById('ciplog-count');
+  if(!tbody) return;
+  tbody.innerHTML='<tr><td colspan="17" style="text-align:center;padding:20px;color:var(--t3)">กำลังโหลด...</td></tr>';
+  try{
+    const snap = await getDocs(query(
+      collection(db,'cip_log_sheets'),
+      where('date','==',d),
+      orderBy('created_at','asc')
+    ));
+    const rows = snap.docs.map(dc=>({id:dc.id,...dc.data()}));
+    window._cipLogRows = rows;
+    if(countEl) countEl.textContent = rows.length+' records';
+    if(!rows.length){
+      tbody.innerHTML='<tr><td colspan="17" style="text-align:center;padding:20px;color:var(--t3)">ไม่มีข้อมูลวันนี้</td></tr>';
+      return;
+    }
+    tbody.innerHTML = rows.map(function(r,i){
+      const check = function(v){ return v?'<span style="color:#15803d;font-weight:900;font-size:14px">&#10003;</span>':'<span style="color:#94a3b8">—</span>'; };
+      const sig = r.sign
+        ? '<img src="'+r.sign+'" style="height:28px;max-width:70px;object-fit:contain;border:1px solid #86efac;border-radius:4px" title="'+(r.sign_name||'')+'">'
+        : '<button onclick="window._stampCipLog(this)" data-id="'+r.id+'" style="background:none;border:1px dashed #94a3b8;border-radius:6px;padding:3px 8px;cursor:pointer;font-size:15px" title="กดเพื่อเซ็นชื่อ">&#9997;</button>';
+      return '<tr style="border-bottom:1px solid var(--s2);">'
+        +'<td style="padding:7px 8px;font-family:var(--mono);color:var(--t3);text-align:center">'+(i+1)+'</td>'
+        +'<td style="padding:7px 8px;font-family:var(--mono);white-space:nowrap">'+(r.date||'—')+'</td>'
+        +'<td style="padding:7px 8px;font-family:var(--mono);font-weight:900;color:#0e7490">'+(r.circuit||'—')+'</td>'
+        +'<td style="padding:7px 8px;font-family:var(--mono);text-align:center">'+(r.group||'—')+'</td>'
+        +'<td style="padding:7px 8px;font-family:var(--mono)">'+(r.program||'—')+'</td>'
+        +'<td style="padding:7px 8px;font-family:var(--mono);white-space:nowrap">'+(r.start_time||'—')+'</td>'
+        +'<td style="padding:7px 8px;font-family:var(--mono);white-space:nowrap">'+(r.end_time||'—')+'</td>'
+        +'<td style="padding:7px 8px;font-family:var(--mono);text-align:right">'+(r.conductivity!=null?r.conductivity:'—')+'</td>'
+        +'<td style="padding:7px 8px;font-family:var(--mono);text-align:right">'+(r.temp!=null?r.temp:'—')+'</td>'
+        +'<td style="padding:7px 8px;font-family:var(--mono);text-align:right">'+(r.flow!=null?r.flow:'—')+'</td>'
+        +'<td style="padding:7px 8px;font-family:var(--mono);text-align:right">'+(r.ph!=null?r.ph:'—')+'</td>'
+        +'<td style="padding:7px 8px;text-align:center">'+check(r.cip_done)+'</td>'
+        +'<td style="padding:7px 8px;text-align:center">'+check(r.san_done)+'</td>'
+        +'<td style="padding:7px 8px;font-weight:700">'+(r.operator||'—')+'</td>'
+        +'<td style="padding:7px 8px;text-align:center">'+sig+'</td>'
+        +'<td style="padding:7px 8px;color:var(--t2)">'+(r.remark||'')+'</td>'
+        +'<td style="padding:7px 8px;text-align:center"><button onclick="window._delCipLog(this)" data-id="'+r.id+'" style="background:none;border:none;cursor:pointer;font-size:14px;color:#94a3b8" title="ลบ">&#128465;</button></td>'
+        +'</tr>';
+    }).join('');
+  }catch(e){tbody.innerHTML='<tr><td colspan="17" style="text-align:center;padding:20px;color:#b91c1c">Error: '+e.message+'</td></tr>';}
+}
+window._stampCipLog = async function(btn){
+  const docId = btn.dataset.id;
+  const sig = sessionStorage.getItem('emp_sig')||'';
+  const name = sessionStorage.getItem('emp_name')||'';
+  if(!sig){toast('ไม่พบลายเซ็น กรุณา login ใหม่','red');return;}
+  try{
+    await setDoc(doc(db,'cip_log_sheets',docId),{sign:sig,sign_name:name,updated_at:new Date().toISOString()},{merge:true});
+    toast('✅ บันทึกลายเซ็นแล้ว','green');
+    if(window.renderCipLog) window.renderCipLog();
+  }catch(e){toast('❌ '+e.message,'red');}
+};
+
+window._delCipLog = async function(btn){
+  const docId = btn.dataset.id;
+  if(!confirm('ลบรายการนี้ไหม?')) return;
+  try{
+    await deleteDoc(doc(db,'cip_log_sheets',docId));
+    toast('ลบแล้ว','green');
+    if(window.renderCipLog) window.renderCipLog();
+  }catch(e){toast('❌ '+e.message,'red');}
+};
+
+// ── exportCipLog ──
+window.exportCipLog = function(){
+  const rows = window._cipLogRows||[];
+  if(!rows.length){toast('ไม่มีข้อมูล','red');return;}
+  const hdr = ['#','Date','Circuit','Group','Program','Start','End','Conductivity','Temp','Flow','pH','CIP Done','San Done','Operator','Remark'];
+  const lines = [hdr.join(',')];
+  rows.forEach((r,i)=>{
+    lines.push([i+1,r.date,r.circuit,r.group,r.program,r.start_time,r.end_time,
+      r.conductivity??'',r.temp??'',r.flow??'',r.ph??'',
+      r.cip_done?'Yes':'No',r.san_done?'Yes':'No',
+      r.operator,'"'+(r.remark||'')+'"'].join(','));
+  });
+  const blob=new Blob(['\uFEFF'+lines.join('\n')],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  const d=document.getElementById('ciplog-date')?.value||'';
+  a.download='CIP_Log_'+d+'.csv';a.click();
+};
 
 (function(){
   var now = new Date();
