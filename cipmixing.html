@@ -357,7 +357,7 @@ function renderTempAlert(){
     const maxT=getMaxTemp(ts);
     if(maxT==null)return false;
     const pt=(window._pmMap&&ts.mix_code&&window._pmMap[ts.mix_code])||ts.product_type||'';
-    if(pt==='Jelly') return maxT<37||maxT>42;
+    if(pt==='Jelly') return maxT<38||maxT>42;
     if(pt==='Ice Cream'||pt==='Water Ice') return maxT>5;
     return false;
   });
@@ -731,7 +731,7 @@ function renderTemp(){
   if(document.activeElement&&document.activeElement.tagName==='INPUT')return;
   const cr=getNowRound(),days=getDays(),td=today();
   $('cur-round').textContent='รอบปัจจุบัน: '+cr;
-  const active=Object.values(tankStates).filter(t=>t.status&&!['empty','san_done'].includes(t.status));
+  const active=Object.values(tankStates).filter(t=>t.status&&!['empty','san_done'].includes(t.status)&&(+(t.current_vol||0)>0||t.status==='pasteurising'||t.status==='past_done'||t.status==='aging'||t.status==='filling'));
   $('tank-count').textContent='มีของ: '+active.length+' ถัง';
   if(!active.length){$('temp-table').innerHTML='<tr><td colspan="99" style="text-align:center;padding:30px;color:var(--t3)">ไม่มีถังที่มีของ</td></tr>';return;}
   const rows=[];
