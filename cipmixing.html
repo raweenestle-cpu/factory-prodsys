@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html><!-- build:20260609083003 -->
 <html lang="th">
 <head>
 <meta charset="UTF-8">
@@ -192,6 +192,7 @@ td.sep{border-right:2px solid var(--b1)}
   <button class="tab" id="tab-m2" onclick="showTab('m2',this)">🔴 Mixing 2</button>
   <button class="tab" id="tab-temp" onclick="showTab('temp',this)">🌡️ อุณหภูมิถัง</button>
   <button class="tab" id="tab-rec" onclick="showTab('rec',this)">📋 CIP Records</button>
+  <button class="tab" id="tab-ciplog" onclick="showTab('ciplog',this)">📝 CIP Log</button>
 </div>
 <div class="page on" id="page-m1">
 
@@ -213,6 +214,64 @@ td.sep{border-right:2px solid var(--b1)}
   </div>
 </div>
 </main>
+<div class="page" id="page-ciplog">
+  <div style="padding:16px">
+    <div style="background:#fff;border:1.5px solid var(--b1);border-radius:14px;padding:16px;margin-bottom:16px">
+      <div style="font-family:var(--mono);font-size:13px;font-weight:900;margin-bottom:12px">+ Add CIP Record</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-bottom:10px">
+        <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">Date</div><input id="cip-date" type="date" class="ci" style="width:100%"></div>
+        <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">Circuit/Line</div><input id="cip-line" type="text" class="ci" placeholder="e.g. AFC Tank" style="width:100%"></div>
+        <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">Group</div><select id="cip-group" class="ci" style="width:100%"><option value="">-</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>M</option><option>S</option></select></div>
+        <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">Program</div><select id="cip-program" class="ci" style="width:100%"><option>Hot water</option><option>Alkaline</option><option>Acid</option><option>Sanitize</option></select></div>
+        <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">Start</div><input id="cip-start" type="time" class="ci" style="width:100%"></div>
+        <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">End</div><input id="cip-end" type="time" class="ci" style="width:100%"></div>
+        <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">Conductivity</div><input id="cip-conduct" type="number" step="0.1" class="ci" placeholder="0.0" style="width:100%"></div>
+        <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">Temp (C)</div><input id="cip-temp" type="number" step="0.1" class="ci" placeholder="0.0" style="width:100%"></div>
+        <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">Flow (m3/hr)</div><input id="cip-flow" type="number" step="0.1" class="ci" placeholder="0.0" style="width:100%"></div>
+        <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">pH</div><input id="cip-ph" type="number" step="0.1" class="ci" placeholder="0.0" style="width:100%"></div>
+        <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">Operator</div><input id="cip-operator" type="text" class="ci" placeholder="Name" style="width:100%"></div>
+        <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">Remark</div><input id="cip-remark" type="text" class="ci" placeholder="-" style="width:100%"></div>
+      </div>
+      <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+        <label style="display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:12px;font-weight:700;cursor:pointer"><input type="checkbox" id="cip-done" style="accent-color:#15803d;width:15px;height:15px"> CIP Done</label>
+        <label style="display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:12px;font-weight:700;cursor:pointer"><input type="checkbox" id="cip-san-done" style="accent-color:#0891b2;width:15px;height:15px"> San Done</label>
+        <div style="flex:1"></div>
+        <button id="cip-save-btn" style="padding:9px 24px;background:#1d4ed8;color:#fff;border:none;border-radius:10px;font-family:var(--mono);font-size:13px;font-weight:900;cursor:pointer">Save</button>
+      </div>
+    </div>
+    <div style="background:#fff;border:1.5px solid var(--b1);border-radius:14px;padding:16px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">
+        <div style="font-family:var(--mono);font-size:13px;font-weight:900">CIP History</div>
+        <input id="ciplog-date" type="date" class="ci" style="width:145px" onchange="if(window.renderCipLog)window.renderCipLog()">
+        <button id="cip-export-btn" style="padding:7px 14px;background:#15803d;color:#fff;border:none;border-radius:8px;font-family:var(--mono);font-size:12px;font-weight:900;cursor:pointer">Export CSV</button>
+        <span id="ciplog-count" style="font-family:var(--mono);font-size:11px;color:var(--t2)"></span>
+      </div>
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:11px">
+          <thead><tr style="background:#f8fafc;font-family:var(--mono)">
+            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1)">#</th>
+            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1);white-space:nowrap">Date</th>
+            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1);white-space:nowrap">Circuit</th>
+            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1)">Grp</th>
+            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1)">Program</th>
+            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1)">Start</th>
+            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1)">End</th>
+            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1)">Cond.</th>
+            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1)">Temp</th>
+            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1)">Flow</th>
+            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1)">pH</th>
+            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1)">CIP</th>
+            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1)">San</th>
+            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1)">Operator</th>
+            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1)">Remark</th>
+            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1)"></th>
+          </tr></thead>
+          <tbody id="ciplog-tbody"><tr><td colspan="16" style="text-align:center;padding:20px;color:var(--t3)">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
 <div id="toast"></div>
 <script type="module">
 function renderTempAlert(){
@@ -820,9 +879,27 @@ window._recFilter = function(f, btn){
   renderRecords();
 };
 
-window.showTab=(id,btn)=>{document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));btn.classList.add('on');document.getElementById('page-'+id).classList.add('on');curTab=id;if(id==='m1')renderPlans('m1');else if(id==='m2')renderPlans('m2');else if(id==='temp')renderTemp();else if(id==='rec')renderRecords();};
+window.showTab=(id,btn)=>{document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));btn.classList.add('on');document.getElementById('page-'+id).classList.add('on');curTab=id;if(id==='m1')renderPlans('m1');else if(id==='m2')renderPlans('m2');else if(id==='temp')renderTemp();else if(id==='rec')renderRecords();else if(id==='ciplog'){if(window.renderCipLog)window.renderCipLog();}};
 function toast(msg,col='blue'){const el=$('toast');el.textContent=msg;el.style.background=col==='green'?'#15803d':col==='red'?'#991b1b':'#1d4ed8';el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2500);}
 window.doLogout=async()=>{await signOut(auth);location.href='index.html';};
+
+window._cipLogRows = [];
+
+(function(){
+  var now = new Date();
+  var d = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
+  setTimeout(function(){
+    var e1 = document.getElementById('cip-date');
+    var e2 = document.getElementById('ciplog-date');
+    if(e1 && !e1.value) e1.value = d;
+    if(e2 && !e2.value) e2.value = d;
+    var sb = document.getElementById('cip-save-btn');
+    if(sb) sb.onclick = function(){ window.saveCipLog(); };
+    var eb = document.getElementById('cip-export-btn');
+    if(eb) eb.onclick = function(){ window.exportCipLog(); };
+  }, 500);
+})();
+
 </script>
 
 <div class="page" id="page-rec">
