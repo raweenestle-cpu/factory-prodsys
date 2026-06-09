@@ -1241,7 +1241,26 @@ function renderPastCard(row, i, col, p){
         <div class="tv3-name">${row.mix_name||'—'} · <span style="font-size:18px">${(+(row.volume_liter||0)).toLocaleString()} L</span> · <span style="font-size:16px">Batch ${row.batch_no||'—'}</span></div>
         <div class="tv3-meta">${(()=>{const _p=(window.productMap||{})[row.mix_code||'']||{};const _spd=p==='p1'?(_p.speed_m1||_p.speed||'—'):(_p.speed_m2||_p.speed||'—');const _den=_p.density||'—';return 'Density: '+_den+' kg/L · Speed: '+_spd+' L/hr';})()}</div>
       </div>
-      <div class="tv3-st"><span class="badge ${ps.cls}" style="font-size:13px;padding:8px 18px">${ps.lbl}</span></div>
+      <div class="tv3-st">
+        <span class="badge ${ps.cls}" style="font-size:13px;padding:8px 18px">${ps.lbl}</span>
+        ${(()=>{
+          const _s=row.past_start_time||'';
+          const _e=row.expected_finish_time||'';
+          const _end=row.past_end_time||'';
+          let _dur='';
+          const toS=t=>{if(!t)return 0;const a=(t+'::').split(':').map(Number);return a[0]*3600+a[1]*60+(a[2]||0);};
+          if(_s){
+            const diff = _end ? toS(_end)-toS(_s) : Math.max(0,Math.floor((Date.now()-new Date((row.date||new Date().toISOString().slice(0,10))+'T'+_s.slice(0,8)||0).getTime())/1000));
+            if(diff>=0){const h=Math.floor(diff/3600),m=Math.floor((diff%3600)/60),s=diff%60;_dur=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');}
+          }
+          if(!_s&&!_e) return '';
+          return '<div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">'
+            +(_s?'<div style="background:#dbeafe;border:1.5px solid #3b82f6;border-radius:8px;padding:4px 10px;text-align:center"><div style="font-family:var(--mono);font-size:9px;font-weight:700;color:#1e40af">⏱ เริ่ม</div><div style="font-family:var(--mono);font-size:15px;font-weight:900;color:#1e3a8a">'+_s.slice(0,8)+'</div></div>':'')
+            +(_e?'<div style="background:#fef3c7;border:1.5px solid #f59e0b;border-radius:8px;padding:4px 10px;text-align:center"><div style="font-family:var(--mono);font-size:9px;font-weight:700;color:#92400e">🏁 คาดเสร็จ</div><div style="font-family:var(--mono);font-size:15px;font-weight:900;color:#78350f">'+_e.slice(0,8)+'</div></div>':'')
+            +(_dur?'<div id="dur-'+row.id+'" style="background:#d1fae5;border:1.5px solid #10b981;border-radius:8px;padding:4px 10px;text-align:center"><div style="font-family:var(--mono);font-size:9px;font-weight:700;color:#065f46">⏳ รวม</div><div style="font-family:var(--mono);font-size:15px;font-weight:900;color:#064e3b">'+_dur+'</div></div>':'')
+            +'</div>';
+        })()}
+      </div>
     </div>
     <div class="tv3-body">
 
@@ -1269,6 +1288,22 @@ function renderPastCard(row, i, col, p){
 }
 
 // ── Start/Stop Pasteurize time ──
+// ── update elapsed time ทุก 1 วินาที ──
+setInterval(()=>{
+  ['p1','p2'].forEach(p=>{
+    (window._rows&&window._rows[p]||[]).forEach(row=>{
+      if(!row.past_start_time||row.past_end_time) return;
+      const el = document.getElementById('dur-'+row.id);
+      if(!el) return;
+      const toS=t=>{if(!t)return 0;const a=(t+'::').split(':').map(Number);return a[0]*3600+a[1]*60+(a[2]||0);};
+      const base = new Date((row.date||new Date().toISOString().slice(0,10))+'T'+row.past_start_time.slice(0,8));
+      const diff = Math.max(0,Math.floor((Date.now()-base.getTime())/1000));
+      const h=Math.floor(diff/3600),m=Math.floor((diff%3600)/60),s=diff%60;
+      el.querySelector('div:last-child').textContent=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+    });
+  });
+},1000);
+
 window._startPastTime = async function(pcol, rid, p){
   const t = nowHHMMSS();
   const row = ((window._rows||{})[p]||[]).find(r=>r.id===rid)||{};
