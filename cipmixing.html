@@ -900,7 +900,7 @@ function _buildRecords(){
     type: r.type||'cip',
     tank: r.tank||'—',
     start: r.start_time||'—',
-    stop: r.stop_time||null,
+    stop: r.stop_time||r.end_time||null,
     mix_code: r.mix_code||'—',
     mix_name: r.mix_name||'—',
     vol: r.vol||0,
@@ -908,6 +908,15 @@ function _buildRecords(){
     src: r.type==='cip'?'cipman':'leadman',
     group: r.group||'—',
     sign: r.sign||null,
+    sign_name: r.sign_name||'',
+    conductivity: r.conductivity??null,
+    temp: r.temp??null,
+    flow: r.flow??null,
+    ph: r.ph??null,
+    san_ppm: r.san_ppm??null,
+    cip_done: r.cip_done||false,
+    log_complete: r.log_complete||false,
+    remark: r.remark||'',
     sort_key: r.created_at||'',
   }));
 }
@@ -948,29 +957,46 @@ function renderRecords(){
   _buildRecords();
   const filtered = _recFilter==='all' ? _recData : _recData.filter(r=>r.type===_recFilter);
   document.getElementById('rec-count').textContent = filtered.length + ' records';
+  const P = 'padding:8px 10px;';
+  const GC={A:'#2563EB',B:'#0891B2',C:'#059669',D:'#D97706',E:'#7C3AED'};
   document.getElementById('rec-body').innerHTML = filtered.map(r=>{
     const typeBadge = r.type==='cip'
-      ? '<span style="font-family:var(--mono);font-size:10px;font-weight:900;padding:3px 10px;border-radius:6px;background:rgba(29,78,216,.1);color:#1d4ed8;border:1px solid rgba(29,78,216,.25)">CIP</span>'
-      : '<span style="font-family:var(--mono);font-size:10px;font-weight:900;padding:3px 10px;border-radius:6px;background:rgba(21,128,61,.1);color:#15803d;border:1px solid rgba(21,128,61,.25)">Sanitize</span>';
-    const srcTag = r.src==='cipman'
-      ? '<span style="font-family:var(--mono);font-size:9px;font-weight:800;padding:2px 6px;border-radius:4px;background:rgba(14,116,144,.1);color:#0e7490">cipman</span>'
-      : '<span style="font-family:var(--mono);font-size:9px;font-weight:800;padding:2px 6px;border-radius:4px;background:rgba(180,83,9,.1);color:#b45309">leadman</span>';
-    const stopCell = r.stop||'<span style="font-size:10px;color:var(--orange)">กำลังทำ...</span>';
+      ? '<span style="font-family:var(--mono);font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:#EFF6FF;color:#2563EB;border:1px solid #BFDBFE">CIP</span>'
+      : '<span style="font-family:var(--mono);font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:#ECFDF5;color:#059669;border:1px solid #A7F3D0">San</span>';
+    const stopCell = r.stop||'<span style="font-size:10px;color:#F59E0B">กำลังทำ...</span>';
+    const grpBadge = r.group&&r.group!=='—'
+      ? '<span style="font-family:var(--mono);font-size:11px;font-weight:800;padding:2px 8px;border-radius:20px;background:'+(GC[r.group]||'#64748B')+'22;color:'+(GC[r.group]||'#64748B')+';border:1px solid '+(GC[r.group]||'#64748B')+'44">'+r.group+'</span>'
+      : '—';
     const signCell = r.sign
-      ? '<span style="font-family:var(--mono);font-size:12px;font-weight:800;color:#15803d">✅ '+r.sign+'</span>'
-      : '<button style="font-size:16px;cursor:pointer;opacity:.45;background:none;border:none;padding:2px 4px" title="ยังไม่เปิดใช้">✏️</button>';
-    return '<tr style="border-bottom:1px solid var(--s2)">'
-      +'<td style="padding:9px 12px;white-space:nowrap;color:var(--t2)">'+r.start+'</td>'
-      +'<td style="padding:9px 12px;white-space:nowrap;color:var(--t2)">'+stopCell+'</td>'
-      +'<td style="padding:9px 12px">'+typeBadge+'</td>'
-      +'<td style="padding:9px 12px;font-weight:900;color:var(--blue2,#1d4ed8)">'+(r.group&&r.group!=='—'?'<span style="font-family:var(--mono);font-size:12px;font-weight:900;padding:2px 10px;border-radius:6px;background:rgba(29,78,216,.1);color:#1d4ed8;border:1px solid rgba(29,78,216,.2)">'+r.group+'</span>':'—')+'</td>'
-      +'<td style="padding:9px 12px;font-weight:900">'+r.tank+'</td>'
-      +'<td style="padding:9px 12px;font-weight:900;color:#0e7490">'+r.mix_code+'</td>'
-      +'<td style="padding:9px 12px;color:var(--t2)">'+r.mix_name+'</td>'
-      +'<td style="padding:9px 12px;font-weight:900;color:#0e7490">'+(r.vol>0?r.vol.toLocaleString()+' L':'—')+'</td>'
-      +'<td style="padding:9px 12px;font-weight:800;color:#c2410c">'+r.line+'</td>'
-      +'<td style="padding:9px 12px">'+srcTag+'</td>'
-      +'<td style="padding:9px 12px">'+signCell+'</td>'
+      ? '<img src="'+r.sign+'" style="height:26px;max-width:60px;object-fit:contain;border:1px solid #86efac;border-radius:4px" title="'+(r.sign_name||'')+'">'
+      : '<span style="color:#94A3B8;font-size:11px">—</span>';
+    const numCell = (v,unit,fail,ok) => {
+      if(v==null) return '<span style="color:#94A3B8">—</span>';
+      const c = fail?'#DC2626':ok?'#059669':'#0F172A';
+      const bg = fail?'#FEF2F2':ok?'#ECFDF5':'transparent';
+      return '<span style="font-family:var(--mono);font-size:11px;font-weight:700;color:'+c+';background:'+bg+';padding:1px 5px;border-radius:4px">'+v+(unit?' '+unit:'')+'</span>';
+    };
+    // spec check
+    const SPEC={"Hot water":{c:99,t:70,f_min:4.25,f_max:46.25},"Alkaline":{c:1,t:70,f_min:4.25,f_max:46.25,ph_min:10.5,ph_max:12},"Acid":{c:1,f_min:4.25,f_max:46.25,ph_min:2,ph_max:3.5},"Sanitize":{f_min:1}};
+    const sp=SPEC[r.type==='san'?'Sanitize':'Alkaline']||{};
+    return '<tr style="border-bottom:1px solid var(--border,#E2E8F0)">'
+      +'<td style="'+P+'white-space:nowrap;color:var(--t2)">'+r.start+'</td>'
+      +'<td style="'+P+'white-space:nowrap;color:var(--t2)">'+stopCell+'</td>'
+      +'<td style="'+P+'">'+typeBadge+'</td>'
+      +'<td style="'+P+'">'+grpBadge+'</td>'
+      +'<td style="'+P+'font-family:var(--mono);font-weight:800">'+r.tank+'</td>'
+      +'<td style="'+P+'font-family:var(--mono);font-weight:700;color:#0891B2">'+r.mix_code+'</td>'
+      +'<td style="'+P+'color:var(--t2)">'+r.mix_name+'</td>'
+      +'<td style="'+P+'font-family:var(--mono)">'+(r.vol>0?r.vol.toLocaleString()+' L':'—')+'</td>'
+      +'<td style="'+P+'font-weight:700;color:#C2410C">'+r.line+'</td>'
+      +'<td style="'+P+'text-align:center">'+numCell(r.conductivity,'',sp.c!=null&&r.conductivity>sp.c,sp.c!=null&&r.conductivity<=sp.c)+'</td>'
+      +'<td style="'+P+'text-align:center">'+numCell(r.temp,'°C',sp.t!=null&&r.temp<sp.t,sp.t!=null&&r.temp>=sp.t)+'</td>'
+      +'<td style="'+P+'text-align:center">'+numCell(r.flow,'',sp.f_min&&r.flow<sp.f_min,sp.f_min&&r.flow>=sp.f_min)+'</td>'
+      +'<td style="'+P+'text-align:center">'+numCell(r.ph,'',sp.ph_min!=null&&(r.ph<sp.ph_min||r.ph>sp.ph_max),sp.ph_min!=null&&r.ph>=sp.ph_min&&r.ph<=sp.ph_max)+'</td>'
+      +'<td style="'+P+'text-align:center">'+(r.san_ppm?'<span style="font-family:var(--mono);font-size:11px;font-weight:700;color:#0891B2;background:#ECFEFF;padding:1px 6px;border-radius:4px">'+r.san_ppm+' ppm</span>':'<span style="color:#94A3B8">—</span>')+'</td>'
+      +'<td style="'+P+'text-align:center">'+(r.cip_done?'<span style="color:#059669;font-size:14px">✓</span>':'<span style="color:#94A3B8">—</span>')+'</td>'
+      +'<td style="'+P+'color:var(--t2);font-size:11px">'+(r.remark&&r.remark!=='auto'?r.remark:'—')+'</td>'
+      +'<td style="'+P+'">'+signCell+'</td>'
       +'</tr>';
   }).join('');
 }
@@ -994,7 +1020,17 @@ async function _autoLogCip(tid, act){
   const d = new Date().toISOString().split('T')[0];
   const n = nowHMS();
   const prog = act==='start_cip'?'CIP':'Sanitize';
+  const recType = act==='start_cip'?'cip':'san';
   try{
+    // หา mix_rec_id จาก cip_mixing_records ล่าสุดของถังนี้
+    let mix_rec_id = null;
+    try{
+      const _rq = query(collection(db,'cip_mixing_records'),
+        where('tank','==',tid), where('type','==',recType),
+        orderBy('created_at','desc'), limit(1));
+      const _rs = await getDocs(_rq);
+      if(!_rs.empty) mix_rec_id = _rs.docs[0].id;
+    }catch{}
     await addDoc(collection(db,'cip_log_sheets'),{
       date:d, circuit:tid,
       group:ts.cip_group||'—',
@@ -1002,11 +1038,11 @@ async function _autoLogCip(tid, act){
       start_time:n, end_time:'',
       conductivity:null, temp:null, flow:null, ph:null,
       cip_done:false, san_ppm:null,
+      mix_rec_id: mix_rec_id,
       operator:sessionStorage.getItem('emp_name')||'—',
       remark:'auto',
       created_at:new Date().toISOString()
     });
-    // refresh ถ้า tab ciplog เปิดอยู่
     if(document.getElementById('page-ciplog')?.classList.contains('on')){
       if(window.renderCipLog) window.renderCipLog();
     }
@@ -1212,6 +1248,14 @@ window._saveCipField = async function(el){
   const val = field==='end_time'||field==='remark' ? el.value : (el.value!==''?+el.value:null);
   try{
     await setDoc(doc(db,'cip_log_sheets',docId),{[field]:val,updated_at:new Date().toISOString()},{merge:true});
+    // sync ไป cip_mixing_records ถ้ามี log_ref
+    const logRow = (window._cipLogRows||[]).find(r=>r.id===docId);
+    if(logRow && logRow.mix_rec_id){
+      const syncFields=['conductivity','temp','flow','ph','san_ppm','end_time','cip_done','remark'];
+      if(syncFields.includes(field)){
+        setDoc(doc(db,'cip_mixing_records',logRow.mix_rec_id),{[field]:val,updated_at:new Date().toISOString()},{merge:true}).catch(()=>{});
+      }
+    }
     toast('✅ บันทึกแล้ว','green');
     if(window.renderCipLog) window.renderCipLog();
   }catch(e){toast('❌ '+e.message,'red');}
@@ -1293,8 +1337,26 @@ window._stampCipLog = async function(btn){
   if(!sig){toast('ไม่พบลายเซ็น กรุณา login ใหม่','red');return;}
   try{
     await setDoc(doc(db,'cip_log_sheets',docId),{sign:sig,sign_name:name,updated_at:new Date().toISOString()},{merge:true});
+    // sync ลายเซ็น + ย้ายไป cip_mixing_records
+    const logRow = (window._cipLogRows||[]).find(r=>r.id===docId);
+    if(logRow && logRow.mix_rec_id){
+      await setDoc(doc(db,'cip_mixing_records',logRow.mix_rec_id),{
+        sign:sig, sign_name:name,
+        conductivity:logRow.conductivity??null,
+        temp:logRow.temp??null,
+        flow:logRow.flow??null,
+        ph:logRow.ph??null,
+        san_ppm:logRow.san_ppm??null,
+        cip_done:logRow.cip_done||false,
+        end_time:logRow.end_time||''  ,
+        remark:logRow.remark||'auto',
+        log_complete:true,
+        updated_at:new Date().toISOString()
+      },{merge:true});
+    }
     toast('✅ บันทึกลายเซ็นแล้ว','green');
     if(window.renderCipLog) window.renderCipLog();
+    if(curTab==='rec') renderRecords();
   }catch(e){toast('❌ '+e.message,'red');}
 };
 
@@ -1352,17 +1414,23 @@ window.exportCipLog = function(){
     <table style="width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12px" id="rec-table">
       <thead>
         <tr>
-          <th style="background:var(--s2);padding:10px 12px;text-align:left;font-weight:800;font-size:11px;color:var(--t2);border-bottom:2px solid var(--b1);white-space:nowrap">Start</th>
-          <th style="background:var(--s2);padding:10px 12px;text-align:left;font-weight:800;font-size:11px;color:var(--t2);border-bottom:2px solid var(--b1);white-space:nowrap">Stop</th>
-          <th style="background:var(--s2);padding:10px 12px;text-align:left;font-weight:800;font-size:11px;color:var(--t2);border-bottom:2px solid var(--b1);white-space:nowrap">ประเภท</th>
-          <th style="background:var(--s2);padding:10px 12px;text-align:left;font-weight:800;font-size:11px;color:var(--t2);border-bottom:2px solid var(--b1);white-space:nowrap">Group</th>
-          <th style="background:var(--s2);padding:10px 12px;text-align:left;font-weight:800;font-size:11px;color:var(--t2);border-bottom:2px solid var(--b1);white-space:nowrap">ถัง</th>
-          <th style="background:var(--s2);padding:10px 12px;text-align:left;font-weight:800;font-size:11px;color:var(--t2);border-bottom:2px solid var(--b1);white-space:nowrap">Mix Code</th>
-          <th style="background:var(--s2);padding:10px 12px;text-align:left;font-weight:800;font-size:11px;color:var(--t2);border-bottom:2px solid var(--b1);white-space:nowrap">Mix Name</th>
-          <th style="background:var(--s2);padding:10px 12px;text-align:left;font-weight:800;font-size:11px;color:var(--t2);border-bottom:2px solid var(--b1);white-space:nowrap">Volume</th>
-          <th style="background:var(--s2);padding:10px 12px;text-align:left;font-weight:800;font-size:11px;color:var(--t2);border-bottom:2px solid var(--b1);white-space:nowrap">Line</th>
-          <th style="background:var(--s2);padding:10px 12px;text-align:left;font-weight:800;font-size:11px;color:var(--t2);border-bottom:2px solid var(--b1);white-space:nowrap">แหล่งข้อมูล</th>
-          <th style="background:var(--s2);padding:10px 12px;text-align:left;font-weight:800;font-size:11px;color:var(--t2);border-bottom:2px solid var(--b1);white-space:nowrap">✏️ ลายเซ็น</th>
+          <th style="background:var(--surface2,#F8FAFC);padding:9px 10px;text-align:left;font-weight:700;font-size:10px;color:var(--t3,#64748B);border-bottom:2px solid var(--border2,#CBD5E1);white-space:nowrap;text-transform:uppercase;letter-spacing:.04em">Start</th>
+          <th style="background:var(--surface2,#F8FAFC);padding:9px 10px;text-align:left;font-weight:700;font-size:10px;color:var(--t3,#64748B);border-bottom:2px solid var(--border2,#CBD5E1);white-space:nowrap;text-transform:uppercase;letter-spacing:.04em">Stop</th>
+          <th style="background:var(--surface2,#F8FAFC);padding:9px 10px;text-align:left;font-weight:700;font-size:10px;color:var(--t3,#64748B);border-bottom:2px solid var(--border2,#CBD5E1);white-space:nowrap;text-transform:uppercase;letter-spacing:.04em">ประเภท</th>
+          <th style="background:var(--surface2,#F8FAFC);padding:9px 10px;text-align:left;font-weight:700;font-size:10px;color:var(--t3,#64748B);border-bottom:2px solid var(--border2,#CBD5E1);white-space:nowrap;text-transform:uppercase;letter-spacing:.04em">Group</th>
+          <th style="background:var(--surface2,#F8FAFC);padding:9px 10px;text-align:left;font-weight:700;font-size:10px;color:var(--t3,#64748B);border-bottom:2px solid var(--border2,#CBD5E1);white-space:nowrap;text-transform:uppercase;letter-spacing:.04em">ถัง</th>
+          <th style="background:var(--surface2,#F8FAFC);padding:9px 10px;text-align:left;font-weight:700;font-size:10px;color:var(--t3,#64748B);border-bottom:2px solid var(--border2,#CBD5E1);white-space:nowrap;text-transform:uppercase;letter-spacing:.04em">Mix Code</th>
+          <th style="background:var(--surface2,#F8FAFC);padding:9px 10px;text-align:left;font-weight:700;font-size:10px;color:var(--t3,#64748B);border-bottom:2px solid var(--border2,#CBD5E1);white-space:nowrap;text-transform:uppercase;letter-spacing:.04em">Mix Name</th>
+          <th style="background:var(--surface2,#F8FAFC);padding:9px 10px;text-align:left;font-weight:700;font-size:10px;color:var(--t3,#64748B);border-bottom:2px solid var(--border2,#CBD5E1);white-space:nowrap;text-transform:uppercase;letter-spacing:.04em">Vol</th>
+          <th style="background:var(--surface2,#F8FAFC);padding:9px 10px;text-align:left;font-weight:700;font-size:10px;color:var(--t3,#64748B);border-bottom:2px solid var(--border2,#CBD5E1);white-space:nowrap;text-transform:uppercase;letter-spacing:.04em">Line</th>
+          <th style="background:var(--surface2,#F8FAFC);padding:9px 10px;text-align:left;font-weight:700;font-size:10px;color:var(--t3,#64748B);border-bottom:2px solid var(--border2,#CBD5E1);white-space:nowrap;text-transform:uppercase;letter-spacing:.04em">Cond.</th>
+          <th style="background:var(--surface2,#F8FAFC);padding:9px 10px;text-align:left;font-weight:700;font-size:10px;color:var(--t3,#64748B);border-bottom:2px solid var(--border2,#CBD5E1);white-space:nowrap;text-transform:uppercase;letter-spacing:.04em">Temp</th>
+          <th style="background:var(--surface2,#F8FAFC);padding:9px 10px;text-align:left;font-weight:700;font-size:10px;color:var(--t3,#64748B);border-bottom:2px solid var(--border2,#CBD5E1);white-space:nowrap;text-transform:uppercase;letter-spacing:.04em">Flow</th>
+          <th style="background:var(--surface2,#F8FAFC);padding:9px 10px;text-align:left;font-weight:700;font-size:10px;color:var(--t3,#64748B);border-bottom:2px solid var(--border2,#CBD5E1);white-space:nowrap;text-transform:uppercase;letter-spacing:.04em">pH</th>
+          <th style="background:var(--surface2,#F8FAFC);padding:9px 10px;text-align:left;font-weight:700;font-size:10px;color:var(--t3,#64748B);border-bottom:2px solid var(--border2,#CBD5E1);white-space:nowrap;text-transform:uppercase;letter-spacing:.04em">San ppm</th>
+          <th style="background:var(--surface2,#F8FAFC);padding:9px 10px;text-align:left;font-weight:700;font-size:10px;color:var(--t3,#64748B);border-bottom:2px solid var(--border2,#CBD5E1);white-space:nowrap;text-transform:uppercase;letter-spacing:.04em">CIP ✓</th>
+          <th style="background:var(--surface2,#F8FAFC);padding:9px 10px;text-align:left;font-weight:700;font-size:10px;color:var(--t3,#64748B);border-bottom:2px solid var(--border2,#CBD5E1);white-space:nowrap;text-transform:uppercase;letter-spacing:.04em">Remark</th>
+          <th style="background:var(--surface2,#F8FAFC);padding:9px 10px;text-align:left;font-weight:700;font-size:10px;color:var(--t3,#64748B);border-bottom:2px solid var(--border2,#CBD5E1);white-space:nowrap;text-transform:uppercase;letter-spacing:.04em">✏️ ลายเซ็น</th>
         </tr>
       </thead>
       <tbody id="rec-body"></tbody>
