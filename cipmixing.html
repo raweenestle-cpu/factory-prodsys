@@ -216,9 +216,17 @@ td.sep{border-right:2px solid var(--b1)}
 </main>
 <div class="page" id="page-ciplog">
   <div style="padding:16px">
+    <!-- Setting: กำหนด Group ถัง -->
+    <div id="cip-grp-setting" style="background:#fff;border:1.5px solid var(--b1);border-radius:14px;padding:14px;margin-bottom:16px;display:none">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <div style="font-family:var(--mono);font-size:12px;font-weight:900">⚙️ ตั้งค่า Group ถัง</div>
+        <button onclick="document.getElementById('cip-grp-setting').style.display='none'" style="margin-left:auto;background:none;border:none;cursor:pointer;font-size:16px;color:#94a3b8">✕</button>
+      </div>
+      <div id="cip-grp-list" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+    </div>
     <!-- ถังรอ CIP -->
     <div id="cip-waiting-section" style="background:#fff;border:1.5px solid #fca5a5;border-radius:14px;padding:14px;margin-bottom:16px;display:none">
-      <div style="font-family:var(--mono);font-size:12px;font-weight:900;color:#b91c1c;margin-bottom:10px" id="cip-waiting-title">🔴 ถังรอ CIP / กำลัง CIP</div>
+      <div style="display:flex;align-items:center;margin-bottom:10px"><div style="font-family:var(--mono);font-size:12px;font-weight:900;color:#b91c1c" id="cip-waiting-title">🔴 ถังรอ CIP / กำลัง CIP</div><button onclick="window._openGrpSetting()" style="margin-left:auto;background:none;border:1px solid var(--b1);border-radius:6px;padding:3px 10px;cursor:pointer;font-family:var(--mono);font-size:11px;font-weight:700;color:var(--t2)">⚙️ ตั้งค่า Group</button></div>
       <div id="cip-waiting-list" style="display:flex;gap:8px;flex-wrap:wrap"></div>
     </div>
     <!-- ตารางอยู่บน -->
@@ -267,7 +275,7 @@ td.sep{border-right:2px solid var(--b1)}
       <div style="font-family:var(--mono);font-size:13px;font-weight:900;margin-bottom:12px">+ Add CIP Record</div>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-bottom:10px">
         <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">Date</div><input id="cip-date" type="date" class="ci" style="width:100%"></div>
-        <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">Circuit/Line</div><input id="cip-line" list="cip-line-list" class="ci" placeholder="เลือกหรือพิมพ์เอง" style="width:100%" autocomplete="off"><datalist id="cip-line-list"></datalist></div>
+        <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">Circuit/Line</div><input id="cip-line" list="cip-line-list" class="ci" placeholder="เลือกหรือพิมพ์เอง" style="width:100%" autocomplete="off" oninput="window._onLineChange()"><datalist id="cip-line-list"></datalist></div>
         <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">Group</div><select id="cip-group" class="ci" style="width:100%"><option value="">-</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>M</option><option>S</option></select></div>
         <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">Program</div><select id="cip-program" class="ci" style="width:100%" onchange="window._onProgramChange()"><option>Hot water</option><option>Alkaline</option><option>Acid</option><option>Sanitize</option></select></div>
         <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">Start</div><input id="cip-start" type="time" class="ci" style="width:100%"></div>
@@ -376,6 +384,7 @@ async function _doActReal(tid, act){
   if(act==='start_cip'){
     upd.cip_start_time=n;
     upd.cip_date=new Date().toISOString().split('T')[0];
+    _autoLogCip(tid,'start_cip');
     // ดึง mix_code/mix_name จาก cip_mixing_records record ล่าสุดของถังนี้
     try{
       const _q=query(collection(db,'cip_mixing_records'),
@@ -414,6 +423,7 @@ async function _doActReal(tid, act){
   if(act==='start_san'){
     upd.san_start_time=n;
     upd.san_date=new Date().toISOString().split('T')[0];
+    _autoLogCip(tid,'start_san');
     // ดึง mix_code/mix_name จาก production_plans batch ถัดไปที่ leadman สั่ง
     const _next=_getNextPlanForTank(tid);
     if(_next.mix_code) upd.next_mix_code=_next.mix_code;
@@ -903,6 +913,74 @@ function toast(msg,col='blue'){const el=$('toast');el.textContent=msg;el.style.b
 window.doLogout=async()=>{await signOut(auth);location.href='index.html';};
 
 window._cipLogRows = [];
+
+// ── Group Setting ──
+window._openGrpSetting = function(){
+  const panel = document.getElementById('cip-grp-setting');
+  const list = document.getElementById('cip-grp-list');
+  if(!panel||!list) return;
+  panel.style.display = 'block';
+  const tanks = Object.values(tankStates).filter(ts=>ts.id).sort((a,b)=>a.id.localeCompare(b.id));
+  const GC={A:'#1d4ed8',B:'#0e7490',C:'#15803d',D:'#b45309',E:'#7c3aed'};
+  list.innerHTML = tanks.map(ts=>{
+    const grp = ts.cip_group||'';
+    return '<div style="display:flex;align-items:center;gap:6px;background:var(--s1);border:1.5px solid var(--b1);border-radius:8px;padding:6px 10px">'
+      +'<span style="font-family:var(--mono);font-size:13px;font-weight:900;min-width:40px">'+ts.id+'</span>'
+      +'<select data-tid="'+ts.id+'" onchange="window._saveGrp(this)" style="font-family:var(--mono);font-size:11px;font-weight:800;border:1.5px solid var(--b1);border-radius:5px;padding:3px 6px;background:#fff;color:'+(GC[grp]||'#374151')+'">'
+      +'<option value="">—</option>'
+      +['A','B','C','D','E','M','S'].map(g=>'<option value="'+g+'"'+(grp===g?' selected':'')+'>'+g+'</option>').join('')
+      +'</select>'
+      +'</div>';
+  }).join('');
+};
+
+window._saveGrp = async function(sel){
+  const tid = sel.dataset.tid;
+  const val = sel.value;
+  const GC={A:'#1d4ed8',B:'#0e7490',C:'#15803d',D:'#b45309',E:'#7c3aed'};
+  sel.style.color = GC[val]||'#374151';
+  try{
+    await setDoc(doc(db,'aging_tank_states',tid),{cip_group:val,updated_at:new Date().toISOString()},{merge:true});
+    if(tankStates[tid]) tankStates[tid].cip_group=val;
+    renderCipWaiting();
+    populateCipLineSel();
+    toast('✅ ถัง '+tid+' = Group '+val,'green');
+  }catch(e){toast('❌ '+e.message,'red');}
+};
+
+// auto-fill group เมื่อเลือก circuit/line
+window._onLineChange = function(){
+  const line = document.getElementById('cip-line')?.value||'';
+  const grpSel = document.getElementById('cip-group');
+  if(!grpSel) return;
+  const ts = tankStates[line];
+  if(ts&&ts.cip_group) grpSel.value = ts.cip_group;
+};
+
+// auto-create row ใน cip_log_sheets เมื่อ start_cip หรือ start_san
+async function _autoLogCip(tid, act){
+  const ts = tankStates[tid]||{};
+  const d = new Date().toISOString().split('T')[0];
+  const n = nowHMS();
+  const prog = act==='start_cip'?'CIP':'Sanitize';
+  try{
+    await addDoc(collection(db,'cip_log_sheets'),{
+      date:d, circuit:tid,
+      group:ts.cip_group||'—',
+      program:prog,
+      start_time:n, end_time:'',
+      conductivity:null, temp:null, flow:null, ph:null,
+      cip_done:false, san_done:false,
+      operator:sessionStorage.getItem('emp_name')||'',
+      remark:'auto',
+      created_at:new Date().toISOString()
+    });
+    // refresh ถ้า tab ciplog เปิดอยู่
+    if(document.getElementById('page-ciplog')?.classList.contains('on')){
+      if(window.renderCipLog) window.renderCipLog();
+    }
+  }catch(e){console.warn('autoLogCip error:',e);}
+}
 
 // ── ถังรอ CIP (status === empty / cip / cip_done / san) ──
 const ST_WAIT = {
