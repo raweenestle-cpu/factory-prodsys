@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html><!-- v20260609142645 -->
 <html lang="th">
 <head>
 <meta charset="UTF-8">
@@ -1254,17 +1254,11 @@ function renderPastCard(row, i, col, p){
         const _isDone  = ps.id==='submitted'||ps.id==='done';
         if(_isDone) return '';
         if(!_started){
-          // ปุ่ม Start — แสดงเฉพาะเมื่อ tank พร้อม (ps.id==='wait_past')
-          if(ps.id!=='wait_past') return '';
-          return \`<div class="tv3-stamp">
-            <button class="tv3-sbtn y" onclick="window._startPastTime('${col}','${row.id}','${p}')">▶ เริ่ม Pasteurize</button>
-          </div>\`;
+          if(['submitted','done','pasteurising'].includes(ps.id)) return '';
+          return '<div class="tv3-stamp"><button class="tv3-sbtn y" onclick="window._startPastTime(''+col+'',''+row.id+'',''+p+'')">▶ เริ่ม Pasteurize</button></div>';
         }
         if(_started && !_ended){
-          return \`<div class="tv3-stamp">
-            <div style="font-family:var(--mono);font-size:11px;color:#6b7280">กำลัง Pasteurize...</div>
-            <button class="tv3-sbtn r" style="flex:0 0 auto" onclick="window._stopPastTime('${col}','${row.id}','${p}')">⏹ หยุด / เสร็จสิ้น</button>
-          </div>\`;
+          return '<div class="tv3-stamp"><div style="font-family:var(--mono);font-size:11px;color:#6b7280">กำลัง Pasteurize...</div><button class="tv3-sbtn r" style="flex:0 0 auto" onclick="window._stopPastTime(''+col+'',''+row.id+'',''+p+'')">⏹ หยุด / เสร็จสิ้น</button></div>';
         }
         return '';
       })()}
