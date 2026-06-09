@@ -216,31 +216,13 @@ td.sep{border-right:2px solid var(--b1)}
 </main>
 <div class="page" id="page-ciplog">
   <div style="padding:16px">
-    <div style="background:#fff;border:1.5px solid var(--b1);border-radius:14px;padding:16px;margin-bottom:16px">
-      <div style="font-family:var(--mono);font-size:13px;font-weight:900;margin-bottom:12px">+ Add CIP Record</div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-bottom:10px">
-        <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">Date</div><input id="cip-date" type="date" class="ci" style="width:100%"></div>
-        <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">Circuit/Line</div><input id="cip-line" list="cip-line-list" class="ci" placeholder="เลือกหรือพิมพ์เอง" style="width:100%" autocomplete="off"><datalist id="cip-line-list"></datalist></div>
-        <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">Group</div><select id="cip-group" class="ci" style="width:100%"><option value="">-</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>M</option><option>S</option></select></div>
-        <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">Program</div><select id="cip-program" class="ci" style="width:100%" onchange="window._onProgramChange()"><option>Hot water</option><option>Alkaline</option><option>Acid</option><option>Sanitize</option></select></div>
-        <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">Start</div><input id="cip-start" type="time" class="ci" style="width:100%"></div>
-        <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">End</div><input id="cip-end" type="time" class="ci" style="width:100%"></div>
-        <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">Conductivity</div><input id="cip-conduct" type="number" step="0.1" class="ci" placeholder="0.0" style="width:100%"></div>
-        <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">Temp (C)</div><input id="cip-temp" type="number" step="0.1" class="ci" placeholder="0.0" style="width:100%"></div>
-        <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">Flow (m3/hr)</div><input id="cip-flow" type="number" step="0.1" class="ci" placeholder="0.0" style="width:100%"></div>
-        <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">pH</div><input id="cip-ph" type="number" step="0.1" class="ci" placeholder="0.0" style="width:100%"></div>
-        <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">Operator</div><input id="cip-operator" type="text" class="ci" placeholder="Name" style="width:100%"></div>
-        <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">Remark</div><input id="cip-remark" type="text" class="ci" placeholder="-" style="width:100%"></div>
-      </div>
-      <div id="cip-spec-bar" style="display:none;background:#f0f9ff;border:1.5px solid #bae6fd;border-radius:8px;padding:8px 12px;margin-bottom:10px;font-family:var(--mono);font-size:11px;font-weight:700;color:#0369a1;gap:16px;flex-wrap:wrap"></div>
-      <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
-        <label style="display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:12px;font-weight:700;cursor:pointer"><input type="checkbox" id="cip-done" style="accent-color:#15803d;width:15px;height:15px"> CIP Done</label>
-        <label style="display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:12px;font-weight:700;cursor:pointer"><input type="checkbox" id="cip-san-done" style="accent-color:#0891b2;width:15px;height:15px"> San Done</label>
-        <div style="flex:1"></div>
-        <button id="cip-save-btn" style="padding:9px 24px;background:#1d4ed8;color:#fff;border:none;border-radius:10px;font-family:var(--mono);font-size:13px;font-weight:900;cursor:pointer">Save</button>
-      </div>
+    <!-- ถังรอ CIP -->
+    <div id="cip-waiting-section" style="background:#fff;border:1.5px solid #fca5a5;border-radius:14px;padding:14px;margin-bottom:16px;display:none">
+      <div style="font-family:var(--mono);font-size:12px;font-weight:900;color:#b91c1c;margin-bottom:10px" id="cip-waiting-title">🔴 ถังรอ CIP / กำลัง CIP</div>
+      <div id="cip-waiting-list" style="display:flex;gap:8px;flex-wrap:wrap"></div>
     </div>
-    <div style="background:#fff;border:1.5px solid var(--b1);border-radius:14px;padding:16px">
+    <!-- ตารางอยู่บน -->
+    <div style="background:#fff;border:1.5px solid var(--b1);border-radius:14px;padding:16px;margin-bottom:16px">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">
         <div style="font-family:var(--mono);font-size:13px;font-weight:900">CIP History</div>
         <input id="ciplog-date" type="date" class="ci" style="width:145px" onchange="if(window.renderCipLog)window.renderCipLog()">
@@ -278,6 +260,31 @@ td.sep{border-right:2px solid var(--b1)}
           </thead>
           <tbody id="ciplog-tbody"><tr><td colspan="17" style="text-align:center;padding:20px;color:var(--t3)">Loading...</td></tr></tbody>
         </table>
+      </div>
+    </div>
+    <!-- ฟอร์ม Add อยู่ล่าง -->
+    <div style="background:#fff;border:1.5px solid var(--b1);border-radius:14px;padding:16px;margin-bottom:16px">
+      <div style="font-family:var(--mono);font-size:13px;font-weight:900;margin-bottom:12px">+ Add CIP Record</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-bottom:10px">
+        <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">Date</div><input id="cip-date" type="date" class="ci" style="width:100%"></div>
+        <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">Circuit/Line</div><input id="cip-line" list="cip-line-list" class="ci" placeholder="เลือกหรือพิมพ์เอง" style="width:100%" autocomplete="off"><datalist id="cip-line-list"></datalist></div>
+        <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">Group</div><select id="cip-group" class="ci" style="width:100%"><option value="">-</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>M</option><option>S</option></select></div>
+        <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">Program</div><select id="cip-program" class="ci" style="width:100%" onchange="window._onProgramChange()"><option>Hot water</option><option>Alkaline</option><option>Acid</option><option>Sanitize</option></select></div>
+        <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">Start</div><input id="cip-start" type="time" class="ci" style="width:100%"></div>
+        <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">End</div><input id="cip-end" type="time" class="ci" style="width:100%"></div>
+        <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">Conductivity</div><input id="cip-conduct" type="number" step="0.1" class="ci" placeholder="0.0" style="width:100%" oninput="window._onProgramChange()"></div>
+        <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">Temp (C)</div><input id="cip-temp" type="number" step="0.1" class="ci" placeholder="0.0" style="width:100%" oninput="window._onProgramChange()"></div>
+        <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">Flow (m3/hr)</div><input id="cip-flow" type="number" step="0.1" class="ci" placeholder="0.0" style="width:100%" oninput="window._onProgramChange()"></div>
+        <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">pH</div><input id="cip-ph" type="number" step="0.1" class="ci" placeholder="0.0" style="width:100%" oninput="window._onProgramChange()"></div>
+        <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">Operator</div><input id="cip-operator" type="text" class="ci" placeholder="Name" style="width:100%"></div>
+        <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">Remark</div><input id="cip-remark" type="text" class="ci" placeholder="-" style="width:100%"></div>
+      </div>
+      <div id="cip-spec-bar" style="display:none;background:#f0f9ff;border:1.5px solid #bae6fd;border-radius:8px;padding:8px 12px;margin-bottom:10px;font-family:var(--mono);font-size:11px;font-weight:700;color:#0369a1;gap:16px;flex-wrap:wrap"></div>
+      <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+        <label style="display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:12px;font-weight:700;cursor:pointer"><input type="checkbox" id="cip-done" style="accent-color:#15803d;width:15px;height:15px"> CIP Done</label>
+        <label style="display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:12px;font-weight:700;cursor:pointer"><input type="checkbox" id="cip-san-done" style="accent-color:#0891b2;width:15px;height:15px"> San Done</label>
+        <div style="flex:1"></div>
+        <button id="cip-save-btn" style="padding:9px 24px;background:#1d4ed8;color:#fff;border:none;border-radius:10px;font-family:var(--mono);font-size:13px;font-weight:900;cursor:pointer">Save</button>
       </div>
     </div>
   </div>
@@ -478,6 +485,8 @@ onAuthStateChanged(auth,u=>{if(!u){location.href='index.html';return;}$('nav-use
 function initSt(){if(unsubSt)unsubSt();unsubSt=onSnapshot(collection(db,'aging_tank_states'),snap=>{snap.docs.forEach(d=>{tankStates[d.id]={id:d.id,...d.data()};});injectProductTypes();if(planRows.m1.length||planRows.m2.length)renderAll();});}
 // re-render ทุก 5 วินาที ให้ vol อัปเดต real-time
 setInterval(()=>{if(planRows.m1.length||planRows.m2.length)renderAll();},5000);
+// re-render CIP waiting ทุก 1 นาที เพื่ออัพเดท countdown และเช็ค expire
+setInterval(()=>{renderCipWaiting();},60000);
 function injectProductTypes(){if(!window._pmMap)return;Object.values(tankStates).forEach(ts=>{if(ts.mix_code&&window._pmMap[ts.mix_code])ts.product_type=window._pmMap[ts.mix_code];});}
 window.loadAll=async()=>{
   const d=$('inp-date').value||today();
@@ -889,11 +898,127 @@ window._recFilter = function(f, btn){
   renderRecords();
 };
 
-window.showTab=(id,btn)=>{document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));btn.classList.add('on');document.getElementById('page-'+id).classList.add('on');curTab=id;if(id==='m1')renderPlans('m1');else if(id==='m2')renderPlans('m2');else if(id==='temp')renderTemp();else if(id==='rec')renderRecords();else if(id==='ciplog'){populateCipLineSel();if(window.renderCipLog)window.renderCipLog();}};
+window.showTab=(id,btn)=>{document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));btn.classList.add('on');document.getElementById('page-'+id).classList.add('on');curTab=id;if(id==='m1')renderPlans('m1');else if(id==='m2')renderPlans('m2');else if(id==='temp')renderTemp();else if(id==='rec')renderRecords();else if(id==='ciplog'){populateCipLineSel();renderCipWaiting();if(window.renderCipLog)window.renderCipLog();}};
 function toast(msg,col='blue'){const el=$('toast');el.textContent=msg;el.style.background=col==='green'?'#15803d':col==='red'?'#991b1b':'#1d4ed8';el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2500);}
 window.doLogout=async()=>{await signOut(auth);location.href='index.html';};
 
 window._cipLogRows = [];
+
+// ── ถังรอ CIP (status === empty / cip / cip_done / san) ──
+const ST_WAIT = {
+  empty:    {color:'#94a3b8',label:'ว่าง',pulse:false},
+  cip:      {color:'#3b82f6',label:'CIP',pulse:true},
+  cip_done: {color:'#3b82f6',label:'CIP✓',pulse:false},
+  san:      {color:'#22c55e',label:'San.',pulse:true},
+  san_done: {color:'#22c55e',label:'San.✓',pulse:false},
+};
+const WAIT_STATUS = ['empty','cip','cip_done','san','san_done'];
+
+// ── เช็ค rule เวลา ──
+function _parseDateTime(date, hhmm){
+  if(!date||!hhmm) return null;
+  try{ return new Date(date+'T'+hhmm+':00'); }catch{ return null; }
+}
+function _cipExpired(ts){
+  // CIP เสร็จแล้ว แต่ยังไม่ได้ san — เกิน 48 ชม. หรือยัง
+  if(ts.status!=='cip_done') return false;
+  const dt = _parseDateTime(ts.cip_date, ts.cip_stop_time);
+  if(!dt) return false;
+  return (Date.now() - dt.getTime()) > 48*3600*1000;
+}
+function _sanExpired(ts){
+  // San เสร็จแล้ว แต่ยังไม่ได้ pasteurize — เกิน 2 ชม. หรือยัง
+  if(ts.status!=='san_done') return false;
+  const dt = _parseDateTime(ts.san_date, ts.san_stop_time);
+  if(!dt) return false;
+  return (Date.now() - dt.getTime()) > 2*3600*1000;
+}
+function _cipRemain(ts){
+  const dt = _parseDateTime(ts.cip_date, ts.cip_stop_time);
+  if(!dt) return null;
+  const rem = 48*3600*1000 - (Date.now()-dt.getTime());
+  return rem;
+}
+function _sanRemain(ts){
+  const dt = _parseDateTime(ts.san_date, ts.san_stop_time);
+  if(!dt) return null;
+  const rem = 2*3600*1000 - (Date.now()-dt.getTime());
+  return rem;
+}
+function _fmtRemain(ms){
+  if(ms<=0) return 'หมดเวลา';
+  const h=Math.floor(ms/3600000);
+  const m=Math.floor((ms%3600000)/60000);
+  return h>0?(h+'ชม. '+String(m).padStart(2,'0')+'น.'):(m+'น.');
+}
+
+function renderCipWaiting(){
+  const sec = document.getElementById('cip-waiting-section');
+  const list = document.getElementById('cip-waiting-list');
+  if(!sec||!list) return;
+  // เช็ค expire ก่อน render — reset แล้ว return ออกไปไม่ต้อง render
+  Object.values(tankStates).forEach(ts=>{
+    if(!ts.id) return;
+    if(_cipExpired(ts)){
+      setDoc(doc(db,'aging_tank_states',ts.id),{status:'empty',cip_stop_time:'',cip_date:'',updated_at:new Date().toISOString()},{merge:true}).catch(()=>{});
+      ts.status='empty'; ts.cip_stop_time=''; ts.cip_date='';
+    }
+    if(_sanExpired(ts)){
+      setDoc(doc(db,'aging_tank_states',ts.id),{status:'cip_done',san_stop_time:'',san_date:'',updated_at:new Date().toISOString()},{merge:true}).catch(()=>{});
+      ts.status='cip_done'; ts.san_stop_time=''; ts.san_date='';
+    }
+  });
+  const waiting = Object.values(tankStates)
+    .filter(ts=>ts.id && WAIT_STATUS.includes(ts.status||'empty'))
+    .sort((a,b)=>a.id.localeCompare(b.id));
+  if(!waiting.length){ sec.style.display='none'; return; }
+  sec.style.display='block';
+  const GC={A:'#1d4ed8',B:'#0e7490',C:'#15803d',D:'#b45309',E:'#7c3aed'};
+  list.innerHTML = waiting.map(ts=>{
+    const st = ts.status||'empty';
+    const sc = ST_WAIT[st]||ST_WAIT.empty;
+    const grp = ts.cip_group||'';
+    const gc = GC[grp]||'#6b7280';
+    // countdown
+    let countdownHtml='';
+    if(st==='cip_done'){
+      const rem=_cipRemain(ts);
+      if(rem!=null){
+        const urgent=rem<4*3600*1000;
+        countdownHtml='<div style="font-family:var(--mono);font-size:10px;font-weight:800;margin-top:3px;color:'+(urgent?'#ef4444':'#b45309')+'">⏱ San ภายใน: '+_fmtRemain(rem)+'</div>';
+      }
+    }
+    if(st==='san_done'){
+      const rem=_sanRemain(ts);
+      if(rem!=null){
+        const urgent=rem<30*60*1000;
+        countdownHtml='<div style="font-family:var(--mono);font-size:10px;font-weight:800;margin-top:3px;color:'+(urgent?'#ef4444':'#0e7490')+'">⏱ Past ภายใน: '+_fmtRemain(rem)+'</div>';
+      }
+    }
+    // ปุ่ม action
+    let btn='';
+    if(st==='empty')         btn='<button class="btn btn-blue" style="width:100%;margin-top:6px;font-size:11px;padding:5px 0" data-tid="'+ts.id+'" data-act="start_cip" onclick="doAct(this.dataset.tid,this.dataset.act)">▶ Start CIP</button>';
+    else if(st==='cip')      btn='<button class="btn btn-red"  style="width:100%;margin-top:6px;font-size:11px;padding:5px 0" data-tid="'+ts.id+'" data-act="stop_cip" onclick="doAct(this.dataset.tid,this.dataset.act)">⏹ CIP เสร็จ</button>';
+    else if(st==='cip_done') btn='<button class="btn btn-green" style="width:100%;margin-top:6px;font-size:11px;padding:5px 0" data-tid="'+ts.id+'" data-act="start_san" onclick="doAct(this.dataset.tid,this.dataset.act)">▶ Start San</button>';
+    else if(st==='san')      btn='<button class="btn btn-red"  style="width:100%;margin-top:6px;font-size:11px;padding:5px 0" data-tid="'+ts.id+'" data-act="stop_san" onclick="doAct(this.dataset.tid,this.dataset.act)">⏹ San เสร็จ</button>';
+    else if(st==='san_done') btn='<div style="font-family:var(--mono);font-size:11px;font-weight:900;color:#15803d;margin-top:6px;text-align:center">✅ พร้อมใช้</div>';
+    // เวลา cip/san
+    let timeHtml='';
+    if(ts.cip_start_time||ts.cip_stop_time) timeHtml+='<div style="font-family:var(--mono);font-size:10px;color:#1d4ed8;margin-top:3px">CIP: '+(ts.cip_start_time||'—')+' → '+(ts.cip_stop_time||'...')+'</div>';
+    if(ts.san_start_time||ts.san_stop_time) timeHtml+='<div style="font-family:var(--mono);font-size:10px;color:#15803d;margin-top:2px">San: '+(ts.san_start_time||'—')+' → '+(ts.san_stop_time||'...')+'</div>';
+    return '<div style="background:#fff;border:2px solid '+(sc.color)+';border-radius:12px;padding:12px 14px;min-width:130px;max-width:160px;box-shadow:0 2px 6px rgba(0,0,0,.07)">'
+      +'<div style="display:flex;align-items:center;gap:7px;margin-bottom:4px">'
+      +'<div style="width:24px;height:24px;border-radius:50%;background:'+sc.color+';display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;font-weight:900;color:#fff'+(sc.pulse?';animation:blink 1.2s ease-in-out infinite':'')+'">'+(sc.label)+'</div>'
+      +'<span style="font-family:var(--mono);font-size:16px;font-weight:900;color:#111">'+ts.id+'</span>'
+      +(grp?'<span style="font-family:var(--mono);font-size:10px;font-weight:900;padding:1px 6px;border-radius:4px;background:'+gc+'22;color:'+gc+'">'+grp+'</span>':'')
+      +'</div>'
+      +(ts.last_mix_code||ts.next_mix_code?'<div style="font-family:var(--mono);font-size:10px;color:#6b7280">'+(ts.last_mix_code||ts.next_mix_code||'')+'</div>':'')
+      +timeHtml
+      +countdownHtml
+      +btn
+      +'</div>';
+  }).join('');
+}
 
 // ── CIP SPEC (ค่าตุ๊กตา — ปรับได้ภายหลัง) ──
 const CIP_SPEC = {
@@ -952,6 +1077,7 @@ const _origRenderAll = window.renderAll;
 window.renderAll = function(){
   if(_origRenderAll) _origRenderAll();
   populateCipLineSel();
+  renderCipWaiting();
 };
 
 // ── saveCipLog ──
