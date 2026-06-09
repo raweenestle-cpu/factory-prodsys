@@ -222,7 +222,7 @@ td.sep{border-right:2px solid var(--b1)}
         <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">Date</div><input id="cip-date" type="date" class="ci" style="width:100%"></div>
         <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">Circuit/Line</div><input id="cip-line" list="cip-line-list" class="ci" placeholder="เลือกหรือพิมพ์เอง" style="width:100%" autocomplete="off"><datalist id="cip-line-list"></datalist></div>
         <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">Group</div><select id="cip-group" class="ci" style="width:100%"><option value="">-</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>M</option><option>S</option></select></div>
-        <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">Program</div><select id="cip-program" class="ci" style="width:100%"><option>Hot water</option><option>Alkaline</option><option>Acid</option><option>Sanitize</option></select></div>
+        <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">Program</div><select id="cip-program" class="ci" style="width:100%" onchange="window._onProgramChange()"><option>Hot water</option><option>Alkaline</option><option>Acid</option><option>Sanitize</option></select></div>
         <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">Start</div><input id="cip-start" type="time" class="ci" style="width:100%"></div>
         <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">End</div><input id="cip-end" type="time" class="ci" style="width:100%"></div>
         <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">Conductivity</div><input id="cip-conduct" type="number" step="0.1" class="ci" placeholder="0.0" style="width:100%"></div>
@@ -232,6 +232,7 @@ td.sep{border-right:2px solid var(--b1)}
         <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">Operator</div><input id="cip-operator" type="text" class="ci" placeholder="Name" style="width:100%"></div>
         <div><div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px">Remark</div><input id="cip-remark" type="text" class="ci" placeholder="-" style="width:100%"></div>
       </div>
+      <div id="cip-spec-bar" style="display:none;background:#f0f9ff;border:1.5px solid #bae6fd;border-radius:8px;padding:8px 12px;margin-bottom:10px;font-family:var(--mono);font-size:11px;font-weight:700;color:#0369a1;gap:16px;flex-wrap:wrap"></div>
       <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
         <label style="display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:12px;font-weight:700;cursor:pointer"><input type="checkbox" id="cip-done" style="accent-color:#15803d;width:15px;height:15px"> CIP Done</label>
         <label style="display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:12px;font-weight:700;cursor:pointer"><input type="checkbox" id="cip-san-done" style="accent-color:#0891b2;width:15px;height:15px"> San Done</label>
@@ -248,25 +249,33 @@ td.sep{border-right:2px solid var(--b1)}
       </div>
       <div style="overflow-x:auto">
         <table style="width:100%;border-collapse:collapse;font-size:11px">
-          <thead><tr style="background:#f8fafc;font-family:var(--mono)">
-            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1);text-align:center">No.</th>
-            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1);white-space:nowrap">Date</th>
-            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1);white-space:nowrap">Loop</th>
-            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1);white-space:nowrap">กลุ่ม CIP</th>
-            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1);white-space:nowrap">Circuit/Program</th>
-            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1);white-space:nowrap">เวลา เริ่ม</th>
-            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1);white-space:nowrap">เวลา จบ</th>
-            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1);white-space:nowrap">Conductivity</th>
-            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1);white-space:nowrap">อุณหภูมิ (°C)</th>
-            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1);white-space:nowrap">Flow</th>
-            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1)">pH</th>
-            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1);white-space:nowrap">ผลการทำ CIP ✓</th>
-            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1);white-space:nowrap">ผลการ San ✓</th>
-            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1);white-space:nowrap">ผู้ปฏิบัติงาน</th>
-            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1);white-space:nowrap">✏️ ลายเซ็น</th>
-            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1)">Remark</th>
-            <th style="padding:7px 8px;border-bottom:1.5px solid var(--b1)"></th>
-          </tr></thead>
+          <thead>
+            <tr style="background:#f0f4ff;font-family:var(--mono)">
+              <th rowspan="2" style="padding:7px 8px;border-bottom:1.5px solid var(--b1);border-right:1px solid var(--b1);text-align:center;vertical-align:middle">No.</th>
+              <th rowspan="2" style="padding:7px 8px;border-bottom:1.5px solid var(--b1);border-right:1px solid var(--b1);white-space:nowrap;vertical-align:middle">Date</th>
+              <th rowspan="2" style="padding:7px 8px;border-bottom:1.5px solid var(--b1);border-right:1px solid var(--b1);white-space:nowrap;vertical-align:middle">Loop</th>
+              <th rowspan="2" style="padding:7px 8px;border-bottom:1.5px solid var(--b1);border-right:1px solid var(--b1);white-space:nowrap;vertical-align:middle">กลุ่ม CIP</th>
+              <th rowspan="2" style="padding:7px 8px;border-bottom:1.5px solid var(--b1);border-right:1px solid var(--b1);white-space:nowrap;vertical-align:middle">Circuit/<br>Program</th>
+              <th rowspan="2" style="padding:7px 8px;border-bottom:1.5px solid var(--b1);border-right:1px solid var(--b1);white-space:nowrap;vertical-align:middle">เวลา<br>เริ่ม</th>
+              <th rowspan="2" style="padding:7px 8px;border-bottom:1.5px solid var(--b1);border-right:1px solid var(--b1);white-space:nowrap;vertical-align:middle">เวลา<br>จบ</th>
+              <th style="padding:5px 8px;text-align:center;border-right:1px solid var(--b1);white-space:nowrap">Conductivity</th>
+              <th style="padding:5px 8px;text-align:center;border-right:1px solid var(--b1);white-space:nowrap">อุณหภูมิ (°C)</th>
+              <th style="padding:5px 8px;text-align:center;border-right:1px solid var(--b1);white-space:nowrap">Flow</th>
+              <th style="padding:5px 8px;text-align:center;border-right:1px solid var(--b1)">pH</th>
+              <th rowspan="2" style="padding:7px 8px;border-bottom:1.5px solid var(--b1);border-right:1px solid var(--b1);white-space:nowrap;vertical-align:middle;text-align:center">ผลการทำ<br>CIP ✓</th>
+              <th rowspan="2" style="padding:7px 8px;border-bottom:1.5px solid var(--b1);border-right:1px solid var(--b1);white-space:nowrap;vertical-align:middle;text-align:center">ผลการ<br>San ✓</th>
+              <th rowspan="2" style="padding:7px 8px;border-bottom:1.5px solid var(--b1);border-right:1px solid var(--b1);white-space:nowrap;vertical-align:middle">ผู้ปฏิบัติงาน</th>
+              <th rowspan="2" style="padding:7px 8px;border-bottom:1.5px solid var(--b1);border-right:1px solid var(--b1);white-space:nowrap;vertical-align:middle;text-align:center">✏️ ลายเซ็น</th>
+              <th rowspan="2" style="padding:7px 8px;border-bottom:1.5px solid var(--b1);border-right:1px solid var(--b1);vertical-align:middle">Remark</th>
+              <th rowspan="2" style="padding:7px 8px;border-bottom:1.5px solid var(--b1);vertical-align:middle"></th>
+            </tr>
+            <tr style="background:#e8f0fe;font-family:var(--mono);font-size:10px;color:#1d4ed8">
+              <th style="padding:4px 8px;border-bottom:1.5px solid var(--b1);border-right:1px solid var(--b1);text-align:center;white-space:nowrap">≤ 1.0 mS/cm</th>
+              <th style="padding:4px 8px;border-bottom:1.5px solid var(--b1);border-right:1px solid var(--b1);text-align:center;white-space:nowrap">≥ 70 °C</th>
+              <th style="padding:4px 8px;border-bottom:1.5px solid var(--b1);border-right:1px solid var(--b1);text-align:center;white-space:nowrap">4.25–46.25<br>m³/hr</th>
+              <th style="padding:4px 8px;border-bottom:1.5px solid var(--b1);text-align:center;white-space:nowrap">2.0–12.0</th>
+            </tr>
+          </thead>
           <tbody id="ciplog-tbody"><tr><td colspan="17" style="text-align:center;padding:20px;color:var(--t3)">Loading...</td></tr></tbody>
         </table>
       </div>
@@ -885,6 +894,49 @@ function toast(msg,col='blue'){const el=$('toast');el.textContent=msg;el.style.b
 window.doLogout=async()=>{await signOut(auth);location.href='index.html';};
 
 window._cipLogRows = [];
+
+// ── CIP SPEC (ค่าตุ๊กตา — ปรับได้ภายหลัง) ──
+const CIP_SPEC = {
+  'Hot water': { conduct_max:99,  temp_min:70,  flow_min:4.25, flow_max:46.25, ph_min:null, ph_max:null },
+  'Alkaline':  { conduct_max:1.0, temp_min:70,  flow_min:4.25, flow_max:46.25, ph_min:10.5, ph_max:12.0 },
+  'Acid':      { conduct_max:1.0, temp_min:null, flow_min:4.25, flow_max:46.25, ph_min:2.0,  ph_max:3.5  },
+  'Sanitize':  { conduct_max:null, temp_min:null, flow_min:1.0,  flow_max:null,  ph_min:null, ph_max:null }
+};
+
+window._onProgramChange = function(){
+  const prog = document.getElementById('cip-program')?.value||'';
+  const bar = document.getElementById('cip-spec-bar');
+  if(!bar) return;
+  const sp = CIP_SPEC[prog];
+  if(!sp){ bar.style.display='none'; return; }
+  const parts = [];
+  if(sp.conduct_max!=null) parts.push('Cond. ≤'+sp.conduct_max+' mS/cm');
+  if(sp.temp_min!=null) parts.push('Temp ≥'+sp.temp_min+'°C');
+  if(sp.flow_min!=null && sp.flow_max!=null) parts.push('Flow '+sp.flow_min+'–'+sp.flow_max+' m³/hr');
+  else if(sp.flow_min!=null) parts.push('Flow ≥'+sp.flow_min+' Bar');
+  if(sp.ph_min!=null && sp.ph_max!=null) parts.push('pH '+sp.ph_min+'–'+sp.ph_max);
+  bar.style.display = parts.length ? 'flex' : 'none';
+  bar.innerHTML = '📋 Spec: &nbsp;' + parts.map(p=>'<span style="background:#e0f2fe;padding:2px 8px;border-radius:5px;margin-right:4px">'+p+'</span>').join('');
+  // validate ค่าที่กรอกไว้แล้ว
+  window._validateCipFields(sp);
+};
+
+window._validateCipFields = function(sp){
+  const conduct = +document.getElementById('cip-conduct')?.value||0;
+  const temp    = +document.getElementById('cip-temp')?.value||0;
+  const flow    = +document.getElementById('cip-flow')?.value||0;
+  const ph      = +document.getElementById('cip-ph')?.value||0;
+  const set = (id, fail) => {
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.style.borderColor = fail ? '#ef4444' : '';
+    el.style.background  = fail ? '#fef2f2' : '';
+  };
+  set('cip-conduct', sp.conduct_max!=null && conduct>0 && conduct>sp.conduct_max);
+  set('cip-temp',    sp.temp_min!=null && temp>0 && temp<sp.temp_min);
+  set('cip-flow',    sp.flow_min!=null && flow>0 && flow<sp.flow_min);
+  set('cip-ph',      sp.ph_min!=null && ph>0 && (ph<sp.ph_min||ph>sp.ph_max));
+};
 
 // ── populate dropdown ถังใน CIP Log form ──
 function populateCipLineSel(){
