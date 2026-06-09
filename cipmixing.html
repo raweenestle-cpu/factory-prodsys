@@ -917,7 +917,12 @@ const WAIT_STATUS = ['empty','cip','cip_done','san','san_done'];
 // ── เช็ค rule เวลา ──
 function _parseDateTime(date, hhmm){
   if(!date||!hhmm) return null;
-  try{ return new Date(date+'T'+hhmm+':00'); }catch{ return null; }
+  try{
+    // รองรับทั้ง HH:MM และ HH:MM:SS
+    const t = hhmm.length >= 8 ? hhmm.slice(0,5) : hhmm;
+    const d = new Date(date+'T'+t+':00');
+    return isNaN(d.getTime()) ? null : d;
+  }catch{ return null; }
 }
 function _cipExpired(ts){
   // CIP เสร็จแล้ว แต่ยังไม่ได้ san — เกิน 48 ชม. หรือยัง
