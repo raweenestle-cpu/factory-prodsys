@@ -658,7 +658,7 @@ async function loadMaster(){
   // subscribe real-time สำหรับ expire alert
   onSnapshot(collection(db,'aging_tank_states'),snap=>{
     snap.docs.forEach(d=>{agingStates[d.id]={id:d.id,...d.data()};});
-    renderExpireAlertBar(agingStates, document.getElementById('expire-alert-bar'));
+    renderExpireAlertBar(agingStates, document.getElementById('expire-alert-bar'), productMap);
   });
 }
 

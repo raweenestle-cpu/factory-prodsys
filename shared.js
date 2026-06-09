@@ -115,49 +115,99 @@ export function getMaxTemp(tankState){
 // แสดง alert bar ใน cipman และ leadman เมื่อมีถังที่ใกล้หมดอายุ
 // agingStates = object ของ aging_tank_states
 // targetEl = DOM element ที่จะใส่ alert bar
-export function renderExpireAlertBar(agingStates, targetEl){
+export function renderExpireAlertBar(agingStates, targetEl, productMap){
   if(!targetEl) return;
   var now = new Date();
-  var alerts = [];
+  var expAlerts = [];
+  var tempAlerts = [];
+
   Object.values(agingStates||{}).forEach(function(ts){
-    if(!ts||!ts.expire_at) return;
+    if(!ts||!ts.id) return;
     if(!ts.mix_code&&!ts.mix_name) return; // ถังว่าง
-    var ed = new Date(ts.expire_at);
-    var rh = (ed - now) / 3600000;
-    if(rh > 48) return; // ยังไม่ต้องเตือน
-    alerts.push({ ts:ts, rh:rh, tank:ts.id||'?' });
+
+    // ── Expire alert ──
+    if(ts.expire_at){
+      var ed = new Date(ts.expire_at);
+      var rh = (ed - now) / 3600000;
+      if(rh <= 48) expAlerts.push({ts:ts, rh:rh, tank:ts.id});
+    }
+
+    // ── Temp alert ──
+    var maxT = getMaxTemp(ts);
+    if(maxT == null) return;
+    var pt = (productMap&&ts.mix_code&&productMap[ts.mix_code]&&productMap[ts.mix_code].product_type)
+      || ts.product_type || '';
+    var tempFail = false;
+    var tempMsg = '';
+    if(pt==='Jelly'){
+      if(maxT<38||maxT>42){ tempFail=true; tempMsg=maxT+'°C (Jelly ต้อง 38-42°C)'; }
+    } else if(pt==='Ice Cream'||pt==='Water Ice'){
+      if(maxT>5){ tempFail=true; tempMsg=maxT+'°C ('+pt+' ต้อง ≤5°C)'; }
+    }
+    if(tempFail) tempAlerts.push({ts:ts, tank:ts.id, msg:tempMsg, pt:pt});
   });
-  if(!alerts.length){ targetEl.innerHTML=''; return; }
-  // เรียงจากน้อยสุดก่อน
-  alerts.sort(function(a,b){ return a.rh - b.rh; });
-  var html = '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:4px 0">';
-  html += '<span style="font-family:DM Mono,monospace;font-size:10px;font-weight:900;color:#b91c1c;letter-spacing:.06em;flex-shrink:0">⚠️ EXPIRE ALERT</span>';
-  alerts.forEach(function(a){
-    var isExp = a.rh < 0;
-    var isCrit = !isExp && a.rh < 24;
-    var bc = isExp ? '#b91c1c' : isCrit ? '#c2410c' : '#b45309';
-    var bg = isExp ? 'rgba(185,28,28,.12)' : isCrit ? 'rgba(194,65,12,.08)' : 'rgba(180,83,9,.08)';
-    var ic = isExp ? '❌' : isCrit ? '🔴' : '🟡';
-    var remStr = isExp ? 'หมดแล้ว' : a.rh < 1 ? Math.round(a.rh*60)+'น.' : a.rh < 24 ? a.rh.toFixed(1)+'ชม.' : Math.floor(a.rh/24)+'วัน';
-    html += '<div style="display:inline-flex;align-items:center;gap:5px;background:'+bg+';border:1.5px solid '+bc+';border-radius:8px;padding:3px 10px;font-family:DM Mono,monospace;white-space:nowrap">';
-    html += '<span style="font-size:12px">'+ic+'</span>';
-    html += '<span style="font-size:11px;font-weight:900;color:'+bc+'">'+a.tank+'</span>';
-    html += '<span style="font-size:11px;color:'+bc+';opacity:.8">'+(a.ts.mix_name||a.ts.mix_code||'')+'</span>';
-    html += '<span style="font-size:11px;font-weight:900;color:'+bc+'">'+remStr+'</span>';
-    html += '</div>';
-  });
+
+  if(!expAlerts.length&&!tempAlerts.length){ targetEl.innerHTML=''; return; }
+
+  expAlerts.sort(function(a,b){ return a.rh - b.rh; });
+
+  var html = '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:4px 0">';
+
+  // Expire chips
+  if(expAlerts.length){
+    html += '<span style="font-family:DM Mono,monospace;font-size:10px;font-weight:900;color:#b91c1c;letter-spacing:.06em;flex-shrink:0">⚠️ EXPIRE</span>';
+    expAlerts.forEach(function(a){
+      var isExp=a.rh<0, isCrit=!isExp&&a.rh<24;
+      var bc=isExp?'#b91c1c':isCrit?'#c2410c':'#b45309';
+      var bg=isExp?'rgba(185,28,28,.12)':isCrit?'rgba(194,65,12,.08)':'rgba(180,83,9,.08)';
+      var ic=isExp?'❌':isCrit?'🔴':'🟡';
+      var remStr=isExp?'หมดแล้ว':a.rh<1?Math.round(a.rh*60)+'น.':a.rh<24?a.rh.toFixed(1)+'ชม.':Math.floor(a.rh/24)+'วัน';
+      html+='<div style="display:inline-flex;align-items:center;gap:5px;background:'+bg+';border:1.5px solid '+bc+';border-radius:8px;padding:3px 10px;font-family:DM Mono,monospace;white-space:nowrap">';
+      html+='<span style="font-size:12px">'+ic+'</span>';
+      html+='<span style="font-size:11px;font-weight:900;color:'+bc+'">'+a.tank+'</span>';
+      html+='<span style="font-size:11px;color:'+bc+';opacity:.8">'+(a.ts.mix_name||a.ts.mix_code||'')+'</span>';
+      html+='<span style="font-size:11px;font-weight:900;color:'+bc+'">'+remStr+'</span>';
+      html+='</div>';
+    });
+  }
+
+  // Temp chips
+  if(tempAlerts.length){
+    html += '<span style="font-family:DM Mono,monospace;font-size:10px;font-weight:900;color:#7c3aed;letter-spacing:.06em;flex-shrink:0;margin-left:8px">🌡️ TEMP</span>';
+    tempAlerts.forEach(function(a){
+      var isJelly = a.pt==='Jelly';
+      var bc = isJelly ? '#7c3aed' : '#b91c1c';
+      var bg = isJelly ? 'rgba(124,58,237,.08)' : 'rgba(185,28,28,.08)';
+      html+='<div style="display:inline-flex;align-items:center;gap:5px;background:'+bg+';border:1.5px solid '+bc+';border-radius:8px;padding:3px 10px;font-family:DM Mono,monospace;white-space:nowrap;animation:statusPulse 1.2s ease-in-out infinite">';
+      html+='<span style="font-size:12px">'+(isJelly?'🍮':'🧊')+'</span>';
+      html+='<span style="font-size:11px;font-weight:900;color:'+bc+'">'+a.tank+'</span>';
+      html+='<span style="font-size:11px;color:'+bc+'">'+a.msg+'</span>';
+      html+='</div>';
+    });
+  }
+
   html += '</div>';
   targetEl.innerHTML = html;
 }
 
 // แสดง temperature badge
-export function tempBox(tankState){
+export function tempBox(tankState, productType){
   var t=getMaxTemp(tankState);
   if(t==null) return '';
-  var ok=t<=6;
-  var warn=t>6&&t<=8;
-  var bc=ok?'#15803d':warn?'#c2410c':'#b91c1c';
-  var bg=ok?'rgba(21,128,61,.1)':warn?'rgba(194,65,12,.08)':'rgba(185,28,28,.1)';
-  var ic=ok?'🌡️':warn?'⚠️':'🔴';
+  var pt = productType || (tankState&&tankState.product_type) || '';
+  var ok, warn, bc, bg, ic;
+  if(pt==='Jelly'){
+    ok = t>=38&&t<=42;
+    warn = (t>=36&&t<38)||(t>42&&t<=44);
+    bc = ok?'#15803d':warn?'#c2410c':'#7c3aed';
+    bg = ok?'rgba(21,128,61,.1)':warn?'rgba(194,65,12,.08)':'rgba(124,58,237,.1)';
+    ic = ok?'🌡️':warn?'⚠️':'🍮';
+  } else {
+    ok = t<=5;
+    warn = t>5&&t<=8;
+    bc = ok?'#15803d':warn?'#c2410c':'#b91c1c';
+    bg = ok?'rgba(21,128,61,.1)':warn?'rgba(194,65,12,.08)':'rgba(185,28,28,.1)';
+    ic = ok?'🌡️':warn?'⚠️':'🔴';
+  }
   return '<div style="display:inline-flex;align-items:center;gap:4px;background:'+bg+';border:1.5px solid '+bc+';border-radius:7px;padding:3px 9px;font-family:DM Mono,monospace;font-size:12px;font-weight:900;color:'+bc+'">'+ic+' '+t+'°C</div>';
 }
