@@ -259,6 +259,26 @@ td.sep{border-right:2px solid var(--border2)}
   <div class="tw"><table><thead><tr><th>#</th><th>Mix Code</th><th>Mix Name</th><th>Batch</th><th>Vol รวม</th><th>Vol ในถัง</th><th>LINE</th><th>Aging Tank</th><th>CIP Group</th><th>วันที่ Past.</th><th>เวลา</th><th>Action</th></tr></thead><tbody id="m2-tbody"></tbody></table></div>
 </div>
 <div class="page" id="page-temp">
+  <!-- SOP Card -->
+  <div style="display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap">
+    <div style="flex:1;min-width:220px;background:#F0FDF4;border:1.5px solid #86EFAC;border-left:4px solid #059669;border-radius:10px;padding:12px 16px">
+      <div style="font-family:var(--mono);font-size:11px;font-weight:900;color:#059669;letter-spacing:.04em;margin-bottom:6px">🧊 ICE CREAM / WATER ICE</div>
+      <div style="font-family:var(--mono);font-size:22px;font-weight:900;color:#059669">0 – 4 °C</div>
+      <div style="font-size:11px;color:#15803d;margin-top:4px;font-weight:600">อุณหภูมิควบคุมระหว่างเก็บรักษา</div>
+    </div>
+    <div style="flex:1;min-width:220px;background:#FFF7ED;border:1.5px solid #FDBA74;border-left:4px solid #D97706;border-radius:10px;padding:12px 16px">
+      <div style="font-family:var(--mono);font-size:11px;font-weight:900;color:#D97706;letter-spacing:.04em;margin-bottom:6px">🍮 JELLY</div>
+      <div style="font-family:var(--mono);font-size:22px;font-weight:900;color:#D97706">38 – 42 °C</div>
+      <div style="font-size:11px;color:#92400E;margin-top:4px;font-weight:600">อุณหภูมิควบคุมระหว่างเก็บรักษา</div>
+    </div>
+    <div style="flex:1;min-width:240px;background:#FEF2F2;border:1.5px solid #FCA5A5;border-left:4px solid #DC2626;border-radius:10px;padding:12px 16px">
+      <div style="font-family:var(--mono);font-size:11px;font-weight:900;color:#DC2626;letter-spacing:.04em;margin-bottom:6px">⚠️ DEVIATION ACTION</div>
+      <div style="font-size:12px;font-weight:700;color:#991B1B;line-height:1.6">
+        หากอุณหภูมิเบี่ยงเบนจาก spec<br>
+        <span style="font-family:var(--mono);font-weight:900">→ แจ้ง Leadman / Supervisor ทันที</span>
+      </div>
+    </div>
+  </div>
   <div class="info-bar">
     <span style="font-family:var(--mono);font-size:12px;font-weight:800">🌡️ บันทึกอุณหภูมิ</span>
     <span class="badge badge-blue" id="cur-round">—</span>
