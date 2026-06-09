@@ -60,27 +60,27 @@ td.sep{border-right:2px solid var(--b1)}
 #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);padding:9px 20px;border-radius:9px;font-size:12px;opacity:0;transition:all .3s;z-index:9999;pointer-events:none;font-family:var(--mono);color:#fff;font-weight:700}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
-.shift-summary{display:grid;grid-template-columns:repeat(3,1fr) 1fr;gap:12px;padding:0}
-.ss-card{background:#fff;border:1.5px solid var(--b1);border-radius:14px;padding:16px 20px;box-shadow:0 2px 8px rgba(0,0,0,.07)}
-.ss-priority{border-top:4px solid #f59e0b;grid-column:4;grid-row:1;min-width:0}
+/* shift summary compact */
+.shift-summary{display:flex;gap:6px;align-items:stretch;flex-wrap:wrap}
+.ss-card{background:#fff;border:1.5px solid var(--b1);border-radius:10px;padding:7px 12px;display:flex;align-items:center;gap:10px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.ss-priority{border-left:3px solid #f59e0b;min-width:0;flex:1}
 @keyframes blinkRed{0%,100%{background:rgba(239,68,68,.13)}50%{background:rgba(239,68,68,.04)}}
 @keyframes blinkYellow{0%,100%{background:rgba(234,179,8,.13)}50%{background:rgba(234,179,8,.04)}}
-.prio-item-red{animation:blinkRed 1s ease-in-out infinite;border-radius:8px;padding:7px 10px;margin-bottom:5px;border:1px solid rgba(239,68,68,.25)}
-.prio-item-yellow{animation:blinkYellow 1.6s ease-in-out infinite;border-radius:8px;padding:7px 10px;margin-bottom:5px;border:1px solid rgba(234,179,8,.25)}
-.ss-title{font-family:var(--mono);font-size:13px;font-weight:900;color:var(--t2);margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid var(--s2);letter-spacing:.04em}
-.ss-morning{border-top:4px solid #f59e0b}
-.ss-afternoon{border-top:4px solid #f97316}
-.ss-night{border-top:4px solid #6366f1}
-.ss-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;margin-bottom:0}
-.ss-header{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;margin-bottom:8px}
-.ss-hcell{font-family:var(--mono);font-size:11px;font-weight:800;color:var(--t3);text-align:center;padding:6px 0;letter-spacing:.06em;background:var(--s2);border-radius:6px}
-.ss-hcell:not(:last-child){margin-right:6px}
-.ss-cell{text-align:center;padding:12px 8px;border-radius:8px;margin:3px}
-.ss-cell-cip{background:rgba(14,116,144,.08);border:1.5px solid rgba(14,116,144,.25)}
-.ss-cell-san{background:rgba(21,128,61,.08);border:1.5px solid rgba(21,128,61,.25)}
-.ss-cell-total{background:rgba(29,78,216,.08);border:1.5px solid rgba(29,78,216,.25)}
-.ss-num{font-family:var(--mono);font-size:32px;font-weight:900;line-height:1}
-.ss-label{font-family:var(--mono);font-size:10px;font-weight:700;margin-top:4px}
+.prio-item-red{animation:blinkRed 1s ease-in-out infinite;border-radius:6px;padding:3px 8px;margin-bottom:3px;border:1px solid rgba(239,68,68,.25);font-size:10px}
+.prio-item-yellow{animation:blinkYellow 1.6s ease-in-out infinite;border-radius:6px;padding:3px 8px;margin-bottom:3px;border:1px solid rgba(234,179,8,.25);font-size:10px}
+.ss-title{font-family:var(--mono);font-size:10px;font-weight:900;color:var(--t2);white-space:nowrap;writing-mode:horizontal-tb}
+.ss-morning{border-left:3px solid #f59e0b}
+.ss-afternoon{border-left:3px solid #f97316}
+.ss-night{border-left:3px solid #6366f1}
+.ss-row{display:flex;gap:6px;align-items:center}
+.ss-header{display:none}
+.ss-hcell{display:none}
+.ss-cell{text-align:center;padding:4px 8px;border-radius:6px;margin:0}
+.ss-cell-cip{background:rgba(14,116,144,.08);border:1px solid rgba(14,116,144,.2)}
+.ss-cell-san{background:rgba(21,128,61,.08);border:1px solid rgba(21,128,61,.2)}
+.ss-cell-total{background:rgba(29,78,216,.08);border:1px solid rgba(29,78,216,.2)}
+.ss-num{font-family:var(--mono);font-size:18px;font-weight:900;line-height:1}
+.ss-label{font-family:var(--mono);font-size:9px;font-weight:700;margin-top:2px}
 .ss-cip-col{color:#0e7490}
 .ss-san-col{color:#15803d}
 .ss-total-col{color:#1d4ed8}
@@ -112,88 +112,62 @@ td.sep{border-right:2px solid var(--b1)}
 </head>
 <body>
 
-<div style="display:flex;gap:16px;padding:12px 0;align-items:flex-start;border-bottom:2px solid var(--b1);margin-bottom:0">
-  <!-- ซ้าย: 3 กะ -->
-  <div style="flex:0 0 auto">
-  <div class="shift-summary" id="shift-summary" style="border-bottom:none;padding:0;margin-bottom:0">
-    <!-- กะเช้า -->
+<!-- Compact stat bar -->
+<div style="background:#fff;border-bottom:2px solid var(--b1);padding:6px 14px;display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+  <div class="shift-summary" id="shift-summary" style="flex:0 0 auto">
     <div class="ss-card ss-morning">
-      <div class="ss-title">🌅 กะเช้า &nbsp;06:00 – 14:00</div>
-      <div class="ss-header">
-        <div class="ss-hcell">CIP</div>
-        <div class="ss-hcell">SANITIZE</div>
-        <div class="ss-hcell">TOTAL</div>
-      </div>
+      <div class="ss-title">🌅 เช้า</div>
       <div class="ss-row">
-        <div class="ss-cell ss-cell-cip"><div class="ss-num ss-cip-col" id="cip-morning">0</div><div class="ss-label ss-cip-col">ครั้ง</div></div>
-        <div class="ss-cell ss-cell-san"><div class="ss-num ss-san-col" id="san-morning">0</div><div class="ss-label ss-san-col">ครั้ง</div></div>
-        <div class="ss-cell ss-cell-total"><div class="ss-num ss-total-col" id="total-morning">0</div><div class="ss-label ss-total-col">ครั้ง</div></div>
+        <div class="ss-cell ss-cell-cip"><div class="ss-num ss-cip-col" id="cip-morning">0</div><div class="ss-label ss-cip-col">CIP</div></div>
+        <div class="ss-cell ss-cell-san"><div class="ss-num ss-san-col" id="san-morning">0</div><div class="ss-label ss-san-col">San</div></div>
+        <div class="ss-cell ss-cell-total"><div class="ss-num ss-total-col" id="total-morning">0</div><div class="ss-label ss-total-col">รวม</div></div>
       </div>
     </div>
-    <!-- กะบ่าย -->
     <div class="ss-card ss-afternoon">
-      <div class="ss-title">☀️ กะบ่าย &nbsp;14:00 – 22:00</div>
-      <div class="ss-header">
-        <div class="ss-hcell">CIP</div>
-        <div class="ss-hcell">SANITIZE</div>
-        <div class="ss-hcell">TOTAL</div>
-      </div>
+      <div class="ss-title">☀️ บ่าย</div>
       <div class="ss-row">
-        <div class="ss-cell ss-cell-cip"><div class="ss-num ss-cip-col" id="cip-afternoon">0</div><div class="ss-label ss-cip-col">ครั้ง</div></div>
-        <div class="ss-cell ss-cell-san"><div class="ss-num ss-san-col" id="san-afternoon">0</div><div class="ss-label ss-san-col">ครั้ง</div></div>
-        <div class="ss-cell ss-cell-total"><div class="ss-num ss-total-col" id="total-afternoon">0</div><div class="ss-label ss-total-col">ครั้ง</div></div>
+        <div class="ss-cell ss-cell-cip"><div class="ss-num ss-cip-col" id="cip-afternoon">0</div><div class="ss-label ss-cip-col">CIP</div></div>
+        <div class="ss-cell ss-cell-san"><div class="ss-num ss-san-col" id="san-afternoon">0</div><div class="ss-label ss-san-col">San</div></div>
+        <div class="ss-cell ss-cell-total"><div class="ss-num ss-total-col" id="total-afternoon">0</div><div class="ss-label ss-total-col">รวม</div></div>
       </div>
     </div>
-    <!-- กะดึก -->
     <div class="ss-card ss-night">
-      <div class="ss-title">🌙 กะดึก &nbsp;22:00 – 06:00</div>
-      <div class="ss-header">
-        <div class="ss-hcell">CIP</div>
-        <div class="ss-hcell">SANITIZE</div>
-        <div class="ss-hcell">TOTAL</div>
-      </div>
+      <div class="ss-title">🌙 ดึก</div>
       <div class="ss-row">
-        <div class="ss-cell ss-cell-cip"><div class="ss-num ss-cip-col" id="cip-night">0</div><div class="ss-label ss-cip-col">ครั้ง</div></div>
-        <div class="ss-cell ss-cell-san"><div class="ss-num ss-san-col" id="san-night">0</div><div class="ss-label ss-san-col">ครั้ง</div></div>
-        <div class="ss-cell ss-cell-total"><div class="ss-num ss-total-col" id="total-night">0</div><div class="ss-label ss-total-col">ครั้ง</div></div>
+        <div class="ss-cell ss-cell-cip"><div class="ss-num ss-cip-col" id="cip-night">0</div><div class="ss-label ss-cip-col">CIP</div></div>
+        <div class="ss-cell ss-cell-san"><div class="ss-num ss-san-col" id="san-night">0</div><div class="ss-label ss-san-col">San</div></div>
+        <div class="ss-cell ss-cell-total"><div class="ss-num ss-total-col" id="total-night">0</div><div class="ss-label ss-total-col">รวม</div></div>
       </div>
     </div>
-    <!-- priority card -->
-    <div class="ss-card ss-priority" id="priority-card">
-      <div class="ss-title" style="color:#b45309">⚠️ ถังกำลังจะว่าง</div>
-      <div id="priority-list" style="margin-top:8px">
-        <div style="font-family:var(--mono);font-size:11px;color:var(--t3);text-align:center;padding:16px 0">กำลังโหลด...</div>
-      </div>
+    <div class="ss-card ss-priority" id="priority-card" style="max-width:180px">
+      <div class="ss-title" style="color:#b45309;white-space:nowrap">⚠️ จะว่าง</div>
+      <div id="priority-list" style="font-size:10px"><span style="color:var(--t3)">—</span></div>
     </div>
   </div>
-  </div>
-  <!-- ขวา: ภาพรวม + กรุ๊ป -->
-  <div style="flex:1;min-width:0">
-    <div class="sum-row" id="sum-row-top"></div>
+  <div style="flex:1;min-width:0;overflow-x:auto">
+    <div class="sum-row" id="sum-row-top" style="display:flex;gap:6px;flex-wrap:nowrap"></div>
   </div>
 </div>
-<nav>
+<nav style="flex-wrap:wrap;gap:6px;padding:6px 14px;min-height:44px">
   <div class="nav-logo">CIP MIXING</div>
+  <input type="date" class="date-input" id="inp-date" style="font-size:11px;padding:4px 8px">
+  <button class="load-btn" onclick="loadAll()" style="padding:5px 12px;font-size:11px">🔄</button>
+  <span id="emp-name" style="font-family:var(--mono);font-size:11px;color:var(--t2)"></span>
   <div id="temp-alert-bar" style="flex:1;min-width:0"></div>
-  <div class="nav-r">
+  <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">
+    <button class="tab on" id="tab-m1" onclick="showTab('m1',this)" style="font-size:10px;padding:4px 10px">🔴 Mixing 1</button>
+    <button class="tab" id="tab-m2" onclick="showTab('m2',this)" style="font-size:10px;padding:4px 10px">🔴 Mixing 2</button>
+    <button class="tab" id="tab-temp" onclick="showTab('temp',this)" style="font-size:10px;padding:4px 10px">🌡️ อุณหภูมิ</button>
+    <button class="tab" id="tab-rec" onclick="showTab('rec',this)" style="font-size:10px;padding:4px 10px">📋 Records</button>
+    <button class="tab" id="tab-ciplog" onclick="showTab('ciplog',this)" style="font-size:10px;padding:4px 10px">📝 CIP Log</button>
+  </div>
+  <div class="nav-r" style="margin-left:0">
     <span id="nav-user" style="font-family:var(--mono);font-size:11px;color:var(--t2)"></span>
-    <a href="index.html" class="nbtn">Home</a>
-    <button class="nbtn" onclick="doLogout()">ออก</button>
+    <a href="index.html" class="nbtn" style="font-size:10px;padding:4px 10px">Home</a>
+    <button class="nbtn" onclick="doLogout()" style="font-size:10px;padding:4px 10px">ออก</button>
   </div>
 </nav>
-<main>
-<div class="date-row">
-  <input type="date" class="date-input" id="inp-date">
-  <button class="load-btn" onclick="loadAll()">🔄 โหลด</button>
-  <span id="emp-name" style="font-family:var(--mono);font-size:11px;color:var(--t2)"></span>
-</div>
-<div class="tabs">
-  <button class="tab on" id="tab-m1" onclick="showTab('m1',this)">🔴 Mixing 1</button>
-  <button class="tab" id="tab-m2" onclick="showTab('m2',this)">🔴 Mixing 2</button>
-  <button class="tab" id="tab-temp" onclick="showTab('temp',this)">🌡️ อุณหภูมิถัง</button>
-  <button class="tab" id="tab-rec" onclick="showTab('rec',this)">📋 CIP Records</button>
-  <button class="tab" id="tab-ciplog" onclick="showTab('ciplog',this)">📝 CIP Log</button>
-</div>
+<main style="padding:10px">
 <div class="page on" id="page-m1">
 
   <div class="tw"><table><thead><tr><th>#</th><th>Mix Code</th><th>Mix Name</th><th>Batch</th><th>Vol รวม</th><th>Vol ในถัง</th><th>LINE</th><th>Aging Tank</th><th>CIP Group</th><th>วันที่ Past.</th><th>เวลา</th><th>Action</th></tr></thead><tbody id="m1-tbody"></tbody></table></div>
@@ -215,9 +189,9 @@ td.sep{border-right:2px solid var(--b1)}
 </div>
 </main>
 <div class="page" id="page-ciplog">
-  <div style="padding:16px">
+  <div style="padding:8px">
     <!-- ถังรอ CIP -->
-    <div id="cip-waiting-section" style="background:#fff;border:1.5px solid #fca5a5;border-radius:14px;padding:14px;margin-bottom:16px;display:none">
+    <div id="cip-waiting-section" style="background:#fff;border:1.5px solid #fca5a5;border-radius:10px;padding:10px;margin-bottom:8px;display:none">
       <div style="display:flex;align-items:center;margin-bottom:10px">
         <div style="font-family:var(--mono);font-size:12px;font-weight:900;color:#b91c1c">🔴 ถังรอ CIP / กำลัง CIP</div>
         <button onclick="window._openGrpSetting()" style="margin-left:auto;background:none;border:1px solid var(--b1);border-radius:6px;padding:3px 10px;cursor:pointer;font-family:var(--mono);font-size:11px;font-weight:700;color:var(--t2)">⚙️ ตั้งค่า Group</button>
@@ -229,10 +203,10 @@ td.sep{border-right:2px solid var(--b1)}
         </div>
         <div id="cip-grp-list" style="display:flex;gap:6px;flex-wrap:wrap"></div>
       </div>
-      <div id="cip-waiting-list" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+      <div id="cip-waiting-list" style="display:block;max-height:340px;overflow-y:auto;padding-right:4px"></div>
     </div>
     <!-- ตารางอยู่บน -->
-    <div style="background:#fff;border:1.5px solid var(--b1);border-radius:14px;padding:16px;margin-bottom:16px">
+    <div style="background:#fff;border:1.5px solid var(--b1);border-radius:10px;padding:10px;margin-bottom:8px">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">
         <div style="font-family:var(--mono);font-size:13px;font-weight:900">CIP History</div>
         <input id="ciplog-date" type="date" class="ci" style="width:145px" onchange="if(window.renderCipLog)window.renderCipLog()">
