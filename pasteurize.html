@@ -1275,6 +1275,11 @@ function renderPastCard(row, i, col, p){
         if(_isDone) return '';
         if(!_started){
           if(['submitted','done','pasteurising'].includes(ps.id)) return '';
+          // เงื่อนไข 1: Mixing ต้องเสร็จก่อน
+          if(ps.id==='mixing'||ps.id==='pending'||!row.past_start_time&&ps.id==='wait_mix') return '';
+          // เงื่อนไข 2: ใน line เดียวกัน ถ้ามี batch กำลัง pasteurising อยู่แล้ว block
+          const _activeInLine = (window._rows&&window._rows[p]||[]).find(r=>r.id!==row.id&&r.status==='pasteurising');
+          if(_activeInLine) return '<div style="background:#fef3c7;border:1.5px solid #f59e0b;border-radius:8px;padding:6px 12px;font-family:var(--mono);font-size:11px;font-weight:800;color:#92400e;text-align:center;margin-top:6px">🔒 รอ Batch '+(_activeInLine.batch_no||'อื่น')+' Pasteurize เสร็จก่อน</div>';
           return '<div class="tv3-stamp"><button class="tv3-sbtn y" onclick="window._startPastTime(&quot;'+col+'&quot;,&quot;'+row.id+'&quot;,&quot;'+p+'&quot;)">▶ เริ่ม Pasteurize</button></div>';
         }
         if(_started && !_ended){
