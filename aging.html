@@ -317,16 +317,16 @@ onAuthStateChanged(auth,async u=>{
     tankStates={};
     snap.docs.forEach(d=>{tankStates[d.id]={id:d.id,...d.data()};});
     renderAll();
+    _checkCuringDone(); // recalculate expire_at ทันทีเมื่อมีการเปลี่ยนแปลง
   });
 });
 
 window.doLogout=async()=>{await signOut(auth);location.href='index.html';};
 
-// ── Auto-check curing done ทุก 1 นาที ──
+// ── Auto-check curing done + คำนวณ expire_at ทุก 1 นาที ──
 async function _checkCuringDone(){
   const now = Date.now();
   for(const ts of Object.values(tankStates)){
-    if(ts.status!=='aging') continue;
     if(!ts.past_end_time||!ts.date) continue;
     const prod = productMap[ts.mix_code||'']||{};
     const agingHr = +(prod.aging_time||4);
@@ -334,11 +334,26 @@ async function _checkCuringDone(){
     const base = new Date(ts.date);
     base.setHours(h||0,m||0,0,0);
     const readyAt = base.getTime() + agingHr*3600000;
-    if(now >= readyAt){
+
+    // คำนวณ expire_at จาก SHELF_TABLE
+    const maxT = getMaxTemp(ts)??5;
+    const pt = (prod.product_type||'').toLowerCase();
+    const ptype = pt.includes('water ice')?'Water Ice':pt.includes('jelly')?'Jelly':'Ice Cream';
+    const tempIdx = Math.min(Math.max(Math.round(maxT),0),10);
+    const shelfHr = (SHELF_TABLE[ptype]||[])[tempIdx]||96;
+    const expireAt = new Date(base.getTime()+shelfHr*3600000).toISOString();
+
+    const upd = {expire_at:expireAt, updated_at:new Date().toISOString()};
+
+    if(ts.status==='aging' && now >= readyAt){
+      upd.status = 'ready';
+    }
+
+    // update เฉพาะถังที่มีของ
+    if(ts.current_vol>0 || ts.status==='aging'){
       try{
-        await setDoc(doc(db,'aging_tank_states',ts.id),{status:'ready',updated_at:new Date().toISOString()},{merge:true});
-        console.log('Auto-ready:', ts.id);
-      }catch(e){console.warn('auto-ready error:',e);}
+        await setDoc(doc(db,'aging_tank_states',ts.id),upd,{merge:true});
+      }catch(e){console.warn('auto-check error:',e);}
     }
   }
 }
