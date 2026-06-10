@@ -997,7 +997,13 @@ function calcVol(row){
       <div style="flex:1;min-width:0">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
           <span style="font-family:var(--mono);font-size:16px;font-weight:900;color:#111827">${line.name.toUpperCase()}</span>
-          <span class="spill ${pm[cardStatus]}" style="font-family:var(--mono);font-size:10px">${pt[cardStatus]}</span>
+          ${(()=>{
+            const _mc=current&&current.mix_code||'';
+            const _lp=(line.products||[]).find(p=>(p.mix_codes||[]).some(m=>m.code===_mc));
+            const _pname=_lp&&_lp.name?_lp.name:'';
+            if(_pname) return `<span class="spill sp-run" style="font-family:var(--mono);font-size:10px">${_pname}</span>`;
+            return `<span class="spill ${pm[cardStatus]}" style="font-family:var(--mono);font-size:10px">${pt[cardStatus]}</span>`;
+          })()}
         </div>
         <div style="font-family:var(--mono);font-size:13px;font-weight:900;color:#111827">${agingTank!=='—'?agingTank+' · ':''}<span style="color:#374151">${current.mix_code||'—'}</span></div>
         <div style="font-size:14px;font-weight:800;color:#111827;overflow:hidden;text-overflow:ellipsis;margin-top:1px">${current.mix_name||'—'}</div>
