@@ -545,7 +545,7 @@ function getTanksForLine(lineName){
   const agTanks=Object.values(agingStates).filter(ts=>{
     if(!ts.id) return false;
     if(!SHOW_STATUS.includes(ts.status||'')) return false;
-    if(+(ts.current_vol||0)<=0) return false;
+    // ไม่กรอง current_vol เพราะบางถังอาจยังไม่ได้ update
     return planRows.some(r=>r.aging_tank===ts.id&&r.filling_line===lineName);
   });
 
