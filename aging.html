@@ -322,6 +322,30 @@ onAuthStateChanged(auth,async u=>{
 
 window.doLogout=async()=>{await signOut(auth);location.href='index.html';};
 
+// ── Auto-check curing done ทุก 1 นาที ──
+async function _checkCuringDone(){
+  const now = Date.now();
+  for(const ts of Object.values(tankStates)){
+    if(ts.status!=='aging') continue;
+    if(!ts.past_end_time||!ts.date) continue;
+    const prod = productMap[ts.mix_code||'']||{};
+    const agingHr = +(prod.aging_time||4);
+    const[h,m]=(ts.past_end_time).split(':').map(Number);
+    const base = new Date(ts.date);
+    base.setHours(h||0,m||0,0,0);
+    const readyAt = base.getTime() + agingHr*3600000;
+    if(now >= readyAt){
+      try{
+        await setDoc(doc(db,'aging_tank_states',ts.id),{status:'ready',updated_at:new Date().toISOString()},{merge:true});
+        console.log('Auto-ready:', ts.id);
+      }catch(e){console.warn('auto-ready error:',e);}
+    }
+  }
+}
+setInterval(_checkCuringDone, 60000);
+// เช็คทันทีตอน load
+setTimeout(_checkCuringDone, 3000);
+
 // ── RENDER ────────────────────────────────────────────────────────────
 
 const _LC={'hoyer':{h:'#ea580c',r:'234,88,12'},'glace':{h:'#2563eb',r:'37,99,235'},
