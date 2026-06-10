@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- v20260609143743 -->
+<!DOCTYPE html><!-- v20260610054413 -->
 <html lang="th">
 <head>
 <meta charset="UTF-8">
@@ -75,6 +75,7 @@
 </style>
 
 <!-- PROD.SYS pasteurize v20260609143743 build:fix-stamp-btn -->
+<!-- fix-formula-20260610 -->
 </head>
 <body>
 
@@ -1232,20 +1233,15 @@ function renderPastCard(row, i, col, p){
           let _dur='';
           const toS=t=>{if(!t)return 0;const a=String(t).split(':').map(Number);return (a[0]||0)*3600+(a[1]||0)*60+(a[2]||0);};
           if(_s){
-            // คำนวณจาก end_time ถ้าเสร็จแล้ว หรือจาก speed/vol ถ้ายังไม่เสร็จ
-          let diff = 0;
-          if(_end){
-            diff = toS(_end)-toS(_s);
-          } else {
-            // คำนวณจาก volume * density / speed
+            // คำนวณจาก volume * density / speed เท่านั้น — ค้างไว้เลย ไม่ใช้ end_time
             const _prod = (window.productMap||{})[row.mix_code||'']||{};
             const _p = col||'p1';
             const _spd = _p==='p1'?+((_prod.speed_m1||_prod.speed)||0):+((_prod.speed_m2||_prod.speed)||0);
             const _vol = +(row.volume_liter||0);
             const _den = +(_prod.density||1);
+            let diff = 0;
             if(_spd>0&&_vol>0) diff = Math.round(_vol*_den*3600/_spd);
-          }
-            if(diff>=0){const h=Math.floor(diff/3600),m=Math.floor((diff%3600)/60),s=diff%60;_dur=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');}
+            if(diff>0){const h=Math.floor(diff/3600),m=Math.floor((diff%3600)/60),s=diff%60;_dur=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');}
           }
           if(!_s&&!_e) return '';
           return '<div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">'
