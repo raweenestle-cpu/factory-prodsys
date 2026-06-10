@@ -524,12 +524,12 @@ async function init(){
   });
 
   const d=today();
-  unsubP1=onSnapshot(query(collection(db,'production_plans'),where('status','in',['pasteurising','past_done','ready'])),snap=>{
+  unsubP1=onSnapshot(query(collection(db,'production_plans'),where('status','in',['pasteurising','past_done','ready','aging','filling','sent_filling'])),snap=>{
     const rp1=snap.docs.map(d=>({id:d.id,_col:'production_plans',...d.data()}));const cs1=(new Date(Date.now()-2*864e5)).toISOString().slice(0,10);const rf1=rp1.filter(x=>x.status==='pasteurising'||x.status==='ready'||(x.date||'')>=cs1);
     planRows=planRows.filter(x=>x._col!=='production_plans').concat(rf1);renderAll();
 window._planRows=planRows;
   });
-  unsubP2=onSnapshot(query(collection(db,'production_plans_m2'),where('status','in',['pasteurising','past_done','ready'])),snap=>{
+  unsubP2=onSnapshot(query(collection(db,'production_plans_m2'),where('status','in',['pasteurising','past_done','ready','aging','filling','sent_filling'])),snap=>{
     const rp2=snap.docs.map(d=>({id:d.id,_col:'production_plans_m2',...d.data()}));const cs2=(new Date(Date.now()-2*864e5)).toISOString().slice(0,10);const rf2=rp2.filter(x=>x.status==='pasteurising'||x.status==='ready'||(x.date||'')>=cs2);
     planRows=planRows.filter(x=>x._col!=='production_plans_m2').concat(rf2);renderAll();
 window._planRows=planRows;
