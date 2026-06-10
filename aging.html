@@ -327,7 +327,9 @@ window.doLogout=async()=>{await signOut(auth);location.href='index.html';};
 async function _checkCuringDone(){
   const now = Date.now();
   for(const ts of Object.values(tankStates)){
+    // เช็คทุกถังที่มี past_end_time ไม่ว่า current_vol จะเป็นเท่าไหร่
     if(!ts.past_end_time||!ts.date) continue;
+    if(ts.status==='empty'||ts.status==='cip'||ts.status==='san') continue; // ข้ามถังที่ว่างหรือทำ CIP
     const prod = productMap[ts.mix_code||'']||{};
     const agingHr = +(prod.aging_time||4);
     const[h,m]=(ts.past_end_time).split(':').map(Number);

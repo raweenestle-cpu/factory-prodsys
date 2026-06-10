@@ -1252,7 +1252,7 @@ window.stopLine=async(lineId)=>{
   // sync aging_tank_states
   const _agTankStop=st.aging_tank||'';
   if(_agTankStop){
-    setDoc(doc(db,'aging_tank_states',_agTankStop),{current_vol:Math.round(rem),status:rem>0?'past_done':'empty',updated_at:new Date().toISOString()},{merge:true}).catch(()=>{});
+    setDoc(doc(db,'aging_tank_states',_agTankStop),{current_vol:Math.round(rem),status:rem>0?'past_done':'empty',filling_line:st.line_name||line.name||'',updated_at:new Date().toISOString()},{merge:true}).catch(()=>{});
   }
   toast('⏸ Stop แล้ว');
 };
