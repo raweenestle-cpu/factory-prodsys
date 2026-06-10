@@ -542,14 +542,14 @@ window._planRows=planRows;
 function getTanksForLine(lineName){
   // ── Single source of truth: aging_tank_states ──
   const SHOW_STATUS=['pasteurising','past_done','ready','aging','filling','san_done'];
-  const _lnLower=lineName.toLowerCase().trim();
+  const _lnLower=(lineName||'').toLowerCase().trim();
+  console.log('[DEBUG getTanks]',lineName,'agingStates:',Object.keys(agingStates).length,'planRows:',planRows.length,'sample:',planRows.slice(0,2).map(r=>r.filling_line+'|'+r.aging_tank+'|'+r.status));
   const agTanks=Object.values(agingStates).filter(ts=>{
     if(!ts.id) return false;
     if(!SHOW_STATUS.includes(ts.status||'')) return false;
-    // เช็ค case-insensitive
     return planRows.some(r=>r.aging_tank===ts.id&&(r.filling_line||'').toLowerCase().trim()===_lnLower);
   });
-
+  console.log('[DEBUG agTanks]',lineName,'found:',agTanks.map(t=>t.id+'|'+t.status));
   const raw=agTanks.map(ts=>{
     const planRow=planRows.find(r=>r.aging_tank===ts.id&&(r.filling_line||'').toLowerCase().trim()===_lnLower);
     if(!planRow) return null;
