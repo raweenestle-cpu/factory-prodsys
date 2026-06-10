@@ -260,10 +260,10 @@ async function init(){
   onSnapshot(collection(db,'aging_tank_states'),snap=>{
     agingStates={};snap.docs.forEach(d=>{agingStates[d.id]={id:d.id,...d.data()};});renderAll();
   });
-  u3=onSnapshot(query(collection(db,'production_plans'),where('status','in',['pasteurising','past_done','ready','sent_filling'])),snap=>{
+  u3=onSnapshot(query(collection(db,'production_plans'),where('status','in',['pasteurising','past_done','ready','sent_filling','aging','filling'])),snap=>{
     planRows=planRows.filter(x=>x._col!=='production_plans').concat(snap.docs.map(x=>({id:x.id,_col:'production_plans',...x.data()})));renderAll();
   });
-  u4=onSnapshot(query(collection(db,'production_plans_m2'),where('status','in',['pasteurising','past_done','ready','sent_filling'])),snap=>{
+  u4=onSnapshot(query(collection(db,'production_plans_m2'),where('status','in',['pasteurising','past_done','ready','sent_filling','aging','filling'])),snap=>{
     planRows=planRows.filter(x=>x._col!=='production_plans_m2').concat(snap.docs.map(x=>({id:x.id,_col:'production_plans_m2',...x.data()})));renderAll();
   });
   tickTimer=setInterval(tick,2000);
@@ -350,7 +350,7 @@ function getTanks(name){
   const raw=planRows
     .filter(r=>{
       if(r.filling_line!==name)return false;
-      if(!['pasteurising','past_done','ready'].includes(r.status))return false;
+      if(!['pasteurising','past_done','ready','aging','filling'].includes(r.status))return false;
       if(r.status==='sent_filling')return false;
       if(+(r.volume_liter||0)<=0)return false;
       if(r.status==='pasteurising'&&!r.past_start_time)return false;
