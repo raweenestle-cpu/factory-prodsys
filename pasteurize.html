@@ -563,12 +563,12 @@ setInterval(async()=>{
                   mix_code:nextRow.mix_code||'',mix_name:nextRow.mix_name||'',
                   batch_no:nextRow.batch_no||'',process_order:nextRow.process_order||'',
                   past_start_time:endTime,past_end_time:null,status:'pasteurising',
+                  filling_line:nextRow.filling_line||agRow.filling_line||'',date:nextRow.date||agRow.date||today(),
                   updated_at:new Date().toISOString()
-                },{merge:false});}catch(e){console.warn('nextRow aging write error:',e);}
+                 },{merge:false});}catch(e){console.warn('nextRow aging write error:',e);}
               }
               toast(`🔄 Auto เริ่ม Past. Batch ${nextRow.batch_no} (${nextRow.mixing_tank||''}) ต่อเนื่อง`,"green");
             }
-          }
         }
       }
     }catch(e){console.error('auto stamp error:',e);_autoStamping.delete(agRow?.id);}
