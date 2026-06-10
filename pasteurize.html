@@ -789,15 +789,6 @@ function buildFlowSteps(row){
 
 function buildStepHtml(st, i, stepsLen, pcol, rid, row){
   // timebox — กรอบเวลาระหว่าง Pasteurising และ Aging
-  if(st.isTimebox){
-    var _st2=row.past_start_time||'';
-    var _eta2=row.expected_finish_time||'';
-    var _dur2='';
-    if(_st2&&row.past_end_time){
-      var toS=function(t){var a=(t+'::').split(':').map(Number);return a[0]*3600+a[1]*60+(a[2]||0);};
-      var df2=toS(row.past_end_time)-toS(_st2);
-      if(df2>=0){var h2=Math.floor(df2/3600),mn2=Math.floor((df2%3600)/60),s2=df2%60;_dur2=(h2?h2+' ชม. ':'')+(mn2?mn2+' นาที ':'')+(!h2&&!mn2?s2+' วิ':'');}
-    }
     var _tbHtml='<div style="display:flex;flex-direction:column;gap:6px;min-width:110px">';
     if(_st2)_tbHtml+='<div style="background:#dbeafe;border:2px solid #3b82f6;border-radius:10px;padding:7px 12px;text-align:center"><div style="font-family:var(--mono);font-size:9px;font-weight:700;color:#1e40af;letter-spacing:.08em">⏱ เริ่ม</div><div style="font-family:var(--mono);font-size:17px;font-weight:900;color:#1e3a8a">'+_st2+'</div></div>';
     if(_eta2)_tbHtml+='<div style="background:#fef3c7;border:2px solid #f59e0b;border-radius:10px;padding:7px 12px;text-align:center"><div style="font-family:var(--mono);font-size:9px;font-weight:700;color:#92400e;letter-spacing:.08em">🏁 คาดเสร็จ</div><div style="font-family:var(--mono);font-size:17px;font-weight:900;color:#78350f">'+_eta2+'</div></div>';
@@ -928,7 +919,7 @@ function buildStepsForPast(row){
       {id:'agit',  ico:'🔄', name:'Agitator', kg:'OPEN', done:false, active:false, btn:false, skip:false, pwd:false},
       {id:'temp',  ico:'🌡', name:'After Temp', kg:'Control '+tempRange+' °C', done:false, active:false, btn:false, skip:false, pwd:false},
       {id:'past',  ico:'♨️', name:'Pasteurising', kg:'', done:false, active:false, btn:false, skip:false, pwd:false, isStatus:true},
-      {id:'timebox', ico:'', name:'', kg:'', done:false, active:false, btn:false, skip:false, pwd:false, isTimebox:true},
+
       {id:'aging', ico:'🪣', name:'Aging Tank', kg:row.aging_tank||'—', done:false, active:false, btn:false, skip:false, pwd:false, isStatus:true},
       {id:'complete', ico:'✅', name:'เสร็จสิ้น', kg:'', done:false, active:false, btn:false, skip:false, pwd:false, isStatus:true},
     ];
@@ -1028,7 +1019,7 @@ function buildStepsForPast(row){
   });
 
   // timebox
-  steps.push({id:'timebox',ico:'',name:'',kg:'',done:false,active:false,btn:false,skip:false,pwd:false,isTimebox:true});
+
 
   // 10. AGING TANK — auto flow
   steps.push({
@@ -1248,7 +1239,7 @@ function renderPastCard(row, i, col, p){
           const _e=row.expected_finish_time||'';
           const _end=row.past_end_time||'';
           let _dur='';
-          const toS=t=>{if(!t)return 0;const a=(t+'::').split(':').map(Number);return a[0]*3600+a[1]*60+(a[2]||0);};
+          const toS=t=>{if(!t)return 0;const a=String(t).split(':').map(Number);return (a[0]||0)*3600+(a[1]||0)*60+(a[2]||0);};
           if(_s){
             // คำนวณจาก end_time ถ้าเสร็จแล้ว หรือจาก speed/vol ถ้ายังไม่เสร็จ
           let diff = 0;
@@ -1257,7 +1248,7 @@ function renderPastCard(row, i, col, p){
           } else {
             // คำนวณจาก volume * density / speed
             const _prod = (window.productMap||{})[row.mix_code||'']||{};
-            const _p = row.p||'p1';
+            const _p = col||'p1';
             const _spd = _p==='p1'?+((_prod.speed_m1||_prod.speed)||0):+((_prod.speed_m2||_prod.speed)||0);
             const _vol = +(row.volume_liter||0);
             const _den = +(_prod.density||1);
