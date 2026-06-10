@@ -1233,12 +1233,12 @@ function renderPastCard(row, i, col, p){
           let _dur='';
           const toS=t=>{if(!t)return 0;const a=String(t).split(':').map(Number);return (a[0]||0)*3600+(a[1]||0)*60+(a[2]||0);};
           if(_s){
-            // คำนวณจาก volume * density / speed เท่านั้น — ค้างไว้เลย ไม่ใช้ end_time
             const _prod = (window.productMap||{})[row.mix_code||'']||{};
             const _p = col||'p1';
             const _spd = _p==='p1'?+((_prod.speed_m1||_prod.speed)||0):+((_prod.speed_m2||_prod.speed)||0);
             const _vol = +(row.volume_liter||0);
             const _den = +(_prod.density||1);
+            console.log('[DUR]',row.mix_code,'vol:',_vol,'spd:',_spd,'den:',_den,'p:',_p);
             let diff = 0;
             if(_spd>0&&_vol>0) diff = Math.round(_vol*_den*3600/_spd);
             if(diff>0){const h=Math.floor(diff/3600),m=Math.floor((diff%3600)/60),s=diff%60;_dur=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');}
