@@ -540,8 +540,20 @@ window._planRows=planRows;
 
 // HELPERS
 function getTanksForLine(lineName){
-  const raw=planRows
-    .filter(r=>r.filling_line===lineName&&(r.status==='ready'||r.status==='past_done'||r.status==='pasteurising'))
+  // ── Single source of truth: aging_tank_states ──
+  const SHOW_STATUS=['pasteurising','past_done','ready','aging','filling','san_done'];
+  const agTanks=Object.values(agingStates).filter(ts=>{
+    if(!ts.id) return false;
+    if(!SHOW_STATUS.includes(ts.status||'')) return false;
+    if(+(ts.current_vol||0)<=0) return false;
+    return planRows.some(r=>r.aging_tank===ts.id&&r.filling_line===lineName);
+  });
+
+  const raw=agTanks.map(ts=>{
+    const planRow=planRows.find(r=>r.aging_tank===ts.id&&r.filling_line===lineName);
+    if(!planRow) return null;
+    return {...planRow, status:ts.status||planRow.status, current_vol:ts.current_vol??planRow.current_vol};
+  }).filter(Boolean)
     .sort((a,b)=>{const dd=(b.date||'').localeCompare(a.date||'');return dd!==0?dd:(a.seq||0)-(b.seq||0);});
 
   // Group rows ที่ process_order + aging_tank เดียวกัน → รวมเป็น row เดียว
