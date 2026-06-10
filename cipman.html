@@ -1087,8 +1087,7 @@ function calcVol(row){
     +'<div style="width:100%;display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">'+qLbl+'</div>'
     +'<div style="position:relative;width:100%;display:flex;justify-content:center">'
       +tankSVG('Q'+qi+'_'+line.id,qPct,qcol,qVol>0,null,null,150,200,qVol)
-      +'<div style="position:absolute;top:6px;left:50%;transform:translateX(-50%);background:#111827;color:#fff;font-family:var(--mono);font-size:15px;font-weight:900;padding:2px 12px;border-radius:8px;white-space:nowrap;pointer-events:none;letter-spacing:.04em">'+qTank+'</div>'
-      +'<div style="position:absolute;bottom:28px;left:50%;transform:translateX(-50%);background:#111827cc;color:#fff;font-family:var(--mono);font-size:11px;font-weight:800;padding:3px 10px;border-radius:999px;white-space:nowrap;pointer-events:none">⏳ รอ</div>'
+      +'<div style="position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:#111827;color:#fff;font-family:var(--mono);font-size:15px;font-weight:900;padding:3px 14px;border-radius:8px;white-space:nowrap;pointer-events:none;letter-spacing:.04em;z-index:2">'+qTank+'</div>'
     +'</div>'
     +'<div style="width:100%;margin-top:4px">'
       +'<div style="font-family:var(--mono);font-size:12px;font-weight:900;color:#111827">'+(r.mix_code||'—')+'</div>'
@@ -1096,6 +1095,7 @@ function calcVol(row){
       +'<div style="font-family:var(--mono);font-size:11px;font-weight:800;color:#374151;margin-top:2px">Batch <span style="color:#111827;font-weight:900">'+(r.batch_no||'—')+'</span></div>'
       +'<div style="width:100%;background:#e2e8f0;border-radius:4px;height:6px;margin-top:5px;overflow:hidden"><div style="height:100%;border-radius:4px;background:'+qPctC+';width:'+qPct.toFixed(1)+'%"></div></div>'
       +'<div style="font-family:var(--mono);font-size:11px;font-weight:900;color:'+qPctC+';margin-top:2px">'+(qVol>0?qVol.toLocaleString()+' L ('+qPct.toFixed(0)+'%)':'—')+'</div>'
+      +(()=>{const _prod=productMap[r.mix_code]||{};const _agHr=+(_prod.aging_time||4);const _pastEnd=qAts.past_end_time||r.past_end_time||'';const _pastDate=qAts.date||r.date||'';if(!_pastEnd||!_pastDate) return '<div style="font-family:var(--mono);font-size:10px;color:#94a3b8;margin-top:3px">⏳ รอข้อมูลบ่ม</div>';const[_h,_m]=_pastEnd.split(':').map(Number);const _base=new Date(_pastDate);_base.setHours(_h||0,_m||0,0,0);const _readyAt=_base.getTime()+_agHr*3600000;const _now=Date.now();const _rem=_readyAt-_now;if(_rem<=0) return '<div style="font-family:var(--mono);font-size:10px;font-weight:900;color:#15803d;margin-top:3px">✅ บ่มครบแล้ว ('+_agHr+'ชม.)</div>';const _rh=Math.floor(_rem/3600000),_rm=Math.floor((_rem%3600000)/60000);return '<div style="font-family:var(--mono);font-size:10px;font-weight:800;color:#b45309;margin-top:3px">🌡️ บ่มอีก '+_rh+'ชม. '+String(_rm).padStart(2,'0')+'น.</div>';})()
     +'</div>'
     +'<div style="width:100%;border-top:1px solid #e2e8f0;margin-top:6px;padding-top:6px;display:flex;flex-direction:column;gap:5px">'
       +'<label style="display:flex;align-items:center;gap:5px;cursor:pointer;padding:4px 8px;border-radius:7px;background:'+(hotOk?'rgba(21,128,61,.12)':'#f8fafc')+';border:1.5px solid '+(hotOk?'#15803d':'#e2e8f0')+'">'
