@@ -350,13 +350,13 @@ function getTanks(name){
   // ── Single source of truth: aging_tank_states ──
   // กรองถังที่ filling_line ตรงกับ line นี้ และมี status ที่ควรแสดงใน filling
   const FILL_STATUS = ['pasteurising','past_done','ready','aging','filling','san_done'];
+  const _fillLower=(name||'').toLowerCase().trim();
   const agTanks = Object.values(agingStates)
     .filter(ts=>{
       if(!ts.id) return false;
       if(!FILL_STATUS.includes(ts.status||'')) return false;
       if(+(ts.current_vol||0)<=0) return false;
-      // หา plan row ที่ aging_tank ตรงกัน เพื่อเช็ค filling_line
-      const planRow = planRows.find(r=>r.aging_tank===ts.id&&r.filling_line===name);
+      const planRow = planRows.find(r=>r.aging_tank===ts.id&&(r.filling_line||'').toLowerCase().trim()===_fillLower);
       return !!planRow;
     });
 

@@ -525,12 +525,12 @@ async function init(){
 
   const d=today();
   unsubP1=onSnapshot(query(collection(db,'production_plans'),where('status','in',['pasteurising','past_done','ready','aging','filling','sent_filling'])),snap=>{
-    const rp1=snap.docs.map(d=>({id:d.id,_col:'production_plans',...d.data()}));const cs1=(new Date(Date.now()-2*864e5)).toISOString().slice(0,10);const rf1=rp1.filter(x=>['pasteurising','ready','aging','filling','sent_filling'].includes(x.status)||(x.date||'')>=cs1);
+    const rp1=snap.docs.map(d=>({id:d.id,_col:'production_plans',...d.data()}));const cs1=(new Date(Date.now()-2*864e5)).toISOString().slice(0,10);const rf1=rp1.filter(x=>['pasteurising','ready','aging','filling','sent_filling','past_done'].includes(x.status)||(x.date||'')>=cs1);
     planRows=planRows.filter(x=>x._col!=='production_plans').concat(rf1);renderAll();
 window._planRows=planRows;
   });
   unsubP2=onSnapshot(query(collection(db,'production_plans_m2'),where('status','in',['pasteurising','past_done','ready','aging','filling','sent_filling'])),snap=>{
-    const rp2=snap.docs.map(d=>({id:d.id,_col:'production_plans_m2',...d.data()}));const cs2=(new Date(Date.now()-2*864e5)).toISOString().slice(0,10);const rf2=rp2.filter(x=>['pasteurising','ready','aging','filling','sent_filling'].includes(x.status)||(x.date||'')>=cs2);
+    const rp2=snap.docs.map(d=>({id:d.id,_col:'production_plans_m2',...d.data()}));const cs2=(new Date(Date.now()-2*864e5)).toISOString().slice(0,10);const rf2=rp2.filter(x=>['pasteurising','ready','aging','filling','sent_filling','past_done'].includes(x.status)||(x.date||'')>=cs2);
     planRows=planRows.filter(x=>x._col!=='production_plans_m2').concat(rf2);renderAll();
 window._planRows=planRows;
   });
@@ -542,16 +542,16 @@ window._planRows=planRows;
 function getTanksForLine(lineName){
   // ── Single source of truth: aging_tank_states ──
   const SHOW_STATUS=['pasteurising','past_done','ready','aging','filling','san_done'];
+  const _lnLower=(lineName||'').toLowerCase().trim();
   const agTanks=Object.values(agingStates).filter(ts=>{
     if(!ts.id) return false;
     if(!SHOW_STATUS.includes(ts.status||'')) return false;
-    // filter ถังที่ว่างออก ยกเว้น pasteurising
     if(ts.status!=='pasteurising'&&+(ts.current_vol||0)<=0) return false;
-    return planRows.some(r=>r.aging_tank===ts.id&&r.filling_line===lineName);
+    return planRows.some(r=>r.aging_tank===ts.id&&(r.filling_line||'').toLowerCase().trim()===_lnLower);
   });
 
   const raw=agTanks.map(ts=>{
-    const planRow=planRows.find(r=>r.aging_tank===ts.id&&r.filling_line===lineName);
+    const planRow=planRows.find(r=>r.aging_tank===ts.id&&(r.filling_line||'').toLowerCase().trim()===_lnLower);
     if(!planRow) return null;
     return {...planRow, status:ts.status||planRow.status, current_vol:ts.current_vol??planRow.current_vol};
   }).filter(Boolean)
