@@ -542,15 +542,16 @@ window._planRows=planRows;
 function getTanksForLine(lineName){
   // ── Single source of truth: aging_tank_states ──
   const SHOW_STATUS=['pasteurising','past_done','ready','aging','filling','san_done'];
+  const _lnLower=lineName.toLowerCase().trim();
   const agTanks=Object.values(agingStates).filter(ts=>{
     if(!ts.id) return false;
     if(!SHOW_STATUS.includes(ts.status||'')) return false;
-    // current_vol ไม่ filter เพราะบางถังอาจยังไม่ได้ update
-    return planRows.some(r=>r.aging_tank===ts.id&&r.filling_line===lineName);
+    // เช็ค case-insensitive
+    return planRows.some(r=>r.aging_tank===ts.id&&(r.filling_line||'').toLowerCase().trim()===_lnLower);
   });
 
   const raw=agTanks.map(ts=>{
-    const planRow=planRows.find(r=>r.aging_tank===ts.id&&r.filling_line===lineName);
+    const planRow=planRows.find(r=>r.aging_tank===ts.id&&(r.filling_line||'').toLowerCase().trim()===_lnLower);
     if(!planRow) return null;
     return {...planRow, status:ts.status||planRow.status, current_vol:ts.current_vol??planRow.current_vol};
   }).filter(Boolean)
