@@ -1208,8 +1208,12 @@ const _empName = sessionStorage.getItem('emp_name')||'';
 const _empSig  = sessionStorage.getItem('emp_sig')||'';
 
 window.startLine=async(lineId,sv,fr)=>{
-  // if(!_empSig){toast('กรุณา login ด้วย PIN ก่อน','red');return;} // bypassed for testing
   await setDoc(doc(db,'cip_line_states',lineId),{running:true,start_ts:Date.now(),start_vol:sv,flow_rate:fr,started_by:_empName,start_sig:_empSig,started_at:nowHHMM(),started_by:ME.email},{merge:true});
+  // sync aging_tank_states status → filling
+  const _agTkStart = (lineStates[lineId]||{}).aging_tank||'';
+  if(_agTkStart){
+    setDoc(doc(db,'aging_tank_states',_agTkStart),{status:'filling',updated_at:new Date().toISOString()},{merge:true}).catch(()=>{});
+  }
   toast('▶ Start แล้ว','green');
 };
 window.stopLine=async(lineId)=>{
@@ -1217,10 +1221,10 @@ window.stopLine=async(lineId)=>{
   const elapsed=st.start_ts?(Date.now()-st.start_ts)/3600000:0;
   const rem=Math.max(0,(st.start_vol||0)-(elapsed*(st.flow_rate||300)));
   await setDoc(doc(db,'cip_line_states',lineId),{running:false,start_ts:null,start_vol:rem,stopped_at:nowHHMM(),stopped_by:_empName||ME.email,stop_sig:_empSig||''},{merge:true});
-  // เคลียร์ aging_tank_states ให้หยุดด้วย
+  // sync aging_tank_states
   const _agTankStop=st.aging_tank||'';
   if(_agTankStop){
-    setDoc(doc(db,'aging_tank_states',_agTankStop),{current_vol:Math.round(rem),updated_at:new Date().toISOString()},{merge:true}).catch(()=>{});
+    setDoc(doc(db,'aging_tank_states',_agTankStop),{current_vol:Math.round(rem),status:rem>0?'past_done':'empty',updated_at:new Date().toISOString()},{merge:true}).catch(()=>{});
   }
   toast('⏸ Stop แล้ว');
 };
@@ -1249,7 +1253,15 @@ async function confirmEmpty(){
     started_at:st.started_at||'—',emptied_at:nowHHMM(),emptied_by:_empName||ME.email,emptied_sig:_empSig,
     aging_tank:st.aging_tank||'—',freezer:st.fz_A||'—',pipe:st.pp_A||'—',
   });
-  try{await updateDoc(doc(db,col,planId),{status:'sent_filling',sent_filling_at:nowHHMM()});}catch{}
+  try{
+    await updateDoc(doc(db,col,planId),{status:'sent_filling',sent_filling_at:nowHHMM()});
+    // sync aging_tank_states status → filling
+    const _planSnap = await getDoc(doc(db,col,planId));
+    const _agTk = _planSnap.exists()?(_planSnap.data().aging_tank||''):'';
+    if(_agTk){
+      await setDoc(doc(db,'aging_tank_states',_agTk),{status:'filling',updated_at:new Date().toISOString()},{merge:true});
+    }
+  }catch{}
   // Reset aging_tank_states current_vol เมื่อถังออกไป
   const agTank=st.aging_tank||'';
   if(agTank){
