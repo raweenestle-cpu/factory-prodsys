@@ -347,15 +347,27 @@ function _curingLabel(row,productMap){
 }
 
 function getTanks(name){
-  const raw=planRows
-    .filter(r=>{
-      if(r.filling_line!==name)return false;
-      if(!['pasteurising','past_done','ready','aging','filling'].includes(r.status))return false;
-      if(r.status==='sent_filling')return false;
-      if(+(r.volume_liter||0)<=0)return false;
-      if(r.status==='pasteurising'&&!r.past_start_time)return false;
-      return true;
-    })
+  // ── Single source of truth: aging_tank_states ──
+  // กรองถังที่ filling_line ตรงกับ line นี้ และมี status ที่ควรแสดงใน filling
+  const FILL_STATUS = ['pasteurising','past_done','ready','aging','filling','san_done'];
+  const agTanks = Object.values(agingStates)
+    .filter(ts=>{
+      if(!ts.id) return false;
+      if(!FILL_STATUS.includes(ts.status||'')) return false;
+      if(+(ts.current_vol||0)<=0) return false;
+      // หา plan row ที่ aging_tank ตรงกัน เพื่อเช็ค filling_line
+      const planRow = planRows.find(r=>r.aging_tank===ts.id&&r.filling_line===name);
+      return !!planRow;
+    });
+
+  // join กับ planRows เพื่อเอา metadata
+  const raw = agTanks.map(ts=>{
+    const planRow = planRows.find(r=>r.aging_tank===ts.id&&r.filling_line===name&&
+      ['pasteurising','past_done','ready','aging','filling','san_done','sent_filling'].includes(r.status));
+    if(!planRow) return null;
+    // merge: ใช้ status จาก aging_tank_states เป็นหลัก
+    return {...planRow, status:ts.status||planRow.status, current_vol:ts.current_vol??planRow.current_vol};
+  }).filter(Boolean)
     .sort((a,b)=>(a.seq||0)-(b.seq||0));
 
   // Group rows ที่ process_order + aging_tank เดียวกัน → รวมเป็น row เดียว
@@ -370,7 +382,6 @@ function getTanks(name){
       if(group.length>1){
         const totalVol=group.reduce((s,r)=>s+(+(r.volume_liter||0)),0);
         const batchBase=String(row.batch_no||'').replace(/[\/\-]\d+$/,'');
-        // ใช้ batch ที่มี current_vol สูงสุด (cumulative ล่าสุด)
         const activeRow=group.reduce((best,r)=>{
           const cv=r.current_vol!=null?+r.current_vol:-1;
           const bcv=best.current_vol!=null?+best.current_vol:-1;
