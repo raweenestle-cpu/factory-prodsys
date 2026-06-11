@@ -1,3 +1,4 @@
+<!-- build:20260611130100 -->
 <!DOCTYPE html><!-- v20260610054413 -->
 <html lang="th">
 <head>
@@ -350,7 +351,7 @@ window._agingStates={};
 window._prevVolMap={};
 window._prevContribMap={};
 onSnapshot(collection(db,'aging_tank_states'),snap=>{
-  snap.docs.forEach(d=>{window._agingStates[d.id]={id:d.id,...d.data()};});
+  snap.docs.forEach(d=>{const dat={id:d.id,...d.data()};if(dat.batch_no)dat.batch_no=String(dat.batch_no).split('/')[0];window._agingStates[d.id]=dat;});
 });
 
 const _autoStamping=new Set(); // ป้องกัน stamp ซ้ำ
@@ -1478,6 +1479,7 @@ window.loadPlan=(p)=>{
   unsub[p]=onSnapshot(q,snap=>{
     rows[p]=snap.docs.map(d=>({id:d.id,...d.data()}))
       .filter(r=>r.mix_code&&r.mix_code!=="")
+      .map(r=>{if(r.batch_no)r.batch_no=String(r.batch_no).split('/')[0];return r;})
       .sort((a,b)=>(a.seq||0)-(b.seq||0));
     window._rows=window._rows||{};
     window._rows[p]=rows[p];
