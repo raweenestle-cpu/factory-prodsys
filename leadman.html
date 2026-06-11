@@ -869,8 +869,12 @@ function _lcRenderDebounced(){
   clearTimeout(_lcRenderTimer);
   _lcRenderTimer=setTimeout(_lcRender,150);
 }
+let _lcPriorityCache={m1:null,m2:null};
 function _lcRender(){
   const lines=_lcLines.filter(l=>l.name&&l.id).sort((a,b)=>(a.seq||0)-(b.seq||0));
+  // คำนวณ priority ครั้งเดียวก่อน render ทุก card
+  _lcPriorityCache.m1=calcSmartPriority('m1');
+  _lcPriorityCache.m2=calcSmartPriority('m2');
   const html=lines.map(_lcCard).join('');
   ['m1','m2'].forEach(function(m){const el=document.getElementById('lcw-'+m);if(el)el.innerHTML=html;});
 }
@@ -1063,7 +1067,7 @@ function calcSmartPriority(m){
 function renderSmartPriority(m){
   const el=document.getElementById(`smart-priority-${m}`);
   if(!el) return;
-  const items=calcSmartPriority(m);
+  const items=(_lcPriorityCache&&_lcPriorityCache[m])||calcSmartPriority(m);
   if(!items.length){el.innerHTML='<div class="sp-empty">ยังไม่มีข้อมูลวันนี้</div>';return;}
   const itemsHtml=items.map((item,i)=>{
     const riskDot=item.risk==='crit'?'🔴':item.risk==='warn'?'🟡':'🟢';
