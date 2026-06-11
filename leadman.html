@@ -748,13 +748,13 @@ function _lcCard(line){
   const barCol=progress>80?'#15803d':progress>50?'#f59e0b':'#3b82f6';
 
   // Aging balance — รวมทุกถังที่มี mix_code เดียวกัน
-  let agTotal=0;
-  const agCodes=mixCodes.length?mixCodes:[cc];
-  agCodes.forEach(code=>{
-    Object.values(agingStates||{}).forEach(a=>{
-      if(a.mix_code===code||a.product===code) agTotal+=(+(a.current_vol||0));
-    });
-  });
+  // agTotal = volume จากถังที่ผูกกับ line นี้เท่านั้น (ผ่าน _tanksForLine และ filling_line)
+  let agTotal=Object.values(agingStates||{})
+    .filter(a=>{
+      const fl=(a.filling_line||'').toLowerCase().trim();
+      return (fl===_lnLower2||_tanksForLine.has(a.id))&&+(a.current_vol||0)>0;
+    })
+    .reduce((s,a)=>s+(+(a.current_vol||0)),0);
   const agRemMin=agTotal>0&&fr>0?Math.round((agTotal/fr)*60):null;
   const agRemH=agRemMin!=null?Math.floor(agRemMin/60):null;
   const agRemM=agRemMin!=null?agRemMin%60:null;
