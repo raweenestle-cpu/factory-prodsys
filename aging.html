@@ -351,8 +351,8 @@ async function _checkCuringDone(){
       upd.status = 'ready';
     }
 
-    // update เฉพาะถังที่มีของ
-    if(ts.current_vol>0 || ts.status==='aging'){
+    // update ทุกถังที่มี past_end_time (รวม Twin ที่ current_vol=0)
+    if(ts.past_end_time){
       try{
         await setDoc(doc(db,'aging_tank_states',ts.id),upd,{merge:true});
       }catch(e){console.warn('auto-check error:',e);}
