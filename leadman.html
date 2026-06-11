@@ -658,6 +658,7 @@ async function loadMaster(){
   // subscribe real-time สำหรับ expire alert
   onSnapshot(collection(db,'aging_tank_states'),snap=>{
     snap.docs.forEach(d=>{agingStates[d.id]={id:d.id,...d.data()};});
+    _lcRenderDebounced();
     renderExpireAlertBar(agingStates, document.getElementById('expire-alert-bar'), productMap);
   });
 }
@@ -978,13 +979,13 @@ window.toggleAllCards=function(){
   const text=document.getElementById('btn-toggle-text');
   if(icon) icon.textContent=allCollapsed?'⊟':'⊞';
   if(text) text.textContent=allCollapsed?'ย่อการ์ดทั้งหมด':'ขยายการ์ดทั้งหมด';
-  _lcRender();
+  _lcRenderDebounced();
 };
 window.toggleLscCard=function(lineId){
   const key='lsc-collapse-'+lineId;
   const isCollapsed=localStorage.getItem(key)==='1';
   localStorage.setItem(key,isCollapsed?'0':'1');
-  _lcRender();
+  _lcRenderDebounced();
 };
 window._up = async(col,id,field,val) => {
   const upd = {[field]:val};
