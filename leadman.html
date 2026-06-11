@@ -1058,6 +1058,9 @@ function calcSmartPriority(m){
     if(status==='filling'){score+=90;if(risk==='ok')risk='warn';reasons.push('🚀 กำลัง Fill');}
     if(minsToFill!==null&&minsToFill<30&&minsToFill>0){score+=50;if(risk==='ok')risk='warn';reasons.push(`📍 Fill ใน ${minsToFill} นาที`);}
     if(status==='pending'||status==='preparing'){score+=10;reasons.push('⏱ รอเริ่มผสม');}
+    if(status==='pasteurising'){score+=60;if(risk==='ok')risk='warn';reasons.push('♨️ กำลัง Past.');}
+    if(status==='aging'){score+=50;if(risk==='ok')risk='warn';reasons.push('🌡️ กำลังบ่ม');}
+    if(status==='mixing'){score+=30;if(risk==='ok')risk='ok';reasons.push('🔄 กำลังผสม');}
     if(status==='past_done'){score+=70;if(risk==='ok')risk='warn';reasons.push('✅ พร้อม Fill');}
     scored.push({row,score,risk,reason:reasons[0]||'—',agingRem:agingRemMin,eta:eta?.fillStart||null,name:p.name||row.mix_name||row.mix_code||'—',status});
   }
