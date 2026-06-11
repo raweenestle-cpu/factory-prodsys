@@ -708,12 +708,17 @@ function _lcCard(line){
   // Queue — rows ที่รอ fill บน line นี้
   const q=allR.filter(r=>r.filling_line===line.name&&(r.status==='past_done'||r.status==='ready')&&!r.sent_filling_at);
 
+  // เช็คว่ามีของจริงใน aging_tank_states สำหรับ line นี้
+  const _lnLower2=(line.name||'').toLowerCase().trim();
+  const hasAgingStock=Object.values(agingStates||{}).some(a=>
+    (a.filling_line||'').toLowerCase().trim()===_lnLower2&&+(a.current_vol||0)>0);
+
   // rows ทั้งหมดบน line นี้ที่ยังใน flow
-  const allLineRows=allR.filter(r=>r.filling_line===line.name&&
+  const allLineRows=allR.filter(r=>(r.filling_line||'').toLowerCase().trim()===_lnLower2&&
     ['pending','mixing','pasteurising','past_done','ready','aging','filling','sent_filling'].includes(r.status||''));
 
-  // ถ้าไม่มีแผนผลิต (ไม่ running และไม่มี rows ใน flow เลย) — ไม่ render
-  if(!isRun&&!allLineRows.length) return '';
+  // แสดงเฉพาะ line ที่ running หรือมีของจริงในถัง หรือมี past_done/ready รอ fill
+  if(!isRun&&!hasAgingStock&&!q.length) return '';
 
   // product info
   const cp=cc?(typeof productMap!=='undefined'&&productMap[cc])||{}:{};
