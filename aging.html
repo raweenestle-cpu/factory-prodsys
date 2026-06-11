@@ -481,7 +481,6 @@ function makeTankCard(tankId){
     +(prodCode?('<div style="font-family:var(--mono);font-size:11px;color:#6b7280;margin-top:4px;font-weight:700">รหัสผลิต: <span style="color:#111827">'+prodCode+'</span></div>'):'')
     +'</div>';
 
-  const body=(svgHtml?('<div style="display:flex;justify-content:center;padding:8px 0">'+svgHtml+'</div>'):'');
 
   const footer=
     '<div style="padding:8px 14px;border-top:1px solid #f1f5f9;margin-top:auto">'
@@ -491,7 +490,20 @@ function makeTankCard(tankId){
     +expHtml
     +tempHtml;
 
-  div.innerHTML=header+body+footer;
+  div.innerHTML=header+footer;
+  if(svgHtml){
+    const _bodyDiv=document.createElement('div');
+    _bodyDiv.style.cssText='display:flex;justify-content:center;padding:8px 0';
+    const _parser=new DOMParser();
+    const _svgDoc=_parser.parseFromString(svgHtml,'image/svg+xml');
+    const _svgEl=_svgDoc.documentElement;
+    if(_svgEl&&_svgEl.tagName==='svg'){
+      _bodyDiv.appendChild(document.adoptNode(_svgEl));
+      const _footerEl=div.querySelector('[style*="border-top"]');
+      if(_footerEl) div.insertBefore(_bodyDiv,_footerEl);
+      else div.appendChild(_bodyDiv);
+    }
+  }
   div.onclick=()=>openModal(tankId);
   return div;
 }
