@@ -727,8 +727,10 @@ function _lcCard(line){
 
   // Plan = plan_vol จาก line doc (leadman กรอก)
   // Actual = รวม volume ที่ fill แล้ว จาก rows ที่ status=filling หรือ past_done บน line นี้
-  const doneRows=allR.filter(r=>r.filling_line===line.name&&(r.status==='filling'||r.status==='sent_filling'||r.status==='curing'));
-  const actualVol=doneRows.reduce((s,r)=>s+(+(r.volume_liter||0)),0);
+  // Actual = volume จาก aging_tank_states ที่ filling_line ตรงกับ line นี้ (ของที่มีอยู่จริง)
+  const actualVol=Object.values(agingStates||{})
+    .filter(a=>(a.filling_line||'').toLowerCase().trim()===(line.name||'').toLowerCase().trim()&&+(a.current_vol||0)>0)
+    .reduce((s,a)=>s+(+(a.current_vol||0)),0);
   const planVol=+(st.plan_vol||line.plan_vol||0);
   const progress=planVol>0?Math.min(100,(actualVol/planVol)*100):0;
   const barCol=progress>80?'#15803d':progress>50?'#f59e0b':'#3b82f6';
