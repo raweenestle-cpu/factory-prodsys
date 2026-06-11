@@ -553,7 +553,7 @@ function getTanksForLine(lineName){
   const raw=agTanks.map(ts=>{
     const planRow=planRows.find(r=>r.aging_tank===ts.id&&(r.filling_line||'').toLowerCase().trim()===_lnLower);
     if(!planRow) return null;
-    return {...planRow, status:ts.status||planRow.status, current_vol:ts.current_vol??planRow.current_vol};
+    return {...planRow, status:ts.status||planRow.status, current_vol:ts.current_vol??planRow.current_vol, mix_code:ts.mix_code||planRow.mix_code, mix_name:ts.mix_name||planRow.mix_name};
   }).filter(Boolean)
     .sort((a,b)=>{
       const _ae=a.past_end_time||'';const _be=b.past_end_time||'';

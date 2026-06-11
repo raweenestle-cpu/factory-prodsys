@@ -366,7 +366,7 @@ function getTanks(name){
       ['pasteurising','past_done','ready','aging','filling','san_done','sent_filling'].includes(r.status));
     if(!planRow) return null;
     // merge: ใช้ status จาก aging_tank_states เป็นหลัก
-    return {...planRow, status:ts.status||planRow.status, current_vol:ts.current_vol??planRow.current_vol};
+    return {...planRow, status:ts.status||planRow.status, current_vol:ts.current_vol??planRow.current_vol, mix_code:ts.mix_code||planRow.mix_code, mix_name:ts.mix_name||planRow.mix_name};
   }).filter(Boolean)
     .sort((a,b)=>(a.seq||0)-(b.seq||0));
 
