@@ -405,7 +405,7 @@ setInterval(async()=>{
           mix_code:agRow.mix_code||'',mix_name:agRow.mix_name||'',
           batch_no:agRow.batch_no||'',product_code:agRow.product_code||'',
           prod_suffix:agRow.prod_suffix||'',date:agRow.date||'',
-          past_start_time:agRow.past_start_time||'',past_end_time:agRow.past_end_time||'',
+          past_start_time:agRow.past_start_time||'',past_end_time:agRow.past_end_time||'',filling_line:agRow.filling_line||'',
           volume_liter:agRow.volume_liter||0,process_order:agRow.process_order||'',
           status:agRow.status||'',updated_at:new Date().toISOString()
         },{merge:true});}catch(e){console.warn('aging write error:',e);}
@@ -562,7 +562,7 @@ setInterval(async()=>{
                   current_vol:_nCombined,
                   mix_code:nextRow.mix_code||'',mix_name:nextRow.mix_name||'',
                   batch_no:nextRow.batch_no||'',process_order:nextRow.process_order||'',
-                  past_start_time:endTime,past_end_time:null,status:'pasteurising',
+                  past_start_time:endTime,past_end_time:null,status:'pasteurising',filling_line:nextRow.filling_line||agRow.filling_line||'',
                   filling_line:nextRow.filling_line||agRow.filling_line||'',date:nextRow.date||agRow.date||today(),
                   updated_at:new Date().toISOString()
                  },{merge:false});}catch(e){console.warn('nextRow aging write error:',e);}
