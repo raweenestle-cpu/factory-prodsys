@@ -461,7 +461,8 @@ function calcVol(row){
   const atsCv=row.aging_tank&&agingStates[row.aging_tank]&&agingStates[row.aging_tank].current_vol!=null
     ?+agingStates[row.aging_tank].current_vol:-1;
   if(atsCv>=0){
-    const filled=Math.min(totalVol,atsCv);
+    // ใช้ current_vol จาก aging_tank_states โดยตรง ไม่ตัดด้วย totalVol ของ batch
+    const filled=atsCv;
     const pct=capacity>0?(filled/capacity)*100:0;
     return{filled,pct,totalVol};
   }
