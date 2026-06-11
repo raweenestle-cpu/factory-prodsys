@@ -876,7 +876,12 @@ function _lcRender(){
   _lcPriorityCache.m1=calcSmartPriority('m1');
   _lcPriorityCache.m2=calcSmartPriority('m2');
   const html=lines.map(_lcCard).join('');
-  ['m1','m2'].forEach(function(m){const el=document.getElementById('lcw-'+m);if(el)el.innerHTML=html;});
+  ['m1','m2'].forEach(function(m){
+    const el=document.getElementById('lcw-'+m);
+    if(el)el.innerHTML=html;
+    // update smart priority ทุกครั้งที่ render
+    renderSmartPriority(m);
+  });
 }
 onSnapshot(collection(db,'lines'),snap=>{_lcLines=snap.docs.map(d=>({id:d.id,...d.data()}));_lcRenderDebounced();});
 onSnapshot(collection(db,'cip_line_states'),snap=>{_lcStates={};snap.docs.forEach(d=>{_lcStates[d.id]={id:d.id,...d.data()};});_lcRenderDebounced();});
