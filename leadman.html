@@ -708,8 +708,12 @@ function _lcCard(line){
   // Queue — rows ที่รอ fill บน line นี้
   const q=allR.filter(r=>r.filling_line===line.name&&(r.status==='past_done'||r.status==='ready')&&!r.sent_filling_at);
 
-  // ถ้าไม่มีแผนผลิต (ไม่ running และไม่มี queue) — ไม่ render
-  if(!isRun&&!q.length) return '';
+  // rows ทั้งหมดบน line นี้ที่ยังใน flow
+  const allLineRows=allR.filter(r=>r.filling_line===line.name&&
+    ['pending','mixing','pasteurising','past_done','ready','aging','filling','sent_filling'].includes(r.status||''));
+
+  // ถ้าไม่มีแผนผลิต (ไม่ running และไม่มี rows ใน flow เลย) — ไม่ render
+  if(!isRun&&!allLineRows.length) return '';
 
   // product info
   const cp=cc?(typeof productMap!=='undefined'&&productMap[cc])||{}:{};
