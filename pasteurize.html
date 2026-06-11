@@ -1,4 +1,4 @@
-<!-- build:20260611130100 -->
+<!-- build:20260611140000 -->
 <!DOCTYPE html><!-- v20260610054413 -->
 <html lang="th">
 <head>
@@ -564,7 +564,7 @@ setInterval(async()=>{
                   mix_code:nextRow.mix_code||'',mix_name:nextRow.mix_name||'',
                   batch_no:nextRow.batch_no||'',process_order:nextRow.process_order||'',
                   past_start_time:endTime,past_end_time:null,status:'pasteurising',filling_line:nextRow.filling_line||agRow.filling_line||'',
-                  filling_line:nextRow.filling_line||agRow.filling_line||'',date:nextRow.date||agRow.date||today(),
+                  date:nextRow.date||agRow.date||today(),
                   updated_at:new Date().toISOString()
                  },{merge:false});}catch(e){console.warn('nextRow aging write error:',e);}
               }
