@@ -1,4 +1,5 @@
 
+<!-- build:20260611120100 -->
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -258,7 +259,7 @@ async function init(){
   });
 
   onSnapshot(collection(db,'aging_tank_states'),snap=>{
-    agingStates={};snap.docs.forEach(d=>{agingStates[d.id]={id:d.id,...d.data()};});renderAll();
+    agingStates={};snap.docs.forEach(d=>{const dat={id:d.id,...d.data()};if(dat.batch_no)dat.batch_no=String(dat.batch_no).split('/')[0];agingStates[d.id]=dat;});renderAll();
   });
   u3=onSnapshot(query(collection(db,'production_plans'),where('status','in',['pasteurising','past_done','ready','sent_filling','aging','filling'])),snap=>{
     planRows=planRows.filter(x=>x._col!=='production_plans').concat(snap.docs.map(x=>({id:x.id,_col:'production_plans',...x.data()})));renderAll();

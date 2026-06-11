@@ -1,3 +1,4 @@
+<!-- build:20260611120100 -->
 <!DOCTYPE html>
 <!-- updated 2026-06-03 08:19:16 -->
 <!-- updated 2026-06-03 08:00:37 -->
@@ -518,7 +519,7 @@ async function init(){
     renderAll();
   });
   onSnapshot(collection(db,'aging_tank_states'),snap=>{
-    agingStates={};snap.docs.forEach(d=>{agingStates[d.id]={id:d.id,...d.data()};});
+    agingStates={};snap.docs.forEach(d=>{const dat={id:d.id,...d.data()};if(dat.batch_no)dat.batch_no=String(dat.batch_no).split('/')[0];agingStates[d.id]=dat;});
     renderAll();
     renderExpireAlertBar(agingStates, document.getElementById('expire-alert-bar'));
   });
