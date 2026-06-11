@@ -259,6 +259,7 @@ tbody td{padding:5px 6px;vertical-align:middle;font-weight:600}
 .sp-score-fill{height:100%;border-radius:2px;transition:width .5s}
 
 </style>
+<!-- v20260611022216 -->
 </head>
 <body>
 
@@ -697,6 +698,7 @@ function _lcRem(st,fr){if(!st||!st.running||!st.start_ts)return+(st&&st.start_vo
 function _lcEnd(v,fr){if(!fr||v<=0)return null;const hr=v/fr,e=new Date(Date.now()+hr*3600000);return{hr,label:e.toLocaleDateString('th-TH',{weekday:'short',day:'2-digit',month:'short'})+' '+e.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})};}
 function _lcCard(line){
   const st=_lcStates[line.id]||{};
+  const cc=st.mix_code||'';
   // flow_rate: cip_line_states > line.flow_rate > line.products[mix_code].flow_rate > 300
   const _lineProdFr=(line.products||[]).find(p=>(p.mix_codes||[]).some(m=>m.code===cc));
   const fr=+(st.flow_rate||line.flow_rate||(_lineProdFr&&_lineProdFr.flow_rate)||300);
@@ -704,7 +706,6 @@ function _lcCard(line){
   const rv=Math.round(_lcRem(st,fr));
   const sv=+(st.start_vol||0);
   const ei=isRun?_lcEnd(rv,fr):null;
-  const cc=st.mix_code||'';
   const lc=_getLC(line.name)||'#3b82f6';
   const allR=[...(_lcRows['m1']||[]),...(_lcRows['m2']||[])];
 
