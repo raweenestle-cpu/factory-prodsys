@@ -479,7 +479,7 @@ setInterval(async()=>{
               const _newCombined=Math.round((finalCumVol+_otherVol)*10)/10;
               window._prevContribMap[_contribKey]=finalCumVol;
               try{await setDoc(doc(db,'aging_tank_states',agRow.aging_tank),{
-                current_vol:_newCombined,updated_at:new Date().toISOString()
+                current_vol:_newCombined,mix_code:agRow.mix_code||'',mix_name:agRow.mix_name||'',filling_line:agRow.filling_line||'',updated_at:new Date().toISOString()
               },{merge:true});}catch(e){console.warn('stamp aging write error:',e);}
             } else {
               const _otherHas=(rows[_otherP]||[]).some(r=>
@@ -499,7 +499,7 @@ setInterval(async()=>{
                 const _newCombined=Math.round((finalCumVol+_otherVol)*10)/10;
                 window._prevContribMap[_contribKey]=finalCumVol;
                 try{await setDoc(doc(db,'aging_tank_states',agRow.aging_tank),{
-                  current_vol:_newCombined,updated_at:new Date().toISOString()
+                  current_vol:_newCombined,mix_code:agRow.mix_code||'',mix_name:agRow.mix_name||'',filling_line:agRow.filling_line||'',updated_at:new Date().toISOString()
                 },{merge:true});}catch(e){console.warn('stamp aging write error:',e);}
               }
             }
@@ -612,8 +612,8 @@ setInterval(async()=>{
         const _li=(rows[p]||[]).findIndex(r=>r.id===agRow.id);
         if(_li>=0){rows[p][_li]={...rows[p][_li],status:'past_done',past_end_time:endTime,current_vol:finalCumVol};window._rows[p]=rows[p];}
         if(agRow.aging_tank){
-          if(hasNext){await setDoc(doc(db,'aging_tank_states',agRow.aging_tank),{current_vol:finalCumVol,updated_at:new Date().toISOString()},{merge:true});}
-          else{await setDoc(doc(db,'aging_tank_states',agRow.aging_tank),{current_vol:finalCumVol,status:'aging',past_end_time:endTime,filling_line:agRow.filling_line||'',date:agRow.date||today(),updated_at:new Date().toISOString()},{merge:true});}
+          if(hasNext){await setDoc(doc(db,'aging_tank_states',agRow.aging_tank),{current_vol:finalCumVol,mix_code:agRow.mix_code||'',mix_name:agRow.mix_name||'',filling_line:agRow.filling_line||'',updated_at:new Date().toISOString()},{merge:true});}
+          else{await setDoc(doc(db,'aging_tank_states',agRow.aging_tank),{current_vol:finalCumVol,mix_code:agRow.mix_code||'',mix_name:agRow.mix_name||'',status:'aging',past_end_time:endTime,filling_line:agRow.filling_line||'',date:agRow.date||today(),updated_at:new Date().toISOString()},{merge:true});}
         }
         await addDoc(collection(db,'past_history'),{...agRow,past_end_time:endTime,eff:100,status:'past_done',current_vol:finalCumVol,archived_at:nowHHMM(),archived_date:today(),mixing_unit:p});
         await deleteDoc(doc(db,planCol(p),agRow.id));
