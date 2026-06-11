@@ -709,9 +709,13 @@ function _lcCard(line){
   const q=allR.filter(r=>r.filling_line===line.name&&(r.status==='past_done'||r.status==='ready')&&!r.sent_filling_at);
 
   // เช็คว่ามีของจริงใน aging_tank_states สำหรับ line นี้
+  // ใช้ทั้ง filling_line จาก aging_tank_states และ production_plans เป็น fallback
   const _lnLower2=(line.name||'').toLowerCase().trim();
-  const hasAgingStock=Object.values(agingStates||{}).some(a=>
-    (a.filling_line||'').toLowerCase().trim()===_lnLower2&&+(a.current_vol||0)>0);
+  const _tanksForLine=new Set(allR.filter(r=>(r.filling_line||'').toLowerCase().trim()===_lnLower2).map(r=>r.aging_tank).filter(Boolean));
+  const hasAgingStock=Object.values(agingStates||{}).some(a=>{
+    const fl=(a.filling_line||'').toLowerCase().trim();
+    return (fl===_lnLower2||_tanksForLine.has(a.id))&&+(a.current_vol||0)>0;
+  });
 
   // rows ทั้งหมดบน line นี้ที่ยังใน flow
   const allLineRows=allR.filter(r=>(r.filling_line||'').toLowerCase().trim()===_lnLower2&&
@@ -732,9 +736,12 @@ function _lcCard(line){
 
   // Plan = plan_vol จาก line doc (leadman กรอก)
   // Actual = รวม volume ที่ fill แล้ว จาก rows ที่ status=filling หรือ past_done บน line นี้
-  // Actual = volume จาก aging_tank_states ที่ filling_line ตรงกับ line นี้ (ของที่มีอยู่จริง)
+  // Actual = volume จาก aging_tank_states โดยใช้ทั้ง filling_line และ aging_tank จาก planRows
   const actualVol=Object.values(agingStates||{})
-    .filter(a=>(a.filling_line||'').toLowerCase().trim()===(line.name||'').toLowerCase().trim()&&+(a.current_vol||0)>0)
+    .filter(a=>{
+      const fl=(a.filling_line||'').toLowerCase().trim();
+      return (fl===_lnLower2||_tanksForLine.has(a.id))&&+(a.current_vol||0)>0;
+    })
     .reduce((s,a)=>s+(+(a.current_vol||0)),0);
   const planVol=+(st.plan_vol||line.plan_vol||0);
   const progress=planVol>0?Math.min(100,(actualVol/planVol)*100):0;
