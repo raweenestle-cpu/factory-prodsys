@@ -797,11 +797,11 @@ function buildStepHtml(st, i, stepsLen, pcol, rid, row){
       var df2=toS(row.past_end_time)-toS(_st2);
       if(df2>=0){var h2=Math.floor(df2/3600),mn2=Math.floor((df2%3600)/60),s2=df2%60;_dur2=(h2?h2+' ชม. ':'')+(mn2?mn2+' นาที ':'')+(!h2&&!mn2?s2+' วิ':'');}
     }
+    if(!_st2&&!_eta2&&!_dur2) return '<div class="tv3-sw"><div class="tv3-conn"></div></div>';
     var _tbHtml='<div style="display:flex;flex-direction:column;gap:6px;min-width:110px">';
     if(_st2)_tbHtml+='<div style="background:#dbeafe;border:2px solid #3b82f6;border-radius:10px;padding:7px 12px;text-align:center"><div style="font-family:var(--mono);font-size:9px;font-weight:700;color:#1e40af;letter-spacing:.08em">⏱ เริ่ม</div><div style="font-family:var(--mono);font-size:17px;font-weight:900;color:#1e3a8a">'+_st2+'</div></div>';
     if(_eta2)_tbHtml+='<div style="background:#fef3c7;border:2px solid #f59e0b;border-radius:10px;padding:7px 12px;text-align:center"><div style="font-family:var(--mono);font-size:9px;font-weight:700;color:#92400e;letter-spacing:.08em">🏁 คาดเสร็จ</div><div style="font-family:var(--mono);font-size:17px;font-weight:900;color:#78350f">'+_eta2+'</div></div>';
     if(_dur2)_tbHtml+='<div style="background:#d1fae5;border:2px solid #10b981;border-radius:10px;padding:7px 12px;text-align:center"><div style="font-family:var(--mono);font-size:9px;font-weight:700;color:#065f46;letter-spacing:.08em">⏳ รวม</div><div style="font-family:var(--mono);font-size:15px;font-weight:900;color:#064e3b">'+_dur2+'</div></div>';
-
     _tbHtml+='</div>';
     return '<div class="tv3-sw">'+_tbHtml+'<div class="tv3-conn"></div></div>';
   }
