@@ -69,7 +69,7 @@
 .tv3-steps{width:100%}
 .tv3-sw{display:flex;align-items:center;flex:1;min-width:0}
 .tv3-sw:last-child{flex:0 0 auto}
-.tv3-conn{flex:1;height:3px;background:#cbd5e1;border-radius:2px;min-width:16px;margin:0 4px;align-self:center}
+.tv3-conn{flex:1;height:3px;background:#cbd5e1;border-radius:2px;min-width:16px;margin:0 4px;align-self:center;margin-top:-28px}
 /* FLOW DIAGRAM COMPAT */
 .tv3-card{margin:0 0 12px}
 </style>
@@ -800,7 +800,7 @@ function buildFlowSteps(row){
   return s;
 }
 
-function buildStepHtml(st, i, stepsLen, pcol, rid, row){
+function buildStepHtml(st, i, stepsLen, pcol, rid, row, allSteps){
   // timebox — กรอบเวลาระหว่าง Pasteurising และ Aging
   if(st.isTimebox){
     var _st2=row.past_start_time||'';
@@ -811,13 +811,12 @@ function buildStepHtml(st, i, stepsLen, pcol, rid, row){
       var df2=toS(row.past_end_time)-toS(_st2);
       if(df2>=0){var h2=Math.floor(df2/3600),mn2=Math.floor((df2%3600)/60),s2=df2%60;_dur2=(h2?h2+' ชม. ':'')+(mn2?mn2+' นาที ':'')+(!h2&&!mn2?s2+' วิ':'');}
     }
-    if(!_st2&&!_eta2&&!_dur2) return '';
-    var _tbHtml='<div style="display:flex;align-items:center;gap:0"><div class="tv3-conn"></div><div style="display:flex;flex-direction:column;gap:6px;min-width:110px">';
+    var _tbHtml='<div style="display:flex;flex-direction:column;gap:6px;min-width:110px">';
     if(_st2)_tbHtml+='<div style="background:#dbeafe;border:2px solid #3b82f6;border-radius:10px;padding:7px 12px;text-align:center"><div style="font-family:var(--mono);font-size:9px;font-weight:700;color:#1e40af;letter-spacing:.08em">⏱ เริ่ม</div><div style="font-family:var(--mono);font-size:17px;font-weight:900;color:#1e3a8a">'+_st2+'</div></div>';
     if(_eta2)_tbHtml+='<div style="background:#fef3c7;border:2px solid #f59e0b;border-radius:10px;padding:7px 12px;text-align:center"><div style="font-family:var(--mono);font-size:9px;font-weight:700;color:#92400e;letter-spacing:.08em">🏁 คาดเสร็จ</div><div style="font-family:var(--mono);font-size:17px;font-weight:900;color:#78350f">'+_eta2+'</div></div>';
     if(_dur2)_tbHtml+='<div style="background:#d1fae5;border:2px solid #10b981;border-radius:10px;padding:7px 12px;text-align:center"><div style="font-family:var(--mono);font-size:9px;font-weight:700;color:#065f46;letter-spacing:.08em">⏳ รวม</div><div style="font-family:var(--mono);font-size:15px;font-weight:900;color:#064e3b">'+_dur2+'</div></div>';
-    _tbHtml+='</div><div class="tv3-conn"></div></div>';
-    return _tbHtml;
+    _tbHtml+='</div>';
+    return '<div class="tv3-sw">'+_tbHtml+'<div class="tv3-conn"></div></div>';
   }
   const isDone=st.done;
   const isSkip=st.skip;
@@ -850,7 +849,7 @@ function buildStepHtml(st, i, stepsLen, pcol, rid, row){
 
   const snCls=isDone?'done':isActive?(st.pwd?'pwr':st.isStatus?'nxt':isCCP?'pwr':'active'):'';
   const svCls=isDone?'done':isActive?(st.pwd?'pwr':'active'):'';
-  const connHtml=i<stepsLen-1?`<div class="tv3-conn ${connCls}"></div>`:'';
+  const connHtml=i<stepsLen-1?`<div class="tv3-conn ${connCls}"></div>`:''
 
   // step tank และ aging ใช้ SVG ถัง
   let nodeHtml = '';
@@ -1244,7 +1243,7 @@ function renderPastCard(row, i, col, p){
 
   window._pastRow = row; // keep for backward compat
   const steps = buildStepsForPast(row);
-  const stepsHtml = steps.map((st,idx)=>buildStepHtml(st,idx,steps.length,col,row.id,row)).join('');
+  const stepsHtml = steps.map((st,idx)=>buildStepHtml(st,idx,steps.length,col,row.id,row,steps)).join('');
 
   return `<div class="${cardCls}">
     <div class="tv3-head">
