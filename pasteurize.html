@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- build:20260612103000 -->
+<!DOCTYPE html><!-- build:20260616005300 -->
 <html lang="th">
 <head><!-- build:20260611170000 -->
 <meta charset="UTF-8">
@@ -69,7 +69,7 @@
 .tv3-steps{width:100%}
 .tv3-sw{display:flex;align-items:center;flex:1;min-width:0}
 .tv3-sw:last-child{flex:0 0 auto}
-.tv3-conn{flex:1;height:3px;background:#cbd5e1;border-radius:2px;min-width:16px;margin:0 4px;align-self:center;margin-top:-28px}
+.tv3-conn{flex:1;height:3px;background:#cbd5e1;border-radius:2px;min-width:16px;margin:0 4px;align-self:center}
 /* FLOW DIAGRAM COMPAT */
 .tv3-card{margin:0 0 12px}
 </style>
@@ -412,7 +412,15 @@ setInterval(async()=>{
       // ── AUTO STAMP ──────────────────────────────────────────
       // ถ้าถึงเวลา ETA และยังไม่มี past_end_time
       const totalSec2=totalMin*60;
-      if(!agRow.past_end_time && totalSec2>0 && elapsedSec2>=(totalSec2-10)){
+      // เปรียบเทียบเวลานาฬิกาปัจจุบัน vs expected_finish_time โดยตรง
+      const _eta2Str=agRow.expected_finish_time||'';
+      const _nowSec2=(()=>{const n=new Date();return n.getHours()*3600+n.getMinutes()*60+n.getSeconds();})();
+      const _etaSec2=(()=>{if(!_eta2Str)return 0;const a=_eta2Str.split(':').map(Number);return (a[0]||0)*3600+(a[1]||0)*60+(a[2]||0);})();
+      // cross-midnight: ถ้า ETA < start time (เช่น start 23:00 ETA 01:00) บวก 86400
+      const _stSec2=(h||0)*3600+(mm||0)*60+(ss||0);
+      const _etaAdj2=_etaSec2<_stSec2?_etaSec2+86400:_etaSec2;
+      const _nowAdj2=_nowSec2<_stSec2?_nowSec2+86400:_nowSec2;
+      if(!agRow.past_end_time && totalSec2>0 && _eta2Str && _nowAdj2>=(_etaAdj2-10) && elapsedSec2>(totalSec2*0.5)){
         // ต้องมี aging_tank ก่อนถึง auto stamp ได้
         if(!agRow.aging_tank){
           toast(`⚠️ Auto Stamp หยุด — กรุณาเลือก Aging Tank ก่อน`,"red");
@@ -590,7 +598,13 @@ setInterval(async()=>{
     const _tp=agRow.past_start_time.split(':').map(Number);
     const start=new Date((agRow.date||new Date().toISOString().slice(0,10))+'T'+String(_tp[0]||0).padStart(2,'0')+':'+String(_tp[1]||0).padStart(2,'0')+':'+String(_tp[2]||0).padStart(2,'0'));
     const elapsedSec=Math.max(0,(Date.now()-start)/1000);
-    if(!agRow.past_end_time&&totalSec>0&&elapsedSec>=(totalSec-10)){
+    const _etaStr=agRow.expected_finish_time||'';
+    const _nowS2=(()=>{const n=new Date();return n.getHours()*3600+n.getMinutes()*60+n.getSeconds();})();
+    const _etaS2=(()=>{if(!_etaStr)return 0;const a=_etaStr.split(':').map(Number);return (a[0]||0)*3600+(a[1]||0)*60+(a[2]||0);})();
+    const _stS2=(_tp[0]||0)*3600+(_tp[1]||0)*60+(_tp[2]||0);
+    const _etaAdj=_etaS2<_stS2?_etaS2+86400:_etaS2;
+    const _nowAdj=_nowS2<_stS2?_nowS2+86400:_nowS2;
+    if(!agRow.past_end_time&&totalSec>0&&_etaStr&&_nowAdj>=(_etaAdj-10)&&elapsedSec>(totalSec*0.5)){
       // ถึง ETA — stamp ทันทีโดยไม่รอ 15 วินาที
       const _wmKey=p+'_'+(agRow.process_order||'')+'_'+(agRow.aging_tank||'');
       const prevVol=window._prevVolMap[_wmKey]||0;
@@ -797,13 +811,13 @@ function buildStepHtml(st, i, stepsLen, pcol, rid, row){
       var df2=toS(row.past_end_time)-toS(_st2);
       if(df2>=0){var h2=Math.floor(df2/3600),mn2=Math.floor((df2%3600)/60),s2=df2%60;_dur2=(h2?h2+' ชม. ':'')+(mn2?mn2+' นาที ':'')+(!h2&&!mn2?s2+' วิ':'');}
     }
-    if(!_st2&&!_eta2&&!_dur2) return '<div class="tv3-sw"><div class="tv3-conn"></div></div>';
-    var _tbHtml='<div style="display:flex;flex-direction:column;gap:6px;min-width:110px">';
+    if(!_st2&&!_eta2&&!_dur2) return '';
+    var _tbHtml='<div style="display:flex;align-items:center;gap:0"><div class="tv3-conn"></div><div style="display:flex;flex-direction:column;gap:6px;min-width:110px">';
     if(_st2)_tbHtml+='<div style="background:#dbeafe;border:2px solid #3b82f6;border-radius:10px;padding:7px 12px;text-align:center"><div style="font-family:var(--mono);font-size:9px;font-weight:700;color:#1e40af;letter-spacing:.08em">⏱ เริ่ม</div><div style="font-family:var(--mono);font-size:17px;font-weight:900;color:#1e3a8a">'+_st2+'</div></div>';
     if(_eta2)_tbHtml+='<div style="background:#fef3c7;border:2px solid #f59e0b;border-radius:10px;padding:7px 12px;text-align:center"><div style="font-family:var(--mono);font-size:9px;font-weight:700;color:#92400e;letter-spacing:.08em">🏁 คาดเสร็จ</div><div style="font-family:var(--mono);font-size:17px;font-weight:900;color:#78350f">'+_eta2+'</div></div>';
     if(_dur2)_tbHtml+='<div style="background:#d1fae5;border:2px solid #10b981;border-radius:10px;padding:7px 12px;text-align:center"><div style="font-family:var(--mono);font-size:9px;font-weight:700;color:#065f46;letter-spacing:.08em">⏳ รวม</div><div style="font-family:var(--mono);font-size:15px;font-weight:900;color:#064e3b">'+_dur2+'</div></div>';
-    _tbHtml+='</div>';
-    return '<div class="tv3-sw">'+_tbHtml+'<div class="tv3-conn"></div></div>';
+    _tbHtml+='</div><div class="tv3-conn"></div></div>';
+    return _tbHtml;
   }
   const isDone=st.done;
   const isSkip=st.skip;
