@@ -367,8 +367,13 @@ setInterval(async()=>{
       const totalMin=(totalVol*density*60)/speed;
       const _tParts=agRow.past_start_time.split(':').map(Number);
       const[h,mm,ss]=[_tParts[0]||0,_tParts[1]||0,_tParts[2]||0];
-      const start=new Date((agRow.date||new Date().toISOString().slice(0,10))+'T'+String(h).padStart(2,'0')+':'+String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0'));
-      const elapsedSec2=Math.max(0,(Date.now()-start)/1000);
+      // คำนวณ elapsed จาก clock time เท่านั้น ไม่ใช้ date เพื่อป้องกัน vol กระโดดเมื่อ date เป็นเมื่อวาน
+      const _nowD=new Date();
+      const _nowSec3=_nowD.getHours()*3600+_nowD.getMinutes()*60+_nowD.getSeconds();
+      const _stSec3=h*3600+mm*60+(ss||0);
+      let elapsedSec2=_nowSec3-_stSec3;
+      if(elapsedSec2<0) elapsedSec2+=86400; // cross-midnight
+      elapsedSec2=Math.max(0,elapsedSec2);
       const elapsedMin=elapsedSec2/60;
       const agVol=totalMin>0?Math.min(totalVol,(elapsedMin/totalMin)*totalVol):0;
 
@@ -596,8 +601,13 @@ setInterval(async()=>{
     const totalMin=(totalVol*density*60)/speed;
     const totalSec=totalMin*60;
     const _tp=agRow.past_start_time.split(':').map(Number);
-    const start=new Date((agRow.date||new Date().toISOString().slice(0,10))+'T'+String(_tp[0]||0).padStart(2,'0')+':'+String(_tp[1]||0).padStart(2,'0')+':'+String(_tp[2]||0).padStart(2,'0'));
-    const elapsedSec=Math.max(0,(Date.now()-start)/1000);
+    // ใช้ clock time เท่านั้น ป้องกัน elapsedSec พุ่งเมื่อ date เป็นเมื่อวาน
+    const _nd2=new Date();
+    const _nowSec5=_nd2.getHours()*3600+_nd2.getMinutes()*60+_nd2.getSeconds();
+    const _stSec5=(_tp[0]||0)*3600+(_tp[1]||0)*60+(_tp[2]||0);
+    let elapsedSec=_nowSec5-_stSec5;
+    if(elapsedSec<0) elapsedSec+=86400;
+    elapsedSec=Math.max(0,elapsedSec);
     const _etaStr=agRow.expected_finish_time||'';
     const _nowS2=(()=>{const n=new Date();return n.getHours()*3600+n.getMinutes()*60+n.getSeconds();})();
     const _etaS2=(()=>{if(!_etaStr)return 0;const a=_etaStr.split(':').map(Number);return (a[0]||0)*3600+(a[1]||0)*60+(a[2]||0);})();
@@ -801,22 +811,9 @@ function buildFlowSteps(row){
 }
 
 function buildStepHtml(st, i, stepsLen, pcol, rid, row, allSteps){
-  // timebox — กรอบเวลาระหว่าง Pasteurising และ Aging
+  // timebox — เส้นเชื่อม Pasteurising → Aging เท่านั้น (เวลาอยู่บน headbar แล้ว)
   if(st.isTimebox){
-    var _st2=row.past_start_time||'';
-    var _eta2=row.expected_finish_time||'';
-    var _dur2='';
-    if(_st2&&row.past_end_time){
-      var toS=function(t){var a=(t+'::').split(':').map(Number);return a[0]*3600+a[1]*60+(a[2]||0);};
-      var df2=toS(row.past_end_time)-toS(_st2);
-      if(df2>=0){var h2=Math.floor(df2/3600),mn2=Math.floor((df2%3600)/60),s2=df2%60;_dur2=(h2?h2+' ชม. ':'')+(mn2?mn2+' นาที ':'')+(!h2&&!mn2?s2+' วิ':'');}
-    }
-    var _tbHtml='<div style="display:flex;flex-direction:column;gap:6px;min-width:110px">';
-    if(_st2)_tbHtml+='<div style="background:#dbeafe;border:2px solid #3b82f6;border-radius:10px;padding:7px 12px;text-align:center"><div style="font-family:var(--mono);font-size:9px;font-weight:700;color:#1e40af;letter-spacing:.08em">⏱ เริ่ม</div><div style="font-family:var(--mono);font-size:17px;font-weight:900;color:#1e3a8a">'+_st2+'</div></div>';
-    if(_eta2)_tbHtml+='<div style="background:#fef3c7;border:2px solid #f59e0b;border-radius:10px;padding:7px 12px;text-align:center"><div style="font-family:var(--mono);font-size:9px;font-weight:700;color:#92400e;letter-spacing:.08em">🏁 คาดเสร็จ</div><div style="font-family:var(--mono);font-size:17px;font-weight:900;color:#78350f">'+_eta2+'</div></div>';
-    if(_dur2)_tbHtml+='<div style="background:#d1fae5;border:2px solid #10b981;border-radius:10px;padding:7px 12px;text-align:center"><div style="font-family:var(--mono);font-size:9px;font-weight:700;color:#065f46;letter-spacing:.08em">⏳ รวม</div><div style="font-family:var(--mono);font-size:15px;font-weight:900;color:#064e3b">'+_dur2+'</div></div>';
-    _tbHtml+='</div>';
-    return '<div class="tv3-sw">'+_tbHtml+'<div class="tv3-conn"></div></div>';
+    return '<div class="tv3-conn"></div>';
   }
   const isDone=st.done;
   const isSkip=st.skip;
@@ -1270,6 +1267,17 @@ function renderPastCard(row, i, col, p){
             +(_st2?'<div style="font-family:var(--mono);font-size:10px;font-weight:700;color:#1e40af;white-space:nowrap">⏱ เริ่ม '+_st2+'</div>':'')
             +(_eta2?'<div style="font-family:var(--mono);font-size:10px;font-weight:700;color:#92400e;white-space:nowrap">🏁 คาด '+_eta2+'</div>':'')
             +(_dur2?'<div style="font-family:var(--mono);font-size:10px;font-weight:700;color:#065f46;white-space:nowrap">⏳ '+_dur2+'</div>':'')
+            +'</div>';
+        }
+        // สถานะ pasteurising — แสดงเวลาเริ่ม/คาดเสร็จแนวนอนบน headbar
+        if(ps.id==='pasteurising'){
+          const _st3=row.past_start_time||'';
+          const _eta3=row.expected_finish_time||'';
+          return '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end">'
+            +'<span class="badge '+ps.cls+'" style="font-size:13px;padding:8px 18px">'+ps.lbl+'</span>'
+            +(_st3?'<div style="display:flex;flex-direction:column;align-items:center;background:#dbeafe;border:2px solid #3b82f6;border-radius:10px;padding:5px 14px"><div style="font-family:var(--mono);font-size:9px;font-weight:700;color:#1e40af;letter-spacing:.08em">⏱ เริ่ม</div><div style="font-family:var(--mono);font-size:16px;font-weight:900;color:#1e3a8a">'+_st3+'</div></div>':'')
+            +(_eta3?'<div style="display:flex;flex-direction:column;align-items:center;background:#fef3c7;border:2px solid #f59e0b;border-radius:10px;padding:5px 14px"><div style="font-family:var(--mono);font-size:9px;font-weight:700;color:#92400e;letter-spacing:.08em">🏁 คาดเสร็จ</div><div style="font-family:var(--mono);font-size:16px;font-weight:900;color:#78350f">'+_eta3+'</div></div>':'')
+            +(()=>{if(!_st3||!_eta3)return '';const _toS=t=>{const a=(t+'::').split(':').map(Number);return(a[0]||0)*3600+(a[1]||0)*60+(a[2]||0);};let df=_toS(_eta3)-_toS(_st3);if(df<0)df+=86400;const h=Math.floor(df/3600),mn=Math.floor((df%3600)/60),s=df%60;const dur=(h?h+' ชม. ':'')+(mn?mn+' นาที ':'')+(s&&!h?s+' วิ':'');return dur?'<div style="display:flex;flex-direction:column;align-items:center;background:#d1fae5;border:2px solid #10b981;border-radius:10px;padding:5px 14px"><div style="font-family:var(--mono);font-size:9px;font-weight:700;color:#065f46;letter-spacing:.08em">⏳ รวม</div><div style="font-family:var(--mono);font-size:16px;font-weight:900;color:#064e3b">'+dur+'</div></div>':'';})()
             +'</div>';
         }
         return '<span class="badge '+ps.cls+'" style="font-size:13px;padding:8px 18px">'+ps.lbl+'</span>';
