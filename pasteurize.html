@@ -1,6 +1,6 @@
-<!DOCTYPE html><!-- build:20260616081000 -->
+<!DOCTYPE html><!-- build:20260616082000 -->
 <html lang="th">
-<head><!-- build:20260616081000 -->
+<head><!-- build:20260616082000 -->
 <meta charset="UTF-8">
 <meta name="theme-color" content="#1e40af">
 <meta name="mobile-web-app-capable" content="yes">
@@ -829,10 +829,7 @@ function buildFlowSteps(row){
 
 function buildStepHtml(st, i, stepsLen, pcol, rid, row, allSteps){
   // timebox — เส้นเชื่อม Pasteurising → Aging เท่านั้น (เวลาอยู่บน headbar แล้ว)
-  if(st.isTimebox){
-    const _tbColor=st.done?'#10b981':'#cbd5e1';
-    return '<div style="flex:1;min-width:16px;height:4px;background:'+_tbColor+';border-radius:2px;align-self:center"></div>';
-  }
+  if(st.isTimebox){ return ''; }
   const isDone=st.done;
   const isSkip=st.skip;
   const isActive=st.active&&!isDone&&!isSkip;
@@ -848,7 +845,7 @@ function buildStepHtml(st, i, stepsLen, pcol, rid, row, allSteps){
   }
   let connCls='';
   if(isDone) connCls='done';
-  else if(isActive) connCls=st.isStatus?'nxt':'active';
+  else if(isActive) connCls=(st.isStatus&&st.id!=='past')?'nxt':'active';
 
   // btn — support custom label และ btnField
   let btnH='';
@@ -865,7 +862,7 @@ function buildStepHtml(st, i, stepsLen, pcol, rid, row, allSteps){
   const snCls=isDone?'done':isActive?(st.pwd?'pwr':st.isStatus?'nxt':isCCP?'pwr':'active'):'';
   const svCls=isDone?'done':isActive?(st.pwd?'pwr':'active'):'';
   const _nxtSt=(allSteps||[])[i+1];
-  const connHtml=i<stepsLen-1&&!(_nxtSt&&_nxtSt.isTimebox)?`<div class="tv3-conn ${connCls}"></div>`:''
+  const connHtml=i<stepsLen-1?`<div class="tv3-conn ${connCls}"></div>`:''
 
   // step tank และ aging ใช้ SVG ถัง
   let nodeHtml = '';
