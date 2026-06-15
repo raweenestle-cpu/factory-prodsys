@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html><!-- build:20260616091000 -->
 <html lang="th">
 <head>
 <meta charset="UTF-8">
@@ -1042,13 +1042,39 @@ function renderMixTanks(m, rowsArg){
           <div class="tv3-meta">Batch ${row.batch_no||'—'} &nbsp;·&nbsp; <span style="font-size:18px;font-weight:900;color:#111827">${displayVol(row)}</span>${row.final_flush?'&nbsp;·&nbsp;<span style="font-family:var(--mono);font-size:13px;font-weight:900;color:#0891b2">🧪 Flush: '+(+(row.final_flush)).toLocaleString()+' L</span>':''}</div>
           ${(()=>{const _at=row.aging_tank||'';const _as=_at&&window._agingStates?window._agingStates[_at]||{}:{};return _at?(expireBox(_as.expire_at||null)+tempBox(_as)):'';})()}
         </div>
-        <div class="tv3-st"><span class="badge ${stInfo.cls}">${stInfo.lbl}</span></div>
+        <div class="tv3-st" style="padding:12px 16px;gap:8px;flex-direction:column;align-items:flex-end">${(()=>{
+          const _st=row.status||'';
+          const _prepReady=(row.prep_status==='ready');
+          const _started=!!row.mix_start_time;
+          const _ended=!!row.mix_end_time;
+          let _html='<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end">';
+          // badge status
+          _html+=`<span class="badge ${stInfo.cls}" style="font-size:12px;padding:6px 14px">${stInfo.lbl}</span>`;
+          // ปุ่ม Start
+          if(!_started){
+            const _dis=_prepReady?'':' disabled title="ต้องเตรียมเสร็จก่อน"';
+            _html+=`<button${_dis} onclick="window._stampMixStart('${pcol}','${row.id}','${m}')" style="display:flex;align-items:center;gap:6px;padding:9px 18px;border-radius:10px;border:none;cursor:pointer;font-family:var(--mono);font-size:12px;font-weight:900;color:#fff;background:${_prepReady?'linear-gradient(135deg,#16a34a,#22c55e)':'#94a3b8'};box-shadow:${_prepReady?'0 3px 12px rgba(22,163,74,.4)':'none'};transition:all .15s">▶ เริ่มผสม</button>`;
+          } else {
+            _html+=`<div style="font-family:var(--mono);font-size:11px;font-weight:900;color:#065f46;background:#d1fae5;border:1.5px solid #10b981;border-radius:8px;padding:6px 12px">▶ ${row.mix_start_time}</div>`;
+          }
+          // ปุ่ม Stop
+          if(_started&&!_ended){
+            _html+=`<button onclick="stampTime('${pcol}','${row.id}','mix_end_time','${m}')" style="display:flex;align-items:center;gap:6px;padding:9px 18px;border-radius:10px;border:none;cursor:pointer;font-family:var(--mono);font-size:12px;font-weight:900;color:#fff;background:linear-gradient(135deg,#dc2626,#ef4444);box-shadow:0 3px 12px rgba(220,38,38,.4);transition:all .15s">⏹ หยุดผสม</button>`;
+          } else if(_ended){
+            _html+=`<div style="font-family:var(--mono);font-size:11px;font-weight:900;color:#991b1b;background:#fee2e2;border:1.5px solid #ef4444;border-radius:8px;padding:6px 12px">⏹ ${row.mix_end_time}</div>`;
+          }
+          _html+='</div>';
+          // sig
+          if(row.sig_mix_start){
+            _html+=`<img src="${row.sig_mix_start}" style="height:28px;max-width:60px;object-fit:contain;border:1.5px solid #10b981;border-radius:6px;margin-top:4px" title="${row.sig_mix_start_name||''}">`;
+          }
+          return _html;
+        })()}</div>
       </div>
       <div class="tv3-body">
         <div class="tv3-tank">${tankSVG(row, cap)}</div>
         <div class="tv3-flow" style="flex:1;min-width:0"><div class="tv3-steps">${stepsHtml}</div></div>
       </div>
-      ${stampStrip(row, tankLabel, pcol, row.id, m)}
     </div>`;
   }
 
