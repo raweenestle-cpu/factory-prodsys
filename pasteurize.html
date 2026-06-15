@@ -846,7 +846,8 @@ function buildStepHtml(st, i, stepsLen, pcol, rid, row, allSteps){
 
   const snCls=isDone?'done':isActive?(st.pwd?'pwr':st.isStatus?'nxt':isCCP?'pwr':'active'):'';
   const svCls=isDone?'done':isActive?(st.pwd?'pwr':'active'):'';
-  const connHtml=i<stepsLen-1?`<div class="tv3-conn ${connCls}"></div>`:''
+  const _nxtSt=(allSteps||[])[i+1];
+  const connHtml=i<stepsLen-1&&!(_nxtSt&&_nxtSt.isTimebox)?`<div class="tv3-conn ${connCls}"></div>`:''
 
   // step tank และ aging ใช้ SVG ถัง
   let nodeHtml = '';
