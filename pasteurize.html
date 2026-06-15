@@ -29,8 +29,9 @@
 .tv3-body{display:flex;align-items:stretch;min-height:160px}
 .tv3-tank{width:130px;flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:14px 8px;background:#f8fafc;border-right:2px solid #f1f5f9}
 .tv3-flow{flex:1;padding:16px 20px;overflow-x:auto;display:flex;align-items:center;background:#fafbfc}
-.tv3-steps{display:flex;align-items:center;gap:0;flex:1}
+.tv3-steps{display:flex;align-items:center;gap:0;flex:1;justify-content:space-between}
 .tv3-sw{display:flex;align-items:center;flex:1;min-width:0}
+.tv3-sw:last-child{flex:0 0 auto}
 .tv3-step{display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0}
 .tv3-circle{width:68px;height:68px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;border:2.5px solid #e2e8f0;background:#ffffff;flex-shrink:0;transition:all .25s;position:relative;box-shadow:0 2px 8px rgba(0,0,0,.06)}
 .tv3-circle.done{border-color:#10b981;background:linear-gradient(135deg,#d1fae5,#ecfdf5);box-shadow:0 2px 12px rgba(16,185,129,.2)}
@@ -44,7 +45,7 @@
 .tv3-sn.done{color:#065f46;font-weight:800}.tv3-sn.active{color:#92400e;font-weight:900}.tv3-sn.pwr{color:#c2410c;font-weight:900}.tv3-sn.nxt{color:#1e40af;font-weight:900}
 .tv3-sv{font-family:var(--mono);font-size:12px;font-weight:800;text-align:center;color:#475569}
 .tv3-sv.done{color:#065f46}.tv3-sv.active{color:#92400e}.tv3-sv.pwr{color:#c2410c}.tv3-sv2{font-family:var(--mono);font-size:10px;font-weight:700;text-align:center;color:#0369a1;margin-top:-1px}
-.tv3-conn{flex:1;height:4px;background:#e2e8f0;border-radius:2px;min-width:8px;margin:0 2px;align-self:center}
+.tv3-conn{flex:1;height:4px;background:#e2e8f0;border-radius:2px;min-width:20px;max-width:60px;margin:0 4px;align-self:center}
 .tv3-conn.done{background:linear-gradient(90deg,#10b981,#34d399);height:3px}.tv3-conn.active{background:#f59e0b;height:3px}.tv3-conn.nxt{background:#3b82f6;height:3px}
 .tv3-fbtn{font-family:var(--mono);font-size:9px;font-weight:900;padding:4px 10px;border-radius:6px;border:none;cursor:pointer;color:#fff;white-space:nowrap;margin-top:3px;box-shadow:0 1px 4px rgba(0,0,0,.2);transition:all .15s}
 .tv3-fbtn.rw{background:linear-gradient(135deg,#1d4ed8,#2563eb)}.tv3-fbtn.pwr{background:linear-gradient(135deg,#c2410c,#ea580c)}
@@ -66,7 +67,7 @@
 @keyframes tv3gy{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,.7),0 0 0 0 rgba(245,158,11,.3)}50%{box-shadow:0 0 0 8px rgba(245,158,11,.2),0 0 0 16px rgba(245,158,11,0)}}
 @keyframes tv3go{0%,100%{box-shadow:0 0 0 0 rgba(234,88,12,.7),0 0 0 0 rgba(234,88,12,.3)}50%{box-shadow:0 0 0 8px rgba(234,88,12,.2),0 0 0 16px rgba(234,88,12,0)}}
 @keyframes tv3gb{0%,100%{box-shadow:0 0 0 0 rgba(37,99,235,.7),0 0 0 0 rgba(37,99,235,.3)}50%{box-shadow:0 0 0 8px rgba(37,99,235,.2),0 0 0 16px rgba(37,99,235,0)}}
-.tv3-steps{width:100%;display:flex;align-items:center}
+.tv3-steps{width:100%;display:flex;align-items:center;justify-content:space-between}
 .tv3-sw{display:flex;align-items:center;flex:1;min-width:0}
 .tv3-conn{flex:1;height:4px;background:#e2e8f0;border-radius:2px;min-width:8px;margin:0 2px;align-self:center}
 /* FLOW DIAGRAM COMPAT */
@@ -1317,6 +1318,17 @@ function renderPastCard(row, i, col, p){
             +(_st3?'<div style="display:flex;flex-direction:column;align-items:center;background:rgba(219,234,254,.95);border:2px solid #60a5fa;border-radius:14px;padding:8px 18px;box-shadow:0 4px 16px rgba(59,130,246,.35),0 0 0 1px rgba(255,255,255,.1)"><div style="font-family:var(--mono);font-size:9px;font-weight:800;color:#1e40af;letter-spacing:1.5px;text-transform:uppercase">⏱ เริ่ม</div><div style="font-family:var(--mono);font-size:18px;font-weight:900;color:#1e3a8a;letter-spacing:.5px">'+_st3+'</div></div>':'')
             +(_eta3?'<div style="display:flex;flex-direction:column;align-items:center;background:rgba(254,243,199,.95);border:2px solid #fbbf24;border-radius:14px;padding:8px 18px;box-shadow:0 4px 16px rgba(245,158,11,.35),0 0 0 1px rgba(255,255,255,.1)"><div style="font-family:var(--mono);font-size:9px;font-weight:800;color:#92400e;letter-spacing:1.5px;text-transform:uppercase">🏁 คาดเสร็จ</div><div style="font-family:var(--mono);font-size:18px;font-weight:900;color:#78350f;letter-spacing:.5px">'+_eta3+'</div></div>':'')
             +(()=>{if(!_st3||!_eta3)return '';const _toS=t=>{const a=(t+'::').split(':').map(Number);return(a[0]||0)*3600+(a[1]||0)*60+(a[2]||0);};let df=_toS(_eta3)-_toS(_st3);if(df<0)df+=86400;const h=Math.floor(df/3600),mn=Math.floor((df%3600)/60),s=df%60;const dur=String(h).padStart(2,'0')+':'+String(mn).padStart(2,'0')+':'+String(s).padStart(2,'0');return dur?'<div style="display:flex;flex-direction:column;align-items:center;background:rgba(209,250,229,.95);border:2px solid #34d399;border-radius:14px;padding:8px 18px;box-shadow:0 4px 16px rgba(16,185,129,.35),0 0 0 1px rgba(255,255,255,.1)"><div style="font-family:var(--mono);font-size:9px;font-weight:800;color:#065f46;letter-spacing:1.5px;text-transform:uppercase">⏳ รวม</div><div style="font-family:var(--mono);font-size:18px;font-weight:900;color:#064e3b;letter-spacing:.5px">'+dur+'</div></div>':'';})()
+            +'</div>';
+        }
+        // stamped = พาสเสร็จแล้ว รอส่ง / submitted = ส่งแล้ว — โชว์ time cards เหมือนกัน
+        if(ps.id==='stamped'||ps.id==='submitted'||ps.id==='wait_past'||ps.id==='wait_past'){
+          const _st3=row.past_start_time||'';
+          const _eta3=row.past_end_time||row.expected_finish_time||'';
+          return '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end">'
+            +'<span class="badge '+ps.cls+'" style="font-size:12px;padding:6px 14px;border:1.5px solid rgba(255,255,255,.15)">'+ps.lbl+'</span>'
+            +(_st3?'<div style="display:flex;flex-direction:column;align-items:center;background:rgba(219,234,254,.95);border:2px solid #60a5fa;border-radius:14px;padding:8px 18px;box-shadow:0 4px 16px rgba(59,130,246,.35)"><div style="font-family:var(--mono);font-size:9px;font-weight:800;color:#1e40af;letter-spacing:1.5px;text-transform:uppercase">⏱ เริ่ม</div><div style="font-family:var(--mono);font-size:18px;font-weight:900;color:#1e3a8a;letter-spacing:.5px">'+_st3+'</div></div>':'')
+            +(_eta3?'<div style="display:flex;flex-direction:column;align-items:center;background:rgba(209,250,229,.95);border:2px solid #34d399;border-radius:14px;padding:8px 18px;box-shadow:0 4px 16px rgba(16,185,129,.35)"><div style="font-family:var(--mono);font-size:9px;font-weight:800;color:#065f46;letter-spacing:1.5px;text-transform:uppercase">✅ เสร็จ</div><div style="font-family:var(--mono);font-size:18px;font-weight:900;color:#064e3b;letter-spacing:.5px">'+_eta3+'</div></div>':'')
+            +(()=>{if(!_st3||!_eta3)return '';const _toS=t=>{const a=(t+'::').split(':').map(Number);return(a[0]||0)*3600+(a[1]||0)*60+(a[2]||0);};let df=_toS(_eta3)-_toS(_st3);if(df<0)df+=86400;const h=Math.floor(df/3600),mn=Math.floor((df%3600)/60),s=df%60;const dur=String(h).padStart(2,'0')+':'+String(mn).padStart(2,'0')+':'+String(s).padStart(2,'0');return dur?'<div style="display:flex;flex-direction:column;align-items:center;background:rgba(254,243,199,.95);border:2px solid #fbbf24;border-radius:14px;padding:8px 18px;box-shadow:0 4px 16px rgba(245,158,11,.35)"><div style="font-family:var(--mono);font-size:9px;font-weight:800;color:#92400e;letter-spacing:1.5px;text-transform:uppercase">⏳ รวม</div><div style="font-family:var(--mono);font-size:18px;font-weight:900;color:#78350f;letter-spacing:.5px">'+dur+'</div></div>':'';})()
             +'</div>';
         }
         return '<span class="badge '+ps.cls+'" style="font-size:13px;padding:8px 18px;border:1.5px solid rgba(255,255,255,.15)">'+ps.lbl+'</span>';
