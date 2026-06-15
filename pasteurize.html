@@ -1,6 +1,6 @@
-<!DOCTYPE html><!-- build:20260616005300 -->
+<!DOCTYPE html><!-- build:20260616081000 -->
 <html lang="th">
-<head><!-- build:20260611170000 -->
+<head><!-- build:20260616081000 -->
 <meta charset="UTF-8">
 <meta name="theme-color" content="#1e40af">
 <meta name="mobile-web-app-capable" content="yes">
@@ -30,7 +30,7 @@
 .tv3-tank{width:130px;flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:14px 8px;background:#f8fafc;border-right:2px solid #f1f5f9}
 .tv3-flow{flex:1;padding:16px 20px;overflow-x:auto;display:flex;align-items:center;background:#fafbfc}
 .tv3-steps{display:flex;align-items:center;gap:0;flex:1}
-.tv3-sw{display:flex;align-items:flex-start;flex:1;min-width:0}
+.tv3-sw{display:flex;align-items:center;flex:1;min-width:0}
 .tv3-sw:last-child{flex:0 0 auto}
 .tv3-step{display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0}
 .tv3-circle{width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;border:2.5px solid #e2e8f0;background:#ffffff;flex-shrink:0;transition:all .25s;position:relative;box-shadow:0 2px 8px rgba(0,0,0,.06)}
@@ -45,8 +45,8 @@
 .tv3-sn.done{color:#065f46;font-weight:900}.tv3-sn.active{color:#92400e;font-weight:900}.tv3-sn.pwr{color:#c2410c;font-weight:900}.tv3-sn.nxt{color:#1e40af;font-weight:900}
 .tv3-sv{font-family:var(--mono);font-size:12px;font-weight:900;text-align:center;color:#334155}
 .tv3-sv.done{color:#065f46}.tv3-sv.active{color:#92400e}.tv3-sv.pwr{color:#c2410c}.tv3-sv2{font-family:var(--mono);font-size:10px;font-weight:700;text-align:center;color:#0369a1;margin-top:-1px}
-.tv3-conn{flex:1;height:4px;background:#e2e8f0;border-radius:2px;min-width:16px;margin:0;margin-top:38px;align-self:auto}
-.tv3-conn.done{background:linear-gradient(90deg,#10b981,#34d399);height:3px}.tv3-conn.active{background:#f59e0b;height:3px}.tv3-conn.nxt{background:#3b82f6;height:3px}
+.tv3-conn{flex:1;height:4px;background:#e2e8f0;border-radius:2px;min-width:16px;margin:0 4px;align-self:center}
+.tv3-conn.done{background:linear-gradient(90deg,#10b981,#34d399);height:4px;box-shadow:0 1px 6px rgba(16,185,129,.35)}.tv3-conn.active{background:#f59e0b;height:4px}.tv3-conn.nxt{background:#3b82f6;height:4px}
 .tv3-fbtn{font-family:var(--mono);font-size:9px;font-weight:900;padding:4px 10px;border-radius:6px;border:none;cursor:pointer;color:#fff;white-space:nowrap;margin-top:3px;box-shadow:0 1px 4px rgba(0,0,0,.2);transition:all .15s}
 .tv3-fbtn.rw{background:linear-gradient(135deg,#1d4ed8,#2563eb)}.tv3-fbtn.pwr{background:linear-gradient(135deg,#c2410c,#ea580c)}
 .tv3-info{width:188px;flex-shrink:0;border-left:2px solid var(--b1);padding:12px;display:flex;flex-direction:column;gap:0;background:var(--s2)}
@@ -68,10 +68,8 @@
 @keyframes tv3go{0%,100%{box-shadow:0 0 0 0 rgba(234,88,12,.7),0 0 0 0 rgba(234,88,12,.3)}50%{box-shadow:0 0 0 8px rgba(234,88,12,.2),0 0 0 16px rgba(234,88,12,0)}}
 @keyframes tv3gb{0%,100%{box-shadow:0 0 0 0 rgba(37,99,235,.7),0 0 0 0 rgba(37,99,235,.3)}50%{box-shadow:0 0 0 8px rgba(37,99,235,.2),0 0 0 16px rgba(37,99,235,0)}}
 .tv3-steps{width:100%;display:flex;align-items:center}
-.tv3-sw{display:flex;align-items:flex-start;flex:1;min-width:0}
-.tv3-conn{flex:1;height:4px;background:#e2e8f0;border-radius:2px;min-width:16px;margin:0;margin-top:38px;align-self:auto}
 /* FLOW DIAGRAM COMPAT */
-.tv3-card{margin:0 0 12px}
+.tv3-card{margin:0 0 14px}
 
 /* ===== FLOW DIAGRAM REDESIGN ===== */
 .tv3-card{position:relative}
@@ -81,10 +79,7 @@
 .tv3-progress-fill::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.5) 50%,transparent 100%);animation:shimmer 2s ease-in-out infinite}
 .tv3-progress-fill.active{background:linear-gradient(90deg,#ea580c,#f97316,#fb923c)}
 @keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(200%)}}
-.tv3-conn.done{background:linear-gradient(90deg,#10b981,#34d399)!important;height:4px!important;box-shadow:0 1px 6px rgba(16,185,129,.35)}
-.tv3-conn.active{height:4px!important}
-.tv3-conn.nxt{height:4px!important}
-.tv3-conn{height:4px!important}
+
 .badge-time{display:inline-flex;flex-direction:column;align-items:center;border-radius:14px;padding:7px 16px}
 .badge-time .bt-lbl{font-family:var(--mono);font-size:8px;font-weight:900;letter-spacing:2px;text-transform:uppercase;margin-bottom:2px}
 .badge-time .bt-val{font-family:var(--mono);font-size:18px;font-weight:900;letter-spacing:.5px;line-height:1}
@@ -836,7 +831,7 @@ function buildStepHtml(st, i, stepsLen, pcol, rid, row, allSteps){
   // timebox — เส้นเชื่อม Pasteurising → Aging เท่านั้น (เวลาอยู่บน headbar แล้ว)
   if(st.isTimebox){
     const _tbColor=st.done?'#10b981':'#cbd5e1';
-    return '<div style="flex:1;min-width:16px;height:4px;background:'+_tbColor+';border-radius:2px;margin-top:38px"></div>';
+    return '<div style="flex:1;min-width:16px;height:4px;background:'+_tbColor+';border-radius:2px;align-self:center"></div>';
   }
   const isDone=st.done;
   const isSkip=st.skip;
