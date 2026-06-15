@@ -813,7 +813,7 @@ function buildFlowSteps(row){
 function buildStepHtml(st, i, stepsLen, pcol, rid, row, allSteps){
   // timebox — เส้นเชื่อม Pasteurising → Aging เท่านั้น (เวลาอยู่บน headbar แล้ว)
   if(st.isTimebox){
-    return '<div class="tv3-conn"></div>';
+    return '<div style="width:32px;flex-shrink:0;height:3px;background:#cbd5e1;border-radius:2px;align-self:center;margin-top:-28px"></div>';
   }
   const isDone=st.done;
   const isSkip=st.skip;
