@@ -1,6 +1,6 @@
-<!DOCTYPE html><!-- build:20260616093000 -->
+<!DOCTYPE html><!-- build:20260616095000 -->
 <html lang="th">
-<head><!-- build:20260616093000 -->
+<head><!-- build:20260616095000 -->
 <meta charset="UTF-8">
 <meta name="theme-color" content="#1e40af">
 <meta name="mobile-web-app-capable" content="yes">
@@ -531,11 +531,10 @@ setInterval(async()=>{
             const nextRow=allRows
               .filter(r=>
                 r.process_order===agRow.process_order&&
-                // aging_tank เดียวกัน หรือยังไม่ได้กำหนด (จะใช้อันเดียวกัน)
                 (!r.aging_tank||r.aging_tank===agRow.aging_tank)&&
                 r.id!==agRow.id&&
-                !r.past_start_time&&
-                (r.status==='pending'||r.status==='mixing'||r.status==='pasteurising'||r.status==='ready_mix')
+                !r.past_start_time&&!r.past_end_time&&
+                (r.status==='pending'||r.status==='mixing'||r.status==='ready_mix'||r.status==='ready'||r.status==='san_done'||r.status==='pasteurising')
               )
               .sort((a,b)=>(a.seq||0)-(b.seq||0))[0];
             // ถ้า nextRow ยังไม่มี aging_tank ให้ inherit จาก agRow
@@ -618,7 +617,7 @@ setInterval(async()=>{
       const endTime=agRow.expected_finish_time||nowHHMMSS();
       const allRowsBefore=[...(rows['p1']||[]),...(rows['p2']||[])];
       const nextRow=agRow.process_order&&agRow.aging_tank
-        ?allRowsBefore.filter(r=>r.process_order===agRow.process_order&&(!r.aging_tank||r.aging_tank===agRow.aging_tank)&&r.id!==agRow.id&&!r.past_start_time&&(r.status==='pending'||r.status==='mixing'||r.status==='pasteurising'||r.status==='ready_mix')).sort((a,b)=>(a.seq||0)-(b.seq||0))[0]
+        ?allRowsBefore.filter(r=>r.process_order===agRow.process_order&&(!r.aging_tank||r.aging_tank===agRow.aging_tank)&&r.id!==agRow.id&&!r.past_start_time&&!r.past_end_time&&(r.status==='pending'||r.status==='mixing'||r.status==='ready_mix'||r.status==='ready'||r.status==='san_done'||r.status==='pasteurising')).sort((a,b)=>(a.seq||0)-(b.seq||0))[0]
         :null;
       const hasNext=!!nextRow||allRowsBefore.some(r=>r.process_order===agRow.process_order&&r.aging_tank===agRow.aging_tank&&r.id!==agRow.id&&(r.status==='pasteurising'||r.status==='pending'||r.status==='mixing'||r.status==='ready_mix'));
 
