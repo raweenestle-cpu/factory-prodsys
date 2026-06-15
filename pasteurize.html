@@ -22,9 +22,9 @@
 .tv3-head{display:flex;align-items:stretch;border-bottom:2px solid #f1f5f9}
 .tv3-seq{width:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:10px 6px;background:linear-gradient(160deg,#1e293b,#334155);border-right:none;flex-shrink:0}
 .tv3-hi{flex:1;padding:14px 18px;background:#ffffff}
-.tv3-code{font-family:var(--mono);font-size:11px;font-weight:700;color:#94a3b8;letter-spacing:1.5px;margin-bottom:4px;text-transform:uppercase}
+.tv3-code{font-family:var(--mono);font-size:11px;font-weight:800;color:#475569;letter-spacing:1.5px;margin-bottom:4px;text-transform:uppercase}
 .tv3-name{font-family:var(--sans);font-size:21px;font-weight:900;color:#0f172a;line-height:1.2}
-.tv3-meta{font-family:var(--mono);font-size:12px;font-weight:600;color:#64748b;margin-top:5px}
+.tv3-meta{font-family:var(--mono);font-size:12px;font-weight:700;color:#334155;margin-top:5px}
 .tv3-st{display:flex;align-items:center;justify-content:flex-end;padding:0 18px;background:#ffffff;border-left:2px solid #f1f5f9;flex-shrink:0;gap:8px}
 .tv3-body{display:flex;align-items:stretch;min-height:160px}
 .tv3-tank{width:130px;flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:14px 8px;background:#f8fafc;border-right:2px solid #f1f5f9}
@@ -41,9 +41,9 @@
 .tv3-circle.nxt{border-color:#2563eb!important;background:#dbeafe!important;animation:tv3gb 1.2s ease-in-out infinite!important;border-width:3px!important}
 .tv3-circle.skip{opacity:.3;border-style:dashed;border-color:#94a3b8;background:#f1f5f9}
 .tv3-circle.idle{border-color:#e2e8f0;background:#f8fafc}
-.tv3-sn{font-family:var(--mono);font-size:10px;font-weight:700;text-align:center;color:#64748b;line-height:1.3;white-space:nowrap}
-.tv3-sn.done{color:#065f46;font-weight:800}.tv3-sn.active{color:#92400e;font-weight:900}.tv3-sn.pwr{color:#c2410c;font-weight:900}.tv3-sn.nxt{color:#1e40af;font-weight:900}
-.tv3-sv{font-family:var(--mono);font-size:12px;font-weight:800;text-align:center;color:#475569}
+.tv3-sn{font-family:var(--mono);font-size:10px;font-weight:800;text-align:center;color:#1e293b;line-height:1.3;white-space:nowrap}
+.tv3-sn.done{color:#065f46;font-weight:900}.tv3-sn.active{color:#92400e;font-weight:900}.tv3-sn.pwr{color:#c2410c;font-weight:900}.tv3-sn.nxt{color:#1e40af;font-weight:900}
+.tv3-sv{font-family:var(--mono);font-size:11px;font-weight:900;text-align:center;color:#334155}
 .tv3-sv.done{color:#065f46}.tv3-sv.active{color:#92400e}.tv3-sv.pwr{color:#c2410c}.tv3-sv2{font-family:var(--mono);font-size:10px;font-weight:700;text-align:center;color:#0369a1;margin-top:-1px}
 .tv3-conn{flex:1;height:4px;background:#e2e8f0;border-radius:2px;min-width:20px;max-width:60px;margin:0 4px;align-self:center}
 .tv3-conn.done{background:linear-gradient(90deg,#10b981,#34d399);height:3px}.tv3-conn.active{background:#f59e0b;height:3px}.tv3-conn.nxt{background:#3b82f6;height:3px}
@@ -1118,8 +1118,13 @@ window.mixTankSVG=function(row,cap){
       if(speed&&totalVol){
         const totalMin=(totalVol*density*60)/speed;
         const _tp=(row.past_start_time||'').split(':').map(Number);
-        const start=new Date((row.date||new Date().toISOString().slice(0,10))+'T'+String(_tp[0]||0).padStart(2,'0')+':'+String(_tp[1]||0).padStart(2,'0')+':'+String(_tp[2]||0).padStart(2,'0'));
-        const elapsedMin=Math.max(0,(Date.now()-start)/60000);
+        // ใช้ clock time เท่านั้น ป้องกัน vol กระโดดเมื่อ date เป็นเมื่อวาน
+        const _nd=new Date();
+        const _nowSecMix=_nd.getHours()*3600+_nd.getMinutes()*60+_nd.getSeconds();
+        const _stSecMix=(_tp[0]||0)*3600+(_tp[1]||0)*60+(_tp[2]||0);
+        let _elSecMix=_nowSecMix-_stSecMix;
+        if(_elSecMix<0)_elSecMix+=86400;
+        const elapsedMin=Math.max(0,_elSecMix/60);
         const flowed=totalMin>0?Math.min(totalVol,(elapsedMin/totalMin)*totalVol):0;
         vol=Math.max(0,totalVol-flowed);
       }
@@ -1282,13 +1287,13 @@ function renderPastCard(row, i, col, p){
   return `<div class="${cardCls}">
     <div class="tv3-head" style="background:linear-gradient(135deg,#0f172a 0%,#1e293b 60%,#1e3a5f 100%);border-bottom:none">
       <div class="tv3-seq" style="background:transparent;width:60px;border-right:1px solid rgba(255,255,255,.08)">
-        <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:rgba(255,255,255,.4);letter-spacing:2px;margin-bottom:2px">${p.toUpperCase()}</div>
+        <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:rgba(255,255,255,.7);letter-spacing:2px;margin-bottom:2px">${p.toUpperCase()}</div>
         <div style="font-family:var(--mono);font-size:28px;font-weight:900;color:#ffffff;text-shadow:0 2px 8px rgba(0,0,0,.4);line-height:1">${i+1}</div>
       </div>
       <div class="tv3-hi" style="background:transparent;padding:12px 16px">
-        <div style="font-family:var(--mono);font-size:10px;font-weight:700;color:rgba(255,255,255,.45);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px">${row.mix_code||'—'} · PO: ${row.process_order||'—'}</div>
+        <div style="font-family:var(--mono);font-size:10px;font-weight:700;color:rgba(255,255,255,.75);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px">${row.mix_code||'—'} · PO: ${row.process_order||'—'}</div>
         <div style="font-family:var(--sans);font-size:19px;font-weight:900;color:#ffffff;line-height:1.2;letter-spacing:-.2px">${row.mix_name||'—'} <span style="font-size:15px;font-weight:700;color:rgba(255,255,255,.7)">· ${(+(row.volume_liter||0)).toLocaleString()} L · Batch ${row.batch_no||'—'}</span></div>
-        <div style="font-family:var(--mono);font-size:11px;font-weight:600;color:rgba(255,255,255,.4);margin-top:5px">${(()=>{const _p=(window.productMap||{})[row.mix_code||'']||{};const _spd=p==='p1'?(_p.speed_m1||_p.speed||'—'):(_p.speed_m2||_p.speed||'—');const _den=_p.density||'—';return 'Density '+_den+' kg/L · Speed '+_spd+' L/hr';})()}</div>
+        <div style="font-family:var(--mono);font-size:11px;font-weight:600;color:rgba(255,255,255,.65);margin-top:5px">${(()=>{const _p=(window.productMap||{})[row.mix_code||'']||{};const _spd=p==='p1'?(_p.speed_m1||_p.speed||'—'):(_p.speed_m2||_p.speed||'—');const _den=_p.density||'—';return 'Density '+_den+' kg/L · Speed '+_spd+' L/hr';})()}</div>
       </div>
       <div class="tv3-st" style="background:transparent;border-left:1px solid rgba(255,255,255,.08);padding:12px 16px;gap:8px;align-items:center">${(()=>{
         if(ps.id==='pending'){
@@ -1340,6 +1345,43 @@ function renderPastCard(row, i, col, p){
         <div class="tv3-steps">${stepsHtml}</div>
       </div>
     </div>
+    ${(()=>{
+      // ปุ่ม Start/Stop บน card
+      const _canStart = !started && !!row.mix_end_time && !ended;
+      const _canStop  = started && !ended;
+      const _canSubmit= ended && ps.id!=='submitted';
+      if(!_canStart && !_canStop && !_canSubmit) return '';
+      let btns = '';
+      if(_canStart){
+        btns += `<button onclick="window.stampTime('${col}','${row.id}','past_start_time','${p}')"
+          style="display:flex;align-items:center;gap:8px;padding:10px 22px;border-radius:12px;border:none;cursor:pointer;font-family:var(--mono);font-size:13px;font-weight:900;color:#fff;background:linear-gradient(135deg,#16a34a,#22c55e);box-shadow:0 4px 14px rgba(22,163,74,.4);transition:all .15s;letter-spacing:.5px">
+          ▶ เริ่ม Pasteurise
+        </button>`;
+      }
+      if(_canStop){
+        btns += `<button onclick="window.stampTime('${col}','${row.id}','past_end_time','${p}')"
+          style="display:flex;align-items:center;gap:8px;padding:10px 22px;border-radius:12px;border:none;cursor:pointer;font-family:var(--mono);font-size:13px;font-weight:900;color:#fff;background:linear-gradient(135deg,#dc2626,#ef4444);box-shadow:0 4px 14px rgba(220,38,38,.4);transition:all .15s;letter-spacing:.5px">
+          ⏹ หยุด / บันทึกเสร็จ
+        </button>`;
+      }
+      if(_canSubmit){
+        const _sr=rows[p]?.find(r=>r.id===row.id);
+        const _prod=(window.productMap||{})[row.mix_code||'']||{};
+        const _dens=+(_prod.density||1);
+        const _spd=p==='p1'?+(_prod.speed_m1||_prod.speed||0):+(_prod.speed_m2||_prod.speed||0);
+        const _vol=+(row.volume_liter||0);
+        const _reqMin=(_vol*_dens*60)/_spd||0;
+        const _toSec=t=>{if(!t)return 0;const a=(t+'::').split(':').map(Number);return(a[0]||0)*3600+(a[1]||0)*60+(a[2]||0);};
+        const _actSec=Math.max(0,_toSec(row.past_end_time)-_toSec(row.past_start_time));
+        const _eff=_actSec>0?Math.round((_reqMin*60/_actSec)*1000)/10:0;
+        const _warn=_eff<97||_eff>100.5;
+        btns += `<button onclick="window.submitPast('${col}','${row.id}','${p}',${_eff},${_warn})"
+          style="display:flex;align-items:center;gap:8px;padding:10px 22px;border-radius:12px;border:none;cursor:pointer;font-family:var(--mono);font-size:13px;font-weight:900;color:#fff;background:linear-gradient(135deg,#1d4ed8,#2563eb);box-shadow:0 4px 14px rgba(37,99,235,.4);transition:all .15s;letter-spacing:.5px">
+          ✅ ส่งข้อมูล (Eff ${_eff}%)
+        </button>`;
+      }
+      return `<div style="display:flex;align-items:center;gap:10px;padding:12px 22px 16px;background:linear-gradient(180deg,#ffffff,#f8fafc);border-top:1.5px solid #f1f5f9">${btns}</div>`;
+    })()}
   </div>`;
 }
 
