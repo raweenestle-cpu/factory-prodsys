@@ -1,6 +1,6 @@
-<!DOCTYPE html><!-- build:20260616082000 -->
+<!DOCTYPE html><!-- build:20260616090000 -->
 <html lang="th">
-<head><!-- build:20260616082000 -->
+<head><!-- build:20260616090000 -->
 <meta charset="UTF-8">
 <meta name="theme-color" content="#1e40af">
 <meta name="mobile-web-app-capable" content="yes">
@@ -565,7 +565,7 @@ setInterval(async()=>{
                 return String(Math.floor(_es/3600)).padStart(2,'0')+':'+String(Math.floor((_es%3600)/60)).padStart(2,'0')+':'+String(_es%60).padStart(2,'0');
               })();
               await updateDoc(doc(db,planCol(p),nextRow.id),{
-                past_start_time:agRow.expected_finish_time||endTime,
+                past_start_time:endTime,
                 expected_finish_time:_nEta15,
                 status:'pasteurising',
                 past_end_time:null,
@@ -573,7 +573,7 @@ setInterval(async()=>{
               // update local rows ทันที
               const _nIdx15=(rows[p]||[]).findIndex(r=>r.id===nextRow.id);
               if(_nIdx15>=0){
-                rows[p][_nIdx15]={...rows[p][_nIdx15],past_start_time:agRow.expected_finish_time||endTime,expected_finish_time:_nEta15,status:'pasteurising',past_end_time:null,_col:planCol(p)};
+                rows[p][_nIdx15]={...rows[p][_nIdx15],past_start_time:endTime,expected_finish_time:_nEta15,status:'pasteurising',past_end_time:null,_col:planCol(p)};
                 window._rows[p]=rows[p];
               }
               // sync aging_tank_states nextRow ด้วย in-memory contrib
@@ -665,11 +665,11 @@ setInterval(async()=>{
           const _nv=+(nextRow.volume_liter||0);const _nd=+(_np.density||1);
           let _nEta=null;
           if(_ns&&_nv){const _nr=Math.round(_nv*_nd*3600/_ns);const _nst=(agRow.expected_finish_time||endTime).split(':').map(Number);const _nss=(_nst[0]||0)*3600+(_nst[1]||0)*60+(_nst[2]||0);const _nes=(_nss+_nr+2)%86400;_nEta=String(Math.floor(_nes/3600)).padStart(2,'0')+':'+String(Math.floor((_nes%3600)/60)).padStart(2,'0')+':'+String(_nes%60).padStart(2,'0');}
-          await updateDoc(doc(db,planCol(p),nextRow.id),{past_start_time:agRow.expected_finish_time||endTime,expected_finish_time:_nEta,status:'pasteurising',past_end_time:null});
+          await updateDoc(doc(db,planCol(p),nextRow.id),{past_start_time:endTime,expected_finish_time:_nEta,status:'pasteurising',past_end_time:null});
           // update local rows ทันที ไม่รอ onSnapshot
           const _nIdx=(rows[p]||[]).findIndex(r=>r.id===nextRow.id);
           if(_nIdx>=0){
-            rows[p][_nIdx]={...rows[p][_nIdx],past_start_time:agRow.expected_finish_time||endTime,expected_finish_time:_nEta,status:'pasteurising',past_end_time:null,_col:planCol(p)};
+            rows[p][_nIdx]={...rows[p][_nIdx],past_start_time:endTime,expected_finish_time:_nEta,status:'pasteurising',past_end_time:null,_col:planCol(p)};
             window._rows[p]=rows[p];
           }
           if(nextRow.aging_tank){await setDoc(doc(db,'aging_tank_states',nextRow.aging_tank),{current_vol:finalCumVol,mix_code:nextRow.mix_code||'',mix_name:nextRow.mix_name||'',batch_no:nextRow.batch_no||'',process_order:nextRow.process_order||'',past_start_time:agRow.expected_finish_time||endTime,past_end_time:null,status:'pasteurising',updated_at:new Date().toISOString()},{merge:false});}
