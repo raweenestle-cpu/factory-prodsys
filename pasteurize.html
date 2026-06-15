@@ -544,6 +544,7 @@ setInterval(async()=>{
 
           // หา batch ถัดไปจาก process_order + aging_tank เดียวกัน
           if(agRow.process_order&&agRow.aging_tank){
+            const allRows=[...(rows['p1']||[]),...(rows['p2']||[])];
             const nextRow=allRows
               .filter(r=>
                 r.process_order===agRow.process_order&&
