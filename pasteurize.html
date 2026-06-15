@@ -1346,7 +1346,9 @@ function renderPastCard(row, i, col, p){
       </div>
     </div>
     ${(()=>{
-      // ปุ่ม Start/Stop บน card
+      // ปุ่ม Start/Stop บน card — declare ตัวแปรใหม่ใน scope นี้
+      const started = !!row.past_start_time;
+      const ended   = !!row.past_end_time;
       const _canStart = !started && !!row.mix_end_time && !ended;
       const _canStop  = started && !ended;
       const _canSubmit= ended && ps.id!=='submitted';
