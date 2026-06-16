@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- build:20260617200000 -->
+<!DOCTYPE html><!-- build:20260617220000 -->
 <html lang="th">
 <head><!-- build:20260616095000 -->
 <meta charset="UTF-8">
@@ -149,6 +149,23 @@
 @keyframes tv3gy{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,.7)}50%{box-shadow:0 0 0 10px rgba(245,158,11,0),0 0 24px rgba(245,158,11,.3)}}
 @keyframes tv3go{0%,100%{box-shadow:0 0 0 0 rgba(234,88,12,.7)}50%{box-shadow:0 0 0 10px rgba(234,88,12,0),0 0 24px rgba(234,88,12,.3)}}
 @keyframes tv3gb{0%,100%{box-shadow:0 0 0 0 rgba(59,130,246,.7)}50%{box-shadow:0 0 0 10px rgba(59,130,246,0),0 0 24px rgba(59,130,246,.3)}}
+
+/* ===== FIX: badge text สีดำ → สีขาว/สว่างบน dark card ===== */
+/* time badge ใน pasteurize card — override inline color ด้วย filter */
+.tv3-head [style*="color:#1e40af"]{color:#93c5fd!important}
+.tv3-head [style*="color:#1e3a8a"]{color:#bfdbfe!important}
+.tv3-head [style*="color:#92400e"]{color:#fde68a!important}
+.tv3-head [style*="color:#78350f"]{color:#fef08a!important}
+.tv3-head [style*="color:#065f46"]{color:#6ee7b7!important}
+.tv3-head [style*="color:#064e3b"]{color:#a7f3d0!important}
+/* time badge พื้นหลัง — ทำให้ยังอ่านออกบน dark */
+.tv3-head [style*="background:rgba(219,234,254"]{background:rgba(30,58,95,.9)!important;border-color:#60a5fa!important}
+.tv3-head [style*="background:rgba(254,243,199"]{background:rgba(69,26,3,.9)!important;border-color:#f59e0b!important}
+.tv3-head [style*="background:rgba(209,250,229"]{background:rgba(6,78,59,.9)!important;border-color:#34d399!important}
+/* badge ขวาบน status */
+.tv3-head .badge{background:rgba(255,255,255,.1)!important;color:#f1f5f9!important;border-color:rgba(255,255,255,.25)!important}
+/* tv3-flow background → dark */
+.tv3-body .tv3-flow{background:rgba(0,0,0,.08)!important}
 </style>
 
 </head>
@@ -170,6 +187,15 @@
 
 <!-- PLAN P1 -->
 <div class="page on" id="page-plan-p1">
+  <!-- HERO BANNER -->
+  <div style="margin:16px 20px 0;padding:18px 32px;background:linear-gradient(135deg,#431407 0%,#1e293b 60%,#0f172a 100%);border:2px solid #ea580c;border-radius:18px;display:flex;align-items:center;justify-content:center;gap:20px;box-shadow:0 0 0 1px rgba(234,88,12,.2),0 8px 32px rgba(234,88,12,.2)">
+    <div style="font-size:48px;line-height:1">♨️</div>
+    <div style="text-align:center">
+      <div style="font-family:'DM Mono',monospace;font-size:11px;font-weight:900;color:#fb923c;letter-spacing:4px;text-transform:uppercase;margin-bottom:4px">PROD.SYS · PASTEURIZE UNIT</div>
+      <div style="font-family:'DM Mono',monospace;font-size:48px;font-weight:900;color:#ffffff;letter-spacing:2px;line-height:1;text-shadow:0 0 32px rgba(234,88,12,.6)">PASTEURIZE 1</div>
+    </div>
+    <div style="font-size:48px;line-height:1">♨️</div>
+  </div>
   <!-- DATE HEADER -->
   <div class="date-header">
     <div class="date-header-label">📅 วันที่ผลิต</div>
@@ -217,6 +243,15 @@
 
 <!-- PLAN P2 -->
 <div class="page" id="page-plan-p2">
+  <!-- HERO BANNER -->
+  <div style="margin:16px 20px 0;padding:18px 32px;background:linear-gradient(135deg,#3b0764 0%,#1e293b 60%,#0f172a 100%);border:2px solid #a855f7;border-radius:18px;display:flex;align-items:center;justify-content:center;gap:20px;box-shadow:0 0 0 1px rgba(168,85,247,.2),0 8px 32px rgba(168,85,247,.2)">
+    <div style="font-size:48px;line-height:1">♨️</div>
+    <div style="text-align:center">
+      <div style="font-family:'DM Mono',monospace;font-size:11px;font-weight:900;color:#c084fc;letter-spacing:4px;text-transform:uppercase;margin-bottom:4px">PROD.SYS · PASTEURIZE UNIT</div>
+      <div style="font-family:'DM Mono',monospace;font-size:48px;font-weight:900;color:#ffffff;letter-spacing:2px;line-height:1;text-shadow:0 0 32px rgba(168,85,247,.6)">PASTEURIZE 2</div>
+    </div>
+    <div style="font-size:48px;line-height:1">♨️</div>
+  </div>
   <div class="date-header">
     <div class="date-header-label">📅 วันที่ผลิต</div>
     <input type="date" id="date-p2" class="date-input-lg" onchange="loadPlan('p2')">
