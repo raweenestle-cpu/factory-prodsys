@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- build:20260617140000 -->
+<!DOCTYPE html><!-- build:20260617150000 -->
 <html lang="th">
 <head>
 <meta charset="UTF-8">
@@ -422,6 +422,7 @@ tbody tr.row-done{background:#f0fdf4!important;opacity:.7;border-left:4px solid 
   <div class="nav-logo">PROD<b>.</b>SYS</div>
   <button class="nav-tab on" onclick="switchMix('m1',this)">⚗️ Mix 1</button>
   <button class="nav-tab" onclick="switchMix('m2',this)">⚗️ Mix 2</button>
+  <button class="nav-tab" onclick="showHistory(this)">📋 ประวัติ</button>
   <div class="nav-right">
     <a href="preparemix.html" style="font-size:11px;padding:5px 12px;border-radius:7px;border:1.5px solid var(--b1);background:#fef3c7;color:#92400e;cursor:pointer;text-decoration:none;font-family:var(--mono);font-weight:800">📋 Prepare Mix</a>
     <span class="nav-role">MIXING</span>
@@ -451,6 +452,30 @@ tbody tr.row-done{background:#f0fdf4!important;opacity:.7;border-left:4px solid 
   <div id="tank-visual-m2" style="margin:0 20px 14px;overflow:hidden;position:relative;z-index:1"></div>
 </div>
 
+<!-- HISTORY -->
+<div class="page" id="page-history">
+  <div style="padding:4px 0 20px">
+    <div style="background:#1e293b;border:2px solid #334155;border-radius:14px;padding:20px;box-shadow:0 4px 24px rgba(0,0,0,.3)">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+        <div style="font-family:'DM Mono',monospace;font-size:13px;font-weight:900;color:#f1f5f9">📋 ประวัติการ Mixing</div>
+        <div style="flex:1"></div>
+        <span id="hist-count" style="font-family:'DM Mono',monospace;font-size:11px;color:#64748b"></span>
+        <button onclick="window.exportMixHistory()" style="padding:7px 14px;border-radius:8px;background:#15803d;color:#fff;border:none;font-family:'DM Mono',monospace;font-size:12px;font-weight:900;cursor:pointer">📥 Export CSV</button>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+        <input id="hist-search" type="text" placeholder="🔍 ค้นหา Mix Code, Process Order, ชื่อ Mix..." style="flex:1;min-width:200px;padding:8px 12px;border:1.5px solid #334155;border-radius:8px;font-family:'DM Mono',monospace;font-size:12px;outline:none;background:#0f172a;color:#e2e8f0" oninput="window.filterMixHistory()">
+        <select id="hist-unit" onchange="window.filterMixHistory()" style="padding:7px 12px;border:1.5px solid #334155;border-radius:8px;font-family:'DM Mono',monospace;font-size:12px;outline:none;background:#0f172a;color:#e2e8f0">
+          <option value="">ทุก Unit</option>
+          <option value="m1">Mix 1</option>
+          <option value="m2">Mix 2</option>
+        </select>
+        <button onclick="document.getElementById('hist-search').value='';document.getElementById('hist-unit').value='';window.filterMixHistory()" style="padding:7px 12px;border-radius:8px;background:#1e293b;color:#94a3b8;border:1.5px solid #334155;font-family:'DM Mono',monospace;font-size:12px;cursor:pointer">✕ ล้าง</button>
+      </div>
+      <div id="history-content"></div>
+    </div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script type="module">
@@ -459,7 +484,7 @@ import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/fi
 
 
 
-import { getFirestore, collection, query, where, orderBy, onSnapshot, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, collection, query, where, orderBy, onSnapshot, updateDoc, doc, getDocs, getDoc, addDoc, setDoc, limit } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 
 import {resolveStatus,statusLabel,statusColor,statusBlink,statusBadge,expireBox,calcExpireAt,displayVol,getProductColor,getMaxTemp,tempBox} from "./shared.js";
@@ -1319,6 +1344,189 @@ async function renderChart(m){
     }
   });
 }
+
+// ── HISTORY ────────────────────────────────────────────────────────────
+window.showHistory=(btn)=>{
+  document.querySelectorAll('.page').forEach(el=>el.classList.remove('on'));
+  document.querySelectorAll('.nav-tab').forEach(el=>el.classList.remove('on'));
+  document.getElementById('page-history').classList.add('on');
+  if(btn) btn.classList.add('on');
+  loadMixHistory();
+};
+
+async function loadMixHistory(){
+  const el=document.getElementById('history-content');
+  if(!el) return;
+  el.innerHTML=`<div style="text-align:center;padding:30px;color:#64748b;font-family:'DM Mono',monospace">⏳ กำลังโหลด...</div>`;
+  try{
+    const q=query(collection(db,'mixing_history'),orderBy('archived_date','desc'),limit(500));
+    const snap=await getDocs(q);
+    if(snap.empty){
+      el.innerHTML=`<div style="text-align:center;padding:30px;color:#64748b;font-family:'DM Mono',monospace">ไม่มีข้อมูลประวัติ</div>`;
+      return;
+    }
+    window._mixHistoryRows=snap.docs.map(d=>({id:d.id,...d.data()}))
+      .sort((a,b)=>{
+        const dc=(b.archived_date||'').localeCompare(a.archived_date||'');
+        if(dc!==0) return dc;
+        return (b.archived_at||'').localeCompare(a.archived_at||'');
+      });
+    window.filterMixHistory();
+  }catch(e){
+    el.innerHTML=`<div style="text-align:center;padding:20px;color:#f87171;font-family:'DM Mono',monospace">❌ โหลดไม่สำเร็จ: ${e.message}</div>`;
+    console.error('loadMixHistory error:',e);
+  }
+}
+
+window.filterMixHistory=function(){
+  const el=document.getElementById('history-content');
+  if(!el) return;
+  const rows=window._mixHistoryRows||[];
+  const q=(document.getElementById('hist-search')?.value||'').trim().toLowerCase();
+  const unit=(document.getElementById('hist-unit')?.value||'').toLowerCase();
+  const filtered=rows.filter(r=>{
+    if(unit&&(r.mixing_unit||'').toLowerCase()!==unit) return false;
+    if(!q) return true;
+    return (r.process_order||'').toLowerCase().includes(q)
+        || (r.mix_code||'').toLowerCase().includes(q)
+        || (r.mix_name||'').toLowerCase().includes(q);
+  });
+  window._filteredMixRows=filtered;
+  const countEl=document.getElementById('hist-count');
+  if(countEl) countEl.textContent=filtered.length+' รายการ'+(q||unit?' (กรองจาก '+rows.length+')':'');
+  if(!filtered.length){
+    el.innerHTML=`<div style="text-align:center;padding:30px;color:#64748b;font-family:'DM Mono',monospace">ไม่พบข้อมูล${q?' สำหรับ "'+q+'"':''}</div>`;
+    return;
+  }
+  const hl=(txt)=>{
+    if(!q||!txt) return txt||'—';
+    const idx=txt.toLowerCase().indexOf(q);
+    if(idx<0) return txt;
+    return txt.slice(0,idx)+'<mark style="background:#854d0e;color:#fef08a;border-radius:2px">'+txt.slice(idx,idx+q.length)+'</mark>'+txt.slice(idx+q.length);
+  };
+  el.innerHTML=`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px">
+    <thead><tr style="background:#0f172a">
+      ${['วันที่','เวลา Archive','Unit','Mix Code','Process Order','ชื่อ Mix','Batch','Vol (L)','Tank','เริ่ม Mix','Mix เสร็จ','ใช้เวลา','Eff%',
+        '🍬 Glc Set','🍬 Glc Act.','🧂 Sgr Set','🧂 Sgr Act.','🌴 Plm Set','🌴 Plm Act.','🛢️ Oil Set','🛢️ Oil Act.','🥛 Fat Set','🥛 Fat Act.','Final Flush']
+        .map(h=>`<th style="padding:8px 10px;text-align:left;font-family:'DM Mono',monospace;font-size:10px;color:#64748b;border-bottom:1.5px solid #334155;white-space:nowrap">${h}</th>`).join('')}
+    </tr></thead>
+    <tbody>${filtered.map((r,i)=>{
+      const eff=r.eff||0;
+      const ec=eff>=99.9&&eff<=100.5?'#34d399':eff>100.5?'#fb923c':eff>0?'#f87171':'#64748b';
+      const el2=eff>=99.9&&eff<=100.5?'✅':eff>100.5?'⚠️':eff>0?'❌':'—';
+      const unitColor=(r.mixing_unit||'').toLowerCase()==='m1'?'#1d4ed8':'#7c3aed';
+      const unitLabel=(r.mixing_unit||'').toLowerCase()==='m1'?'MIX 1':'MIX 2';
+      let elapsed='—';
+      if(r.mix_start_time&&r.mix_end_time){
+        const t1=r.mix_start_time.split(':').map(Number);
+        const t2=r.mix_end_time.split(':').map(Number);
+        let m2=(t2[0]*60+t2[1])-(t1[0]*60+t1[1]);
+        if(m2<0) m2+=1440;
+        elapsed=m2+' min';
+      }
+      const rowBg=i%2===0?'#0f172a':'#111827';
+      const td=(v,extra='')=>`<td style="padding:7px 10px;${extra}">${v}</td>`;
+      const mono='font-family:"DM Mono",monospace;';
+      return`<tr style="border-bottom:1px solid #1e293b;background:${rowBg}">
+        ${td(`<span style="${mono}font-size:11px;color:#64748b">${r.archived_date||'—'}</span>`)}
+        ${td(`<span style="${mono}font-size:11px;color:#64748b">${r.archived_at||'—'}</span>`)}
+        ${td(`<span style="${mono}font-size:11px;font-weight:900;color:#fff;background:${unitColor};padding:2px 8px;border-radius:4px">${unitLabel}</span>`,'text-align:center')}
+        ${td(`<span style="${mono}font-weight:700;color:#e2e8f0">${hl(r.mix_code||'—')}</span>`)}
+        ${td(`<span style="${mono}font-weight:700;color:#60a5fa">${hl(r.process_order||'—')}</span>`)}
+        ${td(`<span style="color:#cbd5e1">${hl(r.mix_name||'—')}</span>`)}
+        ${td(`<span style="${mono}color:#94a3b8">${r.batch_no||'—'}</span>`,'text-align:center')}
+        ${td(`<span style="${mono}color:#e2e8f0">${(+(r.volume_liter||0)).toLocaleString()}</span>`,'text-align:right')}
+        ${td(`<span style="${mono}color:#94a3b8">${r.mixing_tank||'—'}</span>`)}
+        ${td(`<span style="${mono}color:#34d399">${r.mix_start_time||'—'}</span>`)}
+        ${td(`<span style="${mono}color:#f87171">${r.mix_end_time||'—'}</span>`)}
+        ${td(`<span style="${mono}color:#94a3b8">${elapsed}</span>`)}
+        ${td(`<span style="${mono}font-weight:700;color:${ec}">${el2} ${eff?eff+'%':'—'}</span>`)}
+        ${td(`<span style="${mono}font-size:11px;color:#94a3b8">${r.glc_set||'—'}</span>`,'text-align:right')}
+        ${td(`<span style="${mono}font-size:11px;color:${r.glc_actual?'#34d399':'#475569'}">${r.glc_actual||'—'}</span>`,'text-align:right')}
+        ${td(`<span style="${mono}font-size:11px;color:#94a3b8">${r.sgr_set||'—'}</span>`,'text-align:right')}
+        ${td(`<span style="${mono}font-size:11px;color:${r.sgr_actual?'#34d399':'#475569'}">${r.sgr_actual||'—'}</span>`,'text-align:right')}
+        ${td(`<span style="${mono}font-size:11px;color:#94a3b8">${r.plm_set||'—'}</span>`,'text-align:right')}
+        ${td(`<span style="${mono}font-size:11px;color:${r.plm_actual?'#34d399':'#475569'}">${r.plm_actual||'—'}</span>`,'text-align:right')}
+        ${td(`<span style="${mono}font-size:11px;color:#94a3b8">${r.oil_mix_set||'—'}</span>`,'text-align:right')}
+        ${td(`<span style="${mono}font-size:11px;color:${r.oil_mix_actual?'#34d399':'#475569'}">${r.oil_mix_actual||'—'}</span>`,'text-align:right')}
+        ${td(`<span style="${mono}font-size:11px;color:#94a3b8">${r.fat_milk_set||'—'}</span>`,'text-align:right')}
+        ${td(`<span style="${mono}font-size:11px;color:${r.fat_milk_actual?'#34d399':'#475569'}">${r.fat_milk_actual||'—'}</span>`,'text-align:right')}
+        ${td(`<span style="${mono}font-size:11px;color:#38bdf8">${r.final_flush?(+(r.final_flush)).toLocaleString()+' L':'—'}</span>`,'text-align:right')}
+      </tr>`;
+    }).join('')}</tbody>
+  </table></div>`;
+};
+
+window.exportMixHistory=function(){
+  const rows=window._filteredMixRows||window._mixHistoryRows||[];
+  if(!rows.length){alert('ไม่มีข้อมูลที่จะ Export');return;}
+  const headers=['วันที่','เวลา Archive','Unit','Mix Code','Process Order','ชื่อ Mix','Batch','Vol (L)','Tank','เริ่ม Mix','Mix เสร็จ','ใช้เวลา (min)','Eff%',
+    'Glc Set','Glc Act.','Sgr Set','Sgr Act.','Plm Set','Plm Act.','Oil Set','Oil Act.','Fat Set','Fat Act.','Final Flush (L)'];
+  const esc=v=>'"'+(String(v||'').replace(/"/g,'""'))+'"';
+  const csv=[headers.map(esc).join(','),...rows.map(r=>{
+    let elapsed='';
+    if(r.mix_start_time&&r.mix_end_time){
+      const t1=r.mix_start_time.split(':').map(Number);
+      const t2=r.mix_end_time.split(':').map(Number);
+      let m2=(t2[0]*60+t2[1])-(t1[0]*60+t1[1]);
+      if(m2<0) m2+=1440;
+      elapsed=m2;
+    }
+    return[
+      r.archived_date||'',r.archived_at||'',(r.mixing_unit||'').toUpperCase(),
+      r.mix_code||'',r.process_order||'',r.mix_name||'',r.batch_no||'',
+      r.volume_liter||'',r.mixing_tank||'',r.mix_start_time||'',r.mix_end_time||'',
+      elapsed,r.eff?r.eff+'%':'',
+      r.glc_set||'',r.glc_actual||'',r.sgr_set||'',r.sgr_actual||'',
+      r.plm_set||'',r.plm_actual||'',r.oil_mix_set||'',r.oil_mix_actual||'',
+      r.fat_milk_set||'',r.fat_milk_actual||'',r.final_flush||''
+    ].map(esc).join(',');
+  })].join('\n');
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='mixing_history_'+(new Date().toISOString().slice(0,10))+'.csv';
+  a.click();URL.revokeObjectURL(url);
+};
+
+window.archiveMixRow=async function(col,row,mixingUnit){
+  if(!row||!row.id) return;
+  try{
+    const prod=productMap[row.mix_code||'']||{};
+    let eff=0;
+    if(row.mix_start_time&&row.mix_end_time){
+      const speed=mixingUnit==='m1'?+(prod.speed_m1||prod.speed||0):+(prod.speed_m2||prod.speed||0);
+      const density=+(prod.density||1);
+      const vol=+(row.volume_liter||0);
+      const reqSec=speed>0?Math.round(vol*density*3600/speed):0;
+      const t1=row.mix_start_time.split(':').map(Number);
+      const t2=row.mix_end_time.split(':').map(Number);
+      let actualSec=(t2[0]*3600+t2[1]*60)-(t1[0]*3600+t1[1]*60);
+      if(actualSec<0) actualSec+=86400;
+      eff=actualSec>0?Math.round(reqSec/actualSec*1000)/10:0;
+    }
+    const now=new Date();
+    await addDoc(collection(db,'mixing_history'),{
+      archived_date:now.toISOString().slice(0,10),
+      archived_at:now.toTimeString().slice(0,8),
+      mixing_unit:mixingUnit,
+      date:row.date||now.toISOString().slice(0,10),
+      mix_code:row.mix_code||'',mix_name:row.mix_name||'',
+      process_order:row.process_order||'',batch_no:row.batch_no||'',
+      volume_liter:row.volume_liter||0,mixing_tank:row.mixing_tank||'',
+      mix_start_time:row.mix_start_time||'',mix_end_time:row.mix_end_time||'',
+      past_start_time:row.past_start_time||'',past_end_time:row.past_end_time||'',
+      glc_set:row.glc_set||'',glc_actual:row.glc_actual||'',
+      sgr_set:row.sgr_set||'',sgr_actual:row.sgr_actual||'',
+      plm_set:row.plm_set||'',plm_actual:row.plm_actual||'',
+      oil_mix_set:row.oil_mix_set||'',oil_mix_actual:row.oil_mix_actual||'',
+      fat_milk_set:row.fat_milk_set||'',fat_milk_actual:row.fat_milk_actual||'',
+      rework_kg:row.rework_kg||0,final_flush:row.final_flush||0,
+      status:row.status||'',eff:eff,
+      source_id:row.id,source_col:col,
+    });
+  }catch(e){console.error('archiveMixRow error:',e);}
+};
 
 // ── PAGE SWITCH ────────────────────────────────────────────────────────
 window.switchMix=(m,btn)=>{
