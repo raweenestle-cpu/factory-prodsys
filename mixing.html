@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- build:20260617160000 -->
+<!DOCTYPE html><!-- build:20260617170000 -->
 <html lang="th">
 <head>
 <meta charset="UTF-8">
@@ -412,6 +412,42 @@ tbody tr.row-done{background:#f0fdf4!important;opacity:.7;border-left:4px solid 
 /* Prep cell */
 .prep-cell{display:flex;flex-direction:column;gap:4px;padding:2px 0}
 .prep-status-row{display:flex;align-items:center;gap:6px;white-space:nowrap}
+
+/* ===== DATE HEADER — DARK OPERATOR STYLE ===== */
+.date-header{
+  display:flex;align-items:center;gap:16px;
+  background:#1e293b;border:2px solid #334155;
+  border-radius:14px;padding:14px 24px;
+  box-shadow:0 2px 12px rgba(0,0,0,.3)
+}
+.date-header-label{
+  font-family:'DM Mono',monospace;font-size:12px;font-weight:900;
+  color:#64748b;letter-spacing:2px;text-transform:uppercase;flex-shrink:0
+}
+.date-input-lg{
+  font-family:'DM Mono',monospace;font-size:26px;font-weight:900;
+  color:#f1f5f9;background:transparent;border:none;outline:none;
+  cursor:pointer;flex:1;
+  color-scheme:dark
+}
+.date-day-label{
+  font-family:'DM Mono',monospace;font-size:16px;font-weight:700;
+  color:#60a5fa;flex-shrink:0
+}
+
+/* ===== HOURGLASS SPIN ===== */
+@keyframes hourglassSpin{
+  0%{transform:rotate(0deg)}
+  45%{transform:rotate(0deg)}
+  55%{transform:rotate(180deg)}
+  100%{transform:rotate(180deg)}
+}
+.hg-spin{
+  display:inline-block;
+  animation:hourglassSpin 2s ease-in-out infinite;
+  transform-origin:center;
+  font-size:34px;line-height:1
+}
 
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
@@ -1014,9 +1050,13 @@ function renderMixTanks(m, rowsArg){
     const snCls=isDone?'done':isActive?(st.pwd?'pwr':st.isStatus?'nxt':'active'):'';
     const svCls=isDone?'done':isActive?(st.pwd?'pwr':'active'):'';
     const connHtml=i<stepsLen-1?`<div class="tv3-conn ${connCls}"></div>`:'';
+    // icon — wait_past ใช้ spinning hourglass
+    const icoHtml=(st.id==='wait_past'&&isActive)
+      ?`<span class="hg-spin">${st.ico}</span>`
+      :`<span style="font-size:30px">${st.ico}</span>`;
     return `<div class="tv3-sw">
       <div class="tv3-step">
-        <div class="tv3-circle ${cls}"><span style="font-size:30px">${st.ico}</span></div>
+        <div class="tv3-circle ${cls}">${icoHtml}</div>
         <div class="tv3-sn ${snCls}">${st.name}</div>
         <div class="tv3-sv ${svCls}">${isSkip?'—':st.kg}</div>
         ${sv2}${btnH}
