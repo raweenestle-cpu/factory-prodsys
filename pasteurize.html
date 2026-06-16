@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- build:20260617220000 -->
+<!DOCTYPE html><!-- build:20260617230000 -->
 <html lang="th">
 <head><!-- build:20260616095000 -->
 <meta charset="UTF-8">
@@ -149,23 +149,6 @@
 @keyframes tv3gy{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,.7)}50%{box-shadow:0 0 0 10px rgba(245,158,11,0),0 0 24px rgba(245,158,11,.3)}}
 @keyframes tv3go{0%,100%{box-shadow:0 0 0 0 rgba(234,88,12,.7)}50%{box-shadow:0 0 0 10px rgba(234,88,12,0),0 0 24px rgba(234,88,12,.3)}}
 @keyframes tv3gb{0%,100%{box-shadow:0 0 0 0 rgba(59,130,246,.7)}50%{box-shadow:0 0 0 10px rgba(59,130,246,0),0 0 24px rgba(59,130,246,.3)}}
-
-/* ===== FIX: badge text สีดำ → สีขาว/สว่างบน dark card ===== */
-/* time badge ใน pasteurize card — override inline color ด้วย filter */
-.tv3-head [style*="color:#1e40af"]{color:#93c5fd!important}
-.tv3-head [style*="color:#1e3a8a"]{color:#bfdbfe!important}
-.tv3-head [style*="color:#92400e"]{color:#fde68a!important}
-.tv3-head [style*="color:#78350f"]{color:#fef08a!important}
-.tv3-head [style*="color:#065f46"]{color:#6ee7b7!important}
-.tv3-head [style*="color:#064e3b"]{color:#a7f3d0!important}
-/* time badge พื้นหลัง — ทำให้ยังอ่านออกบน dark */
-.tv3-head [style*="background:rgba(219,234,254"]{background:rgba(30,58,95,.9)!important;border-color:#60a5fa!important}
-.tv3-head [style*="background:rgba(254,243,199"]{background:rgba(69,26,3,.9)!important;border-color:#f59e0b!important}
-.tv3-head [style*="background:rgba(209,250,229"]{background:rgba(6,78,59,.9)!important;border-color:#34d399!important}
-/* badge ขวาบน status */
-.tv3-head .badge{background:rgba(255,255,255,.1)!important;color:#f1f5f9!important;border-color:rgba(255,255,255,.25)!important}
-/* tv3-flow background → dark */
-.tv3-body .tv3-flow{background:rgba(0,0,0,.08)!important}
 </style>
 
 </head>
@@ -1378,9 +1361,9 @@ function renderPastCard(row, i, col, p){
           const _eta3=row.expected_finish_time||'';
           return '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end">'
             +'<span class="badge '+ps.cls+'" style="font-size:12px;padding:6px 14px;border:1.5px solid rgba(255,255,255,.15)">'+ps.lbl+'</span>'
-            +(_st3?'<div style="display:flex;flex-direction:column;align-items:center;background:rgba(219,234,254,.95);border:2px solid #60a5fa;border-radius:14px;padding:8px 18px;box-shadow:0 4px 16px rgba(59,130,246,.35),0 0 0 1px rgba(255,255,255,.1)"><div style="font-family:var(--mono);font-size:9px;font-weight:800;color:#1e40af;letter-spacing:1.5px;text-transform:uppercase">⏱ เริ่ม</div><div style="font-family:var(--mono);font-size:18px;font-weight:900;color:#1e3a8a;letter-spacing:.5px">'+_st3+'</div></div>':'')
-            +(_eta3?'<div style="display:flex;flex-direction:column;align-items:center;background:rgba(254,243,199,.95);border:2px solid #fbbf24;border-radius:14px;padding:8px 18px;box-shadow:0 4px 16px rgba(245,158,11,.35),0 0 0 1px rgba(255,255,255,.1)"><div style="font-family:var(--mono);font-size:9px;font-weight:800;color:#92400e;letter-spacing:1.5px;text-transform:uppercase">🏁 คาดเสร็จ</div><div style="font-family:var(--mono);font-size:18px;font-weight:900;color:#78350f;letter-spacing:.5px">'+_eta3+'</div></div>':'')
-            +(()=>{if(!_st3||!_eta3)return '';const _toS=t=>{const a=(t+'::').split(':').map(Number);return(a[0]||0)*3600+(a[1]||0)*60+(a[2]||0);};let df=_toS(_eta3)-_toS(_st3);if(df<0)df+=86400;const h=Math.floor(df/3600),mn=Math.floor((df%3600)/60),s=df%60;const dur=String(h).padStart(2,'0')+':'+String(mn).padStart(2,'0')+':'+String(s).padStart(2,'0');return dur?'<div style="display:flex;flex-direction:column;align-items:center;background:rgba(209,250,229,.95);border:2px solid #34d399;border-radius:14px;padding:8px 18px;box-shadow:0 4px 16px rgba(16,185,129,.35),0 0 0 1px rgba(255,255,255,.1)"><div style="font-family:var(--mono);font-size:9px;font-weight:800;color:#065f46;letter-spacing:1.5px;text-transform:uppercase">⏳ รวม</div><div style="font-family:var(--mono);font-size:18px;font-weight:900;color:#064e3b;letter-spacing:.5px">'+dur+'</div></div>':'';})()
+            +(_st3?'<div style="display:flex;flex-direction:column;align-items:center;background:rgba(219,234,254,.95);border:2px solid #60a5fa;border-radius:14px;padding:8px 18px;box-shadow:0 4px 16px rgba(59,130,246,.35),0 0 0 1px rgba(255,255,255,.1)"><div style="font-family:var(--mono);font-size:9px;font-weight:800;color:#93c5fd;letter-spacing:1.5px;text-transform:uppercase">⏱ เริ่ม</div><div style="font-family:var(--mono);font-size:18px;font-weight:900;color:#bfdbfe;letter-spacing:.5px">'+_st3+'</div></div>':'')
+            +(_eta3?'<div style="display:flex;flex-direction:column;align-items:center;background:rgba(254,243,199,.95);border:2px solid #fbbf24;border-radius:14px;padding:8px 18px;box-shadow:0 4px 16px rgba(245,158,11,.35),0 0 0 1px rgba(255,255,255,.1)"><div style="font-family:var(--mono);font-size:9px;font-weight:800;color:#fde68a;letter-spacing:1.5px;text-transform:uppercase">🏁 คาดเสร็จ</div><div style="font-family:var(--mono);font-size:18px;font-weight:900;color:#fef08a;letter-spacing:.5px">'+_eta3+'</div></div>':'')
+            +(()=>{if(!_st3||!_eta3)return '';const _toS=t=>{const a=(t+'::').split(':').map(Number);return(a[0]||0)*3600+(a[1]||0)*60+(a[2]||0);};let df=_toS(_eta3)-_toS(_st3);if(df<0)df+=86400;const h=Math.floor(df/3600),mn=Math.floor((df%3600)/60),s=df%60;const dur=String(h).padStart(2,'0')+':'+String(mn).padStart(2,'0')+':'+String(s).padStart(2,'0');return dur?'<div style="display:flex;flex-direction:column;align-items:center;background:rgba(209,250,229,.95);border:2px solid #34d399;border-radius:14px;padding:8px 18px;box-shadow:0 4px 16px rgba(16,185,129,.35),0 0 0 1px rgba(255,255,255,.1)"><div style="font-family:var(--mono);font-size:9px;font-weight:800;color:#6ee7b7;letter-spacing:1.5px;text-transform:uppercase">⏳ รวม</div><div style="font-family:var(--mono);font-size:18px;font-weight:900;color:#a7f3d0;letter-spacing:.5px">'+dur+'</div></div>':'';})()
             +'</div>';
         }
         // stamped = พาสเสร็จแล้ว รอส่ง / submitted = ส่งแล้ว — โชว์ time cards เหมือนกัน
@@ -1389,9 +1372,9 @@ function renderPastCard(row, i, col, p){
           const _eta3=row.past_end_time||row.expected_finish_time||'';
           return '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end">'
             +'<span class="badge '+ps.cls+'" style="font-size:12px;padding:6px 14px;border:1.5px solid rgba(255,255,255,.15)">'+ps.lbl+'</span>'
-            +(_st3?'<div style="display:flex;flex-direction:column;align-items:center;background:rgba(219,234,254,.95);border:2px solid #60a5fa;border-radius:14px;padding:8px 18px;box-shadow:0 4px 16px rgba(59,130,246,.35)"><div style="font-family:var(--mono);font-size:9px;font-weight:800;color:#1e40af;letter-spacing:1.5px;text-transform:uppercase">⏱ เริ่ม</div><div style="font-family:var(--mono);font-size:18px;font-weight:900;color:#1e3a8a;letter-spacing:.5px">'+_st3+'</div></div>':'')
-            +(_eta3?'<div style="display:flex;flex-direction:column;align-items:center;background:rgba(209,250,229,.95);border:2px solid #34d399;border-radius:14px;padding:8px 18px;box-shadow:0 4px 16px rgba(16,185,129,.35)"><div style="font-family:var(--mono);font-size:9px;font-weight:800;color:#065f46;letter-spacing:1.5px;text-transform:uppercase">✅ เสร็จ</div><div style="font-family:var(--mono);font-size:18px;font-weight:900;color:#064e3b;letter-spacing:.5px">'+_eta3+'</div></div>':'')
-            +(()=>{if(!_st3||!_eta3)return '';const _toS=t=>{const a=(t+'::').split(':').map(Number);return(a[0]||0)*3600+(a[1]||0)*60+(a[2]||0);};let df=_toS(_eta3)-_toS(_st3);if(df<0)df+=86400;const h=Math.floor(df/3600),mn=Math.floor((df%3600)/60),s=df%60;const dur=String(h).padStart(2,'0')+':'+String(mn).padStart(2,'0')+':'+String(s).padStart(2,'0');return dur?'<div style="display:flex;flex-direction:column;align-items:center;background:rgba(254,243,199,.95);border:2px solid #fbbf24;border-radius:14px;padding:8px 18px;box-shadow:0 4px 16px rgba(245,158,11,.35)"><div style="font-family:var(--mono);font-size:9px;font-weight:800;color:#92400e;letter-spacing:1.5px;text-transform:uppercase">⏳ รวม</div><div style="font-family:var(--mono);font-size:18px;font-weight:900;color:#78350f;letter-spacing:.5px">'+dur+'</div></div>':'';})()
+            +(_st3?'<div style="display:flex;flex-direction:column;align-items:center;background:rgba(219,234,254,.95);border:2px solid #60a5fa;border-radius:14px;padding:8px 18px;box-shadow:0 4px 16px rgba(59,130,246,.35)"><div style="font-family:var(--mono);font-size:9px;font-weight:800;color:#93c5fd;letter-spacing:1.5px;text-transform:uppercase">⏱ เริ่ม</div><div style="font-family:var(--mono);font-size:18px;font-weight:900;color:#bfdbfe;letter-spacing:.5px">'+_st3+'</div></div>':'')
+            +(_eta3?'<div style="display:flex;flex-direction:column;align-items:center;background:rgba(209,250,229,.95);border:2px solid #34d399;border-radius:14px;padding:8px 18px;box-shadow:0 4px 16px rgba(16,185,129,.35)"><div style="font-family:var(--mono);font-size:9px;font-weight:800;color:#6ee7b7;letter-spacing:1.5px;text-transform:uppercase">✅ เสร็จ</div><div style="font-family:var(--mono);font-size:18px;font-weight:900;color:#a7f3d0;letter-spacing:.5px">'+_eta3+'</div></div>':'')
+            +(()=>{if(!_st3||!_eta3)return '';const _toS=t=>{const a=(t+'::').split(':').map(Number);return(a[0]||0)*3600+(a[1]||0)*60+(a[2]||0);};let df=_toS(_eta3)-_toS(_st3);if(df<0)df+=86400;const h=Math.floor(df/3600),mn=Math.floor((df%3600)/60),s=df%60;const dur=String(h).padStart(2,'0')+':'+String(mn).padStart(2,'0')+':'+String(s).padStart(2,'0');return dur?'<div style="display:flex;flex-direction:column;align-items:center;background:rgba(254,243,199,.95);border:2px solid #fbbf24;border-radius:14px;padding:8px 18px;box-shadow:0 4px 16px rgba(245,158,11,.35)"><div style="font-family:var(--mono);font-size:9px;font-weight:800;color:#92400e;letter-spacing:1.5px;text-transform:uppercase">⏳ รวม</div><div style="font-family:var(--mono);font-size:18px;font-weight:900;color:#fef08a;letter-spacing:.5px">'+dur+'</div></div>':'';})()
             +'</div>';
         }
         return '<span class="badge '+ps.cls+'" style="font-size:13px;padding:8px 18px;border:1.5px solid rgba(255,255,255,.15)">'+ps.lbl+'</span>';
