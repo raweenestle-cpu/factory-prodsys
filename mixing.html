@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- build:20260617170000 -->
+<!DOCTYPE html><!-- build:20260617180000 -->
 <html lang="th">
 <head>
 <meta charset="UTF-8">
@@ -986,12 +986,12 @@ function renderMixTanks(m, rowsArg){
     s+=`<rect x="${bX+6}" y="${bY+bH}" width="7" height="13" rx="2" fill="${hasLiq?`rgba(${r2},${g2},${b2},.2)`:'rgba(71,85,105,.3)'}" stroke="${hasLiq?col:'#475569'}" stroke-width="1.5" stroke-opacity=".5"/>`;
     s+=`<rect x="${bX+bW-13}" y="${bY+bH}" width="7" height="13" rx="2" fill="${hasLiq?`rgba(${r2},${g2},${b2},.2)`:'rgba(71,85,105,.3)'}" stroke="${hasLiq?col:'#475569'}" stroke-width="1.5" stroke-opacity=".5"/>`;
     s+=`<rect x="${bX+2}" y="${bY+bH+12}" width="${bW-4}" height="4" rx="2" fill="${hasLiq?`rgba(${r2},${g2},${b2},.15)`:'rgba(71,85,105,.2)'}" stroke="${hasLiq?col:'#475569'}" stroke-width="1" stroke-opacity=".4"/>`;
-    // text — สีดำเข้มทั้งหมด
-    s+=`<text x="${sw/2}" y="${midY-2}" text-anchor="middle" font-family="DM Mono,monospace" font-size="18" fill="#111827" font-weight="900">${hasLiq?vol.toLocaleString():'ว่าง'}</text>`;
+    // text — สีขาวชัดบน dark
+    s+=`<text x="${sw/2}" y="${midY-2}" text-anchor="middle" font-family="DM Mono,monospace" font-size="20" fill="#ffffff" font-weight="900" style="text-shadow:0 1px 4px rgba(0,0,0,.8)">${hasLiq?vol.toLocaleString():'ว่าง'}</text>`;
     if(hasLiq){
-      s+=`<text x="${sw/2}" y="${midY+13}" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="#111827" font-weight="700" opacity=".8">ลิตร · ${Math.round(pct)}%</text>`;
-      s+=`<rect x="${bX+5}" y="${midY+16}" width="${bW-10}" height="16" rx="8" fill="${col}" fill-opacity="1" stroke="rgba(255,255,255,.3)" stroke-width="1"/>`;
-      s+=`<text x="${sw/2}" y="${midY+27}" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#111827" font-weight="900">${stTxt} ${stLbl}</text>`;
+      s+=`<text x="${sw/2}" y="${midY+15}" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#e2e8f0" font-weight="700" opacity=".9">ลิตร · ${Math.round(pct)}%</text>`;
+      s+=`<rect x="${bX+5}" y="${midY+18}" width="${bW-10}" height="17" rx="8" fill="${col}" fill-opacity=".85" stroke="rgba(255,255,255,.4)" stroke-width="1.5"/>`;
+      s+=`<text x="${sw/2}" y="${midY+30}" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#ffffff" font-weight="900">${stTxt} ${stLbl}</text>`;
     }
     s+=`</svg>`;
     return s;
@@ -1172,7 +1172,7 @@ function renderMixTanks(m, rowsArg){
     if(!row){
       return `<div class="tv3-card" style="opacity:.6">
         <div class="tv3-head">
-          <div class="tv3-seq"><div style="font-family:var(--mono);font-size:13px;font-weight:900;color:#111827;text-align:center;padding:0 4px">${tankLabel.toUpperCase()}</div></div>
+          <div class="tv3-seq"><div style="font-family:var(--mono);font-size:13px;font-weight:900;color:#e2e8f0;text-align:center;padding:0 4px">${tankLabel.toUpperCase()}</div></div>
           <div class="tv3-hi">
             <div class="tv3-code" style="color:#111827">— ไม่มีข้อมูล —</div>
             <div class="tv3-name" style="color:#374151">ว่าง</div>
@@ -1195,12 +1195,12 @@ function renderMixTanks(m, rowsArg){
     return `<div class="${cardCls}">
       <div class="tv3-head">
         <div class="tv3-seq">
-          <div style="font-family:var(--mono);font-size:13px;font-weight:900;color:#111827;text-align:center;line-height:1.4;padding:0 4px">${tankLabel.toUpperCase()}</div>
+          <div style="font-family:var(--mono);font-size:13px;font-weight:900;color:#e2e8f0;text-align:center;line-height:1.4;padding:0 4px">${tankLabel.toUpperCase()}</div>
         </div>
         <div class="tv3-hi">
           <div class="tv3-code">${row.mix_code||'—'} · PROCESS ${row.process_order||'—'}</div>
           <div class="tv3-name">${row.mix_name||'—'}</div>
-          <div class="tv3-meta">Batch ${row.batch_no||'—'} &nbsp;·&nbsp; <span style="font-size:18px;font-weight:900;color:#111827">${displayVol(row)}</span>${row.final_flush?'&nbsp;·&nbsp;<span style="font-family:var(--mono);font-size:13px;font-weight:900;color:#0891b2">🧪 Flush: '+(+(row.final_flush)).toLocaleString()+' L</span>':''}</div>
+          <div class="tv3-meta">Batch ${row.batch_no||'—'} &nbsp;·&nbsp; <span style="font-size:18px;font-weight:900;color:#f1f5f9">${displayVol(row)}</span>${row.final_flush?'&nbsp;·&nbsp;<span style="font-family:var(--mono);font-size:13px;font-weight:900;color:#38bdf8">🧪 Flush: '+(+(row.final_flush)).toLocaleString()+' L</span>':''}</div>
           ${(()=>{const _at=row.aging_tank||'';const _as=_at&&window._agingStates?window._agingStates[_at]||{}:{};return _at?(expireBox(_as.expire_at||null)+tempBox(_as)):'';})()}
         </div>
         <div class="tv3-st" style="padding:12px 16px;gap:8px;flex-direction:column;align-items:flex-end">${(()=>{
@@ -1208,21 +1208,26 @@ function renderMixTanks(m, rowsArg){
           const _prepReady=(row.prep_status==='ready');
           const _started=!!row.mix_start_time;
           const _ended=!!row.mix_end_time;
+          // INTERLOCK
+          const _otherMixing=(rowsData[m]||[]).find(r=>r.id!==row.id&&r.status==='mixing'&&!!r.mix_start_time&&!r.mix_end_time);
           let _html='<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end">';
           // badge status
-          _html+=`<span class="badge ${stInfo.cls}" style="font-size:12px;padding:6px 14px">${stInfo.lbl}</span>`;
+          _html+=`<span class="badge ${stInfo.cls}" style="font-size:13px;padding:7px 16px">${stInfo.lbl}</span>`;
           // ปุ่ม Start
           if(!_started){
-            const _dis=_prepReady?'':' disabled title="ต้องเตรียมเสร็จก่อน"';
-            _html+=`<button${_dis} onclick="window._stampMixStart('${pcol}','${row.id}','${m}')" style="display:flex;align-items:center;gap:6px;padding:9px 18px;border-radius:10px;border:none;cursor:pointer;font-family:var(--mono);font-size:12px;font-weight:900;color:#fff;background:${_prepReady?'linear-gradient(135deg,#16a34a,#22c55e)':'#94a3b8'};box-shadow:${_prepReady?'0 3px 12px rgba(22,163,74,.4)':'none'};transition:all .15s">▶ เริ่มผสม</button>`;
+            let _dis='',_title='',_bg='#475569',_shadow='none',_label='▶ เริ่มผสม';
+            if(!_prepReady){ _dis=' disabled'; _title='ต้องเตรียมเสร็จก่อน'; }
+            else if(_otherMixing){ _dis=' disabled'; _title=`${_otherMixing.mixing_tank||'ถังอื่น'} กำลัง Mixing อยู่`; _label=`🔒 รอ${_otherMixing.mixing_tank||''}เสร็จ`; }
+            else { _bg='linear-gradient(135deg,#16a34a,#22c55e)'; _shadow='0 3px 12px rgba(22,163,74,.4)'; }
+            _html+=`<button${_dis} title="${_title}" onclick="window._stampMixStart('${pcol}','${row.id}','${m}')" style="display:flex;align-items:center;gap:6px;padding:10px 20px;border-radius:10px;border:none;${_dis?'cursor:not-allowed;opacity:.45':'cursor:pointer'};font-family:var(--mono);font-size:14px;font-weight:900;color:#fff;background:${_bg};box-shadow:${_shadow}">${_label}</button>`;
           } else {
-            _html+=`<div style="font-family:var(--mono);font-size:11px;font-weight:900;color:#065f46;background:#d1fae5;border:1.5px solid #10b981;border-radius:8px;padding:6px 12px">▶ ${row.mix_start_time}</div>`;
+            _html+=`<div style="font-family:var(--mono);font-size:14px;font-weight:900;color:#4ade80;background:rgba(22,163,74,.2);border:2px solid #22c55e;border-radius:8px;padding:8px 16px">▶ ${row.mix_start_time}</div>`;
           }
           // ปุ่ม Stop
           if(_started&&!_ended){
-            _html+=`<button onclick="stampTime('${pcol}','${row.id}','mix_end_time','${m}')" style="display:flex;align-items:center;gap:6px;padding:9px 18px;border-radius:10px;border:none;cursor:pointer;font-family:var(--mono);font-size:12px;font-weight:900;color:#fff;background:linear-gradient(135deg,#dc2626,#ef4444);box-shadow:0 3px 12px rgba(220,38,38,.4);transition:all .15s">⏹ หยุดผสม</button>`;
+            _html+=`<button onclick="stampTime('${pcol}','${row.id}','mix_end_time','${m}')" style="display:flex;align-items:center;gap:6px;padding:10px 20px;border-radius:10px;border:none;cursor:pointer;font-family:var(--mono);font-size:14px;font-weight:900;color:#fff;background:linear-gradient(135deg,#dc2626,#ef4444);box-shadow:0 3px 12px rgba(220,38,38,.4)">⏹ หยุดผสม</button>`;
           } else if(_ended){
-            _html+=`<div style="font-family:var(--mono);font-size:11px;font-weight:900;color:#991b1b;background:#fee2e2;border:1.5px solid #ef4444;border-radius:8px;padding:6px 12px">⏹ ${row.mix_end_time}</div>`;
+            _html+=`<div style="font-family:var(--mono);font-size:14px;font-weight:900;color:#fca5a5;background:rgba(220,38,38,.2);border:2px solid #ef4444;border-radius:8px;padding:8px 16px">⏹ ${row.mix_end_time}</div>`;
           }
           _html+='</div>';
           // sig
