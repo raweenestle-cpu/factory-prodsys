@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- build:20260617180000 -->
+<!DOCTYPE html><!-- build:20260617190000 -->
 <html lang="th">
 <head>
 <meta charset="UTF-8">
@@ -801,17 +801,17 @@ function buildFlowSteps(row){
   if(rwKg>0){var d=!!row.rw_confirmed;s.push({id:'rw',ico:'\u267B\uFE0F',name:'Rework',kg:rwKg+' kg',done:d,active:p&&!d,btn:true,skip:false,pwd:false});p=p&&d;}
   else{s.push({id:'nrw',ico:'\uD83D\uDEAB',name:'No Rework',kg:'',done:false,active:false,btn:false,skip:true,pwd:false});}
   // 3 glc
-  if(glcKg>0){var d=+(row.glc_actual||0)>0;s.push({id:'glc',ico:'\uD83C\uDF6F',name:'Glucose',kg:glcKg+' kg',done:d,active:p&&!d,btn:false,skip:false,pwd:false,isIngr:true,actField:'glc_actual',actVal:row.glc_actual||''});p=p&&d;}
+  if(glcKg>0){var d=+(row.glc_actual||0)>0;s.push({id:'glc',ico:'\uD83C\uDF6F',name:'Glucose',kg:glcKg+' kg',done:d,active:p&&!d,btn:false,skip:false,pwd:false,isIngr:true,actField:'glc_actual',actVal:row.glc_actual||'',setVal:glcKg});p=p&&d;}
   // 4 sgr
-  if(sgrKg>0){var d=+(row.sgr_actual||0)>0;s.push({id:'sgr',ico:'\uD83C\uDF6C',name:'Sugar',kg:sgrKg+' kg',done:d,active:p&&!d,btn:false,skip:false,pwd:false,isIngr:true,actField:'sgr_actual',actVal:row.sgr_actual||''});p=p&&d;}
+  if(sgrKg>0){var d=+(row.sgr_actual||0)>0;s.push({id:'sgr',ico:'\uD83C\uDF6C',name:'Sugar',kg:sgrKg+' kg',done:d,active:p&&!d,btn:false,skip:false,pwd:false,isIngr:true,actField:'sgr_actual',actVal:row.sgr_actual||'',setVal:sgrKg});p=p&&d;}
   // 5 powder
   var pd=!!row.pwd_confirmed;
   s.push({id:'pwd',ico:'\uD83E\uDDEA',name:'Powder',kg:'\u2191 \u0E0A\u0E34\u0E1B!',done:pd,active:p&&!pd,btn:true,skip:false,pwd:true});
   p=p&&pd;
   // 6 oil
-  if(plmKg>0){var d=+(row.plm_actual||0)>0;s.push({id:'plm',ico:'\uD83C\uDF34',name:'Palm Oil',kg:plmKg+' kg',done:d,active:p&&!d,btn:false,skip:false,pwd:false,isIngr:true,actField:'plm_actual',actVal:row.plm_actual||''});p=p&&d;}
-  else if(oilKg>0){var d=+(row.oil_mix_actual||0)>0;s.push({id:'oil',ico:'\uD83D\uDEE2\uFE0F',name:'Oil Mix',kg:oilKg+' kg',done:d,active:p&&!d,btn:false,skip:false,pwd:false,isIngr:true,actField:'oil_mix_actual',actVal:row.oil_mix_actual||''});p=p&&d;}
-  else if(fatKg>0){var d=+(row.fat_milk_actual||0)>0;s.push({id:'fat',ico:'\uD83E\uDD5B',name:'Fat Milk',kg:fatKg+' kg',done:d,active:p&&!d,btn:false,skip:false,pwd:false,isIngr:true,actField:'fat_milk_actual',actVal:row.fat_milk_actual||''});p=p&&d;}
+  if(plmKg>0){var d=+(row.plm_actual||0)>0;s.push({id:'plm',ico:'\uD83C\uDF34',name:'Palm Oil',kg:plmKg+' kg',done:d,active:p&&!d,btn:false,skip:false,pwd:false,isIngr:true,actField:'plm_actual',actVal:row.plm_actual||'',setVal:plmKg});p=p&&d;}
+  else if(oilKg>0){var d=+(row.oil_mix_actual||0)>0;s.push({id:'oil',ico:'\uD83D\uDEE2\uFE0F',name:'Oil Mix',kg:oilKg+' kg',done:d,active:p&&!d,btn:false,skip:false,pwd:false,isIngr:true,actField:'oil_mix_actual',actVal:row.oil_mix_actual||'',setVal:oilKg});p=p&&d;}
+  else if(fatKg>0){var d=+(row.fat_milk_actual||0)>0;s.push({id:'fat',ico:'\uD83E\uDD5B',name:'Fat Milk',kg:fatKg+' kg',done:d,active:p&&!d,btn:false,skip:false,pwd:false,isIngr:true,actField:'fat_milk_actual',actVal:row.fat_milk_actual||'',setVal:fatKg});p=p&&d;}
   // ── Salt (เฉพาะถ้า has_salt = true ใน product master) ──
   var _prod=productMap[row.mix_code||'']||{};
   if(!!_prod.has_salt){
@@ -887,11 +887,30 @@ window._stampMixStart=async function(pcol,rid,m){
   try{await updateDoc(doc(db,pcol,rid),upd);toast('▶ Start ผสม '+n,'green');}
   catch(e){toast('❌ '+e.message,'red');}
 };
-window._saveIngr=async function(pcol,rid,field,val){
+window._saveIngr=async function(pcol,rid,field,val,setVal){
   if(!val||+val<=0){toast('กรุณากรอกค่า Actual','red');return;}
+  const actual=+val;
+  const set=+(setVal||0);
+  // ── TOLERANCE CHECK 5% ──
+  if(set>0){
+    const diff=Math.abs(actual-set);
+    const pct=(diff/set)*100;
+    if(pct>5){
+      const dir=actual>set?'มากกว่า':'น้อยกว่า';
+      const fieldName={glc_actual:'Glucose',sgr_actual:'Sugar',plm_actual:'Palm Oil',oil_mix_actual:'Oil Mix',fat_milk_actual:'Fat Milk'}[field]||field;
+      const ok=confirm(
+        `⚠️ WARNING — ${fieldName}\n`+
+        `Set point : ${set.toLocaleString()} kg\n`+
+        `Actual    : ${actual.toLocaleString()} kg\n`+
+        `ผลต่าง    : ${dir} ${pct.toFixed(1)}% (เกิน 5%)\n\n`+
+        `ยืนยันบันทึกต่อหรือไม่?`
+      );
+      if(!ok) return;
+    }
+  }
   try{
-    await updateDoc(doc(db,pcol,rid),{[field]:+val, updated_at:new Date().toISOString()});
-    toast('✅ บันทึก '+field+' = '+val+' kg','green');
+    await updateDoc(doc(db,pcol,rid),{[field]:actual, updated_at:new Date().toISOString()});
+    toast('✅ บันทึก '+actual+' kg','green');
   }catch(e){toast('❌ '+e.message,'red');}
 };
 window._cfm=async function(pcol,rid,field){
@@ -1022,8 +1041,8 @@ function renderMixTanks(m, rowsArg){
         <input id="act-${rid}-${st.id}" type="number" step="0.1" 
           style="width:72px;font-family:var(--mono);font-size:11px;font-weight:900;padding:3px 6px;border:2px solid #f59e0b;border-radius:6px;text-align:center;background:#fff;color:#111827"
           placeholder="Actual" value="${st.actVal||''}"
-          onkeydown="if(event.key==='Enter')window._saveIngr('${pcol}','${rid}','${st.actField}',this.value)">
-        <button class="tv3-fbtn rw" onclick="window._saveIngr('${pcol}','${rid}','${st.actField}',document.getElementById('act-${rid}-${st.id}').value)">✅ OK</button>
+          onkeydown="if(event.key==='Enter')window._saveIngr('${pcol}','${rid}','${st.actField}',this.value,${st.setVal||0})">
+        <button class="tv3-fbtn rw" onclick="window._saveIngr('${pcol}','${rid}','${st.actField}',document.getElementById('act-${rid}-${st.id}').value,${st.setVal||0})">✅ OK</button>
       </div>`;
     } else if(st.isIngr&&isDone){
       // ingredient done — แสดงค่า actual
