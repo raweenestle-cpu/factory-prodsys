@@ -284,7 +284,7 @@ main{position:relative;z-index:1;padding:10px 12px;}
 @keyframes flowShine{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
 @keyframes runningGlow{0%,100%{box-shadow:0 0 0 0 var(--glow,rgba(59,130,246,.5)),0 4px 20px rgba(0,0,0,.08)}50%{box-shadow:0 0 0 4px var(--glow,rgba(59,130,246,.15)),0 4px 20px rgba(0,0,0,.08)}}
 </style>
-<!-- v20260618-tv3-2lines -->
+<!-- v20260618-tv4-layout -->
 </head>
 <body>
 
@@ -997,9 +997,9 @@ function calcVol(row){
 
     <!-- HEADER — ซ้าย: ข้อมูล | ขวา: fpPanel + Force Clear + หมดถัง -->
     <div style="padding:18px 20px;border-bottom:1px solid var(--b1);display:flex;align-items:flex-start;gap:16px">
-      <!-- ซ้าย: ชื่อ line + ข้อมูล mix + Start/Stop/Reset -->
+      <!-- ซ้าย: ชื่อ line + ข้อมูล mix -->
       <div style="flex:1;min-width:0">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
           <span style="font-family:var(--mono);font-size:24px;font-weight:900;color:#111827">${line.name.toUpperCase()}</span>
           ${(()=>{
             const _mc=current&&current.mix_code||'';
@@ -1011,13 +1011,6 @@ function calcVol(row){
         </div>
         <div style="font-family:var(--mono);font-size:19px;font-weight:900;color:#111827;line-height:1.5">${agingTank!=='—'?agingTank+' · ':''}${current.mix_code||'—'} · ${current.mix_name||'—'} · Batch ${current.batch_no||'—'}${rem>0?' · Vol '+rem.toLocaleString(undefined,{maximumFractionDigits:0})+' L':''}</div>
         ${prodCode!=='—'?`<div style="font-family:var(--mono);font-size:17px;font-weight:800;color:#111827;margin-top:4px">รหัสผลิต: ${prodCode}</div>`:''}
-        <!-- Start / Stop / Reset -->
-        <div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:14px">
-          <button style="padding:12px 22px;border-radius:11px;font-family:var(--mono);font-size:17px;font-weight:900;border:2.5px solid ${isRunning?'#e2e8f0':curing.done?'#10b981':'#fcd34d'};background:${isRunning?'#f1f5f9':curing.done?'#d1fae5':'#fef9c3'};color:${isRunning?'#94a3b8':curing.done?'#065f46':'#92400e'};cursor:pointer" ${isRunning||!curing.done?'disabled':''} onclick="startLine('${line.id}',${sv},${fr},'${agingTank!=='—'?agingTank:''}')">${isRunning?'▶ เดิน':!curing.done?'⏳ รอบ่ม':'▶ Start'}</button>
-          <button style="padding:12px 22px;border-radius:11px;font-family:var(--mono);font-size:17px;font-weight:900;border:2.5px solid ${!isRunning?'#e2e8f0':'#ef4444'};background:${!isRunning?'#f1f5f9':'#fee2e2'};color:${!isRunning?'#94a3b8':'#991b1b'};cursor:pointer" ${!isRunning?'disabled':''} onclick="stopLine('${line.id}')">⏸ Stop</button>
-          <button style="padding:12px 16px;border-radius:11px;font-family:var(--mono);font-size:17px;font-weight:800;border:2.5px solid #fcd34d;background:#fef9c3;color:#92400e;cursor:pointer" onclick="resetLine('${line.id}')">↺</button>
-          <div style="font-family:var(--mono);font-size:14px;color:#64748b;padding:6px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:9px;line-height:1.8"><div>▶ ${lineStates[line.id]?.start_label||'—'}</div><div>⏹ ${lineStates[line.id]?.stop_label||'—'}</div></div>
-        </div>
       </div>
       <!-- ขวา: fpPanel + Force Clear + หมดถัง — แนวตั้ง ไม่ wrap -->
       <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:8px">
@@ -1042,6 +1035,13 @@ function calcVol(row){
             <div style="position:absolute;bottom:28px;left:50%;transform:translateX(-50%);background:${isRunning?col:'#111827'}cc;color:#fff;font-family:var(--mono);font-size:15px;font-weight:800;padding:6px 14px;border-radius:999px;white-space:nowrap;pointer-events:none">${isRunning?'▶ กำลังเดิน':curing.done?'✅ พร้อม':'⏳ รอบ่ม'}</div>
           </div>
           <div style="font-family:var(--mono);font-size:11px;font-weight:800;color:#111827">Batch ${current.batch_no||'—'}</div>
+          <!-- Start / Stop / Reset — ย้ายมาอยู่ใต้ถังเพื่อประหยัดพื้นที่แนวตั้ง -->
+          <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:8px;justify-content:center">
+            <button style="padding:9px 16px;border-radius:9px;font-family:var(--mono);font-size:14px;font-weight:900;border:2px solid ${isRunning?'#e2e8f0':curing.done?'#10b981':'#fcd34d'};background:${isRunning?'#f1f5f9':curing.done?'#d1fae5':'#fef9c3'};color:${isRunning?'#94a3b8':curing.done?'#065f46':'#92400e'};cursor:pointer" ${isRunning||!curing.done?'disabled':''} onclick="startLine('${line.id}',${sv},${fr},'${agingTank!=='—'?agingTank:''}')">${isRunning?'▶ เดิน':!curing.done?'⏳ รอบ่ม':'▶ Start'}</button>
+            <button style="padding:9px 16px;border-radius:9px;font-family:var(--mono);font-size:14px;font-weight:900;border:2px solid ${!isRunning?'#e2e8f0':'#ef4444'};background:${!isRunning?'#f1f5f9':'#fee2e2'};color:${!isRunning?'#94a3b8':'#991b1b'};cursor:pointer" ${!isRunning?'disabled':''} onclick="stopLine('${line.id}')">⏸ Stop</button>
+            <button style="padding:9px 12px;border-radius:9px;font-family:var(--mono);font-size:14px;font-weight:800;border:2px solid #fcd34d;background:#fef9c3;color:#92400e;cursor:pointer" onclick="resetLine('${line.id}')">↺</button>
+          </div>
+          <div style="font-family:var(--mono);font-size:11px;color:#64748b;padding:4px 10px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;line-height:1.6;margin-top:6px;text-align:center"><div>▶ ${lineStates[line.id]?.start_label||'—'}</div><div>⏹ ${lineStates[line.id]?.stop_label||'—'}</div></div>
         </div>
         <!-- Flow line -->
         <div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;min-width:180px">
