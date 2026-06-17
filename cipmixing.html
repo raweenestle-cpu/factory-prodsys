@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- build:20260617520000 -->
+<!DOCTYPE html><!-- build:20260617530000 -->
 <html lang="th">
 <head>
 <meta charset="UTF-8">
@@ -1314,7 +1314,14 @@ const WAIT_STATUS = ['empty','cip','cip_done','san','san_done'];
 // ── เช็ค rule เวลา ──
 function _parseDateTime(date, hhmm){
   if(!date||!hhmm) return null;
-  try{ return new Date(date+'T'+hhmm+':00'); }catch{ return null; }
+  try{
+    // ตัด hhmm ให้เหลือแค่ HH:MM (เผื่อมี :SS ติดมาด้วย)
+    const timePart = hhmm.split(':').slice(0,2).join(':');
+    if(!/^\d{1,2}:\d{2}$/.test(timePart)) return null;
+    const dt = new Date(date+'T'+timePart+':00');
+    if(isNaN(dt.getTime())) return null;
+    return dt;
+  }catch{ return null; }
 }
 function _cipExpired(ts){
   // CIP เสร็จแล้ว แต่ยังไม่ได้ san — เกิน 48 ชม. หรือยัง
@@ -1334,15 +1341,16 @@ function _cipRemain(ts){
   const dt = _parseDateTime(ts.cip_date, ts.cip_stop_time);
   if(!dt) return null;
   const rem = 48*3600*1000 - (Date.now()-dt.getTime());
-  return rem;
+  return isNaN(rem)?null:rem;
 }
 function _sanRemain(ts){
   const dt = _parseDateTime(ts.san_date, ts.san_stop_time);
   if(!dt) return null;
   const rem = 2*3600*1000 - (Date.now()-dt.getTime());
-  return rem;
+  return isNaN(rem)?null:rem;
 }
 function _fmtRemain(ms){
+  if(ms==null||isNaN(ms)) return '—';
   if(ms<=0) return 'หมดเวลา';
   const h=Math.floor(ms/3600000);
   const m=Math.floor((ms%3600000)/60000);
