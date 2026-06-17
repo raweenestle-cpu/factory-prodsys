@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- build:20260617470000 -->
+<!DOCTYPE html><!-- build:20260617480000 -->
 <html lang="th">
 <head>
 <meta charset="UTF-8">
@@ -585,8 +585,16 @@ async function _doActReal(tid, act, programs){
     }
   }
   if(act==='stop_cip'){
+    const _tsNow = tankStates[tid]||{};
+    const _hasPendingAcid = !!_tsNow.pending_acid;
     upd.cip_stop_time=n;
-    // ปิด active ใน cip_log_sheets ของถังนี้ (type=cip, วันนี้) — และดึงค่าทั้งหมดมาเก็บ archive
+    if(_hasPendingAcid){
+      // ยังไม่จบจริง — Alkaline จบแล้ว แต่ต้องต่อด้วย Acid ทันที
+      upd.status='cip'; // คง status เป็น cip ต่อ (ไม่ใช่ cip_done)
+      upd.cip_stop_time=''; // เคลียร์ stop time เพราะ cycle ยังไม่จบ (Acid กำลังเริ่ม)
+      upd.pending_acid=false; // ใช้ flag ไปแล้ว
+    }
+    // ปิด active ใน cip_log_sheets ของแถว Alkaline (หรือแถวที่ active อยู่ตอนนี้) — และดึงค่าทั้งหมดมาเก็บ archive
     let _logData={};
     try{
       const _today=new Date().toISOString().split('T')[0];
@@ -599,11 +607,12 @@ async function _doActReal(tid, act, programs){
         setDoc(doc(db,'cip_log_sheets',d2.id),{active:false,end_time:n},{merge:true}).catch(()=>{});
       });
     }catch(e){console.warn('close cip_log active error:',e);}
-    // บันทึกลง cip_mixing_records — รวมค่าจาก log sheet ด้วย
+    // บันทึกลง cip_mixing_records — รวมค่าจาก log sheet ด้วย (เก็บทุกครั้งไม่ว่า Alkaline หรือ Acid)
     const _ts2=tankStates[tid]||{};
     addDoc(collection(db,'cip_mixing_records'),{
       tank:tid, type:'cip',
-      start_time:_ts2.cip_start_time||n, stop_time:n,
+      program:_logData.program||'—',
+      start_time:_logData.start_time||n, stop_time:n,
       mix_code:_ts2.last_mix_code||'—', mix_name:_ts2.last_mix_name||'—',
       group:_ts2.cip_group||'—',
       conductivity:_logData.conductivity??null,
@@ -617,6 +626,36 @@ async function _doActReal(tid, act, programs){
       date:new Date().toISOString().split('T')[0],
       created_at:new Date().toISOString()
     }).catch(()=>{});
+    // ── ถ้ามี pending_acid: สร้างแถว Acid ใหม่ทันที start_time = เวลาที่ Alkaline stop ──
+    if(_hasPendingAcid){
+      try{
+        let mix_rec_id=null;
+        try{
+          const _rq=query(collection(db,'cip_mixing_records'),
+            where('tank','==',tid),where('type','==','cip'),
+            orderBy('created_at','desc'),limit(1));
+          const _rs=await getDocs(_rq);
+          if(!_rs.empty) mix_rec_id=_rs.docs[0].id;
+        }catch{}
+        await addDoc(collection(db,'cip_log_sheets'),{
+          date:new Date().toISOString().split('T')[0],
+          circuit:tid,
+          group:_ts2.cip_group||'—',
+          program:'Acid',
+          start_time:n, end_time:'', // start_time = เวลาที่ Alkaline stop พอดี ต่อกันสนิท
+          conductivity:null, temp:null, flow:null, ph:null,
+          cip_done:false, san_ppm:null,
+          mix_rec_id: mix_rec_id,
+          operator:sessionStorage.getItem('emp_name')||'—',
+          remark:'auto',
+          active:true,
+          act_type:'cip',
+          created_at:new Date().toISOString()
+        });
+        toast('🔵→🟠 Alkaline เสร็จ — Acid เริ่มต่อทันทีที่ '+n,'blue');
+        if(document.getElementById('page-ciplog')?.classList.contains('on')&&window.renderCipLog) window.renderCipLog();
+      }catch(e){console.warn('auto-start acid error:',e);}
+    }
   }
   if(act==='start_san'){
     upd.san_start_time=n;
@@ -1208,15 +1247,14 @@ window.doLogout=async()=>{await signOut(auth);location.href='index.html';};
 window._cipLogRows = [];
 
 // ── auto-create row ใน cip_log_sheets เมื่อ start_cip หรือ start_san ──
-// programs: array ของ program ที่เลือก เช่น ['Alkaline'] หรือ ['Alkaline','Acid']
+// programs: ['Alkaline'] หรือ ['Alkaline','Acid'] (ถ้าเลือกคู่ จะสร้างแค่ Alkaline ก่อน Acid จะ auto-start ทันทีที่ Alkaline stop)
 async function _autoLogCip(tid, act, programs){
   const ts = tankStates[tid]||{};
   const d = new Date().toISOString().split('T')[0];
   const n = nowHMS();
   const recType = act==='start_cip'?'cip':'san';
-  // ถ้าเป็น start_cip ให้ loop ตาม programs ที่เลือก (Alkaline / Alkaline+Acid)
-  // ถ้าเป็น start_san ใช้ program เดียวคือ Sanitize
-  const progList = act==='start_cip' ? (programs && programs.length ? programs : ['Alkaline']) : ['Sanitize'];
+  const wantsAcid = act==='start_cip' && programs && programs.includes('Acid');
+  const firstProg = act==='start_cip' ? 'Alkaline' : 'Sanitize';
   try{
     // หา mix_rec_id จาก cip_mixing_records ล่าสุดของถังนี้
     let mix_rec_id = null;
@@ -1227,22 +1265,23 @@ async function _autoLogCip(tid, act, programs){
       const _rs = await getDocs(_rq);
       if(!_rs.empty) mix_rec_id = _rs.docs[0].id;
     }catch{}
-    // สร้าง record แยกตาม program ที่เลือก — ทุกแถวใช้ circuit (tid) เดียวกัน
-    for(const prog of progList){
-      await addDoc(collection(db,'cip_log_sheets'),{
-        date:d, circuit:tid,
-        group:ts.cip_group||'—',
-        program:prog,
-        start_time:n, end_time:'',
-        conductivity:null, temp:null, flow:null, ph:null,
-        cip_done:false, san_ppm:null,
-        mix_rec_id: mix_rec_id,
-        operator:sessionStorage.getItem('emp_name')||'—',
-        remark:'auto',
-        active:true,
-        act_type:recType,
-        created_at:new Date().toISOString()
-      });
+    await addDoc(collection(db,'cip_log_sheets'),{
+      date:d, circuit:tid,
+      group:ts.cip_group||'—',
+      program:firstProg,
+      start_time:n, end_time:'',
+      conductivity:null, temp:null, flow:null, ph:null,
+      cip_done:false, san_ppm:null,
+      mix_rec_id: mix_rec_id,
+      operator:sessionStorage.getItem('emp_name')||'—',
+      remark:'auto',
+      active:true,
+      act_type:recType,
+      created_at:new Date().toISOString()
+    });
+    // ถ้าเลือก Alkaline+Acid — ตั้ง flag ไว้ใน aging_tank_states ว่ารอ Acid ต่อ
+    if(wantsAcid){
+      setDoc(doc(db,'aging_tank_states',tid),{pending_acid:true},{merge:true}).catch(()=>{});
     }
     if(document.getElementById('page-ciplog')?.classList.contains('on')){
       if(window.renderCipLog) window.renderCipLog();
