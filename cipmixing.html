@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- build:20260617410000 -->
+<!DOCTYPE html><!-- build:20260617420000 -->
 <html lang="th">
 <head>
 <meta charset="UTF-8">
@@ -324,6 +324,7 @@ table{background:#ffffff!important}
   <div class="nav-r" style="margin-left:0">
     <span id="nav-user" style="font-family:var(--mono);font-size:11px;color:var(--t2)"></span>
     <a href="index.html" class="nbtn" style="font-size:12px;padding:6px 14px;font-weight:800">Home</a>
+    <button class="nbtn" onclick="window._changeAdminPw()" style="font-size:12px;padding:6px 14px;font-weight:800" title="เปลี่ยนรหัสผ่าน Administrator">🔑</button>
     <button class="nbtn" onclick="doLogout()" style="font-size:12px;padding:6px 14px;font-weight:800">ออก</button>
   </div>
 </nav>
@@ -396,7 +397,7 @@ table{background:#ffffff!important}
       </div>
       <div style="overflow-x:auto;max-height:340px;overflow-y:auto">
         <table style="width:100%;border-collapse:collapse;font-size:11px">
-          <thead>
+          <thead id="ciplog-thead">
             <tr style="background:#f0f4ff;font-family:var(--mono)">
               <th rowspan="2" style="padding:7px 8px;border-bottom:1.5px solid var(--b1);border-right:1px solid var(--b1);text-align:center;vertical-align:middle">No.</th>
               <th rowspan="2" style="padding:7px 8px;border-bottom:1.5px solid var(--b1);border-right:1px solid var(--b1);white-space:nowrap;vertical-align:middle">Date</th>
@@ -405,22 +406,22 @@ table{background:#ffffff!important}
               <th rowspan="2" style="padding:7px 8px;border-bottom:1.5px solid var(--b1);border-right:1px solid var(--b1);white-space:nowrap;vertical-align:middle">Circuit/<br>Program</th>
               <th rowspan="2" style="padding:7px 8px;border-bottom:1.5px solid var(--b1);border-right:1px solid var(--b1);white-space:nowrap;vertical-align:middle">เวลา<br>เริ่ม</th>
               <th rowspan="2" style="padding:7px 8px;border-bottom:1.5px solid var(--b1);border-right:1px solid var(--b1);white-space:nowrap;vertical-align:middle">เวลา<br>จบ</th>
-              <th style="padding:5px 8px;text-align:center;border-right:1px solid var(--b1);white-space:nowrap">Conductivity</th>
-              <th style="padding:5px 8px;text-align:center;border-right:1px solid var(--b1);white-space:nowrap">อุณหภูมิ (°C)</th>
-              <th style="padding:5px 8px;text-align:center;border-right:1px solid var(--b1);white-space:nowrap">Flow</th>
-              <th style="padding:5px 8px;text-align:center;border-right:1px solid var(--b1)">pH</th>
-              <th rowspan="2" style="padding:7px 8px;border-bottom:1.5px solid var(--b1);border-right:1px solid var(--b1);white-space:nowrap;vertical-align:middle;text-align:center">ผลการทำ<br>CIP ✓</th>
-              <th rowspan="2" style="padding:7px 8px;border-bottom:1.5px solid var(--b1);border-right:1px solid var(--b1);white-space:nowrap;vertical-align:middle;text-align:center">ผลการ San<br>(ppm)</th>
-              <th rowspan="2" style="padding:7px 8px;border-bottom:1.5px solid var(--b1);border-right:1px solid var(--b1);white-space:nowrap;vertical-align:middle">ผู้ปฏิบัติงาน</th>
+              <th id="hdr-conductivity" style="padding:5px 8px;text-align:center;border-right:1px solid var(--b1);white-space:nowrap;cursor:pointer" title="ดับเบิลคลิกเพื่อแก้ไข" ondblclick="window._editHeader('conductivity')">Conductivity</th>
+              <th id="hdr-temp" style="padding:5px 8px;text-align:center;border-right:1px solid var(--b1);white-space:nowrap;cursor:pointer" title="ดับเบิลคลิกเพื่อแก้ไข" ondblclick="window._editHeader('temp')">อุณหภูมิ (°C)</th>
+              <th id="hdr-flow" style="padding:5px 8px;text-align:center;border-right:1px solid var(--b1);white-space:nowrap;cursor:pointer" title="ดับเบิลคลิกเพื่อแก้ไข" ondblclick="window._editHeader('flow')">Flow</th>
+              <th id="hdr-ph" style="padding:5px 8px;text-align:center;border-right:1px solid var(--b1);cursor:pointer" title="ดับเบิลคลิกเพื่อแก้ไข" ondblclick="window._editHeader('ph')">pH</th>
+              <th rowspan="2" id="hdr-cip_done" style="padding:7px 8px;border-bottom:1.5px solid var(--b1);border-right:1px solid var(--b1);white-space:nowrap;vertical-align:middle;text-align:center;cursor:pointer" title="ดับเบิลคลิกเพื่อแก้ไข" ondblclick="window._editHeader('cip_done')">ผลการทำ<br>CIP ✓</th>
+              <th rowspan="2" id="hdr-san_ppm" style="padding:7px 8px;border-bottom:1.5px solid var(--b1);border-right:1px solid var(--b1);white-space:nowrap;vertical-align:middle;text-align:center;cursor:pointer" title="ดับเบิลคลิกเพื่อแก้ไข" ondblclick="window._editHeader('san_ppm')">ผลการ San<br>(ppm)</th>
+              <th rowspan="2" id="hdr-operator" style="padding:7px 8px;border-bottom:1.5px solid var(--b1);border-right:1px solid var(--b1);white-space:nowrap;vertical-align:middle;cursor:pointer" title="ดับเบิลคลิกเพื่อแก้ไข" ondblclick="window._editHeader('operator')">ผู้ปฏิบัติงาน</th>
               <th rowspan="2" style="padding:7px 8px;border-bottom:1.5px solid var(--b1);border-right:1px solid var(--b1);white-space:nowrap;vertical-align:middle;text-align:center">✏️ ลายเซ็น</th>
-              <th rowspan="2" style="padding:7px 8px;border-bottom:1.5px solid var(--b1);border-right:1px solid var(--b1);vertical-align:middle">Remark</th>
+              <th rowspan="2" id="hdr-remark" style="padding:7px 8px;border-bottom:1.5px solid var(--b1);border-right:1px solid var(--b1);vertical-align:middle;cursor:pointer" title="ดับเบิลคลิกเพื่อแก้ไข" ondblclick="window._editHeader('remark')">Remark</th>
               <th rowspan="2" style="padding:7px 8px;border-bottom:1.5px solid var(--b1);vertical-align:middle"></th>
             </tr>
             <tr style="background:#e8f0fe;font-family:var(--mono);font-size:10px;color:#1d4ed8">
-              <th style="padding:4px 8px;border-bottom:1.5px solid var(--b1);border-right:1px solid var(--b1);text-align:center;white-space:nowrap">≤ 1.0 mS/cm</th>
-              <th style="padding:4px 8px;border-bottom:1.5px solid var(--b1);border-right:1px solid var(--b1);text-align:center;white-space:nowrap">≥ 70 °C</th>
-              <th style="padding:4px 8px;border-bottom:1.5px solid var(--b1);border-right:1px solid var(--b1);text-align:center;white-space:nowrap">4.25–46.25<br>m³/hr</th>
-              <th style="padding:4px 8px;border-bottom:1.5px solid var(--b1);text-align:center;white-space:nowrap">2.0–12.0</th>
+              <th id="hdr-conductivity-sub" style="padding:4px 8px;border-bottom:1.5px solid var(--b1);border-right:1px solid var(--b1);text-align:center;white-space:nowrap;cursor:pointer" ondblclick="window._editHeader('conductivity_sub')">≤ 1.0 mS/cm</th>
+              <th id="hdr-temp-sub" style="padding:4px 8px;border-bottom:1.5px solid var(--b1);border-right:1px solid var(--b1);text-align:center;white-space:nowrap;cursor:pointer" ondblclick="window._editHeader('temp_sub')">≥ 70 °C</th>
+              <th id="hdr-flow-sub" style="padding:4px 8px;border-bottom:1.5px solid var(--b1);border-right:1px solid var(--b1);text-align:center;white-space:nowrap;cursor:pointer" ondblclick="window._editHeader('flow_sub')">4.25–46.25<br>m³/hr</th>
+              <th id="hdr-ph-sub" style="padding:4px 8px;border-bottom:1.5px solid var(--b1);text-align:center;white-space:nowrap;cursor:pointer" ondblclick="window._editHeader('ph_sub')">2.0–12.0</th>
             </tr>
           </thead>
           <tbody id="ciplog-tbody"><tr><td colspan="17" style="text-align:center;padding:20px;color:var(--t3)">Loading...</td></tr></tbody>
@@ -1444,7 +1445,98 @@ window._saveCipBool = async function(el){
 };
 
 
-// ── renderCipLog ──
+// ── COLUMN HEADER SYSTEM ──────────────────────────────────────────────
+// default headers
+const DEFAULT_HEADERS = {
+  conductivity:'Conductivity', conductivity_sub:'≤ 1.0 mS/cm',
+  temp:'อุณหภูมิ (°C)',        temp_sub:'≥ 70 °C',
+  flow:'Flow',                 flow_sub:'4.25–46.25<br>m³/hr',
+  ph:'pH',                     ph_sub:'2.0–12.0',
+  cip_done:'ผลการทำ<br>CIP ✓', san_ppm:'ผลการ San<br>(ppm)',
+  operator:'ผู้ปฏิบัติงาน',   remark:'Remark',
+};
+let _colHeaders = {...DEFAULT_HEADERS};
+let _adminUnlocked = false;
+
+// โหลด headers จาก Firestore
+async function _loadColHeaders(){
+  try{
+    const snap = await getDoc(doc(db,'cip_config','column_headers'));
+    if(snap.exists()) _colHeaders = {...DEFAULT_HEADERS,...snap.data()};
+  }catch(e){ console.warn('loadColHeaders:',e); }
+  _applyColHeaders();
+}
+
+function _applyColHeaders(){
+  Object.keys(_colHeaders).forEach(k=>{
+    const el = document.getElementById('hdr-'+k.replace('_sub','-sub').replace('_','-'));
+    const elId = document.getElementById('hdr-'+k);
+    const target = elId || document.getElementById('hdr-'+k.replace(/_/g,'-'));
+    if(target) target.innerHTML = _colHeaders[k];
+  });
+}
+
+// admin auth — ตรวจ password ด้วย SHA-256 hash
+async function _checkAdmin(){
+  if(_adminUnlocked) return true;
+  const pw = prompt('🔒 ใส่รหัสผ่าน Administrator:');
+  if(!pw) return false;
+  // SHA-256
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pw));
+  const hash = Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+  // เปรียบเทียบกับ hash ที่เก็บใน Firestore
+  try{
+    const snap = await getDoc(doc(db,'cip_config','admin'));
+    const storedHash = snap.exists() ? snap.data().pw_hash : null;
+    if(!storedHash){
+      // ครั้งแรก — ยังไม่มี hash สร้างจาก default password "supervisor2025"
+      const defBuf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('supervisor2025'));
+      const defHash = Array.from(new Uint8Array(defBuf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+      if(hash === defHash){ _adminUnlocked=true; return true; }
+    } else {
+      if(hash === storedHash){ _adminUnlocked=true; return true; }
+    }
+  }catch(e){ console.warn('checkAdmin:',e); }
+  toast('❌ รหัสผ่านไม่ถูกต้อง','red');
+  return false;
+}
+
+// ดับเบิลคลิก header → แก้ไข
+window._editHeader = async function(key){
+  const ok = await _checkAdmin();
+  if(!ok) return;
+  const cur = _colHeaders[key]||DEFAULT_HEADERS[key]||'';
+  const newVal = prompt(`✏️ แก้ไข Header "${key}":\n(HTML ได้ เช่น บรรทัดใหม่ใช้ <br>)`, cur.replace(/<br>/g,'\n'));
+  if(newVal===null) return;
+  const sanitized = newVal.replace(/\n/g,'<br>').replace(/<(?!br).*?>/g,''); // อนุญาตแค่ <br>
+  _colHeaders[key] = sanitized;
+  // บันทึกลง Firestore
+  try{
+    await setDoc(doc(db,'cip_config','column_headers'),_colHeaders,{merge:true});
+    _applyColHeaders();
+    toast('✅ แก้ไข Header แล้ว','green');
+  }catch(e){ toast('❌ บันทึกไม่สำเร็จ: '+e.message,'red'); }
+};
+
+// เปลี่ยน admin password
+window._changeAdminPw = async function(){
+  const ok = await _checkAdmin();
+  if(!ok) return;
+  const newPw = prompt('🔑 ใส่รหัสผ่านใหม่ (อย่างน้อย 6 ตัว):');
+  if(!newPw||newPw.length<6){ toast('รหัสผ่านต้องมีอย่างน้อย 6 ตัว','red'); return; }
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(newPw));
+  const hash = Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+  try{
+    await setDoc(doc(db,'cip_config','admin'),{pw_hash:hash,updated_at:new Date().toISOString()});
+    _adminUnlocked = false; // logout หลังเปลี่ยน
+    toast('✅ เปลี่ยนรหัสผ่านแล้ว กรุณา login ใหม่','green');
+  }catch(e){ toast('❌ '+e.message,'red'); }
+};
+
+// เรียก loadColHeaders ตอน init
+_loadColHeaders();
+
+
 window.renderCipLog = async function(){
   const tbody = document.getElementById('ciplog-tbody');
   const countEl = document.getElementById('ciplog-count');
