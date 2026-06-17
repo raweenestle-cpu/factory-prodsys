@@ -284,7 +284,7 @@ main{position:relative;z-index:1;padding:10px 12px;}
 @keyframes flowShine{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
 @keyframes runningGlow{0%,100%{box-shadow:0 0 0 0 var(--glow,rgba(59,130,246,.5)),0 4px 20px rgba(0,0,0,.08)}50%{box-shadow:0 0 0 4px var(--glow,rgba(59,130,246,.15)),0 4px 20px rgba(0,0,0,.08)}}
 </style>
-<!-- v20260618-tv2-fix -->
+<!-- v20260618-tv3-2lines -->
 </head>
 <body>
 
@@ -1009,10 +1009,8 @@ function calcVol(row){
             return `<span class="spill ${pm[cardStatus]}" style="font-family:var(--mono);font-size:14px">${pt[cardStatus]}</span>`;
           })()}
         </div>
-        <div style="font-family:var(--mono);font-size:19px;font-weight:900;color:#111827">${agingTank!=='—'?agingTank+' · ':''}<span style="color:#374151">${current.mix_code||'—'}</span></div>
-        <div style="font-size:20px;font-weight:800;color:#111827;overflow:hidden;text-overflow:ellipsis;margin-top:3px">${current.mix_name||'—'}</div>
-        <div style="font-family:var(--mono);font-size:17px;font-weight:700;color:#374151;margin-top:4px">Batch <span style="color:#111827;font-weight:900">${current.batch_no||'—'}</span>${rem>0?' · <span style="color:'+pctC+';font-weight:900">'+rem.toLocaleString(undefined,{maximumFractionDigits:0})+' L</span>':''}</div>
-        ${prodCode!=='—'?`<div style="font-family:var(--mono);font-size:15px;color:#6b7280;margin-top:3px">รหัสผลิต: <span style="color:#111827;font-weight:700">${prodCode}</span></div>`:''}
+        <div style="font-family:var(--mono);font-size:19px;font-weight:900;color:#111827;line-height:1.5">${agingTank!=='—'?agingTank+' · ':''}${current.mix_code||'—'} · ${current.mix_name||'—'} · Batch ${current.batch_no||'—'}${rem>0?' · Vol '+rem.toLocaleString(undefined,{maximumFractionDigits:0})+' L':''}</div>
+        ${prodCode!=='—'?`<div style="font-family:var(--mono);font-size:17px;font-weight:800;color:#111827;margin-top:4px">รหัสผลิต: ${prodCode}</div>`:''}
         <!-- Start / Stop / Reset -->
         <div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:14px">
           <button style="padding:12px 22px;border-radius:11px;font-family:var(--mono);font-size:17px;font-weight:900;border:2.5px solid ${isRunning?'#e2e8f0':curing.done?'#10b981':'#fcd34d'};background:${isRunning?'#f1f5f9':curing.done?'#d1fae5':'#fef9c3'};color:${isRunning?'#94a3b8':curing.done?'#065f46':'#92400e'};cursor:pointer" ${isRunning||!curing.done?'disabled':''} onclick="startLine('${line.id}',${sv},${fr},'${agingTank!=='—'?agingTank:''}')">${isRunning?'▶ เดิน':!curing.done?'⏳ รอบ่ม':'▶ Start'}</button>
