@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- build:20260618050000 -->
+<!DOCTYPE html><!-- build:20260618070000 -->
 <html lang="th">
 <head>
 <meta charset="UTF-8">
@@ -1285,11 +1285,40 @@ window._closeDash = function(){
 };
 
 // เพิ่มถังเข้าคิว CIP แบบ manual — ใช้กรณีถังหายไปจากระบบ (เช่นถูกลบไปก่อนหน้า) ต้องการดึงกลับมาทำ CIP
+// ลบถังออกจากคิว CIP — ใช้กรณีเพิ่มผิดหรือต้องการเอาถังออกจากระบบ
+window._removeCipQueueTank = async function(tid){
+  const ts = tankStates[tid] || {};
+  const st = ts.status || 'empty';
+  // ── BLOCK: ห้ามลบถังที่กำลังทำ CIP หรือ Sanitize อยู่จริง (active) ──
+  if(st==='cip' || st==='san'){
+    toast('❌ ห้ามลบ — ถัง '+tid+' กำลังทำ '+(st==='cip'?'CIP':'Sanitize')+' อยู่ ต้องกด "เสร็จ" ให้จบงานก่อน','red');
+    return;
+  }
+  const stLabel = {empty:'ว่าง (ไม่มีของ)', cip_done:'CIP เสร็จแล้ว รอ Sanitize', san_done:'พร้อมใช้แล้ว'}[st] || st;
+  if(!confirm('ลบถัง '+tid+' ออกจากระบบทั้งหมดไหม?\nสถานะปัจจุบัน: '+stLabel+'\nข้อมูลใน Firebase จะถูกลบถาวร'))return;
+  try{
+    await deleteDoc(doc(db,'aging_tank_states',tid));
+    toast('🗑 ลบถัง '+tid+' แล้ว','green');
+    renderCipWaiting();
+  }catch(e){ toast('❌ '+e.message,'red'); }
+};
+
 window._addTankToCipQueue = async function(){
-  const tid = prompt('🪣 ใส่ ID ถังที่ต้องการเพิ่มเข้าคิว CIP (เช่น T27):');
+  const tid = prompt('🪣 ใส่ ID ถังที่ต้องการเพิ่มเข้าคิว CIP (เช่น T27 — ใส่ได้ทีละ 1 ถังเท่านั้น):');
   if(!tid) return;
   const tidClean = tid.trim().toUpperCase();
   if(!tidClean){ toast('กรุณาใส่ ID ถังให้ถูกต้อง','red'); return; }
+  // ── BLOCK: ต้องเป็น tank ID เดี่ยวรูปแบบ T+ตัวเลขเท่านั้น ห้ามมี comma/space/อักขระอื่น ──
+  if(!/^T\d{1,3}$/.test(tidClean)){
+    toast('❌ รูปแบบ ID ไม่ถูกต้อง — ต้องเป็น T+เลขเท่านั้น เช่น T27 (ใส่ได้ทีละ 1 ถัง ห้ามมี , หรือเว้นวรรค)','red');
+    return;
+  }
+  // ── BLOCK: ห้ามเพิ่มถังที่มีอยู่แล้วในระบบ (มี status อื่นที่ไม่ใช่ empty/ไม่มีอยู่จริง) ──
+  if(tankStates[tidClean] && tankStates[tidClean].status && tankStates[tidClean].status!=='empty'){
+    toast('❌ ถัง '+tidClean+' มีอยู่ในระบบแล้ว (status: '+tankStates[tidClean].status+') ไม่ต้องเพิ่มซ้ำ','red');
+    return;
+  }
+  if(!confirm('ยืนยันเพิ่มถัง '+tidClean+' เข้าคิว CIP?')) return;
   try{
     await setDoc(doc(db,'aging_tank_states',tidClean),{
       id:tidClean, status:'empty', current_vol:0,
@@ -1494,6 +1523,7 @@ function renderCipWaiting(){
       +'<div style="width:18px;height:18px;border-radius:50%;background:'+sc.color+';display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:7px;font-weight:900;color:#fff'+(sc.pulse?';animation:blink 1.2s ease-in-out infinite':'')+'">'+(sc.label)+'</div>'
       +'<span style="font-family:var(--mono);font-size:11px;font-weight:900;color:#111">'+ts.id+'</span>'
       +(grp?'<span style="font-family:var(--mono);font-size:9px;font-weight:900;padding:1px 5px;border-radius:4px;background:'+gc+'22;color:'+gc+'">'+grp+'</span>':'')
+      +'<button onclick="window._removeCipQueueTank(\''+ts.id+'\')" title="ลบถังนี้ออกจากคิว CIP" style="margin-left:auto;background:none;border:none;cursor:pointer;font-size:11px;color:#94a3b8;padding:0">🗑</button>'
       +'</div>'
       +(ts.last_mix_code||ts.next_mix_code?'<div style="font-family:var(--mono);font-size:10px;color:#6b7280">'+(ts.last_mix_code||ts.next_mix_code||'')+'</div>':'')
       +timeHtml+countdownHtml+btn+'</div>';
