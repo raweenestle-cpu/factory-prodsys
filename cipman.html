@@ -285,7 +285,7 @@ main{position:relative;z-index:1;padding:10px 12px;}
 @keyframes flowShine{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
 @keyframes runningGlow{0%,100%{box-shadow:0 0 0 0 var(--glow,rgba(59,130,246,.5)),0 4px 20px rgba(0,0,0,.08)}50%{box-shadow:0 0 0 4px var(--glow,rgba(59,130,246,.15)),0 4px 20px rgba(0,0,0,.08)}}
 </style>
-<!-- v20260618-tv7-removelabel -->
+<!-- v20260618-tv8-queuefix -->
 </head>
 <body>
 
@@ -1095,16 +1095,14 @@ function calcVol(row){
   const q="'";
   const qLbl=qi===0?'<span style="font-family:var(--mono);font-size:15px;font-weight:900;color:#dc2626;background:#fee2e2;border:2px solid #fca5a5;border-radius:7px;padding:3px 10px">คิว 1 ▶</span>':'<span style="font-family:var(--mono);font-size:14px;font-weight:900;color:#111827;background:#e2e8f0;border:2px solid #b0bac8;border-radius:7px;padding:3px 10px">คิว '+(qi+1)+'</span>';
   return '<div style="flex-shrink:0;width:250px;background:#fff;border:2.5px solid '+(qi===0?'#fca5a5':'#e2e8f0')+';border-radius:16px;padding:16px;display:flex;flex-direction:column;align-items:center;gap:6px">'
-    +'<div style="width:100%;display:flex;align-items:center;justify-content:space-between;margin-bottom:3px">'+qLbl+'</div>'
+    +'<div style="width:100%;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">'+qLbl+'</div>'
     +'<div style="position:relative;width:100%;display:flex;justify-content:center;padding-top:22px">'
       +tankSVG('Q'+qi+'_'+line.id,qPct,qcol,qVol>0,null,null,180,240,qVol)
-      +'<div style="position:absolute;top:-32px;left:50%;transform:translateX(-50%);background:#111827;color:#fff;font-family:var(--mono);font-size:19px;font-weight:900;padding:5px 16px;border-radius:10px;white-space:nowrap;pointer-events:none;letter-spacing:.04em;z-index:2">'+qTank+'</div>'
+      +'<div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#111827;color:#fff;font-family:var(--mono);font-size:19px;font-weight:900;padding:5px 16px;border-radius:10px;white-space:nowrap;pointer-events:none;letter-spacing:.04em;z-index:2">'+qTank+'</div>'
       +'<div style="position:absolute;bottom:32px;left:50%;transform:translateX(-50%);background:#111827cc;color:#fff;font-family:var(--mono);font-size:15px;font-weight:800;padding:6px 14px;border-radius:999px;white-space:nowrap;pointer-events:none">⏳ รอ</div>'
     +'</div>'
     +'<div style="width:100%;margin-top:6px">'
-      +'<div style="font-family:var(--mono);font-size:16px;font-weight:900;color:#111827">'+(r.mix_code||'—')+'</div>'
-      +'<div style="font-size:15px;font-weight:800;color:#111827;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:218px">'+(qp.name||r.mix_name||'—')+'</div>'
-      +'<div style="font-family:var(--mono);font-size:15px;font-weight:800;color:#374151;margin-top:3px">Batch <span style="color:#111827;font-weight:900">'+(r.batch_no||'—')+'</span></div>'
+      +'<div style="font-family:var(--mono);font-size:15px;font-weight:900;color:#111827;line-height:1.4">'+(r.mix_code||'—')+' · '+(qp.name||r.mix_name||'—')+' · Batch '+(r.batch_no||'—')+'</div>'
       +'<div style="width:100%;background:#e2e8f0;border-radius:5px;height:9px;margin-top:7px;overflow:hidden"><div style="height:100%;border-radius:5px;background:'+qPctC+';width:'+qPct.toFixed(1)+'%"></div></div>'
       +'<div style="font-family:var(--mono);font-size:15px;font-weight:900;color:'+qPctC+';margin-top:4px">'+(qVol>0?qVol.toLocaleString()+' L ('+qPct.toFixed(0)+'%)':'—')+'</div>'
       +(()=>{const _prod=productMap[r.mix_code]||{};const _agHr=+(_prod.aging_time||4);const _pastEnd=qAts.past_end_time||r.past_end_time||'';const _pastDate=qAts.date||r.date||'';if(!_pastEnd||!_pastDate) return '';const[_h,_m]=_pastEnd.split(':').map(Number);const _base=new Date(_pastDate);_base.setHours(_h||0,_m||0,0,0);const _readyAt=_base.getTime()+_agHr*3600000;const _rem=_readyAt-Date.now();if(_rem<=0) return '<div style="font-family:var(--mono);font-size:14px;font-weight:900;color:#15803d;margin-top:5px">✅ บ่มครบแล้ว ('+_agHr+'ชม.)</div>';const _rh=Math.floor(_rem/3600000),_rm=Math.floor((_rem%3600000)/60000);return '<div style="font-family:var(--mono);font-size:14px;font-weight:800;color:#b45309;margin-top:5px">🌡️ บ่มอีก '+_rh+'ชม. '+String(_rm).padStart(2,'0')+'น.</div>';})()
