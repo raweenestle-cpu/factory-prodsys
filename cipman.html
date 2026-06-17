@@ -37,15 +37,13 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;height:64p
 .nav-logo{font-family:var(--mono);font-size:17px;font-weight:600;letter-spacing:.06em;flex-shrink:0}
 .nav-logo b{color:var(--blue)}.nav-logo span{color:var(--t2)}
 .cipman-badge{font-family:var(--mono);font-size:14px;font-weight:900;letter-spacing:.06em;padding:8px 18px;border-radius:10px;background:linear-gradient(135deg,#ea580c,#c2410c);color:#fff;box-shadow:0 2px 10px rgba(234,88,12,.4);flex-shrink:0;display:flex;align-items:center;gap:6px}
-.ntab{font-size:14px;font-weight:700;padding:9px 16px;border-radius:9px;border:none;background:none;color:var(--t2);cursor:pointer;white-space:nowrap;flex-shrink:0}
-.ntab.on{color:#111827;background:rgba(0,212,255,.15);border:1.5px solid rgba(0,212,255,.35)}
+.ntab{font-size:14px;font-weight:700;padding:9px 16px;border-radius:9px;border:1.5px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:#cbd5e1;cursor:pointer;white-space:nowrap;flex-shrink:0}
+.ntab.on{color:#fff;background:rgba(0,212,255,.28);border:1.5px solid #00d4ff;box-shadow:0 0 0 1px rgba(0,212,255,.2)}
 .nav-r{display:flex;align-items:center;gap:10px;margin-left:auto;flex-shrink:0}
 .manage-btn{font-size:14px;padding:9px 16px;border-radius:8px;border:1.5px solid rgba(155,109,255,.3);background:rgba(155,109,255,.1);color:#111827;cursor:pointer;display:none}
 .manage-btn.show{display:block}
 .btn-logout{font-size:14px;padding:9px 16px;border-radius:8px;border:1.5px solid var(--b2);background:none;color:var(--t2);cursor:pointer;font-weight:700}
-/* EXPIRE ALERT BAR — เนื้อหามาจาก shared.js, override ให้ใหญ่อ่านง่าย */
-#expire-alert-bar{padding:10px 18px!important}
-#expire-alert-bar *{font-size:14px!important;font-weight:700!important;padding:7px 14px!important;border-radius:8px!important}
+/* EXPIRE ALERT BAR — ซ่อนทั้งหมด เพราะบังถังด้านล่าง */
 
 /* MAIN */
 main{position:relative;z-index:1;padding:10px 12px;}
@@ -286,7 +284,7 @@ main{position:relative;z-index:1;padding:10px 12px;}
 @keyframes flowShine{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
 @keyframes runningGlow{0%,100%{box-shadow:0 0 0 0 var(--glow,rgba(59,130,246,.5)),0 4px 20px rgba(0,0,0,.08)}50%{box-shadow:0 0 0 4px var(--glow,rgba(59,130,246,.15)),0 4px 20px rgba(0,0,0,.08)}}
 </style>
-<!-- v20260610062825 -->
+<!-- v20260618-tv2-fix -->
 </head>
 <body>
 
@@ -302,7 +300,7 @@ main{position:relative;z-index:1;padding:10px 12px;}
     <button class="btn-logout" onclick="doLogout()">ออก</button>
   </div>
 </nav>
-<div id="expire-alert-bar" style="padding:0 16px;background:#fff;border-bottom:1px solid var(--b1);min-height:0"></div>
+<div id="expire-alert-bar" style="display:none"></div>
 <div class="line-sel-bar" id="cip-lsb"><span class="lsel-lbl">แสดง LINE:</span><button class="lsel-btn all on" onclick="cipSel('all',this)">ทั้งหมด</button></div>
 <main>
   <!-- BANGCHAN -->
