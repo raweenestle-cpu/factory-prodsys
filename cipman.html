@@ -1372,8 +1372,16 @@ function tickCountdowns(){
     // อัปเดต aging_tank_states.current_vol ทุก tick
     const _agTank=st.aging_tank||'';
     if(_agTank){
-      setDoc(doc(db,'aging_tank_states',_agTank),{current_vol:Math.round(rem),updated_at:new Date().toISOString()},{merge:true}).catch(()=>{});
-      setDoc(doc(db,'cip_line_states',line.id),{current_vol:Math.round(rem),updated_at:new Date().toISOString()},{merge:true}).catch(()=>{});
+      if(rem<=0){
+        // ── Volume หมดแล้ว — auto finish: clear แถวออกจากตาราง + หยุด timer ──
+        setDoc(doc(db,'aging_tank_states',_agTank),{current_vol:0,status:'empty',temps:{},updated_at:new Date().toISOString()},{merge:true}).catch(()=>{});
+        setDoc(doc(db,'cip_line_states',line.id),{running:false,start_ts:null,start_vol:0,current_vol:0,aging_tank:'',updated_at:new Date().toISOString()},{merge:true}).catch(()=>{});
+        toast('✅ '+_agTank+' Filling เสร็จสมบูรณ์ — Volume หมด','green');
+        needRender=true;
+      } else {
+        setDoc(doc(db,'aging_tank_states',_agTank),{current_vol:Math.round(rem),updated_at:new Date().toISOString()},{merge:true}).catch(()=>{});
+        setDoc(doc(db,'cip_line_states',line.id),{current_vol:Math.round(rem),updated_at:new Date().toISOString()},{merge:true}).catch(()=>{});
+      }
     }
     if(eEl&&rem>0){const m=Math.round((rem/fr)*60);const d=new Date();d.setMinutes(d.getMinutes()+m);eEl.textContent='หมด ~'+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
   });

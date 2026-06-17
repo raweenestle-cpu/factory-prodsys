@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- build:20260617560000 -->
+<!DOCTYPE html><!-- build:20260618010000 -->
 <html lang="th">
 <head>
 <meta charset="UTF-8">
@@ -759,11 +759,11 @@ const $=id=>document.getElementById(id);
 const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
 const nowHMS=()=>{const d=new Date();return[d.getHours(),d.getMinutes(),d.getSeconds()].map(x=>x.toString().padStart(2,'0')).join(':');};
 window.tankStates={};window.planRows={m1:[],m2:[]};const tankStates=window.tankStates;const planRows=window.planRows;let linesData=[],curTab='m1',unsubSt=null;
-const TEMP_TIMES=['02:00','06:00','10:00','14:00','18:00','22:00'];
+const TEMP_TIMES=['06:00','10:00','14:00','18:00','22:00','02:00'];
 $('inp-date').value=today();
 const en=sessionStorage.getItem('emp_name')||'';if(en) $('emp-name').textContent='👤 '+en;
 onAuthStateChanged(auth,u=>{if(!u){location.href='index.html';return;}$('nav-user').textContent=u.email.replace('@filling.local','');initSt();loadAll();});
-function initSt(){if(unsubSt)unsubSt();unsubSt=onSnapshot(collection(db,'aging_tank_states'),snap=>{snap.docs.forEach(d=>{tankStates[d.id]={id:d.id,...d.data()};});injectProductTypes();if(planRows.m1.length||planRows.m2.length)renderAll();});}
+function initSt(){if(unsubSt)unsubSt();unsubSt=onSnapshot(collection(db,'aging_tank_states'),snap=>{snap.docs.forEach(d=>{tankStates[d.id]={id:d.id,...d.data()};});injectProductTypes();if(planRows.m1.length||planRows.m2.length)renderAll();if(document.getElementById('page-temp')?.classList.contains('on'))renderTemp();});}
 // re-render ทุก 5 วินาที ให้ vol อัปเดต real-time
 setInterval(()=>{if(planRows.m1.length||planRows.m2.length)renderAll();},5000);
 // re-render CIP waiting ทุก 1 นาที เพื่ออัพเดท countdown และเช็ค expire
@@ -943,7 +943,7 @@ function renderShiftSummary(){
 }
 
 function getNowRound(){const h=new Date().getHours();const r=[2,6,10,14,18,22];for(let i=r.length-1;i>=0;i--){if(h>=r[i])return String(r[i]).padStart(2,'0')+':00';}return'22:00';}
-function getNextRound(cur){const i=TEMP_TIMES.indexOf(cur);return i>=0&&i<TEMP_TIMES.length-1?TEMP_TIMES[i+1]:'02:00 (พรุ่งนี้)';}
+function getNextRound(cur){const i=TEMP_TIMES.indexOf(cur);return i>=0&&i<TEMP_TIMES.length-1?TEMP_TIMES[i+1]:'06:00 (พรุ่งนี้)';}
 function getDays(){const d=[];for(let i=4;i>=0;i--){const dt=new Date();dt.setDate(dt.getDate()-i);d.push(dt.toISOString().slice(0,10));}return d;}
 function fmtDay(d,idx){return 'วันที่ '+(idx+1);}
 function renderTemp(){
