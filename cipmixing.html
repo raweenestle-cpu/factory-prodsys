@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- build:20260617500000 -->
+<!DOCTYPE html><!-- build:20260617510000 -->
 <html lang="th">
 <head>
 <meta charset="UTF-8">
@@ -1846,8 +1846,8 @@ window.exportCipLog = function(){
       <button onclick="window._chooseProgram('both')" style="padding:14px;border-radius:12px;border:2px solid #f59e0b;background:rgba(245,158,11,.12);color:#fbbf24;font-family:var(--mono);font-size:14px;font-weight:900;cursor:pointer">
         🔵🟠 Alkaline + Acid (2 แถว)
       </button>
-      <button onclick="window._cancelProgChoice()" style="padding:10px;border-radius:10px;border:1.5px solid #475569;background:none;color:#94a3b8;font-family:var(--mono);font-size:12px;cursor:pointer;margin-top:6px">
-        ✕ ยกเลิก
+      <button onclick="window._cancelProgChoice()" style="padding:13px;border-radius:10px;border:2px solid #ef4444;background:rgba(239,68,68,.12);color:#fca5a5;font-family:var(--mono);font-size:13px;font-weight:900;cursor:pointer;margin-top:6px">
+        ✕ ยกเลิก — ไม่ทำรายการนี้
       </button>
     </div>
   </div>
@@ -1859,9 +1859,11 @@ window.exportCipLog = function(){
     <div class="sign-modal-icon">✏️</div>
     <div class="sign-modal-title" id="sign-modal-title">ลายเซ็นพนักงาน</div>
     <div class="sign-modal-sub">ระบบลายเซ็นจะเปิดใช้เมื่อ Interlock พร้อม</div>
+    <button onclick="_signCancel()" style="width:100%;padding:14px;margin-bottom:14px;border-radius:12px;border:2.5px solid #ef4444;background:rgba(239,68,68,.12);color:#fca5a5;font-family:var(--mono);font-size:15px;font-weight:900;cursor:pointer;letter-spacing:.5px">
+      ✕ ยกเลิก — ไม่ทำรายการนี้
+    </button>
     <div class="sign-modal-btns">
-      <button class="sign-modal-btn" onclick="_signCancel()" style="background:none;border:1.5px solid #ef4444;color:#f87171">✕ ยกเลิก</button>
-      <button class="sign-modal-btn sign-modal-skip" onclick="_signSkip()">ข้าม</button>
+      <button class="sign-modal-btn sign-modal-skip" onclick="_signSkip()">ข้าม (ไม่เซ็น)</button>
       <button class="sign-modal-btn sign-modal-confirm" onclick="_signConfirm()">✅ ยืนยัน</button>
     </div>
   </div>
