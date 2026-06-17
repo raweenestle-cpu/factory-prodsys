@@ -285,7 +285,7 @@ main{position:relative;z-index:1;padding:10px 12px;}
 @keyframes flowShine{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
 @keyframes runningGlow{0%,100%{box-shadow:0 0 0 0 var(--glow,rgba(59,130,246,.5)),0 4px 20px rgba(0,0,0,.08)}50%{box-shadow:0 0 0 4px var(--glow,rgba(59,130,246,.15)),0 4px 20px rgba(0,0,0,.08)}}
 </style>
-<!-- v20260618-tv5-linefilter -->
+<!-- v20260618-tv6-cleanup -->
 </head>
 <body>
 
@@ -1076,12 +1076,6 @@ function calcVol(row){
               <div style="font-family:var(--mono);font-size:11px;font-weight:900;color:${isRunning?col:'#111827'}">${line.name.toUpperCase()}</div>
               <div style="font-family:var(--mono);font-size:10px;font-weight:700;color:#64748b;padding:2px 8px">Filling</div>
             </div>
-          </div>
-          <!-- mix code + name ใต้ flow -->
-          <div style="width:100%;background:${isRunning?col+'11':'#f8fafc'};border:1.5px solid ${isRunning?col+'44':'#e2e8f0'};border-radius:10px;padding:8px 12px;margin-top:4px">
-            <div style="font-family:var(--mono);font-size:14px;font-weight:900;color:#111827">${current.mix_code||'—'}</div>
-            <div style="font-size:13px;font-weight:800;color:#111827;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${current.mix_name||'—'}</div>
-            <div style="font-family:var(--mono);font-size:12px;font-weight:700;color:#374151;margin-top:2px">Batch <span style="color:#111827;font-weight:900">${current.batch_no||'—'}</span></div>
           </div>
         </div>
       </div>
