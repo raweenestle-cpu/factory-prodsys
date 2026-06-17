@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- build:20260617420000 -->
+<!DOCTYPE html><!-- build:20260617430000 -->
 <html lang="th">
 <head>
 <meta charset="UTF-8">
@@ -1477,26 +1477,28 @@ function _applyColHeaders(){
 }
 
 // admin auth — ตรวจ password ด้วย SHA-256 hash
+const DEFAULT_PW = 'supervisor2025';
+async function _hashPw(pw){
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pw));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
 async function _checkAdmin(){
   if(_adminUnlocked) return true;
   const pw = prompt('🔒 ใส่รหัสผ่าน Administrator:');
   if(!pw) return false;
-  // SHA-256
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pw));
-  const hash = Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
-  // เปรียบเทียบกับ hash ที่เก็บใน Firestore
+  const inputHash = await _hashPw(pw);
   try{
     const snap = await getDoc(doc(db,'cip_config','admin'));
-    const storedHash = snap.exists() ? snap.data().pw_hash : null;
-    if(!storedHash){
-      // ครั้งแรก — ยังไม่มี hash สร้างจาก default password "supervisor2025"
-      const defBuf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('supervisor2025'));
-      const defHash = Array.from(new Uint8Array(defBuf)).map(b=>b.toString(16).padStart(2,'0')).join('');
-      if(hash === defHash){ _adminUnlocked=true; return true; }
+    let storedHash;
+    if(snap.exists() && snap.data().pw_hash){
+      storedHash = snap.data().pw_hash;
     } else {
-      if(hash === storedHash){ _adminUnlocked=true; return true; }
+      // ยังไม่มี record → ใช้ default แล้วสร้างทันที
+      storedHash = await _hashPw(DEFAULT_PW);
+      await setDoc(doc(db,'cip_config','admin'),{pw_hash:storedHash,created_at:new Date().toISOString()});
     }
-  }catch(e){ console.warn('checkAdmin:',e); }
+    if(inputHash === storedHash){ _adminUnlocked=true; return true; }
+  }catch(e){ console.warn('checkAdmin error:',e); }
   toast('❌ รหัสผ่านไม่ถูกต้อง','red');
   return false;
 }
