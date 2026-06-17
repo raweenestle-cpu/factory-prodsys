@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- build:20260617510000 -->
+<!DOCTYPE html><!-- build:20260617520000 -->
 <html lang="th">
 <head>
 <meta charset="UTF-8">
@@ -385,12 +385,12 @@ table{background:#ffffff!important}
     <div id="cip-waiting-section" class="card" style="margin-bottom:10px;border-color:#FECACA;display:none">
       <div style="display:flex;align-items:center;margin-bottom:10px">
         <div style="font-family:var(--mono);font-size:12px;font-weight:900;color:#b91c1c">🔴 ถังรอ CIP / กำลัง CIP</div>
-        <button onclick="window._openGrpSetting()" style="margin-left:auto;background:none;border:1px solid var(--b1);border-radius:6px;padding:3px 10px;cursor:pointer;font-family:var(--mono);font-size:11px;font-weight:700;color:var(--t2)">⚙️ ตั้งค่า Group</button>
+        <button onclick="window._openGrpSetting()" style="margin-left:auto;background:#1e293b;border:1.5px solid #475569;border-radius:6px;padding:5px 12px;cursor:pointer;font-family:var(--mono);font-size:12px;font-weight:900;color:#cbd5e1">⚙️ ตั้งค่า Group</button>
       </div>
-      <div id="cip-grp-setting" style="display:none;background:#f8fafc;border:1.5px solid var(--b1);border-radius:10px;padding:12px;margin-bottom:12px">
+      <div id="cip-grp-setting" style="display:none;background:#0f172a;border:1.5px solid #334155;border-radius:10px;padding:12px;margin-bottom:12px">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-          <span style="font-family:var(--mono);font-size:11px;font-weight:900">⚙️ ตั้งค่า Group ถัง</span>
-          <button onclick="document.getElementById('cip-grp-setting').style.display='none'" style="margin-left:auto;background:none;border:none;cursor:pointer;font-size:14px;color:#94a3b8">✕</button>
+          <span style="font-family:var(--mono);font-size:13px;font-weight:900;color:#f1f5f9">⚙️ ตั้งค่า Group ถัง</span>
+          <button onclick="document.getElementById('cip-grp-setting').style.display='none'" style="margin-left:auto;background:none;border:none;cursor:pointer;font-size:16px;color:#94a3b8">✕</button>
         </div>
         <div id="cip-grp-list" style="display:flex;gap:6px;flex-wrap:wrap"></div>
       </div>
@@ -538,11 +538,11 @@ window._openGrpSetting = function(){
   const GC={A:'#1d4ed8',B:'#0e7490',C:'#15803d',D:'#b45309',E:'#7c3aed'};
   list.innerHTML = tanks.map(ts=>{
     const grp = ts.cip_group||'';
-    return '<div style="display:flex;align-items:center;gap:5px;background:#fff;border:1.5px solid var(--b1);border-radius:7px;padding:5px 8px">'
-      +'<span style="font-family:var(--mono);font-size:12px;font-weight:900;min-width:38px">'+ts.id+'</span>'
-      +'<select data-tid="'+ts.id+'" onchange="window._saveGrp(this)" style="font-family:var(--mono);font-size:11px;font-weight:800;border:1.5px solid var(--b1);border-radius:5px;padding:2px 5px;color:'+(GC[grp]||'#374151')+'">'
-      +'<option value="">—</option>'
-      +['A','B','C','D','E','M','S'].map(g=>'<option value="'+g+'"'+(grp===g?' selected':'')+'>'+g+'</option>').join('')
+    return '<div style="display:flex;align-items:center;gap:6px;background:#1e293b;border:1.5px solid #334155;border-radius:8px;padding:6px 10px">'
+      +'<span style="font-family:var(--mono);font-size:13px;font-weight:900;min-width:38px;color:#f1f5f9">'+ts.id+'</span>'
+      +'<select data-tid="'+ts.id+'" onchange="window._saveGrp(this)" style="font-family:var(--mono);font-size:13px;font-weight:900;border:1.5px solid #475569;border-radius:6px;padding:4px 8px;background:#0f172a;color:'+(GC[grp]||'#cbd5e1')+'">'
+      +'<option value="" style="background:#0f172a;color:#cbd5e1">—</option>'
+      +['A','B','C','D','E','M','S'].map(g=>'<option value="'+g+'"'+(grp===g?' selected':'')+' style="background:#0f172a;color:'+(GC[g]||'#cbd5e1')+'">'+g+'</option>').join('')
       +'</select></div>';
   }).join('');
 };
@@ -550,7 +550,7 @@ window._openGrpSetting = function(){
 window._saveGrp = async function(sel){
   const tid=sel.dataset.tid; const val=sel.value;
   const GC={A:'#1d4ed8',B:'#0e7490',C:'#15803d',D:'#b45309',E:'#7c3aed'};
-  sel.style.color=GC[val]||'#374151';
+  sel.style.color=GC[val]||'#cbd5e1';
   try{
     await setDoc(doc(db,'aging_tank_states',tid),{cip_group:val,updated_at:new Date().toISOString()},{merge:true});
     if(tankStates[tid]) tankStates[tid].cip_group=val;
@@ -1393,7 +1393,13 @@ function renderCipWaiting(){
     }
     if(st==='san_done'){
       const rem=_sanRemain(ts);
-      if(rem!=null){ const urgent=rem<30*60*1000; countdownHtml='<div style="font-family:var(--mono);font-size:9px;font-weight:800;margin-top:2px;color:'+(urgent?'#ef4444':'#0e7490')+'">⏱ Past ภายใน: '+_fmtRemain(rem)+'</div>'; }
+      if(rem!=null){
+        const urgent=rem<30*60*1000;
+        const mid=rem<60*60*1000;
+        const ccol=urgent?'#dc2626':mid?'#ea580c':'#0e7490';
+        const cbg=urgent?'rgba(220,38,38,.12)':mid?'rgba(234,88,12,.12)':'rgba(14,116,144,.12)';
+        countdownHtml='<div style="font-family:var(--mono);font-size:11px;font-weight:900;margin-top:3px;color:'+ccol+';background:'+cbg+';border:1.5px solid '+ccol+';border-radius:6px;padding:3px 6px;text-align:center'+(urgent?';animation:blink 1s ease-in-out infinite':'')+'">⏳ เหลือ '+_fmtRemain(rem)+'</div>';
+      }
     }
     // เวลา — แก้ไขได้ทั้ง start และ stop
     let timeHtml='';
@@ -1427,13 +1433,7 @@ function renderCipWaiting(){
     else if(st==='cip')      btn='<button class="btn btn-red"  style="width:100%;margin-top:2px;font-size:9px;padding:2px 0;letter-spacing:-.3px;animation:cipTempPulse 1.2s ease-in-out infinite" data-tid="'+ts.id+'" data-act="stop_cip" onclick="doAct(this.dataset.tid,this.dataset.act)">⏹ CIP เสร็จ</button>';
     else if(st==='cip_done') btn='<button class="btn btn-green" style="width:100%;margin-top:2px;font-size:9px;padding:2px 0;letter-spacing:-.3px" data-tid="'+ts.id+'" data-act="start_san" onclick="doAct(this.dataset.tid,this.dataset.act)">▶ Start San</button>';
     else if(st==='san')      btn='<button class="btn btn-red"  style="width:100%;margin-top:2px;font-size:9px;padding:2px 0;letter-spacing:-.3px;animation:cipTempPulse 1.2s ease-in-out infinite" data-tid="'+ts.id+'" data-act="stop_san" onclick="doAct(this.dataset.tid,this.dataset.act)">⏹ San เสร็จ</button>';
-    else if(st==='san_done') {
-      const _rem=_sanRemain(ts);
-      const _remTxt=_rem!=null?_fmtRemain(_rem):'';
-      const _urgentColor=_rem!=null&&_rem<30*60000?'#dc2626':_rem!=null&&_rem<60*60000?'#f59e0b':'#15803d';
-      btn='<div style="font-family:var(--mono);font-size:11px;font-weight:900;color:#15803d;margin-top:4px;text-align:center">✅ พร้อมใช้</div>'
-        +(_remTxt?'<div style="font-family:var(--mono);font-size:10px;font-weight:900;color:'+_urgentColor+';text-align:center;margin-top:2px">⏳ เหลือ '+_remTxt+'</div>':'');
-    }
+    else if(st==='san_done') btn='<div style="font-family:var(--mono);font-size:12px;font-weight:900;color:#15803d;margin-top:4px;text-align:center;background:rgba(21,128,61,.12);border:1.5px solid #86efac;border-radius:6px;padding:4px">✅ พร้อมใช้</div>';
     return '<div style="background:#fff;border:2px solid '+sc.color+';border-radius:8px;padding:5px 7px;width:auto;box-shadow:0 2px 6px rgba(0,0,0,.07)">'
       +'<div style="display:flex;align-items:center;gap:7px;margin-bottom:4px">'
       +'<div style="width:18px;height:18px;border-radius:50%;background:'+sc.color+';display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:7px;font-weight:900;color:#fff'+(sc.pulse?';animation:blink 1.2s ease-in-out infinite':'')+'">'+(sc.label)+'</div>'
