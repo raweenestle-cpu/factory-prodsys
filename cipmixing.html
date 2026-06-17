@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- build:20260617450000 -->
+<!DOCTYPE html><!-- build:20260617460000 -->
 <html lang="th">
 <head>
 <meta charset="UTF-8">
@@ -265,51 +265,61 @@ table{background:#ffffff!important}
 <body>
 
 <!-- Compact stat bar -->
-<div class="stat-bar">
-  <div class="shift-chip" style="border-left:3px solid #F59E0B">
-    <span class="shift-chip-label">🌅 เช้า</span>
-    <div class="shift-chip-nums">
-      <span class="chip-num chip-c" id="cip-morning">0</span>
-      <span style="font-size:9px;color:var(--t4)">CIP</span>
-      <span class="chip-num chip-s" id="san-morning">0</span>
-      <span style="font-size:9px;color:var(--t4)">San</span>
-      <span class="chip-num chip-t" id="total-morning">0</span>
-      <span style="font-size:9px;color:var(--t4)">รวม</span>
+<!-- DASHBOARD MODAL — เดิมเคยแสดงตลอด ย้ายมาเป็น popup กดเปิด -->
+<div id="dash-modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:900;align-items:flex-start;justify-content:center;padding-top:60px" onclick="if(event.target===this)window._closeDash()">
+  <div style="background:#0f172a;border:2px solid #334155;border-radius:16px;padding:20px;max-width:1400px;width:94%;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.5)">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+      <div style="font-family:var(--mono);font-size:16px;font-weight:900;color:#f1f5f9">📊 Dashboard ภาพรวม</div>
+      <button onclick="window._closeDash()" style="margin-left:auto;background:#1e293b;border:1px solid #475569;border-radius:8px;color:#94a3b8;padding:6px 14px;cursor:pointer;font-family:var(--mono);font-size:12px">✕ ปิด</button>
     </div>
-  </div>
-  <div class="shift-chip" style="border-left:3px solid #F97316">
-    <span class="shift-chip-label">☀️ บ่าย</span>
-    <div class="shift-chip-nums">
-      <span class="chip-num chip-c" id="cip-afternoon">0</span>
-      <span style="font-size:9px;color:var(--t4)">CIP</span>
-      <span class="chip-num chip-s" id="san-afternoon">0</span>
-      <span style="font-size:9px;color:var(--t4)">San</span>
-      <span class="chip-num chip-t" id="total-afternoon">0</span>
-      <span style="font-size:9px;color:var(--t4)">รวม</span>
+    <div class="stat-bar" style="position:static;flex-wrap:wrap">
+      <div class="shift-chip" style="border-left:3px solid #F59E0B">
+        <span class="shift-chip-label">🌅 เช้า</span>
+        <div class="shift-chip-nums">
+          <span class="chip-num chip-c" id="cip-morning">0</span>
+          <span style="font-size:9px;color:var(--t4)">CIP</span>
+          <span class="chip-num chip-s" id="san-morning">0</span>
+          <span style="font-size:9px;color:var(--t4)">San</span>
+          <span class="chip-num chip-t" id="total-morning">0</span>
+          <span style="font-size:9px;color:var(--t4)">รวม</span>
+        </div>
+      </div>
+      <div class="shift-chip" style="border-left:3px solid #F97316">
+        <span class="shift-chip-label">☀️ บ่าย</span>
+        <div class="shift-chip-nums">
+          <span class="chip-num chip-c" id="cip-afternoon">0</span>
+          <span style="font-size:9px;color:var(--t4)">CIP</span>
+          <span class="chip-num chip-s" id="san-afternoon">0</span>
+          <span style="font-size:9px;color:var(--t4)">San</span>
+          <span class="chip-num chip-t" id="total-afternoon">0</span>
+          <span style="font-size:9px;color:var(--t4)">รวม</span>
+        </div>
+      </div>
+      <div class="shift-chip" style="border-left:3px solid #6366F1">
+        <span class="shift-chip-label">🌙 ดึก</span>
+        <div class="shift-chip-nums">
+          <span class="chip-num chip-c" id="cip-night">0</span>
+          <span style="font-size:9px;color:var(--t4)">CIP</span>
+          <span class="chip-num chip-s" id="san-night">0</span>
+          <span style="font-size:9px;color:var(--t4)">San</span>
+          <span class="chip-num chip-t" id="total-night">0</span>
+          <span style="font-size:9px;color:var(--t4)">รวม</span>
+        </div>
+      </div>
+      <div id="shift-summary" style="display:none"></div>
+      <div id="priority-card" style="display:flex;align-items:center;gap:6px;background:var(--amber-light);border:1px solid rgba(217,119,6,.2);border-radius:var(--radius);padding:6px 12px;max-width:200px">
+        <span style="font-size:11px;font-weight:700;color:var(--amber);white-space:nowrap">⚠️ จะว่าง</span>
+        <div id="priority-list" style="font-size:10px;color:var(--amber)">—</div>
+      </div>
+      <div style="flex:1;min-width:0;overflow-x:auto">
+        <div id="sum-row-top" style="display:flex;gap:6px;flex-wrap:nowrap"></div>
+      </div>
     </div>
-  </div>
-  <div class="shift-chip" style="border-left:3px solid #6366F1">
-    <span class="shift-chip-label">🌙 ดึก</span>
-    <div class="shift-chip-nums">
-      <span class="chip-num chip-c" id="cip-night">0</span>
-      <span style="font-size:9px;color:var(--t4)">CIP</span>
-      <span class="chip-num chip-s" id="san-night">0</span>
-      <span style="font-size:9px;color:var(--t4)">San</span>
-      <span class="chip-num chip-t" id="total-night">0</span>
-      <span style="font-size:9px;color:var(--t4)">รวม</span>
-    </div>
-  </div>
-  <div id="shift-summary" style="display:none"></div>
-  <div id="priority-card" style="display:flex;align-items:center;gap:6px;background:var(--amber-light);border:1px solid rgba(217,119,6,.2);border-radius:var(--radius);padding:6px 12px;max-width:200px">
-    <span style="font-size:11px;font-weight:700;color:var(--amber);white-space:nowrap">⚠️ จะว่าง</span>
-    <div id="priority-list" style="font-size:10px;color:var(--amber)">—</div>
-  </div>
-  <div style="flex:1;min-width:0;overflow-x:auto">
-    <div id="sum-row-top" style="display:flex;gap:6px;flex-wrap:nowrap"></div>
   </div>
 </div>
 <nav style="flex-wrap:wrap;gap:6px;padding:6px 14px;min-height:44px">
   <div class="nav-logo">CIP MIXING</div>
+  <button onclick="window._openDash()" class="nbtn" style="font-size:12px;padding:6px 14px;font-weight:800;background:#1e3a5f;border-color:#3b82f6;color:#93c5fd">📊 Dashboard</button>
   <input type="date" class="date-input" id="inp-date" style="font-size:11px;padding:4px 8px">
   <button class="load-btn" onclick="loadAll()" style="padding:5px 12px;font-size:11px">🔄</button>
   <span id="emp-name" style="font-family:var(--mono);font-size:11px;color:var(--t2)"></span>
@@ -1167,6 +1177,14 @@ window._recFilter = function(f, btn){
 };
 
 window.showTab=(id,btn)=>{document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));btn.classList.add('on');document.getElementById('page-'+id).classList.add('on');curTab=id;if(id==='m1')renderPlans('m1');else if(id==='m2')renderPlans('m2');else if(id==='temp')renderTemp();else if(id==='rec')renderRecords();else if(id==='ciplog'){populateCipLineSel();renderCipWaiting();if(window.renderCipLog)window.renderCipLog();}};
+window._openDash = function(){
+  document.getElementById('dash-modal-overlay').style.display='flex';
+  renderSummary(); renderShiftSummary(); renderPriorityCard();
+};
+window._closeDash = function(){
+  document.getElementById('dash-modal-overlay').style.display='none';
+};
+
 function toast(msg,col='blue'){const el=$('toast');el.textContent=msg;el.style.background=col==='green'?'#15803d':col==='red'?'#991b1b':'#1d4ed8';el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2500);}
 window.doLogout=async()=>{await signOut(auth);location.href='index.html';};
 
@@ -1597,12 +1615,11 @@ window.renderCipLog = async function(){
       const fSt=r.flow!=null?(fFail?fail:ok):"";
       const pSt=r.ph!=null?(pFail?fail:ok):"";
       // ── BLOCK FIELD ตาม program type ──
-      // Sanitize: ไม่ต้องกรอก conductivity/temp/pH (ใช้แค่ flow + san_ppm)
+      // Sanitize: ไม่ต้องกรอกอุณหภูมิ/pH (แต่ conductivity ใส่ได้ + flow + san_ppm)
       // CIP (Hot water/Alkaline/Acid): ไม่ต้องกรอก san_ppm
       const isSan = r.program==='Sanitize';
       const isCip = !isSan;
       const disBlock = (cond) => cond ? 'disabled style="opacity:.25;cursor:not-allowed;background:#f1f5f9!important"' : '';
-      const disConductivity = disBlock(isSan);
       const disTemp = disBlock(isSan);
       const disPh = disBlock(isSan);
       const disSanPpm = disBlock(isCip);
@@ -1614,7 +1631,7 @@ window.renderCipLog = async function(){
         +"<td style='padding:5px 6px;font-family:var(--mono)'>"+(r.program||"—")+"</td>"
         +"<td style='padding:5px 6px;font-family:var(--mono);white-space:nowrap'>"+(r.start_time||"—")+"</td>"
         +"<td style='padding:3px 4px'><input type='time' value='"+(r.end_time||"")+"' data-id='"+r.id+"' data-f='end_time' onchange='window._saveCipField(this)' style='"+IS+";width:80px'></td>"
-        +"<td style='padding:3px 4px;text-align:center'><input type='number' step='0.01' value='"+(r.conductivity!=null?r.conductivity:"")+"' placeholder='—' data-id='"+r.id+"' data-f='conductivity' onchange='window._saveCipField(this)' "+disConductivity+" style='"+IS+";"+cSt+"'></td>"
+        +"<td style='padding:3px 4px;text-align:center'><input type='number' step='0.01' value='"+(r.conductivity!=null?r.conductivity:"")+"' placeholder='—' data-id='"+r.id+"' data-f='conductivity' onchange='window._saveCipField(this)' style='"+IS+";"+cSt+"'></td>"
         +"<td style='padding:3px 4px;text-align:center'><input type='number' step='0.1' value='"+(r.temp!=null?r.temp:"")+"' placeholder='—' data-id='"+r.id+"' data-f='temp' onchange='window._saveCipField(this)' "+disTemp+" style='"+IS+";"+tSt+"'></td>"
         +"<td style='padding:3px 4px;text-align:center'><input type='number' step='0.01' value='"+(r.flow!=null?r.flow:"")+"' placeholder='—' data-id='"+r.id+"' data-f='flow' onchange='window._saveCipField(this)' style='"+IS+";"+fSt+"'></td>"
         +"<td style='padding:3px 4px;text-align:center'><input type='number' step='0.1' value='"+(r.ph!=null?r.ph:"")+"' placeholder='—' data-id='"+r.id+"' data-f='ph' onchange='window._saveCipField(this)' "+disPh+" style='"+IS+";"+pSt+"'></td>"
