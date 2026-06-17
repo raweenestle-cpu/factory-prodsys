@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- build:20260617340000 -->
+<!DOCTYPE html><!-- build:20260617350000 -->
 <html lang="th">
 <head>
 <meta charset="UTF-8">
@@ -121,9 +121,9 @@ tr:hover td{background:#F8FAFF}
 
 /* STATUS CIRCLE */
 .st-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px;flex-shrink:0}
-.st-circle{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:8px;font-weight:800;color:#fff;flex-shrink:0}
+.st-circle{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:7px;font-weight:800;color:#fff;flex-shrink:0}
 .st-circle.pulse{animation:blink 1.2s ease-in-out infinite}
-.ts{font-family:var(--mono);font-size:10px;font-weight:700;margin-top:3px}
+.ts{font-family:var(--mono);font-size:9px;font-weight:700;margin-top:2px}
 
 /* GRP SELECT */
 .grp-sel{font-family:var(--mono);font-size:11px;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;color:var(--text);padding:5px 7px;outline:none;font-weight:700;width:90px;cursor:pointer}
@@ -1260,15 +1260,15 @@ function renderCipWaiting(){
     if(blockedBy){
       const actLabel = blockedBy.status==='cip'?'CIP':'San';
       btn='<div style="margin-top:6px;background:#fef3c7;border:1.5px solid #fbbf24;border-radius:8px;padding:5px 8px;font-family:var(--mono);font-size:10px;font-weight:800;color:#92400e;text-align:center">🔒 รอ '+blockedBy.id+'<br>ทำ '+actLabel+' เสร็จก่อน</div>';
-    } else if(st==='empty')         btn='<button class="btn btn-blue" style="width:100%;margin-top:6px;font-size:11px;padding:5px 0" data-tid="'+ts.id+'" data-act="start_cip" onclick="doAct(this.dataset.tid,this.dataset.act)">▶ Start CIP</button>';
-    else if(st==='cip')      btn='<button class="btn btn-red"  style="width:100%;margin-top:6px;font-size:11px;padding:5px 0" data-tid="'+ts.id+'" data-act="stop_cip" onclick="doAct(this.dataset.tid,this.dataset.act)">⏹ CIP เสร็จ</button>';
-    else if(st==='cip_done') btn='<button class="btn btn-green" style="width:100%;margin-top:6px;font-size:11px;padding:5px 0" data-tid="'+ts.id+'" data-act="start_san" onclick="doAct(this.dataset.tid,this.dataset.act)">▶ Start San</button>';
-    else if(st==='san')      btn='<button class="btn btn-red"  style="width:100%;margin-top:6px;font-size:11px;padding:5px 0" data-tid="'+ts.id+'" data-act="stop_san" onclick="doAct(this.dataset.tid,this.dataset.act)">⏹ San เสร็จ</button>';
+    } else if(st==='empty')         btn='<button class="btn btn-blue" style="width:100%;margin-top:3px;font-size:10px;padding:3px 0" data-tid="'+ts.id+'" data-act="start_cip" onclick="doAct(this.dataset.tid,this.dataset.act)">▶ Start CIP</button>';
+    else if(st==='cip')      btn='<button class="btn btn-red"  style="width:100%;margin-top:3px;font-size:10px;padding:3px 0" data-tid="'+ts.id+'" data-act="stop_cip" onclick="doAct(this.dataset.tid,this.dataset.act)">⏹ CIP เสร็จ</button>';
+    else if(st==='cip_done') btn='<button class="btn btn-green" style="width:100%;margin-top:3px;font-size:10px;padding:3px 0" data-tid="'+ts.id+'" data-act="start_san" onclick="doAct(this.dataset.tid,this.dataset.act)">▶ Start San</button>';
+    else if(st==='san')      btn='<button class="btn btn-red"  style="width:100%;margin-top:3px;font-size:10px;padding:3px 0" data-tid="'+ts.id+'" data-act="stop_san" onclick="doAct(this.dataset.tid,this.dataset.act)">⏹ San เสร็จ</button>';
     else if(st==='san_done') btn='<div style="font-family:var(--mono);font-size:11px;font-weight:900;color:#15803d;margin-top:6px;text-align:center">✅ พร้อมใช้</div>';
-    return '<div style="background:#fff;border:2px solid '+sc.color+';border-radius:12px;padding:12px 14px;min-width:140px;max-width:170px;box-shadow:0 2px 6px rgba(0,0,0,.07)">'
+    return '<div style="background:#fff;border:2px solid '+sc.color+';border-radius:10px;padding:7px 9px;min-width:95px;max-width:120px;box-shadow:0 2px 6px rgba(0,0,0,.07)">'
       +'<div style="display:flex;align-items:center;gap:7px;margin-bottom:4px">'
       +'<div style="width:24px;height:24px;border-radius:50%;background:'+sc.color+';display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;font-weight:900;color:#fff'+(sc.pulse?';animation:blink 1.2s ease-in-out infinite':'')+'">'+(sc.label)+'</div>'
-      +'<span style="font-family:var(--mono);font-size:16px;font-weight:900;color:#111">'+ts.id+'</span>'
+      +'<span style="font-family:var(--mono);font-size:13px;font-weight:900;color:#111">'+ts.id+'</span>'
       +(grp?'<span style="font-family:var(--mono);font-size:10px;font-weight:900;padding:1px 6px;border-radius:4px;background:'+gc+'22;color:'+gc+'">'+grp+'</span>':'')
       +'</div>'
       +(ts.last_mix_code||ts.next_mix_code?'<div style="font-family:var(--mono);font-size:10px;color:#6b7280">'+(ts.last_mix_code||ts.next_mix_code||'')+'</div>':'')
