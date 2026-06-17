@@ -285,7 +285,7 @@ main{position:relative;z-index:1;padding:10px 12px;}
 @keyframes flowShine{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
 @keyframes runningGlow{0%,100%{box-shadow:0 0 0 0 var(--glow,rgba(59,130,246,.5)),0 4px 20px rgba(0,0,0,.08)}50%{box-shadow:0 0 0 4px var(--glow,rgba(59,130,246,.15)),0 4px 20px rgba(0,0,0,.08)}}
 </style>
-<!-- v20260618-tv6-cleanup -->
+<!-- v20260618-tv7-removelabel -->
 </head>
 <body>
 
@@ -1043,7 +1043,6 @@ function calcVol(row){
             <button style="padding:9px 16px;border-radius:9px;font-family:var(--mono);font-size:14px;font-weight:900;border:2px solid ${!isRunning?'#e2e8f0':'#ef4444'};background:${!isRunning?'#f1f5f9':'#fee2e2'};color:${!isRunning?'#94a3b8':'#991b1b'};cursor:pointer" ${!isRunning?'disabled':''} onclick="stopLine('${line.id}')">⏸ Stop</button>
             <button style="padding:9px 12px;border-radius:9px;font-family:var(--mono);font-size:14px;font-weight:800;border:2px solid #fcd34d;background:#fef9c3;color:#92400e;cursor:pointer" onclick="resetLine('${line.id}')">↺</button>
           </div>
-          <div style="font-family:var(--mono);font-size:11px;color:#64748b;padding:4px 10px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;line-height:1.6;margin-top:6px;text-align:center"><div>▶ ${lineStates[line.id]?.start_label||'—'}</div><div>⏹ ${lineStates[line.id]?.stop_label||'—'}</div></div>
         </div>
         <!-- Flow line -->
         <div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;min-width:180px">
