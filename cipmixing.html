@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- build:20260617480000 -->
+<!DOCTYPE html><!-- build:20260617490000 -->
 <html lang="th">
 <head>
 <meta charset="UTF-8">
@@ -669,6 +669,7 @@ async function _doActReal(tid, act, programs){
   }
   if(act==='stop_san'){
     upd.san_stop_time=n;
+    upd.san_date=new Date().toISOString().split('T')[0]; // ใช้วันที่ stop จริง ป้องกัน expire คำนวณผิดถ้าข้ามวัน
     // ปิด active ใน cip_log_sheets ของถังนี้ (type=san, วันนี้) — ดึงค่าทั้งหมดมา archive
     let _logDataSan={};
     try{
@@ -1415,7 +1416,13 @@ function renderCipWaiting(){
     else if(st==='cip')      btn='<button class="btn btn-red"  style="width:100%;margin-top:2px;font-size:9px;padding:2px 0;letter-spacing:-.3px;animation:cipTempPulse 1.2s ease-in-out infinite" data-tid="'+ts.id+'" data-act="stop_cip" onclick="doAct(this.dataset.tid,this.dataset.act)">⏹ CIP เสร็จ</button>';
     else if(st==='cip_done') btn='<button class="btn btn-green" style="width:100%;margin-top:2px;font-size:9px;padding:2px 0;letter-spacing:-.3px" data-tid="'+ts.id+'" data-act="start_san" onclick="doAct(this.dataset.tid,this.dataset.act)">▶ Start San</button>';
     else if(st==='san')      btn='<button class="btn btn-red"  style="width:100%;margin-top:2px;font-size:9px;padding:2px 0;letter-spacing:-.3px;animation:cipTempPulse 1.2s ease-in-out infinite" data-tid="'+ts.id+'" data-act="stop_san" onclick="doAct(this.dataset.tid,this.dataset.act)">⏹ San เสร็จ</button>';
-    else if(st==='san_done') btn='<div style="font-family:var(--mono);font-size:11px;font-weight:900;color:#15803d;margin-top:6px;text-align:center">✅ พร้อมใช้</div>';
+    else if(st==='san_done') {
+      const _rem=_sanRemain(ts);
+      const _remTxt=_rem!=null?_fmtRemain(_rem):'';
+      const _urgentColor=_rem!=null&&_rem<30*60000?'#dc2626':_rem!=null&&_rem<60*60000?'#f59e0b':'#15803d';
+      btn='<div style="font-family:var(--mono);font-size:11px;font-weight:900;color:#15803d;margin-top:4px;text-align:center">✅ พร้อมใช้</div>'
+        +(_remTxt?'<div style="font-family:var(--mono);font-size:10px;font-weight:900;color:'+_urgentColor+';text-align:center;margin-top:2px">⏳ เหลือ '+_remTxt+'</div>':'');
+    }
     return '<div style="background:#fff;border:2px solid '+sc.color+';border-radius:8px;padding:5px 7px;width:auto;box-shadow:0 2px 6px rgba(0,0,0,.07)">'
       +'<div style="display:flex;align-items:center;gap:7px;margin-bottom:4px">'
       +'<div style="width:18px;height:18px;border-radius:50%;background:'+sc.color+';display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:7px;font-weight:900;color:#fff'+(sc.pulse?';animation:blink 1.2s ease-in-out infinite':'')+'">'+(sc.label)+'</div>'
