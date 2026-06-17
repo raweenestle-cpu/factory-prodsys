@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- build:20260618030000 -->
+<!DOCTYPE html><!-- build:20260618050000 -->
 <html lang="th">
 <head>
 <meta charset="UTF-8">
@@ -381,6 +381,10 @@ table{background:#ffffff!important}
 </main>
 <div class="page" id="page-ciplog">
   <div style="padding:8px">
+    <!-- ปุ่มเพิ่มถังเข้าคิว CIP แบบ manual — ใช้กรณีถังหายไปจากระบบ ต้องการดึงกลับมาทำ CIP -->
+    <div style="margin-bottom:10px;text-align:right">
+      <button onclick="window._addTankToCipQueue()" style="background:#1e293b;border:1.5px solid #475569;border-radius:8px;padding:7px 14px;cursor:pointer;font-family:var(--mono);font-size:12px;font-weight:900;color:#cbd5e1">➕ เพิ่มถังเข้าคิว CIP</button>
+    </div>
     <!-- ถังรอ CIP -->
     <div id="cip-waiting-section" class="card" style="margin-bottom:10px;border-color:#FECACA;display:none">
       <div style="display:flex;align-items:center;margin-bottom:10px">
@@ -763,7 +767,7 @@ const TEMP_TIMES=['06:00','10:00','14:00','18:00','22:00','02:00'];
 $('inp-date').value=today();
 const en=sessionStorage.getItem('emp_name')||'';if(en) $('emp-name').textContent='👤 '+en;
 onAuthStateChanged(auth,u=>{if(!u){location.href='index.html';return;}$('nav-user').textContent=u.email.replace('@filling.local','');initSt();loadAll();});
-function initSt(){if(unsubSt)unsubSt();unsubSt=onSnapshot(collection(db,'aging_tank_states'),snap=>{snap.docs.forEach(d=>{tankStates[d.id]={id:d.id,...d.data()};});injectProductTypes();if(planRows.m1.length||planRows.m2.length)renderAll();if(document.getElementById('page-temp')?.classList.contains('on'))renderTemp();});}
+function initSt(){if(unsubSt)unsubSt();unsubSt=onSnapshot(collection(db,'aging_tank_states'),snap=>{snap.docs.forEach(d=>{tankStates[d.id]={id:d.id,...d.data()};});injectProductTypes();if(planRows.m1.length||planRows.m2.length)renderAll();if(document.getElementById('page-temp')?.classList.contains('on'))renderTemp();if(document.getElementById('page-ciplog')?.classList.contains('on'))renderCipWaiting();});}
 // re-render ทุก 5 วินาที ให้ vol อัปเดต real-time
 setInterval(()=>{if(planRows.m1.length||planRows.m2.length)renderAll();},5000);
 // re-render CIP waiting ทุก 1 นาที เพื่ออัพเดท countdown และเช็ค expire
@@ -1278,6 +1282,22 @@ window._openDash = function(){
 };
 window._closeDash = function(){
   document.getElementById('dash-modal-overlay').style.display='none';
+};
+
+// เพิ่มถังเข้าคิว CIP แบบ manual — ใช้กรณีถังหายไปจากระบบ (เช่นถูกลบไปก่อนหน้า) ต้องการดึงกลับมาทำ CIP
+window._addTankToCipQueue = async function(){
+  const tid = prompt('🪣 ใส่ ID ถังที่ต้องการเพิ่มเข้าคิว CIP (เช่น T27):');
+  if(!tid) return;
+  const tidClean = tid.trim().toUpperCase();
+  if(!tidClean){ toast('กรุณาใส่ ID ถังให้ถูกต้อง','red'); return; }
+  try{
+    await setDoc(doc(db,'aging_tank_states',tidClean),{
+      id:tidClean, status:'empty', current_vol:0,
+      updated_at:new Date().toISOString()
+    },{merge:true});
+    toast('✅ เพิ่ม '+tidClean+' เข้าคิว CIP แล้ว','green');
+    renderCipWaiting();
+  }catch(e){ toast('❌ '+e.message,'red'); }
 };
 
 function toast(msg,col='blue'){const el=$('toast');el.textContent=msg;el.style.background=col==='green'?'#15803d':col==='red'?'#991b1b':'#1d4ed8';el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2500);}
