@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- build:20260617370000 -->
+<!DOCTYPE html><!-- build:20260617400000 -->
 <html lang="th">
 <head>
 <meta charset="UTF-8">
@@ -385,15 +385,16 @@ table{background:#ffffff!important}
       </div>
       <div id="cip-waiting-list" style="display:block;padding-right:4px"></div>
     </div>
-    <!-- CIP History — sticky bottom -->
+    <!-- CIP/San Active Now — sticky bottom -->
     <div class="card" style="position:sticky;bottom:0;z-index:50;margin-top:12px;border-top:2px solid #334155;border-radius:0;box-shadow:0 -4px 24px rgba(0,0,0,.35)">
       <div style="display:flex;align-items:center;gap:10px;padding:10px 16px;flex-wrap:wrap;background:#0f172a;border-bottom:1px solid #334155">
-        <div style="font-family:var(--mono);font-size:14px;font-weight:900;color:#f1f5f9">📋 CIP History</div>
-        <input id="ciplog-date" type="date" class="ci" style="width:160px;font-size:15px;font-weight:900;color-scheme:dark" onchange="if(window.renderCipLog)window.renderCipLog()">
+        <div style="width:9px;height:9px;border-radius:50%;background:#ef4444;animation:blink 1.2s ease-in-out infinite"></div>
+        <div style="font-family:var(--mono);font-size:14px;font-weight:900;color:#f1f5f9">🔴 กำลังทำ CIP / Sanitize (Live)</div>
         <button id="cip-export-btn" style="padding:9px 18px;background:#15803d;color:#fff;border:none;border-radius:8px;font-family:var(--mono);font-size:13px;font-weight:900;cursor:pointer">📥 Export CSV</button>
         <span id="ciplog-count" style="font-family:var(--mono);font-size:12px;color:#94a3b8"></span>
+        <input id="ciplog-date" type="hidden">
       </div>
-      <div style="overflow-x:auto;max-height:260px;overflow-y:auto">
+      <div style="overflow-x:auto;max-height:340px;overflow-y:auto">
         <table style="width:100%;border-collapse:collapse;font-size:11px">
           <thead>
             <tr style="background:#f0f4ff;font-family:var(--mono)">
@@ -574,13 +575,34 @@ async function _doActReal(tid, act){
   }
   if(act==='stop_cip'){
     upd.cip_stop_time=n;
-    // บันทึกลง cip_mixing_records
+    // ปิด active ใน cip_log_sheets ของถังนี้ (type=cip, วันนี้) — และดึงค่าทั้งหมดมาเก็บ archive
+    let _logData={};
+    try{
+      const _today=new Date().toISOString().split('T')[0];
+      const _q=query(collection(db,'cip_log_sheets'),
+        where('circuit','==',tid),where('act_type','==','cip'),
+        where('date','==',_today),where('active','==',true));
+      const _s=await getDocs(_q);
+      _s.docs.forEach(d2=>{
+        _logData=d2.data();
+        setDoc(doc(db,'cip_log_sheets',d2.id),{active:false,end_time:n},{merge:true}).catch(()=>{});
+      });
+    }catch(e){console.warn('close cip_log active error:',e);}
+    // บันทึกลง cip_mixing_records — รวมค่าจาก log sheet ด้วย
     const _ts2=tankStates[tid]||{};
     addDoc(collection(db,'cip_mixing_records'),{
       tank:tid, type:'cip',
       start_time:_ts2.cip_start_time||n, stop_time:n,
       mix_code:_ts2.last_mix_code||'—', mix_name:_ts2.last_mix_name||'—',
       group:_ts2.cip_group||'—',
+      conductivity:_logData.conductivity??null,
+      temp:_logData.temp??null,
+      flow:_logData.flow??null,
+      ph:_logData.ph??null,
+      cip_done:_logData.cip_done||false,
+      remark:_logData.remark&&_logData.remark!=='auto'?_logData.remark:'',
+      sign:_logData.sign||null,
+      sign_name:_logData.sign_name||'',
       date:new Date().toISOString().split('T')[0],
       created_at:new Date().toISOString()
     }).catch(()=>{});
@@ -597,6 +619,19 @@ async function _doActReal(tid, act){
   }
   if(act==='stop_san'){
     upd.san_stop_time=n;
+    // ปิด active ใน cip_log_sheets ของถังนี้ (type=san, วันนี้) — ดึงค่าทั้งหมดมา archive
+    let _logDataSan={};
+    try{
+      const _today=new Date().toISOString().split('T')[0];
+      const _q=query(collection(db,'cip_log_sheets'),
+        where('circuit','==',tid),where('act_type','==','san'),
+        where('date','==',_today),where('active','==',true));
+      const _s=await getDocs(_q);
+      _s.docs.forEach(d2=>{
+        _logDataSan=d2.data();
+        setDoc(doc(db,'cip_log_sheets',d2.id),{active:false,end_time:n},{merge:true}).catch(()=>{});
+      });
+    }catch(e){console.warn('close san_log active error:',e);}
     // คำนวณ expire_at จาก product_type + อุณหภูมิล่าสุด
     const _ts3=tankStates[tid]||{};
     const _pt=_ts3.product_type||'';
@@ -618,13 +653,21 @@ async function _doActReal(tid, act){
         upd.shelf_hr=_shelfHr;
       }
     }
-    // บันทึกลง cip_mixing_records
+    // บันทึกลง cip_mixing_records — รวมค่าจาก log sheet ด้วย
     addDoc(collection(db,'cip_mixing_records'),{
       tank:tid, type:'san',
       start_time:_ts3.san_start_time||n, stop_time:n,
       mix_code:_ts3.next_mix_code||'—', mix_name:_ts3.next_mix_name||'—',
       vol:_ts3.next_vol||0,
       group:_ts3.cip_group||'—',
+      conductivity:_logDataSan.conductivity??null,
+      temp:_logDataSan.temp??null,
+      flow:_logDataSan.flow??null,
+      ph:_logDataSan.ph??null,
+      san_ppm:_logDataSan.san_ppm??null,
+      remark:_logDataSan.remark&&_logDataSan.remark!=='auto'?_logDataSan.remark:'',
+      sign:_logDataSan.sign||null,
+      sign_name:_logDataSan.sign_name||'',
       date:new Date().toISOString().split('T')[0],
       created_at:new Date().toISOString()
     }).catch(()=>{});
@@ -1067,11 +1110,10 @@ function renderRecords(){
     const signCell = r.sign
       ? '<img src="'+r.sign+'" style="height:26px;max-width:60px;object-fit:contain;border:1px solid #86efac;border-radius:4px" title="'+(r.sign_name||'')+'">'
       : '<span style="color:#94A3B8;font-size:11px">—</span>';
-    const numCell = (v,unit,fail,ok) => {
-      if(v==null) return '<span style="color:#94A3B8">—</span>';
+    const numCell = (id,field,v,unit,fail,ok) => {
       const c = fail?'#DC2626':ok?'#059669':'#0F172A';
-      const bg = fail?'#FEF2F2':ok?'#ECFDF5':'transparent';
-      return '<span style="font-family:var(--mono);font-size:11px;font-weight:700;color:'+c+';background:'+bg+';padding:1px 5px;border-radius:4px">'+v+(unit?' '+unit:'')+'</span>';
+      const bg = fail?'#FEF2F2':ok?'#ECFDF5':'#ffffff';
+      return '<input type="number" step="0.01" value="'+(v??'')+'" placeholder="—" data-id="'+id+'" data-f="'+field+'" onchange="window._editRecField(this)" style="width:62px;text-align:center;font-family:var(--mono);font-size:11px;font-weight:700;color:'+c+';background:'+bg+';border:1px solid #cbd5e1;border-radius:5px;padding:3px 4px;outline:none">'+(unit?'<span style="font-size:9px;color:#64748b;margin-left:2px">'+unit+'</span>':'');
     };
     // spec check
     const SPEC={"Hot water":{c:99,t:70,f_min:4.25,f_max:46.25},"Alkaline":{c:1,t:70,f_min:4.25,f_max:46.25,ph_min:10.5,ph_max:12},"Acid":{c:1,f_min:4.25,f_max:46.25,ph_min:2,ph_max:3.5},"Sanitize":{f_min:1}};
@@ -1086,17 +1128,35 @@ function renderRecords(){
       +'<td style="'+P+'color:var(--t2)">'+r.mix_name+'</td>'
       +'<td style="'+P+'font-family:var(--mono)">'+(r.vol>0?r.vol.toLocaleString()+' L':'—')+'</td>'
       +'<td style="'+P+'font-weight:700;color:#C2410C">'+r.line+'</td>'
-      +'<td style="'+P+'text-align:center">'+numCell(r.conductivity,'',sp.c!=null&&r.conductivity>sp.c,sp.c!=null&&r.conductivity<=sp.c)+'</td>'
-      +'<td style="'+P+'text-align:center">'+numCell(r.temp,'°C',sp.t!=null&&r.temp<sp.t,sp.t!=null&&r.temp>=sp.t)+'</td>'
-      +'<td style="'+P+'text-align:center">'+numCell(r.flow,'',sp.f_min&&r.flow<sp.f_min,sp.f_min&&r.flow>=sp.f_min)+'</td>'
-      +'<td style="'+P+'text-align:center">'+numCell(r.ph,'',sp.ph_min!=null&&(r.ph<sp.ph_min||r.ph>sp.ph_max),sp.ph_min!=null&&r.ph>=sp.ph_min&&r.ph<=sp.ph_max)+'</td>'
+      +'<td style="'+P+'text-align:center">'+numCell(r.id,'conductivity',r.conductivity,'',sp.c!=null&&r.conductivity>sp.c,sp.c!=null&&r.conductivity<=sp.c)+'</td>'
+      +'<td style="'+P+'text-align:center">'+numCell(r.id,'temp',r.temp,'°C',sp.t!=null&&r.temp<sp.t,sp.t!=null&&r.temp>=sp.t)+'</td>'
+      +'<td style="'+P+'text-align:center">'+numCell(r.id,'flow',r.flow,'',sp.f_min&&r.flow<sp.f_min,sp.f_min&&r.flow>=sp.f_min)+'</td>'
+      +'<td style="'+P+'text-align:center">'+numCell(r.id,'ph',r.ph,'',sp.ph_min!=null&&(r.ph<sp.ph_min||r.ph>sp.ph_max),sp.ph_min!=null&&r.ph>=sp.ph_min&&r.ph<=sp.ph_max)+'</td>'
       +'<td style="'+P+'text-align:center">'+(r.san_ppm?'<span style="font-family:var(--mono);font-size:11px;font-weight:700;color:#0891B2;background:#ECFEFF;padding:1px 6px;border-radius:4px">'+r.san_ppm+' ppm</span>':'<span style="color:#94A3B8">—</span>')+'</td>'
-      +'<td style="'+P+'text-align:center">'+(r.cip_done?'<span style="color:#059669;font-size:14px">✓</span>':'<span style="color:#94A3B8">—</span>')+'</td>'
-      +'<td style="'+P+'color:var(--t2);font-size:11px">'+(r.remark&&r.remark!=='auto'?r.remark:'—')+'</td>'
+      +'<td style="'+P+'text-align:center"><input type="checkbox" data-id="'+r.id+'" data-f="cip_done" onchange="window._editRecBool(this)" style="width:16px;height:16px;accent-color:#15803d;cursor:pointer"'+(r.cip_done?' checked':'')+'></td>'
+      +'<td style="'+P+'"><input type="text" value="'+(r.remark&&r.remark!=='auto'?r.remark:'')+'" placeholder="—" data-id="'+r.id+'" data-f="remark" onchange="window._editRecField(this)" style="width:90px;font-family:var(--mono);font-size:11px;border:1px solid #cbd5e1;border-radius:5px;padding:3px 6px;outline:none;background:#fff"></td>'
       +'<td style="'+P+'">'+signCell+'</td>'
       +'</tr>';
   }).join('');
 }
+
+window._editRecField = async function(el){
+  const id=el.dataset.id, field=el.dataset.f;
+  let val=el.value;
+  if(field!=='remark') val = val===''?null:+val;
+  try{
+    await setDoc(doc(db,'cip_mixing_records',id),{[field]:val,updated_at:new Date().toISOString()},{merge:true});
+    toast('✅ แก้ไข '+field+' แล้ว','green');
+  }catch(e){toast('❌ '+e.message,'red');}
+};
+
+window._editRecBool = async function(el){
+  const id=el.dataset.id, field=el.dataset.f;
+  try{
+    await setDoc(doc(db,'cip_mixing_records',id),{[field]:el.checked,updated_at:new Date().toISOString()},{merge:true});
+    toast('✅ แก้ไขแล้ว','green');
+  }catch(e){toast('❌ '+e.message,'red');}
+};
 
 window._recFilter = function(f, btn){
   _recFilter = f;
@@ -1138,6 +1198,8 @@ async function _autoLogCip(tid, act){
       mix_rec_id: mix_rec_id,
       operator:sessionStorage.getItem('emp_name')||'—',
       remark:'auto',
+      active:true,
+      act_type:recType,
       created_at:new Date().toISOString()
     });
     if(document.getElementById('page-ciplog')?.classList.contains('on')){
@@ -1269,9 +1331,9 @@ function renderCipWaiting(){
       const actLabel = blockedBy.status==='cip'?'CIP':'San';
       btn='<div style="margin-top:6px;background:#fef3c7;border:1.5px solid #fbbf24;border-radius:8px;padding:5px 8px;font-family:var(--mono);font-size:10px;font-weight:800;color:#92400e;text-align:center">🔒 รอ '+blockedBy.id+'<br>ทำ '+actLabel+' เสร็จก่อน</div>';
     } else if(st==='empty')         btn='<button class="btn btn-blue" style="width:100%;margin-top:2px;font-size:9px;padding:2px 0;letter-spacing:-.3px" data-tid="'+ts.id+'" data-act="start_cip" onclick="doAct(this.dataset.tid,this.dataset.act)">▶ Start CIP</button>';
-    else if(st==='cip')      btn='<button class="btn btn-red"  style="width:100%;margin-top:2px;font-size:9px;padding:2px 0;letter-spacing:-.3px" data-tid="'+ts.id+'" data-act="stop_cip" onclick="doAct(this.dataset.tid,this.dataset.act)">⏹ CIP เสร็จ</button>';
+    else if(st==='cip')      btn='<button class="btn btn-red"  style="width:100%;margin-top:2px;font-size:9px;padding:2px 0;letter-spacing:-.3px;animation:cipTempPulse 1.2s ease-in-out infinite" data-tid="'+ts.id+'" data-act="stop_cip" onclick="doAct(this.dataset.tid,this.dataset.act)">⏹ CIP เสร็จ</button>';
     else if(st==='cip_done') btn='<button class="btn btn-green" style="width:100%;margin-top:2px;font-size:9px;padding:2px 0;letter-spacing:-.3px" data-tid="'+ts.id+'" data-act="start_san" onclick="doAct(this.dataset.tid,this.dataset.act)">▶ Start San</button>';
-    else if(st==='san')      btn='<button class="btn btn-red"  style="width:100%;margin-top:2px;font-size:9px;padding:2px 0;letter-spacing:-.3px" data-tid="'+ts.id+'" data-act="stop_san" onclick="doAct(this.dataset.tid,this.dataset.act)">⏹ San เสร็จ</button>';
+    else if(st==='san')      btn='<button class="btn btn-red"  style="width:100%;margin-top:2px;font-size:9px;padding:2px 0;letter-spacing:-.3px;animation:cipTempPulse 1.2s ease-in-out infinite" data-tid="'+ts.id+'" data-act="stop_san" onclick="doAct(this.dataset.tid,this.dataset.act)">⏹ San เสร็จ</button>';
     else if(st==='san_done') btn='<div style="font-family:var(--mono);font-size:11px;font-weight:900;color:#15803d;margin-top:6px;text-align:center">✅ พร้อมใช้</div>';
     return '<div style="background:#fff;border:2px solid '+sc.color+';border-radius:8px;padding:5px 7px;width:auto;box-shadow:0 2px 6px rgba(0,0,0,.07)">'
       +'<div style="display:flex;align-items:center;gap:7px;margin-bottom:4px">'
@@ -1290,10 +1352,14 @@ function renderCipWaiting(){
     const gc=GC[g]||'#6b7280';
     const isLastOdd=idx===_visGrps.length-1&&_visGrps.length%2===1;
     const spanStyle=isLastOdd?'grid-column:span 2':'';
-    html+='<div style="background:#0f172a;border:1.5px solid '+gc+';border-radius:12px;padding:8px 10px;'+spanStyle+'">'
-      +'<div style="font-family:var(--mono);font-size:11px;font-weight:900;color:'+gc+';margin-bottom:6px;padding-bottom:5px;border-bottom:1.5px solid '+gc+'44">'
-      +(g!=='—'?'● Group '+g:'● ไม่ระบุ')+'  <span style="font-weight:500;font-size:10px;color:#64748b">'+tanks.length+' ถัง</span></div>'
-      +'<div style="display:flex;gap:5px;flex-wrap:wrap">'+tanks.map(renderCard).join('')+'</div></div>';
+    const gcDark={A:'#1e3a8a',B:'#155e75',C:'#166534',D:'#92400e',E:'#5b21b6'}[g]||'#374151';
+    html+='<div style="background:#0f172a;border:2px solid '+gc+';border-radius:14px;padding:0;overflow:hidden;'+spanStyle+'">'
+      +'<div style="background:linear-gradient(135deg,'+gc+','+gcDark+');padding:10px 14px;display:flex;align-items:center;gap:10px">'
+      +'<span style="font-family:var(--mono);font-size:20px;font-weight:900;color:#fff;letter-spacing:1px;text-shadow:0 1px 3px rgba(0,0,0,.3)">'
+      +(g!=='—'?'GROUP '+g:'ไม่ระบุ')+'</span>'
+      +'<span style="font-family:var(--mono);font-weight:700;font-size:12px;color:rgba(255,255,255,.85);background:rgba(0,0,0,.2);padding:3px 10px;border-radius:20px">'+tanks.length+' ถัง</span>'
+      +'</div>'
+      +'<div style="padding:10px;display:flex;gap:5px;flex-wrap:wrap">'+tanks.map(renderCard).join('')+'</div></div>';
   });
   html+='</div>';
   list.innerHTML = html;
@@ -1380,7 +1446,6 @@ window._saveCipBool = async function(el){
 
 // ── renderCipLog ──
 window.renderCipLog = async function(){
-  const d = document.getElementById('ciplog-date')?.value||'';
   const tbody = document.getElementById('ciplog-tbody');
   const countEl = document.getElementById('ciplog-count');
   if(!tbody) return;
@@ -1388,14 +1453,15 @@ window.renderCipLog = async function(){
   try{
     const snap = await getDocs(query(
       collection(db,'cip_log_sheets'),
-      where('date','==',d),
+      where('active','==',true),
       orderBy('created_at','asc')
     ));
-    const rows = snap.docs.map(dc=>({id:dc.id,...dc.data()}));
+    const rows = snap.docs.map(dc=>({id:dc.id,...dc.data()}))
+      .sort((a,b)=>(a.group||'').localeCompare(b.group||'')||(a.created_at||'').localeCompare(b.created_at||''));
     window._cipLogRows = rows;
-    if(countEl) countEl.textContent = rows.length+' records';
+    if(countEl) countEl.textContent = rows.length+' กำลังทำอยู่';
     if(!rows.length){
-      tbody.innerHTML='<tr><td colspan="17" style="text-align:center;padding:20px;color:var(--t3)">ไม่มีข้อมูลวันนี้</td></tr>';
+      tbody.innerHTML='<tr><td colspan="17" style="text-align:center;padding:20px;color:var(--t3)">✅ ไม่มีกิจกรรมที่กำลังทำอยู่ขณะนี้</td></tr>';
       return;
     }
     const IS='font-family:var(--mono);font-size:11px;font-weight:700;width:58px;text-align:center;border:1px solid var(--border,#E2E8F0);border-radius:4px;padding:2px 3px;background:#fff;outline:none';
