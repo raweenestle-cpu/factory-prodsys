@@ -192,11 +192,12 @@ main{position:relative;z-index:1;padding:10px 12px;}
 #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);padding:10px 22px;border-radius:10px;font-size:13px;opacity:0;transition:all .3s;z-index:9999;pointer-events:none;font-family:var(--mono);color:#fff;white-space:nowrap}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
-.line-sel-bar{display:flex;align-items:center;gap:8px;padding:12px 18px;border-bottom:1px solid var(--b1);background:var(--s1);flex-wrap:wrap}
-.lsel-lbl{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--t2)}
-.lsel-btn{font-family:var(--mono);font-size:14px;font-weight:800;padding:8px 16px;border-radius:8px;border:1.5px solid var(--b2);background:none;color:var(--t2);cursor:pointer;white-space:nowrap;transition:all .2s}
-.lsel-btn:hover,.lsel-btn.on{border-color:#0891b2;color:#0891b2;background:rgba(8,145,178,.12);box-shadow:0 1px 4px rgba(8,145,178,.2)}
-.lsel-btn.all.on{border-color:var(--orange);color:var(--orange);background:rgba(255,140,66,.12)}
+.line-sel-bar{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--b1);background:linear-gradient(180deg,var(--s1),#f8fafc);flex-wrap:wrap}
+.lsel-lbl{font-family:var(--mono);font-size:13px;font-weight:800;color:var(--t2);letter-spacing:.04em}
+.lsel-btn{font-family:var(--mono);font-size:15px;font-weight:800;padding:10px 20px;border-radius:11px;border:2px solid var(--b2);background:#fff;color:#475569;cursor:pointer;white-space:nowrap;transition:all .2s;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.lsel-btn:hover{border-color:#0891b2;color:#0891b2;transform:translateY(-1px);box-shadow:0 3px 8px rgba(8,145,178,.15)}
+.lsel-btn.on{border-color:#0891b2;color:#fff;background:linear-gradient(135deg,#0891b2,#0e7490);box-shadow:0 3px 10px rgba(8,145,178,.35);transform:translateY(-1px)}
+.lsel-btn.all.on{border-color:#ea580c;background:linear-gradient(135deg,#ea580c,#c2410c);box-shadow:0 3px 10px rgba(234,88,12,.35)}
 @keyframes shimmer{0%{background-position:0% 50%}100%{background-position:200% 50%}}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 @keyframes wave{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
@@ -284,7 +285,7 @@ main{position:relative;z-index:1;padding:10px 12px;}
 @keyframes flowShine{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
 @keyframes runningGlow{0%,100%{box-shadow:0 0 0 0 var(--glow,rgba(59,130,246,.5)),0 4px 20px rgba(0,0,0,.08)}50%{box-shadow:0 0 0 4px var(--glow,rgba(59,130,246,.15)),0 4px 20px rgba(0,0,0,.08)}}
 </style>
-<!-- v20260618-tv4-layout -->
+<!-- v20260618-tv5-linefilter -->
 </head>
 <body>
 
@@ -301,7 +302,7 @@ main{position:relative;z-index:1;padding:10px 12px;}
   </div>
 </nav>
 <div id="expire-alert-bar" style="display:none"></div>
-<div class="line-sel-bar" id="cip-lsb"><span class="lsel-lbl">แสดง LINE:</span><button class="lsel-btn all on" onclick="cipSel('all',this)">ทั้งหมด</button></div>
+<div class="line-sel-bar" id="cip-lsb"><span class="lsel-lbl">แสดง LINE:</span><button class="lsel-btn all" onclick="cipSel('all',this)">ทั้งหมด</button></div>
 <main>
   <!-- BANGCHAN -->
   <div class="page on" id="page-bangchan">
@@ -419,8 +420,9 @@ const db=getFirestore(app);
 
 let ME=null,ROLE=null;
 let lines=[],lineStates={},productMap={},planRows=[],agingStates={};
+let curPage='bangchan'; // หน้าปัจจุบัน — ใช้กรอง line selector ไม่ให้ Bangchan/Twin ปนกัน
 window._planRows=planRows;
-let cipSL='all';
+let cipSL='Polo 12A'; // default แสดงเฉพาะ Polo 12A ตอนเปิดหน้า
 window.cipSel=(name,btn)=>{cipSL=name;document.querySelectorAll('#cip-lsb .lsel-btn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderAll();};
 let freezers=[],pipes=[],hwState={};
 let tickTimer=null;
@@ -1133,9 +1135,16 @@ function calcVol(row){
 
 // RENDER ALL
 function renderAll(){
-  // Build line selector buttons
+  // Build line selector buttons — กรองตาม curPage (bangchan/twin) ไม่ให้ปนกัน
   const lsb=document.getElementById('cip-lsb');
-  if(lsb){lsb.querySelectorAll('.lsel-btn:not(.all)').forEach(b=>b.remove());lines.forEach(l=>{const b=document.createElement('button');b.className='lsel-btn'+(cipSL===l.name?' on':'');b.textContent=l.name;b.onclick=()=>cipSel(l.name,b);lsb.appendChild(b);});}
+  if(lsb){
+    lsb.querySelectorAll('.lsel-btn:not(.all)').forEach(b=>b.remove());
+    const seenNames=new Set();
+    lines.filter(l=>(l.group||'bangchan')===(curPage==='twin'?'twin':'bangchan')).forEach(l=>{
+      if(seenNames.has(l.name))return; seenNames.add(l.name);
+      const b=document.createElement('button');b.className='lsel-btn'+(cipSL===l.name?' on':'');b.textContent=l.name;b.onclick=()=>cipSel(l.name,b);lsb.appendChild(b);
+    });
+  }
   // Deduplicate by name
   const seen=new Set();
   const uniqueLines=lines.filter(l=>{if(seen.has(l.name))return false;seen.add(l.name);return true;});
@@ -1388,6 +1397,8 @@ window.showPage=(p,btn)=>{
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('on'));
   document.querySelectorAll('.ntab').forEach(el=>el.classList.remove('on'));
   $('page-'+p).classList.add('on');btn.classList.add('on');
+  curPage=p;
+  renderAll();
 };
 
 
