@@ -33,15 +33,19 @@ html,body{min-height:100%;background:#e8ecf0;color:#111827;font-family:var(--san
 body::before{content:"";position:fixed;inset:0;background-image:linear-gradient(rgba(59,126,246,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(59,126,246,.03) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0}
 
 /* NAV */
-nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;height:52px;background:rgba(6,8,14,.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--b1);padding:0 14px;gap:8px;overflow-x:auto}
-.nav-logo{font-family:var(--mono);font-size:14px;font-weight:600;letter-spacing:.06em;flex-shrink:0}
+nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;height:64px;background:rgba(6,8,14,.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--b1);padding:0 18px;gap:10px;overflow-x:auto}
+.nav-logo{font-family:var(--mono);font-size:17px;font-weight:600;letter-spacing:.06em;flex-shrink:0}
 .nav-logo b{color:var(--blue)}.nav-logo span{color:var(--t2)}
-.ntab{font-size:11px;font-weight:600;padding:5px 10px;border-radius:7px;border:none;background:none;color:var(--t2);cursor:pointer;white-space:nowrap;flex-shrink:0}
-.ntab.on{color:#111827;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2)}
-.nav-r{display:flex;align-items:center;gap:8px;margin-left:auto;flex-shrink:0}
-.manage-btn{font-size:11px;padding:5px 10px;border-radius:6px;border:1px solid rgba(155,109,255,.3);background:rgba(155,109,255,.1);color:#111827;cursor:pointer;display:none}
+.cipman-badge{font-family:var(--mono);font-size:14px;font-weight:900;letter-spacing:.06em;padding:8px 18px;border-radius:10px;background:linear-gradient(135deg,#ea580c,#c2410c);color:#fff;box-shadow:0 2px 10px rgba(234,88,12,.4);flex-shrink:0;display:flex;align-items:center;gap:6px}
+.ntab{font-size:14px;font-weight:700;padding:9px 16px;border-radius:9px;border:none;background:none;color:var(--t2);cursor:pointer;white-space:nowrap;flex-shrink:0}
+.ntab.on{color:#111827;background:rgba(0,212,255,.15);border:1.5px solid rgba(0,212,255,.35)}
+.nav-r{display:flex;align-items:center;gap:10px;margin-left:auto;flex-shrink:0}
+.manage-btn{font-size:14px;padding:9px 16px;border-radius:8px;border:1.5px solid rgba(155,109,255,.3);background:rgba(155,109,255,.1);color:#111827;cursor:pointer;display:none}
 .manage-btn.show{display:block}
-.btn-logout{font-size:11px;padding:5px 10px;border-radius:6px;border:1px solid var(--b2);background:none;color:var(--t2);cursor:pointer}
+.btn-logout{font-size:14px;padding:9px 16px;border-radius:8px;border:1.5px solid var(--b2);background:none;color:var(--t2);cursor:pointer;font-weight:700}
+/* EXPIRE ALERT BAR — เนื้อหามาจาก shared.js, override ให้ใหญ่อ่านง่าย */
+#expire-alert-bar{padding:10px 18px!important}
+#expire-alert-bar *{font-size:14px!important;font-weight:700!important;padding:7px 14px!important;border-radius:8px!important}
 
 /* MAIN */
 main{position:relative;z-index:1;padding:10px 12px;}
@@ -104,7 +108,7 @@ main{position:relative;z-index:1;padding:10px 12px;}
 .tank-area{padding:20px 16px;display:flex;flex-direction:column;align-items:center;gap:10px;border-bottom:1px solid var(--b1);background:rgba(0,0,0,.15)}
 .tank-num-badge{font-family:var(--mono);font-size:16px;font-weight:900;padding:6px 20px;border-radius:8px;background:var(--s1);color:#111827;border:1px solid var(--b1);letter-spacing:.06em}
 .tank-stats{display:flex;flex-direction:column;align-items:center;gap:3px;width:100%}
-.tank-vol{font-family:var(--mono);font-size:28px;font-weight:900;text-align:center;font-variant-numeric:tabular-nums}
+.tank-vol{font-family:var(--mono);font-size:38px;font-weight:900;text-align:center;font-variant-numeric:tabular-nums}
 .tank-pct{font-family:var(--mono);font-size:18px;font-weight:800;text-align:center;font-variant-numeric:tabular-nums}
 .tank-eta{font-size:13px;font-weight:700;color:#111827;text-align:center;min-height:16px}
 /* Progress bar */
@@ -190,11 +194,11 @@ main{position:relative;z-index:1;padding:10px 12px;}
 #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);padding:10px 22px;border-radius:10px;font-size:13px;opacity:0;transition:all .3s;z-index:9999;pointer-events:none;font-family:var(--mono);color:#fff;white-space:nowrap}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
-.line-sel-bar{display:flex;align-items:center;gap:6px;padding:8px 14px;border-bottom:1px solid var(--b1);background:var(--s1);flex-wrap:wrap}
-.lsel-lbl{font-family:var(--mono);font-size:10px;color:var(--t2)}
-.lsel-btn{font-family:var(--mono);font-size:11px;padding:5px 12px;border-radius:6px;border:1px solid var(--b2);background:none;color:var(--t2);cursor:pointer;white-space:nowrap;transition:all .2s}
-.lsel-btn:hover,.lsel-btn.on{border-color:#111827;color:#111827;background:rgba(0,212,255,.08)}
-.lsel-btn.all.on{border-color:var(--orange);color:var(--orange);background:rgba(255,140,66,.08)}
+.line-sel-bar{display:flex;align-items:center;gap:8px;padding:12px 18px;border-bottom:1px solid var(--b1);background:var(--s1);flex-wrap:wrap}
+.lsel-lbl{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--t2)}
+.lsel-btn{font-family:var(--mono);font-size:14px;font-weight:800;padding:8px 16px;border-radius:8px;border:1.5px solid var(--b2);background:none;color:var(--t2);cursor:pointer;white-space:nowrap;transition:all .2s}
+.lsel-btn:hover,.lsel-btn.on{border-color:#0891b2;color:#0891b2;background:rgba(8,145,178,.12);box-shadow:0 1px 4px rgba(8,145,178,.2)}
+.lsel-btn.all.on{border-color:var(--orange);color:var(--orange);background:rgba(255,140,66,.12)}
 @keyframes shimmer{0%{background-position:0% 50%}100%{background-position:200% 50%}}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 @keyframes wave{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
@@ -287,13 +291,14 @@ main{position:relative;z-index:1;padding:10px 12px;}
 <body>
 
 <nav>
-  <div class="nav-logo">PROD<b>.</b>SYS <span>/ CIP MAN</span></div>
+  <div class="nav-logo">PROD<b>.</b>SYS</div>
+  <div class="cipman-badge">🧪 CIP MAN</div>
   <button class="ntab on" onclick="showPage('bangchan',this)">🏭 Bangchan</button>
   <button class="ntab" onclick="showPage('twin',this)">🏭 Twin</button>
   <button class="ntab" onclick="showPage('queue',this)">📋 คิวถัง</button>
   <div class="nav-r">
     <button id="btn-manage" class="manage-btn" onclick="openManage()">⚙️</button>
-    <a href="index.html" style="font-size:11px;padding:5px 10px;border-radius:6px;border:1px solid var(--b2);background:none;color:var(--t2);cursor:pointer;text-decoration:none;white-space:nowrap">🏠</a>
+    <a href="index.html" style="font-size:14px;padding:9px 14px;border-radius:8px;border:1.5px solid var(--b2);background:none;color:var(--t2);cursor:pointer;text-decoration:none;white-space:nowrap">🏠</a>
     <button class="btn-logout" onclick="doLogout()">ออก</button>
   </div>
 </nav>
@@ -990,32 +995,32 @@ function calcVol(row){
 
   return`<div class="lcard ${cardStatus}" id="card-${line.id}">
     <div class="accent"></div>
-    ${isRunning?`<div style="background:linear-gradient(90deg,#15803d,#16a34a,#15803d);background-size:200%;animation:shimmer 2s linear infinite;padding:5px 14px;display:flex;align-items:center;gap:8px"><div style="width:8px;height:8px;border-radius:50%;background:#fff;animation:blink .8s ease-in-out infinite;flex-shrink:0"></div><span style="font-family:var(--mono);font-size:11px;font-weight:900;color:#fff;letter-spacing:.08em">● RUNNING — ${line.name.toUpperCase()} · ${fr} L/hr · ${rem>0?rem.toLocaleString(undefined,{maximumFractionDigits:0})+' L เหลือ':'กำลังผลิต'}</span></div>`:''}
+    ${isRunning?`<div style="background:linear-gradient(90deg,#15803d,#16a34a,#15803d);background-size:200%;animation:shimmer 2s linear infinite;padding:9px 18px;display:flex;align-items:center;gap:10px"><div style="width:11px;height:11px;border-radius:50%;background:#fff;animation:blink .8s ease-in-out infinite;flex-shrink:0"></div><span style="font-family:var(--mono);font-size:16px;font-weight:900;color:#fff;letter-spacing:.06em">● RUNNING — ${line.name.toUpperCase()} · ${fr} L/hr · ${rem>0?rem.toLocaleString(undefined,{maximumFractionDigits:0})+' L เหลือ':'กำลังผลิต'}</span></div>`:''}
 
     <!-- HEADER — ซ้าย: ข้อมูล | ขวา: fpPanel + Force Clear + หมดถัง -->
-    <div style="padding:12px 14px;border-bottom:1px solid var(--b1);display:flex;align-items:flex-start;gap:12px">
+    <div style="padding:18px 20px;border-bottom:1px solid var(--b1);display:flex;align-items:flex-start;gap:16px">
       <!-- ซ้าย: ชื่อ line + ข้อมูล mix + Start/Stop/Reset -->
       <div style="flex:1;min-width:0">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
-          <span style="font-family:var(--mono);font-size:16px;font-weight:900;color:#111827">${line.name.toUpperCase()}</span>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+          <span style="font-family:var(--mono);font-size:24px;font-weight:900;color:#111827">${line.name.toUpperCase()}</span>
           ${(()=>{
             const _mc=current&&current.mix_code||'';
             const _lp=(line.products||[]).find(p=>(p.mix_codes||[]).some(m=>m.code===_mc));
             const _pname=_lp&&_lp.name?_lp.name:'';
-            if(_pname) return `<span class="spill sp-run" style="font-family:var(--mono);font-size:10px">${_pname}</span>`;
-            return `<span class="spill ${pm[cardStatus]}" style="font-family:var(--mono);font-size:10px">${pt[cardStatus]}</span>`;
+            if(_pname) return `<span class="spill sp-run" style="font-family:var(--mono);font-size:14px">${_pname}</span>`;
+            return `<span class="spill ${pm[cardStatus]}" style="font-family:var(--mono);font-size:14px">${pt[cardStatus]}</span>`;
           })()}
         </div>
-        <div style="font-family:var(--mono);font-size:13px;font-weight:900;color:#111827">${agingTank!=='—'?agingTank+' · ':''}<span style="color:#374151">${current.mix_code||'—'}</span></div>
-        <div style="font-size:14px;font-weight:800;color:#111827;overflow:hidden;text-overflow:ellipsis;margin-top:1px">${current.mix_name||'—'}</div>
-        <div style="font-family:var(--mono);font-size:12px;font-weight:700;color:#374151;margin-top:2px">Batch <span style="color:#111827;font-weight:900">${current.batch_no||'—'}</span>${rem>0?' · <span style="color:'+pctC+';font-weight:900">'+rem.toLocaleString(undefined,{maximumFractionDigits:0})+' L</span>':''}</div>
-        ${prodCode!=='—'?`<div style="font-family:var(--mono);font-size:11px;color:#6b7280;margin-top:2px">รหัสผลิต: <span style="color:#111827;font-weight:700">${prodCode}</span></div>`:''}
+        <div style="font-family:var(--mono);font-size:19px;font-weight:900;color:#111827">${agingTank!=='—'?agingTank+' · ':''}<span style="color:#374151">${current.mix_code||'—'}</span></div>
+        <div style="font-size:20px;font-weight:800;color:#111827;overflow:hidden;text-overflow:ellipsis;margin-top:3px">${current.mix_name||'—'}</div>
+        <div style="font-family:var(--mono);font-size:17px;font-weight:700;color:#374151;margin-top:4px">Batch <span style="color:#111827;font-weight:900">${current.batch_no||'—'}</span>${rem>0?' · <span style="color:'+pctC+';font-weight:900">'+rem.toLocaleString(undefined,{maximumFractionDigits:0})+' L</span>':''}</div>
+        ${prodCode!=='—'?`<div style="font-family:var(--mono);font-size:15px;color:#6b7280;margin-top:3px">รหัสผลิต: <span style="color:#111827;font-weight:700">${prodCode}</span></div>`:''}
         <!-- Start / Stop / Reset -->
-        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:8px">
-          <button style="padding:7px 14px;border-radius:9px;font-family:var(--mono);font-size:12px;font-weight:900;border:2px solid ${isRunning?'#e2e8f0':curing.done?'#10b981':'#fcd34d'};background:${isRunning?'#f1f5f9':curing.done?'#d1fae5':'#fef9c3'};color:${isRunning?'#94a3b8':curing.done?'#065f46':'#92400e'};cursor:pointer" ${isRunning||!curing.done?'disabled':''} onclick="startLine('${line.id}',${sv},${fr},'${agingTank!=='—'?agingTank:''}')">${isRunning?'▶ เดิน':!curing.done?'⏳ รอบ่ม':'▶ Start'}</button>
-          <button style="padding:7px 14px;border-radius:9px;font-family:var(--mono);font-size:12px;font-weight:900;border:2px solid ${!isRunning?'#e2e8f0':'#ef4444'};background:${!isRunning?'#f1f5f9':'#fee2e2'};color:${!isRunning?'#94a3b8':'#991b1b'};cursor:pointer" ${!isRunning?'disabled':''} onclick="stopLine('${line.id}')">⏸ Stop</button>
-          <button style="padding:7px 10px;border-radius:9px;font-family:var(--mono);font-size:12px;font-weight:800;border:2px solid #fcd34d;background:#fef9c3;color:#92400e;cursor:pointer" onclick="resetLine('${line.id}')">↺</button>
-          <div style="font-family:var(--mono);font-size:10px;color:#64748b;padding:3px 8px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:7px;line-height:1.7"><div>▶ ${lineStates[line.id]?.start_label||'—'}</div><div>⏹ ${lineStates[line.id]?.stop_label||'—'}</div></div>
+        <div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:14px">
+          <button style="padding:12px 22px;border-radius:11px;font-family:var(--mono);font-size:17px;font-weight:900;border:2.5px solid ${isRunning?'#e2e8f0':curing.done?'#10b981':'#fcd34d'};background:${isRunning?'#f1f5f9':curing.done?'#d1fae5':'#fef9c3'};color:${isRunning?'#94a3b8':curing.done?'#065f46':'#92400e'};cursor:pointer" ${isRunning||!curing.done?'disabled':''} onclick="startLine('${line.id}',${sv},${fr},'${agingTank!=='—'?agingTank:''}')">${isRunning?'▶ เดิน':!curing.done?'⏳ รอบ่ม':'▶ Start'}</button>
+          <button style="padding:12px 22px;border-radius:11px;font-family:var(--mono);font-size:17px;font-weight:900;border:2.5px solid ${!isRunning?'#e2e8f0':'#ef4444'};background:${!isRunning?'#f1f5f9':'#fee2e2'};color:${!isRunning?'#94a3b8':'#991b1b'};cursor:pointer" ${!isRunning?'disabled':''} onclick="stopLine('${line.id}')">⏸ Stop</button>
+          <button style="padding:12px 16px;border-radius:11px;font-family:var(--mono);font-size:17px;font-weight:800;border:2.5px solid #fcd34d;background:#fef9c3;color:#92400e;cursor:pointer" onclick="resetLine('${line.id}')">↺</button>
+          <div style="font-family:var(--mono);font-size:14px;color:#64748b;padding:6px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:9px;line-height:1.8"><div>▶ ${lineStates[line.id]?.start_label||'—'}</div><div>⏹ ${lineStates[line.id]?.stop_label||'—'}</div></div>
         </div>
       </div>
       <!-- ขวา: fpPanel + Force Clear + หมดถัง — แนวตั้ง ไม่ wrap -->
@@ -1035,10 +1040,10 @@ function calcVol(row){
       <div style="padding:12px 16px;background:${isRunning?col+'0d':'#fff'};border-bottom:1.5px solid ${isRunning?col:'#e2e8f0'};display:flex;align-items:center;gap:10px;flex-wrap:wrap;${isRunning?'box-shadow:inset 0 0 0 2px '+col+'44':''}transition:all .3s">
         <!-- ถังปัจจุบัน — ขนาดเท่า queue card -->
         <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:2px">
-          <div style="font-family:var(--mono);font-size:13px;font-weight:900;color:#111827;background:#e2e8f0;border:2px solid #b0bac8;border-radius:6px;padding:2px 10px;margin-bottom:2px">${agingTank}</div>
+          <div style="font-family:var(--mono);font-size:18px;font-weight:900;color:#111827;background:#e2e8f0;border:2px solid #b0bac8;border-radius:8px;padding:5px 14px;margin-bottom:4px">${agingTank}</div>
           <div style="position:relative;display:flex;justify-content:center">
             ${tankSVG('S'+line.id,pct,col,hasLiquid,current.status==='pasteurising'?'♨️':isRunning?'🔵':curing.done?'✅':'🌡️',current.status==='pasteurising'?'#fb923c':curing.done?'#4ade80':'#fde047',150,200,rem)}
-            <div style="position:absolute;bottom:28px;left:50%;transform:translateX(-50%);background:${isRunning?col:'#111827'}cc;color:#fff;font-family:var(--mono);font-size:11px;font-weight:800;padding:3px 10px;border-radius:999px;white-space:nowrap;pointer-events:none">${isRunning?'▶ กำลังเดิน':curing.done?'✅ พร้อม':'⏳ รอบ่ม'}</div>
+            <div style="position:absolute;bottom:28px;left:50%;transform:translateX(-50%);background:${isRunning?col:'#111827'}cc;color:#fff;font-family:var(--mono);font-size:15px;font-weight:800;padding:6px 14px;border-radius:999px;white-space:nowrap;pointer-events:none">${isRunning?'▶ กำลังเดิน':curing.done?'✅ พร้อม':'⏳ รอบ่ม'}</div>
           </div>
           <div style="font-family:var(--mono);font-size:11px;font-weight:800;color:#111827">Batch ${current.batch_no||'—'}</div>
         </div>
@@ -1049,11 +1054,11 @@ function calcVol(row){
             <!-- PUMP -->
             <div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0">
               <div style="width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .3s;position:relative;${isRunning?'border:3px solid #2563eb;background:#dbeafe;animation:pumpSpin .8s linear infinite,cipPumpPulse 1.2s ease-in-out infinite':'border:2.5px solid #b0bac8;background:#f1f5f9'}">
-                <span style="font-size:32px">⚙️</span>
+                <span style="font-size:44px">⚙️</span>
                 ${isRunning?'<div style="position:absolute;bottom:-4px;right:-4px;width:20px;height:20px;border-radius:50%;background:#2563eb;border:2.5px solid #fff;display:flex;align-items:center;justify-content:center"><div style="width:7px;height:7px;border-radius:50%;background:#fff;animation:blink .6s ease-in-out infinite"></div></div>':''}
               </div>
-              <div style="font-family:var(--mono);font-size:12px;font-weight:900;color:${isRunning?'#1e40af':'#111827'}">PUMP</div>
-              <div style="font-family:var(--mono);font-size:12px;font-weight:900;color:${isRunning?'#fff':'#111827'};background:${isRunning?'#2563eb':'#f1f5f9'};border:1.5px solid ${isRunning?'#2563eb':'#e2e8f0'};border-radius:6px;padding:2px 8px">${fr} L/hr</div>
+              <div style="font-family:var(--mono);font-size:16px;font-weight:900;color:${isRunning?'#1e40af':'#111827'}">PUMP</div>
+              <div style="font-family:var(--mono);font-size:16px;font-weight:900;color:${isRunning?'#fff':'#111827'};background:${isRunning?'#2563eb':'#f1f5f9'};border:1.5px solid ${isRunning?'#2563eb':'#e2e8f0'};border-radius:8px;padding:5px 12px">${fr} L/hr</div>
             </div>
             <div style="flex:1;height:${isRunning?4:3}px;background:${isRunning?col:'#e2e8f0'};border-radius:2px;transition:all .3s"></div>
             <!-- FREEZER -->
@@ -1061,7 +1066,7 @@ function calcVol(row){
               <div style="width:58px;height:54px;border-radius:12px;background:${isRunning?col+'33':'#f1f5f9'};border:${isRunning?'3px solid '+col:'2px solid #cbd5e1'};display:flex;align-items:center;justify-content:center;${isRunning?'box-shadow:0 0 12px '+col+'66':''}">
                 <span style="font-size:26px">❄️</span>
               </div>
-              <div style="font-family:var(--mono);font-size:11px;font-weight:900;color:${isRunning?col:'#111827'}">FREEZER</div>
+              <div style="font-family:var(--mono);font-size:16px;font-weight:900;color:${isRunning?col:'#111827'}">FREEZER</div>
               <div style="font-family:var(--mono);font-size:12px;font-weight:900;color:#111827;background:${isRunning?col+'22':'#f1f5f9'};border:1.5px solid ${isRunning?col:'#e2e8f0'};border-radius:6px;padding:2px 8px">${(lineStates[line.id]||{}).fz_A||'—'}</div>
             </div>
             <div style="flex:1;height:${isRunning?4:3}px;background:${isRunning?col:'#e2e8f0'};border-radius:2px;transition:all .3s"></div>
@@ -1084,7 +1089,7 @@ function calcVol(row){
       </div>
 
       <!-- แถว 2 (queue): Queue tanks แนวนอน ใหญ่ -->
-      ${queue.length?('<div style="padding:12px 16px;background:#f8fafc"><div style="font-family:var(--mono);font-size:10px;font-weight:900;color:#111827;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px">📋 คิวถัดไป — '+queue.length+' ถัง</div><div style="display:flex;gap:12px;flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px">'+queue.map((r,qi)=>{
+      ${queue.length?('<div style="padding:18px 20px;background:#f8fafc"><div style="font-family:var(--mono);font-size:14px;font-weight:900;color:#111827;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px">📋 คิวถัดไป — '+queue.length+' ถัง</div><div style="display:flex;gap:16px;flex-wrap:nowrap;overflow-x:auto;padding-bottom:6px">'+queue.map((r,qi)=>{
   const qp=productMap[r.mix_code]||{};
   const qcol=r.color||qp.color||'#60a5fa';
   const qAts=agingStates[r.aging_tank]||{};
@@ -1097,30 +1102,30 @@ function calcVol(row){
   const hotOk=qSt['hot_'+qTank]||false;
   const cipOk=qSt['cip_'+qTank]||false;
   const q="'";
-  const qLbl=qi===0?'<span style="font-family:var(--mono);font-size:11px;font-weight:900;color:#dc2626;background:#fee2e2;border:1.5px solid #fca5a5;border-radius:5px;padding:1px 7px">คิว 1 ▶</span>':'<span style="font-family:var(--mono);font-size:10px;font-weight:900;color:#111827;background:#e2e8f0;border:1.5px solid #b0bac8;border-radius:5px;padding:1px 7px">คิว '+(qi+1)+'</span>';
-  return '<div style="flex-shrink:0;width:200px;background:#fff;border:2px solid '+(qi===0?'#fca5a5':'#e2e8f0')+';border-radius:14px;padding:12px;display:flex;flex-direction:column;align-items:center;gap:4px">'
-    +'<div style="width:100%;display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">'+qLbl+'</div>'
-    +'<div style="position:relative;width:100%;display:flex;justify-content:center;padding-top:16px">'
-      +tankSVG('Q'+qi+'_'+line.id,qPct,qcol,qVol>0,null,null,150,200,qVol)
-      +'<div style="position:absolute;top:-30px;left:50%;transform:translateX(-50%);background:#111827;color:#fff;font-family:var(--mono);font-size:14px;font-weight:900;padding:2px 12px;border-radius:8px;white-space:nowrap;pointer-events:none;letter-spacing:.04em;z-index:2">'+qTank+'</div>'
-      +'<div style="position:absolute;bottom:28px;left:50%;transform:translateX(-50%);background:#111827cc;color:#fff;font-family:var(--mono);font-size:11px;font-weight:800;padding:3px 10px;border-radius:999px;white-space:nowrap;pointer-events:none">⏳ รอ</div>'
+  const qLbl=qi===0?'<span style="font-family:var(--mono);font-size:15px;font-weight:900;color:#dc2626;background:#fee2e2;border:2px solid #fca5a5;border-radius:7px;padding:3px 10px">คิว 1 ▶</span>':'<span style="font-family:var(--mono);font-size:14px;font-weight:900;color:#111827;background:#e2e8f0;border:2px solid #b0bac8;border-radius:7px;padding:3px 10px">คิว '+(qi+1)+'</span>';
+  return '<div style="flex-shrink:0;width:250px;background:#fff;border:2.5px solid '+(qi===0?'#fca5a5':'#e2e8f0')+';border-radius:16px;padding:16px;display:flex;flex-direction:column;align-items:center;gap:6px">'
+    +'<div style="width:100%;display:flex;align-items:center;justify-content:space-between;margin-bottom:3px">'+qLbl+'</div>'
+    +'<div style="position:relative;width:100%;display:flex;justify-content:center;padding-top:22px">'
+      +tankSVG('Q'+qi+'_'+line.id,qPct,qcol,qVol>0,null,null,180,240,qVol)
+      +'<div style="position:absolute;top:-32px;left:50%;transform:translateX(-50%);background:#111827;color:#fff;font-family:var(--mono);font-size:19px;font-weight:900;padding:5px 16px;border-radius:10px;white-space:nowrap;pointer-events:none;letter-spacing:.04em;z-index:2">'+qTank+'</div>'
+      +'<div style="position:absolute;bottom:32px;left:50%;transform:translateX(-50%);background:#111827cc;color:#fff;font-family:var(--mono);font-size:15px;font-weight:800;padding:6px 14px;border-radius:999px;white-space:nowrap;pointer-events:none">⏳ รอ</div>'
     +'</div>'
-    +'<div style="width:100%;margin-top:4px">'
-      +'<div style="font-family:var(--mono);font-size:12px;font-weight:900;color:#111827">'+(r.mix_code||'—')+'</div>'
-      +'<div style="font-size:11px;font-weight:800;color:#111827;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:176px">'+(qp.name||r.mix_name||'—')+'</div>'
-      +'<div style="font-family:var(--mono);font-size:11px;font-weight:800;color:#374151;margin-top:2px">Batch <span style="color:#111827;font-weight:900">'+(r.batch_no||'—')+'</span></div>'
-      +'<div style="width:100%;background:#e2e8f0;border-radius:4px;height:6px;margin-top:5px;overflow:hidden"><div style="height:100%;border-radius:4px;background:'+qPctC+';width:'+qPct.toFixed(1)+'%"></div></div>'
-      +'<div style="font-family:var(--mono);font-size:11px;font-weight:900;color:'+qPctC+';margin-top:2px">'+(qVol>0?qVol.toLocaleString()+' L ('+qPct.toFixed(0)+'%)':'—')+'</div>'
-      +(()=>{const _prod=productMap[r.mix_code]||{};const _agHr=+(_prod.aging_time||4);const _pastEnd=qAts.past_end_time||r.past_end_time||'';const _pastDate=qAts.date||r.date||'';if(!_pastEnd||!_pastDate) return '';const[_h,_m]=_pastEnd.split(':').map(Number);const _base=new Date(_pastDate);_base.setHours(_h||0,_m||0,0,0);const _readyAt=_base.getTime()+_agHr*3600000;const _rem=_readyAt-Date.now();if(_rem<=0) return '<div style="font-family:var(--mono);font-size:10px;font-weight:900;color:#15803d;margin-top:3px">✅ บ่มครบแล้ว ('+_agHr+'ชม.)</div>';const _rh=Math.floor(_rem/3600000),_rm=Math.floor((_rem%3600000)/60000);return '<div style="font-family:var(--mono);font-size:10px;font-weight:800;color:#b45309;margin-top:3px">🌡️ บ่มอีก '+_rh+'ชม. '+String(_rm).padStart(2,'0')+'น.</div>';})()
+    +'<div style="width:100%;margin-top:6px">'
+      +'<div style="font-family:var(--mono);font-size:16px;font-weight:900;color:#111827">'+(r.mix_code||'—')+'</div>'
+      +'<div style="font-size:15px;font-weight:800;color:#111827;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:218px">'+(qp.name||r.mix_name||'—')+'</div>'
+      +'<div style="font-family:var(--mono);font-size:15px;font-weight:800;color:#374151;margin-top:3px">Batch <span style="color:#111827;font-weight:900">'+(r.batch_no||'—')+'</span></div>'
+      +'<div style="width:100%;background:#e2e8f0;border-radius:5px;height:9px;margin-top:7px;overflow:hidden"><div style="height:100%;border-radius:5px;background:'+qPctC+';width:'+qPct.toFixed(1)+'%"></div></div>'
+      +'<div style="font-family:var(--mono);font-size:15px;font-weight:900;color:'+qPctC+';margin-top:4px">'+(qVol>0?qVol.toLocaleString()+' L ('+qPct.toFixed(0)+'%)':'—')+'</div>'
+      +(()=>{const _prod=productMap[r.mix_code]||{};const _agHr=+(_prod.aging_time||4);const _pastEnd=qAts.past_end_time||r.past_end_time||'';const _pastDate=qAts.date||r.date||'';if(!_pastEnd||!_pastDate) return '';const[_h,_m]=_pastEnd.split(':').map(Number);const _base=new Date(_pastDate);_base.setHours(_h||0,_m||0,0,0);const _readyAt=_base.getTime()+_agHr*3600000;const _rem=_readyAt-Date.now();if(_rem<=0) return '<div style="font-family:var(--mono);font-size:14px;font-weight:900;color:#15803d;margin-top:5px">✅ บ่มครบแล้ว ('+_agHr+'ชม.)</div>';const _rh=Math.floor(_rem/3600000),_rm=Math.floor((_rem%3600000)/60000);return '<div style="font-family:var(--mono);font-size:14px;font-weight:800;color:#b45309;margin-top:5px">🌡️ บ่มอีก '+_rh+'ชม. '+String(_rm).padStart(2,'0')+'น.</div>';})()
     +'</div>'
-    +'<div style="width:100%;border-top:1px solid #e2e8f0;margin-top:6px;padding-top:6px;display:flex;flex-direction:column;gap:5px">'
-      +'<label style="display:flex;align-items:center;gap:5px;cursor:pointer;padding:4px 8px;border-radius:7px;background:'+(hotOk?'rgba(21,128,61,.12)':'#f8fafc')+';border:1.5px solid '+(hotOk?'#15803d':'#e2e8f0')+'">'
-        +'<input type="checkbox" '+(hotOk?'checked':'')+' onchange="setFP('+q+line.id+q+','+q+qTank+q+','+q+'hot_'+qTank+q+',this.checked)" style="width:15px;height:15px;accent-color:#15803d;cursor:pointer">'
-        +'<span style="font-family:var(--mono);font-size:11px;font-weight:800;color:'+(hotOk?'#15803d':'#374151')+'">🌡️ น้ำร้อน</span>'
+    +'<div style="width:100%;border-top:1.5px solid #e2e8f0;margin-top:8px;padding-top:8px;display:flex;flex-direction:column;gap:7px">'
+      +'<label style="display:flex;align-items:center;gap:7px;cursor:pointer;padding:7px 10px;border-radius:9px;background:'+(hotOk?'rgba(21,128,61,.12)':'#f8fafc')+';border:2px solid '+(hotOk?'#15803d':'#e2e8f0')+'">'
+        +'<input type="checkbox" '+(hotOk?'checked':'')+' onchange="setFP('+q+line.id+q+','+q+qTank+q+','+q+'hot_'+qTank+q+',this.checked)" style="width:19px;height:19px;accent-color:#15803d;cursor:pointer">'
+        +'<span style="font-family:var(--mono);font-size:15px;font-weight:800;color:'+(hotOk?'#15803d':'#374151')+'">🌡️ น้ำร้อน</span>'
       +'</label>'
-      +'<label style="display:flex;align-items:center;gap:5px;cursor:pointer;padding:4px 8px;border-radius:7px;background:'+(cipOk?'rgba(21,128,61,.12)':'#f8fafc')+';border:1.5px solid '+(cipOk?'#15803d':'#e2e8f0')+'">'
-        +'<input type="checkbox" '+(cipOk?'checked':'')+' onchange="setFP('+q+line.id+q+','+q+qTank+q+','+q+'cip_'+qTank+q+',this.checked)" style="width:15px;height:15px;accent-color:#15803d;cursor:pointer">'
-        +'<span style="font-family:var(--mono);font-size:11px;font-weight:800;color:'+(cipOk?'#15803d':'#374151')+'">🧹 CIP</span>'
+      +'<label style="display:flex;align-items:center;gap:7px;cursor:pointer;padding:7px 10px;border-radius:9px;background:'+(cipOk?'rgba(21,128,61,.12)':'#f8fafc')+';border:2px solid '+(cipOk?'#15803d':'#e2e8f0')+'">'
+        +'<input type="checkbox" '+(cipOk?'checked':'')+' onchange="setFP('+q+line.id+q+','+q+qTank+q+','+q+'cip_'+qTank+q+',this.checked)" style="width:19px;height:19px;accent-color:#15803d;cursor:pointer">'
+        +'<span style="font-family:var(--mono);font-size:15px;font-weight:800;color:'+(cipOk?'#15803d':'#374151')+'">🧹 CIP</span>'
       +'</label>'
     +'</div>'
   +'</div>';
