@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- build:20260617460000 -->
+<!DOCTYPE html><!-- build:20260617470000 -->
 <html lang="th">
 <head>
 <meta charset="UTF-8">
@@ -511,13 +511,13 @@ let _pendingAct = null;
 
 window._signSkip = function(){
   document.getElementById('sign-modal-overlay').classList.remove('show');
-  if(_pendingAct) _doActReal(_pendingAct.tid, _pendingAct.act);
+  if(_pendingAct) _doActReal(_pendingAct.tid, _pendingAct.act, _pendingAct.programs);
   _pendingAct = null;
 };
 
 window._signConfirm = function(){
   document.getElementById('sign-modal-overlay').classList.remove('show');
-  if(_pendingAct) _doActReal(_pendingAct.tid, _pendingAct.act);
+  if(_pendingAct) _doActReal(_pendingAct.tid, _pendingAct.act, _pendingAct.programs);
   _pendingAct = null;
 };
 
@@ -553,7 +553,7 @@ window._saveGrp = async function(sel){
   }catch(e){toast('❌ '+e.message,'red');}
 };
 
-async function _doActReal(tid, act){
+async function _doActReal(tid, act, programs){
   const map={start_cip:'cip',stop_cip:'cip_done',start_san:'san',stop_san:'san_done'};
   const newSt=map[act];if(!newSt)return;
   const n=nowHMS();
@@ -561,7 +561,7 @@ async function _doActReal(tid, act){
   if(act==='start_cip'){
     upd.cip_start_time=n;
     upd.cip_date=new Date().toISOString().split('T')[0];
-    _autoLogCip(tid,'start_cip');
+    _autoLogCip(tid,'start_cip',programs||['Alkaline']);
     // ดึง mix_code/mix_name จาก cip_mixing_records record ล่าสุดของถังนี้
     try{
       const _q=query(collection(db,'cip_mixing_records'),
@@ -780,10 +780,27 @@ window._editTime=async(tid,field,val)=>{
 };
 
 window.doAct=(tid,act)=>{
+  if(act==='start_cip'){
+    // เลือก program ก่อน — Alkaline เดี่ยว หรือ Alkaline+Acid (2 แถว)
+    _pendingAct={tid,act};
+    document.getElementById('prog-modal-tank').textContent='ถัง '+tid;
+    document.getElementById('prog-modal-overlay').classList.add('show');
+    return;
+  }
   // เปิด modal ลายเซ็นก่อนทุกครั้ง
-  const labels={start_cip:'Start CIP',stop_cip:'Stop CIP',start_san:'Start Sanitize',stop_san:'Stop Sanitize'};
+  const labels={stop_cip:'Stop CIP',start_san:'Start Sanitize',stop_san:'Stop Sanitize'};
   _pendingAct={tid,act};
   document.getElementById('sign-modal-title').textContent=(labels[act]||act)+' — ถัง '+tid;
+  document.getElementById('sign-modal-overlay').classList.add('show');
+};
+
+// เลือก program แล้วไปต่อ sign modal
+window._chooseProgram=(progChoice)=>{
+  document.getElementById('prog-modal-overlay').classList.remove('show');
+  if(!_pendingAct) return;
+  _pendingAct.programs = progChoice==='both' ? ['Alkaline','Acid'] : ['Alkaline'];
+  const tid=_pendingAct.tid;
+  document.getElementById('sign-modal-title').textContent='Start CIP ('+(progChoice==='both'?'Alkaline+Acid':'Alkaline')+') — ถัง '+tid;
   document.getElementById('sign-modal-overlay').classList.add('show');
 };
 window.setGroup=async(tid,val)=>{try{await setDoc(doc(db,'aging_tank_states',tid),{cip_group:val,updated_at:new Date().toISOString()},{merge:true});}catch(e){console.warn(e);}};
@@ -1191,12 +1208,15 @@ window.doLogout=async()=>{await signOut(auth);location.href='index.html';};
 window._cipLogRows = [];
 
 // ── auto-create row ใน cip_log_sheets เมื่อ start_cip หรือ start_san ──
-async function _autoLogCip(tid, act){
+// programs: array ของ program ที่เลือก เช่น ['Alkaline'] หรือ ['Alkaline','Acid']
+async function _autoLogCip(tid, act, programs){
   const ts = tankStates[tid]||{};
   const d = new Date().toISOString().split('T')[0];
   const n = nowHMS();
-  const prog = act==='start_cip'?'CIP':'Sanitize';
   const recType = act==='start_cip'?'cip':'san';
+  // ถ้าเป็น start_cip ให้ loop ตาม programs ที่เลือก (Alkaline / Alkaline+Acid)
+  // ถ้าเป็น start_san ใช้ program เดียวคือ Sanitize
+  const progList = act==='start_cip' ? (programs && programs.length ? programs : ['Alkaline']) : ['Sanitize'];
   try{
     // หา mix_rec_id จาก cip_mixing_records ล่าสุดของถังนี้
     let mix_rec_id = null;
@@ -1207,20 +1227,23 @@ async function _autoLogCip(tid, act){
       const _rs = await getDocs(_rq);
       if(!_rs.empty) mix_rec_id = _rs.docs[0].id;
     }catch{}
-    await addDoc(collection(db,'cip_log_sheets'),{
-      date:d, circuit:tid,
-      group:ts.cip_group||'—',
-      program:prog,
-      start_time:n, end_time:'',
-      conductivity:null, temp:null, flow:null, ph:null,
-      cip_done:false, san_ppm:null,
-      mix_rec_id: mix_rec_id,
-      operator:sessionStorage.getItem('emp_name')||'—',
-      remark:'auto',
-      active:true,
-      act_type:recType,
-      created_at:new Date().toISOString()
-    });
+    // สร้าง record แยกตาม program ที่เลือก — ทุกแถวใช้ circuit (tid) เดียวกัน
+    for(const prog of progList){
+      await addDoc(collection(db,'cip_log_sheets'),{
+        date:d, circuit:tid,
+        group:ts.cip_group||'—',
+        program:prog,
+        start_time:n, end_time:'',
+        conductivity:null, temp:null, flow:null, ph:null,
+        cip_done:false, san_ppm:null,
+        mix_rec_id: mix_rec_id,
+        operator:sessionStorage.getItem('emp_name')||'—',
+        remark:'auto',
+        active:true,
+        act_type:recType,
+        created_at:new Date().toISOString()
+      });
+    }
     if(document.getElementById('page-ciplog')?.classList.contains('on')){
       if(window.renderCipLog) window.renderCipLog();
     }
@@ -1753,6 +1776,26 @@ window.exportCipLog = function(){
     </table>
   </div>
 </div>
+
+<div class="sign-modal-overlay" id="prog-modal-overlay" style="position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:950;display:none;align-items:center;justify-content:center">
+  <div class="sign-modal" style="background:#1e293b;border:2px solid #334155;border-radius:16px;padding:28px 32px;max-width:380px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5)">
+    <div style="font-size:38px;margin-bottom:10px">🧪</div>
+    <div style="font-family:var(--mono);font-size:16px;font-weight:900;color:#f1f5f9;margin-bottom:4px">เลือกโปรแกรม CIP</div>
+    <div id="prog-modal-tank" style="font-family:var(--mono);font-size:13px;color:#94a3b8;margin-bottom:20px">ถัง —</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <button onclick="window._chooseProgram('alkaline')" style="padding:14px;border-radius:12px;border:2px solid #3b82f6;background:rgba(59,130,246,.12);color:#93c5fd;font-family:var(--mono);font-size:14px;font-weight:900;cursor:pointer">
+        🔵 Alkaline เท่านั้น
+      </button>
+      <button onclick="window._chooseProgram('both')" style="padding:14px;border-radius:12px;border:2px solid #f59e0b;background:rgba(245,158,11,.12);color:#fbbf24;font-family:var(--mono);font-size:14px;font-weight:900;cursor:pointer">
+        🔵🟠 Alkaline + Acid (2 แถว)
+      </button>
+      <button onclick="document.getElementById('prog-modal-overlay').classList.remove('show');document.getElementById('prog-modal-overlay').style.display='none'" style="padding:10px;border-radius:10px;border:1.5px solid #475569;background:none;color:#94a3b8;font-family:var(--mono);font-size:12px;cursor:pointer;margin-top:6px">
+        ✕ ยกเลิก
+      </button>
+    </div>
+  </div>
+</div>
+<style>#prog-modal-overlay.show{display:flex!important}</style>
 
 <div class="sign-modal-overlay" id="sign-modal-overlay">
   <div class="sign-modal">
