@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- build:20260609083003 -->
+<!DOCTYPE html><!-- build:20260617240000 -->
 <html lang="th">
 <head>
 <meta charset="UTF-8">
@@ -183,6 +183,127 @@ td.sep{border-right:2px solid var(--border2)}
 
 /* SAVE ROW */
 .save-row{display:flex;justify-content:flex-end;padding:10px 14px;border-top:1px solid var(--border)}
+
+/* ===== TV DARK OVERRIDE — CIP MIXING ===== */
+:root{
+  --bg:#0b1120;
+  --surface:#1e293b;
+  --surface2:#263348;
+  --border:#334155;
+  --border2:#475569;
+  --text:#f1f5f9;
+  --t2:#cbd5e1;
+  --t3:#94a3b8;
+  --t4:#64748b;
+  --blue-light:#1e3a5f;
+  --blue-mid:#1e40af;
+  --green-light:#064e3b;
+  --cyan-light:#0c4a6e;
+  --red-light:#450a0a;
+  --amber-light:#451a03;
+  --purple:#a855f7;
+}
+body{background:#0b1120!important;color:#f1f5f9!important}
+
+/* NAV */
+nav{background:#0f172a!important;border-bottom:1px solid #334155!important;box-shadow:0 2px 12px rgba(0,0,0,.4)!important}
+.nav-logo{color:#f97316!important;font-size:18px!important;font-weight:900!important}
+.nbtn{background:#1e293b!important;border-color:#475569!important;color:#94a3b8!important;font-size:13px!important;padding:7px 16px!important}
+.nbtn:hover{background:#334155!important;color:#f1f5f9!important}
+
+/* DATE INPUT */
+nav input[type="date"]{font-size:22px!important;font-weight:900!important;color:#f1f5f9!important;background:#0f172a!important;border:2px solid #334155!important;border-radius:10px!important;padding:8px 14px!important;color-scheme:dark!important;height:auto!important}
+
+/* TABS */
+.tabs{background:#0f172a!important;border-color:#334155!important}
+.tab{color:#64748b!important;font-size:14px!important;font-weight:700!important;padding:9px 20px!important}
+.tab.on{background:linear-gradient(135deg,#1d4ed8,#2563eb)!important;color:#fff!important;font-size:14px!important}
+.tab:hover:not(.on){background:#1e293b!important;color:#f1f5f9!important}
+
+/* STAT BAR */
+.stat-bar{background:#0f172a!important;border-bottom:1px solid #334155!important;padding:8px 20px!important}
+.shift-chip{background:#1e293b!important;border-color:#334155!important}
+.shift-chip-label{color:#94a3b8!important;font-size:12px!important;font-weight:900!important}
+.chip-num{background:#0f172a!important;border-color:#334155!important;font-size:16px!important;font-weight:900!important;padding:4px 10px!important}
+.chip-c{color:#22d3ee!important}
+.chip-s{color:#34d399!important}
+.chip-t{color:#60a5fa!important}
+
+/* TABLE */
+.tw{background:#1e293b!important;border-color:#334155!important}
+table{font-size:15px!important}
+thead th{background:#0f172a!important;color:#94a3b8!important;font-size:12px!important;font-weight:900!important;padding:14px 16px!important;border-bottom:2px solid #334155!important}
+td{color:#f1f5f9!important;font-size:15px!important;font-weight:600!important;padding:14px 16px!important;border-bottom:1px solid #1e293b!important}
+tr:hover td{background:#263348!important}
+tr:last-child td{border-bottom:none!important}
+
+/* CARDS */
+.card{background:#1e293b!important;border-color:#334155!important}
+.card-header{background:#0f172a!important;border-bottom:1px solid #334155!important}
+.card-title{color:#f1f5f9!important;font-size:14px!important;font-weight:900!important}
+
+/* BADGES */
+.badge{font-size:12px!important;padding:4px 12px!important;font-weight:800!important}
+.badge-cyan{background:#0c4a6e!important;color:#22d3ee!important;border-color:rgba(34,211,238,.3)!important}
+.badge-blue{background:#1e3a5f!important;color:#60a5fa!important;border-color:rgba(96,165,250,.3)!important}
+.badge-green{background:#064e3b!important;color:#34d399!important;border-color:rgba(52,211,153,.3)!important}
+
+/* INPUTS */
+.ci{background:#0f172a!important;border-color:#475569!important;color:#f1f5f9!important;font-size:14px!important;padding:10px 12px!important}
+.ci:focus{border-color:#3b82f6!important}
+.grp-sel{background:#0f172a!important;border-color:#475569!important;color:#f1f5f9!important;font-size:13px!important;font-weight:900!important;padding:8px 10px!important;width:110px!important}
+.date-input,.date-row input{background:#0f172a!important;border-color:#475569!important;color:#f1f5f9!important;font-size:15px!important;font-weight:900!important;padding:10px 14px!important;color-scheme:dark!important}
+
+/* TEMP TABLE */
+.th-fix{background:#0f172a!important;color:#94a3b8!important;font-size:12px!important;font-weight:900!important;padding:12px 14px!important;border-color:#334155!important}
+.th-date{background:#0f172a!important;color:#94a3b8!important;font-size:12px!important;font-weight:900!important;border-color:#334155!important}
+.th-date.today{background:#1e3a5f!important;color:#60a5fa!important}
+.th-time{background:#0f172a!important;color:#64748b!important;font-size:11px!important;font-weight:800!important;border-color:#334155!important}
+.th-time.now-col{background:#1e3a5f!important;color:#60a5fa!important}
+.ti{background:#0f172a!important;border-color:#334155!important;color:#f1f5f9!important;font-size:13px!important;font-weight:900!important;width:54px!important;padding:6px 4px!important}
+.ti.ok{background:#064e3b!important;border-color:rgba(52,211,153,.4)!important;color:#34d399!important}
+.ti.hot{background:#450a0a!important;border-color:rgba(239,68,68,.4)!important;color:#f87171!important}
+.ti.cur-slot{background:#1e3a5f!important;border-color:rgba(96,165,250,.4)!important}
+#temp-table-wrap th.sticky-col,#temp-table-wrap td.sticky-col{background:#1e293b!important}
+#temp-table-wrap th.sticky-col2,#temp-table-wrap td.sticky-col2{background:#1e293b!important;border-right:2px solid #475569!important}
+#temp-table-wrap thead th.sticky-col,#temp-table-wrap thead th.sticky-col2{background:#0f172a!important}
+td.sep{border-right:2px solid #475569!important}
+
+/* BUTTONS */
+.btn-blue{background:linear-gradient(135deg,#1d4ed8,#2563eb)!important;font-size:14px!important;font-weight:900!important;padding:10px 20px!important}
+.btn-red{background:linear-gradient(135deg,#b91c1c,#dc2626)!important;font-size:14px!important;font-weight:900!important;padding:10px 20px!important}
+.btn-green{background:linear-gradient(135deg,#047857,#059669)!important;font-size:14px!important;font-weight:900!important;padding:10px 20px!important}
+.load-btn{background:linear-gradient(135deg,#1d4ed8,#2563eb)!important;font-size:14px!important;font-weight:900!important;padding:10px 16px!important}
+
+/* PRIORITY CARD */
+#priority-card{background:#451a03!important;border-color:rgba(245,158,11,.3)!important}
+#priority-card span{color:#fbbf24!important;font-size:13px!important}
+#priority-list{color:#fde68a!important;font-size:12px!important}
+
+/* MAIN */
+main{padding:16px 20px!important}
+
+/* ST CIRCLE */
+.st-circle{width:32px!important;height:32px!important;font-size:11px!important}
+
+/* SOP CARDS */
+#temp-table-wrap + div .card,
+.page div[style*="background:#F0FDF4"]{background:#064e3b!important;border-color:#065f46!important}
+.page div[style*="background:#FFF7ED"]{background:#451a03!important;border-color:#78350f!important}
+.page div[style*="background:#FEF2F2"]{background:#450a0a!important;border-color:#991b1b!important}
+
+/* INFO BAR */
+.info-bar{background:#1e293b!important;border-color:#334155!important}
+
+/* MODAL */
+.sign-modal{background:#1e293b!important;border-color:#334155!important}
+.sign-modal-title{color:#f1f5f9!important}
+.sign-modal-sub{color:#94a3b8!important}
+.sign-modal-skip{background:#334155!important;color:#94a3b8!important;border-color:#475569!important}
+
+/* F-BTN */
+.f-btn{background:#1e293b!important;border-color:#475569!important;color:#94a3b8!important;font-size:12px!important;padding:7px 14px!important}
+.f-btn.on{background:linear-gradient(135deg,#1d4ed8,#2563eb)!important;color:#fff!important;border-color:#2563eb!important}
 </style>
 </head>
 <body>
