@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- build:20260617230000 -->
+<!DOCTYPE html><!-- build:20260617260000 -->
 <html lang="th">
 <head><!-- build:20260616095000 -->
 <meta charset="UTF-8">
@@ -612,7 +612,9 @@ setInterval(async()=>{
                 r.process_order===agRow.process_order&&
                 (!r.aging_tank||r.aging_tank===agRow.aging_tank)&&
                 r.id!==agRow.id&&
-                !r.past_start_time&&!r.past_end_time&&
+                !r.past_end_time&&                          // ยังไม่เสร็จ
+                r.status!=='submitted'&&r.status!=='past_done'&&  // ยังไม่ done
+                // ยอมรับแม้มี stale past_start_time — จะ overwrite ทับ
                 (r.status==='pending'||r.status==='mixing'||r.status==='ready_mix'||r.status==='ready'||r.status==='san_done'||r.status==='pasteurising')
               )
               .sort((a,b)=>(a.seq||0)-(b.seq||0))[0];
