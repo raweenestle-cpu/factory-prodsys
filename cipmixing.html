@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- build:20260618010000 -->
+<!DOCTYPE html><!-- build:20260618020000 -->
 <html lang="th">
 <head>
 <meta charset="UTF-8">
@@ -950,7 +950,7 @@ function renderTemp(){
   if(document.activeElement&&document.activeElement.tagName==='INPUT')return;
   const cr=getNowRound(),days=getDays(),td=today();
   $('cur-round').textContent='รอบปัจจุบัน: '+cr;
-  const active=Object.values(tankStates).filter(t=>t.status&&!['empty','san_done'].includes(t.status)&&(+(t.current_vol||0)>0||t.status==='pasteurising'||t.status==='past_done'||t.status==='aging'||t.status==='filling'));
+  const active=Object.values(tankStates).filter(t=>t.status&&!['empty','san_done'].includes(t.status)&&(+(t.current_vol||0)>0||t.status==='pasteurising'||t.status==='past_done'||t.status==='aging'));
   $('tank-count').textContent='มีของ: '+active.length+' ถัง';
   if(!active.length){$('temp-table').innerHTML='<tr><td colspan="99" style="text-align:center;padding:30px;color:var(--t3)">ไม่มีถังที่มีของ</td></tr>';return;}
   const rows=[];
