@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- build:20260617440000 -->
+<!DOCTYPE html><!-- build:20260617450000 -->
 <html lang="th">
 <head>
 <meta charset="UTF-8">
@@ -1425,21 +1425,43 @@ window._saveCipField = async function(el){
     await setDoc(doc(db,'cip_log_sheets',docId),{[field]:val,updated_at:new Date().toISOString()},{merge:true});
     // sync ไป cip_mixing_records ถ้ามี log_ref
     const logRow = (window._cipLogRows||[]).find(r=>r.id===docId);
-    if(logRow && logRow.mix_rec_id){
-      const syncFields=['conductivity','temp','flow','ph','san_ppm','end_time','cip_done','remark'];
-      if(syncFields.includes(field)){
-        setDoc(doc(db,'cip_mixing_records',logRow.mix_rec_id),{[field]:val,updated_at:new Date().toISOString()},{merge:true}).catch(()=>{});
+    if(logRow){
+      logRow[field] = val; // อัปเดต local data ไม่ต้อง re-render ทั้งตาราง
+      if(logRow.mix_rec_id){
+        const syncFields=['conductivity','temp','flow','ph','san_ppm','end_time','cip_done','remark'];
+        if(syncFields.includes(field)){
+          setDoc(doc(db,'cip_mixing_records',logRow.mix_rec_id),{[field]:val,updated_at:new Date().toISOString()},{merge:true}).catch(()=>{});
+        }
       }
     }
+    // อัปเดตแค่สีพื้นของ input นี้ (pass/fail) โดยไม่ rebuild ทั้งแถว
+    window._updateCellStatus(el, field, logRow);
     toast('✅ บันทึกแล้ว','green');
-    if(window.renderCipLog) window.renderCipLog();
   }catch(e){toast('❌ '+e.message,'red');}
 };
+
+// อัปเดตสี input (ok/fail) แบบไม่ rebuild DOM ทั้งหมด — กัน input กระพริบ/focus หาย
+window._updateCellStatus = function(el, field, row){
+  if(!row || !['conductivity','temp','flow','ph'].includes(field)) return;
+  const SPEC={"Hot water":{c:99,t:70,f_min:4.25,f_max:46.25},"Alkaline":{c:1,t:70,f_min:4.25,f_max:46.25,ph_min:10.5,ph_max:12},"Acid":{c:1,f_min:4.25,f_max:46.25,ph_min:2,ph_max:3.5},"Sanitize":{f_min:1}};
+  const sp=SPEC[row.program]||{};
+  let fail=false, hasVal=false;
+  if(field==='conductivity'&&row.conductivity!=null){hasVal=true;fail=sp.c!=null&&row.conductivity>sp.c;}
+  if(field==='temp'&&row.temp!=null){hasVal=true;fail=sp.t!=null&&row.temp<sp.t;}
+  if(field==='flow'&&row.flow!=null){hasVal=true;fail=(sp.f_min&&row.flow<sp.f_min)||(sp.f_max&&row.flow>sp.f_max);}
+  if(field==='ph'&&row.ph!=null){hasVal=true;fail=sp.ph_min!=null&&(row.ph<sp.ph_min||row.ph>sp.ph_max);}
+  if(!hasVal){ el.style.background='#fff'; el.style.borderColor='#E2E8F0'; return; }
+  if(fail){ el.style.background='#fee2e2'; el.style.borderColor='#ef4444'; }
+  else { el.style.background='#f0fdf4'; el.style.borderColor='#86efac'; }
+};
+
 window._saveCipBool = async function(el){
   const docId = el.dataset.id;
   const field = el.dataset.f;
   try{
     await setDoc(doc(db,'cip_log_sheets',docId),{[field]:el.checked,updated_at:new Date().toISOString()},{merge:true});
+    const logRow = (window._cipLogRows||[]).find(r=>r.id===docId);
+    if(logRow) logRow[field]=el.checked;
     toast('✅ บันทึกแล้ว','green');
   }catch(e){toast('❌ '+e.message,'red');}
 };
@@ -1574,6 +1596,16 @@ window.renderCipLog = async function(){
       const tSt=r.temp!=null?(tFail?fail:ok):"";
       const fSt=r.flow!=null?(fFail?fail:ok):"";
       const pSt=r.ph!=null?(pFail?fail:ok):"";
+      // ── BLOCK FIELD ตาม program type ──
+      // Sanitize: ไม่ต้องกรอก conductivity/temp/pH (ใช้แค่ flow + san_ppm)
+      // CIP (Hot water/Alkaline/Acid): ไม่ต้องกรอก san_ppm
+      const isSan = r.program==='Sanitize';
+      const isCip = !isSan;
+      const disBlock = (cond) => cond ? 'disabled style="opacity:.25;cursor:not-allowed;background:#f1f5f9!important"' : '';
+      const disConductivity = disBlock(isSan);
+      const disTemp = disBlock(isSan);
+      const disPh = disBlock(isSan);
+      const disSanPpm = disBlock(isCip);
       return "<tr style='border-bottom:1px solid var(--border,#E2E8F0)'>"
         +"<td style='padding:5px 6px;font-family:var(--mono);color:var(--t3);text-align:center'>"+(i+1)+"</td>"
         +"<td style='padding:5px 6px;font-family:var(--mono);white-space:nowrap'>"+(r.date||"—")+"</td>"
@@ -1582,12 +1614,12 @@ window.renderCipLog = async function(){
         +"<td style='padding:5px 6px;font-family:var(--mono)'>"+(r.program||"—")+"</td>"
         +"<td style='padding:5px 6px;font-family:var(--mono);white-space:nowrap'>"+(r.start_time||"—")+"</td>"
         +"<td style='padding:3px 4px'><input type='time' value='"+(r.end_time||"")+"' data-id='"+r.id+"' data-f='end_time' onchange='window._saveCipField(this)' style='"+IS+";width:80px'></td>"
-        +"<td style='padding:3px 4px;text-align:center'><input type='number' step='0.01' value='"+(r.conductivity!=null?r.conductivity:"")+"' placeholder='—' data-id='"+r.id+"' data-f='conductivity' onchange='window._saveCipField(this)' style='"+IS+";"+cSt+"'></td>"
-        +"<td style='padding:3px 4px;text-align:center'><input type='number' step='0.1' value='"+(r.temp!=null?r.temp:"")+"' placeholder='—' data-id='"+r.id+"' data-f='temp' onchange='window._saveCipField(this)' style='"+IS+";"+tSt+"'></td>"
+        +"<td style='padding:3px 4px;text-align:center'><input type='number' step='0.01' value='"+(r.conductivity!=null?r.conductivity:"")+"' placeholder='—' data-id='"+r.id+"' data-f='conductivity' onchange='window._saveCipField(this)' "+disConductivity+" style='"+IS+";"+cSt+"'></td>"
+        +"<td style='padding:3px 4px;text-align:center'><input type='number' step='0.1' value='"+(r.temp!=null?r.temp:"")+"' placeholder='—' data-id='"+r.id+"' data-f='temp' onchange='window._saveCipField(this)' "+disTemp+" style='"+IS+";"+tSt+"'></td>"
         +"<td style='padding:3px 4px;text-align:center'><input type='number' step='0.01' value='"+(r.flow!=null?r.flow:"")+"' placeholder='—' data-id='"+r.id+"' data-f='flow' onchange='window._saveCipField(this)' style='"+IS+";"+fSt+"'></td>"
-        +"<td style='padding:3px 4px;text-align:center'><input type='number' step='0.1' value='"+(r.ph!=null?r.ph:"")+"' placeholder='—' data-id='"+r.id+"' data-f='ph' onchange='window._saveCipField(this)' style='"+IS+";"+pSt+"'></td>"
+        +"<td style='padding:3px 4px;text-align:center'><input type='number' step='0.1' value='"+(r.ph!=null?r.ph:"")+"' placeholder='—' data-id='"+r.id+"' data-f='ph' onchange='window._saveCipField(this)' "+disPh+" style='"+IS+";"+pSt+"'></td>"
         +"<td style='padding:3px 4px;text-align:center'><input type='checkbox' data-id='"+r.id+"' data-f='cip_done' onchange='window._saveCipBool(this)' style='width:16px;height:16px;accent-color:#15803d;cursor:pointer'"+(r.cip_done?" checked":"")+" title='CIP ✓'></td>"
-        +"<td style='padding:3px 4px;text-align:center'><select data-id='"+r.id+"' data-f='san_ppm' onchange='window._saveCipField(this)' style='font-family:var(--mono);font-size:11px;font-weight:800;border:1px solid #E2E8F0;border-radius:4px;padding:2px 4px;background:#fff;color:"+(r.san_ppm?"#0891b2":"#94a3b8")+";'><option value=''>—</option><option value='50'"+(r.san_ppm==50?" selected":"")+">50 ppm</option><option value='75'"+(r.san_ppm==75?" selected":"")+">75 ppm</option><option value='100'"+(r.san_ppm==100?" selected":"")+">100 ppm</option><option value='150'"+(r.san_ppm==150?" selected":"")+">150 ppm</option></select></td>"
+        +"<td style='padding:3px 4px;text-align:center'><select data-id='"+r.id+"' data-f='san_ppm' onchange='window._saveCipField(this)' "+disSanPpm+" style='font-family:var(--mono);font-size:11px;font-weight:800;border:1px solid #E2E8F0;border-radius:4px;padding:2px 4px;background:#fff;color:"+(r.san_ppm?"#0891b2":"#94a3b8")+";'><option value=''>—</option><option value='50'"+(r.san_ppm==50?" selected":"")+">50 ppm</option><option value='75'"+(r.san_ppm==75?" selected":"")+">75 ppm</option><option value='100'"+(r.san_ppm==100?" selected":"")+">100 ppm</option><option value='150'"+(r.san_ppm==150?" selected":"")+">150 ppm</option></select></td>"
         +"<td style='padding:5px 6px;font-weight:700'>"+(r.operator||"—")+"</td>"
         +"<td style='padding:5px 6px;text-align:center'>"+sig+"</td>"
         +"<td style='padding:3px 4px'><input type='text' value='"+(r.remark||"")+"' placeholder='—' data-id='"+r.id+"' data-f='remark' onchange='window._saveCipField(this)' style='font-family:var(--mono);font-size:11px;width:80px;border:1px solid #E2E8F0;border-radius:4px;padding:2px 4px;background:#fff;outline:none'></td>"
