@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- build:20260617300000 -->
+<!DOCTYPE html><!-- build:20260617310000 -->
 <html lang="th">
 <head>
 <meta charset="UTF-8">
@@ -136,14 +136,14 @@ tr:hover td{background:#F8FAFF}
 .th-date.today{background:var(--blue-light);color:var(--blue)}
 .th-time{background:var(--surface);padding:6px 4px;text-align:center;font-family:var(--mono);font-size:10px;font-weight:700;color:var(--t3);border-bottom:2px solid var(--border2);border-right:1px solid var(--border);white-space:nowrap;min-width:50px}
 .th-time.now-col{background:var(--blue-light);color:var(--blue)}
-.th-fix{position:sticky;left:0;z-index:4;background:var(--surface2);padding:9px 10px;text-align:left;font-family:var(--mono);font-size:11px;font-weight:800;border-bottom:2px solid var(--border2);border-right:1px solid var(--border2);white-space:nowrap;vertical-align:middle}
+.th-fix{position:sticky;left:0;z-index:4;background:#0f172a;padding:12px 14px;text-align:left;font-family:var(--mono);font-size:13px;font-weight:900;color:#94a3b8;border-bottom:2px solid #334155;border-right:1px solid #475569;white-space:nowrap;vertical-align:middle}
 td.sep{border-right:2px solid var(--border2)}
-.ti{font-family:var(--mono);font-size:11px;font-weight:700;width:46px;text-align:center;background:var(--surface2);border:1px solid var(--border);border-radius:5px;color:var(--text);padding:4px 2px;outline:none;transition:border .15s}
+.ti{font-family:var(--mono);font-size:13px;font-weight:900;width:54px;text-align:center;background:#0f172a;border:1.5px solid #334155;border-radius:6px;color:#f1f5f9;padding:6px 2px;outline:none;transition:border .15s}
 .ti:focus{border-color:var(--blue);background:var(--surface)}
 .ti:disabled{opacity:.3;cursor:not-allowed}
-.ti.ok{background:var(--green-light);border-color:rgba(5,150,105,.4);color:var(--green)}
-.ti.hot{background:var(--red-light);border-color:rgba(220,38,38,.4);color:var(--red)}
-.ti.cur-slot{border-color:rgba(37,99,235,.4);background:var(--blue-light)}
+.ti.ok{background:#064e3b;border-color:rgba(52,211,153,.5);color:#34d399;font-weight:900}
+.ti.hot{background:#450a0a;border-color:rgba(239,68,68,.5);color:#f87171;font-weight:900}
+.ti.cur-slot{border-color:rgba(96,165,250,.5);background:#1e3a5f;color:#93c5fd}
 
 /* INFO BAR */
 .info-bar{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;margin-bottom:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;box-shadow:var(--shadow)}
@@ -825,15 +825,15 @@ function renderTemp(){
   active.sort((a,b)=>a.id.localeCompare(b.id)).forEach(function(tank){
     const sc=ST[tank.status]||ST.empty;
     let row=[];
-    row.push('<td style="position:sticky;left:0;z-index:2;background:#fff;padding:5px 8px"><span style="font-family:var(--mono);font-weight:900;color:'+sc.color+'">'+tank.id+'</span><button onclick="clearTankRow(\''+tank.id+'\')" style="margin-left:4px;background:none;border:none;cursor:pointer;font-size:12px;color:#94a3b8;padding:0" title="ลบแถว">🗑</button></td>');
-    row.push('<td style="position:sticky;left:52px;z-index:2;background:#fff;padding:5px 5px"><span class="badge badge-cyan" style="font-size:10px">'+(tank.mix_code||'—')+'</span></td>');
-    row.push('<td style="position:sticky;left:108px;z-index:2;background:#fff;padding:5px 8px;font-size:11px;color:var(--t2)">'+(tank.mix_name||'—').slice(0,10)+'</td>');
+    row.push('<td style="position:sticky;left:0;z-index:2;background:#1e293b;padding:8px 12px"><span style="font-family:var(--mono);font-size:15px;font-weight:900;color:'+sc.color+'">'+tank.id+'</span><button onclick="clearTankRow(\''+tank.id+'\')" style="margin-left:4px;background:none;border:none;cursor:pointer;font-size:12px;color:#94a3b8;padding:0" title="ลบแถว">🗑</button></td>');
+    row.push('<td style="position:sticky;left:52px;z-index:2;background:#1e293b;padding:8px 6px"><span class="badge badge-cyan" style="font-size:13px;font-weight:900">'+(tank.mix_code||'—')+'</span></td>');
+    row.push('<td style="position:sticky;left:108px;z-index:2;background:#1e293b;padding:8px 10px;font-size:14px;font-weight:700;color:#e2e8f0">'+(tank.mix_name||'—').slice(0,10)+'</td>');
     // Vol ในถัง real-time
     const _cv=+(tank.current_vol||0);
     const _volLiter=+(tank.volume_liter||0);
     const _pct=_volLiter>0?Math.min(100,(_cv/_volLiter)*100):0;
     const _vc=_pct>50?'#15803d':_pct>20?'#b45309':'#b91c1c';
-    row.push('<td style="position:sticky;left:188px;z-index:2;background:#fff;padding:5px 8px;border-right:2px solid var(--b1);text-align:right">'+
+    row.push('<td style="position:sticky;left:188px;z-index:2;background:#1e293b;padding:8px 12px;border-right:2px solid #475569;text-align:right">'+
       (_cv>0
         ?'<span style="font-family:var(--mono);font-size:12px;font-weight:900;color:'+_vc+'">'+Math.round(_cv).toLocaleString()+'</span><span style="font-family:var(--mono);font-size:10px;color:var(--t2)"> L</span>'+
          '<div style="width:52px;background:#e2e8f0;border-radius:3px;height:4px;margin-top:2px;overflow:hidden"><div style="height:4px;border-radius:3px;background:'+_vc+';width:'+_pct.toFixed(1)+'%"></div></div>'
@@ -874,7 +874,7 @@ function renderTemp(){
   });
   // row ลายเซ็นด้านล่าง
   let sigRow='<tr style="border-top:2px solid var(--b1)">';
-  sigRow+='<td colspan="4" style="position:sticky;left:0;z-index:2;background:#f8fafc;padding:5px 8px;font-size:11px;font-weight:700;color:var(--t2);white-space:nowrap">ลายเซ็น</td>';
+  sigRow+='<td colspan="4" style="position:sticky;left:0;z-index:2;background:#0f172a;padding:8px 12px;font-size:13px;font-weight:900;color:#94a3b8;white-space:nowrap">ลายเซ็น</td>';
   days.forEach(function(d,di){
     TEMP_TIMES.forEach(function(t){
       var sigKey='sig_'+(d+'_'+t.replace(':','')).replace(/-/g,'');
