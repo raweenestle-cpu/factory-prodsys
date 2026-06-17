@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- build:20260617260000 -->
+<!DOCTYPE html><!-- build:20260617290000 -->
 <html lang="th">
 <head><!-- build:20260616095000 -->
 <meta charset="UTF-8">
@@ -18,7 +18,7 @@
 .tv3-card.tv3-wait{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.12),0 4px 16px rgba(59,130,246,.1);animation:cardPulseBlue 2s ease-in-out infinite}
 @keyframes cardPulseBlue{0%,100%{box-shadow:0 0 0 3px rgba(59,130,246,.12),0 4px 16px rgba(59,130,246,.1)}50%{box-shadow:0 0 0 6px rgba(59,130,246,.2),0 4px 20px rgba(59,130,246,.2)}}
 .tv3-card.tv3-past{border-color:#ea580c;box-shadow:0 0 0 3px rgba(234,88,12,.12),0 6px 24px rgba(234,88,12,.1)}
-.tv3-card.tv3-done{opacity:.36;filter:grayscale(65%);pointer-events:none}
+.tv3-card.tv3-done{opacity:1;filter:none;pointer-events:auto}
 .tv3-head{display:flex;align-items:stretch;border-bottom:2px solid #f1f5f9}
 .tv3-seq{width:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:10px 6px;background:linear-gradient(160deg,#1e293b,#334155);border-right:none;flex-shrink:0}
 .tv3-hi{flex:1;padding:14px 18px;background:#ffffff}
@@ -94,7 +94,7 @@
 .tv3-card.tv3-mixing{border-color:#f59e0b!important;box-shadow:0 0 0 3px rgba(245,158,11,.2),0 6px 28px rgba(245,158,11,.15)!important}
 .tv3-card.tv3-wait{border-color:#3b82f6!important;box-shadow:0 0 0 3px rgba(59,130,246,.2),0 6px 28px rgba(59,130,246,.15)!important}
 .tv3-card.tv3-past{border-color:#ea580c!important;box-shadow:0 0 0 3px rgba(234,88,12,.2),0 8px 32px rgba(234,88,12,.18)!important}
-.tv3-card.tv3-done{opacity:.28!important;filter:grayscale(75%)!important}
+.tv3-card.tv3-done{opacity:1!important;filter:none!important;pointer-events:auto!important}
 .tv3-head{border-bottom:2px solid #1e293b!important}
 .tv3-seq{background:linear-gradient(160deg,#0f172a,#1e293b)!important;border-right:2px solid #334155!important;width:64px!important;padding:12px 6px!important}
 .tv3-hi{background:rgba(255,255,255,.04)!important;padding:14px 20px!important}
@@ -1813,26 +1813,42 @@ window.submitPast=async(col,id,p,eff,warn)=>{
   }
   try{
     const row=(rows[p]||[]).find(r=>r.id===id);
+    if(!row){toast('ไม่พบข้อมูล row','red');return;}
     // คำนวณ cumulative current_vol
     const allRows=[...(window._rows['p1']||[]),...(window._rows['p2']||[])];
-    const donePrevVol=row?.process_order&&row?.aging_tank
+    const donePrevVol=row.process_order&&row.aging_tank
       ? allRows.filter(r=>r.id!==id&&
           r.process_order===row.process_order&&
           r.aging_tank===row.aging_tank&&
           (r.status==='past_done'||r.status==='ready'))
         .reduce((s,r)=>s+(+(r.volume_liter||0)),0)
       : 0;
-    const finalCumVol=donePrevVol+(+(row?.volume_liter||0));
-
-    await updateDoc(doc(db,col,id),{
+    const finalCumVol=donePrevVol+(+(row.volume_liter||0));
+    // ── ARCHIVE → past_history ──
+    await addDoc(collection(db,'past_history'),{
+      ...row,
       status:'past_done',
-      eff:eff,
+      eff,
       current_vol:finalCumVol,
-      mix_start_time:"",mix_end_time:"",
-      glc_actual:"",sgr_actual:"",plm_actual:"",
+      archived_at:nowHHMM(),
+      archived_date:today(),
+      mixing_unit:p,
     });
-    toast(`ส่งข้อมูลแล้ว (Eff ${eff}%)`,"green");
-  }catch(e){toast("เกิดข้อผิดพลาด: "+e.message,"red");}
+    // ── DELETE ออกจาก production_plans ──
+    await deleteDoc(doc(db,col,id));
+    // sync aging_tank_states
+    if(row.aging_tank){
+      try{
+        await setDoc(doc(db,'aging_tank_states',row.aging_tank),{
+          current_vol:finalCumVol,
+          status:'aging',
+          past_end_time:row.past_end_time||nowHHMM(),
+          updated_at:new Date().toISOString(),
+        },{merge:true});
+      }catch(e){console.warn('aging sync error:',e);}
+    }
+    toast(`✅ ส่งข้อมูลแล้ว เก็บประวัติเรียบร้อย (Eff ${eff}%)`,'green');
+  }catch(e){toast('เกิดข้อผิดพลาด: '+e.message,'red');}
 };
 
 // ── EDIT / DELETE TIME ────────────────────────────────────────────────
