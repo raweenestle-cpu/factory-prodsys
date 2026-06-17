@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- build:20260617530000 -->
+<!DOCTYPE html><!-- build:20260617540000 -->
 <html lang="th">
 <head>
 <meta charset="UTF-8">
@@ -972,7 +972,8 @@ function renderTemp(){
         :'<span style="color:var(--t3);font-size:11px">—</span>')
     +'</td>');
     days.forEach(function(d,di){
-      TEMP_TIMES.forEach(function(t){
+      const isToday=d===td;
+      TEMP_TIMES.forEach(function(t,ti){
         const isN=d===td&&t===cr;
         const isPast=d<td||(d===td&&t<=cr);
         const key=(d+'_'+t.replace(':','')).replace(/-/g,'');
@@ -984,25 +985,50 @@ function renderTemp(){
         const bg=isHot?'background:#fee2e2':isN?'background:rgba(29,78,216,.04)':'';
         const bdr=isHot?'#ef4444':filled?'#15803d':'#d1d5db';
         const inputBg=isHot?'#fee2e2':filled?'#f0fdf4':'#fff';
+        const isFirstCol=ti===0, isLastCol=ti===TEMP_TIMES.length-1;
+        const dayBorderColor=isToday?'#1d4ed8':'#94a3b8';
+        const cellBorder='border-left:'+(isFirstCol?'2px solid '+dayBorderColor:'1px solid var(--border)')+';border-right:'+(isLastCol?'2px solid '+dayBorderColor:'none')+';';
         if(isPast){
-          row.push('<td style="padding:2px;text-align:center;'+bg+'"><input type="number" min="0" max="50" step="0.1"'+(filled?' value="'+rawVal+'"':'')+' data-tid="'+tank.id+'" data-key="'+key+'" style="width:40px;text-align:center;font-family:var(--mono);font-size:13px;font-weight:700;border:1px solid '+bdr+';border-radius:4px;padding:2px 1px;background:'+inputBg+';" onchange="window.setTempVal(this.dataset.tid,this.dataset.key,this.value)"></td>');
+          row.push('<td style="padding:2px;text-align:center;'+cellBorder+bg+'"><input type="number" min="0" max="50" step="0.1"'+(filled?' value="'+rawVal+'"':'')+' data-tid="'+tank.id+'" data-key="'+key+'" style="width:40px;text-align:center;font-family:var(--mono);font-size:13px;font-weight:700;border:1px solid '+bdr+';border-radius:4px;padding:2px 1px;background:'+inputBg+';" onchange="window.setTempVal(this.dataset.tid,this.dataset.key,this.value)"></td>');
         } else {
-          row.push('<td style="padding:2px;text-align:center"><span style="color:var(--b1);font-size:11px">—</span></td>');
+          row.push('<td style="padding:2px;text-align:center;'+cellBorder+'"><span style="color:var(--b1);font-size:11px">—</span></td>');
         }
       });
       if(di<days.length-1)row.push('<td style="width:3px;background:var(--s2)"></td>');
     });
     rows.push('<tr>'+row.join('')+'</tr>');
   });
-  let h='<thead><tr><th style="position:sticky;left:0;z-index:4;background:var(--s2);padding:8px 10px">ถัง</th><th style="position:sticky;left:52px;z-index:4;background:var(--s2);padding:8px 6px">Code</th><th style="position:sticky;left:108px;z-index:4;background:var(--s2);padding:8px 8px">Mix</th><th style="position:sticky;left:188px;z-index:4;background:var(--s2);padding:8px 8px;border-right:2px solid var(--b1);text-align:right;white-space:nowrap">Vol (L)</th>';
+  let h='<thead>';
+  // ── ROW 1: วันที่ 1, วันที่ 2, ... (colspan ครอบ 6 ช่องเวลาต่อวัน) ──
+  h+='<tr>';
+  h+='<th colspan="4" style="position:sticky;left:0;z-index:5;background:var(--s2);border-bottom:1px solid var(--b1)"></th>';
   days.forEach(function(d,di){
     const isT=d===td;
-    TEMP_TIMES.forEach(function(t){
+    const dayLabel='วันที่ '+(di+1);
+    const dateLabel=d.split('-').slice(1).reverse().join('/'); // DD/MM
+    h+='<th colspan="'+TEMP_TIMES.length+'" style="padding:8px 4px;text-align:center;font-family:var(--mono);font-size:13px;font-weight:900;'
+      +(isT?'background:#1d4ed8;color:#fff;':'background:#e2e8f0;color:#1e293b;')
+      +'border:2px solid '+(isT?'#1d4ed8':'#94a3b8')+';border-bottom:none">'
+      +dayLabel+(isT?' (วันนี้)':'')+'<br><span style="font-size:10px;font-weight:700;opacity:.85">'+dateLabel+'</span></th>';
+    if(di<days.length-1)h+='<th style="width:3px;background:var(--s2);border:none"></th>';
+  });
+  h+='</tr>';
+  // ── ROW 2: เวลา 02:00, 06:00, ... ──
+  h+='<tr><th style="position:sticky;left:0;z-index:4;background:var(--s2);padding:8px 10px">ถัง</th><th style="position:sticky;left:52px;z-index:4;background:var(--s2);padding:8px 6px">Code</th><th style="position:sticky;left:108px;z-index:4;background:var(--s2);padding:8px 8px">Mix</th><th style="position:sticky;left:188px;z-index:4;background:var(--s2);padding:8px 8px;border-right:2px solid var(--b1);text-align:right;white-space:nowrap">Vol (L)</th>';
+  days.forEach(function(d,di){
+    const isT=d===td;
+    TEMP_TIMES.forEach(function(t,ti){
       const isN=isT&&t===cr;
-      h+='<th style="padding:5px 3px;text-align:center;font-size:10px;min-width:48px;'+(isN?'background:rgba(29,78,216,.1);font-weight:900;':'')+(isT?'font-weight:700;':'')+'">';
+      const isFirstCol=ti===0;
+      const isLastCol=ti===TEMP_TIMES.length-1;
+      h+='<th style="padding:5px 3px;text-align:center;font-size:10px;min-width:48px;'
+        +'border-left:'+(isFirstCol?'2px solid '+(isT?'#1d4ed8':'#94a3b8'):'1px solid var(--border)')+';'
+        +'border-right:'+(isLastCol?'2px solid '+(isT?'#1d4ed8':'#94a3b8'):'none')+';'
+        +'border-bottom:2px solid '+(isT?'#1d4ed8':'#94a3b8')+';'
+        +(isN?'background:rgba(29,78,216,.1);font-weight:900;':'')+(isT?'font-weight:700;':'')+'">';
       h+=t+(isN?' ★':'')+'</th>';
     });
-    if(di<days.length-1)h+='<th style="width:3px;background:var(--s2)"></th>';
+    if(di<days.length-1)h+='<th style="width:3px;background:var(--s2);border:none"></th>';
   });
   // row ลายเซ็นด้านล่าง
   let sigRow='<tr style="border-top:2px solid var(--b1)">';
