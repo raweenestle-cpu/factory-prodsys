@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- build:20260617400000 -->
+<!DOCTYPE html><!-- build:20260617410000 -->
 <html lang="th">
 <head>
 <meta charset="UTF-8">
@@ -1453,8 +1453,7 @@ window.renderCipLog = async function(){
   try{
     const snap = await getDocs(query(
       collection(db,'cip_log_sheets'),
-      where('active','==',true),
-      orderBy('created_at','asc')
+      where('active','==',true)
     ));
     const rows = snap.docs.map(dc=>({id:dc.id,...dc.data()}))
       .sort((a,b)=>(a.group||'').localeCompare(b.group||'')||(a.created_at||'').localeCompare(b.created_at||''));
