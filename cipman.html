@@ -285,7 +285,7 @@ main{position:relative;z-index:1;padding:10px 12px;}
 @keyframes flowShine{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
 @keyframes runningGlow{0%,100%{box-shadow:0 0 0 0 var(--glow,rgba(59,130,246,.5)),0 4px 20px rgba(0,0,0,.08)}50%{box-shadow:0 0 0 4px var(--glow,rgba(59,130,246,.15)),0 4px 20px rgba(0,0,0,.08)}}
 </style>
-<!-- v20260618-tv8-queuefix -->
+<!-- v20260618-debug -->
 </head>
 <body>
 
@@ -878,6 +878,7 @@ function buildCard(line){
   const queue=tanks.slice(1);
   const st=lineStates[line.id]||{};
   const isRunning=st.running&&!!st.start_ts;
+  if(window._cipDebug) console.log('[DEBUG]',line.id,line.name,'st=',JSON.stringify(st),'isRunning=',isRunning);
   const hasLiquid=!!current&&+(current.volume_liter||0)>0; // wave ทุกครั้งที่มีของ
   const _atsKeyEarly=st.aging_tank||(current&&current.aging_tank)||'';
   const _atsStatusRaw=_atsKeyEarly&&agingStates[_atsKeyEarly]?agingStates[_atsKeyEarly].status||'':'';
