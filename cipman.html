@@ -1012,7 +1012,7 @@ function calcVol(row){
         ${prodCode!=='—'?`<div style="font-family:var(--mono);font-size:11px;color:#6b7280;margin-top:2px">รหัสผลิต: <span style="color:#111827;font-weight:700">${prodCode}</span></div>`:''}
         <!-- Start / Stop / Reset -->
         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:8px">
-          <button style="padding:7px 14px;border-radius:9px;font-family:var(--mono);font-size:12px;font-weight:900;border:2px solid ${isRunning?'#e2e8f0':curing.done?'#10b981':'#fcd34d'};background:${isRunning?'#f1f5f9':curing.done?'#d1fae5':'#fef9c3'};color:${isRunning?'#94a3b8':curing.done?'#065f46':'#92400e'};cursor:pointer" ${isRunning||!curing.done?'disabled':''} onclick="startLine('${line.id}',${sv},${fr})">${isRunning?'▶ เดิน':!curing.done?'⏳ รอบ่ม':'▶ Start'}</button>
+          <button style="padding:7px 14px;border-radius:9px;font-family:var(--mono);font-size:12px;font-weight:900;border:2px solid ${isRunning?'#e2e8f0':curing.done?'#10b981':'#fcd34d'};background:${isRunning?'#f1f5f9':curing.done?'#d1fae5':'#fef9c3'};color:${isRunning?'#94a3b8':curing.done?'#065f46':'#92400e'};cursor:pointer" ${isRunning||!curing.done?'disabled':''} onclick="startLine('${line.id}',${sv},${fr},'${agingTank!=='—'?agingTank:''}')">${isRunning?'▶ เดิน':!curing.done?'⏳ รอบ่ม':'▶ Start'}</button>
           <button style="padding:7px 14px;border-radius:9px;font-family:var(--mono);font-size:12px;font-weight:900;border:2px solid ${!isRunning?'#e2e8f0':'#ef4444'};background:${!isRunning?'#f1f5f9':'#fee2e2'};color:${!isRunning?'#94a3b8':'#991b1b'};cursor:pointer" ${!isRunning?'disabled':''} onclick="stopLine('${line.id}')">⏸ Stop</button>
           <button style="padding:7px 10px;border-radius:9px;font-family:var(--mono);font-size:12px;font-weight:800;border:2px solid #fcd34d;background:#fef9c3;color:#92400e;cursor:pointer" onclick="resetLine('${line.id}')">↺</button>
           <div style="font-family:var(--mono);font-size:10px;color:#64748b;padding:3px 8px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:7px;line-height:1.7"><div>▶ ${lineStates[line.id]?.start_label||'—'}</div><div>⏹ ${lineStates[line.id]?.stop_label||'—'}</div></div>
@@ -1236,12 +1236,13 @@ function renderQueuePage(){
 const _empName = sessionStorage.getItem('emp_name')||'';
 const _empSig  = sessionStorage.getItem('emp_sig')||'';
 
-window.startLine=async(lineId,sv,fr)=>{
-  await setDoc(doc(db,'cip_line_states',lineId),{running:true,start_ts:Date.now(),start_vol:sv,flow_rate:fr,started_by:_empName,start_sig:_empSig,started_at:nowHHMM(),started_by:ME.email},{merge:true});
+window.startLine=async(lineId,sv,fr,agingTank)=>{
+  // ใช้ aging_tank ที่ส่งมาจากปุ่ม ถ้าไม่มีให้ fallback ไปใช้ค่าที่เคยมีอยู่ใน cip_line_states (เผื่อ legacy)
+  const _agTk = agingTank || (lineStates[lineId]||{}).aging_tank || '';
+  await setDoc(doc(db,'cip_line_states',lineId),{running:true,start_ts:Date.now(),start_vol:sv,flow_rate:fr,aging_tank:_agTk,started_by:_empName,start_sig:_empSig,started_at:nowHHMM(),started_by:ME.email},{merge:true});
   // sync aging_tank_states status → filling
-  const _agTkStart = (lineStates[lineId]||{}).aging_tank||'';
-  if(_agTkStart){
-    setDoc(doc(db,'aging_tank_states',_agTkStart),{status:'filling',updated_at:new Date().toISOString()},{merge:true}).catch(()=>{});
+  if(_agTk){
+    setDoc(doc(db,'aging_tank_states',_agTk),{status:'filling',updated_at:new Date().toISOString()},{merge:true}).catch(()=>{});
   }
   toast('▶ Start แล้ว','green');
 };
