@@ -285,7 +285,7 @@ main{position:relative;z-index:1;padding:10px 12px;}
 @keyframes flowShine{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
 @keyframes runningGlow{0%,100%{box-shadow:0 0 0 0 var(--glow,rgba(59,130,246,.5)),0 4px 20px rgba(0,0,0,.08)}50%{box-shadow:0 0 0 4px var(--glow,rgba(59,130,246,.15)),0 4px 20px rgba(0,0,0,.08)}}
 </style>
-<!-- v20260618-debug -->
+<!-- v20260618-quotafix -->
 </head>
 <body>
 
@@ -878,7 +878,6 @@ function buildCard(line){
   const queue=tanks.slice(1);
   const st=lineStates[line.id]||{};
   const isRunning=st.running&&!!st.start_ts;
-  if(window._cipDebug) console.log('[DEBUG]',line.id,line.name,'st=',JSON.stringify(st),'isRunning=',isRunning);
   const hasLiquid=!!current&&+(current.volume_liter||0)>0; // wave ทุกครั้งที่มีของ
   const _atsKeyEarly=st.aging_tank||(current&&current.aging_tank)||'';
   const _atsStatusRaw=_atsKeyEarly&&agingStates[_atsKeyEarly]?agingStates[_atsKeyEarly].status||'':'';
@@ -1241,12 +1240,17 @@ const _empSig  = sessionStorage.getItem('emp_sig')||'';
 window.startLine=async(lineId,sv,fr,agingTank)=>{
   // ใช้ aging_tank ที่ส่งมาจากปุ่ม ถ้าไม่มีให้ fallback ไปใช้ค่าที่เคยมีอยู่ใน cip_line_states (เผื่อ legacy)
   const _agTk = agingTank || (lineStates[lineId]||{}).aging_tank || '';
-  await setDoc(doc(db,'cip_line_states',lineId),{running:true,start_ts:Date.now(),start_vol:sv,flow_rate:fr,aging_tank:_agTk,started_by:_empName,start_sig:_empSig,started_at:nowHHMM(),started_by:ME.email},{merge:true});
-  // sync aging_tank_states status → filling
-  if(_agTk){
-    setDoc(doc(db,'aging_tank_states',_agTk),{status:'filling',updated_at:new Date().toISOString()},{merge:true}).catch(()=>{});
+  try{
+    await setDoc(doc(db,'cip_line_states',lineId),{running:true,start_ts:Date.now(),start_vol:sv,flow_rate:fr,aging_tank:_agTk,started_by:_empName,start_sig:_empSig,started_at:nowHHMM(),started_by:ME.email},{merge:true});
+    // sync aging_tank_states status → filling
+    if(_agTk){
+      setDoc(doc(db,'aging_tank_states',_agTk),{status:'filling',updated_at:new Date().toISOString()},{merge:true}).catch(()=>{});
+    }
+    toast('▶ Start แล้ว','green');
+  }catch(e){
+    console.error('[startLine ERROR]',e);
+    toast('❌ Start ไม่สำเร็จ: '+e.message,'red');
   }
-  toast('▶ Start แล้ว','green');
 };
 window.stopLine=async(lineId)=>{
   const st=lineStates[lineId]||{};
@@ -1336,6 +1340,7 @@ window.delPipe=async(i)=>{if(!confirm('ลบ '+pipes[i]+'?'))return;await setDo
 $('m-manage').addEventListener('click',e=>{if(e.target===$('m-manage'))window.closeManage();});
 
 // TICK
+let _lastFsWrite={}; // throttle เขียน Firestore เป็นทุก 15 วิ ต่อ line ป้องกัน quota exceeded
 function tickCountdowns(){
   // ตรวจ curing เสร็จ → re-render
   let needRender=false;
@@ -1366,18 +1371,24 @@ function tickCountdowns(){
     if(vEl){vEl.textContent=fmtL(rem)+' L';vEl.style.color=c;}
     if(pEl){pEl.textContent=pct.toFixed(2)+'%';pEl.style.color=c;}
     if(bEl){bEl.style.width=pct.toFixed(1)+'%';bEl.style.background=c;}
-    // อัปเดต aging_tank_states.current_vol ทุก tick
+    // อัปเดต aging_tank_states.current_vol — throttle เป็นทุก 15 วิ (ยกเว้นตอน volume หมดจริง ต้องเขียนทันที)
     const _agTank=st.aging_tank||'';
     if(_agTank){
       if(rem<=0){
-        // ── Volume หมดแล้ว — auto finish: clear แถวออกจากตาราง + หยุด timer ──
+        // ── Volume หมดแล้ว — auto finish: clear แถวออกจากตาราง + หยุด timer (เขียนทันทีไม่ throttle) ──
         setDoc(doc(db,'aging_tank_states',_agTank),{current_vol:0,status:'empty',temps:{},updated_at:new Date().toISOString()},{merge:true}).catch(()=>{});
         setDoc(doc(db,'cip_line_states',line.id),{running:false,start_ts:null,start_vol:0,current_vol:0,aging_tank:'',updated_at:new Date().toISOString()},{merge:true}).catch(()=>{});
         toast('✅ '+_agTank+' Filling เสร็จสมบูรณ์ — Volume หมด','green');
         needRender=true;
+        delete _lastFsWrite[line.id];
       } else {
-        setDoc(doc(db,'aging_tank_states',_agTank),{current_vol:Math.round(rem),updated_at:new Date().toISOString()},{merge:true}).catch(()=>{});
-        setDoc(doc(db,'cip_line_states',line.id),{current_vol:Math.round(rem),updated_at:new Date().toISOString()},{merge:true}).catch(()=>{});
+        const _now=Date.now();
+        const _last=_lastFsWrite[line.id]||0;
+        if(_now-_last>=15000){ // เขียนแค่ทุก 15 วินาที
+          _lastFsWrite[line.id]=_now;
+          setDoc(doc(db,'aging_tank_states',_agTank),{current_vol:Math.round(rem),updated_at:new Date().toISOString()},{merge:true}).catch(()=>{});
+          setDoc(doc(db,'cip_line_states',line.id),{current_vol:Math.round(rem),updated_at:new Date().toISOString()},{merge:true}).catch(()=>{});
+        }
       }
     }
     if(eEl&&rem>0){const m=Math.round((rem/fr)*60);const d=new Date();d.setMinutes(d.getMinutes()+m);eEl.textContent='หมด ~'+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
