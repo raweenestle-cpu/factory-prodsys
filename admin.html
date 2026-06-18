@@ -322,7 +322,7 @@ tbody td{padding:7px 10px;vertical-align:middle}
     <div class="tw">
       <table>
         <thead><tr>
-          <th>Mix Code</th><th>Mix Name</th><th>Density</th><th>Aging (hr)</th><th>Speed M1</th><th>Speed M2</th><th>Homo St.1</th><th>Homo St.2</th><th>Type</th><th>สีถัง</th><th>Flavor</th><th>Citric Acid</th><th>Color</th><th>Salt</th><th>จัดการ</th>
+          <th style="white-space:nowrap">Mix Code</th><th style="white-space:nowrap">Mix Name</th><th style="white-space:nowrap">Density</th><th style="white-space:nowrap">Aging (hr)</th><th style="white-space:nowrap">Speed M1</th><th style="white-space:nowrap">Speed M2</th><th style="white-space:nowrap">Homo St.1</th><th style="white-space:nowrap">Homo St.2</th><th style="white-space:nowrap">Type</th><th style="white-space:nowrap">สีถัง</th><th style="white-space:nowrap">Flavor</th><th style="white-space:nowrap">Citric</th><th style="white-space:nowrap">Color</th><th style="white-space:nowrap">Salt</th><th style="white-space:nowrap">%Ts</th><th style="white-space:nowrap">%Fat</th><th style="white-space:nowrap">%Brix</th><th style="white-space:nowrap">%PH</th><th style="white-space:nowrap">จัดการ</th>
         </tr></thead>
         <tbody id="product-list"></tbody>
       </table>
@@ -401,6 +401,27 @@ tbody td{padding:7px 10px;vertical-align:middle}
         <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-family:var(--mono);font-size:12px;font-weight:700">
           <input type="checkbox" id="ep-salt" style="width:16px;height:16px;cursor:pointer"> Salt
         </label>
+      </div>
+    </div>
+    <div class="modal-field" style="margin-top:8px">
+      <div class="modal-label">📊 ค่าสเปค (กรอกเป็นช่วงได้ เช่น 30.3 - 33.0)</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px">
+        <div>
+          <div style="font-family:var(--mono);font-size:10px;color:var(--t3);margin-bottom:3px">%Ts</div>
+          <input id="ep-ts" class="ci" style="width:100%" placeholder="เช่น 30.3 - 33.0">
+        </div>
+        <div>
+          <div style="font-family:var(--mono);font-size:10px;color:var(--t3);margin-bottom:3px">%Fat</div>
+          <input id="ep-fat" class="ci" style="width:100%" placeholder="เช่น 3.0 - 4.0">
+        </div>
+        <div>
+          <div style="font-family:var(--mono);font-size:10px;color:var(--t3);margin-bottom:3px">%Brix</div>
+          <input id="ep-brix" class="ci" style="width:100%" placeholder="เช่น 20.0 - 22.0">
+        </div>
+        <div>
+          <div style="font-family:var(--mono);font-size:10px;color:var(--t3);margin-bottom:3px">%PH</div>
+          <input id="ep-ph" class="ci" style="width:100%" placeholder="เช่น 6.5 - 7.0">
+        </div>
       </div>
     </div>
     <div class="modal-actions">
@@ -1027,6 +1048,10 @@ function renderProducts(){
       <td style="text-align:center">${p.has_citric?'<span style="color:#16a34a;font-size:16px">✓</span>':'<span style="color:#d1d5db;font-size:14px">—</span>'}</td>
       <td style="text-align:center">${p.has_color?'<span style="color:#16a34a;font-size:16px">✓</span>':'<span style="color:#d1d5db;font-size:14px">—</span>'}</td>
       <td style="text-align:center">${p.has_salt?'<span style="color:#16a34a;font-size:16px">✓</span>':'<span style="color:#d1d5db;font-size:14px">—</span>'}</td>
+      <td style="font-family:var(--mono);white-space:nowrap;font-size:11px">${p.spec_ts||'—'}</td>
+      <td style="font-family:var(--mono);white-space:nowrap;font-size:11px">${p.spec_fat||'—'}</td>
+      <td style="font-family:var(--mono);white-space:nowrap;font-size:11px">${p.spec_brix||'—'}</td>
+      <td style="font-family:var(--mono);white-space:nowrap;font-size:11px">${p.spec_ph||'—'}</td>
       <td>
         <button class="edit-btn" onclick="openEditProduct('${p.id}')">✏️</button>
         <button class="db" onclick="deleteProduct('${p.id}','${p.mix_code}')">✕</button>
@@ -1089,6 +1114,10 @@ window.openEditProduct=(id)=>{
   if($("ep-citric"))$("ep-citric").checked=!!p.has_citric;
   if($("ep-hascolor"))$("ep-hascolor").checked=!!p.has_color;
   if($("ep-salt"))$("ep-salt").checked=!!p.has_salt;
+  if($("ep-ts"))$("ep-ts").value=p.spec_ts||"";
+  if($("ep-fat"))$("ep-fat").value=p.spec_fat||"";
+  if($("ep-brix"))$("ep-brix").value=p.spec_brix||"";
+  if($("ep-ph"))$("ep-ph").value=p.spec_ph||"";
   $("modal-product").classList.add("show");
 };
 
@@ -1112,6 +1141,10 @@ window.saveEditProduct=async()=>{
     has_citric:!!$("ep-citric")?.checked,
     has_color:!!$("ep-hascolor")?.checked,
     has_salt:!!$("ep-salt")?.checked,
+    spec_ts:$("ep-ts")?.value.trim()||"",
+    spec_fat:$("ep-fat")?.value.trim()||"",
+    spec_brix:$("ep-brix")?.value.trim()||"",
+    spec_ph:$("ep-ph")?.value.trim()||"",
   });
   closeModal("modal-product");
   toast("แก้ไขผลิตภัณฑ์แล้ว","green");
