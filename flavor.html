@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
   
-  <meta name="theme-color" content="#db2777">
+  <meta name="theme-color" content="#1fb591">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="PROD.SYS">
@@ -14,42 +14,43 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;600;700&family=Sarabun:wght@400;500;600;700&display=swap');
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#e8ecf0;--s1:#f2f4f7;--s2:#e0e4ea;--s3:#d0d6de;--b1:#b0bac8;--b2:#8896aa;
-  --text:#111827;--t2:#374151;--t3:#6b7280;
-  --pink:#f472b6;--pink2:#ec4899;--pink3:#db2777;
-  --rose:#fda4af;--lilac:#c084fc;--lavender:#a78bfa;
-  --green:#4ade80;--yellow:#fbbf24;--red:#f87171;--cyan:#67e8f9;--orange:#fb923c;
+  --bg:#070d0b;--s1:#0e1714;--s2:#142019;--s3:#1a2820;--b1:#264035;--b2:#2f5142;
+  --text:#eafff5;--t2:#9fc9b8;--t3:#5f8a78;
+  --mint:#2dd4a8;--mint2:#34e6b8;--mint3:#1fb591;--mint-dim:#13503f;
+  --pink:#2dd4a8;--pink2:#2dd4a8;--pink3:#1fb591;
+  --rose:#2dd4a8;--lilac:#34e6b8;--lavender:#34e6b8;
+  --green:#2dd4a8;--yellow:#34e6b8;--red:#ef4444;--cyan:#2dd4a8;--orange:#34e6b8;--purple:#2dd4a8;
   --mono:'DM Mono',monospace;--sans:'Sarabun',sans-serif;
 }
 html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:var(--sans)}
 body::before{content:"";position:fixed;inset:0;
-  background:radial-gradient(ellipse at 20% 0%,rgba(236,72,153,.08) 0%,transparent 60%),
-             radial-gradient(ellipse at 80% 100%,rgba(167,139,250,.06) 0%,transparent 60%);
+  background:radial-gradient(ellipse at 20% 0%,rgba(45,212,168,.08) 0%,transparent 60%),
+             radial-gradient(ellipse at 80% 100%,rgba(45,212,168,.06) 0%,transparent 60%);
   pointer-events:none;z-index:0}
 ::-webkit-scrollbar{width:4px;height:4px}
-::-webkit-scrollbar-thumb{background:rgba(244,114,182,.3);border-radius:3px}
+::-webkit-scrollbar-thumb{background:rgba(45,212,168,.3);border-radius:3px}
 input[type="number"]{-moz-appearance:textfield}
 input[type="number"]::-webkit-inner-spin-button,input[type="number"]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
 
 nav{display:flex;align-items:center;height:54px;
   background:rgba(13,8,16,.92);backdrop-filter:blur(20px);
-  border-bottom:1px solid rgba(244,114,182,.15);
+  border-bottom:1px solid rgba(45,212,168,.15);
   position:sticky;top:0;z-index:200;padding:0 16px;gap:8px}
 nav::after{content:"";position:absolute;bottom:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(244,114,182,.4),transparent)}
-.nav-logo{font-family:var(--mono);font-size:14px;font-weight:700;flex-shrink:0;
+  background:linear-gradient(90deg,transparent,rgba(45,212,168,.4),transparent)}
+.nav-logo{font-family:var(--mono);font-size:17px;font-weight:700;flex-shrink:0;
   background:linear-gradient(135deg,var(--pink),var(--lilac));
   -webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.nav-logo span{-webkit-text-fill-color:var(--t2);font-size:12px}
-.ntab{font-size:12px;font-weight:600;padding:6px 14px;border-radius:20px;border:none;
+.nav-logo span{-webkit-text-fill-color:var(--t2);font-size:15px}
+.ntab{font-size:15px;font-weight:600;padding:6px 14px;border-radius:20px;border:none;
   background:none;color:var(--t2);cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .2s}
-.ntab:hover{color:var(--pink);background:rgba(244,114,182,.08)}
-.ntab.on{color:var(--pink);background:rgba(244,114,182,.15);
-  border:1px solid rgba(244,114,182,.25)}
+.ntab:hover{color:var(--pink);background:rgba(45,212,168,.08)}
+.ntab.on{color:var(--pink);background:rgba(45,212,168,.15);
+  border:1px solid rgba(45,212,168,.25)}
 .nav-r{display:flex;align-items:center;gap:8px;margin-left:auto}
-.nbtn{font-size:11px;padding:5px 12px;border-radius:20px;
-  border:1px solid rgba(244,114,182,.2);
-  background:rgba(244,114,182,.06);color:var(--t2);cursor:pointer;
+.nbtn{font-size:14px;padding:5px 12px;border-radius:20px;
+  border:1px solid rgba(45,212,168,.2);
+  background:rgba(45,212,168,.06);color:var(--t2);cursor:pointer;
   text-decoration:none;font-family:var(--mono);transition:all .2s}
 .nbtn:hover{border-color:var(--pink);color:var(--pink)}
 
@@ -57,54 +58,55 @@ nav::after{content:"";position:absolute;bottom:0;left:0;right:0;height:1px;
 .page.on{display:block}
 
 /* TABLE */
-.tw{border-radius:12px;border:1px solid rgba(244,114,182,.15);overflow:auto;margin-bottom:14px;
-  background:var(--s1);box-shadow:0 4px 24px rgba(236,72,153,.06)}
-table{width:100%;border-collapse:collapse;font-size:12px;min-width:900px}
-thead th{background:rgba(244,114,182,.06);padding:8px 10px;text-align:left;white-space:nowrap;
-  font-family:var(--mono);font-size:10px;color:var(--t2);
-  border-bottom:1px solid rgba(244,114,182,.15);
-  position:sticky;top:0;z-index:5;border-right:1px solid rgba(244,114,182,.08);
+.tw{border-radius:12px;border:1px solid rgba(45,212,168,.25);overflow:auto;margin-bottom:14px;
+  background:var(--s1);box-shadow:0 4px 24px rgba(45,212,168,.1)}
+table{width:100%;border-collapse:collapse;font-size:15px;min-width:1100px}
+thead th{background:rgba(45,212,168,.1);padding:8px 10px;text-align:left;white-space:nowrap;
+  font-family:var(--mono);font-size:13px;color:var(--t2);
+  border-bottom:1.5px solid rgba(45,212,168,.3);
+  position:sticky;top:0;z-index:5;border-right:1px solid rgba(45,212,168,.15);
   letter-spacing:.06em;text-transform:uppercase}
 tbody td{padding:7px 9px;vertical-align:middle;
-  border-right:1px solid rgba(244,114,182,.07);
-  border-bottom:1px solid rgba(244,114,182,.07);font-weight:600}
-tbody tr:hover td{background:rgba(244,114,182,.04)!important}
+  border-right:1px solid rgba(45,212,168,.15);
+  border-bottom:1px solid rgba(45,212,168,.15);font-weight:600}
+tbody tr:hover td{background:rgba(45,212,168,.06)!important}
 
 /* ROW COLORS */
-.row-ready td{background:rgba(74,222,128,.06)!important}
+.row-ready td{background:rgba(45,212,168,.06)!important}
 .row-ready td:first-child{border-left:3px solid var(--green)!important}
-.row-past td{background:rgba(251,146,60,.06)!important}
+.row-past td{background:rgba(45,212,168,.06)!important}
 .row-past td:first-child{border-left:3px solid var(--orange)!important}
-.row-mixing td{background:rgba(251,191,36,.05)!important}
+.row-mixing td{background:rgba(45,212,168,.05)!important}
 .row-mixing td:first-child{border-left:3px solid var(--yellow)!important}
-.row-done td{background:rgba(244,114,182,.08)!important}
+.row-done td{background:rgba(45,212,168,.08)!important}
 .row-done td:first-child{border-left:3px solid var(--pink)!important}
 
 /* INPUTS */
-.ci{background:var(--s2);border:1px solid rgba(244,114,182,.2);border-radius:8px;
-  color:var(--text);font-family:var(--mono);font-size:12px;padding:6px 9px;outline:none;
+.ci{background:var(--s2);border:1.5px solid rgba(45,212,168,.35);border-radius:8px;
+  color:var(--text);font-family:var(--mono);font-size:15px;padding:6px 9px;outline:none;
   transition:border-color .2s}
-.ci:focus{border-color:var(--pink);box-shadow:0 0 0 3px rgba(244,114,182,.1)}
+.ci:focus{border-color:var(--pink);box-shadow:0 0 0 3px rgba(45,212,168,.15)}
+.ci::placeholder{color:var(--t3)}
 
 /* FLAVOR BOX */
-.flv-box{display:flex;flex-direction:column;gap:5px;min-width:115px;padding:8px 10px;
-  border-radius:10px;border:1px solid rgba(244,114,182,.15);background:var(--s3);
+.flv-box{display:flex;flex-direction:column;gap:6px;min-width:135px;padding:10px 12px;
+  border-radius:10px;border:1px solid rgba(45,212,168,.15);background:var(--s3);
   transition:all .2s}
-.flv-box.all-done{background:rgba(74,222,128,.08);border-color:rgba(74,222,128,.35);
-  box-shadow:0 2px 12px rgba(74,222,128,.1)}
-.flv-title{font-family:var(--mono);font-size:10px;font-weight:700;text-transform:uppercase;
+.flv-box.all-done{background:rgba(45,212,168,.08);border-color:rgba(45,212,168,.35);
+  box-shadow:0 2px 12px rgba(45,212,168,.1)}
+.flv-title{font-family:var(--mono);font-size:14px;font-weight:800;color:var(--text);text-transform:uppercase;
   letter-spacing:.1em;margin-bottom:3px}
 .flv-qty{display:flex;align-items:center;gap:5px}
-.flv-qty input{width:64px;font-family:var(--mono);font-size:13px;font-weight:700;
-  text-align:center;background:var(--s2);border:1px solid rgba(244,114,182,.2);
+.flv-qty input{width:74px;font-family:var(--mono);font-size:16px;font-weight:700;
+  text-align:center;background:var(--s2);border:1px solid rgba(45,212,168,.2);
   border-radius:6px;color:var(--text);padding:5px 6px;outline:none}
-.flv-qty input:focus{border-color:var(--pink);box-shadow:0 0 0 2px rgba(244,114,182,.15)}
-.flv-qty span{font-family:var(--mono);font-size:10px;color:var(--t2)}
+.flv-qty input:focus{border-color:var(--pink);box-shadow:0 0 0 2px rgba(45,212,168,.15)}
+.flv-qty span{font-family:var(--mono);font-size:13px;color:var(--t2)}
 .flv-checks{display:flex;flex-direction:column;gap:4px;margin-top:3px}
 .flv-check{display:flex;align-items:center;gap:6px;cursor:pointer;padding:2px 0}
-.flv-check input[type="checkbox"]{width:15px;height:15px;cursor:pointer;flex-shrink:0;
+.flv-check input[type="checkbox"]{width:19px;height:19px;cursor:pointer;flex-shrink:0;
   accent-color:var(--pink)}
-.flv-check span{font-family:var(--mono);font-size:10px;font-weight:600}
+.flv-check span{font-family:var(--mono);font-size:13px;font-weight:600}
 
 /* FLAVOR CELLS */
 .flv-cell{padding:5px 6px!important}
@@ -112,90 +114,90 @@ tbody tr:hover td{background:rgba(244,114,182,.04)!important}
 
 /* STAMP BTN */
 .stamp-btn{display:flex;align-items:center;justify-content:center;gap:4px;
-  background:rgba(244,114,182,.06);border:1px solid rgba(244,114,182,.2);
+  background:rgba(45,212,168,.06);border:1px solid rgba(45,212,168,.2);
   border-radius:8px;color:var(--t2);
-  font-size:11px;font-family:var(--mono);padding:6px 10px;cursor:pointer;
+  font-size:14px;font-family:var(--mono);padding:6px 10px;cursor:pointer;
   white-space:nowrap;width:100%;transition:all .2s}
-.stamp-btn:hover{border-color:var(--pink);color:var(--pink);background:rgba(244,114,182,.1)}
-.stamp-btn.stamped{background:rgba(74,222,128,.08);border-color:rgba(74,222,128,.4);color:var(--green)}
+.stamp-btn:hover{border-color:var(--pink);color:var(--pink);background:rgba(45,212,168,.1)}
+.stamp-btn.stamped{background:rgba(45,212,168,.08);border-color:rgba(45,212,168,.4);color:var(--green)}
 .stamp-btn:disabled{opacity:.3;cursor:not-allowed}
 
 /* STAT BADGE */
-.stat-badge{font-family:var(--mono);font-size:10px;font-weight:700;padding:3px 10px;
+.stat-badge{font-family:var(--mono);font-size:13px;font-weight:700;padding:3px 10px;
   border-radius:99px;white-space:nowrap}
 
 /* ACTION BTN */
-.done-btn{background:linear-gradient(135deg,rgba(244,114,182,.2),rgba(167,139,250,.2));
-  border:1px solid rgba(244,114,182,.4);color:var(--pink);
-  font-family:var(--mono);font-size:11px;font-weight:700;padding:7px 12px;
+.done-btn{background:linear-gradient(135deg,rgba(45,212,168,.35),rgba(45,212,168,.22));
+  border:1.5px solid var(--mint);color:var(--mint2);
+  font-family:var(--mono);font-size:14px;font-weight:700;padding:7px 12px;
   border-radius:8px;cursor:pointer;white-space:nowrap;width:100%;transition:all .2s}
-.done-btn:hover{background:linear-gradient(135deg,rgba(244,114,182,.3),rgba(167,139,250,.3));
-  box-shadow:0 4px 14px rgba(244,114,182,.2)}
+.done-btn:hover{background:linear-gradient(135deg,rgba(45,212,168,.5),rgba(45,212,168,.35));
+  box-shadow:0 4px 14px rgba(45,212,168,.35)}
 .done-btn:disabled{opacity:.3;cursor:not-allowed}
 
 /* TOOLBAR */
 .toolbar{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
-.btn{font-size:12px;padding:6px 14px;border-radius:20px;
-  border:1px solid rgba(244,114,182,.2);
-  background:rgba(244,114,182,.06);color:var(--text);cursor:pointer;
+.btn{font-size:15px;padding:6px 14px;border-radius:20px;
+  border:1px solid rgba(45,212,168,.2);
+  background:rgba(45,212,168,.06);color:var(--text);cursor:pointer;
   font-family:var(--sans);white-space:nowrap;transition:all .2s}
 .btn:hover{border-color:var(--pink);color:var(--pink)}
 .btn-b{background:linear-gradient(135deg,var(--pink2),var(--lilac));
   border-color:transparent;color:#fff;font-weight:600}
-.btn-b:hover{box-shadow:0 4px 14px rgba(236,72,153,.35);color:#fff}
+.btn-b:hover{box-shadow:0 4px 14px rgba(45,212,168,.35);color:#fff}
 
 /* HISTORY */
-.hist-item{background:var(--s1);border:1px solid rgba(244,114,182,.12);border-radius:12px;
+.hist-item{background:var(--s1);border:1px solid rgba(45,212,168,.12);border-radius:12px;
   padding:12px 16px;margin-bottom:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
   transition:border-color .2s}
-.hist-item:hover{border-color:rgba(244,114,182,.3)}
+.hist-item:hover{border-color:rgba(45,212,168,.3)}
 
 #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);
   background:linear-gradient(135deg,var(--pink3),var(--lilac));
-  color:#fff;padding:10px 22px;border-radius:20px;font-size:12px;
+  color:#fff;padding:10px 22px;border-radius:20px;font-size:15px;
   opacity:0;transition:all .3s;z-index:9999;pointer-events:none;
-  font-family:var(--mono);box-shadow:0 8px 24px rgba(219,39,119,.3)}
+  font-family:var(--mono);box-shadow:0 8px 24px rgba(45,212,168,.3)}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
 /* SIGNATURE MODAL */
 .sig-modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:999;align-items:center;justify-content:center;padding:16px}
 .sig-modal-bg.show{display:flex}
 .sig-modal{background:linear-gradient(135deg,var(--s1),var(--s2));
-  border:1px solid rgba(244,114,182,.25);border-radius:20px;padding:24px 20px;
-  width:100%;max-width:400px;box-shadow:0 20px 60px rgba(219,39,119,.2)}
+  border:1px solid rgba(45,212,168,.25);border-radius:20px;padding:24px 20px;
+  width:100%;max-width:400px;box-shadow:0 20px 60px rgba(45,212,168,.2)}
 .sig-title{font-family:var(--mono);font-size:15px;font-weight:700;
   background:linear-gradient(135deg,var(--pink),var(--lilac));
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px}
-.sig-sub{font-size:12px;color:var(--t2);margin-bottom:16px}
+.sig-sub{font-size:15px;color:var(--t2);margin-bottom:16px}
 #sig-canvas{width:100%;height:160px;background:rgba(255,255,255,0.05);border-radius:12px;
-  border:2px solid rgba(244,114,182,.4);cursor:crosshair;touch-action:none;display:block}
+  border:2px solid rgba(45,212,168,.4);cursor:crosshair;touch-action:none;display:block}
 .sig-btns{display:flex;gap:8px;margin-top:14px}
 .sig-btn{flex:1;padding:11px;border-radius:12px;border:none;font-family:var(--mono);
-  font-size:12px;font-weight:700;cursor:pointer;transition:all .2s}
+  font-size:15px;font-weight:700;cursor:pointer;transition:all .2s}
 .sig-btn.save{background:linear-gradient(135deg,var(--pink2),var(--lilac));color:#fff;
-  box-shadow:0 4px 14px rgba(236,72,153,.3)}
-.sig-btn.save:hover{box-shadow:0 6px 20px rgba(236,72,153,.4);transform:translateY(-1px)}
-.sig-btn.clear{background:rgba(244,114,182,.08);border:1px solid rgba(244,114,182,.2);color:var(--t2)}
-.sig-btn.cancel{background:rgba(244,114,182,.08);border:1px solid rgba(244,114,182,.2);color:var(--t2)}
+  box-shadow:0 4px 14px rgba(45,212,168,.3)}
+.sig-btn.save:hover{box-shadow:0 6px 20px rgba(45,212,168,.4);transform:translateY(-1px)}
+.sig-btn.clear{background:rgba(45,212,168,.08);border:1px solid rgba(45,212,168,.2);color:var(--t2)}
+.sig-btn.cancel{background:rgba(45,212,168,.08);border:1px solid rgba(45,212,168,.2);color:var(--t2)}
 .sig-btn.confirm{background:linear-gradient(135deg,var(--pink2),var(--lilac));color:#fff;
-  box-shadow:0 4px 14px rgba(236,72,153,.3)}
+  box-shadow:0 4px 14px rgba(45,212,168,.3)}
 #sig-preview-img{width:100%;max-height:120px;object-fit:contain;background:#fff5f8;
-  border-radius:12px;border:2px solid rgba(244,114,182,.3);padding:8px}
+  border-radius:12px;border:2px solid rgba(45,212,168,.3);padding:8px}
 @media(max-width:768px){
   nav{padding:0 10px;gap:4px}
-  .nav-logo{font-size:12px}
-  .ntab{font-size:10px;padding:4px 8px}
+  .nav-logo{font-size:15px}
+  .ntab{font-size:13px;padding:4px 8px}
   .page{padding:10px}
   .tw{border:none;background:none;overflow:visible}
   table,thead,tbody,tr,td,th{display:block;width:100%}
   thead tr{display:none}
-  tbody tr{background:var(--s1);border:1px solid var(--b1);border-radius:12px;margin-bottom:12px;padding:12px}
-  tbody td{border:none!important;padding:4px 0;display:flex;align-items:flex-start;gap:8px;font-size:13px}
+  tbody tr{background:var(--s1);border:1.5px solid rgba(45,212,168,.25);border-radius:12px;margin-bottom:12px;padding:12px}
+  tbody td{border:none!important;padding:4px 0;display:flex;align-items:flex-start;gap:8px;font-size:16px}
   tbody td:nth-child(1){display:none}
   .flv-wrap{flex-direction:column;gap:8px}
   .flv-box{min-width:unset;width:100%}
-  .stamp-btn{min-height:44px;font-size:13px!important}
-  .done-btn{min-height:44px;font-size:13px!important}
+  .stamp-btn{min-height:44px;font-size:16px!important}
+  .done-btn{min-height:44px;font-size:16px!important}
 }
 </style>
 </head>
@@ -205,7 +207,7 @@ tbody tr:hover td{background:rgba(244,114,182,.04)!important}
   <button class="ntab on" onclick="showPage('m1',this)">💗 Mix 1</button>
   <button class="ntab" onclick="showPage('m2',this)">💜 Mix 2</button>
   <button class="ntab" onclick="showPage('history',this);loadHistory()">📋 History</button>
-  <button class="ntab" id="tab-report" style="display:none;color:#fda4af;background:rgba(253,164,175,.1);border:1px solid rgba(253,164,175,.2)" onclick="showPage('report',this);loadReport()">🔐 Report</button>
+  <button class="ntab" id="tab-report" style="display:none;color:#fda4af;background:rgba(45,212,168,.1);border:1px solid rgba(45,212,168,.2)" onclick="showPage('report',this);loadReport()">🔐 Report</button>
   <div class="nav-r">
     <a href="index.html" class="nbtn">🏠</a>
     <button class="nbtn" onclick="doLogout()">ออก</button>
@@ -215,7 +217,7 @@ tbody tr:hover td{background:rgba(244,114,182,.04)!important}
 <!-- MIX 1 PAGE -->
 <div class="page on" id="page-m1">
   <div style="height:3px;background:linear-gradient(90deg,var(--pink3),var(--pink),var(--lilac));border-radius:0 0 4px 4px;margin:-14px -16px 16px;opacity:.7"></div>
-  <div style="margin-bottom:6px;font-family:var(--mono);font-size:11px;font-weight:700;background:linear-gradient(135deg,var(--pink),var(--lilac));-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-transform:uppercase;letter-spacing:.1em">💗 Mixing 1</div>
+  <div style="margin-bottom:6px;font-family:var(--mono);font-size:14px;font-weight:700;background:linear-gradient(135deg,var(--pink),var(--lilac));-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-transform:uppercase;letter-spacing:.1em">💗 Mixing 1</div>
   <div class="toolbar">
     <input type="date" id="date-m1" class="ci" style="width:140px" onchange="loadPlan('m1')">
     <button class="btn" onclick="changeDate('m1',-1)">◀</button>
@@ -228,25 +230,25 @@ tbody tr:hover td{background:rgba(244,114,182,.04)!important}
         <tr>
           <th rowspan="2">#</th>
           <th rowspan="2">Mix Code</th>
-          <th rowspan="2" style="color:var(--cyan)">🔗 Process</th>
+          <th rowspan="2" style="color:var(--text);font-weight:700">🔗 Process</th>
           <th rowspan="2">Mix Name</th>
           <th rowspan="2">ผลิตภัณฑ์</th>
           <th rowspan="2">Batch</th>
           <th rowspan="2">Vol (L)</th>
           <th rowspan="2">Rework (kg)</th>
-          <th rowspan="2" style="color:var(--cyan)">🪣 Aging Tank</th>
-          <th rowspan="2" style="color:var(--yellow)">คาดว่า Past.เสร็จ</th>
-          <th colspan="4" style="text-align:center;color:var(--purple);border-bottom:1px solid var(--b2)">🧪 Flavor / Color / กรดมะนาว / Salt</th>
+          <th rowspan="2" style="color:var(--text);font-weight:700">🪣 Aging Tank</th>
+          <th rowspan="2" style="color:var(--text);font-weight:700">คาดว่า Past.เสร็จ</th>
+          <th colspan="4" style="text-align:center;color:var(--text);font-weight:800;border-bottom:1px solid var(--b2)">🧪 Flavor / Color / กรดมะนาว / Salt</th>
           <th rowspan="2">เวลาเท</th>
           <th rowspan="2">Status</th>
           <th rowspan="2">หมายเหตุ</th>
-          <th rowspan="2" style="color:var(--cyan)">🖊️ ลายเซ็น</th>
+          <th rowspan="2" style="color:var(--text);font-weight:700">🖊️ ลายเซ็น</th>
           <th rowspan="2">Action</th>
         </tr>
         <tr>
-          <th style="color:#d8b4fe;font-size:9px">🍶 Flavor</th>
-          <th style="color:#f9a8d4;font-size:9px">🎨 Color</th>
-          <th style="color:#86efac;font-size:9px">🍋 กรดมะนาว</th>
+          <th style="color:var(--text);font-size:13px;font-weight:700">🍶 Flavor</th>
+          <th style="color:var(--text);font-size:13px;font-weight:700">🎨 Color</th>
+          <th style="color:var(--text);font-size:13px;font-weight:700">🍋 กรดมะนาว</th>
         </tr>
       </thead>
       <tbody id="tbody-m1"></tbody>
@@ -258,7 +260,7 @@ tbody tr:hover td{background:rgba(244,114,182,.04)!important}
 <!-- MIX 2 PAGE -->
 <div class="page" id="page-m2">
   <div style="height:3px;background:linear-gradient(90deg,var(--lilac),var(--rose),var(--pink3));border-radius:0 0 4px 4px;margin:-14px -16px 16px;opacity:.7"></div>
-  <div style="margin-bottom:6px;font-family:var(--mono);font-size:11px;font-weight:700;background:linear-gradient(135deg,var(--lilac),var(--rose));-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-transform:uppercase;letter-spacing:.1em">💜 Mixing 2</div>
+  <div style="margin-bottom:6px;font-family:var(--mono);font-size:14px;font-weight:700;background:linear-gradient(135deg,var(--lilac),var(--rose));-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-transform:uppercase;letter-spacing:.1em">💜 Mixing 2</div>
   <div class="toolbar">
     <input type="date" id="date-m2" class="ci" style="width:140px" onchange="loadPlan('m2')">
     <button class="btn" onclick="changeDate('m2',-1)">◀</button>
@@ -271,25 +273,25 @@ tbody tr:hover td{background:rgba(244,114,182,.04)!important}
         <tr>
           <th rowspan="2">#</th>
           <th rowspan="2">Mix Code</th>
-          <th rowspan="2" style="color:var(--cyan)">🔗 Process</th>
+          <th rowspan="2" style="color:var(--text);font-weight:700">🔗 Process</th>
           <th rowspan="2">Mix Name</th>
           <th rowspan="2">ผลิตภัณฑ์</th>
           <th rowspan="2">Batch</th>
           <th rowspan="2">Vol (L)</th>
           <th rowspan="2">Rework (kg)</th>
-          <th rowspan="2" style="color:var(--cyan)">🪣 Aging Tank</th>
-          <th rowspan="2" style="color:var(--yellow)">คาดว่า Past.เสร็จ</th>
-          <th colspan="3" style="text-align:center;color:var(--purple);border-bottom:1px solid var(--b2)">🧪 Flavor / Color / กรดมะนาว</th>
+          <th rowspan="2" style="color:var(--text);font-weight:700">🪣 Aging Tank</th>
+          <th rowspan="2" style="color:var(--text);font-weight:700">คาดว่า Past.เสร็จ</th>
+          <th colspan="3" style="text-align:center;color:var(--text);font-weight:800;border-bottom:1px solid var(--b2)">🧪 Flavor / Color / กรดมะนาว</th>
           <th rowspan="2">เวลาเท</th>
           <th rowspan="2">Status</th>
           <th rowspan="2">หมายเหตุ</th>
-          <th rowspan="2" style="color:var(--cyan)">🖊️ ลายเซ็น</th>
+          <th rowspan="2" style="color:var(--text);font-weight:700">🖊️ ลายเซ็น</th>
           <th rowspan="2">Action</th>
         </tr>
         <tr>
-          <th style="color:#d8b4fe;font-size:9px">🍶 Flavor</th>
-          <th style="color:#f9a8d4;font-size:9px">🎨 Color</th>
-          <th style="color:#86efac;font-size:9px">🍋 กรดมะนาว</th>
+          <th style="color:var(--text);font-size:13px;font-weight:700">🍶 Flavor</th>
+          <th style="color:var(--text);font-size:13px;font-weight:700">🎨 Color</th>
+          <th style="color:var(--text);font-size:13px;font-weight:700">🍋 กรดมะนาว</th>
         </tr>
       </thead>
       <tbody id="tbody-m2"></tbody>
@@ -309,27 +311,27 @@ tbody tr:hover td{background:rgba(244,114,182,.04)!important}
 <!-- REPORT PAGE — Admin Only -->
 <div class="page" id="page-report">
   <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap">
-    <span style="font-family:var(--mono);font-size:10px;color:var(--t3)">DATE</span>
+    <span style="font-family:var(--mono);font-size:13px;color:var(--t3)">DATE</span>
     <input type="date" id="report-date" class="ci" style="width:140px" onchange="loadReport()">
     <button class="btn" onclick="goTodayReport()">วันนี้</button>
-    <span style="font-family:var(--mono);font-size:10px;padding:3px 10px;border-radius:5px;background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.3)">🔐 Admin Only</span>
+    <span style="font-family:var(--mono);font-size:13px;padding:3px 10px;border-radius:5px;background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.3)">🔐 Admin Only</span>
   </div>
   <div id="report-list"></div>
 </div>
 
 <!-- PIN MODAL -->
 <div id="pin-modal-bg" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:998;align-items:center;justify-content:center" onclick="if(event.target===this)closePinModal()">
-  <div style="background:linear-gradient(135deg,var(--s1),var(--s2));border:1px solid rgba(244,114,182,.25);border-radius:24px;padding:28px 24px;width:100%;max-width:320px;text-align:center;box-shadow:0 20px 60px rgba(219,39,119,.25)">
+  <div style="background:linear-gradient(135deg,var(--s1),var(--s2));border:1px solid rgba(45,212,168,.25);border-radius:24px;padding:28px 24px;width:100%;max-width:320px;text-align:center;box-shadow:0 20px 60px rgba(45,212,168,.25)">
     <div style="font-size:32px;margin-bottom:8px">🔐</div>
-    <div style="font-family:var(--mono);font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px">Report Access</div>
-    <div style="font-size:12px;color:var(--t2);margin-bottom:18px">ใส่ PIN 4 หลักเพื่อเข้าดู Report</div>
+    <div style="font-family:var(--mono);font-size:17px;font-weight:700;color:var(--text);margin-bottom:4px">Report Access</div>
+    <div style="font-size:15px;color:var(--t2);margin-bottom:18px">ใส่ PIN 4 หลักเพื่อเข้าดู Report</div>
     <input id="pin-input" type="password" inputmode="numeric" maxlength="4"
-      style="width:100%;text-align:center;letter-spacing:.3em;font-size:22px;font-family:var(--mono);background:rgba(244,114,182,.06);border:2px solid rgba(244,114,182,.3);border-radius:12px;color:var(--text);padding:12px;outline:none;margin-bottom:12px"
+      style="width:100%;text-align:center;letter-spacing:.3em;font-size:22px;font-family:var(--mono);background:rgba(45,212,168,.06);border:2px solid rgba(45,212,168,.3);border-radius:12px;color:var(--text);padding:12px;outline:none;margin-bottom:12px"
       placeholder="••••" onkeydown="if(event.key==='Enter')checkPin();if(event.key==='Escape')closePinModal()">
-    <div id="pin-err" style="font-family:var(--mono);font-size:11px;color:var(--red);min-height:16px;margin-bottom:10px"></div>
+    <div id="pin-err" style="font-family:var(--mono);font-size:14px;color:var(--red);min-height:16px;margin-bottom:10px"></div>
     <div style="display:flex;gap:8px">
-      <button style="flex:1;padding:11px;border-radius:12px;border:1px solid rgba(244,114,182,.2);background:rgba(244,114,182,.06);color:var(--t2);font-family:var(--mono);cursor:pointer;font-size:13px" onclick="closePinModal()">✕ ยกเลิก</button>
-      <button style="flex:1;padding:11px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--pink2),var(--lilac));color:#fff;font-family:var(--mono);font-weight:700;cursor:pointer;font-size:13px;box-shadow:0 4px 14px rgba(236,72,153,.3)" onclick="checkPin()">ยืนยัน</button>
+      <button style="flex:1;padding:11px;border-radius:12px;border:1px solid rgba(45,212,168,.2);background:rgba(45,212,168,.06);color:var(--t2);font-family:var(--mono);cursor:pointer;font-size:16px" onclick="closePinModal()">✕ ยกเลิก</button>
+      <button style="flex:1;padding:11px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--pink2),var(--lilac));color:#fff;font-family:var(--mono);font-weight:700;cursor:pointer;font-size:16px;box-shadow:0 4px 14px rgba(45,212,168,.3)" onclick="checkPin()">ยืนยัน</button>
     </div>
   </div>
 </div>
@@ -375,7 +377,7 @@ const today=()=>new Date().toISOString().slice(0,10);
 const $=id=>document.getElementById(id);
 const nowHHMM=()=>{const d=new Date();return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');};
 
-function toast(msg,t='blue'){const el=$('toast');el.textContent=msg;el.style.background=t==='green'?'#15803d':t==='red'?'#991b1b':'#1d4ed8';el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2500);}
+function toast(msg,t='blue'){const el=$('toast');el.textContent=msg;el.style.background=t==='green'?'#1fb591':t==='red'?'#991b1b':'#1fb591';el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2500);}
 
 function calcCuringEnd(pastEnd,agingHr,dateStr){
   if(!pastEnd)return'—';
@@ -458,7 +460,7 @@ window.completeFlavor=async(col,id,m)=>{
 };
 
 function flvBox(col,id,type,row,p){
-  const labels={flavor:{icon:'🍶',color:'#d8b4fe',field:'flavor',hasKey:'has_flavor'},color:{icon:'🎨',color:'#f9a8d4',field:'color',hasKey:'has_color'},acid:{icon:'🍋',color:'#86efac',field:'acid',hasKey:'has_citric'},salt:{icon:'🧂',color:'#fcd34d',field:'salt',hasKey:'has_salt'}};
+  const labels={flavor:{icon:'🍶',color:'var(--mint)',field:'flavor',hasKey:'has_flavor'},color:{icon:'🎨',color:'var(--mint)',field:'color',hasKey:'has_color'},acid:{icon:'🍋',color:'var(--mint)',field:'acid',hasKey:'has_citric'},salt:{icon:'🧂',color:'var(--mint)',field:'salt',hasKey:'has_salt'}};
   const{icon,color,field,hasKey}=labels[type];
   const needed=p?!!p[hasKey]:true;
   const qty=row[`${field}_qty`]||0;
@@ -469,8 +471,8 @@ function flvBox(col,id,type,row,p){
 
   if(!needed){
     return`<div class="flv-box" style="opacity:.28;pointer-events:none;filter:grayscale(1)">
-    <div class="flv-title" style="color:#6b7280">${icon} ${type==='flavor'?'Flavor':type==='color'?'Color':type==='acid'?'กรดมะนาว':'Salt'}</div>
-    <div style="text-align:center;font-size:11px;color:#6b7280;padding:8px 0">ไม่ใช้</div>
+    <div class="flv-title" style="color:var(--text);font-weight:800">${icon} ${type==='flavor'?'Flavor':type==='color'?'Color':type==='acid'?'กรดมะนาว':'Salt'}</div>
+    <div style="text-align:center;font-size:14px;color:#6b7280;padding:8px 0">ไม่ใช้</div>
   </div>`;
   }
 
@@ -479,28 +481,28 @@ function flvBox(col,id,type,row,p){
   const canNotify=true;
 
   return`<div class="flv-box${allDone?' all-done':''}">
-    <div class="flv-title" style="color:${color}">${icon} ${type==='flavor'?'Flavor':type==='color'?'Color':type==='acid'?'กรดมะนาว':'Salt'}</div>
+    <div class="flv-title" style="color:var(--text);font-weight:800">${icon} ${type==='flavor'?'Flavor':type==='color'?'Color':type==='acid'?'กรดมะนาว':'Salt'}</div>
     <div class="flv-qty">
       <input type="number" min="0" value="${qty}" placeholder="0"
-        style="accent-color:${color}"
+        style="accent-color:var(--text)"
         onchange="_up('${col}','${id}','${field}_qty',+this.value)">
       <span>ขวด</span>
     </div>
     <div class="flv-checks">
       <label class="flv-check" style="opacity:${canPrep?1:.4}">
-        <input type="checkbox" ${prep?'checked':''} ${canPrep?'':'disabled'} style="accent-color:${color}"
+        <input type="checkbox" ${prep?'checked':''} ${canPrep?'':'disabled'} style="accent-color:var(--text)"
           onchange="_up('${col}','${id}','${field}_prep',this.checked)">
-        <span style="color:${prep?color:'var(--t2)'}">เตรียมแล้ว</span>
+        <span style="color:var(--text);font-weight:${prep?'700':'400'}">เตรียมแล้ว</span>
       </label>
       <label class="flv-check" style="opacity:${canPour?1:.35}">
-        <input type="checkbox" ${pour?'checked':''} ${canPour?'':'disabled'} style="accent-color:${color}"
+        <input type="checkbox" ${pour?'checked':''} ${canPour?'':'disabled'} style="accent-color:var(--text)"
           onchange="_up('${col}','${id}','${field}_pour',this.checked)">
-        <span style="color:${pour?color:canPour?'var(--t2)':'var(--t3)'}">เทแล้ว</span>
+        <span style="color:var(--text);font-weight:${pour?'700':'400'}">เทแล้ว</span>
       </label>
       <label class="flv-check" style="opacity:${canNotify?1:.35}">
-        <input type="checkbox" ${notify?'checked':''} ${canNotify?'':'disabled'} style="accent-color:${color}"
+        <input type="checkbox" ${notify?'checked':''} ${canNotify?'':'disabled'} style="accent-color:var(--text)"
           onchange="_up('${col}','${id}','${field}_notify',this.checked)">
-        <span style="color:${notify?color:canNotify?'var(--t2)':'var(--t3)'}">แจ้งใช้แล้ว</span>
+        <span style="color:var(--text);font-weight:${notify?'700':'400'}">แจ้งใช้แล้ว</span>
       </label>
     </div>
   </div>`;
@@ -548,7 +550,7 @@ function renderPlan(m){
     if(row.status==='mixing'){statTxt='🔄 ผสม';statC='var(--yellow)';}
     else if(row.status==='pasteurising'){statTxt='♨️ Past.';statC='var(--orange)';}
     else if(row.status==='past_done'){statTxt='✅ พร้อม Flavor';statC='var(--green)';}
-    else if(row.status==='ready'){statTxt='✅ Flavor เสร็จ';statC='#16a34a';}
+    else if(row.status==='ready'){statTxt='✅ Flavor เสร็จ';statC='var(--mint2)';}
 
     // Row class
     let rowClass='';
@@ -569,16 +571,16 @@ function renderPlan(m){
     const tr=document.createElement('tr');
     tr.className=rowClass;
     tr.innerHTML=`
-      <td><span style="font-family:var(--mono);font-size:11px;color:var(--t3)">${i+1}</span></td>
-      <td><span style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--pink)">${row.mix_code||'—'}</span></td>
-      <td style="text-align:center"><span style="font-family:var(--mono);font-size:14px;font-weight:800;color:var(--cyan)">${row.process_order||'—'}</span></td>
-      <td><span style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--blue2)">${row.mix_name||'—'}</span></td>
-      <td><span style="font-size:12px;font-weight:600;color:var(--text)">${row.product_name||'—'}</span></td>
-      <td><span style="font-family:var(--mono);font-size:12px;color:var(--t2)">Batch ${row.batch_no||'—'}</span></td>
-      <td><span style="font-family:var(--mono);font-size:12px;color:var(--cyan);white-space:nowrap">${(+(row.volume_liter||0)).toLocaleString()} L</span></td>
-      <td><span style="font-family:var(--mono);font-size:12px;color:var(--purple)">${row.rework_kg||'—'} kg</span></td>
-      <td><span style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--cyan);background:rgba(6,182,212,.1);padding:3px 10px;border-radius:6px;border:1px solid rgba(6,182,212,.25)">${row.aging_tank||'—'}</span></td>
-      <td><span style="font-family:var(--mono);font-size:12px;color:var(--yellow)">${curingEnd}</span></td>
+      <td><span style="font-family:var(--mono);font-size:14px;color:var(--t3)">${i+1}</span></td>
+      <td><span style="font-family:var(--mono);font-size:16px;font-weight:700;color:var(--mint2)">${row.mix_code||'—'}</span></td>
+      <td style="text-align:center"><span style="font-family:var(--mono);font-size:17px;font-weight:800;color:var(--mint2)">${row.process_order||'—'}</span></td>
+      <td><span style="font-family:var(--mono);font-size:16px;font-weight:700;color:var(--text)">${row.mix_name||'—'}</span></td>
+      <td><span style="font-size:15px;font-weight:600;color:var(--text)">${row.product_name||'—'}</span></td>
+      <td><span style="font-family:var(--mono);font-size:15px;color:var(--t2)">Batch ${row.batch_no||'—'}</span></td>
+      <td><span style="font-family:var(--mono);font-size:15px;color:var(--cyan);white-space:nowrap">${(+(row.volume_liter||0)).toLocaleString()} L</span></td>
+      <td><span style="font-family:var(--mono);font-size:15px;color:var(--purple)">${row.rework_kg||'—'} kg</span></td>
+      <td><span style="font-family:var(--mono);font-size:16px;font-weight:700;color:var(--cyan);background:rgba(45,212,168,.1);padding:3px 10px;border-radius:6px;border:1px solid rgba(45,212,168,.25)">${row.aging_tank||'—'}</span></td>
+      <td><span style="font-family:var(--mono);font-size:15px;color:var(--yellow)">${curingEnd}</span></td>
       <td class="flv-cell"><div class="flv-wrap">${flvBox(col,row.id,'flavor',row,p)}</div></td>
       <td class="flv-cell"><div class="flv-wrap">${flvBox(col,row.id,'color',row,p)}</div></td>
       <td class="flv-cell"><div class="flv-wrap">${flvBox(col,row.id,'acid',row,p)}</div></td>
@@ -592,7 +594,7 @@ function renderPlan(m){
       </td>
       <td><span class="stat-badge" style="color:${statC};background:${statC}22;border:1px solid ${statC}44">${statTxt}</span></td>
       <td>
-        <input class="ci" style="width:110px;font-size:11px" value="${row.flavor_note||''}"
+        <input class="ci" style="width:110px;font-size:14px" value="${row.flavor_note||''}"
           placeholder="หมายเหตุ"
           onchange="_up('${col}','${row.id}','flavor_note',this.value)">
       </td>
@@ -600,11 +602,11 @@ function renderPlan(m){
         ${row.signature_url
           ?`<div style="display:flex;flex-direction:column;align-items:center;gap:3px">
               <img src="${row.signature_url}" style="height:36px;max-width:100px;border-radius:4px;border:1px solid var(--b2);background:#fff;padding:2px">
-              <span style="font-family:var(--mono);font-size:10px;color:var(--cyan);font-weight:700">${row.signature_name||''}</span>
-              <span style="font-family:var(--mono);font-size:9px;color:var(--t2)">${row.signature_time||''}</span>
-              <button style="font-size:9px;padding:2px 6px;border-radius:4px;border:1px solid var(--b2);background:none;color:var(--t2);cursor:pointer" onclick="signRow('${col}','${row.id}')">🖊️ แก้ไข</button>
+              <span style="font-family:var(--mono);font-size:13px;color:var(--cyan);font-weight:700">${row.signature_name||''}</span>
+              <span style="font-family:var(--mono);font-size:12px;color:var(--t2)">${row.signature_time||''}</span>
+              <button style="font-size:12px;padding:2px 6px;border-radius:4px;border:1px solid var(--b2);background:none;color:var(--t2);cursor:pointer" onclick="signRow('${col}','${row.id}')">🖊️ แก้ไข</button>
             </div>`
-          :`<button style="font-size:13px;padding:8px 14px;border-radius:8px;border:1px dashed rgba(6,182,212,.4);background:rgba(6,182,212,.06);color:var(--cyan);cursor:pointer;width:100%" onclick="signRow('${col}','${row.id}')">🖊️ เซ็นชื่อ</button>`
+          :`<button style="font-size:16px;padding:8px 14px;border-radius:8px;border:1px dashed rgba(45,212,168,.4);background:rgba(45,212,168,.06);color:var(--cyan);cursor:pointer;width:100%" onclick="signRow('${col}','${row.id}')">🖊️ เซ็นชื่อ</button>`
         }
       </td>
       <td>
@@ -627,12 +629,12 @@ window.loadHistory=async()=>{
     const items=snap.docs.map(d=>d.data()).sort((a,b)=>(a.completed_at||'').localeCompare(b.completed_at||''));
     if(!items.length){list.innerHTML=`<div style="color:var(--t3);font-family:var(--mono);padding:20px;text-align:center">ไม่มีข้อมูล</div>`;return;}
     list.innerHTML=items.map(r=>`<div class="hist-item">
-      <span style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--pink)">${r.mix_code||'—'}</span>
-      <span style="font-family:var(--mono);font-size:12px;color:var(--blue2)">${r.mix_name||'—'}</span>
-      <span style="font-family:var(--mono);font-size:11px;color:var(--t2)">Batch ${r.batch_no||'—'}</span>
-      <span style="font-family:var(--mono);font-size:11px;color:var(--cyan)">${(+(r.volume_liter||0)).toLocaleString()} L</span>
-      <span style="font-family:var(--mono);font-size:11px;color:var(--cyan)">🪣 ${r.aging_tank||'—'}</span>
-      <span style="font-family:var(--mono);font-size:11px;color:var(--green);margin-left:auto">✅ ${r.completed_at||'—'}</span>
+      <span style="font-family:var(--mono);font-size:16px;font-weight:700;color:var(--text)">${r.mix_code||'—'}</span>
+      <span style="font-family:var(--mono);font-size:15px;color:var(--blue2)">${r.mix_name||'—'}</span>
+      <span style="font-family:var(--mono);font-size:14px;color:var(--t2)">Batch ${r.batch_no||'—'}</span>
+      <span style="font-family:var(--mono);font-size:14px;color:var(--cyan)">${(+(r.volume_liter||0)).toLocaleString()} L</span>
+      <span style="font-family:var(--mono);font-size:14px;color:var(--cyan)">🪣 ${r.aging_tank||'—'}</span>
+      <span style="font-family:var(--mono);font-size:14px;color:var(--green);margin-left:auto">✅ ${r.completed_at||'—'}</span>
     </div>`).join('');
   }catch(e){list.innerHTML=`<div style="color:var(--red);font-family:var(--mono);padding:20px">${e.message}</div>`;}
 };
@@ -723,46 +725,46 @@ window.loadReport=async()=>{
     list.innerHTML=allRows.map(row=>`
       <div style="background:var(--s1);border:1px solid var(--b1);border-radius:12px;padding:14px 16px;margin-bottom:12px">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap">
-          <span style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--pink)">${row.mix_code||'—'}</span>
-          <span style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--blue2)">${row.mix_name||'—'}</span>
-          <span style="font-family:var(--mono);font-size:11px;color:var(--t2)">Batch ${row.batch_no||'—'}</span>
-          <span style="font-family:var(--mono);font-size:11px;padding:2px 8px;border-radius:5px;background:var(--s3);color:var(--t3)">${row._col==='production_plans'?'M1':'M2'}</span>
+          <span style="font-family:var(--mono);font-size:16px;font-weight:700;color:var(--text)">${row.mix_code||'—'}</span>
+          <span style="font-family:var(--mono);font-size:16px;font-weight:700;color:var(--text)">${row.mix_name||'—'}</span>
+          <span style="font-family:var(--mono);font-size:14px;color:var(--t2)">Batch ${row.batch_no||'—'}</span>
+          <span style="font-family:var(--mono);font-size:14px;padding:2px 8px;border-radius:5px;background:var(--s3);color:var(--t3)">${row._col==='production_plans'?'M1':'M2'}</span>
         </div>
-        <table style="width:100%;border-collapse:collapse;font-size:12px">
+        <table style="width:100%;border-collapse:collapse;font-size:15px">
           <thead><tr>
-            <th style="text-align:left;padding:5px 8px;background:var(--s2);font-family:var(--mono);font-size:10px;color:var(--t2);border:1px solid var(--b1)">Action</th>
-            <th style="text-align:left;padding:5px 8px;background:var(--s2);font-family:var(--mono);font-size:10px;color:var(--t2);border:1px solid var(--b1)">ผู้ดำเนินการ</th>
-            <th style="text-align:left;padding:5px 8px;background:var(--s2);font-family:var(--mono);font-size:10px;color:var(--t2);border:1px solid var(--b1)">สถานะ</th>
+            <th style="text-align:left;padding:5px 8px;background:var(--s2);font-family:var(--mono);font-size:13px;color:var(--t2);border:1px solid var(--b1)">Action</th>
+            <th style="text-align:left;padding:5px 8px;background:var(--s2);font-family:var(--mono);font-size:13px;color:var(--t2);border:1px solid var(--b1)">ผู้ดำเนินการ</th>
+            <th style="text-align:left;padding:5px 8px;background:var(--s2);font-family:var(--mono);font-size:13px;color:var(--t2);border:1px solid var(--b1)">สถานะ</th>
           </tr></thead>
           <tbody>
             ${actions.map(a=>{
               if(a.isSig){
                 return `<tr>
-                  <td style="padding:6px 8px;border:1px solid var(--b1);font-family:var(--mono);font-size:11px">${a.label}</td>
+                  <td style="padding:6px 8px;border:1px solid var(--b1);font-family:var(--mono);font-size:14px">${a.label}</td>
                   <td style="padding:6px 8px;border:1px solid var(--b1)">
                     ${row.signature_url?`<div style="display:flex;align-items:center;gap:8px">
                       <img src="${row.signature_url}" style="height:28px;border-radius:3px;border:1px solid var(--b2);background:#fff;padding:2px">
-                      <span style="font-family:var(--mono);font-size:11px;color:var(--cyan)">${row.signature_name||'—'}</span>
-                    </div>`:'<span style="color:var(--t3);font-family:var(--mono);font-size:11px">ยังไม่ได้เซ็น</span>'}
+                      <span style="font-family:var(--mono);font-size:14px;color:var(--cyan)">${row.signature_name||'—'}</span>
+                    </div>`:'<span style="color:var(--t3);font-family:var(--mono);font-size:14px">ยังไม่ได้เซ็น</span>'}
                   </td>
                   <td style="padding:6px 8px;border:1px solid var(--b1)">
-                    <span style="font-family:var(--mono);font-size:11px;color:${row.signature_time?'var(--green)':'var(--t3)'}">${row.signature_time||'—'}</span>
+                    <span style="font-family:var(--mono);font-size:14px;color:${row.signature_time?'var(--green)':'var(--t3)'}">${row.signature_time||'—'}</span>
                   </td>
                 </tr>`;
               }
               if(a.isTime){
                 return `<tr>
-                  <td style="padding:6px 8px;border:1px solid var(--b1);font-family:var(--mono);font-size:11px">${a.label}</td>
-                  <td style="padding:6px 8px;border:1px solid var(--b1);font-family:var(--mono);font-size:11px;color:var(--cyan)">${row[a.key]||'—'}</td>
+                  <td style="padding:6px 8px;border:1px solid var(--b1);font-family:var(--mono);font-size:14px">${a.label}</td>
+                  <td style="padding:6px 8px;border:1px solid var(--b1);font-family:var(--mono);font-size:14px;color:var(--cyan)">${row[a.key]||'—'}</td>
                   <td style="padding:6px 8px;border:1px solid var(--b1)"></td>
                 </tr>`;
               }
               const done=!!row[a.key];
               const by=row[a.key+'_by']||'—';
-              return `<tr style="background:${done?'rgba(34,197,94,.05)':''}">
-                <td style="padding:6px 8px;border:1px solid var(--b1);font-family:var(--mono);font-size:11px">${a.label}</td>
-                <td style="padding:6px 8px;border:1px solid var(--b1);font-family:var(--mono);font-size:11px;color:${done?'var(--green)':'var(--t3)'}">${done?by:'—'}</td>
-                <td style="padding:6px 8px;border:1px solid var(--b1);text-align:center">${done?'<span style="color:var(--green);font-size:14px">✅</span>':'<span style="color:var(--t3);font-size:12px">○</span>'}</td>
+              return `<tr style="background:${done?'rgba(45,212,168,.05)':''}">
+                <td style="padding:6px 8px;border:1px solid var(--b1);font-family:var(--mono);font-size:14px">${a.label}</td>
+                <td style="padding:6px 8px;border:1px solid var(--b1);font-family:var(--mono);font-size:14px;color:${done?'var(--green)':'var(--t3)'}">${done?by:'—'}</td>
+                <td style="padding:6px 8px;border:1px solid var(--b1);text-align:center">${done?'<span style="color:var(--green);font-size:17px">✅</span>':'<span style="color:var(--t3);font-size:15px">○</span>'}</td>
               </tr>`;
             }).join('')}
           </tbody>
@@ -862,7 +864,7 @@ function initCanvas(){
   const ctx=canvas.getContext('2d');
   ctx.clearRect(0,0,canvas.width,canvas.height);
   ctx.strokeStyle='#ffffff';
-  ctx.shadowColor='#60a5fa';
+  ctx.shadowColor='#2dd4a8';
   ctx.shadowBlur=6;
   ctx.lineWidth=2.5;
   ctx.lineCap='round';
