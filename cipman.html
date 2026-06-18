@@ -287,7 +287,7 @@ main{position:relative;z-index:1;padding:10px 12px;}
 @keyframes flowShine{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
 @keyframes runningGlow{0%,100%{box-shadow:0 0 0 0 var(--glow,rgba(59,130,246,.5)),0 4px 20px rgba(0,0,0,.08)}50%{box-shadow:0 0 0 4px var(--glow,rgba(59,130,246,.15)),0 4px 20px rgba(0,0,0,.08)}}
 </style>
-<!-- v20260618-freezerimg -->
+<!-- v20260618-freezerbig -->
 </head>
 <body>
 
@@ -1030,8 +1030,8 @@ function calcVol(row){
     <!-- BODY -->
     <div style="display:flex;flex-direction:column;gap:0">
 
-      <!-- แถว 1: ถัง + flow diagram ใหญ่ชัด -->
-      <div style="padding:12px 16px;background:${isRunning?col+'0d':'#fff'};border-bottom:1.5px solid ${isRunning?col:'#e2e8f0'};display:flex;align-items:center;gap:10px;flex-wrap:wrap;${isRunning?'box-shadow:inset 0 0 0 2px '+col+'44':''}transition:all .3s">
+      <!-- แถว 1: ถัง + FREEZER ใหญ่เท่ากัน เคียงข้าง + PUMP/LINE เป็นจุดเชื่อมเล็ก -->
+      <div style="padding:12px 16px;background:${isRunning?col+'0d':'#fff'};border-bottom:1.5px solid ${isRunning?col:'#e2e8f0'};display:flex;align-items:center;gap:6px;flex-wrap:wrap;${isRunning?'box-shadow:inset 0 0 0 2px '+col+'44':''}transition:all .3s">
         <!-- ถังปัจจุบัน — ขนาดเท่า queue card -->
         <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:2px">
           <div style="font-family:var(--mono);font-size:18px;font-weight:900;color:#111827;background:#e2e8f0;border:2px solid #b0bac8;border-radius:8px;padding:5px 14px;margin-bottom:4px">${agingTank}</div>
@@ -1047,43 +1047,40 @@ function calcVol(row){
             <button style="padding:9px 12px;border-radius:9px;font-family:var(--mono);font-size:14px;font-weight:800;border:2px solid #fcd34d;background:#fef9c3;color:#92400e;cursor:pointer" onclick="resetLine('${line.id}')">↺</button>
           </div>
         </div>
-        <!-- Flow line -->
-        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;min-width:180px">
-          <div style="width:100%;display:flex;align-items:center;gap:6px">
-            <div style="flex:1;height:${isRunning?4:3}px;background:${isRunning?col:'#e2e8f0'};border-radius:2px;transition:all .3s"></div>
-            <!-- PUMP -->
-            <div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0">
-              <div style="width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .3s;position:relative;${isRunning?'border:3px solid #2563eb;background:#dbeafe;animation:pumpSpin .8s linear infinite,cipPumpPulse 1.2s ease-in-out infinite':'border:2.5px solid #b0bac8;background:#f1f5f9'}">
-                <span style="font-size:44px">⚙️</span>
-                ${isRunning?'<div style="position:absolute;bottom:-4px;right:-4px;width:20px;height:20px;border-radius:50%;background:#2563eb;border:2.5px solid #fff;display:flex;align-items:center;justify-content:center"><div style="width:7px;height:7px;border-radius:50%;background:#fff;animation:blink .6s ease-in-out infinite"></div></div>':''}
-              </div>
-              <div style="font-family:var(--mono);font-size:16px;font-weight:900;color:${isRunning?'#1e40af':'#111827'}">PUMP</div>
-              <div style="font-family:var(--mono);font-size:16px;font-weight:900;color:${isRunning?'#fff':'#111827'};background:${isRunning?'#2563eb':'#f1f5f9'};border:1.5px solid ${isRunning?'#2563eb':'#e2e8f0'};border-radius:8px;padding:5px 12px">${fr} L/hr</div>
-            </div>
-            <div style="flex:1;height:${isRunning?4:3}px;background:${isRunning?col:'#e2e8f0'};border-radius:2px;transition:all .3s"></div>
-            <!-- FREEZER -->
-            <div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0">
-              <div style="width:58px;height:54px;border-radius:12px;background:${isRunning?col+'33':'#f1f5f9'};border:${isRunning?'3px solid '+col:'2px solid #cbd5e1'};display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;${isRunning?'box-shadow:0 0 12px '+col+'66':''}">
-                <img src="${FREEZER_IMG_B64}" style="width:100%;height:100%;object-fit:cover;border-radius:10px;${isRunning?'':'filter:saturate(.6) brightness(.92)'}" alt="freezer">
-                ${isRunning?`
-                <div style="position:absolute;bottom:2px;left:14px;width:8px;height:8px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.95),rgba(255,255,255,0));animation:frostMist 2.6s ease-out infinite;pointer-events:none"></div>
-                <div style="position:absolute;bottom:2px;left:28px;width:7px;height:7px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.9),rgba(255,255,255,0));animation:frostMist2 3.1s ease-out infinite .6s;pointer-events:none"></div>
-                <div style="position:absolute;bottom:2px;left:40px;width:6px;height:6px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.85),rgba(255,255,255,0));animation:frostMist 2.9s ease-out infinite 1.2s;pointer-events:none"></div>
-                `:''}
-              </div>
-              <div style="font-family:var(--mono);font-size:16px;font-weight:900;color:${isRunning?col:'#111827'}">FREEZER</div>
-              <div style="font-family:var(--mono);font-size:12px;font-weight:900;color:#111827;background:${isRunning?col+'22':'#f1f5f9'};border:1.5px solid ${isRunning?col:'#e2e8f0'};border-radius:6px;padding:2px 8px">${(lineStates[line.id]||{}).fz_A||'—'}</div>
-            </div>
-            <div style="flex:1;height:${isRunning?4:3}px;background:${isRunning?col:'#e2e8f0'};border-radius:2px;transition:all .3s"></div>
-            <!-- LINE -->
-            <div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0">
-              <div style="width:58px;height:54px;border-radius:12px;background:${isRunning?col+'33':'#f1f5f9'};border:${isRunning?'3px solid '+col:'2px solid #cbd5e1'};display:flex;align-items:center;justify-content:center;${isRunning?'box-shadow:0 0 12px '+col+'66':''}">
-                <span style="font-size:26px">🏭</span>
-              </div>
-              <div style="font-family:var(--mono);font-size:11px;font-weight:900;color:${isRunning?col:'#111827'}">${line.name.toUpperCase()}</div>
-              <div style="font-family:var(--mono);font-size:10px;font-weight:700;color:#64748b;padding:2px 8px">Filling</div>
-            </div>
+
+        <!-- เส้นเชื่อม + PUMP (เล็ก ลอยกลางเส้น) -->
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;flex-shrink:0;padding:0 4px">
+          <div style="width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .3s;position:relative;${isRunning?'border:2.5px solid #2563eb;background:#dbeafe;animation:pumpSpin .8s linear infinite,cipPumpPulse 1.2s ease-in-out infinite':'border:2px solid #b0bac8;background:#f1f5f9'}">
+            <span style="font-size:26px">⚙️</span>
+            ${isRunning?'<div style="position:absolute;bottom:-2px;right:-2px;width:14px;height:14px;border-radius:50%;background:#2563eb;border:2px solid #fff;display:flex;align-items:center;justify-content:center"><div style="width:5px;height:5px;border-radius:50%;background:#fff;animation:blink .6s ease-in-out infinite"></div></div>':''}
           </div>
+          <div style="font-family:var(--mono);font-size:11px;font-weight:900;color:${isRunning?'#1e40af':'#6b7280'}">PUMP</div>
+          <div style="font-family:var(--mono);font-size:11px;font-weight:900;color:${isRunning?'#fff':'#111827'};background:${isRunning?'#2563eb':'#f1f5f9'};border:1.5px solid ${isRunning?'#2563eb':'#e2e8f0'};border-radius:6px;padding:2px 8px;white-space:nowrap">${fr} L/hr</div>
+          <div style="width:36px;height:${isRunning?4:3}px;background:${isRunning?col:'#e2e8f0'};border-radius:2px;transition:all .3s;margin-top:4px"></div>
+        </div>
+
+        <!-- FREEZER — ใหญ่เท่าถัง เห็นเต็มตัว -->
+        <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:2px">
+          <div style="font-family:var(--mono);font-size:15px;font-weight:900;color:${isRunning?col:'#111827'};background:${isRunning?col+'15':'#e2e8f0'};border:2px solid ${isRunning?col:'#b0bac8'};border-radius:8px;padding:5px 14px;margin-bottom:4px">❄️ FREEZER</div>
+          <div style="width:150px;height:200px;border-radius:18px;background:${isRunning?col+'12':'#f1f5f9'};border:${isRunning?'3px solid '+col:'2.5px solid #cbd5e1'};display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;${isRunning?'box-shadow:0 0 18px '+col+'55':''}">
+            <img src="${FREEZER_IMG_B64}" style="width:100%;height:100%;object-fit:cover;${isRunning?'':'filter:saturate(.6) brightness(.92)'}" alt="freezer">
+            ${isRunning?`
+            <div style="position:absolute;bottom:6px;left:40px;width:14px;height:14px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.95),rgba(255,255,255,0));animation:frostMist 2.6s ease-out infinite;pointer-events:none"></div>
+            <div style="position:absolute;bottom:6px;left:75px;width:12px;height:12px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.9),rgba(255,255,255,0));animation:frostMist2 3.1s ease-out infinite .6s;pointer-events:none"></div>
+            <div style="position:absolute;bottom:6px;left:105px;width:10px;height:10px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.85),rgba(255,255,255,0));animation:frostMist 2.9s ease-out infinite 1.2s;pointer-events:none"></div>
+            `:''}
+          </div>
+          <div style="font-family:var(--mono);font-size:13px;font-weight:900;color:#111827;background:${isRunning?col+'22':'#f1f5f9'};border:1.5px solid ${isRunning?col:'#e2e8f0'};border-radius:6px;padding:2px 10px;margin-top:4px">${(lineStates[line.id]||{}).fz_A||'—'}</div>
+        </div>
+
+        <!-- เส้นเชื่อม + LINE (เล็ก) -->
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;flex-shrink:0;padding:0 4px;flex:1;min-width:60px">
+          <div style="width:36px;height:${isRunning?4:3}px;background:${isRunning?col:'#e2e8f0'};border-radius:2px;transition:all .3s;margin-bottom:4px"></div>
+          <div style="width:58px;height:54px;border-radius:12px;background:${isRunning?col+'33':'#f1f5f9'};border:${isRunning?'3px solid '+col:'2px solid #cbd5e1'};display:flex;align-items:center;justify-content:center;${isRunning?'box-shadow:0 0 12px '+col+'66':''}">
+            <span style="font-size:26px">🏭</span>
+          </div>
+          <div style="font-family:var(--mono);font-size:11px;font-weight:900;color:${isRunning?col:'#111827'}">${line.name.toUpperCase()}</div>
+          <div style="font-family:var(--mono);font-size:10px;font-weight:700;color:#64748b;padding:2px 8px">Filling</div>
         </div>
       </div>
 
