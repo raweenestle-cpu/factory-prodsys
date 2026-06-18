@@ -287,7 +287,7 @@ main{position:relative;z-index:1;padding:10px 12px;}
 @keyframes flowShine{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
 @keyframes runningGlow{0%,100%{box-shadow:0 0 0 0 var(--glow,rgba(59,130,246,.5)),0 4px 20px rgba(0,0,0,.08)}50%{box-shadow:0 0 0 4px var(--glow,rgba(59,130,246,.15)),0 4px 20px rgba(0,0,0,.08)}}
 </style>
-<!-- v20260618-noseam -->
+<!-- v20260619-debugtool -->
 </head>
 <body>
 
@@ -298,6 +298,7 @@ main{position:relative;z-index:1;padding:10px 12px;}
   <button class="ntab" onclick="showPage('twin',this)">🏭 Twin</button>
   <button class="ntab" onclick="showPage('queue',this)">📋 คิวถัง</button>
   <div class="nav-r">
+    <button id="btn-debug-tank" class="manage-btn" style="background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.35);color:#dc2626" onclick="debugTank()" title="ตรวจสอบข้อมูลดิบของถัง (ชั่วคราว)">🔍</button>
     <button id="btn-manage" class="manage-btn" onclick="openManage()">⚙️</button>
     <a href="index.html" style="font-size:14px;padding:9px 14px;border-radius:8px;border:1.5px solid var(--b2);background:none;color:var(--t2);cursor:pointer;text-decoration:none;white-space:nowrap">🏠</a>
     <button class="btn-logout" onclick="doLogout()">ออก</button>
@@ -553,12 +554,14 @@ window._planRows=planRows;
 // HELPERS
 function getTanksForLine(lineName){
   // ── Single source of truth: aging_tank_states ──
-  const SHOW_STATUS=['pasteurising','past_done','ready','aging','filling','san_done'];
+  // หมายเหตุ: ตัด 'pasteurising' ออกโดยตั้งใจ — ถังที่ยังอยู่ขั้นตอนพาสเจอร์ไรซ์
+  // ไม่ควรถูกเลือกเป็น "ถังปัจจุบัน" ของ Line จนกว่าจะบ่มเสร็จ/พร้อมเดินจริง
+  const SHOW_STATUS=['past_done','ready','aging','filling','san_done'];
   const _lnLower=(lineName||'').toLowerCase().trim();
   const agTanks=Object.values(agingStates).filter(ts=>{
     if(!ts.id) return false;
     if(!SHOW_STATUS.includes(ts.status||'')) return false;
-    if(ts.status!=='pasteurising'&&+(ts.current_vol||0)<=0) return false;
+    if(+(ts.current_vol||0)<=0) return false;
     return planRows.some(r=>r.aging_tank===ts.id&&(r.filling_line||'').toLowerCase().trim()===_lnLower);
   });
 
@@ -1357,6 +1360,54 @@ function renderManageList(){
   const pl=$('pp-list');if(pl)pl.innerHTML=pipes.map((p,i)=>'<div class="mlist-item"><span>🔧</span><span class="mlist-name">'+p+'</span><button class="mdel" onclick="delPipe('+i+')">✕</button></div>').join('');
 }
 window.openManage=()=>{renderManageList();$('m-manage').classList.add('show');};
+
+// ── DEBUG TOOL ชั่วคราว: ตรวจสอบข้อมูลดิบของถัง เพื่อหาสาเหตุที่ถังโผล่ผิด LINE ──
+window.debugTank=()=>{
+  const tankId=(prompt('ใส่เลขถังที่ต้องการตรวจสอบ (เช่น T02):')||'').trim().toUpperCase();
+  if(!tankId)return;
+
+  let report=`═══ DEBUG ถัง ${tankId} ═══\n\n`;
+
+  // 1) ข้อมูลจาก aging_tank_states (single source of truth ของสถานะถัง)
+  const ats=agingStates[tankId];
+  report+=`📦 aging_tank_states['${tankId}']:\n`;
+  report+=ats?JSON.stringify(ats,null,2):'— ไม่พบ —';
+  report+='\n\n';
+
+  // 2) ทุก row ใน planRows (รวม production_plans + production_plans_m2) ที่ aging_tank ตรงกับถังนี้
+  const matchRows=planRows.filter(r=>r.aging_tank===tankId);
+  report+=`📋 production_plans ที่ aging_tank='${tankId}' (พบ ${matchRows.length} แถว):\n`;
+  if(!matchRows.length){
+    report+='— ไม่พบแถวใดเลยใน production_plans/production_plans_m2 —\n';
+  }else{
+    matchRows.forEach((r,i)=>{
+      report+=`\n[แถวที่ ${i+1}] _col=${r._col} | id=${r.id}\n`;
+      report+=`  filling_line = "${r.filling_line||'(ว่าง)'}"\n`;
+      report+=`  mix_code = ${r.mix_code||'—'} | mix_name = ${r.mix_name||'—'}\n`;
+      report+=`  status = ${r.status||'—'} | batch_no = ${r.batch_no||'—'}\n`;
+      report+=`  process_order = ${r.process_order||'—'} | date = ${r.date||'—'}\n`;
+    });
+  }
+  report+='\n\n';
+
+  // 3) เช็คว่า Line ไหนบ้างที่ aging_tanks config มีถังนี้อยู่ (จาก lines collection)
+  const configLines=lines.filter(l=>(l.aging_tanks||[]).map(t=>String(t).trim().toUpperCase()).includes(tankId));
+  report+=`⚙️ LINE config (lines.aging_tanks) ที่มี '${tankId}':\n`;
+  report+=configLines.length?configLines.map(l=>`  - ${l.name} (id:${l.id})`).join('\n'):'— ไม่มี LINE ใดผูกถังนี้ไว้ใน config —';
+  report+='\n\n';
+
+  // 4) ผลการ match จริงของ getTanksForLine สำหรับทุก Line ที่มีอยู่
+  report+=`🎯 ผลการ match จริง (getTanksForLine) ต่อ LINE:\n`;
+  lines.forEach(line=>{
+    const tanks=getTanksForLine(line.name);
+    const found=tanks.find(t=>t.aging_tank===tankId);
+    if(found) report+=`  ⚠️ พบใน LINE "${line.name}" → tanks[${tanks.indexOf(found)}] (filling_line ของแถวนี้ = "${found.filling_line}")\n`;
+  });
+
+  console.log(report);
+  alert(report+'\n\n(รายละเอียดเต็มถูก log ไว้ใน Console ด้วย — กด F12 เพื่อดู/copy ได้ถ้าข้อความยาวเกิน)');
+};
+
 window.closeManage=()=>$('m-manage').classList.remove('show');
 window.addFreezer=async()=>{const v=$('fz-input').value.trim();if(!v||freezers.includes(v)){toast('มีอยู่แล้ว','red');return;}await setDoc(doc(db,'cip_settings','freezers'),{list:[...freezers,v]});$('fz-input').value='';toast('เพิ่ม '+v,'green');};
 window.delFreezer=async(i)=>{if(!confirm('ลบ '+freezers[i]+'?'))return;await setDoc(doc(db,'cip_settings','freezers'),{list:freezers.filter((_,j)=>j!==i)});};
