@@ -287,7 +287,7 @@ main{position:relative;z-index:1;padding:10px 12px;}
 @keyframes flowShine{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
 @keyframes runningGlow{0%,100%{box-shadow:0 0 0 0 var(--glow,rgba(59,130,246,.5)),0 4px 20px rgba(0,0,0,.08)}50%{box-shadow:0 0 0 4px var(--glow,rgba(59,130,246,.15)),0 4px 20px rgba(0,0,0,.08)}}
 </style>
-<!-- v20260619-debugtool2 -->
+<!-- v20260619-rootfix -->
 </head>
 <body>
 
@@ -559,15 +559,30 @@ function getTanksForLine(lineName){
   // ไม่ควรถูกเลือกเป็น "ถังปัจจุบัน" ของ Line จนกว่าจะบ่มเสร็จ/พร้อมเดินจริง
   const SHOW_STATUS=['past_done','ready','aging','filling','san_done'];
   const _lnLower=(lineName||'').toLowerCase().trim();
+
+  // หา production_plans row ที่ "ตรงกับ batch ปัจจุบันจริงๆ" ของถังนั้น
+  // ใช้ mix_code จาก aging_tank_states (ปัจจุบัน) ร่วมกับ aging_tank และไม่เอา row ที่จบงานแล้ว (sent_filling)
+  // ป้องกันไม่ให้ document เก่าที่บังเอิญมี aging_tank ตรงกัน (จาก batch ก่อนหน้าที่เลิกใช้ถังนี้ไปแล้ว) ถูกดึงมาปน
+  const findCurrentPlanRow=(tankId)=>{
+    const ts=agingStates[tankId];
+    const curMixCode=ts&&ts.mix_code;
+    let candidates=planRows.filter(r=>r.aging_tank===tankId&&r.status!=='sent_filling');
+    if(curMixCode){
+      const exact=candidates.filter(r=>r.mix_code===curMixCode);
+      if(exact.length) candidates=exact; // ถ้าเจอที่ mix_code ตรงกับปัจจุบัน ใช้เฉพาะกลุ่มนี้
+    }
+    return candidates;
+  };
+
   const agTanks=Object.values(agingStates).filter(ts=>{
     if(!ts.id) return false;
     if(!SHOW_STATUS.includes(ts.status||'')) return false;
     if(+(ts.current_vol||0)<=0) return false;
-    return planRows.some(r=>r.aging_tank===ts.id&&(r.filling_line||'').toLowerCase().trim()===_lnLower);
+    return findCurrentPlanRow(ts.id).some(r=>(r.filling_line||'').toLowerCase().trim()===_lnLower);
   });
 
   const raw=agTanks.map(ts=>{
-    const planRow=planRows.find(r=>r.aging_tank===ts.id&&(r.filling_line||'').toLowerCase().trim()===_lnLower);
+    const planRow=findCurrentPlanRow(ts.id).find(r=>(r.filling_line||'').toLowerCase().trim()===_lnLower);
     if(!planRow) return null;
     return {...planRow, status:ts.status||planRow.status, current_vol:ts.current_vol??planRow.current_vol, mix_code:ts.mix_code||planRow.mix_code, mix_name:ts.mix_name||planRow.mix_name};
   }).filter(Boolean)
