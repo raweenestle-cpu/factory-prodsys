@@ -287,7 +287,7 @@ main{position:relative;z-index:1;padding:10px 12px;}
 @keyframes flowShine{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
 @keyframes runningGlow{0%,100%{box-shadow:0 0 0 0 var(--glow,rgba(59,130,246,.5)),0 4px 20px rgba(0,0,0,.08)}50%{box-shadow:0 0 0 4px var(--glow,rgba(59,130,246,.15)),0 4px 20px rgba(0,0,0,.08)}}
 </style>
-<!-- v20260618-balanced -->
+<!-- v20260618-balanced2 -->
 </head>
 <body>
 
@@ -1033,9 +1033,10 @@ function calcVol(row){
     <div style="display:flex;flex-direction:column;gap:0">
 
       <!-- แถว 1: ถัง + FREEZER ใหญ่เท่ากัน เคียงข้าง + PUMP/LINE เป็นจุดเชื่อมเล็ก -->
-      <div style="padding:12px 16px;background:${isRunning?col+'0d':'#fff'};border-bottom:1.5px solid ${isRunning?col:'#e2e8f0'};display:flex;align-items:center;justify-content:center;gap:0;flex-wrap:wrap;${isRunning?'box-shadow:inset 0 0 0 2px '+col+'44':''}transition:all .3s">
-        <!-- ถังปัจจุบัน — ขนาดเท่า queue card -->
-        <div style="flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:2px;padding:0 14px">
+      <div style="padding:12px 24px;background:${isRunning?col+'0d':'#fff'};border-bottom:1.5px solid ${isRunning?col:'#e2e8f0'};transition:all .3s${isRunning?';box-shadow:inset 0 0 0 2px '+col+'44':''}">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;max-width:1100px;margin:0 auto">
+        <!-- ถังปัจจุบัน — ชิดซ้ายสุด -->
+        <div style="flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:2px">
           <div style="font-family:var(--mono);font-size:18px;font-weight:900;color:#111827;background:#e2e8f0;border:2px solid #b0bac8;border-radius:8px;padding:5px 14px;margin-bottom:4px">${agingTank}</div>
           <div style="position:relative;display:flex;justify-content:center">
             ${tankSVG('S'+line.id,pct,col,hasLiquid,current.status==='pasteurising'?'♨️':isRunning?'🔵':curing.done?'✅':'🌡️',current.status==='pasteurising'?'#fb923c':curing.done?'#4ade80':'#fde047',150,200,rem)}
@@ -1050,19 +1051,20 @@ function calcVol(row){
           </div>
         </div>
 
-        <!-- เส้นเชื่อม + PUMP -->
-        <div style="flex:0 0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:0 18px">
+        <!-- เส้นเชื่อม + PUMP — เส้นสีฟ้า-เขียวไหลตอน running -->
+        <div style="flex:1 1 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-width:90px;max-width:180px">
+          <div style="width:100%;height:5px;border-radius:3px;position:relative;overflow:hidden;background:${isRunning?'#0ea5e9':'#e2e8f0'};transition:all .3s">${isRunning?'<div style="position:absolute;inset:0;background:linear-gradient(90deg,transparent,#5eead4,transparent);animation:flowShine 1.1s linear infinite"></div>':''}</div>
           <div style="width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .3s;position:relative;${isRunning?'border:2.5px solid #2563eb;background:#dbeafe;animation:pumpSpin .8s linear infinite,cipPumpPulse 1.2s ease-in-out infinite':'border:2px solid #b0bac8;background:#f1f5f9'}">
             <span style="font-size:26px">⚙️</span>
             ${isRunning?'<div style="position:absolute;bottom:-2px;right:-2px;width:14px;height:14px;border-radius:50%;background:#2563eb;border:2px solid #fff;display:flex;align-items:center;justify-content:center"><div style="width:5px;height:5px;border-radius:50%;background:#fff;animation:blink .6s ease-in-out infinite"></div></div>':''}
           </div>
           <div style="font-family:var(--mono);font-size:11px;font-weight:900;color:${isRunning?'#1e40af':'#6b7280'}">PUMP</div>
           <div style="font-family:var(--mono);font-size:11px;font-weight:900;color:${isRunning?'#fff':'#111827'};background:${isRunning?'#2563eb':'#f1f5f9'};border:1.5px solid ${isRunning?'#2563eb':'#e2e8f0'};border-radius:6px;padding:2px 8px;white-space:nowrap">${fr} L/hr</div>
-          <div style="width:36px;height:${isRunning?4:3}px;background:${isRunning?col:'#e2e8f0'};border-radius:2px;transition:all .3s;margin-top:4px"></div>
+          <div style="width:100%;height:5px;border-radius:3px;position:relative;overflow:hidden;background:${isRunning?'#0ea5e9':'#e2e8f0'};margin-top:4px;transition:all .3s">${isRunning?'<div style="position:absolute;inset:0;background:linear-gradient(90deg,transparent,#5eead4,transparent);animation:flowShine 1.1s linear infinite"></div>':''}</div>
         </div>
 
         <!-- FREEZER — ใหญ่เท่าถัง เห็นเต็มตัว + ไอเย็นบางๆตอน running -->
-        <div style="flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:2px;padding:0 18px">
+        <div style="flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:2px">
           <div style="font-family:var(--mono);font-size:15px;font-weight:900;color:${isRunning?col:'#111827'}">FREEZER</div>
           <div style="position:relative;display:flex;justify-content:center">
             <img src="${FREEZER_IMG_B64}" style="height:200px;width:auto;display:block;${isRunning?'':'filter:saturate(.7) brightness(.95)'}" alt="freezer">
@@ -1074,16 +1076,21 @@ function calcVol(row){
           <div style="font-family:var(--mono);font-size:13px;font-weight:900;color:#111827;background:${isRunning?col+'22':'#f1f5f9'};border:1.5px solid ${isRunning?col:'#e2e8f0'};border-radius:6px;padding:2px 10px;margin-top:4px">${(lineStates[line.id]||{}).fz_A||'—'}</div>
         </div>
 
-        <!-- เส้นเชื่อม + LINE — ตัวเครื่องนิ่ง + สายพานเลื่อนวนลูปตอน running, ชื่อ Line ใหญ่ชัด -->
-        <div style="flex:0 0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:0 18px">
-          <div style="width:36px;height:${isRunning?4:3}px;background:${isRunning?col:'#e2e8f0'};border-radius:2px;transition:all .3s;margin-bottom:4px"></div>
+        <!-- เส้นเชื่อม + LINE — สีฟ้า-เขียวไหล, ตัวเครื่องนิ่ง + สายพานเลื่อนวนลูปตอน running, ชื่อ Line ใหญ่ชัด -->
+        <div style="flex:1 1 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-width:90px;max-width:180px">
+          <div style="width:100%;height:5px;border-radius:3px;position:relative;overflow:hidden;background:${isRunning?'#0ea5e9':'#e2e8f0'};margin-bottom:4px;transition:all .3s">${isRunning?'<div style="position:absolute;inset:0;background:linear-gradient(90deg,transparent,#5eead4,transparent);animation:flowShine 1.1s linear infinite"></div>':''}</div>
           <div style="font-family:var(--mono);font-size:22px;font-weight:900;color:${isRunning?col:'#111827'};letter-spacing:.03em">${line.name.toUpperCase()}</div>
+        </div>
+
+        <!-- LINE machine + belt — ชิดขวาสุด -->
+        <div style="flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:4px">
           <div style="display:flex;align-items:flex-end;gap:0">
             <img src="${MACHINE_IMG_B64}" style="height:200px;width:auto;display:block;${isRunning?'':'filter:saturate(.7) brightness(.95)'}" alt="line machine">
             <div style="height:110px;width:160px;overflow:hidden;background-image:url('${BELT_IMG_B64}');background-repeat:repeat-x;background-size:auto 110px;${isRunning?'animation:beltScroll .9s linear infinite':''};${isRunning?'':'filter:saturate(.7) brightness(.95)'}"></div>
           </div>
           <div style="font-family:var(--mono);font-size:12px;font-weight:700;color:#64748b;padding:2px 8px">Filling</div>
         </div>
+      </div>
       </div>
 
       <!-- แถว 2 (queue): Queue tanks แนวนอน ใหญ่ -->
