@@ -966,6 +966,20 @@ window.saveEditLine=async()=>{
   if(!id){toast("ไม่พบ LINE ID","red");return;}
   const agingRaw=$("el-aging").value;
   const agingTanks=agingRaw.split(',').map(t=>t.trim().toUpperCase()).filter(t=>t);
+
+  // ── ตรวจสอบถังซ้ำกับ Line อื่น — ห้ามบันทึกเด็ดขาดถ้าชน ──
+  const conflicts=[];
+  agingTanks.forEach(tank=>{
+    const owner=lines.find(l=>l.id!==id&&(l.aging_tanks||[]).map(t=>String(t).trim().toUpperCase()).includes(tank));
+    if(owner) conflicts.push({tank,ownerName:owner.name||owner.id});
+  });
+  if(conflicts.length){
+    const msg=conflicts.map(c=>`ถัง ${c.tank} ถูกใช้อยู่กับ LINE "${c.ownerName}" แล้ว`).join('\n');
+    toast(`บันทึกไม่ได้ — ถังซ้ำกับ LINE อื่น: ${conflicts.map(c=>c.tank).join(', ')}`,"red");
+    alert(`⚠️ ไม่สามารถบันทึกได้\n\n${msg}\n\nกรุณาไปลบถังนี้ออกจาก LINE เดิมก่อน แล้วจึงเพิ่มที่นี่`);
+    return;
+  }
+
   try{
     await updateDoc(doc(db,"lines",id),{
       name:$("el-name").value.trim(),
