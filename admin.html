@@ -104,6 +104,7 @@ tbody td{padding:7px 10px;vertical-align:middle}
 .modal-label{font-size:10px;color:var(--t3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
 .modal-actions{display:flex;gap:8px;margin-top:16px}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
 
@@ -313,6 +314,40 @@ tbody td{padding:7px 10px;vertical-align:middle}
     </div>
   </div>
 
+  <!-- Excel Uploader -->
+  <div class="sec" id="excel-upload-sec">
+    <div class="sec-title">📂 นำเข้าสเปคจาก Excel</div>
+    <div id="excel-dropzone" style="border:2px dashed var(--b1);border-radius:12px;padding:32px;text-align:center;cursor:pointer;transition:all .2s;background:var(--s1)"
+      ondragover="event.preventDefault();this.style.borderColor='var(--blue2)'"
+      ondragleave="this.style.borderColor='var(--b1)'"
+      ondrop="handleExcelDrop(event)"
+      onclick="document.getElementById('excel-file-input').click()">
+      <div style="font-size:32px;margin-bottom:8px">📊</div>
+      <div style="font-family:var(--mono);font-weight:700;color:var(--t2)">ลาก Excel มาวางที่นี่ หรือคลิกเพื่อเลือกไฟล์</div>
+      <div style="font-size:12px;color:var(--t3);margin-top:6px">รองรับ .xlsx, .xls — ต้องมีคอลัมน์ <b>mix_code</b> เป็นหลัก</div>
+    </div>
+    <input type="file" id="excel-file-input" accept=".xlsx,.xls" style="display:none" onchange="handleExcelFile(this.files[0])">
+
+    <!-- Preview table (ซ่อนไว้ก่อน) -->
+    <div id="excel-preview" style="display:none;margin-top:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div style="font-family:var(--mono);font-weight:700;color:var(--text)" id="excel-preview-title"></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-b" onclick="confirmExcelImport()">✅ ยืนยันอัปเดต Firestore</button>
+          <button class="btn" onclick="cancelExcelPreview()">✕ ยกเลิก</button>
+        </div>
+      </div>
+      <div class="tw" style="max-height:320px;overflow-y:auto">
+        <table id="excel-preview-table">
+          <thead id="excel-preview-thead"></thead>
+          <tbody id="excel-preview-tbody"></tbody>
+        </table>
+      </div>
+      <div style="font-size:12px;color:var(--t3);margin-top:6px">⚠️ จะอัปเดตเฉพาะ mix_code ที่พบใน Firestore เท่านั้น — mix_code ที่ไม่ตรงจะถูกข้ามไป</div>
+    </div>
+    <div id="excel-import-log" style="display:none;margin-top:10px;font-family:var(--mono);font-size:12px;color:var(--t2)"></div>
+  </div>
+
   <!-- Product List -->
   <div class="sec">
     <div class="sec-title">🧪 รายการผลิตภัณฑ์ทั้งหมด</div>
@@ -322,7 +357,7 @@ tbody td{padding:7px 10px;vertical-align:middle}
     <div class="tw">
       <table>
         <thead><tr>
-          <th style="white-space:nowrap">Mix Code</th><th style="white-space:nowrap">Mix Name</th><th style="white-space:nowrap">Density</th><th style="white-space:nowrap">Aging (hr)</th><th style="white-space:nowrap">Speed M1</th><th style="white-space:nowrap">Speed M2</th><th style="white-space:nowrap">Homo St.1</th><th style="white-space:nowrap">Homo St.2</th><th style="white-space:nowrap">Type</th><th style="white-space:nowrap">สีถัง</th><th style="white-space:nowrap">Flavor</th><th style="white-space:nowrap">Citric</th><th style="white-space:nowrap">Color</th><th style="white-space:nowrap">Salt</th><th style="white-space:nowrap">%Ts</th><th style="white-space:nowrap">%Fat</th><th style="white-space:nowrap">%Brix</th><th style="white-space:nowrap">%PH</th><th style="white-space:nowrap">จัดการ</th>
+          <th style="white-space:nowrap">Mix Code</th><th style="white-space:nowrap">Mix Name</th><th style="white-space:nowrap">Density</th><th style="white-space:nowrap">Aging (hr)</th><th style="white-space:nowrap">Speed M1</th><th style="white-space:nowrap">Speed M2</th><th style="white-space:nowrap">Homo St.1</th><th style="white-space:nowrap">Homo St.2</th><th style="white-space:nowrap">Type</th><th style="white-space:nowrap">สีถัง</th><th style="white-space:nowrap">Flavor</th><th style="white-space:nowrap">Citric</th><th style="white-space:nowrap">Color</th><th style="white-space:nowrap">Salt</th><th style="white-space:nowrap">%Ts</th><th style="white-space:nowrap">%Fat</th><th style="white-space:nowrap">%Brix</th><th style="white-space:nowrap">%PH</th><th style="white-space:nowrap">%Viscosity</th><th style="white-space:nowrap">จัดการ</th>
         </tr></thead>
         <tbody id="product-list"></tbody>
       </table>
@@ -421,6 +456,10 @@ tbody td{padding:7px 10px;vertical-align:middle}
         <div>
           <div style="font-family:var(--mono);font-size:10px;color:var(--t3);margin-bottom:3px">%PH</div>
           <input id="ep-ph" class="ci" style="width:100%" placeholder="เช่น 6.5 - 7.0">
+        </div>
+        <div style="grid-column:1/-1">
+          <div style="font-family:var(--mono);font-size:10px;color:var(--t3);margin-bottom:3px">%Viscosity</div>
+          <input id="ep-viscosity" class="ci" style="width:100%" placeholder="เช่น 500 - 800">
         </div>
       </div>
     </div>
@@ -639,6 +678,8 @@ onAuthStateChanged(auth,async user=>{
     if(role!=="admin"&&role!=="leadman"){window.location.href="index.html";return;}
   }catch{}
   $("nav-user").textContent=user.email.replace("@filling.local","");
+  // expose สำหรับ non-module script (Excel importer)
+  window._fbUpdateProduct=async(id,payload)=>updateDoc(doc(db,"products",id),payload);
   initListeners();
 });
 
@@ -1052,6 +1093,7 @@ function renderProducts(){
       <td style="font-family:var(--mono);white-space:nowrap;font-size:11px">${p.spec_fat||'—'}</td>
       <td style="font-family:var(--mono);white-space:nowrap;font-size:11px">${p.spec_brix||'—'}</td>
       <td style="font-family:var(--mono);white-space:nowrap;font-size:11px">${p.spec_ph||'—'}</td>
+      <td style="font-family:var(--mono);white-space:nowrap;font-size:11px">${p.spec_viscosity||'—'}</td>
       <td>
         <button class="edit-btn" onclick="openEditProduct('${p.id}')">✏️</button>
         <button class="db" onclick="deleteProduct('${p.id}','${p.mix_code}')">✕</button>
@@ -1118,6 +1160,7 @@ window.openEditProduct=(id)=>{
   if($("ep-fat"))$("ep-fat").value=p.spec_fat||"";
   if($("ep-brix"))$("ep-brix").value=p.spec_brix||"";
   if($("ep-ph"))$("ep-ph").value=p.spec_ph||"";
+  if($("ep-viscosity"))$("ep-viscosity").value=p.spec_viscosity||"";
   $("modal-product").classList.add("show");
 };
 
@@ -1145,6 +1188,7 @@ window.saveEditProduct=async()=>{
     spec_fat:$("ep-fat")?.value.trim()||"",
     spec_brix:$("ep-brix")?.value.trim()||"",
     spec_ph:$("ep-ph")?.value.trim()||"",
+    spec_viscosity:$("ep-viscosity")?.value.trim()||"",
   });
   closeModal("modal-product");
   toast("แก้ไขผลิตภัณฑ์แล้ว","green");
@@ -1325,5 +1369,129 @@ document.querySelectorAll('.modal-bg').forEach(bg=>{
 });
 </script>
 
+<script>
+// ── Excel Import for Product Specs ──────────────────────────────────────
+// field mapping: ชื่อ column ใน Excel → field name ใน Firestore
+const SPEC_FIELD_MAP = {
+  'mix_code':'mix_code','mixcode':'mix_code','mix code':'mix_code',
+  '%ts':'spec_ts','ts':'spec_ts','spec_ts':'spec_ts',
+  '%fat':'spec_fat','fat':'spec_fat','spec_fat':'spec_fat',
+  '%brix':'spec_brix','brix':'spec_brix','spec_brix':'spec_brix',
+  '%ph':'spec_ph','ph':'spec_ph','spec_ph':'spec_ph',
+  '%viscosity':'spec_viscosity','viscosity':'spec_viscosity','spec_viscosity':'spec_viscosity',
+};
+
+let _excelRows = []; // เก็บข้อมูลที่อ่านได้จาก Excel ไว้รอ confirm
+
+function handleExcelDrop(e){
+  e.preventDefault();
+  document.getElementById('excel-dropzone').style.borderColor='var(--b1)';
+  const file = e.dataTransfer.files[0];
+  if(file) handleExcelFile(file);
+}
+
+function handleExcelFile(file){
+  if(!file) return;
+  if(!window.XLSX){ alert('ยังโหลด SheetJS ไม่เสร็จ รอสักครู่แล้วลองใหม่'); return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const wb = XLSX.read(e.target.result, {type:'array'});
+      const ws = wb.Sheets[wb.SheetNames[0]]; // sheet แรก
+      const raw = XLSX.utils.sheet_to_json(ws, {defval:''});
+      if(!raw.length){ alert('ไม่พบข้อมูลใน sheet แรก'); return; }
+
+      // normalize headers
+      const mapped = raw.map(row => {
+        const out = {};
+        Object.entries(row).forEach(([k,v]) => {
+          const norm = k.trim().toLowerCase();
+          const field = SPEC_FIELD_MAP[norm];
+          if(field) out[field] = String(v).trim();
+        });
+        return out;
+      }).filter(r => r.mix_code); // เอาแค่แถวที่มี mix_code
+
+      if(!mapped.length){ alert('ไม่พบคอลัมน์ mix_code ใน Excel กรุณาตรวจสอบ header'); return; }
+
+      _excelRows = mapped;
+      showExcelPreview(mapped, file.name);
+    } catch(err) {
+      alert('อ่านไฟล์ไม่ได้: ' + err.message);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function showExcelPreview(rows, filename){
+  // กำหนด columns ที่จะแสดง (เฉพาะที่มีข้อมูลจริง)
+  const specFields = ['spec_ts','spec_fat','spec_brix','spec_ph','spec_viscosity'];
+  const presentFields = specFields.filter(f => rows.some(r => r[f] && r[f]!==''));
+  const displayFields = ['mix_code', ...presentFields];
+  const headerLabels = {mix_code:'Mix Code',spec_ts:'%Ts',spec_fat:'%Fat',spec_brix:'%Brix',spec_ph:'%PH',spec_viscosity:'%Viscosity'};
+
+  // ตรวจว่า mix_code ไหนมีใน Firestore
+  const known = new Set((window.productsAll||[]).map(p=>String(p.mix_code||'').toUpperCase()));
+  const found = rows.filter(r=>known.has(String(r.mix_code||'').toUpperCase()));
+  const notfound = rows.filter(r=>!known.has(String(r.mix_code||'').toUpperCase()));
+
+  document.getElementById('excel-preview-title').textContent =
+    `พบข้อมูล ${rows.length} แถว — จะอัปเดต ${found.length} รายการ (ข้าม ${notfound.length} ที่ไม่พบใน Firestore)`;
+
+  // สร้าง header
+  const thead = document.getElementById('excel-preview-thead');
+  thead.innerHTML = '<tr>' + displayFields.map(f=>`<th style="white-space:nowrap">${headerLabels[f]||f}</th>`).join('') + '<th>สถานะ</th></tr>';
+
+  // สร้าง tbody
+  const tbody = document.getElementById('excel-preview-tbody');
+  tbody.innerHTML = rows.map(r => {
+    const isFound = known.has(String(r.mix_code||'').toUpperCase());
+    const badge = isFound
+      ? '<span style="color:#16a34a;font-weight:700">✓ จะอัปเดต</span>'
+      : '<span style="color:#d1d5db">— ไม่พบ</span>';
+    const cells = displayFields.map(f=>`<td style="font-family:var(--mono);font-size:12px;opacity:${isFound?1:0.4}">${r[f]||'—'}</td>`).join('');
+    return `<tr>${cells}<td>${badge}</td></tr>`;
+  }).join('');
+
+  document.getElementById('excel-preview').style.display='block';
+  document.getElementById('excel-import-log').style.display='none';
+}
+
+async function confirmExcelImport(){
+  if(!_excelRows.length) return;
+  const known = new Map((window.productsAll||[]).map(p=>[String(p.mix_code||'').toUpperCase(), p.id]));
+  const toUpdate = _excelRows.filter(r=>known.has(String(r.mix_code||'').toUpperCase()));
+  if(!toUpdate.length){ alert('ไม่มีรายการที่ตรงกัน'); return; }
+  if(!confirm(`ยืนยันอัปเดต ${toUpdate.length} รายการใน Firestore?`)) return;
+
+  const log = document.getElementById('excel-import-log');
+  log.style.display='block';
+  log.textContent='⏳ กำลังอัปเดต...';
+
+  let ok=0, fail=0;
+  for(const row of toUpdate){
+    const id = known.get(String(row.mix_code||'').toUpperCase());
+    const payload = {};
+    ['spec_ts','spec_fat','spec_brix','spec_ph','spec_viscosity'].forEach(f=>{
+      if(row[f]!=null) payload[f]=row[f];
+    });
+    try{
+      // เรียก updateDoc ผ่าน global scope ที่ firebase module expose ไว้
+      await window._fbUpdateProduct(id, payload);
+      ok++;
+    } catch(e){ fail++; }
+  }
+
+  log.textContent = `✅ อัปเดตสำเร็จ ${ok} รายการ${fail?` | ❌ ล้มเหลว ${fail} รายการ`:''}`;
+  document.getElementById('excel-preview').style.display='none';
+  _excelRows=[];
+}
+
+function cancelExcelPreview(){
+  document.getElementById('excel-preview').style.display='none';
+  document.getElementById('excel-import-log').style.display='none';
+  _excelRows=[];
+}
+</script>
 </body>
 </html>
