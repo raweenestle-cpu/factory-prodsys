@@ -1,3 +1,4 @@
+<!-- build:20260619T214220Z -->
 <!-- build:20260611120100 -->
 <!DOCTYPE html>
 <!-- updated 2026-06-03 08:19:16 -->
@@ -495,9 +496,10 @@ onAuthStateChanged(auth,async user=>{
   ME=user;
   try{
     const snap=await getDocs(query(collection(db,'users'),where('uid','==',user.uid)));
-    ROLE=snap.empty?'cipman':(snap.docs[0].data().role||'cipman');
+    if(snap.empty)console.warn('[ROLE] ไม่พบ user doc สำหรับ uid:',user.uid,'→ fallback เป็น cipman');
+    ROLE=snap.empty?'cipman':String(snap.docs[0].data().role||'cipman').trim().toLowerCase();
     if(ROLE!=='cipman'&&ROLE!=='admin'&&ROLE!=='leadman'&&ROLE!=='operator'){window.location.href='index.html';return;}
-  }catch{ROLE='cipman';}
+  }catch(e){console.warn('[ROLE] error:',e);ROLE='cipman';}
   if(ROLE==='admin'||ROLE==='leadman') $('btn-manage').classList.add('show');
   if(ROLE==='admin'||ROLE==='leadman') $('btn-debug-tank').classList.add('show');
   await init();
