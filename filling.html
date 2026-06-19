@@ -1,3 +1,4 @@
+<!-- build:20260619T220732Z -->
 
 <!-- build:20260611120100 -->
 <!DOCTYPE html>
@@ -348,23 +349,29 @@ function _curingLabel(row,productMap){
 }
 
 function getTanks(name){
-  // ── Single source of truth: aging_tank_states ──
-  // กรองถังที่ filling_line ตรงกับ line นี้ และมี status ที่ควรแสดงใน filling
+  // ── Single source of truth สำหรับ "ถังนี้อยู่ Line ไหน": lines.aging_tanks (config จาก Admin) ──
+  // หมายเหตุ: ก่อนหน้านี้ใช้ production_plans.filling_line ในการจับคู่ ซึ่งพบว่า document เก่า
+  // ที่ค้างค่า filling_line ผิด/ไม่อัปเดต (เช่น batch ที่ sent_filling ไปแล้ว) ทำให้ถังจับคู่ผิด Line ได้
+  // เปลี่ยนมาเช็คจาก config ของ Line ตรงๆแทน เหมือน cipman.html/aging.html
+  // ส่วน production_plans ใช้แค่ดึงรายละเอียด batch (mix_code, mix_name ฯลฯ) มาแสดงประกอบเท่านั้น
   const FILL_STATUS = ['pasteurising','past_done','ready','aging','filling','san_done'];
-  const _fillLower=(name||'').toLowerCase().trim();
+  const thisLine = lineMap[name];
+  const lineTankSet = new Set((thisLine&&thisLine.aging_tanks||[]).map(t=>String(t).trim().toUpperCase()));
+  if(!lineTankSet.size) return [];
+
   const agTanks = Object.values(agingStates)
     .filter(ts=>{
       if(!ts.id) return false;
+      if(!lineTankSet.has(String(ts.id).trim().toUpperCase())) return false; // ต้องอยู่ใน config ของ Line นี้เท่านั้น
       if(!FILL_STATUS.includes(ts.status||'')) return false;
       if(+(ts.current_vol||0)<=0) return false;
-      const planRow = planRows.find(r=>r.aging_tank===ts.id&&(r.filling_line||'').toLowerCase().trim()===_fillLower);
-      return !!planRow;
+      return true;
     });
 
-  // join กับ planRows เพื่อเอา metadata
+  // join กับ planRows เพื่อเอา metadata (ไม่ใช้ filling_line ตัดสินใจ Line แล้ว — ดึงแถวล่าสุดที่ยังไม่จบงานของถังนี้)
   const raw = agTanks.map(ts=>{
-    const planRow = planRows.find(r=>r.aging_tank===ts.id&&r.filling_line===name&&
-      ['pasteurising','past_done','ready','aging','filling','san_done','sent_filling'].includes(r.status));
+    const candidates = planRows.filter(r=>r.aging_tank===ts.id&&r.status!=='sent_filling');
+    const planRow = candidates.sort((a,b)=>(b.date||'').localeCompare(a.date||''))[0]||null;
     if(!planRow) return null;
     // merge: ใช้ status จาก aging_tank_states เป็นหลัก
     return {...planRow, status:ts.status||planRow.status, current_vol:ts.current_vol??planRow.current_vol, mix_code:ts.mix_code||planRow.mix_code, mix_name:ts.mix_name||planRow.mix_name};
