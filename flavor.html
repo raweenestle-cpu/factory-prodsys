@@ -80,6 +80,8 @@ tbody tr:hover td{background:rgba(45,212,168,.06)!important}
 .row-mixing td:first-child{border-left:3px solid var(--yellow)!important}
 .row-done td{background:rgba(45,212,168,.08)!important}
 .row-done td:first-child{border-left:3px solid var(--pink)!important}
+.row-qc-passed td{background:rgba(45,212,168,.13)!important}
+.row-qc-passed td:first-child{border-left:4px solid var(--mint)!important;box-shadow:2px 0 8px rgba(45,212,168,.3)}
 
 /* INPUTS */
 .ci{background:var(--s2);border:1.5px solid rgba(45,212,168,.35);border-radius:8px;
@@ -121,6 +123,16 @@ tbody tr:hover td{background:rgba(45,212,168,.06)!important}
 .stamp-btn:hover{border-color:var(--pink);color:var(--pink);background:rgba(45,212,168,.1)}
 .stamp-btn.stamped{background:rgba(45,212,168,.08);border-color:rgba(45,212,168,.4);color:var(--green)}
 .stamp-btn:disabled{opacity:.3;cursor:not-allowed}
+
+/* QC ANALYSIS BTN — ใช้สีทอง/อำพัน แยกชัดจากกรอบมินต์ของ Flavor/Color/Acid/Salt */
+.qc-btn{display:flex;align-items:center;justify-content:center;gap:4px;
+  background:rgba(245,158,11,.07);border:1.5px solid rgba(245,158,11,.3);
+  border-radius:8px;color:#fbbf24;
+  font-size:14px;font-family:var(--mono);font-weight:700;padding:7px 12px;cursor:pointer;
+  white-space:nowrap;width:100%;transition:all .2s}
+.qc-btn:hover{border-color:#fbbf24;background:rgba(245,158,11,.14)}
+.qc-btn.qc-pending{background:rgba(245,158,11,.1);border-color:#fbbf24;color:#fcd34d}
+.qc-btn.qc-passed{background:rgba(45,212,168,.16);border-color:var(--mint);color:var(--mint2);font-weight:800}
 
 /* STAT BADGE */
 .stat-badge{font-family:var(--mono);font-size:13px;font-weight:700;padding:3px 10px;
@@ -197,6 +209,7 @@ tbody tr:hover td{background:rgba(45,212,168,.06)!important}
   .flv-wrap{flex-direction:column;gap:8px}
   .flv-box{min-width:unset;width:100%}
   .stamp-btn{min-height:44px;font-size:16px!important}
+  .qc-btn{min-height:44px;font-size:16px!important}
   .done-btn{min-height:44px;font-size:16px!important}
 }
 </style>
@@ -240,6 +253,7 @@ tbody tr:hover td{background:rgba(45,212,168,.06)!important}
           <th rowspan="2" style="color:var(--text);font-weight:700">คาดว่า Past.เสร็จ</th>
           <th colspan="4" style="text-align:center;color:var(--text);font-weight:800;border-bottom:1px solid var(--b2)">🧪 Flavor / Color / กรดมะนาว / Salt</th>
           <th rowspan="2">เวลาเท</th>
+          <th rowspan="2" style="color:var(--mint2);font-weight:800;background:rgba(45,212,168,.1)">🔬 ผลการวิเคราะห์</th>
           <th rowspan="2">Status</th>
           <th rowspan="2">หมายเหตุ</th>
           <th rowspan="2" style="color:var(--text);font-weight:700">🖊️ ลายเซ็น</th>
@@ -283,6 +297,7 @@ tbody tr:hover td{background:rgba(45,212,168,.06)!important}
           <th rowspan="2" style="color:var(--text);font-weight:700">คาดว่า Past.เสร็จ</th>
           <th colspan="3" style="text-align:center;color:var(--text);font-weight:800;border-bottom:1px solid var(--b2)">🧪 Flavor / Color / กรดมะนาว</th>
           <th rowspan="2">เวลาเท</th>
+          <th rowspan="2" style="color:var(--mint2);font-weight:800;background:rgba(45,212,168,.1)">🔬 ผลการวิเคราะห์</th>
           <th rowspan="2">Status</th>
           <th rowspan="2">หมายเหตุ</th>
           <th rowspan="2" style="color:var(--text);font-weight:700">🖊️ ลายเซ็น</th>
@@ -358,6 +373,38 @@ tbody tr:hover td{background:rgba(45,212,168,.06)!important}
         <button class="sig-btn cancel" onclick="closeSigModal()">ยกเลิก</button>
         <button class="sig-btn confirm" onclick="confirmSig()">ยืนยัน ✅</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<div class="sig-modal-bg" id="qc-modal-bg" style="z-index:900">
+  <div class="sig-modal" style="max-width:480px;width:94vw;max-height:92vh;overflow-y:auto">
+    <div class="sig-title">🔬 ผลการวิเคราะห์</div>
+    <div class="sig-sub" id="qc-modal-sub">—</div>
+
+    <div id="qc-fields-wrap" style="display:flex;flex-direction:column;gap:10px;margin:14px 0;max-height:50vh;overflow-y:auto;padding:0 4px"></div>
+
+    <div style="margin:6px 4px 0">
+      <div style="font-family:var(--mono);font-size:12px;color:var(--t2);font-weight:700;margin-bottom:6px">👃 Sensory</div>
+      <select id="qc-sensory" class="ci" style="width:100%;font-size:15px;padding:9px">
+        <option value="">— เลือก —</option>
+        <option value="Release">✅ Release</option>
+        <option value="Hold">⏸ Hold</option>
+        <option value="Failed">❌ Failed</option>
+      </select>
+    </div>
+
+    <div style="margin:10px 4px 0" id="qc-sign-wrap">
+      <div style="font-family:var(--mono);font-size:12px;color:var(--t2);font-weight:700;margin-bottom:6px">🖊️ ผู้ตรวจ</div>
+      <div id="qc-sign-display" style="display:flex;align-items:center;gap:8px;background:var(--s2);border:1px solid rgba(45,212,168,.2);border-radius:8px;padding:8px 10px;min-height:44px">
+        <span id="qc-sign-text" style="color:var(--t3);font-size:14px">ยังไม่เซ็นชื่อ</span>
+      </div>
+      <button class="sig-btn" style="width:100%;margin-top:6px;background:rgba(45,212,168,.1);border:1px solid rgba(45,212,168,.3);color:var(--mint2)" onclick="qcSign()">🖊️ เซ็นชื่อผู้ตรวจ</button>
+    </div>
+
+    <div class="sig-btns" style="margin-top:14px">
+      <button class="sig-btn cancel" onclick="closeQcModal()">ยกเลิก</button>
+      <button class="sig-btn save" onclick="saveQcModal()">บันทึก ✅</button>
     </div>
   </div>
 </div>
@@ -455,9 +502,45 @@ window.completeFlavor=async(col,id,m)=>{
     flavor_qty:row.flavor_qty||0,color_qty:row.color_qty||0,acid_qty:row.acid_qty||0,
     flavor_pour_time:row.flavor_pour_time||'—',
     completed_at:nowHHMM(),completed_by:ME?.email||'flavor',
+    qc_ts:row.qc_ts||'',qc_fat:row.qc_fat||'',qc_brix:row.qc_brix||'',
+    qc_ph:row.qc_ph||'',qc_viscosity:row.qc_viscosity||'',qc_sensory:row.qc_sensory||'',
+    qc_passed:isQcPassed(row,productMap[row.mix_code]||{}),
   });
   toast('Flavor เสร็จแล้ว ✅','green');
 };
+
+// ── QC ANALYSIS HELPERS ──────────────────────────────────────────────
+// parse string ช่วงค่า เช่น "30.3 - 33.0" หรือ "30.3-33.0" → {min:30.3, max:33.0}
+// ถ้า parse ไม่ได้ (ไม่มีค่า std, หรือ format ผิด) คืน null
+function parseStdRange(str){
+  if(!str) return null;
+  const m=String(str).match(/(-?\d+\.?\d*)\s*-\s*(-?\d+\.?\d*)/);
+  if(!m) return null;
+  const min=parseFloat(m[1]),max=parseFloat(m[2]);
+  if(isNaN(min)||isNaN(max)) return null;
+  return{min,max};
+}
+
+// เช็คว่าค่าที่กรอกอยู่ในช่วง std ไหม — คืน true/false/null (null = ไม่มี std ให้เทียบ จึงไม่เช็ค)
+function checkInRange(value,stdStr){
+  const range=parseStdRange(stdStr);
+  if(!range) return null; // ไม่มี std กำหนดไว้ → ไม่ต้องเช็ค (ไม่ block การ Pass)
+  const v=parseFloat(value);
+  if(isNaN(v)) return false; // มี std แต่ไม่ได้กรอกค่า → ไม่ผ่าน
+  return v>=range.min&&v<=range.max;
+}
+
+// เช็คว่า row นี้ "Passed" ทั้งหมดไหม (5 ค่า + sensory) — ใช้กับสีเขียวทั้งแถวและ badge
+function isQcPassed(row,p){
+  const fields=[['qc_ts','spec_ts'],['qc_fat','spec_fat'],['qc_brix','spec_brix'],['qc_ph','spec_ph'],['qc_viscosity','spec_viscosity']];
+  for(const[valKey,stdKey] of fields){
+    const std=p&&p[stdKey];
+    if(!std) continue; // ไม่มี std กำหนดไว้สำหรับค่านี้ → ข้าม ไม่ต้องเช็ค
+    const result=checkInRange(row[valKey],std);
+    if(result===false) return false;
+  }
+  return row.qc_sensory==='Release';
+}
 
 function flvBox(col,id,type,row,p){
   const labels={flavor:{icon:'🍶',color:'var(--mint)',field:'flavor',hasKey:'has_flavor'},color:{icon:'🎨',color:'var(--mint)',field:'color',hasKey:'has_color'},acid:{icon:'🍋',color:'var(--mint)',field:'acid',hasKey:'has_citric'},salt:{icon:'🧂',color:'var(--mint)',field:'salt',hasKey:'has_salt'}};
@@ -512,7 +595,7 @@ function renderPlan(m){
   const col=m==='m1'?'production_plans':'production_plans_m2';
   const tbody=$(`tbody-${m}`);if(!tbody)return;
   if(!rows[m].length){
-    tbody.innerHTML=`<tr><td colspan="14" style="text-align:center;padding:24px;color:var(--t3);font-family:var(--mono)">ไม่มีข้อมูล</td></tr>`;
+    tbody.innerHTML=`<tr><td colspan="15" style="text-align:center;padding:24px;color:var(--t3);font-family:var(--mono)">ไม่มีข้อมูล</td></tr>`;
     return;
   }
   tbody.innerHTML='';
@@ -559,6 +642,11 @@ function renderPlan(m){
     else if(row.status==='pasteurising')rowClass='row-past';
     else if(row.status==='mixing')rowClass='row-mixing';
 
+    // QC Passed — ใช้เน้นกรอบสีเขียวพิเศษแยกจาก status การผสมปกติ และมีความสำคัญสูงสุด (override สถานะอื่น)
+    const qcPassed=isQcPassed(row,p);
+    const qcHasAnyValue=row.qc_ts||row.qc_fat||row.qc_brix||row.qc_ph||row.qc_viscosity||row.qc_sensory;
+    if(qcPassed)rowClass='row-qc-passed';
+
     // Flavor done check
     const _needFlv=!!p.has_flavor,_needCol=!!p.has_color,_needAcid=!!p.has_citric,_needSalt=!!p.has_salt;
     const allFlvDone=
@@ -590,6 +678,12 @@ function renderPlan(m){
           ${row.flavor_pour_time||(row.status==='mixing'||row.status==='pending')?'disabled':''}
           onclick="stampPour('${col}','${row.id}')">
           ⏱ ${row.flavor_pour_time||'Stamp เท'}
+        </button>
+      </td>
+      <td class="qc-cell" style="text-align:center">
+        <button class="qc-btn ${qcPassed?'qc-passed':qcHasAnyValue?'qc-pending':''}"
+          onclick="openQcModal('${col}','${row.id}')">
+          ${qcPassed?'✅ Passed':qcHasAnyValue?'⏳ รอผล':'🧪 กรอกผล'}
         </button>
       </td>
       <td><span class="stat-badge" style="color:${statC};background:${statC}22;border:1px solid ${statC}44">${statTxt}</span></td>
@@ -820,6 +914,12 @@ window.redrawSig=()=>{
 // ยืนยันใช้ลายเซ็นเดิม
 window.confirmSig=async()=>{
   if(!signTarget||!savedSignature)return;
+  if(signTarget==='qc'){
+    qcSignature=savedSignature;
+    updateQcSignDisplay(null);
+    closeSigModal();
+    return;
+  }
   const name=ME?.displayName||ME?.email?.split('@')[0]||'—';
   await updateDoc(doc(db,signTarget.col,signTarget.id),{
     signature_url:savedSignature,
@@ -841,6 +941,12 @@ window.saveSig=async()=>{
     await sd(doc(db,'users',ME.uid),{signature:dataUrl,signature_name:name},{merge:true});
     savedSignature=dataUrl;
   }catch{}
+  if(signTarget==='qc'){
+    qcSignature=dataUrl;
+    updateQcSignDisplay(null);
+    closeSigModal();
+    return;
+  }
   // บันทึกลง row
   if(signTarget){
     await updateDoc(doc(db,signTarget.col,signTarget.id),{
@@ -857,6 +963,141 @@ window.clearCanvas=()=>{
   const canvas=$('sig-canvas');
   const ctx=canvas.getContext('2d');
   ctx.clearRect(0,0,canvas.width,canvas.height);
+};
+
+// ══════════════════════════════════════════════════
+// QC ANALYSIS MODAL
+// ══════════════════════════════════════════════════
+let qcTarget=null; // {col,id,m}
+let qcSignature=null; // dataURL ลายเซ็นชั่วคราวของ modal นี้ (ก่อนกด บันทึก)
+
+const QC_FIELDS=[
+  {key:'qc_ts',stdKey:'spec_ts',label:'%Ts',icon:'🧪'},
+  {key:'qc_fat',stdKey:'spec_fat',label:'%Fat',icon:'🧈'},
+  {key:'qc_brix',stdKey:'spec_brix',label:'%Brix',icon:'🍯'},
+  {key:'qc_ph',stdKey:'spec_ph',label:'%PH',icon:'⚗️'},
+  {key:'qc_viscosity',stdKey:'spec_viscosity',label:'Viscosity',icon:'💧'},
+];
+
+window.openQcModal=(col,id)=>{
+  const m=col==='production_plans'?'m1':'m2';
+  const row=rows[m].find(r=>r.id===id);if(!row)return;
+  const p=productMap[row.mix_code]||{};
+  qcTarget={col,id,m};
+  qcSignature=row.qc_signature_url||null;
+
+  $('qc-modal-sub').textContent=`${row.mix_code||'—'} · ${row.mix_name||'—'} · Batch ${row.batch_no||'—'}`;
+
+  // สร้าง field ทั้ง 5 ตัวพร้อม std อ้างอิง
+  const wrap=$('qc-fields-wrap');
+  wrap.innerHTML=QC_FIELDS.map(f=>{
+    const std=p[f.stdKey]||'';
+    const val=row[f.key]||'';
+    const hasStd=!!parseStdRange(std);
+    return`<div class="qc-field-row" data-key="${f.key}" data-std="${std.replace(/"/g,'&quot;')}">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+        <span style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--text)">${f.icon} ${f.label}</span>
+        <span style="font-family:var(--mono);font-size:11px;color:var(--t3)">std: ${std||'— ไม่กำหนด —'}</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <input type="text" class="ci qc-input" style="flex:1;font-size:15px" value="${val}"
+          placeholder="${hasStd?'กรอกค่าที่วัดได้':'ไม่มี std — กรอกได้ตามต้องการ'}"
+          oninput="qcValidateField(this)">
+        <span class="qc-field-result" style="font-family:var(--mono);font-size:13px;font-weight:800;min-width:64px;text-align:center"></span>
+      </div>
+    </div>`;
+  }).join('');
+
+  // validate ค่าที่มีอยู่แล้วทันทีตอนเปิด modal
+  wrap.querySelectorAll('.qc-input').forEach(inp=>qcValidateField(inp));
+
+  $('qc-sensory').value=row.qc_sensory||'';
+
+  // แสดงลายเซ็นที่มีอยู่แล้ว (ถ้ามี)
+  updateQcSignDisplay(row);
+
+  $('qc-modal-bg').classList.add('show');
+};
+
+function updateQcSignDisplay(row){
+  const wrap=$('qc-sign-display');
+  if(qcSignature){
+    const name=(row&&row.qc_signature_name)||ME?.displayName||ME?.email?.split('@')[0]||'—';
+    const time=(row&&row.qc_signature_time)||'';
+    wrap.innerHTML=`<img src="${qcSignature}" style="height:32px;max-width:90px;border-radius:4px;background:#fff;padding:2px">
+      <span style="color:var(--mint2);font-size:13px;font-weight:700">${name}</span>
+      <span style="color:var(--t3);font-size:12px;margin-left:auto">${time}</span>`;
+  } else {
+    wrap.innerHTML=`<span id="qc-sign-text" style="color:var(--t3);font-size:14px">ยังไม่เซ็นชื่อ</span>`;
+  }
+}
+
+window.qcValidateField=(input)=>{
+  const row=input.closest('.qc-field-row');
+  const std=row.dataset.std;
+  const resultEl=row.querySelector('.qc-field-result');
+  if(!input.value.trim()){
+    resultEl.textContent='—';resultEl.style.color='var(--t3)';
+    input.style.borderColor='';
+    return;
+  }
+  const result=checkInRange(input.value,std);
+  if(result===null){
+    resultEl.textContent='—';resultEl.style.color='var(--t3)';
+    input.style.borderColor='';
+  } else if(result===true){
+    resultEl.textContent='✅ ผ่าน';resultEl.style.color='var(--mint2)';
+    input.style.borderColor='var(--mint)';
+  } else {
+    resultEl.textContent='❌ ไม่ผ่าน';resultEl.style.color='#f87171';
+    input.style.borderColor='#f87171';
+  }
+};
+
+window.closeQcModal=()=>{
+  $('qc-modal-bg').classList.remove('show');
+  qcTarget=null;qcSignature=null;
+};
+
+// เซ็นชื่อผู้ตรวจ — reuse ระบบลายเซ็นเดิม (canvas) แต่เก็บผลไว้ใน qcSignature ก่อน ยังไม่บันทึก Firestore จนกว่าจะกด "บันทึก" หลัก
+window.qcSign=()=>{
+  if(savedSignature){
+    $('sig-preview-img').src=savedSignature;
+    $('sig-modal-preview').style.display='flex';
+    $('sig-modal-draw').style.display='none';
+  } else {
+    $('sig-modal-draw').style.display='flex';
+    $('sig-modal-preview').style.display='none';
+    initCanvas();
+  }
+  signTarget='qc'; // ใช้ string พิเศษบอกว่ามาจาก QC modal ไม่ใช่ row ปกติ
+  $('sig-modal-bg').classList.add('show');
+};
+
+window.saveQcModal=async()=>{
+  if(!qcTarget)return;
+  const{col,id,m}=qcTarget;
+  const row=rows[m].find(r=>r.id===id);if(!row)return;
+
+  const upd={};
+  $('qc-fields-wrap').querySelectorAll('.qc-field-row').forEach(el=>{
+    const key=el.dataset.key;
+    const val=el.querySelector('.qc-input').value.trim();
+    upd[key]=val;
+  });
+  upd.qc_sensory=$('qc-sensory').value;
+
+  if(qcSignature){
+    upd.qc_signature_url=qcSignature;
+    upd.qc_signature_name=ME?.displayName||ME?.email?.split('@')[0]||'—';
+    upd.qc_signature_time=nowHHMM();
+  }
+
+  try{
+    await updateDoc(doc(db,col,id),upd);
+    toast('บันทึกผลการวิเคราะห์แล้ว','green');
+    closeQcModal();
+  }catch(e){toast('บันทึกไม่สำเร็จ: '+e.message,'red');}
 };
 
 function initCanvas(){
