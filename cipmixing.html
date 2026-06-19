@@ -1,3 +1,4 @@
+<!-- build:20260619T224722Z -->
 <!DOCTYPE html><!-- build:20260618070000 -->
 <html lang="th">
 <head>
@@ -762,7 +763,7 @@ const auth=getAuth(app);const db=getFirestore(app);
 const $=id=>document.getElementById(id);
 const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
 const nowHMS=()=>{const d=new Date();return[d.getHours(),d.getMinutes(),d.getSeconds()].map(x=>x.toString().padStart(2,'0')).join(':');};
-window.tankStates={};window.planRows={m1:[],m2:[]};const tankStates=window.tankStates;const planRows=window.planRows;let linesData=[],curTab='m1',unsubSt=null;
+window.tankStates={};window.planRows={m1:[],m2:[]};const tankStates=window.tankStates;const planRows=window.planRows;let linesData=[],curTab='m1',unsubSt=null,unsubP1=null,unsubP2=null;
 const TEMP_TIMES=['06:00','10:00','14:00','18:00','22:00','02:00'];
 $('inp-date').value=today();
 const en=sessionStorage.getItem('emp_name')||'';if(en) $('emp-name').textContent='👤 '+en;
@@ -775,24 +776,34 @@ setInterval(()=>{renderCipWaiting();},60000);
 function injectProductTypes(){if(!window._pmMap)return;Object.values(tankStates).forEach(ts=>{if(ts.mix_code&&window._pmMap[ts.mix_code])ts.product_type=window._pmMap[ts.mix_code];});}
 window.loadAll=async()=>{
   const d=$('inp-date').value||today();
-  const[lSnap,s1,s2,pmSnap]=await Promise.all([
+  const[lSnap,pmSnap]=await Promise.all([
     getDocs(collection(db,'lines')),
-    getDocs(query(collection(db,'production_plans'),where('date','==',d))),
-    getDocs(query(collection(db,'production_plans_m2'),where('date','==',d))),
     getDocs(collection(db,'products'))
   ]);
   linesData=lSnap.docs.map(d=>({id:d.id,...d.data()}));
   // map mix_code -> product_type จาก products collection
   const pmMap={};window._pmMap=pmMap;
   pmSnap.docs.forEach(d=>{const pd=d.data();const _ptype=pd.product_type||'';if(pd.mix_code)pmMap[pd.mix_code]=_ptype;});
-  planRows.m1=s1.docs.map(d=>({...d.data(),id:d.id,_col:'production_plans'})).sort((a,b)=>(a.seq||0)-(b.seq||0));
-  planRows.m2=s2.docs.map(d=>({...d.data(),id:d.id,_col:'production_plans_m2'})).sort((a,b)=>(a.seq||0)-(b.seq||0));
-  // inject product_type เข้า tankStates โดยใช้ mix_code ที่มีอยู่ใน tankStates โดยตรง
   Object.values(tankStates).forEach(ts=>{
     if(ts.mix_code&&pmMap[ts.mix_code]){
       ts.product_type=pmMap[ts.mix_code];
     }
   });
+
+  // ── Subscribe production_plans / production_plans_m2 แบบ real-time ──
+  // เดิมใช้ getDocs (ดึงครั้งเดียว) ทำให้ batch ใหม่ที่ Leadman เพิ่ม/แก้หลังเปิดหน้านี้ไว้แล้ว
+  // ไม่ขึ้นจนกว่าจะกด 🔄 เอง — เปลี่ยนเป็น onSnapshot ให้ขึ้นสดทันที เหมือน cipman/filling/aging
+  if(unsubP1)unsubP1();
+  if(unsubP2)unsubP2();
+  unsubP1=onSnapshot(query(collection(db,'production_plans'),where('date','==',d)),snap=>{
+    planRows.m1=snap.docs.map(d=>({...d.data(),id:d.id,_col:'production_plans'})).sort((a,b)=>(a.seq||0)-(b.seq||0));
+    renderAll();
+  });
+  unsubP2=onSnapshot(query(collection(db,'production_plans_m2'),where('date','==',d)),snap=>{
+    planRows.m2=snap.docs.map(d=>({...d.data(),id:d.id,_col:'production_plans_m2'})).sort((a,b)=>(a.seq||0)-(b.seq||0));
+    renderAll();
+  });
+
   renderAll();renderTempAlert();toast('โหลดแล้ว','green');
   // re-render อีกครั้งหลัง 1.5 วินาที เผื่อ tankStates onSnapshot ยังไม่ครบ
   setTimeout(()=>{renderAll();},1500);
