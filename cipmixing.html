@@ -1,3 +1,4 @@
+<!-- build:20260619T230846Z -->
 <!-- build:20260619T224722Z -->
 <!DOCTYPE html><!-- build:20260618070000 -->
 <html lang="th">
@@ -706,13 +707,21 @@ async function _doActReal(tid, act, programs){
       // นับจาก past_end_time (เวลา pasteurize เสร็จ)
       const _pastEnd=_ts3.past_end_time;
       if(_pastEnd){
-        // past_end_time เป็น HH:MM หรือ ISO
-        const _baseDate=_pastEnd.length===5
-          ?new Date(new Date().toISOString().split('T')[0]+'T'+_pastEnd+':00')
-          :new Date(_pastEnd);
-        const _expDate=new Date(_baseDate.getTime()+_shelfHr*3600000);
-        upd.expire_at=_expDate.toISOString();
-        upd.shelf_hr=_shelfHr;
+        // past_end_time มีได้ทั้ง HH:MM, HH:MM:SS (จาก pasteurize.html) หรือ ISO เต็ม
+        let _baseDate;
+        if(/^\d{1,2}:\d{2}(:\d{2})?$/.test(_pastEnd)){
+          const _hms=_pastEnd.length===5?_pastEnd+':00':_pastEnd;
+          _baseDate=new Date(new Date().toISOString().split('T')[0]+'T'+_hms);
+        } else {
+          _baseDate=new Date(_pastEnd);
+        }
+        if(!isNaN(_baseDate.getTime())){
+          const _expDate=new Date(_baseDate.getTime()+_shelfHr*3600000);
+          upd.expire_at=_expDate.toISOString();
+          upd.shelf_hr=_shelfHr;
+        } else {
+          console.warn('[stop_san] ข้าม expire_at calc — past_end_time format ไม่ถูกต้อง:',_pastEnd);
+        }
       }
     }
     // บันทึกลง cip_mixing_records — รวมค่าจาก log sheet ด้วย
@@ -1125,14 +1134,20 @@ window.setTempVal=async function(tid,key,val){
       const _shelfHr2=_SHELF2[_pt2][Math.max(0,Math.min(10,Math.round(_maxT2)))]||96;
       // นับจาก past_end_time
       const _pastEnd2=_ts2.past_end_time;
-      const _baseDate2=_pastEnd2.length===5
-        ?new Date(new Date().toISOString().split('T')[0]+'T'+_pastEnd2+':00')
-        :new Date(_pastEnd2);
-      const _newExp=new Date(_baseDate2.getTime()+_shelfHr2*3600000);
-      const _expUpd={expire_at:_newExp.toISOString(),shelf_hr:_shelfHr2,updated_at:new Date().toISOString()};
-      await setDoc(doc(db,'aging_tank_states',tid),_expUpd,{merge:true});
-      tankStates[tid].expire_at=_newExp.toISOString();
-      tankStates[tid].shelf_hr=_shelfHr2;
+      let _baseDate2;
+      if(/^\d{1,2}:\d{2}(:\d{2})?$/.test(_pastEnd2)){
+        const _hms2=_pastEnd2.length===5?_pastEnd2+':00':_pastEnd2;
+        _baseDate2=new Date(new Date().toISOString().split('T')[0]+'T'+_hms2);
+      } else {
+        _baseDate2=new Date(_pastEnd2);
+      }
+      if(!isNaN(_baseDate2.getTime())){
+        const _newExp=new Date(_baseDate2.getTime()+_shelfHr2*3600000);
+        const _expUpd={expire_at:_newExp.toISOString(),shelf_hr:_shelfHr2,updated_at:new Date().toISOString()};
+        await setDoc(doc(db,'aging_tank_states',tid),_expUpd,{merge:true});
+        tankStates[tid].expire_at=_newExp.toISOString();
+        tankStates[tid].shelf_hr=_shelfHr2;
+      }
     }
     renderTempAlert();
   }catch(e){console.warn('setTempVal error:',e);toast('❌ '+e.message,'red');}
