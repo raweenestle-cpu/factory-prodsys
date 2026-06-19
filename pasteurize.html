@@ -1,3 +1,4 @@
+<!-- build:20260619T222701Z -->
 <!DOCTYPE html><!-- build:20260617290000 -->
 <html lang="th">
 <head><!-- build:20260616095000 -->
@@ -539,23 +540,9 @@ setInterval(async()=>{
             window._rows[p]=rows[p];
           }
 
-          // ── ARCHIVE → past_history แล้ว DELETE ออกจาก production_plans ──
-          try{
-            await addDoc(collection(db,'past_history'),{
-              ...agRow,
-              past_end_time:endTime,
-              eff:Math.round(eff*10)/10,
-              status:'past_done',
-              current_vol:finalCumVol,
-              archived_at:nowHHMM(),
-              archived_date:today(),
-              mixing_unit:p,
-            });
-            await deleteDoc(doc(db,planCol(p),agRow.id));
-            // ลบออกจาก rows local ด้วย
-            rows[p]=(rows[p]||[]).filter(r=>r.id!==agRow.id);
-            window._rows[p]=rows[p];
-          }catch(e){console.error('archive error:',e);}
+          // ── เดิม: archive ไป past_history แล้ว delete ออกจาก production_plans ทันที ──
+          // เปลี่ยนเป็น: ค้างแถวไว้ใน production_plans ที่ status='past_done' ให้พนักงานเห็น
+          // แล้วกดปุ่ม "เซ็นปิดงาน" เพื่อ archive+ลบเองแบบ manual (ดูฟังก์ชัน confirmClosePast)
 
           // ── UPDATE aging_tank_states ด้วย transaction ──
           if(agRow.aging_tank){
@@ -601,7 +588,7 @@ setInterval(async()=>{
           if(!effOk){
             toast(`⚠️ Auto Stamp Past.เสร็จ — Eff% ${eff.toFixed(1)}% ต่ำกว่า 97%`,"red");
           } else {
-            toast(`✅ Auto Stamp Past.เสร็จ เวลา ${endTime} — Archive แล้ว`,"green");
+            toast(`✅ Auto Stamp Past.เสร็จ เวลา ${endTime} — รอเซ็นปิดงาน`,"green");
           }
 
           // หา batch ถัดไปจาก process_order + aging_tank เดียวกัน
@@ -670,72 +657,33 @@ setInterval(async()=>{
   }
 },15000);
 
-// ── CHECK ETA ทุก 5 วินาที — stamp ทันทีเมื่อถึงเวลา ──
-setInterval(async()=>{
-  for(const p of["p1","p2"]){
-    const pRows=window._rows[p]||[];
-    const agRow=pRows.find(r=>r.status==='pasteurising'&&r.past_start_time&&!r.past_end_time)||null;
-    if(!agRow||!agRow.aging_tank)continue;
-    if(_autoStamping.has(agRow.id))continue;
-    const prod=window._productMap[agRow.mix_code]||{};
-    const density=+(prod.density||1);
-    const speed=p==='p1'?+(prod.speed_m1||prod.speed||0):+(prod.speed_m2||prod.speed||0);
-    const totalVol=+(agRow.volume_liter||0);
-    if(!speed||!totalVol)continue;
-    const totalMin=(totalVol*density*60)/speed;
-    const totalSec=totalMin*60;
-    const _tp=agRow.past_start_time.split(':').map(Number);
-    const start=new Date((agRow.date||new Date().toISOString().slice(0,10))+'T'+String(_tp[0]||0).padStart(2,'0')+':'+String(_tp[1]||0).padStart(2,'0')+':'+String(_tp[2]||0).padStart(2,'0'));
-    const elapsedSec=Math.max(0,(Date.now()-start)/1000);
-    if(!agRow.past_end_time&&totalSec>0&&elapsedSec>=(totalSec-10)){
-      // ถึง ETA — stamp ทันทีโดยไม่รอ 15 วินาที
-      const _wmKey=p+'_'+(agRow.process_order||'')+'_'+(agRow.aging_tank||'');
-      const prevVol=window._prevVolMap[_wmKey]||0;
-      const finalCumVol=prevVol+(+(agRow.volume_liter||0));
-      window._prevVolMap[_wmKey]=finalCumVol;
-      _autoStamping.add(agRow.id);
+// ── หมายเหตุ: เดิมมี interval 5 วินาทีอีกตัวทำหน้าที่ auto-stamp ซ้ำกับตัวบน (15 วินาที) ──
+// ถูกลบออกแล้วเพราะมันเขียน current_vol ลง aging_tank_states แบบไม่รวม volume ของ
+// Mixing อีกตัว (p1/p2) ทำให้ชนกับตัว 15 วินาทีที่รวมถูกต้อง → ค่า "ต่อเนื่อง" เพี้ยน/หาย
+// ตอนนี้เหลือ auto-stamp จุดเดียว (ด้านบน) เป็น single source of truth
 
-      const endTime=agRow.expected_finish_time||nowHHMMSS();
-      const allRowsBefore=[...(rows['p1']||[]),...(rows['p2']||[])];
-      const nextRow=agRow.process_order&&agRow.aging_tank
-        ?allRowsBefore.filter(r=>r.process_order===agRow.process_order&&(!r.aging_tank||r.aging_tank===agRow.aging_tank)&&r.id!==agRow.id&&!r.past_start_time&&!r.past_end_time&&(r.status==='pending'||r.status==='mixing'||r.status==='ready_mix'||r.status==='ready'||r.status==='san_done'||r.status==='pasteurising')).sort((a,b)=>(a.seq||0)-(b.seq||0))[0]
-        :null;
-      const hasNext=!!nextRow||allRowsBefore.some(r=>r.process_order===agRow.process_order&&r.aging_tank===agRow.aging_tank&&r.id!==agRow.id&&(r.status==='pasteurising'||r.status==='pending'||r.status==='mixing'||r.status==='ready_mix'));
+// ── ปิดงาน Past. แบบ manual: archive ไป past_history แล้วลบออกจาก production_plans ──
+// แทนที่การลบอัตโนมัติแบบเดิม ตอนนี้พนักงานต้องกดปุ่ม "✅ ปิดงาน" เองหลัง Past. เสร็จ
+window.confirmClosePast=async(col,id,p)=>{
+  const signer=(prompt('ชื่อผู้เซ็นปิดงาน:')||'').trim();
+  if(!signer)return;
+  const row=(rows[p]||[]).find(r=>r.id===id);
+  if(!row){toast('ไม่พบแถวนี้แล้ว','red');return;}
+  if(!confirm(`ยืนยันปิดงาน Batch ${row.batch_no||''} (${row.mix_name||''})?\nหลังปิดแล้วแถวนี้จะถูกเก็บเข้า History และหายจากตารางนี้`))return;
+  try{
+    await updateDoc(doc(db,col,id),{past_sig:'signed',past_by:signer});
+    await addDoc(collection(db,'past_history'),{
+      ...row,past_sig:'signed',past_by:signer,
+      archived_at:nowHHMM(),archived_date:today(),mixing_unit:p,
+    });
+    await deleteDoc(doc(db,col,id));
+    rows[p]=(rows[p]||[]).filter(r=>r.id!==id);
+    window._rows[p]=rows[p];
+    renderPlan(p);
+    toast(`✅ ปิดงาน Batch ${row.batch_no||''} แล้ว`,'green');
+  }catch(e){console.error('confirmClosePast error:',e);toast('ปิดงานไม่สำเร็จ: '+e.message,'red');}
+};
 
-      try{
-        await updateDoc(doc(db,planCol(p),agRow.id),{past_end_time:endTime,eff:100,status:'past_done',current_vol:finalCumVol,mix_start_time:'',mix_end_time:''});
-        const _li=(rows[p]||[]).findIndex(r=>r.id===agRow.id);
-        if(_li>=0){rows[p][_li]={...rows[p][_li],status:'past_done',past_end_time:endTime,current_vol:finalCumVol};window._rows[p]=rows[p];}
-        if(agRow.aging_tank){
-          if(hasNext){await setDoc(doc(db,'aging_tank_states',agRow.aging_tank),{current_vol:finalCumVol,updated_at:new Date().toISOString()},{merge:true});}
-          else{await setDoc(doc(db,'aging_tank_states',agRow.aging_tank),{current_vol:finalCumVol,status:'aging',past_end_time:endTime,updated_at:new Date().toISOString()},{merge:true});}
-        }
-        await addDoc(collection(db,'past_history'),{...agRow,past_end_time:endTime,eff:100,status:'past_done',current_vol:finalCumVol,archived_at:nowHHMM(),archived_date:today(),mixing_unit:p});
-        await deleteDoc(doc(db,planCol(p),agRow.id));
-        rows[p]=(rows[p]||[]).filter(r=>r.id!==agRow.id);window._rows[p]=rows[p];
-        toast(`✅ Auto Stamp Past.เสร็จ เวลา ${endTime}`,'green');
-        if(nextRow){
-          if(!nextRow.aging_tank){await updateDoc(doc(db,planCol(p),nextRow.id),{aging_tank:agRow.aging_tank});nextRow.aging_tank=agRow.aging_tank;}
-          const _np=productMap[nextRow.mix_code]||{};
-          const _ns=planCol(p)==='production_plans'?+(_np.speed_m1||_np.speed||0):+(_np.speed_m2||_np.speed||0);
-          const _nv=+(nextRow.volume_liter||0);const _nd=+(_np.density||1);
-          let _nEta=null;
-          if(_ns&&_nv){const _nr=Math.round(_nv*_nd*3600/_ns);const _nst=(agRow.expected_finish_time||endTime).split(':').map(Number);const _nss=(_nst[0]||0)*3600+(_nst[1]||0)*60+(_nst[2]||0);const _nes=(_nss+_nr+2)%86400;_nEta=String(Math.floor(_nes/3600)).padStart(2,'0')+':'+String(Math.floor((_nes%3600)/60)).padStart(2,'0')+':'+String(_nes%60).padStart(2,'0');}
-          await updateDoc(doc(db,planCol(p),nextRow.id),{past_start_time:agRow.expected_finish_time||endTime,expected_finish_time:_nEta,status:'pasteurising',past_end_time:null});
-          // update local rows ทันที ไม่รอ onSnapshot
-          const _nIdx=(rows[p]||[]).findIndex(r=>r.id===nextRow.id);
-          if(_nIdx>=0){
-            rows[p][_nIdx]={...rows[p][_nIdx],past_start_time:agRow.expected_finish_time||endTime,expected_finish_time:_nEta,status:'pasteurising',past_end_time:null,_col:planCol(p)};
-            window._rows[p]=rows[p];
-          }
-          if(nextRow.aging_tank){await setDoc(doc(db,'aging_tank_states',nextRow.aging_tank),{current_vol:finalCumVol,mix_code:nextRow.mix_code||'',mix_name:nextRow.mix_name||'',batch_no:nextRow.batch_no||'',process_order:nextRow.process_order||'',past_start_time:agRow.expected_finish_time||endTime,past_end_time:null,status:'pasteurising',updated_at:new Date().toISOString()},{merge:false});}
-          const _nk=p+'_'+(nextRow.process_order||'')+'_'+(nextRow.aging_tank||'');window._prevVolMap[_nk]=finalCumVol;
-          toast(`🔄 Auto เริ่ม Batch ${nextRow.batch_no} ต่อเนื่อง`,'green');
-        }
-      }catch(e){console.error('ETA stamp error:',e);_autoStamping.delete(agRow.id);}
-    }
-  }
-},5000);
 window.doLogout=async()=>{
   if(unsub.p1)unsub.p1();
   if(unsub.p2)unsub.p2();
@@ -2073,11 +2021,11 @@ function renderPlan(p){
       <td style="text-align:center;min-width:60px">
         ${row.past_sig
           ? `<img src="${row.past_sig}" style="height:30px;vertical-align:middle;opacity:.95" title="${row.past_by||''}">`
-          : `<button class="sig-btn" onclick="stampSig('${col}','${row.id}','past_sig','${p}')" title="เซ็นชื่อ">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>
-              </svg>
-            </button>`}
+          : (row.status==='past_done'
+            ? `<button class="sig-btn" style="background:#d1fae5;border-color:#34d399;color:#047857" onclick="confirmClosePast('${col}','${row.id}','${p}')" title="เซ็นปิดงาน (archive ออกจากตาราง)">
+                ✅ ปิดงาน
+              </button>`
+            : `<span style="color:var(--t3);font-size:11px">—</span>`)}
       </td>
       <td>${statText}</td>`;
     tbody.appendChild(tr);
