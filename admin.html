@@ -647,6 +647,7 @@ const db   = getFirestore(app);
 
 let ME=null;
 let users=[], lines=[], products=[], productsAll=[];
+window.productsAll=productsAll; // ค่าเริ่มต้น — จะถูกอัปเดตจริงตอน onSnapshot ของ products fire
 let unsubUsers=null, unsubLines=null, unsubProducts=null;
 
 const $=id=>document.getElementById(id);
@@ -708,6 +709,7 @@ function initListeners(){
     productsAll=snap.docs.map(d=>({id:d.id,...d.data()}))
       .sort((a,b)=>(a.mix_code||"").localeCompare(b.mix_code||""));
     products=[...productsAll];
+    window.productsAll=productsAll; // expose สำหรับ non-module script (Excel importer)
     renderProducts();
   });
 }
