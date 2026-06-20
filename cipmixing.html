@@ -1,3 +1,5 @@
+<!-- build:20260620T010302Z -->
+<!-- build:20260620T001037Z -->
 <!-- build:20260619T230846Z -->
 <!-- build:20260619T224722Z -->
 <!DOCTYPE html><!-- build:20260618070000 -->
@@ -322,7 +324,7 @@ table{background:#ffffff!important}
 <nav style="flex-wrap:wrap;gap:6px;padding:6px 14px;min-height:44px">
   <div class="nav-logo">CIP MIXING</div>
   <button onclick="window._openDash()" class="nbtn" style="font-size:12px;padding:6px 14px;font-weight:800;background:#1e3a5f;border-color:#3b82f6;color:#93c5fd">📊 Dashboard</button>
-  <input type="date" class="date-input" id="inp-date" style="font-size:11px;padding:4px 8px">
+  <input type="date" class="date-input" id="inp-date" style="font-size:11px;padding:4px 8px" onchange="loadAll()">
   <button class="load-btn" onclick="loadAll()" style="padding:5px 12px;font-size:11px">🔄</button>
   <span id="emp-name" style="font-family:var(--mono);font-size:11px;color:var(--t2)"></span>
   <div id="temp-alert-bar" style="flex:1;min-width:0"></div>
@@ -570,6 +572,27 @@ async function _doActReal(tid, act, programs){
   const newSt=map[act];if(!newSt)return;
   const n=nowHMS();
   const upd={status:newSt,updated_at:new Date().toISOString()};
+
+  // ── STAMP เวลาหลักทันที ก่อนอื่นใด ──────────────────────────────
+  // ป้องกันปัญหาที่เคยเจอ: error จากโค้ดส่วนอื่น (คำนวณ expire_at, ดึง history,
+  // query cip_log_sheets ฯลฯ) ทำให้ทั้งฟังก์ชัน crash กลางทาง จนเวลา/status ไม่ถูกบันทึกเลย
+  // ตอนนี้บันทึก status+เวลาหลักให้เสร็จก่อนเป็นอันดับแรก ถ้าจุดนี้ผ่าน เวลาจะขึ้นในกล่องแน่นอน
+  // ไม่ว่าโค้ดส่วนที่เหลือข้างล่างจะพังหรือไม่ก็ตาม
+  const _timeField={start_cip:'cip_start_time',stop_cip:'cip_stop_time',start_san:'san_start_time',stop_san:'san_stop_time'}[act];
+  const _earlyUpd={status:newSt,updated_at:upd.updated_at};
+  if(_timeField)_earlyUpd[_timeField]=n;
+  try{
+    await setDoc(doc(db,'aging_tank_states',tid),_earlyUpd,{merge:true});
+    if(!tankStates[tid])tankStates[tid]={id:tid};
+    Object.assign(tankStates[tid],_earlyUpd);
+    renderCipWaiting();
+  }catch(e){
+    alert('⚠️ บันทึกเวลาไม่สำเร็จ: '+e.message+'\n\nกรุณาลองกดปุ่มใหม่ หรือเช็คอินเทอร์เน็ต แล้วแจ้งแอดมินถ้ายังไม่ผ่าน');
+    console.error('[CRITICAL] _doActReal early stamp failed:',e);
+    return; // หยุดทันที — ไม่ทำของแถมต่อถ้าสแตมป์เวลาหลักไม่ผ่าน
+  }
+  // ── จากนี้คือ "ของแถม" (history, expire_at, mix_code lookup ฯลฯ) — ──
+  // ถ้าพังตรงนี้ เวลาหลักด้านบนถูกบันทึกไปแล้ว ไม่กระทบ
   if(act==='start_cip'){
     upd.cip_start_time=n;
     upd.cip_date=new Date().toISOString().split('T')[0];
