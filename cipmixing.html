@@ -1,3 +1,4 @@
+<!-- build:20260622T171347Z -->
 <!-- build:20260620T010302Z -->
 <!-- build:20260620T001037Z -->
 <!-- build:20260619T230846Z -->
@@ -802,7 +803,7 @@ const en=sessionStorage.getItem('emp_name')||'';if(en) $('emp-name').textContent
 onAuthStateChanged(auth,u=>{if(!u){location.href='index.html';return;}$('nav-user').textContent=u.email.replace('@filling.local','');initSt();loadAll();});
 function initSt(){if(unsubSt)unsubSt();unsubSt=onSnapshot(collection(db,'aging_tank_states'),snap=>{snap.docs.forEach(d=>{tankStates[d.id]={id:d.id,...d.data()};});injectProductTypes();if(planRows.m1.length||planRows.m2.length)renderAll();if(document.getElementById('page-temp')?.classList.contains('on'))renderTemp();if(document.getElementById('page-ciplog')?.classList.contains('on'))renderCipWaiting();});}
 // re-render ทุก 5 วินาที ให้ vol อัปเดต real-time
-setInterval(()=>{if(planRows.m1.length||planRows.m2.length)renderAll();},5000);
+setInterval(()=>{if(planRows.m1.length||planRows.m2.length)renderAll();},15000);
 // re-render CIP waiting ทุก 1 นาที เพื่ออัพเดท countdown และเช็ค expire
 setInterval(()=>{renderCipWaiting();},60000);
 function injectProductTypes(){if(!window._pmMap)return;Object.values(tankStates).forEach(ts=>{if(ts.mix_code&&window._pmMap[ts.mix_code])ts.product_type=window._pmMap[ts.mix_code];});}

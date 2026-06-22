@@ -1,3 +1,4 @@
+<!-- build:20260622T171720Z -->
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -926,6 +927,22 @@ window.loadPlan = (m) => {
       return;
     }
     firstLoad=false;
+    // ── กันตารางเด้ง/รีเซ็ต focus ตอนกำลังพิมพ์อยู่ ──────────────────
+    // หน้าอื่น (pasteurize/cipmixing/filling) เขียน field สถานะ/เวลาลงเอกสารเดียวกันนี้
+    // บ่อยมากตอนมีกิจกรรม ทำให้ onSnapshot ยิงถี่ ถ้า re-render ทันทีทุกครั้งจะทำลาย
+    // input ที่ผู้ใช้กำลังโฟกัส/พิมพ์อยู่ — เลยเช็คก่อนว่ากำลังโฟกัสช่องของตารางนี้อยู่ไหม
+    // ถ้าใช่ ให้รอจนกว่าจะออกจากช่อง (blur) ก่อนค่อย re-render
+    const _tbl=document.getElementById('tbody-'+m);
+    const _active=document.activeElement;
+    const _isTyping=_active&&_tbl&&_tbl.contains(_active)&&(_active.tagName==='INPUT'||_active.tagName==='SELECT'||_active.tagName==='TEXTAREA');
+    if(_isTyping){
+      const _pending=()=>{
+        renderPlan(m);
+        renderSmartPriority(m);
+      };
+      _active.addEventListener('blur',_pending,{once:true});
+      return;
+    }
     renderPlan(m);
     renderSmartPriority(m);
   });

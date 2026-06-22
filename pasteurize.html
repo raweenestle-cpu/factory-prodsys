@@ -1,3 +1,4 @@
+<!-- build:20260622T171347Z -->
 <!-- build:20260622T162500Z -->
 <!-- build:20260622T161859Z -->
 <!-- build:20260622T161001Z -->
@@ -416,7 +417,7 @@ onAuthStateChanged(auth,async user=>{
   loadPlan("p2");
 });
 
-setInterval(()=>{["p1","p2"].forEach(p=>{if(document.getElementById("tank-visual-"+p))renderTankVisual(p,rows[p]||[]);});},5000);
+setInterval(()=>{["p1","p2"].forEach(p=>{if(document.getElementById("tank-visual-"+p))renderTankVisual(p,rows[p]||[]);});},15000);
 
 // ── Eff% REAL-TIME UPDATE ทุก 10 วินาที ──────────────────────────────
 setInterval(()=>{
