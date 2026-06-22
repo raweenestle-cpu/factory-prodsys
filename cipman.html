@@ -1,3 +1,4 @@
+<!-- build:20260622T211147Z -->
 <!-- build:20260622T181714Z -->
 <!-- build:20260622T175719Z -->
 <!-- build:20260619T214220Z -->
@@ -596,8 +597,11 @@ function getTanksForLine(lineName){
 
   const raw=agTanks.map(ts=>{
     const planRow=findCurrentPlanRow(ts.id);
-    if(!planRow) return null;
-    return {...planRow, status:ts.status||planRow.status, current_vol:ts.current_vol??planRow.current_vol, mix_code:ts.mix_code||planRow.mix_code, mix_name:ts.mix_name||planRow.mix_name};
+    // เดิม: ถ้าไม่มี production_plans row คู่กัน (เช่นถูกมาร์ค sent_filling ไปแล้ว) จะ return null
+    // ทำให้ถังหายไปทั้งใบ ทั้งที่ aging_tank_states ยังมีของ (current_vol>0) อยู่จริง
+    // แก้โดยใช้ข้อมูลจาก ts (aging_tank_states) เองเป็น fallback แทนการซ่อนถังไปเลย
+    const base=planRow||{id:ts.id,aging_tank:ts.id,seq:0,date:ts.date||'',batch_no:ts.batch_no||'',process_order:ts.process_order||''};
+    return {...base, status:ts.status||planRow?.status, current_vol:ts.current_vol??planRow?.current_vol, mix_code:ts.mix_code||planRow?.mix_code, mix_name:ts.mix_name||planRow?.mix_name};
   }).filter(Boolean)
     .sort((a,b)=>{
       const _ae=a.past_end_time||'';const _be=b.past_end_time||'';
@@ -939,14 +943,28 @@ function buildCard(line){
   const _atsLabel=_atsStatusRaw&&_atsLabelMap[_atsStatusRaw]?_atsLabelMap[_atsStatusRaw]:'';
   const pt={running:'● กำลังเดิน',curing:_atsLabel||'⏳',stopped:_atsLabel||'⏸ หยุด',empty:'○ ว่าง',cip:_atsLabel||'🟣 CIP'};
 
-  if(!current)return`<div class="lcard empty" id="card-${line.id}">
+  if(!current){
+    // DEBUG ชั่วคราว: หาสาเหตุที่ไม่มีถังโผล่มา โดยไม่ต้องเปิด Console
+    const _dbgTankSet=new Set((line.aging_tanks||[]).map(t=>String(t).trim().toUpperCase()));
+    const _dbgMatched=[..._dbgTankSet].filter(t=>agingStates[t]);
+    const _dbgWithVol=_dbgMatched.filter(t=>+(agingStates[t].current_vol||0)>0);
+    const _dbgNotPast=_dbgWithVol.filter(t=>agingStates[t].status!=='pasteurising');
+    return`<div class="lcard empty" id="card-${line.id}">
     <div class="accent"></div>
     <div class="lhead"><div class="lhead-top">
       <div class="lname">LINE: ${line.name.toUpperCase()}</div>
       <span class="spill sp-emp">○ ว่าง</span>
     </div></div>
-    <div style="text-align:center;padding:30px;color:var(--t3);font-family:var(--mono);font-size:12px">ไม่มีถังที่พร้อม</div>
+    <div style="text-align:center;padding:30px;color:var(--t3);font-family:var(--mono);font-size:12px">
+      ไม่มีถังที่พร้อม<br>
+      <span style="font-size:10px;opacity:.7">
+        [DEBUG] config ถัง: ${_dbgTankSet.size} | เจอข้อมูลถัง: ${_dbgMatched.length} (${_dbgMatched.join(',')||'-'})
+        | มีของ(vol>0): ${_dbgWithVol.length} (${_dbgWithVol.join(',')||'-'})
+        | ไม่ใช่ pasteurising: ${_dbgNotPast.length} (${_dbgNotPast.join(',')||'-'})
+      </span>
+    </div>
   </div>`;
+  }
 
   const col=productMap[current.mix_code]?.color||'#3b82f6';
   const elapsed=isRunning&&st.start_ts?(Date.now()-st.start_ts)/3600000:0;
