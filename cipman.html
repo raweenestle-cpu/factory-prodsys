@@ -1,3 +1,5 @@
+<!-- build:20260622T220859Z -->
+<!-- build:20260622T220636Z -->
 <!-- build:20260622T215718Z -->
 <!-- build:20260622T214200Z -->
 <!-- build:20260622T211147Z -->
@@ -601,12 +603,38 @@ function getTanksForLine(lineName){
     return {...base, status:ts.status||planRow?.status, current_vol:ts.current_vol??planRow?.current_vol, mix_code:ts.mix_code||planRow?.mix_code, mix_name:ts.mix_name||planRow?.mix_name};
   }).filter(Boolean)
     .sort((a,b)=>{
-      const _ae=a.past_end_time||'';const _be=b.past_end_time||'';
-      if(!_ae&&!_be) return (a.seq||0)-(b.seq||0);
-      if(!_ae) return 1; // ไม่มี past_end_time ไปท้าย
-      if(!_be) return -1;
-      // เรียง past_end_time ascending (เสร็จก่อน = ขึ้นก่อน)
-      return _ae.localeCompare(_be)||(a.seq||0)-(b.seq||0);
+      // FIX: ถังที่บ่มครบแล้ว (พร้อมใช้จริง) ต้องขึ้นก่อนถังที่ยังบ่มไม่ครบเสมอ
+      // ไม่ว่า past_end_time (เวลา Past เสร็จ) จะเร็วกว่าหรือช้ากว่าก็ตาม
+      const _aCuring=a.status==='pasteurising'||a.status==='past_done'||a.status==='aging';
+      const _bCuring=b.status==='pasteurising'||b.status==='past_done'||b.status==='aging';
+      const _aDone=!_aCuring||getCuringInfo(a,thisLine?.id).done;
+      const _bDone=!_bCuring||getCuringInfo(b,thisLine?.id).done;
+      if(_aDone!==_bDone) return _aDone?-1:1; // บ่มครบแล้วขึ้นก่อน
+
+      // FIX: ต้องเทียบเป็น "วันที่+เวลา" จริง ไม่ใช่เทียบ HH:MM:SS เฉยๆ
+      // เดิมเทียบ string เวลาตรงๆ ข้ามวันไม่ได้ — เมื่อวาน 23:00 จะดูเหมือน "มาทีหลัง" วันนี้ 01:00 ผิดๆ
+      const _toTs=(r)=>{
+        if(!r.past_end_time) return null;
+        const[h,m,s]=r.past_end_time.split(':').map(Number);
+        let base;
+        if(r.date){
+          base=new Date(r.date+'T00:00:00');
+        } else {
+          base=new Date(); // ไม่มี date ชัดเจน — สมมติวันนี้ก่อน แล้วเช็คย้อนหลังด้านล่าง
+        }
+        base.setHours(h||0,m||0,s||0,0);
+        // ถ้าไม่มี date ชัดเจน และเวลาที่ได้อยู่ในอนาคต แปลว่าจริงๆคือเมื่อวาน
+        if(!r.date&&base.getTime()>Date.now()){
+          base.setDate(base.getDate()-1);
+        }
+        return base.getTime();
+      };
+      const _aTs=_toTs(a);
+      const _bTs=_toTs(b);
+      if(_aTs===null&&_bTs===null) return (a.seq||0)-(b.seq||0);
+      if(_aTs===null) return 1; // ไม่มี past_end_time ไปท้าย
+      if(_bTs===null) return -1;
+      return (_aTs-_bTs)||(a.seq||0)-(b.seq||0);
     });
 
   // Group rows ที่ process_order + aging_tank เดียวกัน → รวมเป็น row เดียว
@@ -670,7 +698,12 @@ function calcCuringEndTs(pastEnd,agingHr,dateStr){
   } else {
     base=new Date();
     base.setHours(h,m,0,0);
-    // ถ้าเวลา past_end ผ่านมานานแล้วในวันนี้ ก็ถือวันนี้
+    // FIX: ถ้าไม่มี dateStr ชัดเจน แล้วเวลาที่ได้ (วันนี้+h:m) อยู่ใน "อนาคต" เทียบกับตอนนี้
+    // แปลว่าจริงๆแล้วเหตุการณ์นี้เกิดเมื่อวาน (ไม่ใช่วันนี้) — เลื่อนกลับไป 1 วัน
+    // เดิมสมมติเป็นวันนี้เสมอ ทำให้ดูเหมือนยังบ่มไม่ครบ ทั้งที่ผ่านมานานแล้วจริงๆ (เป็นเมื่อวาน)
+    if(base.getTime()>Date.now()){
+      base.setDate(base.getDate()-1);
+    }
   }
   return new Date(base.getTime()+(+agingHr)*3600000);
 }
