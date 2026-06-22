@@ -1,3 +1,4 @@
+<!-- build:20260622T181714Z -->
 <!-- build:20260622T175719Z -->
 <!-- build:20260619T214220Z -->
 <!-- build:20260611120100 -->
@@ -528,6 +529,8 @@ async function init(){
 
   unsubLines=onSnapshot(collection(db,'lines'),snap=>{
     lines=snap.docs.map(d=>({id:d.id,...d.data()})).filter(l=>l.type==='Filling').sort((a,b)=>{const dd=(b.date||'').localeCompare(a.date||'');return dd!==0?dd:(a.seq||0)-(b.seq||0);});
+    window.lines=lines; // DEBUG ชั่วคราว — เรียกดูจาก Console ได้: window.lines
+    window._allLinesRaw=snap.docs.map(d=>({id:d.id,...d.data()})); // DEBUG: ดู line ทั้งหมดก่อนกรอง type==='Filling'
     renderAll();
   });
   unsubStates=onSnapshot(collection(db,'cip_line_states'),snap=>{
@@ -536,6 +539,7 @@ async function init(){
   });
   onSnapshot(collection(db,'aging_tank_states'),snap=>{
     agingStates={};snap.docs.forEach(d=>{const dat={id:d.id,...d.data()};if(dat.batch_no)dat.batch_no=String(dat.batch_no).split('/')[0];agingStates[d.id]=dat;});
+    window.agingStates=agingStates; // DEBUG ชั่วคราว — เรียกดูจาก Console ได้: window.agingStates
     renderAll();
     renderExpireAlertBar(agingStates, document.getElementById('expire-alert-bar'));
   });
