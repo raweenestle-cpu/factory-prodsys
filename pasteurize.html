@@ -1,3 +1,4 @@
+<!-- build:20260622T230545Z -->
 <!-- build:20260622T172958Z -->
 <!-- build:20260622T171347Z -->
 <!-- build:20260622T162500Z -->
@@ -471,6 +472,12 @@ setInterval(async()=>{
       const _tParts=agRow.past_start_time.split(':').map(Number);
       const[h,mm,ss]=[_tParts[0]||0,_tParts[1]||0,_tParts[2]||0];
       const start=new Date((agRow.date||new Date().toISOString().slice(0,10))+'T'+String(h).padStart(2,'0')+':'+String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0'));
+      // FIX: ถ้าไม่มี agRow.date ชัดเจน (เลยสมมติเป็นวันนี้) แล้วเวลาที่ได้ดันอยู่ใน "อนาคต"
+      // แปลว่าจริงๆ start time นี้คือ "เมื่อวาน" — เลื่อนกลับไป 1 วัน กันค่า elapsed ติดที่ 0 ตลอดกาล
+      // (บั๊กนี้ทำให้ถังที่ไม่มี date ชัดเจนค้างสถานะ pasteurising ไม่ auto-stamp ไม่ว่าจะรอนานแค่ไหน)
+      if(!agRow.date&&start.getTime()>Date.now()){
+        start.setDate(start.getDate()-1);
+      }
       const elapsedSec2=Math.max(0,(Date.now()-start)/1000);
       const elapsedMin=elapsedSec2/60;
       const agVol=totalMin>0?Math.min(totalVol,(elapsedMin/totalMin)*totalVol):0;
