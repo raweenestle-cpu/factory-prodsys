@@ -1,3 +1,4 @@
+<!-- build:20260622T161001Z -->
 <!-- build:20260620T002238Z -->
 <!-- build:20260620T002123Z -->
 <!-- build:20260619T222701Z -->
@@ -908,7 +909,7 @@ function buildStepHtml(st, i, stepsLen, pcol, rid, row, allSteps){
     const _stColor=_agSt.status==='empty'?'#6b7280':_agSt.status==='san_done'?'#059669':_agSt.status==='pasteurising'?'#2563eb':_agSt.status==='aging'?'#0e7490':_agSt.status==='past_done'?'#15803d':_agSt.status==='filling'?'#ea580c':_agSt.status==='cip'?'#7c3aed':_agSt.status==='san'?'#0891b2':'#374151';
     const _stLabel=_stMap[_agSt.status||'']||(_agSt.status||'');
     const _agStatusHtml=_agId?`<div style="font-family:var(--mono);font-size:11px;font-weight:900;padding:3px 10px;border-radius:20px;margin-top:3px;display:inline-block;background:${_stColor};color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.4);box-shadow:0 1px 3px rgba(0,0,0,.3);animation:statusGlow 2s ease-in-out infinite">${_stLabel}</div>`:'';
-    const _agInfoHtml=(_agSt.mix_name||_agSt.mix_code)?`<div style="font-size:10px;font-weight:800;color:#fff;background:rgba(0,0,0,.45);border-radius:4px;padding:2px 6px;margin-top:3px;line-height:1.3;text-align:center">${_agSt.mix_name||_agSt.mix_code||''}${_v>0?' · '+Math.round(_v).toLocaleString()+' L':''}</div>`:'';
+    const _agInfoHtml=(_agSt.status!=='empty'&&(_agSt.mix_name||_agSt.mix_code))?`<div style="font-size:10px;font-weight:800;color:#fff;background:rgba(0,0,0,.45);border-radius:4px;padding:2px 6px;margin-top:3px;line-height:1.3;text-align:center">${_agSt.mix_name||_agSt.mix_code||''}${_v>0?' · '+Math.round(_v).toLocaleString()+' L':''}</div>`:'';
     nodeHtml = _svgAg
       ? `<div class="tv3-step" style="width:130px">${_svgAg}<div class="tv3-sn ${snCls}" style="margin-top:4px">Aging Tank</div><div class="tv3-sv ${svCls}">${_agId||(_v>0?Math.round(_v).toLocaleString()+' L':st.kg)}</div>${_agStatusHtml}${_agInfoHtml}${_sanHtml}</div>`
       : `<div class="tv3-step"><div class="tv3-circle ${cls}"><span style="font-size:32px">${st.ico}</span></div><div class="tv3-sn ${snCls}">${st.name}</div><div class="tv3-sv ${svCls}">${st.kg}</div></div>`;
