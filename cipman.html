@@ -1,3 +1,5 @@
+<!-- build:20260622T215718Z -->
+<!-- build:20260622T214200Z -->
 <!-- build:20260622T211147Z -->
 <!-- build:20260622T181714Z -->
 <!-- build:20260622T175719Z -->
@@ -568,12 +570,8 @@ function getTanksForLine(lineName){
   // เปลี่ยนมาเช็คจาก config ของ Line ตรงๆแทน ส่วน production_plans ใช้แค่ดึงรายละเอียด batch
   // (mix_code, mix_name, ฯลฯ) มาแสดงประกอบเท่านั้น ไม่ใช้ตัดสินใจว่าอยู่ Line ไหน
   //
-  // ตัด 'pasteurising' ออกโดยตั้งใจ — ถังที่ยังอยู่ขั้นตอนพาสเจอร์ไรซ์
-  // ไม่ควรถูกเลือกเป็น "ถังปัจจุบัน" ของ Line จนกว่าจะบ่มเสร็จ/พร้อมเดินจริง
-  // (เดิมใช้ whitelist SHOW_STATUS เข้มงวดเกินไป — ถังที่มีของจริงแต่ status เพี้ยน/ไม่ sync
-  //  เช่นค้างที่ 'cip_done' จะหลุดไม่โชว์ทั้งที่มี current_vol อยู่ เปลี่ยนมาเช็คจาก current_vol
-  //  เป็นหลัก แล้วตัดแค่ pasteurising ออกตามเจตนาเดิม)
-  const EXCLUDE_STATUS=['pasteurising'];
+  // ตามที่ Rawee สั่ง: โชว์ทุกสถานะที่มี current_vol>0 ไม่ว่าสถานะจะเป็นอะไรก็ตาม
+  // (เดิมตัด 'pasteurising' ออก แต่ตอนนี้ไม่ตัดแล้ว ให้ความ volume เป็นตัวตัดสินอย่างเดียว)
 
   const thisLine=lines.find(l=>(l.name||'')===lineName);
   const lineTankSet=new Set((thisLine&&thisLine.aging_tanks||[]).map(t=>String(t).trim().toUpperCase()));
@@ -590,8 +588,7 @@ function getTanksForLine(lineName){
   const agTanks=Object.values(agingStates).filter(ts=>{
     if(!ts.id) return false;
     if(!lineTankSet.has(String(ts.id).trim().toUpperCase())) return false; // ต้องอยู่ใน config ของ Line นี้เท่านั้น
-    if(EXCLUDE_STATUS.includes(ts.status||'')) return false;
-    if(+(ts.current_vol||0)<=0) return false;
+    if(+(ts.current_vol||0)<=1) return false; // volume ต้องมากกว่า 1 (ตามที่สั่ง)
     return true;
   });
 
@@ -635,6 +632,15 @@ function getTanksForLine(lineName){
     }
     grouped.push(row);
   });
+  // ── ลำดับที่พนักงานเลื่อนเอง (ถ้ามี) มีผลเหนือการเรียงอัตโนมัติ ──
+  const _customOrder=(thisLine&&lineStates[thisLine.id]&&lineStates[thisLine.id].tank_order)||null;
+  if(_customOrder&&_customOrder.length){
+    const _oi={};_customOrder.forEach((t,i)=>{_oi[t]=i;});
+    grouped.sort((a,b)=>{
+      const ai=_oi[a.aging_tank]??9999,bi=_oi[b.aging_tank]??9999;
+      return ai-bi;
+    });
+  }
   return grouped;
 }
 function calcCuringEnd(pastEnd,agingHr){
@@ -921,7 +927,7 @@ function buildCard(line){
   const st=lineStates[line.id]||{};
   const isRunning=st.running&&!!st.start_ts;
   const hasLiquid=!!current&&+(current.volume_liter||0)>0; // wave ทุกครั้งที่มีของ
-  const _atsKeyEarly=st.aging_tank||(current&&current.aging_tank)||'';
+  const _atsKeyEarly=(current&&current.aging_tank)||st.aging_tank||'';
   const _atsStatusRaw=_atsKeyEarly&&agingStates[_atsKeyEarly]?agingStates[_atsKeyEarly].status||'':'';
   // map aging_tank_states.status → cardStatus
   const _atsToCard={
@@ -943,28 +949,14 @@ function buildCard(line){
   const _atsLabel=_atsStatusRaw&&_atsLabelMap[_atsStatusRaw]?_atsLabelMap[_atsStatusRaw]:'';
   const pt={running:'● กำลังเดิน',curing:_atsLabel||'⏳',stopped:_atsLabel||'⏸ หยุด',empty:'○ ว่าง',cip:_atsLabel||'🟣 CIP'};
 
-  if(!current){
-    // DEBUG ชั่วคราว: หาสาเหตุที่ไม่มีถังโผล่มา โดยไม่ต้องเปิด Console
-    const _dbgTankSet=new Set((line.aging_tanks||[]).map(t=>String(t).trim().toUpperCase()));
-    const _dbgMatched=[..._dbgTankSet].filter(t=>agingStates[t]);
-    const _dbgWithVol=_dbgMatched.filter(t=>+(agingStates[t].current_vol||0)>0);
-    const _dbgNotPast=_dbgWithVol.filter(t=>agingStates[t].status!=='pasteurising');
-    return`<div class="lcard empty" id="card-${line.id}">
+  if(!current)return`<div class="lcard empty" id="card-${line.id}">
     <div class="accent"></div>
     <div class="lhead"><div class="lhead-top">
       <div class="lname">LINE: ${line.name.toUpperCase()}</div>
       <span class="spill sp-emp">○ ว่าง</span>
     </div></div>
-    <div style="text-align:center;padding:30px;color:var(--t3);font-family:var(--mono);font-size:12px">
-      ไม่มีถังที่พร้อม<br>
-      <span style="font-size:10px;opacity:.7">
-        [DEBUG] config ถัง: ${_dbgTankSet.size} | เจอข้อมูลถัง: ${_dbgMatched.length} (${_dbgMatched.join(',')||'-'})
-        | มีของ(vol>0): ${_dbgWithVol.length} (${_dbgWithVol.join(',')||'-'})
-        | ไม่ใช่ pasteurising: ${_dbgNotPast.length} (${_dbgNotPast.join(',')||'-'})
-      </span>
-    </div>
+    <div style="text-align:center;padding:30px;color:var(--t3);font-family:var(--mono);font-size:12px">ไม่มีถังที่พร้อม</div>
   </div>`;
-  }
 
   const col=productMap[current.mix_code]?.color||'#3b82f6';
   const elapsed=isRunning&&st.start_ts?(Date.now()-st.start_ts)/3600000:0;
@@ -973,18 +965,21 @@ function buildCard(line){
   // ใช้ current_vol แบบ cumulative — ถ้ามี process_order ให้ดึงจาก active batch
   const _totalVol=+(current.volume_liter||0);
   // ดึง current_vol จาก aging_tank_states (single source of truth)
-  const _atsKey=st.aging_tank||current.aging_tank||'';
+  const _atsKey=current.aging_tank||st.aging_tank||'';
   const _atsCv=_atsKey&&agingStates[_atsKey]&&agingStates[_atsKey].current_vol!=null
     ?+agingStates[_atsKey].current_vol:-1;
   let agVol=_atsCv>=0?_atsCv:_totalVol;
   const sv=st.start_vol||agVol;
   // ก่อน Start → แสดง agVol ตรงๆ / หลัง Start → countdown จาก start_vol
   const rem=isRunning?Math.max(0,(st.start_vol||agVol)-((Date.now()-(st.start_ts||0))/3600000*(st.flow_rate||line.flow_rate||300))):agVol;
-  const _capMain=getTankCapacity(st.aging_tank||current.aging_tank||'');
+  const _capMain=getTankCapacity(current.aging_tank||st.aging_tank||'');
   const pct=_capMain>0?(rem/_capMain)*100:0;
   const pctC=pctColor(pct);
   const fp=getFP(line.id,'A');
-  const agingTank=st.aging_tank||current.aging_tank||'—';
+  // FIX: ป้ายชื่อถังต้องตรงกับถังที่ใช้แสดงข้อมูลจริง (current) เป็นหลัก
+  // เดิมให้ st.aging_tank (ค่าที่ค้างใน cip_line_states จากการใช้ถังครั้งก่อน) มาก่อน
+  // ทำให้ป้ายชื่อโชว์ถังผิด (ค้างชื่อถังเก่า) ทั้งที่รายละเอียดอื่นเป็นของถังปัจจุบันจริง
+  const agingTank=current.aging_tank||st.aging_tank||'—';
   const yr=new Date().getFullYear().toString().slice(-1);
   const unit=current._col==='production_plans_m2'?'2':'1';
   const prodCode=current.prod_suffix?(yr+'0522'+unit+current.prod_suffix):'—';
@@ -1160,7 +1155,7 @@ function calcVol(row){
   const qcol=r.color||qp.color||'#60a5fa';
   const qAts=agingStates[r.aging_tank]||{};
   const qVol=+(qAts.current_vol??r.volume_liter??0);
-  const qTot=+(r.volume_liter||0);
+  const qTot=getTankCapacity(r.aging_tank||'')||+(r.volume_liter||0)||1;
   const qPct=qTot>0?Math.min(100,(qVol/qTot)*100):0;
   const qPctC=qPct>50?'#15803d':qPct>20?'#b45309':'#b91c1c';
   const qTank=r.aging_tank||'—';
@@ -1169,8 +1164,12 @@ function calcVol(row){
   const cipOk=qSt['cip_'+qTank]||false;
   const q="'";
   const qLbl=qi===0?'<span style="font-family:var(--mono);font-size:15px;font-weight:900;color:#dc2626;background:#fee2e2;border:2px solid #fca5a5;border-radius:7px;padding:3px 10px">คิว 1 ▶</span>':'<span style="font-family:var(--mono);font-size:14px;font-weight:900;color:#111827;background:#e2e8f0;border:2px solid #b0bac8;border-radius:7px;padding:3px 10px">คิว '+(qi+1)+'</span>';
+  const qMoveBtns='<div style="display:flex;gap:4px">'
+    +'<button onclick="moveTankInQueue('+q+line.id+q+','+q+line.name+q+','+q+qTank+q+',-1)" style="width:30px;height:30px;border-radius:8px;border:2px solid #94a3b8;background:#fff;color:#374151;font-weight:900;font-size:15px;cursor:pointer">◀</button>'
+    +'<button onclick="moveTankInQueue('+q+line.id+q+','+q+line.name+q+','+q+qTank+q+',1)" style="width:30px;height:30px;border-radius:8px;border:2px solid #94a3b8;background:#fff;color:#374151;font-weight:900;font-size:15px;cursor:pointer">▶</button>'
+    +'</div>';
   return '<div style="flex-shrink:0;width:250px;background:#fff;border:2.5px solid '+(qi===0?'#fca5a5':'#e2e8f0')+';border-radius:16px;padding:16px;display:flex;flex-direction:column;align-items:center;gap:6px">'
-    +'<div style="width:100%;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">'+qLbl+'</div>'
+    +'<div style="width:100%;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">'+qLbl+qMoveBtns+'</div>'
     +'<div style="position:relative;width:100%;display:flex;justify-content:center;padding-top:22px">'
       +tankSVG('Q'+qi+'_'+line.id,qPct,qcol,qVol>0,null,null,180,240,qVol)
       +'<div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#111827;color:#fff;font-family:var(--mono);font-size:19px;font-weight:900;padding:5px 16px;border-radius:10px;white-space:nowrap;pointer-events:none;letter-spacing:.04em;z-index:2">'+qTank+'</div>'
@@ -1347,6 +1346,24 @@ window.resetLine=async(lineId)=>{
 
 // EMPTY
 let pendingEmpty=null;
+// ── เลื่อนลำดับคิวถังเอง (◀ ▶) — เขียน tank_order ลง cip_line_states ──
+window.moveTankInQueue=async(lineId,lineName,tankId,dir)=>{
+  const tanks=getTanksForLine(lineName);
+  const ids=tanks.map(t=>t.aging_tank);
+  const idx=ids.indexOf(tankId);
+  if(idx<0)return;
+  const newIdx=idx+dir;
+  if(newIdx<0||newIdx>=ids.length)return;
+  [ids[idx],ids[newIdx]]=[ids[newIdx],ids[idx]];
+  try{
+    await setDoc(doc(db,'cip_line_states',lineId),{tank_order:ids},{merge:true});
+    toast('เลื่อนลำดับคิวแล้ว','green');
+  }catch(e){
+    console.error('moveTankInQueue error:',e);
+    alert('เลื่อนคิวไม่สำเร็จ: '+e.message);
+  }
+};
+
 window.askEmpty=(lineId,col,planId,lineName)=>{
   pendingEmpty={lineId,col,planId,lineName};
   $('m-empty-sub').textContent='LINE '+lineName+' จะถูกบันทึกและถังถัดไปโหลดขึ้นมา';
