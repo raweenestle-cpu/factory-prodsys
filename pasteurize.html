@@ -1,3 +1,4 @@
+<!-- build:20260622T172958Z -->
 <!-- build:20260622T171347Z -->
 <!-- build:20260622T162500Z -->
 <!-- build:20260622T161859Z -->
@@ -530,7 +531,10 @@ setInterval(async()=>{
           // finalCumVol = watermark ของ p นี้ (ไม่รวม p อื่น — จะรวมใน transaction)
           const _wmKeyStamp=p+'_'+(agRow.process_order||'')+'_'+(agRow.aging_tank||'');
           const _prevVolStamp=window._prevVolMap[_wmKeyStamp]||0;
-          const finalCumVol=_prevVolStamp+(+(agRow.volume_liter||0));
+          // FIX: ห้ามบวก volume_liter ซ้ำ — totalCumVol ที่คำนวณไว้ด้านบนแล้ว (prevVol+agVol)
+          // ใกล้เคียงปริมาตรเต็มของ batch นี้อยู่แล้ว ณ จุดที่ถึง ETA (agVol≈volume_liter)
+          // เดิมโค้ดบวก volume_liter เข้าไปอีกรอบ ทำให้ค่าตัวเองถูกนับซ้ำ 2 เท่า
+          const finalCumVol=totalCumVol;
           window._prevVolMap[_wmKeyStamp]=finalCumVol;
 
           await updateDoc(doc(db,planCol(p),agRow.id),{
