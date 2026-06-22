@@ -1,3 +1,4 @@
+<!-- build:20260622T160017Z -->
 <!DOCTYPE html><!-- build:20260617190000 -->
 <html lang="th">
 <head>
@@ -1220,7 +1221,6 @@ function renderMixTanks(m, rowsArg){
           <div class="tv3-code">${row.mix_code||'—'} · PROCESS ${row.process_order||'—'}</div>
           <div class="tv3-name">${row.mix_name||'—'}</div>
           <div class="tv3-meta">Batch ${row.batch_no||'—'} &nbsp;·&nbsp; <span style="font-size:18px;font-weight:900;color:#f1f5f9">${displayVol(row)}</span>${row.final_flush?'&nbsp;·&nbsp;<span style="font-family:var(--mono);font-size:13px;font-weight:900;color:#38bdf8">🧪 Flush: '+(+(row.final_flush)).toLocaleString()+' L</span>':''}</div>
-          ${(()=>{const _at=row.aging_tank||'';const _as=_at&&window._agingStates?window._agingStates[_at]||{}:{};return _at?(expireBox(_as.expire_at||null)+tempBox(_as)):'';})()}
         </div>
         <div class="tv3-st" style="padding:12px 16px;gap:8px;flex-direction:column;align-items:flex-end">${(()=>{
           const _st=row.status||'';
