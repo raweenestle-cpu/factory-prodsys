@@ -1,3 +1,4 @@
+<!-- build:20260622T175719Z -->
 <!-- build:20260619T214220Z -->
 <!-- build:20260611120100 -->
 <!DOCTYPE html>
@@ -564,7 +565,10 @@ function getTanksForLine(lineName){
   //
   // ตัด 'pasteurising' ออกโดยตั้งใจ — ถังที่ยังอยู่ขั้นตอนพาสเจอร์ไรซ์
   // ไม่ควรถูกเลือกเป็น "ถังปัจจุบัน" ของ Line จนกว่าจะบ่มเสร็จ/พร้อมเดินจริง
-  const SHOW_STATUS=['past_done','ready','aging','filling','san_done'];
+  // (เดิมใช้ whitelist SHOW_STATUS เข้มงวดเกินไป — ถังที่มีของจริงแต่ status เพี้ยน/ไม่ sync
+  //  เช่นค้างที่ 'cip_done' จะหลุดไม่โชว์ทั้งที่มี current_vol อยู่ เปลี่ยนมาเช็คจาก current_vol
+  //  เป็นหลัก แล้วตัดแค่ pasteurising ออกตามเจตนาเดิม)
+  const EXCLUDE_STATUS=['pasteurising'];
 
   const thisLine=lines.find(l=>(l.name||'')===lineName);
   const lineTankSet=new Set((thisLine&&thisLine.aging_tanks||[]).map(t=>String(t).trim().toUpperCase()));
@@ -581,7 +585,7 @@ function getTanksForLine(lineName){
   const agTanks=Object.values(agingStates).filter(ts=>{
     if(!ts.id) return false;
     if(!lineTankSet.has(String(ts.id).trim().toUpperCase())) return false; // ต้องอยู่ใน config ของ Line นี้เท่านั้น
-    if(!SHOW_STATUS.includes(ts.status||'')) return false;
+    if(EXCLUDE_STATUS.includes(ts.status||'')) return false;
     if(+(ts.current_vol||0)<=0) return false;
     return true;
   });
