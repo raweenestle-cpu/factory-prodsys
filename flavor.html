@@ -1,3 +1,4 @@
+<!-- build:20260622T163931Z -->
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -994,16 +995,17 @@ window.openQcModal=(col,id)=>{
     const std=p[f.stdKey]||'';
     const val=row[f.key]||'';
     const hasStd=!!parseStdRange(std);
+    if(!hasStd) return ''; // ไม่มี std กำหนดไว้สำหรับสินค้านี้ — ไม่โชว์ field นี้เลย กันลงผิดลงถูก
     return`<div class="qc-field-row" data-key="${f.key}" data-std="${std.replace(/"/g,'&quot;')}">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-        <span style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--text)">${f.icon} ${f.label}</span>
-        <span style="font-family:var(--mono);font-size:11px;color:var(--t3)">std: ${std||'— ไม่กำหนด —'}</span>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <span style="font-family:var(--mono);font-size:16px;font-weight:800;color:var(--text)">${f.icon} ${f.label}</span>
+        <span style="font-family:var(--mono);font-size:16px;font-weight:900;color:var(--mint2);background:rgba(45,212,168,.15);padding:3px 10px;border-radius:6px">STD: ${std}</span>
       </div>
       <div style="display:flex;align-items:center;gap:8px">
-        <input type="text" class="ci qc-input" style="flex:1;font-size:15px" value="${val}"
-          placeholder="${hasStd?'กรอกค่าที่วัดได้':'ไม่มี std — กรอกได้ตามต้องการ'}"
+        <input type="text" class="ci qc-input" style="flex:1;font-size:18px;font-weight:700" value="${val}"
+          placeholder="กรอกค่าที่วัดได้"
           oninput="qcValidateField(this)">
-        <span class="qc-field-result" style="font-family:var(--mono);font-size:13px;font-weight:800;min-width:64px;text-align:center"></span>
+        <span class="qc-field-result" style="font-family:var(--mono);font-size:16px;font-weight:900;min-width:70px;text-align:center"></span>
       </div>
     </div>`;
   }).join('');
