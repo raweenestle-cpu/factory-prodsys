@@ -1,3 +1,4 @@
+<!-- build:20260622T161859Z -->
 <!-- build:20260622T161001Z -->
 <!-- build:20260620T002238Z -->
 <!-- build:20260620T002123Z -->
@@ -909,7 +910,7 @@ function buildStepHtml(st, i, stepsLen, pcol, rid, row, allSteps){
     const _stColor=_agSt.status==='empty'?'#6b7280':_agSt.status==='san_done'?'#059669':_agSt.status==='pasteurising'?'#2563eb':_agSt.status==='aging'?'#0e7490':_agSt.status==='past_done'?'#15803d':_agSt.status==='filling'?'#ea580c':_agSt.status==='cip'?'#7c3aed':_agSt.status==='san'?'#0891b2':'#374151';
     const _stLabel=_stMap[_agSt.status||'']||(_agSt.status||'');
     const _agStatusHtml=_agId?`<div style="font-family:var(--mono);font-size:11px;font-weight:900;padding:3px 10px;border-radius:20px;margin-top:3px;display:inline-block;background:${_stColor};color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.4);box-shadow:0 1px 3px rgba(0,0,0,.3);animation:statusGlow 2s ease-in-out infinite">${_stLabel}</div>`:'';
-    const _agInfoHtml=(_agSt.status!=='empty'&&(_agSt.mix_name||_agSt.mix_code))?`<div style="font-size:10px;font-weight:800;color:#fff;background:rgba(0,0,0,.45);border-radius:4px;padding:2px 6px;margin-top:3px;line-height:1.3;text-align:center">${_agSt.mix_name||_agSt.mix_code||''}${_v>0?' · '+Math.round(_v).toLocaleString()+' L':''}</div>`:'';
+    const _agInfoHtml=((_agSt.status&&_agSt.status!=='empty')&&(_agSt.mix_name||_agSt.mix_code))?`<div style="font-size:10px;font-weight:800;color:#fff;background:rgba(0,0,0,.45);border-radius:4px;padding:2px 6px;margin-top:3px;line-height:1.3;text-align:center">${_agSt.mix_name||_agSt.mix_code||''}${_v>0?' · '+Math.round(_v).toLocaleString()+' L':''}</div>`:'';
     nodeHtml = _svgAg
       ? `<div class="tv3-step" style="width:130px">${_svgAg}<div class="tv3-sn ${snCls}" style="margin-top:4px">Aging Tank</div><div class="tv3-sv ${svCls}">${_agId||(_v>0?Math.round(_v).toLocaleString()+' L':st.kg)}</div>${_agStatusHtml}${_agInfoHtml}${_sanHtml}</div>`
       : `<div class="tv3-step"><div class="tv3-circle ${cls}"><span style="font-size:32px">${st.ico}</span></div><div class="tv3-sn ${snCls}">${st.name}</div><div class="tv3-sv ${svCls}">${st.kg}</div></div>`;
@@ -1174,11 +1175,11 @@ window.mixTankSVG=function(row,cap){
   s+=`<rect x="${bX+bW-13}" y="${bY+bH}" width="7" height="13" rx="2" fill="${hasLiq?`rgba(${r2},${g2},${b2},.2)`:'rgba(71,85,105,.3)'}" stroke="${hasLiq?col:'#475569'}" stroke-width="1.5" stroke-opacity=".5"/>`;
   s+=`<rect x="${bX+2}" y="${bY+bH+12}" width="${bW-4}" height="4" rx="2" fill="${hasLiq?`rgba(${r2},${g2},${b2},.15)`:'rgba(71,85,105,.2)'}" stroke="${hasLiq?col:'#475569'}" stroke-width="1" stroke-opacity=".4"/>`;
   // text
-  s+=`<text x="${sw/2}" y="${midY-2}" text-anchor="middle" font-family="DM Mono,monospace" font-size="18" fill="#111827" font-weight="900">${hasLiq?vol.toLocaleString():'ว่าง'}</text>`;
+  s+=`<text x="${sw/2}" y="${midY-2}" text-anchor="middle" font-family="DM Mono,monospace" font-size="18" fill="#ffffff" font-weight="900" style="text-shadow:0 1px 4px rgba(0,0,0,.8)">${hasLiq?vol.toLocaleString():'ว่าง'}</text>`;
   if(hasLiq){
-    s+=`<text x="${sw/2}" y="${midY+13}" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="#111827" font-weight="700" opacity=".8">ลิตร · ${Math.round(pct)}%</text>`;
+    s+=`<text x="${sw/2}" y="${midY+13}" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="#ffffff" font-weight="700" opacity=".9" style="text-shadow:0 1px 3px rgba(0,0,0,.7)">ลิตร · ${Math.round(pct)}%</text>`;
     s+=`<rect x="${bX+5}" y="${midY+16}" width="${bW-10}" height="16" rx="8" fill="${col}" fill-opacity="1" stroke="rgba(255,255,255,.3)" stroke-width="1"/>`;
-    s+=`<text x="${sw/2}" y="${midY+27}" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#111827" font-weight="900">${stTxt} ${stLbl}</text>`;
+    s+=`<text x="${sw/2}" y="${midY+27}" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#ffffff" font-weight="900" style="text-shadow:0 1px 3px rgba(0,0,0,.7)">${stTxt} ${stLbl}</text>`;
   }
   s+=`</svg>`;
   return s;
