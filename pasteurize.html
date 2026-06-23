@@ -1,3 +1,5 @@
+<!-- build:20260623T161917Z -->
+<!-- build:20260623T160921Z -->
 <!-- build:20260622T230545Z -->
 <!-- build:20260622T172958Z -->
 <!-- build:20260622T171347Z -->
@@ -502,9 +504,14 @@ setInterval(async()=>{
       // ── เขียน aging_tank_states โดยไม่ read (ไม่ใช้ transaction) ──
       // ใช้ in-memory contrib map คำนวณ vol รวม p1+p2 ไม่ต้อง read Firebase
       if(agRow.aging_tank){
-        const _contribKey=p+'_contrib_'+(agRow.aging_tank||'');
+        // FIX: key ต้องผูกกับ process_order ด้วย ไม่ใช่แค่ถังเฉยๆ
+        // เดิม key = p+'_contrib_'+tank อย่างเดียว ทำให้ค่าจาก batch ก่อนหน้า (หรือฝั่ง p อีกตัว
+        // ที่ไม่เกี่ยวกับ batch ปัจจุบันเลย) ค้างอยู่ในหน่วยจำแล้วถูกบวกซ้ำเข้าไปทุกครั้งที่เปลี่ยน
+        // batch ใหม่ในถังเดิม (เช่น Batch 1/1 จบแล้วต่อ Batch 1/2 — ค่าเก่าของ Batch 1/1
+        // จาก key เดิมไม่ถูกใช้ต่อ แต่ค่า "ของ p อีกฝั่ง" ที่ไม่เกี่ยวกับ batch นี้เลยกลับมาปนด้วย)
+        const _contribKey=p+'_contrib_'+(agRow.process_order||'')+'_'+(agRow.aging_tank||'');
         const _otherP=p==='p1'?'p2':'p1';
-        const _otherKey=_otherP+'_contrib_'+(agRow.aging_tank||'');
+        const _otherKey=_otherP+'_contrib_'+(agRow.process_order||'')+'_'+(agRow.aging_tank||'');
         const _otherVol=window._prevContribMap[_otherKey]||0;
         const _newCombined=Math.round((totalCumVol+_otherVol)*10)/10;
         window._prevContribMap[_contribKey]=totalCumVol;
@@ -567,38 +574,31 @@ setInterval(async()=>{
               r.process_order===agRow.process_order&&r.aging_tank===agRow.aging_tank&&
               r.id!==agRow.id&&(r.status==='pasteurising'||r.status==='pending'||r.status==='mixing'||r.status==='ready_mix')
             );
-            const _contribKey=p+'_contrib_'+(agRow.aging_tank||'');
+            // FIX: ผูก key กับ process_order ด้วย เหมือนกับบล็อกต่อเนื่องด้านบน (เหตุผลเดียวกัน)
+            const _contribKey=p+'_contrib_'+(agRow.process_order||'')+'_'+(agRow.aging_tank||'');
             const _otherP=p==='p1'?'p2':'p1';
-            const _otherKey=_otherP+'_contrib_'+(agRow.aging_tank||'');
+            const _otherKey=_otherP+'_contrib_'+(agRow.process_order||'')+'_'+(agRow.aging_tank||'');
             if(_hasNext){
               // รวม vol ของ p นี้กับ p อื่นจาก in-memory map
               const _otherVol=window._prevContribMap[_otherKey]||0;
               const _newCombined=Math.round((finalCumVol+_otherVol)*10)/10;
               window._prevContribMap[_contribKey]=finalCumVol;
               try{await setDoc(doc(db,'aging_tank_states',agRow.aging_tank),{
-                current_vol:_newCombined,updated_at:new Date().toISOString()
+                current_vol:_newCombined,status:'past_done',updated_at:new Date().toISOString()
               },{merge:true});}catch(e){console.warn('stamp aging write error:',e);}
             } else {
-              const _otherHas=(rows[_otherP]||[]).some(r=>
-                r.aging_tank===agRow.aging_tank&&
-                (r.status==='pasteurising'||r.status==='pending'||r.status==='mixing'||r.status==='ready_mix')
-              );
-              if(!_otherHas){
-                try{await setDoc(doc(db,'aging_tank_states',agRow.aging_tank),{
-                  current_vol:0,mix_code:'',mix_name:'',batch_no:'',
-                  process_order:'',status:'empty',past_end_time:null,
-                  updated_at:new Date().toISOString()
-                },{merge:false});}catch{}
-                delete window._prevContribMap[_contribKey];
-                delete window._prevContribMap[_otherKey];
-              } else {
-                const _otherVol=window._prevContribMap[_otherKey]||0;
-                const _newCombined=Math.round((finalCumVol+_otherVol)*10)/10;
-                window._prevContribMap[_contribKey]=finalCumVol;
-                try{await setDoc(doc(db,'aging_tank_states',agRow.aging_tank),{
-                  current_vol:_newCombined,updated_at:new Date().toISOString()
-                },{merge:true});}catch(e){console.warn('stamp aging write error:',e);}
-              }
+              // FIX: เดิมตรงนี้เคยมี logic ที่ "ล้างถังเป็นว่างอัตโนมัติ" ถ้าไม่มี batch ถัดไป
+              // จะมาต่อ (ทั้งของ p นี้และ p อื่น) — เป็นบั๊กร้ายแรง เพราะของที่พาสเสร็จไปแล้ว
+              // (เช่น 3,000L) ยังอยู่ในถังจริงรอบ่ม/รอ Filling อยู่ ไม่ใช่ถังว่างเปล่า!
+              // การล้างข้อมูลถังต้องมาจาก "คนกดเคลียร์เอง" เท่านั้น (ปุ่มเคลียร์ในหน้า aging.html)
+              // ไม่ใช่ระบบเดาเอาเองว่า "ไม่มีคิวต่อ = ว่าง" — ตอนนี้เปลี่ยนเป็นเขียนปริมาตรที่ถูกต้อง
+              // (รวมกับฝั่ง p อื่นถ้ามี) เหมือนกรณีอื่นเสมอ ไม่ล้างข้อมูลทิ้งอีกต่อไป
+              const _otherVol=window._prevContribMap[_otherKey]||0;
+              const _newCombinedFinal=Math.round((finalCumVol+_otherVol)*10)/10;
+              window._prevContribMap[_contribKey]=finalCumVol;
+              try{await setDoc(doc(db,'aging_tank_states',agRow.aging_tank),{
+                current_vol:_newCombinedFinal,status:'past_done',updated_at:new Date().toISOString()
+              },{merge:true});}catch(e){console.warn('stamp aging write error:',e);}
             }
           }
 
@@ -649,8 +649,8 @@ setInterval(async()=>{
               }
               // sync aging_tank_states nextRow ด้วย in-memory contrib
               if(nextRow.aging_tank){
-                const _nContribKey=p+'_contrib_'+nextRow.aging_tank;
-                const _nOtherKey=(_otherP||(_p==='p1'?'p2':'p1'))+'_contrib_'+nextRow.aging_tank;
+                const _nContribKey=p+'_contrib_'+(nextRow.process_order||'')+'_'+nextRow.aging_tank;
+                const _nOtherKey=(_otherP||(_p==='p1'?'p2':'p1'))+'_contrib_'+(nextRow.process_order||'')+'_'+nextRow.aging_tank;
                 const _nOtherVol=window._prevContribMap[_nOtherKey]||0;
                 const _nCombined=Math.round((finalCumVol+_nOtherVol)*10)/10;
                 window._prevContribMap[_nContribKey]=finalCumVol;
