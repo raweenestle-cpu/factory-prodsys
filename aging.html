@@ -1,3 +1,4 @@
+<!-- build:20260623T005345Z -->
 <!-- build:20260611130000 -->
 <!DOCTYPE html>
 <!-- PROD.SYS aging.html — updated 2026-06-03 00:00 -->
@@ -653,6 +654,19 @@ window.setTankStatus=async(status)=>{
     :{status,updated_at:new Date().toISOString()};
   try{
     await setDoc(doc(db,'aging_tank_states',selectedTank),upd,{merge:!isReset});
+    if(isReset){
+      // ปิด production_plans ของถังนี้ไปด้วย กันถูกเขียนทับกลับจาก auto-stamp loop (เหตุผลเดียวกับ clearTank)
+      for(const _col of['production_plans','production_plans_m2']){
+        try{
+          const _snap=await getDocs(query(collection(db,_col),where('aging_tank','==',selectedTank)));
+          for(const _d of _snap.docs){
+            if(_d.data().status&&_d.data().status!=='sent_filling'){
+              await setDoc(doc(db,_col,_d.id),{status:'sent_filling',updated_at:new Date().toISOString()},{merge:true});
+            }
+          }
+        }catch(e){console.warn('setTankStatus: ปิด',_col,'ไม่สำเร็จ:',e);}
+      }
+    }
     toast(statusLabel(status),'green');
     closeModal();
   }catch(e){toast('ไม่สำเร็จ','red');}
@@ -669,7 +683,26 @@ window.clearTank=async()=>{
   if(!selectedTank||!confirm('เคลียร์ถัง '+selectedTank+'?'))return;
   try{
     await setDoc(doc(db,'aging_tank_states',selectedTank),{status:'empty',current_vol:0,updated_at:new Date().toISOString()});
-    toast('เคลียร์ถัง '+selectedTank+' แล้ว','green');closeModal();
+    // ── ปิด production_plans/production_plans_m2 ของถังนี้ไปด้วยในคลิกเดียว ──
+    // เดิมเคลียร์แค่ aging_tank_states แต่ไม่แตะ production_plans เลย ถ้า row ยังมี
+    // status='pasteurising' ค้างอยู่ หน้า pasteurize.html (ถ้าเปิดอยู่ที่ไหนก็ตาม) จะมี
+    // auto-stamp loop เขียน current_vol กลับเข้า aging_tank_states ใหม่ทุก 15 วินาที
+    // ทำให้เคลียร์ไปแล้ว "เด้งกลับมา" เหมือนไม่หาย — แก้โดยปิด row ที่ค้างไปด้วยเลย
+    let _closedCount=0;
+    for(const _col of['production_plans','production_plans_m2']){
+      try{
+        const _snap=await getDocs(query(collection(db,_col),where('aging_tank','==',selectedTank)));
+        for(const _d of _snap.docs){
+          const _data=_d.data();
+          if(_data.status&&_data.status!=='sent_filling'){
+            await setDoc(doc(db,_col,_d.id),{status:'sent_filling',updated_at:new Date().toISOString()},{merge:true});
+            _closedCount++;
+          }
+        }
+      }catch(e){console.warn('clearTank: ปิด',_col,'ไม่สำเร็จ:',e);}
+    }
+    toast('เคลียร์ถัง '+selectedTank+' แล้ว'+(_closedCount?' (ปิดงานค้าง '+_closedCount+' รายการด้วย)':''),'green');
+    closeModal();
   }catch(e){toast('ไม่สำเร็จ','red');}
 };
 
