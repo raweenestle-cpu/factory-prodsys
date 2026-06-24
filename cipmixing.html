@@ -1,3 +1,4 @@
+<!-- build:20260625T000000Z -->
 <!-- build:20260622T171347Z -->
 <!-- build:20260620T010302Z -->
 <!-- build:20260620T001037Z -->
@@ -572,7 +573,7 @@ async function _doActReal(tid, act, programs){
   const map={start_cip:'cip',stop_cip:'cip_done',start_san:'san',stop_san:'san_done'};
   let newSt=map[act];if(!newSt)return;
   const n=nowHMS();
-  const todayStr=new Date().toISOString().split('T')[0];
+  const todayStr=today();
   const nowIso=new Date().toISOString();
 
   // ── คำนวณค่า "สุดท้าย" ของ status/เวลาหลักให้เสร็จก่อนเขียนครั้งเดียว ──
@@ -1165,7 +1166,7 @@ window.setTempVal=async function(tid,key,val){
       let _baseDate2;
       if(/^\d{1,2}:\d{2}(:\d{2})?$/.test(_pastEnd2)){
         const _hms2=_pastEnd2.length===5?_pastEnd2+':00':_pastEnd2;
-        _baseDate2=new Date(new Date().toISOString().split('T')[0]+'T'+_hms2);
+        _baseDate2=new Date(today()+'T'+_hms2);
       } else {
         _baseDate2=new Date(_pastEnd2);
       }
@@ -1392,7 +1393,7 @@ window._cipLogRows = [];
 // programs: ['Alkaline'] หรือ ['Alkaline','Acid'] (ถ้าเลือกคู่ จะสร้างแค่ Alkaline ก่อน Acid จะ auto-start ทันทีที่ Alkaline stop)
 async function _autoLogCip(tid, act, programs){
   const ts = tankStates[tid]||{};
-  const d = new Date().toISOString().split('T')[0];
+  const d = today();
   const n = nowHMS();
   const recType = act==='start_cip'?'cip':'san';
   const wantsAcid = act==='start_cip' && programs && programs.includes('Acid');
