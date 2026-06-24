@@ -455,6 +455,8 @@ window._prevVolMap={};
 window._prevContribMap={};
 onSnapshot(collection(db,'aging_tank_states'),snap=>{
   snap.docs.forEach(d=>{const dat={id:d.id,...d.data()};if(dat.batch_no)dat.batch_no=String(dat.batch_no).split('/')[0];window._agingStates[d.id]=dat;});
+  // re-render ทันที ไม่งั้นป้ายสถานะถัง (CIP/San/ว่าง ฯลฯ) จะไม่ขยับจนกว่าจะมี trigger อื่นมาเขย่า
+  try{renderPlan('p1');renderPlan('p2');}catch(e){console.warn('[aging_tank_states render] ',e);}
 });
 
 const _autoStamping=new Set(); // ป้องกัน stamp ซ้ำ
