@@ -956,7 +956,11 @@ function queueList(q,accent,lineId){
 function buildCard(line){
   const tanks=getTanksForLine(line.name);
   const current=tanks[0]||null;
-  const queue=tanks.slice(1);
+  // ── เช็คว่า product นี้ต้องใช้ 2 mix_code พร้อมกันไหม (ตาม Product Master ของ Line) ──
+  const _lineProdForCount=current?(line.products||[]).find(p=>(p.mix_codes||[]).some(m=>m.code===current.mix_code)):null;
+  const neededCount=_lineProdForCount?.mix_codes?.length||1;
+  const current2=(neededCount>=2&&tanks[1]&&(_lineProdForCount.mix_codes||[]).some(m=>m.code===tanks[1].mix_code))?tanks[1]:null;
+  const queue=tanks.slice(current2?2:1);
   const st=lineStates[line.id]||{};
   const isRunning=st.running&&!!st.start_ts;
   const hasLiquid=!!current&&+(current.volume_liter||0)>0; // wave ทุกครั้งที่มีของ
@@ -1018,6 +1022,26 @@ function buildCard(line){
   const prodCode=current.prod_suffix?(yr+'0522'+unit+current.prod_suffix):'—';
   const prodCodeLabel='รหัสผลิต: '+prodCode;
 
+  // ── ถังที่ 2 (เฉพาะ product ที่ต้องใช้ 2 mix_code พร้อมกัน) — คุมอิสระจากถัง 1 ──
+  let agingTank2='—',rem2=0,pct2=0,pctC2='#6b7280',sv2=0,col2='#3b82f6',isRunning2=false,curing2={done:false,endTime:'—'};
+  if(current2){
+    col2=productMap[current2.mix_code]?.color||'#3b82f6';
+    isRunning2=!!(st.running2&&st.start_ts2);
+    const isPasteurising2=current2.status==='pasteurising';
+    const isPastDone2=current2.status==='past_done';
+    curing2=(isPastDone2||(!isPasteurising2&&current2.past_end_time))?getCuringInfo(current2,line.id):{done:false,endTime:'—'};
+    const _totalVol2=+(current2.volume_liter||0);
+    const _atsKey2=current2.aging_tank||st.aging_tank2||'';
+    const _atsCv2=_atsKey2&&agingStates[_atsKey2]&&agingStates[_atsKey2].current_vol!=null
+      ?+agingStates[_atsKey2].current_vol:-1;
+    const agVol2=_atsCv2>=0?_atsCv2:_totalVol2;
+    sv2=st.start_vol2||agVol2;
+    rem2=isRunning2?Math.max(0,(st.start_vol2||agVol2)-((Date.now()-(st.start_ts2||0))/3600000*(st.flow_rate2||line.flow_rate||300))):agVol2;
+    const _capMain2=getTankCapacity(current2.aging_tank||st.aging_tank2||'');
+    pct2=_capMain2>0?(rem2/_capMain2)*100:0;
+    pctC2=pctColor(pct2);
+    agingTank2=current2.aging_tank||st.aging_tank2||'—';
+  }
 
 function calcVol(row){
   const totalVol=+(row.volume_liter||0);
@@ -1131,6 +1155,27 @@ function calcVol(row){
             <button style="padding:9px 12px;border-radius:9px;font-family:var(--mono);font-size:14px;font-weight:800;border:2px solid #fcd34d;background:#fef9c3;color:#92400e;cursor:pointer" onclick="resetLine('${line.id}')">↺</button>
           </div>
         </div>
+
+        ${current2?`
+        <!-- ถังที่ 2 — product นี้ใช้ 2 mix_code พร้อมกัน (ตาม Product Master) — คุมอิสระจากถัง 1 -->
+        <div style="flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:2px">
+          <div style="height:32px;display:flex;align-items:center;justify-content:center">
+            <div style="font-family:var(--mono);font-size:18px;font-weight:900;color:#111827;background:#e2e8f0;border:2px solid #b0bac8;border-radius:8px;padding:5px 14px">${agingTank2}</div>
+          </div>
+          <div style="position:relative;display:flex;justify-content:center">
+            ${tankSVG('S2'+line.id,pct2,col2,!!current2&&+(current2.volume_liter||0)>0,current2.status==='pasteurising'?'♨️':isRunning2?'🔵':curing2.done?'✅':'🌡️',current2.status==='pasteurising'?'#fb923c':curing2.done?'#4ade80':'#fde047',150,200,rem2)}
+            <div style="position:absolute;bottom:28px;left:50%;transform:translateX(-50%);background:${isRunning2?col2:'#111827'}cc;color:#fff;font-family:var(--mono);font-size:15px;font-weight:800;padding:6px 14px;border-radius:999px;white-space:nowrap;pointer-events:none">${isRunning2?'▶ กำลังเดิน':curing2.done?'✅ พร้อม':'⏳ รอบ่ม'}</div>
+          </div>
+          <div style="font-family:var(--mono);font-size:11px;font-weight:800;color:#111827;margin-top:2px">${current2.mix_code||'—'} · Batch ${current2.batch_no||'—'}</div>
+          <div style="font-family:var(--mono);font-size:10px;font-weight:700;color:${pctC2};margin-top:2px">${rem2.toLocaleString(undefined,{maximumFractionDigits:0})} L (${pct2.toFixed(1)}%)</div>
+          <!-- Start / Stop / Reset ถัง 2 — เป็นอิสระจากถัง 1 ทั้งหมด -->
+          <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:8px;justify-content:center">
+            <button style="padding:9px 16px;border-radius:9px;font-family:var(--mono);font-size:14px;font-weight:900;border:2px solid ${isRunning2?'#e2e8f0':curing2.done?'#10b981':'#fcd34d'};background:${isRunning2?'#f1f5f9':curing2.done?'#d1fae5':'#fef9c3'};color:${isRunning2?'#94a3b8':curing2.done?'#065f46':'#92400e'};cursor:pointer" ${isRunning2||!curing2.done?'disabled':''} onclick="startLine2('${line.id}',${sv2},${fr},'${agingTank2!=='—'?agingTank2:''}')">${isRunning2?'▶ เดิน':!curing2.done?'⏳ รอบ่ม':'▶ Start'}</button>
+            <button style="padding:9px 16px;border-radius:9px;font-family:var(--mono);font-size:14px;font-weight:900;border:2px solid ${!isRunning2?'#e2e8f0':'#ef4444'};background:${!isRunning2?'#f1f5f9':'#fee2e2'};color:${!isRunning2?'#94a3b8':'#991b1b'};cursor:pointer" ${!isRunning2?'disabled':''} onclick="stopLine2('${line.id}')">⏸ Stop</button>
+            <button style="padding:9px 12px;border-radius:9px;font-family:var(--mono);font-size:14px;font-weight:800;border:2px solid #fcd34d;background:#fef9c3;color:#92400e;cursor:pointer" onclick="resetLine2('${line.id}')">↺</button>
+          </div>
+        </div>
+        `:''}
 
         <!-- เส้นเชื่อม + PUMP — เริ่ม top:32px (เท่า label height) แล้วกึ่งกลางรูป 200px คือ 32+100=132px -->
         <div style="flex:1 1 auto;min-width:90px;max-width:200px;height:200px;position:relative;margin-top:32px">
@@ -1377,6 +1422,36 @@ window.resetLine=async(lineId)=>{
   toast('↺ Reset','yellow');
 };
 
+// ── ถังที่ 2 — ควบคุมแยกอิสระจากถัง 1 โดยสิ้นเชิง (product ที่ใช้ 2 mix_code พร้อมกัน) ──
+window.startLine2=async(lineId,sv2,fr2,agingTank2)=>{
+  const _agTk2 = agingTank2 || (lineStates[lineId]||{}).aging_tank2 || '';
+  if(!_agTk2){toast('❌ ไม่พบถังที่ 2','red');return;}
+  try{
+    await setDoc(doc(db,'cip_line_states',lineId),{running2:true,start_ts2:Date.now(),start_vol2:sv2,flow_rate2:fr2,aging_tank2:_agTk2,started_by2:_empName,start_sig2:_empSig,started_at2:nowHHMM()},{merge:true});
+    setDoc(doc(db,'aging_tank_states',_agTk2),{status:'filling',updated_at:new Date().toISOString()},{merge:true}).catch(()=>{});
+    toast('▶ Start ถัง 2 แล้ว','green');
+  }catch(e){
+    console.error('[startLine2 ERROR]',e);
+    toast('❌ Start ถัง 2 ไม่สำเร็จ: '+e.message,'red');
+  }
+};
+window.stopLine2=async(lineId)=>{
+  const st=lineStates[lineId]||{};
+  const elapsed2=st.start_ts2?(Date.now()-st.start_ts2)/3600000:0;
+  const rem2=Math.max(0,(st.start_vol2||0)-(elapsed2*(st.flow_rate2||300)));
+  await setDoc(doc(db,'cip_line_states',lineId),{running2:false,start_ts2:null,start_vol2:rem2,stopped_at2:nowHHMM(),stopped_by2:_empName||ME.email,stop_sig2:_empSig||''},{merge:true});
+  const _agTank2Stop=st.aging_tank2||'';
+  if(_agTank2Stop){
+    setDoc(doc(db,'aging_tank_states',_agTank2Stop),{current_vol:Math.round(rem2),status:rem2>0?'past_done':'empty',updated_at:new Date().toISOString()},{merge:true}).catch(()=>{});
+  }
+  toast('⏸ Stop ถัง 2 แล้ว');
+};
+window.resetLine2=async(lineId)=>{
+  if(!confirm('Reset countdown ถัง 2 ใหม่?'))return;
+  await setDoc(doc(db,'cip_line_states',lineId),{running2:false,start_ts2:null,start_vol2:0},{merge:true});
+  toast('↺ Reset ถัง 2','yellow');
+};
+
 // EMPTY
 let pendingEmpty=null;
 // ── เลื่อนลำดับคิวถังเอง (◀ ▶) — เขียน tank_order ลง cip_line_states ──
@@ -1529,42 +1604,76 @@ function tickCountdowns(){
   });
   if(needRender) renderAll();
   lines.forEach(line=>{
-    const st=lineStates[line.id];if(!st?.running||!st?.start_ts)return;
-    const elapsed=(Date.now()-st.start_ts)/3600000;
-    const sv=st.start_vol||0;
-    const fr=st.flow_rate||line.flow_rate||300;
-    const rem=Math.max(0,sv-(elapsed*fr));
-    const cap=getTankCapacity(st.aging_tank||'');
-    const pct=cap>0?(rem/cap)*100:0;const c=pctColor(pct);
-    const key='S'+line.id;
-    const vEl=document.getElementById('vol-'+key);
-    const pEl=document.getElementById('pct-'+key);
-    const bEl=document.getElementById('bar-'+key);
-    const eEl=document.getElementById('eta-'+key);
-    if(vEl){vEl.textContent=fmtL(rem)+' L';vEl.style.color=c;}
-    if(pEl){pEl.textContent=pct.toFixed(2)+'%';pEl.style.color=c;}
-    if(bEl){bEl.style.width=pct.toFixed(1)+'%';bEl.style.background=c;}
-    // อัปเดต aging_tank_states.current_vol — throttle เป็นทุก 15 วิ (ยกเว้นตอน volume หมดจริง ต้องเขียนทันที)
-    const _agTank=st.aging_tank||'';
-    if(_agTank){
-      if(rem<=0){
-        // ── Volume หมดแล้ว — auto finish: clear แถวออกจากตาราง + หยุด timer (เขียนทันทีไม่ throttle) ──
-        setDoc(doc(db,'aging_tank_states',_agTank),{current_vol:0,status:'empty',temps:{},updated_at:new Date().toISOString()},{merge:true}).catch(()=>{});
-        setDoc(doc(db,'cip_line_states',line.id),{running:false,start_ts:null,start_vol:0,current_vol:0,aging_tank:'',updated_at:new Date().toISOString()},{merge:true}).catch(()=>{});
-        toast('✅ '+_agTank+' Filling เสร็จสมบูรณ์ — Volume หมด','green');
+    const st=lineStates[line.id]||{};
+
+    // ── ถัง 1 — คุมด้วย running/start_ts ของตัวเอง ──
+    if(st.running&&st.start_ts){
+      const elapsed=(Date.now()-st.start_ts)/3600000;
+      const sv=st.start_vol||0;
+      const fr=st.flow_rate||line.flow_rate||300;
+      const rem=Math.max(0,sv-(elapsed*fr));
+      const cap=getTankCapacity(st.aging_tank||'');
+      const pct=cap>0?(rem/cap)*100:0;const c=pctColor(pct);
+      const key='S'+line.id;
+      const vEl=document.getElementById('vol-'+key);
+      const pEl=document.getElementById('pct-'+key);
+      const bEl=document.getElementById('bar-'+key);
+      const eEl=document.getElementById('eta-'+key);
+      if(vEl){vEl.textContent=fmtL(rem)+' L';vEl.style.color=c;}
+      if(pEl){pEl.textContent=pct.toFixed(2)+'%';pEl.style.color=c;}
+      if(bEl){bEl.style.width=pct.toFixed(1)+'%';bEl.style.background=c;}
+      // อัปเดต aging_tank_states.current_vol — throttle เป็นทุก 15 วิ (ยกเว้นตอน volume หมดจริง ต้องเขียนทันที)
+      const _agTank=st.aging_tank||'';
+      if(_agTank){
+        if(rem<=0){
+          // ── Volume หมดแล้ว — auto finish: clear แถวออกจากตาราง + หยุด timer (เขียนทันทีไม่ throttle) ──
+          setDoc(doc(db,'aging_tank_states',_agTank),{current_vol:0,status:'empty',temps:{},updated_at:new Date().toISOString()},{merge:true}).catch(()=>{});
+          setDoc(doc(db,'cip_line_states',line.id),{running:false,start_ts:null,start_vol:0,current_vol:0,aging_tank:'',updated_at:new Date().toISOString()},{merge:true}).catch(()=>{});
+          toast('✅ '+_agTank+' Filling เสร็จสมบูรณ์ — Volume หมด','green');
+          needRender=true;
+          delete _lastFsWrite[line.id];
+        } else {
+          const _now=Date.now();
+          const _last=_lastFsWrite[line.id]||0;
+          if(_now-_last>=15000){ // เขียนแค่ทุก 15 วินาที
+            _lastFsWrite[line.id]=_now;
+            setDoc(doc(db,'aging_tank_states',_agTank),{current_vol:Math.round(rem),updated_at:new Date().toISOString()},{merge:true}).catch(()=>{});
+            setDoc(doc(db,'cip_line_states',line.id),{current_vol:Math.round(rem),updated_at:new Date().toISOString()},{merge:true}).catch(()=>{});
+          }
+        }
+      }
+      if(eEl&&rem>0){const m=Math.round((rem/fr)*60);const d=new Date();d.setMinutes(d.getMinutes()+m);eEl.textContent='หมด ~'+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
+    }
+
+    // ── ถัง 2 — คุมด้วย running2/start_ts2 ของตัวเอง แยกอิสระจากถัง 1 โดยสิ้นเชิง ──
+    const _agTank2=st.aging_tank2||'';
+    if(_agTank2&&st.running2&&st.start_ts2){
+      const elapsed2=(Date.now()-st.start_ts2)/3600000;
+      const sv2=st.start_vol2||0;
+      const fr2=st.flow_rate2||line.flow_rate||300;
+      const rem2=Math.max(0,sv2-(elapsed2*fr2));
+      const key2='S2'+line.id;
+      const vEl2=document.getElementById('vol-'+key2);
+      const pEl2=document.getElementById('pct-'+key2);
+      const cap2=getTankCapacity(_agTank2);
+      const pct2=cap2>0?(rem2/cap2)*100:0;const c2=pctColor(pct2);
+      if(vEl2){vEl2.textContent=fmtL(rem2)+' L';vEl2.style.color=c2;}
+      if(pEl2){pEl2.textContent=pct2.toFixed(2)+'%';pEl2.style.color=c2;}
+      if(rem2<=0){
+        setDoc(doc(db,'aging_tank_states',_agTank2),{current_vol:0,status:'empty',temps:{},updated_at:new Date().toISOString()},{merge:true}).catch(()=>{});
+        setDoc(doc(db,'cip_line_states',line.id),{running2:false,start_ts2:null,start_vol2:0,aging_tank2:'',updated_at:new Date().toISOString()},{merge:true}).catch(()=>{});
+        toast('✅ '+_agTank2+' Filling เสร็จสมบูรณ์ — Volume หมด','green');
         needRender=true;
-        delete _lastFsWrite[line.id];
+        delete _lastFsWrite[line.id+'_2'];
       } else {
-        const _now=Date.now();
-        const _last=_lastFsWrite[line.id]||0;
-        if(_now-_last>=15000){ // เขียนแค่ทุก 15 วินาที
-          _lastFsWrite[line.id]=_now;
-          setDoc(doc(db,'aging_tank_states',_agTank),{current_vol:Math.round(rem),updated_at:new Date().toISOString()},{merge:true}).catch(()=>{});
-          setDoc(doc(db,'cip_line_states',line.id),{current_vol:Math.round(rem),updated_at:new Date().toISOString()},{merge:true}).catch(()=>{});
+        const _now2=Date.now();
+        const _last2=_lastFsWrite[line.id+'_2']||0;
+        if(_now2-_last2>=15000){
+          _lastFsWrite[line.id+'_2']=_now2;
+          setDoc(doc(db,'aging_tank_states',_agTank2),{current_vol:Math.round(rem2),updated_at:new Date().toISOString()},{merge:true}).catch(()=>{});
         }
       }
     }
-    if(eEl&&rem>0){const m=Math.round((rem/fr)*60);const d=new Date();d.setMinutes(d.getMinutes()+m);eEl.textContent='หมด ~'+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
   });
 }
 
