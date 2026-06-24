@@ -321,7 +321,19 @@ onAuthStateChanged(auth,async u=>{
   // aging_tank_states — อัปเดต realtime
   onSnapshot(collection(db,'aging_tank_states'),snap=>{
     tankStates={};
-    snap.docs.forEach(d=>{const dat={id:d.id,...d.data()};if(dat.batch_no)dat.batch_no=String(dat.batch_no).split('/')[0];tankStates[d.id]=dat;});
+    snap.docs.forEach(d=>{
+      const dat={id:d.id,...d.data()};
+      if(dat.batch_no)dat.batch_no=String(dat.batch_no).split('/')[0];
+      // ── DEBUG: ตามรอย current_vol ที่เปลี่ยนของถังที่กำลัง debug อยู่ ──
+      if(window._debugTank&&d.id===window._debugTank){
+        const _prev=window._debugLastVol;
+        if(_prev!==undefined&&_prev!==dat.current_vol){
+          console.warn('[DEBUG '+d.id+'] current_vol เปลี่ยน',_prev,'→',dat.current_vol,'เวลา',new Date().toLocaleTimeString());
+        }
+        window._debugLastVol=dat.current_vol;
+      }
+      tankStates[d.id]=dat;
+    });
     renderAll();
     _checkCuringDone(); // recalculate expire_at ทันทีเมื่อมีการเปลี่ยนแปลง
   });
@@ -755,6 +767,7 @@ window.clearTank=async()=>{
     for(const _col of['production_plans','production_plans_m2']){
       try{
         const _snap=await getDocs(query(collection(db,_col),where('aging_tank','==',selectedTank)));
+        console.log('[clearTank]',_col,'matched docs:',_snap.docs.length,_snap.docs.map(d=>({id:d.id,status:d.data().status,aging_tank:d.data().aging_tank})));
         for(const _d of _snap.docs){
           const _data=_d.data();
           if(_data.status&&_data.status!=='sent_filling'){
