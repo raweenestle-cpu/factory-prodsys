@@ -805,7 +805,7 @@ const TEMP_TIMES=['06:00','10:00','14:00','18:00','22:00','02:00'];
 $('inp-date').value=today();
 const en=sessionStorage.getItem('emp_name')||'';if(en) $('emp-name').textContent='👤 '+en;
 onAuthStateChanged(auth,u=>{if(!u){location.href='index.html';return;}$('nav-user').textContent=u.email.replace('@filling.local','');initSt();loadAll();});
-function initSt(){if(unsubSt)unsubSt();unsubSt=onSnapshot(collection(db,'aging_tank_states'),snap=>{snap.docs.forEach(d=>{tankStates[d.id]={id:d.id,...d.data()};});injectProductTypes();if(planRows.m1.length||planRows.m2.length)renderAll();if(document.getElementById('page-temp')?.classList.contains('on'))renderTemp();if(document.getElementById('page-ciplog')?.classList.contains('on'))renderCipWaiting();});}
+function initSt(){if(unsubSt)unsubSt();unsubSt=onSnapshot(collection(db,'aging_tank_states'),snap=>{snap.docs.forEach(d=>{const _incoming=d.data();const _existing=tankStates[d.id];if(_existing&&_existing.updated_at&&_incoming.updated_at&&_incoming.updated_at<_existing.updated_at){return;}if(!tankStates[d.id])tankStates[d.id]={id:d.id};Object.assign(tankStates[d.id],_incoming);});injectProductTypes();if(planRows.m1.length||planRows.m2.length)renderAll();if(document.getElementById('page-temp')?.classList.contains('on'))renderTemp();if(document.getElementById('page-ciplog')?.classList.contains('on'))renderCipWaiting();});}
 // re-render ทุก 5 วินาที ให้ vol อัปเดต real-time
 setInterval(()=>{if(planRows.m1.length||planRows.m2.length)renderAll();},15000);
 // re-render CIP waiting ทุก 1 นาที เพื่ออัพเดท countdown และเช็ค expire
