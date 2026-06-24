@@ -861,7 +861,7 @@ function renderPlans(m){const tb=$(m+'-tbody');if(!planRows[m].length){tb.innerH
     // lookup tankStates ด้วย key หลายรูปแบบ: ตรงๆ, uppercase, lowercase, trim
     const _tidClean=(tid||'').trim();
     const ts=tankStates[_tidClean]||tankStates[_tidClean.toUpperCase()]||tankStates[_tidClean.toLowerCase()]||{};
-    const st=ts.status||'empty';const sc=ST[st]||ST.empty;const grp=ts.cip_group||'';const lc=LC[row.filling_line]||'#6b7280';const _ti=function(f,v,col,bc){return '<input type="time" value="'+v+'" style="font-family:DM Mono,monospace;font-size:11px;border:1px solid '+bc+';border-radius:4px;padding:1px 4px;color:'+col+';width:82px" onchange="_editTime(\'' +f[0]+ '\',\'' +f[1]+ '\',this.value)">';};
+    const st=ts.status||'empty';const sc=ST[st]||ST.empty;const grp=ts.cip_group||'';const lc=LC[row.filling_line]||'#6b7280';const _ti=function(f,v,col,bc){return '<input type="text" inputmode="numeric" placeholder="HH:MM" pattern="^([01]?\\d|2[0-3]):[0-5]\\d(:[0-5]\\d)?$" value="'+v+'" style="font-family:DM Mono,monospace;font-size:11px;border:1px solid '+bc+';border-radius:4px;padding:1px 4px;color:'+col+';width:82px" onchange="if(this.value&&!/^([01]?\\d|2[0-3]):[0-5]\\d(:[0-5]\\d)?$/.test(this.value)){toast(\'❌ รูปแบบเวลาไม่ถูกต้อง (ใช้ HH:MM 24ชม.)\',\'red\');this.value=\'' +v+ '\';return;}_editTime(\'' +f[0]+ '\',\'' +f[1]+ '\',this.value)">';};
 let tsH='';
 // แสดง last_mix ตอน CIP และ next_mix ตอน Sanitize
 if(ts.last_mix_code||ts.last_mix_name)tsH+='<div style="font-size:10px;color:#3b82f6;font-weight:700;margin-bottom:2px">🧹 CIP: '+(ts.last_mix_code||'')+(ts.last_mix_name?' '+ts.last_mix_name:'')+'</div>';
@@ -1548,13 +1548,13 @@ function renderCipWaiting(){
     let timeHtml='';
     if(ts.cip_start_time!=null) timeHtml+=
       '<div style="font-family:var(--mono);font-size:10px;color:#1d4ed8;margin-top:3px;display:flex;align-items:center;gap:3px">CIP:'
-      +'<input type="time" value="'+(ts.cip_start_time||'')+'" data-tid="'+ts.id+'" data-f="cip_start_time" onblur="window._editTankTime(this)" onfocus="window._focusingTime=true" style="font-family:var(--mono);font-size:10px;border:1px solid #93c5fd;border-radius:3px;padding:1px 2px;width:54px;color:#1d4ed8;font-size:9px">'
-      +'→<input type="time" value="'+(ts.cip_stop_time||'')+'" data-tid="'+ts.id+'" data-f="cip_stop_time" onblur="window._editTankTime(this)" onfocus="window._focusingTime=true" style="font-family:var(--mono);font-size:10px;border:1px solid #93c5fd;border-radius:3px;padding:1px 2px;width:54px;color:#1d4ed8;font-size:9px">'
+      +'<input type="text" inputmode="numeric" placeholder="HH:MM" value="'+(ts.cip_start_time||'')+'" data-tid="'+ts.id+'" data-f="cip_start_time" onblur="window._editTankTime(this)" onfocus="window._focusingTime=true" style="font-family:var(--mono);font-size:10px;border:1px solid #93c5fd;border-radius:3px;padding:1px 2px;width:54px;color:#1d4ed8;font-size:9px">'
+      +'→<input type="text" inputmode="numeric" placeholder="HH:MM" value="'+(ts.cip_stop_time||'')+'" data-tid="'+ts.id+'" data-f="cip_stop_time" onblur="window._editTankTime(this)" onfocus="window._focusingTime=true" style="font-family:var(--mono);font-size:10px;border:1px solid #93c5fd;border-radius:3px;padding:1px 2px;width:54px;color:#1d4ed8;font-size:9px">'
       +'</div>';
     if(ts.san_start_time!=null) timeHtml+=
       '<div style="font-family:var(--mono);font-size:10px;color:#15803d;margin-top:2px;display:flex;align-items:center;gap:3px">San:'
-      +'<input type="time" value="'+(ts.san_start_time||'')+'" data-tid="'+ts.id+'" data-f="san_start_time" onblur="window._editTankTime(this)" onfocus="window._focusingTime=true" style="font-family:var(--mono);font-size:10px;border:1px solid #86efac;border-radius:3px;padding:1px 2px;width:54px;color:#15803d;font-size:9px">'
-      +'→<input type="time" value="'+(ts.san_stop_time||'')+'" data-tid="'+ts.id+'" data-f="san_stop_time" onblur="window._editTankTime(this)" onfocus="window._focusingTime=true" style="font-family:var(--mono);font-size:10px;border:1px solid #86efac;border-radius:3px;padding:1px 2px;width:54px;color:#15803d;font-size:9px">'
+      +'<input type="text" inputmode="numeric" placeholder="HH:MM" value="'+(ts.san_start_time||'')+'" data-tid="'+ts.id+'" data-f="san_start_time" onblur="window._editTankTime(this)" onfocus="window._focusingTime=true" style="font-family:var(--mono);font-size:10px;border:1px solid #86efac;border-radius:3px;padding:1px 2px;width:54px;color:#15803d;font-size:9px">'
+      +'→<input type="text" inputmode="numeric" placeholder="HH:MM" value="'+(ts.san_stop_time||'')+'" data-tid="'+ts.id+'" data-f="san_stop_time" onblur="window._editTankTime(this)" onfocus="window._focusingTime=true" style="font-family:var(--mono);font-size:10px;border:1px solid #86efac;border-radius:3px;padding:1px 2px;width:54px;color:#15803d;font-size:9px">'
       +'</div>';
     // ── เช็ค 1 group 1 กิจกรรม ──
     let blockedBy = null;
@@ -1613,6 +1613,10 @@ window._editTankTime = async function(el){
   window._focusingTime = false;
   const tid=el.dataset.tid; const field=el.dataset.f; const val=el.value;
   if(!tid||!val) return;
+  if(!/^([01]?\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/.test(val)){
+    toast('❌ รูปแบบเวลาไม่ถูกต้อง (ใช้ HH:MM 24ชม.)','red');
+    return;
+  }
   try{
     await setDoc(doc(db,'aging_tank_states',tid),{[field]:val,updated_at:new Date().toISOString()},{merge:true});
     if(tankStates[tid]) tankStates[tid][field]=val;
