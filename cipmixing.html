@@ -580,8 +580,10 @@ async function _doActReal(tid, act, programs){
   // ตอนนี้บันทึก status+เวลาหลักให้เสร็จก่อนเป็นอันดับแรก ถ้าจุดนี้ผ่าน เวลาจะขึ้นในกล่องแน่นอน
   // ไม่ว่าโค้ดส่วนที่เหลือข้างล่างจะพังหรือไม่ก็ตาม
   const _timeField={start_cip:'cip_start_time',stop_cip:'cip_stop_time',start_san:'san_start_time',stop_san:'san_stop_time'}[act];
+  const _dateField={start_cip:'cip_date',stop_cip:'cip_date',start_san:'san_date',stop_san:'san_date'}[act];
   const _earlyUpd={status:newSt,updated_at:upd.updated_at};
   if(_timeField)_earlyUpd[_timeField]=n;
+  if(_dateField)_earlyUpd[_dateField]=new Date().toISOString().split('T')[0];
   try{
     await setDoc(doc(db,'aging_tank_states',tid),_earlyUpd,{merge:true});
     if(!tankStates[tid])tankStates[tid]={id:tid};
@@ -876,6 +878,7 @@ window._editTime=async(tid,field,val)=>{
 };
 
 window.doAct=(tid,act)=>{
+ try{
   if(act==='start_cip'){
     // เลือก program ก่อน — Alkaline เดี่ยว หรือ Alkaline+Acid (2 แถว)
     _pendingAct={tid,act};
@@ -888,6 +891,10 @@ window.doAct=(tid,act)=>{
   _pendingAct={tid,act};
   document.getElementById('sign-modal-title').textContent=(labels[act]||act)+' — ถัง '+tid;
   document.getElementById('sign-modal-overlay').classList.add('show');
+ }catch(e){
+  alert('⚠️ doAct error ('+act+', tid='+tid+'): '+e.message);
+  console.error('[doAct] error:',e);
+ }
 };
 
 // เลือก program แล้วไปต่อ sign modal
