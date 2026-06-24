@@ -570,7 +570,7 @@ let unsub={m1:null,m2:null};
 let charts={};
 let period={m1:"day",m2:"day"};
 
-const today  = () => new Date().toISOString().slice(0,10);
+const today  = () => {const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
 const $      = id => document.getElementById(id);
 const fmt    = n  => Math.round(n||0).toLocaleString();
 const nowHHMM= () => { const d=new Date(); return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0"); };
@@ -1592,7 +1592,7 @@ window.archiveMixRow=async function(col,row,mixingUnit){
       archived_date:now.toISOString().slice(0,10),
       archived_at:now.toTimeString().slice(0,8),
       mixing_unit:mixingUnit,
-      date:row.date||now.toISOString().slice(0,10),
+      date:row.date||today(),
       mix_code:row.mix_code||'',mix_name:row.mix_name||'',
       process_order:row.process_order||'',batch_no:row.batch_no||'',
       volume_liter:row.volume_liter||0,mixing_tank:row.mixing_tank||'',
