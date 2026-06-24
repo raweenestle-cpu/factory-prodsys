@@ -660,6 +660,8 @@ async function _stopFillingForTank(tankId){
   if(!tankId)return;
   try{
     const _snap=await getDocs(query(collection(db,'cip_line_states'),where('aging_tank','==',tankId)));
+    console.log('[_stopFillingForTank]',tankId,'matched docs:',_snap.docs.length,_snap.docs.map(d=>({id:d.id,...d.data()})));
+    let _stoppedAny=false;
     for(const _d of _snap.docs){
       const _data=_d.data();
       if(_data.running){
@@ -667,7 +669,15 @@ async function _stopFillingForTank(tankId){
           running:false,start_ts:null,start_vol:0,current_vol:0,aging_tank:'',
           updated_at:new Date().toISOString()
         },{merge:true});
+        _stoppedAny=true;
       }
+    }
+    if(_snap.docs.length===0){
+      console.warn('[_stopFillingForTank] ไม่เจอ cip_line_states ที่ aging_tank===',tankId,'— เช็ค field/casing');
+    } else if(!_stoppedAny){
+      console.log('[_stopFillingForTank] เจอ doc แต่ไม่มีอันไหน running:true อยู่แล้ว');
+    } else {
+      console.log('[_stopFillingForTank] หยุด filling สำเร็จสำหรับ',tankId);
     }
   }catch(e){console.warn('_stopFillingForTank error:',e);}
 }
