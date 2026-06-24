@@ -570,36 +570,55 @@ window._saveGrp = async function(sel){
 
 async function _doActReal(tid, act, programs){
   const map={start_cip:'cip',stop_cip:'cip_done',start_san:'san',stop_san:'san_done'};
-  const newSt=map[act];if(!newSt)return;
+  let newSt=map[act];if(!newSt)return;
   const n=nowHMS();
-  const upd={status:newSt,updated_at:new Date().toISOString()};
+  const todayStr=new Date().toISOString().split('T')[0];
+  const nowIso=new Date().toISOString();
 
-  // ── STAMP เวลาหลักทันที ก่อนอื่นใด ──────────────────────────────
-  // ป้องกันปัญหาที่เคยเจอ: error จากโค้ดส่วนอื่น (คำนวณ expire_at, ดึง history,
-  // query cip_log_sheets ฯลฯ) ทำให้ทั้งฟังก์ชัน crash กลางทาง จนเวลา/status ไม่ถูกบันทึกเลย
-  // ตอนนี้บันทึก status+เวลาหลักให้เสร็จก่อนเป็นอันดับแรก ถ้าจุดนี้ผ่าน เวลาจะขึ้นในกล่องแน่นอน
-  // ไม่ว่าโค้ดส่วนที่เหลือข้างล่างจะพังหรือไม่ก็ตาม
+  // ── คำนวณค่า "สุดท้าย" ของ status/เวลาหลักให้เสร็จก่อนเขียนครั้งเดียว ──
+  // (ไม่เขียน 2 รอบ ไม่มีรอบแรกที่ค่า "ยังไม่สุดท้าย" ไปแสดงแวบหนึ่งแล้วถูกทับ —
+  // กันปัญหาตัวเลขเด้งขึ้นมาแล้วหายไปจากการเขียนทับกันเอง)
   const _timeField={start_cip:'cip_start_time',stop_cip:'cip_stop_time',start_san:'san_start_time',stop_san:'san_stop_time'}[act];
   const _dateField={start_cip:'cip_date',stop_cip:'cip_date',start_san:'san_date',stop_san:'san_date'}[act];
-  const _earlyUpd={status:newSt,updated_at:upd.updated_at};
-  if(_timeField)_earlyUpd[_timeField]=n;
-  if(_dateField)_earlyUpd[_dateField]=new Date().toISOString().split('T')[0];
+  const core={status:newSt,updated_at:nowIso};
+  if(_timeField)core[_timeField]=n;
+  if(_dateField)core[_dateField]=todayStr;
+
+  const _tsNow = tankStates[tid]||{};
+  const _hasPendingAcid = act==='stop_cip' && !!_tsNow.pending_acid;
+  if(_hasPendingAcid){
+    // ยังไม่จบจริง — Alkaline จบแล้ว แต่ต้องต่อด้วย Acid ทันที — คง status เป็น cip ต่อ
+    core.status='cip';
+    core.cip_stop_time='';
+    core.pending_acid=false;
+    newSt='cip';
+  }
+  const _sig=sessionStorage.getItem('emp_sig')||'';
+  const _empName=sessionStorage.getItem('emp_name')||'';
+  if(_sig){
+    core['sig_'+act]=_sig;
+    core['sig_'+act+'_name']=_empName;
+  }
+
   try{
-    await setDoc(doc(db,'aging_tank_states',tid),_earlyUpd,{merge:true});
+    await setDoc(doc(db,'aging_tank_states',tid),core,{merge:true});
     if(!tankStates[tid])tankStates[tid]={id:tid};
-    Object.assign(tankStates[tid],_earlyUpd);
+    Object.assign(tankStates[tid],core);
+    const lb={start_cip:'▶ CIP เริ่ม',stop_cip:'✅ CIP เสร็จ',start_san:'▶ San เริ่ม',stop_san:'✅ San เสร็จ'};
+    toast(lb[act]+' ถัง '+tid,'green');
     renderCipWaiting();
     if(planRows.m1.length||planRows.m2.length)renderAll();
+    if(curTab==='ciplog' && window.renderCipLog) window.renderCipLog();
   }catch(e){
     alert('⚠️ บันทึกเวลาไม่สำเร็จ: '+e.message+'\n\nกรุณาลองกดปุ่มใหม่ หรือเช็คอินเทอร์เน็ต แล้วแจ้งแอดมินถ้ายังไม่ผ่าน');
-    console.error('[CRITICAL] _doActReal early stamp failed:',e);
-    return; // หยุดทันที — ไม่ทำของแถมต่อถ้าสแตมป์เวลาหลักไม่ผ่าน
+    console.error('[CRITICAL] _doActReal write failed:',e);
+    return; // หยุดทันที — ไม่ทำของแถมต่อถ้าเขียนค่าหลักไม่ผ่าน
   }
-  // ── จากนี้คือ "ของแถม" (history, expire_at, mix_code lookup ฯลฯ) — ──
-  // ถ้าพังตรงนี้ เวลาหลักด้านบนถูกบันทึกไปแล้ว ไม่กระทบ
+
+  // ── จากนี้คือ "ของแถม" ล้วน ๆ (history, expire_at, mix_code lookup, sign, log) ──
+  // เขียนเป็น field เพิ่มเติมเท่านั้น ห้ามแก้ status/เวลาหลักที่เขียนไปแล้วด้านบนอีก
+  const extra={};
   if(act==='start_cip'){
-    upd.cip_start_time=n;
-    upd.cip_date=new Date().toISOString().split('T')[0];
     _autoLogCip(tid,'start_cip',programs||['Alkaline']);
     // ดึง mix_code/mix_name จาก cip_mixing_records record ล่าสุดของถังนี้
     try{
@@ -609,34 +628,24 @@ async function _doActReal(tid, act, programs){
       const _snap=await getDocs(_q);
       if(!_snap.empty){
         const _lr=_snap.docs[0].data();
-        upd.last_mix_code=_lr.mix_code||'—';
-        upd.last_mix_name=_lr.mix_name||'—';
+        extra.last_mix_code=_lr.mix_code||'—';
+        extra.last_mix_name=_lr.mix_name||'—';
       } else {
-        // fallback จาก aging_tank_states
         const _ts=tankStates[tid]||{};
-        if(_ts.mix_code) upd.last_mix_code=_ts.mix_code;
-        if(_ts.mix_name) upd.last_mix_name=_ts.mix_name;
+        if(_ts.mix_code) extra.last_mix_code=_ts.mix_code;
+        if(_ts.mix_name) extra.last_mix_name=_ts.mix_name;
       }
     }catch{
       const _ts=tankStates[tid]||{};
-      if(_ts.mix_code) upd.last_mix_code=_ts.mix_code;
-      if(_ts.mix_name) upd.last_mix_name=_ts.mix_name;
+      if(_ts.mix_code) extra.last_mix_code=_ts.mix_code;
+      if(_ts.mix_name) extra.last_mix_name=_ts.mix_name;
     }
   }
   if(act==='stop_cip'){
-    const _tsNow = tankStates[tid]||{};
-    const _hasPendingAcid = !!_tsNow.pending_acid;
-    upd.cip_stop_time=n;
-    if(_hasPendingAcid){
-      // ยังไม่จบจริง — Alkaline จบแล้ว แต่ต้องต่อด้วย Acid ทันที
-      upd.status='cip'; // คง status เป็น cip ต่อ (ไม่ใช่ cip_done)
-      upd.cip_stop_time=''; // เคลียร์ stop time เพราะ cycle ยังไม่จบ (Acid กำลังเริ่ม)
-      upd.pending_acid=false; // ใช้ flag ไปแล้ว
-    }
     // ปิด active ใน cip_log_sheets ของแถว Alkaline (หรือแถวที่ active อยู่ตอนนี้) — และดึงค่าทั้งหมดมาเก็บ archive
     let _logData={};
     try{
-      const _today=new Date().toISOString().split('T')[0];
+      const _today=todayStr;
       const _q=query(collection(db,'cip_log_sheets'),
         where('circuit','==',tid),where('act_type','==','cip'),
         where('date','==',_today),where('active','==',true));
@@ -662,8 +671,8 @@ async function _doActReal(tid, act, programs){
       remark:_logData.remark&&_logData.remark!=='auto'?_logData.remark:'',
       sign:_logData.sign||null,
       sign_name:_logData.sign_name||'',
-      date:new Date().toISOString().split('T')[0],
-      created_at:new Date().toISOString()
+      date:todayStr,
+      created_at:nowIso
     }).catch(()=>{});
     // ── ถ้ามี pending_acid: สร้างแถว Acid ใหม่ทันที start_time = เวลาที่ Alkaline stop ──
     if(_hasPendingAcid){
@@ -677,7 +686,7 @@ async function _doActReal(tid, act, programs){
           if(!_rs.empty) mix_rec_id=_rs.docs[0].id;
         }catch{}
         await addDoc(collection(db,'cip_log_sheets'),{
-          date:new Date().toISOString().split('T')[0],
+          date:todayStr,
           circuit:tid,
           group:_ts2.cip_group||'—',
           program:'Acid',
@@ -689,7 +698,7 @@ async function _doActReal(tid, act, programs){
           remark:'auto',
           active:true,
           act_type:'cip',
-          created_at:new Date().toISOString()
+          created_at:nowIso
         });
         toast('🔵→🟠 Alkaline เสร็จ — Acid เริ่มต่อทันทีที่ '+n,'blue');
         if(document.getElementById('page-ciplog')?.classList.contains('on')&&window.renderCipLog) window.renderCipLog();
@@ -697,22 +706,18 @@ async function _doActReal(tid, act, programs){
     }
   }
   if(act==='start_san'){
-    upd.san_start_time=n;
-    upd.san_date=new Date().toISOString().split('T')[0];
     _autoLogCip(tid,'start_san');
     // ดึง mix_code/mix_name จาก production_plans batch ถัดไปที่ leadman สั่ง
     const _next=_getNextPlanForTank(tid);
-    if(_next.mix_code) upd.next_mix_code=_next.mix_code;
-    if(_next.mix_name) upd.next_mix_name=_next.mix_name;
-    if(_next.vol) upd.next_vol=_next.vol;
+    if(_next.mix_code) extra.next_mix_code=_next.mix_code;
+    if(_next.mix_name) extra.next_mix_name=_next.mix_name;
+    if(_next.vol) extra.next_vol=_next.vol;
   }
   if(act==='stop_san'){
-    upd.san_stop_time=n;
-    upd.san_date=new Date().toISOString().split('T')[0]; // ใช้วันที่ stop จริง ป้องกัน expire คำนวณผิดถ้าข้ามวัน
     // ปิด active ใน cip_log_sheets ของถังนี้ (type=san, วันนี้) — ดึงค่าทั้งหมดมา archive
     let _logDataSan={};
     try{
-      const _today=new Date().toISOString().split('T')[0];
+      const _today=todayStr;
       const _q=query(collection(db,'cip_log_sheets'),
         where('circuit','==',tid),where('act_type','==','san'),
         where('date','==',_today),where('active','==',true));
@@ -738,14 +743,14 @@ async function _doActReal(tid, act, programs){
         let _baseDate;
         if(/^\d{1,2}:\d{2}(:\d{2})?$/.test(_pastEnd)){
           const _hms=_pastEnd.length===5?_pastEnd+':00':_pastEnd;
-          _baseDate=new Date(new Date().toISOString().split('T')[0]+'T'+_hms);
+          _baseDate=new Date(todayStr+'T'+_hms);
         } else {
           _baseDate=new Date(_pastEnd);
         }
         if(!isNaN(_baseDate.getTime())){
           const _expDate=new Date(_baseDate.getTime()+_shelfHr*3600000);
-          upd.expire_at=_expDate.toISOString();
-          upd.shelf_hr=_shelfHr;
+          extra.expire_at=_expDate.toISOString();
+          extra.shelf_hr=_shelfHr;
         } else {
           console.warn('[stop_san] ข้าม expire_at calc — past_end_time format ไม่ถูกต้อง:',_pastEnd);
         }
@@ -766,29 +771,19 @@ async function _doActReal(tid, act, programs){
       remark:_logDataSan.remark&&_logDataSan.remark!=='auto'?_logDataSan.remark:'',
       sign:_logDataSan.sign||null,
       sign_name:_logDataSan.sign_name||'',
-      date:new Date().toISOString().split('T')[0],
-      created_at:new Date().toISOString()
+      date:todayStr,
+      created_at:nowIso
     }).catch(()=>{});
   }
-  // บันทึกลายเซ็นพร้อมกับ stamp
-  const _sig=sessionStorage.getItem('emp_sig')||'';
-  const _empName=sessionStorage.getItem('emp_name')||'';
-  if(_sig){
-    upd['sig_'+act]=_sig;
-    upd['sig_'+act+'_name']=_empName;
+
+  // เขียน "ของแถม" เพิ่มเติม (ไม่แตะ status/เวลาหลักอีกเด็ดขาด) — ไม่บล็อก ไม่ critical ถ้าพังก็แค่ของแถมหาย
+  if(Object.keys(extra).length){
+    try{
+      await setDoc(doc(db,'aging_tank_states',tid),{...extra,updated_at:new Date().toISOString()},{merge:true});
+      Object.assign(tankStates[tid]||(tankStates[tid]={id:tid}),extra);
+      if(planRows.m1.length||planRows.m2.length)renderAll();
+    }catch(e){console.warn('[extra update] failed:',e);}
   }
-  try{
-    await setDoc(doc(db,'aging_tank_states',tid),upd,{merge:true});
-    // อัพเดท local tankStates ทันที ไม่ต้องรอ onSnapshot
-    if(!tankStates[tid]) tankStates[tid]={id:tid};
-    Object.assign(tankStates[tid], upd);
-    const lb={start_cip:'▶ CIP เริ่ม',stop_cip:'✅ CIP เสร็จ',start_san:'▶ San เริ่ม',stop_san:'✅ San เสร็จ'};
-    toast(lb[act]+' ถัง '+tid,'green');
-    // re-render ทันที
-    renderCipWaiting();
-    if(planRows.m1.length||planRows.m2.length)renderAll();
-    if(curTab==='ciplog' && window.renderCipLog) window.renderCipLog();
-  }catch(e){toast('Error: '+e.message,'red');}
 }
 
 
