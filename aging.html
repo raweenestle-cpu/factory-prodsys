@@ -650,10 +650,23 @@ window.closeModal=()=>{$('tank-modal').classList.remove('show');selectedTank=nul
 window.setTankStatus=async(status)=>{
   if(!selectedTank)return;
   const isReset=status==='empty';
-  const upd=isReset?{status:'empty',current_vol:0,updated_at:new Date().toISOString()}
+  const upd=isReset?{
+      status:'empty',current_vol:0,
+      mix_code:'',mix_name:'',batch_no:'',product_code:'',prod_suffix:'',
+      date:'',past_start_time:'',past_end_time:'',
+      volume_liter:0,process_order:'',temps:{},expire_at:'',shelf_hr:'',
+      last_mix_code:'',last_mix_name:'',
+      next_mix_code:'',next_mix_name:'',next_vol:0,
+      sig_start_cip:'',sig_start_cip_name:'',
+      sig_stop_cip:'',sig_stop_cip_name:'',
+      sig_start_san:'',sig_start_san_name:'',
+      sig_stop_san:'',sig_stop_san_name:'',
+      pending_acid:false,
+      updated_at:new Date().toISOString()
+    }
     :{status,updated_at:new Date().toISOString()};
   try{
-    await setDoc(doc(db,'aging_tank_states',selectedTank),upd,{merge:!isReset});
+    await setDoc(doc(db,'aging_tank_states',selectedTank),upd,{merge:true}); // merge:true ทุกกรณี — เก็บ cip_group ไว้เสมอ
     if(isReset){
       // ปิด production_plans ของถังนี้ไปด้วย กันถูกเขียนทับกลับจาก auto-stamp loop (เหตุผลเดียวกับ clearTank)
       for(const _col of['production_plans','production_plans_m2']){
@@ -682,7 +695,20 @@ window.saveCurrentVol=async()=>{
 window.clearTank=async()=>{
   if(!selectedTank||!confirm('เคลียร์ถัง '+selectedTank+'?'))return;
   try{
-    await setDoc(doc(db,'aging_tank_states',selectedTank),{status:'empty',current_vol:0,updated_at:new Date().toISOString()});
+    await setDoc(doc(db,'aging_tank_states',selectedTank),{
+      status:'empty',current_vol:0,
+      mix_code:'',mix_name:'',batch_no:'',product_code:'',prod_suffix:'',
+      date:'',past_start_time:'',past_end_time:'',
+      volume_liter:0,process_order:'',temps:{},expire_at:'',shelf_hr:'',
+      last_mix_code:'',last_mix_name:'',
+      next_mix_code:'',next_mix_name:'',next_vol:0,
+      sig_start_cip:'',sig_start_cip_name:'',
+      sig_stop_cip:'',sig_stop_cip_name:'',
+      sig_start_san:'',sig_start_san_name:'',
+      sig_stop_san:'',sig_stop_san_name:'',
+      pending_acid:false,
+      updated_at:new Date().toISOString()
+    },{merge:true}); // merge:true เก็บ cip_group ไว้ (เป็นการตั้งค่าโครงสร้างถัง ไม่ใช่ข้อมูล batch)
     // ── ปิด production_plans/production_plans_m2 ของถังนี้ไปด้วยในคลิกเดียว ──
     // เดิมเคลียร์แค่ aging_tank_states แต่ไม่แตะ production_plans เลย ถ้า row ยังมี
     // status='pasteurising' ค้างอยู่ หน้า pasteurize.html (ถ้าเปิดอยู่ที่ไหนก็ตาม) จะมี

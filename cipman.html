@@ -1607,8 +1607,18 @@ window.forceClearTank=async(agTank)=>{
       date:'',past_start_time:'',past_end_time:'',
       volume_liter:0,process_order:'',
       temps:{},
+      // ข้อมูล batch ที่จบไปแล้วถูก archive เก็บไว้ใน cip_mixing_records แล้วด้านบน
+      // (ไม่หาย แค่ไม่ค้างอยู่ในสถานะปัจจุบันของถัง) — ส่วน cip_group ไม่แตะ เพราะเป็นการตั้งค่า
+      // โครงสร้างของถัง ไม่ใช่ข้อมูลของ batch จึงควรอยู่ต่อแม้เคลียร์ถังแล้ว
+      last_mix_code:'',last_mix_name:'',
+      next_mix_code:'',next_mix_name:'',next_vol:0,
+      sig_start_cip:'',sig_start_cip_name:'',
+      sig_stop_cip:'',sig_stop_cip_name:'',
+      sig_start_san:'',sig_start_san_name:'',
+      sig_stop_san:'',sig_stop_san_name:'',
+      pending_acid:false,
       updated_at:new Date().toISOString()
-    });
+    },{merge:true});
     toast('✅ Clear ถัง '+agTank+' แล้ว','green');
   }catch(e){toast('ไม่สำเร็จ','red');}
 };

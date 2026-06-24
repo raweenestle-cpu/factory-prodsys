@@ -1750,9 +1750,28 @@ window.stampTime=async(col,id,field,p)=>{
     upd.mix_end_time="";
   }
 
+  const _rowForAging=rows[p]?.find(r=>r.id===id);
   try{
     await updateDoc(doc(db,col,id),upd);
     toast(`Stamp ${now} แล้ว`,"green");
+    if(field==="past_start_time"&&_rowForAging?.aging_tank){
+      try{
+        await setDoc(doc(db,'aging_tank_states',_rowForAging.aging_tank),{
+          date:_rowForAging.date||today(),
+          past_start_time:now,past_end_time:null,
+          status:'pasteurising',updated_at:new Date().toISOString()
+        },{merge:true});
+      }catch(e2){console.warn('aging_tank_states date stamp error:',e2);}
+    }
+    if(field==="past_end_time"&&_rowForAging?.aging_tank){
+      try{
+        await setDoc(doc(db,'aging_tank_states',_rowForAging.aging_tank),{
+          date:_rowForAging.date||today(),
+          past_end_time:now,
+          status:'past_done',updated_at:new Date().toISOString()
+        },{merge:true});
+      }catch(e2){console.warn('aging_tank_states past_end_time stamp error:',e2);}
+    }
   }catch(e){
     toast(`❌ บันทึกไม่สำเร็จ: ${e.message}`,"red");
     console.error('stampTime error:',e);

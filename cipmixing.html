@@ -585,6 +585,22 @@ async function _doActReal(tid, act, programs){
   if(_timeField)core[_timeField]=n;
   if(_dateField)core[_dateField]=todayStr;
 
+  if(act==='start_cip'){
+    // ถังเข้าสู่รอบ CIP ใหม่ — ของเก่า (batch ที่เพิ่งใช้ไป) จบไปแล้วจริง ๆ
+    // เคลียร์ข้อมูล batch เก่าทิ้ง ไม่งั้นหน้า aging.html/pasteurize.html จะยังโชว์
+    // mix_code/mix_name/batch_no/expire_at ของ batch เก่าค้างอยู่ ทั้งที่ถังว่างแล้วจริง
+    core.mix_code='';
+    core.mix_name='';
+    core.batch_no='';
+    core.expire_at='';
+    core.shelf_hr='';
+    core.current_vol=0;
+    core.prod_suffix='';
+    core.prod_code='';
+    core.past_end_time='';
+    core.past_end_date='';
+  }
+
   const _tsNow = tankStates[tid]||{};
   const _hasPendingAcid = act==='stop_cip' && !!_tsNow.pending_acid;
   if(_hasPendingAcid){
