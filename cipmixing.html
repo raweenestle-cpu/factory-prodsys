@@ -587,6 +587,7 @@ async function _doActReal(tid, act, programs){
     if(!tankStates[tid])tankStates[tid]={id:tid};
     Object.assign(tankStates[tid],_earlyUpd);
     renderCipWaiting();
+    if(planRows.m1.length||planRows.m2.length)renderAll();
   }catch(e){
     alert('⚠️ บันทึกเวลาไม่สำเร็จ: '+e.message+'\n\nกรุณาลองกดปุ่มใหม่ หรือเช็คอินเทอร์เน็ต แล้วแจ้งแอดมินถ้ายังไม่ผ่าน');
     console.error('[CRITICAL] _doActReal early stamp failed:',e);
@@ -783,6 +784,7 @@ async function _doActReal(tid, act, programs){
     toast(lb[act]+' ถัง '+tid,'green');
     // re-render ทันที
     renderCipWaiting();
+    if(planRows.m1.length||planRows.m2.length)renderAll();
     if(curTab==='ciplog' && window.renderCipLog) window.renderCipLog();
   }catch(e){toast('Error: '+e.message,'red');}
 }
