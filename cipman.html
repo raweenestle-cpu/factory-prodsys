@@ -1137,9 +1137,9 @@ function calcVol(row){
 
       <!-- แถว 1: ถัง + FREEZER ใหญ่เท่ากัน เคียงข้าง + PUMP/LINE เป็นจุดเชื่อมเล็ก -->
       <div style="padding:12px 24px;background:${isRunning?col+'0d':'#fff'};border-bottom:1.5px solid ${isRunning?col:'#e2e8f0'};transition:all .3s${isRunning?';box-shadow:inset 0 0 0 2px '+col+'44':''}">
-      <div style="display:flex;align-items:flex-start;justify-content:flex-start;gap:24px;flex-wrap:wrap;max-width:1100px;margin:0 auto">
+      <div style="display:flex;align-items:flex-start;justify-content:flex-start;gap:1.2vw;flex-wrap:nowrap;width:100%;margin:0 auto">
         <!-- ถังปัจจุบัน — ชิดซ้ายสุด, label สูงคงที่ 32px เหนือรูป 200px -->
-        <div style="flex:0 0 240px;width:240px;display:flex;flex-direction:column;align-items:center;gap:2px">
+        <div style="flex:1 1 0;min-width:0;width:clamp(140px,15vw,280px);display:flex;flex-direction:column;align-items:center;gap:2px">
           <div style="height:32px;display:flex;align-items:center;justify-content:center">
             <div style="font-family:var(--mono);font-size:18px;font-weight:900;color:#111827;background:#e2e8f0;border:2px solid #b0bac8;border-radius:8px;padding:5px 14px">${agingTank}</div>
           </div>
@@ -1147,7 +1147,8 @@ function calcVol(row){
             ${tankSVG('S'+line.id,pct,col,hasLiquid,current.status==='pasteurising'?'♨️':isRunning?'🔵':curing.done?'✅':'🌡️',current.status==='pasteurising'?'#fb923c':curing.done?'#4ade80':'#fde047',150,200,rem)}
             <div style="position:absolute;bottom:28px;left:50%;transform:translateX(-50%);background:${isRunning?col:'#111827'}cc;color:#fff;font-family:var(--mono);font-size:15px;font-weight:800;padding:6px 14px;border-radius:999px;white-space:nowrap;pointer-events:none">${isRunning?'▶ กำลังเดิน':curing.done?'✅ พร้อม':'⏳ รอบ่ม'}</div>
           </div>
-          <div style="font-family:var(--mono);font-size:18px;font-weight:900;color:#111827;margin-top:4px">${current.mix_code||'—'} · Batch ${current.batch_no||'—'}</div>
+          <div style="font-family:var(--mono);font-size:18px;font-weight:900;color:#111827;margin-top:4px;text-align:center">${current.mix_code||'—'} · ${current.mix_name||'—'}</div>
+          <div style="font-family:var(--mono);font-size:14px;font-weight:700;color:#374151;margin-top:1px">Batch ${current.batch_no||'—'}</div>
           <!-- Start / Stop / Reset — ย้ายมาอยู่ใต้ถังเพื่อประหยัดพื้นที่แนวตั้ง -->
           <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:8px;justify-content:center">
             <button style="padding:9px 16px;border-radius:9px;font-family:var(--mono);font-size:14px;font-weight:900;border:2px solid ${isRunning?'#e2e8f0':curing.done?'#10b981':'#fcd34d'};background:${isRunning?'#f1f5f9':curing.done?'#d1fae5':'#fef9c3'};color:${isRunning?'#94a3b8':curing.done?'#065f46':'#92400e'};cursor:pointer" ${isRunning||!curing.done?'disabled':''} onclick="startLine('${line.id}',${sv},${fr},'${agingTank!=='—'?agingTank:''}')">${isRunning?'▶ เดิน':!curing.done?'⏳ รอบ่ม':'▶ Start'}</button>
@@ -1158,7 +1159,7 @@ function calcVol(row){
 
         ${current2?`
         <!-- ถังที่ 2 — product นี้ใช้ 2 mix_code พร้อมกัน (ตาม Product Master) — คุมอิสระจากถัง 1 -->
-        <div style="flex:0 0 240px;width:240px;display:flex;flex-direction:column;align-items:center;gap:2px">
+        <div style="flex:1 1 0;min-width:0;width:clamp(140px,15vw,280px);display:flex;flex-direction:column;align-items:center;gap:2px">
           <div style="height:32px;display:flex;align-items:center;justify-content:center">
             <div style="font-family:var(--mono);font-size:18px;font-weight:900;color:#111827;background:#e2e8f0;border:2px solid #b0bac8;border-radius:8px;padding:5px 14px">${agingTank2}</div>
           </div>
@@ -1166,7 +1167,8 @@ function calcVol(row){
             ${tankSVG('S2'+line.id,pct2,col2,!!current2&&+(current2.volume_liter||0)>0,current2.status==='pasteurising'?'♨️':isRunning2?'🔵':curing2.done?'✅':'🌡️',current2.status==='pasteurising'?'#fb923c':curing2.done?'#4ade80':'#fde047',150,200,rem2)}
             <div style="position:absolute;bottom:28px;left:50%;transform:translateX(-50%);background:${isRunning2?col2:'#111827'}cc;color:#fff;font-family:var(--mono);font-size:15px;font-weight:800;padding:6px 14px;border-radius:999px;white-space:nowrap;pointer-events:none">${isRunning2?'▶ กำลังเดิน':curing2.done?'✅ พร้อม':'⏳ รอบ่ม'}</div>
           </div>
-          <div style="font-family:var(--mono);font-size:18px;font-weight:900;color:#111827;margin-top:4px">${current2.mix_code||'—'} · Batch ${current2.batch_no||'—'}</div>
+          <div style="font-family:var(--mono);font-size:18px;font-weight:900;color:#111827;margin-top:4px;text-align:center">${current2.mix_code||'—'} · ${current2.mix_name||'—'}</div>
+          <div style="font-family:var(--mono);font-size:14px;font-weight:700;color:#374151;margin-top:1px">Batch ${current2.batch_no||'—'}</div>
           <div style="font-family:var(--mono);font-size:15px;font-weight:800;color:${pctC2};margin-top:3px">${rem2.toLocaleString(undefined,{maximumFractionDigits:0})} L (${pct2.toFixed(1)}%)</div>
           <!-- Start / Stop / Reset ถัง 2 — เป็นอิสระจากถัง 1 ทั้งหมด -->
           <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:8px;justify-content:center">
@@ -1178,7 +1180,7 @@ function calcVol(row){
         `:''}
 
         <!-- เส้นเชื่อม + PUMP — เริ่ม top:32px (เท่า label height) แล้วกึ่งกลางรูป 200px คือ 32+100=132px -->
-        <div style="flex:1 1 auto;min-width:90px;max-width:200px;height:200px;position:relative;margin-top:32px">
+        <div style="flex:0.6 1 0;min-width:40px;max-width:140px;height:clamp(120px,14vw,200px);position:relative;margin-top:32px">
           <div style="position:absolute;left:0;right:0;top:100px;height:5px;border-radius:3px;overflow:hidden;background:${isRunning?'#0ea5e9':'#e2e8f0'};transition:all .3s;z-index:0">${isRunning?'<div style="position:absolute;inset:0;background:linear-gradient(90deg,transparent,#5eead4,transparent);animation:flowShine 1.1s linear infinite"></div>':''}</div>
           <div style="position:absolute;left:50%;top:100px;transform:translate(-50%,-50%);width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;z-index:1;transition:all .3s;${isRunning?'border:2.5px solid #2563eb;background:#dbeafe;animation:pumpSpin .8s linear infinite,cipPumpPulse 1.2s ease-in-out infinite':'border:2px solid #b0bac8;background:#f1f5f9'}">
             <span style="font-size:26px">⚙️</span>
@@ -1189,12 +1191,12 @@ function calcVol(row){
         </div>
 
         <!-- FREEZER — ใหญ่เท่าถัง เห็นเต็มตัว + ไอเย็นบางๆตอน running, label สูงคงที่ 32px เหมือนถัง -->
-        <div style="flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:2px">
+        <div style="flex:0.8 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;gap:2px">
           <div style="height:32px;display:flex;align-items:center;justify-content:center">
             <div style="font-family:var(--mono);font-size:15px;font-weight:900;color:${isRunning?col:'#111827'}">FREEZER</div>
           </div>
           <div style="position:relative;display:flex;justify-content:center">
-            <img src="${FREEZER_IMG_B64}" style="height:200px;width:auto;display:block;${isRunning?'':'filter:saturate(.7) brightness(.95)'}" alt="freezer">
+            <img src="${FREEZER_IMG_B64}" style="height:clamp(120px,14vw,200px);width:auto;display:block;${isRunning?'':'filter:saturate(.7) brightness(.95)'}" alt="freezer">
             ${isRunning?`
             <div style="position:absolute;bottom:0;left:35%;width:30px;height:30px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.5),rgba(255,255,255,0));animation:mistThin 3.4s ease-out infinite;pointer-events:none"></div>
             <div style="position:absolute;bottom:0;left:55%;width:24px;height:24px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.45),rgba(255,255,255,0));animation:mistThin 3.8s ease-out infinite 1s;pointer-events:none"></div>
@@ -1204,18 +1206,18 @@ function calcVol(row){
         </div>
 
         <!-- เส้นเชื่อม LINE — เริ่ม top:32px เหมือนกัน กึ่งกลางตรงกับรูป 200px ของ FREEZER/MACHINE -->
-        <div style="flex:1 1 auto;min-width:90px;max-width:200px;height:200px;position:relative;margin-top:32px">
+        <div style="flex:0.6 1 0;min-width:40px;max-width:140px;height:clamp(120px,14vw,200px);position:relative;margin-top:32px">
           <div style="position:absolute;left:0;right:0;top:100px;height:5px;border-radius:3px;overflow:hidden;background:${isRunning?'#0ea5e9':'#e2e8f0'};transition:all .3s">${isRunning?'<div style="position:absolute;inset:0;background:linear-gradient(90deg,transparent,#5eead4,transparent);animation:flowShine 1.1s linear infinite"></div>':''}</div>
         </div>
 
         <!-- LINE machine + belt — ชิดขวาสุด, ชื่อ Line สูงคงที่ 32px เหมือนกันทุก section -->
-        <div style="flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:2px">
+        <div style="flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;gap:2px">
           <div style="height:32px;display:flex;align-items:center;justify-content:center">
             <div style="font-family:var(--mono);font-size:22px;font-weight:900;color:${isRunning?col:'#111827'};letter-spacing:.03em">${line.name.toUpperCase()}</div>
           </div>
           <div style="display:flex;align-items:flex-end;gap:0">
-            <img src="${MACHINE_IMG_B64}" style="height:200px;width:auto;display:block;${isRunning?'':'filter:saturate(.7) brightness(.95)'}" alt="line machine">
-            <div style="position:relative;width:160px;height:110px;overflow:hidden;${isRunning?'':'filter:saturate(.7) brightness(.95)'}">
+            <img src="${MACHINE_IMG_B64}" style="height:clamp(120px,14vw,200px);width:auto;display:block;${isRunning?'':'filter:saturate(.7) brightness(.95)'}" alt="line machine">
+            <div style="position:relative;width:clamp(90px,10vw,160px);height:clamp(70px,7vw,110px);overflow:hidden;${isRunning?'':'filter:saturate(.7) brightness(.95)'}">
               <!-- ชั้นล่าง: พื้นสายพาน+โครงเหล็ก — นิ่งอยู่กับที่ -->
               <div style="position:absolute;left:0;bottom:0;width:100%;height:73px;background-image:url('${BELT_STATIC_B64}');background-repeat:repeat-x;background-size:auto 73px"></div>
               <!-- ชั้นบน: เฉพาะแท่งไอติม — เคลื่อนวนลูปตอน running -->
