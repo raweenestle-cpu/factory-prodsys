@@ -352,7 +352,7 @@ let unsub={p1:null,p2:null};
 // P1 ดึงจาก production_plans (Mixing 1), P2 ดึงจาก production_plans_m2
 const planCol=(p)=>p==="p1"?"production_plans":"production_plans_m2";
 
-const today  = ()=>new Date().toISOString().slice(0,10);
+const today  = ()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
 const $      = id=>document.getElementById(id);
 const nowHHMM= ()=>{const d=new Date();return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");};
 const nowHHMMSS=()=>{const d=new Date();return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0")+":"+String(d.getSeconds()).padStart(2,"0");};
@@ -475,7 +475,7 @@ setInterval(async()=>{
       const totalMin=(totalVol*density*60)/speed;
       const _tParts=agRow.past_start_time.split(':').map(Number);
       const[h,mm,ss]=[_tParts[0]||0,_tParts[1]||0,_tParts[2]||0];
-      const start=new Date((agRow.date||new Date().toISOString().slice(0,10))+'T'+String(h).padStart(2,'0')+':'+String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0'));
+      const start=new Date((agRow.date||today())+'T'+String(h).padStart(2,'0')+':'+String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0'));
       // FIX: ถ้าไม่มี agRow.date ชัดเจน (เลยสมมติเป็นวันนี้) แล้วเวลาที่ได้ดันอยู่ใน "อนาคต"
       // แปลว่าจริงๆ start time นี้คือ "เมื่อวาน" — เลื่อนกลับไป 1 วัน กันค่า elapsed ติดที่ 0 ตลอดกาล
       // (บั๊กนี้ทำให้ถังที่ไม่มี date ชัดเจนค้างสถานะ pasteurising ไม่ auto-stamp ไม่ว่าจะรอนานแค่ไหน)
@@ -1135,7 +1135,7 @@ window.mixTankSVG=function(row,cap){
       if(speed&&totalVol){
         const totalMin=(totalVol*density*60)/speed;
         const _tp=(row.past_start_time||'').split(':').map(Number);
-        const start=new Date((row.date||new Date().toISOString().slice(0,10))+'T'+String(_tp[0]||0).padStart(2,'0')+':'+String(_tp[1]||0).padStart(2,'0')+':'+String(_tp[2]||0).padStart(2,'0'));
+        const start=new Date((row.date||today())+'T'+String(_tp[0]||0).padStart(2,'0')+':'+String(_tp[1]||0).padStart(2,'0')+':'+String(_tp[2]||0).padStart(2,'0'));
         const elapsedMin=Math.max(0,(Date.now()-start)/60000);
         const flowed=totalMin>0?Math.min(totalVol,(elapsedMin/totalMin)*totalVol):0;
         vol=Math.max(0,totalVol-flowed);
