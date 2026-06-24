@@ -96,6 +96,7 @@ nav{position:sticky;top:0;z-index:100;background:rgba(7,9,15,.95);border-bottom:
 .stat-btn{font-family:var(--mono);font-size:11px;padding:8px;border-radius:8px;border:1px solid var(--b2);
   background:var(--s2);color:var(--text);cursor:pointer;font-weight:700;transition:all .2s}
 .stat-btn:hover{border-color:#111827;color:#111827}
+.stat-btn.active{background:#fbbf24;border-color:#000;color:#000;font-weight:900;box-shadow:0 0 0 2px #000 inset}
 .ci{font-family:var(--mono);font-size:12px;background:var(--s2);border:1px solid var(--b1);
   border-radius:6px;color:var(--text);padding:6px 10px;outline:none;width:100%}
 .ci:focus{border-color:#111827}
@@ -181,13 +182,13 @@ nav{position:sticky;top:0;z-index:100;background:rgba(7,9,15,.95);border-bottom:
     <div class="modal-title" id="modal-title">ถัง —</div>
     <div class="modal-info" id="modal-info" style="font-size:12px;color:var(--t2);margin-bottom:12px"></div>
     <div class="stat-btns">
-      <button class="stat-btn" onclick="setTankStatus('cip_done')">🧹 CIP Done</button>
-      <button class="stat-btn" onclick="setTankStatus('san_done')">✨ Sanitized</button>
-      <button class="stat-btn" onclick="setTankStatus('pasteurising')">🔵 Pasteurizing</button>
-      <button class="stat-btn" onclick="setTankStatus('aging')">⏳ Aging</button>
-      <button class="stat-btn" onclick="setTankStatus('ready')">✅ Ready</button>
-      <button class="stat-btn" onclick="setTankStatus('filling')">🟢 Filling</button>
-      <button class="stat-btn" onclick="setTankStatus('empty')" style="grid-column:1/-1;color:var(--t2)">⚪ Empty (Reset)</button>
+      <button class="stat-btn" data-status="cip_done" onclick="setTankStatus('cip_done')">🧹 CIP Done</button>
+      <button class="stat-btn" data-status="san_done" onclick="setTankStatus('san_done')">✨ Sanitized</button>
+      <button class="stat-btn" data-status="pasteurising" onclick="setTankStatus('pasteurising')">🔵 Pasteurizing</button>
+      <button class="stat-btn" data-status="aging" onclick="setTankStatus('aging')">⏳ Aging</button>
+      <button class="stat-btn" data-status="ready" onclick="setTankStatus('ready')">✅ Ready</button>
+      <button class="stat-btn" data-status="filling" onclick="setTankStatus('filling')">🟢 Filling</button>
+      <button class="stat-btn" data-status="empty" onclick="setTankStatus('empty')" style="grid-column:1/-1;color:var(--t2)">⚪ Empty (Reset)</button>
     </div>
     <div style="margin-bottom:10px">
       <div style="font-size:11px;color:var(--t2);margin-bottom:4px">Vol ปัจจุบัน (L)</div>
@@ -475,7 +476,7 @@ function makeTankCard(tankId){
     +'<span style="font-family:var(--mono);font-size:18px;font-weight:900;color:#111827">'+tankId+'</span>'
     +'<span style="font-family:var(--mono);font-size:10px;color:#6b7280">'+cap.toLocaleString()+' L</span>'
     +'</div>'
-    +'<div style="display:inline-block;font-family:var(--mono);font-size:11px;font-weight:800;padding:3px 10px;border-radius:20px;margin-bottom:4px;background:'+stColor+'22;color:'+stColor+';border:1.5px solid '+stColor+'55">'+stLabel+'</div>'
+    +'<div style="display:inline-block;font-family:var(--mono);font-size:11px;font-weight:900;padding:3px 10px;border-radius:20px;margin-bottom:4px;background:'+stColor+';color:#000;border:1.5px solid '+stColor+'">'+stLabel+'</div>'
     +(ts.mix_code?('<div style="font-family:var(--mono);font-size:12px;font-weight:900;color:#111827;margin-bottom:2px">'+ts.mix_code+'</div>'):'')
     +'<div style="font-size:14px;font-weight:800;color:#111827;line-height:1.3">'+(ts.mix_name||p.name||'—')+(currentVol>0?(' <span style="font-family:var(--mono);font-size:13px;font-weight:900;color:'+pctC+'">'+currentVol.toLocaleString()+' L</span>'):'')+'</div>'
     +(prodCode?('<div style="font-family:var(--mono);font-size:11px;color:#6b7280;margin-top:4px;font-weight:700">รหัสผลิต: <span style="color:#111827">'+prodCode+'</span></div>'):'')
@@ -642,11 +643,34 @@ window.openModal=(tankId)=>{
   selectedTank=tankId;
   $('modal-title').textContent='ถัง '+tankId;
   const ts=tankStates[tankId]||{};
-  $('modal-info').textContent='Status: '+statusLabel(ts.status||'empty');
+  const curStatus=ts.status||'empty';
+  $('modal-info').textContent='Status: '+statusLabel(curStatus);
   $('modal-vol').value=ts.current_vol||'';
+  document.querySelectorAll('.stat-btn').forEach(btn=>{
+    btn.classList.toggle('active', btn.dataset.status===curStatus);
+  });
   $('tank-modal').classList.add('show');
 };
 window.closeModal=()=>{$('tank-modal').classList.remove('show');selectedTank=null;};
+
+// ── หยุด Filling loop ของ cipman.html ที่ชี้มาที่ถังนี้ ──
+// ป้องกันปัญหา: แก้ vol/status จาก aging.html แล้วถูก cipman.html เขียนทับกลับภายใน 15 วิ
+// เพราะ loop ยังคิดว่า filling กำลังทำงานอยู่ (running:true) ชี้มาที่ถังนี้
+async function _stopFillingForTank(tankId){
+  if(!tankId)return;
+  try{
+    const _snap=await getDocs(query(collection(db,'cip_line_states'),where('aging_tank','==',tankId)));
+    for(const _d of _snap.docs){
+      const _data=_d.data();
+      if(_data.running){
+        await setDoc(doc(db,'cip_line_states',_d.id),{
+          running:false,start_ts:null,start_vol:0,current_vol:0,aging_tank:'',
+          updated_at:new Date().toISOString()
+        },{merge:true});
+      }
+    }
+  }catch(e){console.warn('_stopFillingForTank error:',e);}
+}
 window.setTankStatus=async(status)=>{
   if(!selectedTank)return;
   const isReset=status==='empty';
@@ -666,6 +690,7 @@ window.setTankStatus=async(status)=>{
     }
     :{status,updated_at:new Date().toISOString()};
   try{
+    await _stopFillingForTank(selectedTank);
     await setDoc(doc(db,'aging_tank_states',selectedTank),upd,{merge:true}); // merge:true ทุกกรณี — เก็บ cip_group ไว้เสมอ
     if(isReset){
       // ปิด production_plans ของถังนี้ไปด้วย กันถูกเขียนทับกลับจาก auto-stamp loop (เหตุผลเดียวกับ clearTank)
@@ -688,6 +713,7 @@ window.saveCurrentVol=async()=>{
   if(!selectedTank)return;
   const vol=+($('modal-vol').value||0);
   try{
+    await _stopFillingForTank(selectedTank);
     await setDoc(doc(db,'aging_tank_states',selectedTank),{current_vol:vol,updated_at:new Date().toISOString()},{merge:true});
     toast('บันทึก Vol '+vol+' L','green');closeModal();
   }catch(e){toast('ไม่สำเร็จ','red');}
@@ -695,6 +721,7 @@ window.saveCurrentVol=async()=>{
 window.clearTank=async()=>{
   if(!selectedTank||!confirm('เคลียร์ถัง '+selectedTank+'?'))return;
   try{
+    await _stopFillingForTank(selectedTank);
     await setDoc(doc(db,'aging_tank_states',selectedTank),{
       status:'empty',current_vol:0,
       mix_code:'',mix_name:'',batch_no:'',product_code:'',prod_suffix:'',
