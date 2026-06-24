@@ -1139,11 +1139,11 @@ function calcVol(row){
       <div style="padding:12px 24px;background:${isRunning?col+'0d':'#fff'};border-bottom:1.5px solid ${isRunning?col:'#e2e8f0'};transition:all .3s${isRunning?';box-shadow:inset 0 0 0 2px '+col+'44':''}">
       <div style="display:flex;align-items:flex-start;justify-content:flex-start;gap:1.2vw;flex-wrap:nowrap;width:100%;margin:0 auto">
         <!-- ถังปัจจุบัน — ชิดซ้ายสุด, label สูงคงที่ 32px เหนือรูป 200px -->
-        <div style="flex:1 1 0;min-width:0;width:clamp(140px,15vw,280px);display:flex;flex-direction:column;align-items:center;gap:2px">
+        <div style="flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:2px">
           <div style="height:32px;display:flex;align-items:center;justify-content:center">
             <div style="font-family:var(--mono);font-size:18px;font-weight:900;color:#111827;background:#e2e8f0;border:2px solid #b0bac8;border-radius:8px;padding:5px 14px">${agingTank}</div>
           </div>
-          <div style="position:relative;display:flex;justify-content:center;width:100%;aspect-ratio:150/200">
+          <div style="position:relative;display:flex;justify-content:center;height:clamp(120px,14vw,200px);aspect-ratio:150/200">
             ${tankSVG('S'+line.id,pct,col,hasLiquid,current.status==='pasteurising'?'♨️':isRunning?'🔵':curing.done?'✅':'🌡️',current.status==='pasteurising'?'#fb923c':curing.done?'#4ade80':'#fde047',150,200,rem)}
             <div style="position:absolute;bottom:28px;left:50%;transform:translateX(-50%);background:${isRunning?col:'#111827'}cc;color:#fff;font-family:var(--mono);font-size:15px;font-weight:800;padding:6px 14px;border-radius:999px;white-space:nowrap;pointer-events:none">${isRunning?'▶ กำลังเดิน':curing.done?'✅ พร้อม':'⏳ รอบ่ม'}</div>
           </div>
@@ -1159,11 +1159,11 @@ function calcVol(row){
 
         ${current2?`
         <!-- ถังที่ 2 — product นี้ใช้ 2 mix_code พร้อมกัน (ตาม Product Master) — คุมอิสระจากถัง 1 -->
-        <div style="flex:1 1 0;min-width:0;width:clamp(140px,15vw,280px);display:flex;flex-direction:column;align-items:center;gap:2px">
+        <div style="flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:2px">
           <div style="height:32px;display:flex;align-items:center;justify-content:center">
             <div style="font-family:var(--mono);font-size:18px;font-weight:900;color:#111827;background:#e2e8f0;border:2px solid #b0bac8;border-radius:8px;padding:5px 14px">${agingTank2}</div>
           </div>
-          <div style="position:relative;display:flex;justify-content:center;width:100%;aspect-ratio:150/200">
+          <div style="position:relative;display:flex;justify-content:center;height:clamp(120px,14vw,200px);aspect-ratio:150/200">
             ${tankSVG('S2'+line.id,pct2,col2,!!current2&&+(current2.volume_liter||0)>0,current2.status==='pasteurising'?'♨️':isRunning2?'🔵':curing2.done?'✅':'🌡️',current2.status==='pasteurising'?'#fb923c':curing2.done?'#4ade80':'#fde047',150,200,rem2)}
             <div style="position:absolute;bottom:28px;left:50%;transform:translateX(-50%);background:${isRunning2?col2:'#111827'}cc;color:#fff;font-family:var(--mono);font-size:15px;font-weight:800;padding:6px 14px;border-radius:999px;white-space:nowrap;pointer-events:none">${isRunning2?'▶ กำลังเดิน':curing2.done?'✅ พร้อม':'⏳ รอบ่ม'}</div>
           </div>
