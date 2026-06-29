@@ -409,10 +409,20 @@ tbody tr.row-done td{background:#f0fdf4!important}
 </head>
 <body>
 
-<nav>
+<nav style="flex-wrap:wrap;gap:6px">
   <div class="nav-logo">PROD<b>.</b>SYS</div>
   <button class="nav-tab on" onclick="showTab('m1',this)">🧪 Mix 1</button>
   <button class="nav-tab" onclick="showTab('m2',this)">🧪 Mix 2</button>
+  <div id="date-header-m1" style="display:flex;align-items:center;gap:8px;background:#0f1730;border:2px solid #b8860b;border-radius:10px;padding:6px 14px">
+    <span style="font-family:var(--mono);font-size:11px;font-weight:900;color:#9fb0d1;letter-spacing:1px;text-transform:uppercase">📅 วันที่</span>
+    <input type="date" id="date-m1" style="font-family:var(--mono);font-size:18px;font-weight:900;color:#f0b429;background:transparent;border:none;outline:none;cursor:pointer" onchange="loadPlan('m1')">
+    <span id="day-label-m1" style="font-family:var(--mono);font-size:13px;font-weight:700;color:#dbe4f3"></span>
+  </div>
+  <div id="date-header-m2" style="display:none;align-items:center;gap:8px;background:#0f1730;border:2px solid #b8860b;border-radius:10px;padding:6px 14px">
+    <span style="font-family:var(--mono);font-size:11px;font-weight:900;color:#9fb0d1;letter-spacing:1px;text-transform:uppercase">📅 วันที่</span>
+    <input type="date" id="date-m2" style="font-family:var(--mono);font-size:18px;font-weight:900;color:#f0b429;background:transparent;border:none;outline:none;cursor:pointer" onchange="loadPlan('m2')">
+    <span id="day-label-m2" style="font-family:var(--mono);font-size:13px;font-weight:700;color:#dbe4f3"></span>
+  </div>
   <div class="nav-right">
     <span class="nav-role">PREPARE MIX</span>
     <span class="nav-user" id="nav-user"></span>
@@ -424,11 +434,6 @@ tbody tr.row-done td{background:#f0fdf4!important}
 
 <!-- MIX 1 -->
 <div class="page on" id="tab-m1">
-  <div class="date-header" style="margin:16px 20px 14px">
-    <div class="date-header-label">📅 วันที่ผลิต</div>
-    <input type="date" id="date-m1" class="date-input-lg" onchange="loadPlan('m1')">
-    <div class="date-day-label" id="day-label-m1"></div>
-  </div>
   <div style="padding:0 20px 6px">
     <div style="font-family:var(--mono);font-size:10px;font-weight:900;color:#64748b;letter-spacing:2px;text-transform:uppercase;padding:6px 0 8px;border-top:2px solid #e2e8f0">📋 รายการเตรียม Mix 1</div>
   </div>
@@ -479,11 +484,6 @@ tbody tr.row-done td{background:#f0fdf4!important}
 
 <!-- MIX 2 -->
 <div class="page" id="tab-m2">
-  <div class="date-header" style="margin:16px 20px 14px">
-    <div class="date-header-label">📅 วันที่ผลิต</div>
-    <input type="date" id="date-m2" class="date-input-lg" onchange="loadPlan('m2')">
-    <div class="date-day-label" id="day-label-m2"></div>
-  </div>
   <div style="padding:0 20px 6px">
     <div style="font-family:var(--mono);font-size:10px;font-weight:900;color:#64748b;letter-spacing:2px;text-transform:uppercase;padding:6px 0 8px;border-top:2px solid #e2e8f0">📋 รายการเตรียม Mix 2</div>
   </div>
@@ -1521,6 +1521,9 @@ function showTab(m, btn){
   document.querySelectorAll('.nav-tab').forEach(b=>b.classList.remove('on'));
   document.getElementById('tab-'+m).classList.add('on');
   btn.classList.add('on');
+  // สลับ date picker ในแถบบนให้ตรงกับ tab ที่เลือก
+  document.getElementById('date-header-m1').style.display = (m==='m1') ? 'flex' : 'none';
+  document.getElementById('date-header-m2').style.display = (m==='m2') ? 'flex' : 'none';
 }
 </script>
 </body>
