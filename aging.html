@@ -625,7 +625,8 @@ function makeTankCard(tankId){
     +'</div>';
 
 
-  const footer=expHtml;
+  const _debugLine='<div style="font-family:var(--mono);font-size:10px;color:#fbbf24;background:#1f1306;padding:4px 8px;border-top:1px dashed #b8860b;word-break:break-all">🔧 DEBUG: past_end='+(ts.past_end_time||'(ว่าง)')+' | date='+(ts.date||'(ว่าง)')+' | expire_at='+(ts.expire_at?'มีค่า':'(ว่าง)')+'</div>';
+  const footer=expHtml+_debugLine;
 
   div.innerHTML=header+footer;
   if(svgHtml){
