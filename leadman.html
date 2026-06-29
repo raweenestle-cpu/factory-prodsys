@@ -259,6 +259,68 @@ tbody td{padding:5px 6px;vertical-align:middle;font-weight:600}
 .sp-score-bar{height:3px;border-radius:2px;margin-top:4px;background:#e2e8f0}
 .sp-score-fill{height:100%;border-radius:2px;transition:width .5s}
 
+/* ===== LUXE NAVY+GOLD OVERRIDE — ตัวอักษรใหญ่ขึ้น คอนทราสต์สูงขึ้น ===== */
+:root{--gold:#f0b429;--gold-light:#3d2f0a;--gold-deep:#b8860b;}
+body{background:radial-gradient(ellipse at top,#0e1530,#0a0e1a 60%)!important;font-size:15px!important}
+nav{background:linear-gradient(180deg,#0f1730,#0a0e1a)!important;border-bottom:2px solid var(--gold-deep)!important;box-shadow:0 2px 16px rgba(240,180,41,.08)!important}
+.nav-logo{font-size:18px!important;font-weight:900!important;color:var(--gold)!important;text-shadow:0 0 14px rgba(240,180,41,.3)!important}
+.nav-logo b{color:var(--gold)!important}
+.nav-tab{font-size:14px!important;font-weight:800!important;padding:8px 16px!important}
+.nav-tab:hover{background:#1d2842!important;color:#f8fafc!important}
+.nav-tab.on{color:#1a1206!important;background:linear-gradient(135deg,var(--gold-deep),var(--gold))!important;box-shadow:0 2px 12px rgba(240,180,41,.4)!important}
+.nav-role{background:var(--gold-light)!important;color:var(--gold)!important;border-color:var(--gold-deep)!important;font-size:12px!important}
+.nav-user,.btn-logout{font-size:13px!important}
+
+.kpi-row{background:#161f33!important;border-color:var(--gold-deep)!important}
+.kpi{background:#1d2842!important;border-color:var(--gold-deep)!important}
+.kpi-label{font-size:12px!important}
+.kpi-val{font-size:28px!important;color:#f8fafc!important}
+
+table{font-size:16px!important}
+thead th{background:#101a33!important;color:var(--gold)!important;font-size:14px!important;border-bottom:3px solid var(--gold-deep)!important}
+tbody td{font-size:15px!important;font-weight:700!important;color:#f8fafc!important}
+.ci{font-size:15px!important;padding:7px 10px!important}
+.ca,.cr{font-size:14px!important}
+.btn{font-size:14px!important;padding:8px 16px!important;font-weight:700!important}
+.btn-b{background:linear-gradient(135deg,var(--gold-deep),var(--gold))!important;border-color:var(--gold)!important;color:#1a1206!important;font-weight:900!important}
+.stat-sel{font-size:13px!important}
+.tank-sel{font-size:14px!important}
+#toast{font-size:15px!important;padding:12px 24px!important}
+
+/* Line status cards — เข้มขึ้น คงสีสถานะเดิม (เขียว=running เหลือง=waiting) */
+.lsc{background:#161f33!important;border-color:var(--gold-deep)!important;box-shadow:0 4px 20px rgba(0,0,0,.4)!important}
+.lsc-header{background:linear-gradient(135deg,#1d2842,#161f33)!important;border-bottom-color:var(--b1)!important}
+.lsc-linename{color:var(--gold)!important;font-size:24px!important}
+.lsc-product{color:#f8fafc!important;font-size:16px!important}
+.lsc-kpi{background:#1d2842!important;border-color:var(--b1)!important}
+.lsc-kpi-label{font-size:11px!important}
+.lsc-kpi-val{color:#f8fafc!important;font-size:22px!important}
+.lsc-kpi-sub{font-size:11px!important}
+.lsc-kpi.highlight{background:#0d2818!important;border-color:#34d399!important}
+.lsc-kpi.warn{background:#3a2f0a!important;border-color:var(--gold)!important}
+.lsc-kpi.crit{background:#3a1212!important;border-color:#f87171!important}
+.lsc-progress-label,.lsc-progress-pct{font-size:11px!important}
+.lsc-progress-pct{color:#f8fafc!important}
+.lsc-bar{background:#0f1730!important}
+.lsc-flow-row,.lsc-eta-box{background:#1d2842!important;border-color:var(--b1)!important}
+.lsc-flow-label,.lsc-eta-label{font-size:11px!important}
+.lsc-flow-val,.lsc-eta-time{color:#f8fafc!important;font-size:18px!important}
+.lsc-q-section{background:#0f1730!important;border-top-color:var(--b1)!important}
+.lsc-q-title{font-size:11px!important}
+.lsc-q-item{background:#1d2842!important;border-color:var(--b1)!important}
+.lsc-q-code,.lsc-qcode{color:#f8fafc!important;font-size:13px!important}
+.lsc-idle-msg{color:#9fb0d1!important}
+
+/* Smart priority list — เข้มขึ้น คงสีความเร่งด่วนเดิม */
+.sp-title{color:var(--gold)!important;font-size:13px!important}
+.sp-item{background:#1d2842!important}
+.sp-item.crit{background:#3a1212!important}
+.sp-item.warn{background:#3a2f0a!important}
+.sp-item.ok{background:#0d2818!important}
+.sp-name{color:#f8fafc!important;font-size:15px!important}
+.sp-reason{font-size:12px!important}
+.sp-time{font-size:14px!important}
+.sp-score-bar{background:#0f1730!important}
 </style>
 <!-- v20260611022216 -->
 </head>
