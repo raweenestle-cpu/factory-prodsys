@@ -400,35 +400,41 @@ window.doLogout=async()=>{await signOut(auth);location.href='index.html';};
 async function _checkCuringDone(){
   const now = Date.now();
   for(const ts of Object.values(tankStates)){
-    // เช็คทุกถังที่มี past_end_time ไม่ว่า current_vol จะเป็นเท่าไหร่
-    if(!ts.past_end_time||!ts.date) continue;
-    if(ts.status==='empty'||ts.status==='cip'||ts.status==='san') continue; // ข้ามถังที่ว่างหรือทำ CIP
-    const prod = productMap[ts.mix_code||'']||{};
-    const agingHr = +(prod.aging_time||4);
-    const[h,m]=(ts.past_end_time).split(':').map(Number);
-    const base = new Date(ts.date);
-    base.setHours(h||0,m||0,0,0);
-    const readyAt = base.getTime() + agingHr*3600000;
+    try{
+      // เช็คทุกถังที่มี past_end_time ไม่ว่า current_vol จะเป็นเท่าไหร่
+      if(!ts.past_end_time||!ts.date) continue;
+      if(ts.status==='empty'||ts.status==='cip'||ts.status==='san') continue; // ข้ามถังที่ว่างหรือทำ CIP
+      const prod = productMap[ts.mix_code||'']||{};
+      const agingHr = +(prod.aging_time||4);
+      const[h,m]=(ts.past_end_time).split(':').map(Number);
+      const base = new Date(ts.date);
+      if(isNaN(base.getTime())){
+        console.warn('[_checkCuringDone] ถัง',ts.id,'— ts.date ผิดรูปแบบ:',JSON.stringify(ts.date),'ข้ามถังนี้ไปก่อน');
+        continue;
+      }
+      base.setHours(h||0,m||0,0,0);
+      const readyAt = base.getTime() + agingHr*3600000;
 
-    // คำนวณ expire_at จาก SHELF_TABLE
-    const maxT = getMaxTemp(ts)??5;
-    const pt = (prod.product_type||'').toLowerCase();
-    const ptype = pt.includes('water ice')?'Water Ice':pt.includes('jelly')?'Jelly':'Ice Cream';
-    const tempIdx = Math.min(Math.max(Math.round(maxT),0),10);
-    const shelfHr = (SHELF_TABLE[ptype]||[])[tempIdx]||96;
-    const expireAt = new Date(base.getTime()+shelfHr*3600000).toISOString();
+      // คำนวณ expire_at จาก SHELF_TABLE
+      const maxT = getMaxTemp(ts)??5;
+      const pt = (prod.product_type||'').toLowerCase();
+      const ptype = pt.includes('water ice')?'Water Ice':pt.includes('jelly')?'Jelly':'Ice Cream';
+      const tempIdx = Math.min(Math.max(Math.round(maxT),0),10);
+      const shelfHr = (SHELF_TABLE[ptype]||[])[tempIdx]||96;
+      const expireAt = new Date(base.getTime()+shelfHr*3600000).toISOString();
 
-    const upd = {expire_at:expireAt, updated_at:new Date().toISOString()};
+      const upd = {expire_at:expireAt, updated_at:new Date().toISOString()};
 
-    if(ts.status==='aging' && now >= readyAt){
-      upd.status = 'ready';
-    }
+      if(ts.status==='aging' && now >= readyAt){
+        upd.status = 'ready';
+      }
 
-    // update ทุกถังที่มี past_end_time (รวม Twin ที่ current_vol=0)
-    if(ts.past_end_time){
-      try{
+      // update ทุกถังที่มี past_end_time (รวม Twin ที่ current_vol=0)
+      if(ts.past_end_time){
         await setDoc(doc(db,'aging_tank_states',ts.id),upd,{merge:true});
-      }catch(e){console.warn('auto-check error:',e);}
+      }
+    }catch(e){
+      console.warn('[_checkCuringDone] ถัง',ts.id,'คำนวณพัง:',e.message,'— ข้ามไปถังต่อไป ไม่กระทบถังอื่น');
     }
   }
 }
