@@ -381,12 +381,15 @@ onAuthStateChanged(auth,async u=>{
         }
         window._debugLastVol=dat.current_vol;
       }
-      // ── Event-driven: อุณหภูมิเปลี่ยน → คำนวณ curing/expire_at ของถังนี้ทันที ──
-      // ไม่ต้องรอ interval เวลาเป็นตัวกำหนดอีกแล้ว ตอบสนองทันทีที่มีคนกรอกอุณหภูมิใหม่
+      // ── Event-driven: อุณหภูมิเปลี่ยน หรือ Pasteurize เพิ่งเสร็จ (past_end_time ใหม่) → คำนวณทันที ──
+      // ไม่ต้องรอเวลาหรือรออุณหภูมิจริงเลย ใช้ 4°C เป็นค่าตั้งต้นได้ทันทีที่ Past เสร็จ
       const _oldTemp=tankStates[d.id]?getMaxTemp(tankStates[d.id]):undefined;
+      const _oldPastEnd=tankStates[d.id]?tankStates[d.id].past_end_time:undefined;
       const _newTemp=getMaxTemp(dat);
       tankStates[d.id]=dat;
-      if(_oldTemp!==undefined&&_oldTemp!==_newTemp){
+      const _tempChanged=_oldTemp!==undefined&&_oldTemp!==_newTemp;
+      const _pastEndJustSet=_oldPastEnd!==dat.past_end_time&&!!dat.past_end_time;
+      if(_tempChanged||_pastEndJustSet){
         _checkCuringForTank(dat);
       }
     });
@@ -428,7 +431,7 @@ async function _checkCuringForTank(ts){
     const readyAt = base.getTime() + agingHr*3600000;
 
     // คำนวณ expire_at จาก SHELF_TABLE
-    const maxT = getMaxTemp(ts)??5;
+    const maxT = getMaxTemp(ts)??4;
     const pt = (prod.product_type||'').toLowerCase();
     const ptype = pt.includes('water ice')?'Water Ice':pt.includes('jelly')?'Jelly':'Ice Cream';
     const tempIdx = Math.min(Math.max(Math.round(maxT),0),10);
@@ -757,7 +760,7 @@ function renderStageRing(status,isEmpty){
 // EXPIRY
 function calcExpiry(row,tankId){
   if(!row?.past_end_time||!row?.date) return null;
-  const temp=getMaxTemp(tankStates[tankId])??5;
+  const temp=getMaxTemp(tankStates[tankId])??4;
   const prod=productMap[row.mix_code||'']||{};
   const pt=(prod.product_type||'').toLowerCase();
   const type=pt.includes('water ice')?'Water Ice':pt.includes('jelly')?'Jelly':'Ice Cream';
