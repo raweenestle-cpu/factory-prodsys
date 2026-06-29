@@ -401,9 +401,16 @@ async function _checkCuringDone(){
   const now = Date.now();
   for(const ts of Object.values(tankStates)){
     try{
+      const _dbg = window._debugTank && ts.id===window._debugTank;
       // เช็คทุกถังที่มี past_end_time ไม่ว่า current_vol จะเป็นเท่าไหร่
-      if(!ts.past_end_time||!ts.date) continue;
-      if(ts.status==='empty'||ts.status==='cip'||ts.status==='san') continue; // ข้ามถังที่ว่างหรือทำ CIP
+      if(!ts.past_end_time||!ts.date){
+        if(_dbg) console.warn('[_checkCuringDone]',ts.id,'ข้าม — ไม่มี past_end_time หรือ date',{past_end_time:ts.past_end_time,date:ts.date});
+        continue;
+      }
+      if(ts.status==='empty'||ts.status==='cip'||ts.status==='san'){
+        if(_dbg) console.warn('[_checkCuringDone]',ts.id,'ข้าม — status เป็น',ts.status);
+        continue;
+      }
       const prod = productMap[ts.mix_code||'']||{};
       const agingHr = +(prod.aging_time||4);
       const[h,m]=(ts.past_end_time).split(':').map(Number);
@@ -429,6 +436,8 @@ async function _checkCuringDone(){
         upd.status = 'ready';
       }
 
+      if(_dbg) console.warn('[_checkCuringDone]',ts.id,'คำนวณสำเร็จ → expire_at:',expireAt,'(เขียนลง Firestore แล้ว)');
+
       // update ทุกถังที่มี past_end_time (รวม Twin ที่ current_vol=0)
       if(ts.past_end_time){
         await setDoc(doc(db,'aging_tank_states',ts.id),upd,{merge:true});
@@ -438,6 +447,7 @@ async function _checkCuringDone(){
     }
   }
 }
+window._checkCuringDone = _checkCuringDone; // เปิดให้เรียกจาก Console ได้ตรงๆเพื่อ debug
 setInterval(_checkCuringDone, 60000);
 // เช็คทันทีตอน load
 setTimeout(_checkCuringDone, 3000);
