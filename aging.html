@@ -516,15 +516,10 @@ function makeTankCard(tankId){
   if(svgHtml){
     const _bodyDiv=document.createElement('div');
     _bodyDiv.style.cssText='display:flex;justify-content:center;padding:8px 0';
-    const _parser=new DOMParser();
-    const _svgDoc=_parser.parseFromString(svgHtml,'image/svg+xml');
-    const _svgEl=_svgDoc.documentElement;
-    if(_svgEl&&_svgEl.tagName==='svg'){
-      _bodyDiv.appendChild(document.adoptNode(_svgEl));
-      const _footerEl=div.querySelector('[style*="border-top"]');
-      if(_footerEl) div.insertBefore(_bodyDiv,_footerEl);
-      else div.appendChild(_bodyDiv);
-    }
+    _bodyDiv.innerHTML=svgHtml;
+    const _footerEl=div.querySelector('[style*="border-top"]');
+    if(_footerEl) div.insertBefore(_bodyDiv,_footerEl);
+    else div.appendChild(_bodyDiv);
   }
   div.onclick=()=>openModal(tankId);
   return div;
