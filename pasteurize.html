@@ -1826,6 +1826,7 @@ window.stampTime=async(col,id,field,p)=>{
         await setDoc(doc(db,'aging_tank_states',_rowForAging.aging_tank),{
           date:_rowForAging.date||today(),
           past_start_time:now,past_end_time:null,
+          prod_suffix:_rowForAging.prod_suffix||'',_col:col,
           status:'pasteurising',updated_at:new Date().toISOString()
         },{merge:true});
       }catch(e2){console.warn('aging_tank_states date stamp error:',e2);}
@@ -1835,6 +1836,7 @@ window.stampTime=async(col,id,field,p)=>{
         await setDoc(doc(db,'aging_tank_states',_rowForAging.aging_tank),{
           date:_rowForAging.date||today(),
           past_end_time:now,
+          prod_suffix:_rowForAging.prod_suffix||'',_col:col,
           status:'aging',updated_at:new Date().toISOString()
         },{merge:true});
       }catch(e2){console.warn('aging_tank_states past_end_time stamp error:',e2);}
