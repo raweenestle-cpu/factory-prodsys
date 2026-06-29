@@ -595,7 +595,7 @@ function makeTankCard(tankId){
   div.innerHTML=header+footer;
   if(svgHtml){
     const _bodyDiv=document.createElement('div');
-    _bodyDiv.style.cssText='display:flex;justify-content:flex-start;align-items:center;padding:8px 0 8px 8px;position:relative';
+    _bodyDiv.style.cssText='display:flex;justify-content:flex-start;align-items:center;padding:8px 60px 8px 8px;position:relative';
     _bodyDiv.innerHTML=svgHtml;
     // ── โพรบวัดอุณหภูมิ — เส้นชี้ออกจากถังด้านขวากลาง แบบ SCADA ──
     if(maxTempVal!=null){
@@ -606,8 +606,8 @@ function makeTankCard(tankId){
       const probe=document.createElement('div');
       probe.style.cssText='position:absolute;left:154px;top:50%;display:flex;align-items:center;pointer-events:none';
       probe.innerHTML=
-        '<div style="width:26px;height:2px;background:'+tBorder+'"></div>'
-        +'<div style="background:'+tBg+';border:1.5px solid '+tBorder+';border-radius:6px;padding:3px 9px;font-family:var(--mono);font-size:12px;font-weight:900;color:'+tBorder+';white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.4)">'+tIcon+' '+maxTempVal+'°C</div>';
+        '<div style="width:12px;height:2px;background:'+tBorder+'"></div>'
+        +'<div style="background:'+tBg+';border:1.5px solid '+tBorder+';border-radius:6px;padding:3px 7px;font-family:var(--mono);font-size:12px;font-weight:900;color:'+tBorder+';white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.4)">'+tIcon+' '+maxTempVal+'°C</div>';
       _bodyDiv.appendChild(probe);
     }
     const _footerEl=div.querySelector('[style*="border-top"]');
