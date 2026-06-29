@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
   
-  <meta name="theme-color" content="#1fb591">
+  <meta name="theme-color" content="#b8860b">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="PROD.SYS">
@@ -15,95 +15,96 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;600;700&family=Sarabun:wght@400;500;600;700&display=swap');
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#070d0b;--s1:#0e1714;--s2:#142019;--s3:#1a2820;--b1:#264035;--b2:#2f5142;
-  --text:#eafff5;--t2:#9fc9b8;--t3:#5f8a78;
-  --mint:#2dd4a8;--mint2:#34e6b8;--mint3:#1fb591;--mint-dim:#13503f;
-  --pink:#2dd4a8;--pink2:#2dd4a8;--pink3:#1fb591;
-  --rose:#2dd4a8;--lilac:#34e6b8;--lavender:#34e6b8;
-  --green:#2dd4a8;--yellow:#34e6b8;--red:#ef4444;--cyan:#2dd4a8;--orange:#34e6b8;--purple:#2dd4a8;
+  --bg:#0a0e1a;--s1:#161f33;--s2:#1d2842;--s3:#243154;--b1:#3d4d75;--b2:#2d3a5c;
+  --text:#f8fafc;--t2:#dbe4f3;--t3:#9fb0d1;
+  --mint:#f0b429;--mint2:#f6c75e;--mint3:#b8860b;--mint-dim:#3d2f0a;
+  --pink:#f0b429;--pink2:#f0b429;--pink3:#b8860b;
+  --rose:#f0b429;--lilac:#f6c75e;--lavender:#f6c75e;
+  --green:#34d399;--yellow:#f0b429;--red:#ef4444;--cyan:#22d3ee;--orange:#f0b429;--purple:#f0b429;
   --mono:'DM Mono',monospace;--sans:'Sarabun',sans-serif;
 }
 html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:var(--sans)}
 body::before{content:"";position:fixed;inset:0;
-  background:radial-gradient(ellipse at 20% 0%,rgba(45,212,168,.08) 0%,transparent 60%),
-             radial-gradient(ellipse at 80% 100%,rgba(45,212,168,.06) 0%,transparent 60%);
+  background:radial-gradient(ellipse at 20% 0%,rgba(240,180,41,.08) 0%,transparent 60%),
+             radial-gradient(ellipse at 80% 100%,rgba(240,180,41,.06) 0%,transparent 60%);
   pointer-events:none;z-index:0}
 ::-webkit-scrollbar{width:4px;height:4px}
-::-webkit-scrollbar-thumb{background:rgba(45,212,168,.3);border-radius:3px}
+::-webkit-scrollbar-thumb{background:rgba(240,180,41,.3);border-radius:3px}
 input[type="number"]{-moz-appearance:textfield}
 input[type="number"]::-webkit-inner-spin-button,input[type="number"]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
 
 nav{display:flex;align-items:center;height:54px;
-  background:rgba(13,8,16,.92);backdrop-filter:blur(20px);
-  border-bottom:1px solid rgba(45,212,168,.15);
+  background:linear-gradient(180deg,#0f1730,#0a0e1a);backdrop-filter:blur(20px);
+  border-bottom:2px solid var(--mint3);
   position:sticky;top:0;z-index:200;padding:0 16px;gap:8px}
 nav::after{content:"";position:absolute;bottom:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(45,212,168,.4),transparent)}
-.nav-logo{font-family:var(--mono);font-size:17px;font-weight:700;flex-shrink:0;
+  background:linear-gradient(90deg,transparent,rgba(240,180,41,.5),transparent)}
+.nav-logo{font-family:var(--mono);font-size:19px;font-weight:900;flex-shrink:0;
   background:linear-gradient(135deg,var(--pink),var(--lilac));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.nav-logo span{-webkit-text-fill-color:var(--t2);font-size:15px}
-.ntab{font-size:15px;font-weight:600;padding:6px 14px;border-radius:20px;border:none;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  text-shadow:0 0 14px rgba(240,180,41,.25)}
+.nav-logo span{-webkit-text-fill-color:var(--t2);font-size:16px}
+.ntab{font-size:15px;font-weight:700;padding:7px 16px;border-radius:20px;border:none;
   background:none;color:var(--t2);cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .2s}
-.ntab:hover{color:var(--pink);background:rgba(45,212,168,.08)}
-.ntab.on{color:var(--pink);background:rgba(45,212,168,.15);
-  border:1px solid rgba(45,212,168,.25)}
+.ntab:hover{color:var(--mint);background:rgba(240,180,41,.08)}
+.ntab.on{color:#1a1206;background:linear-gradient(135deg,var(--mint3),var(--mint));
+  border:none;font-weight:900;box-shadow:0 2px 10px rgba(240,180,41,.35)}
 .nav-r{display:flex;align-items:center;gap:8px;margin-left:auto}
-.nbtn{font-size:14px;padding:5px 12px;border-radius:20px;
-  border:1px solid rgba(45,212,168,.2);
-  background:rgba(45,212,168,.06);color:var(--t2);cursor:pointer;
-  text-decoration:none;font-family:var(--mono);transition:all .2s}
-.nbtn:hover{border-color:var(--pink);color:var(--pink)}
+.nbtn{font-size:14px;padding:6px 14px;border-radius:20px;
+  border:1px solid rgba(240,180,41,.25);
+  background:rgba(240,180,41,.06);color:var(--t2);cursor:pointer;
+  text-decoration:none;font-family:var(--mono);font-weight:700;transition:all .2s}
+.nbtn:hover{border-color:var(--mint);color:var(--mint)}
 
 .page{display:none;padding:14px 16px;position:relative;z-index:1}
 .page.on{display:block}
 
 /* TABLE */
-.tw{border-radius:12px;border:1px solid rgba(45,212,168,.25);overflow:auto;margin-bottom:14px;
-  background:var(--s1);box-shadow:0 4px 24px rgba(45,212,168,.1)}
+.tw{border-radius:12px;border:1px solid rgba(240,180,41,.25);overflow:auto;margin-bottom:14px;
+  background:var(--s1);box-shadow:0 4px 24px rgba(240,180,41,.1)}
 table{width:100%;border-collapse:collapse;font-size:15px;min-width:1100px}
-thead th{background:rgba(45,212,168,.1);padding:8px 10px;text-align:left;white-space:nowrap;
+thead th{background:rgba(240,180,41,.1);padding:8px 10px;text-align:left;white-space:nowrap;
   font-family:var(--mono);font-size:13px;color:var(--t2);
-  border-bottom:1.5px solid rgba(45,212,168,.3);
-  position:sticky;top:0;z-index:5;border-right:1px solid rgba(45,212,168,.15);
+  border-bottom:1.5px solid rgba(240,180,41,.3);
+  position:sticky;top:0;z-index:5;border-right:1px solid rgba(240,180,41,.15);
   letter-spacing:.06em;text-transform:uppercase}
 tbody td{padding:7px 9px;vertical-align:middle;
-  border-right:1px solid rgba(45,212,168,.15);
-  border-bottom:1px solid rgba(45,212,168,.15);font-weight:600}
-tbody tr:hover td{background:rgba(45,212,168,.06)!important}
+  border-right:1px solid rgba(240,180,41,.15);
+  border-bottom:1px solid rgba(240,180,41,.15);font-weight:600}
+tbody tr:hover td{background:rgba(240,180,41,.06)!important}
 
 /* ROW COLORS */
-.row-ready td{background:rgba(45,212,168,.06)!important}
+.row-ready td{background:rgba(240,180,41,.06)!important}
 .row-ready td:first-child{border-left:3px solid var(--green)!important}
-.row-past td{background:rgba(45,212,168,.06)!important}
+.row-past td{background:rgba(240,180,41,.06)!important}
 .row-past td:first-child{border-left:3px solid var(--orange)!important}
-.row-mixing td{background:rgba(45,212,168,.05)!important}
+.row-mixing td{background:rgba(240,180,41,.05)!important}
 .row-mixing td:first-child{border-left:3px solid var(--yellow)!important}
-.row-done td{background:rgba(45,212,168,.08)!important}
+.row-done td{background:rgba(240,180,41,.08)!important}
 .row-done td:first-child{border-left:3px solid var(--pink)!important}
-.row-qc-passed td{background:rgba(45,212,168,.13)!important}
-.row-qc-passed td:first-child{border-left:4px solid var(--mint)!important;box-shadow:2px 0 8px rgba(45,212,168,.3)}
+.row-qc-passed td{background:rgba(240,180,41,.13)!important}
+.row-qc-passed td:first-child{border-left:4px solid var(--mint)!important;box-shadow:2px 0 8px rgba(240,180,41,.3)}
 
 /* INPUTS */
-.ci{background:var(--s2);border:1.5px solid rgba(45,212,168,.35);border-radius:8px;
+.ci{background:var(--s2);border:1.5px solid rgba(240,180,41,.35);border-radius:8px;
   color:var(--text);font-family:var(--mono);font-size:15px;padding:6px 9px;outline:none;
   transition:border-color .2s}
-.ci:focus{border-color:var(--pink);box-shadow:0 0 0 3px rgba(45,212,168,.15)}
+.ci:focus{border-color:var(--pink);box-shadow:0 0 0 3px rgba(240,180,41,.15)}
 .ci::placeholder{color:var(--t3)}
 
 /* FLAVOR BOX */
 .flv-box{display:flex;flex-direction:column;gap:6px;min-width:135px;padding:10px 12px;
-  border-radius:10px;border:1px solid rgba(45,212,168,.15);background:var(--s3);
+  border-radius:10px;border:1px solid rgba(240,180,41,.15);background:var(--s3);
   transition:all .2s}
-.flv-box.all-done{background:rgba(45,212,168,.08);border-color:rgba(45,212,168,.35);
-  box-shadow:0 2px 12px rgba(45,212,168,.1)}
+.flv-box.all-done{background:rgba(240,180,41,.08);border-color:rgba(240,180,41,.35);
+  box-shadow:0 2px 12px rgba(240,180,41,.1)}
 .flv-title{font-family:var(--mono);font-size:14px;font-weight:800;color:var(--text);text-transform:uppercase;
   letter-spacing:.1em;margin-bottom:3px}
 .flv-qty{display:flex;align-items:center;gap:5px}
 .flv-qty input{width:74px;font-family:var(--mono);font-size:16px;font-weight:700;
-  text-align:center;background:var(--s2);border:1px solid rgba(45,212,168,.2);
+  text-align:center;background:var(--s2);border:1px solid rgba(240,180,41,.2);
   border-radius:6px;color:var(--text);padding:5px 6px;outline:none}
-.flv-qty input:focus{border-color:var(--pink);box-shadow:0 0 0 2px rgba(45,212,168,.15)}
+.flv-qty input:focus{border-color:var(--pink);box-shadow:0 0 0 2px rgba(240,180,41,.15)}
 .flv-qty span{font-family:var(--mono);font-size:13px;color:var(--t2)}
 .flv-checks{display:flex;flex-direction:column;gap:4px;margin-top:3px}
 .flv-check{display:flex;align-items:center;gap:6px;cursor:pointer;padding:2px 0}
@@ -117,12 +118,12 @@ tbody tr:hover td{background:rgba(45,212,168,.06)!important}
 
 /* STAMP BTN */
 .stamp-btn{display:flex;align-items:center;justify-content:center;gap:4px;
-  background:rgba(45,212,168,.06);border:1px solid rgba(45,212,168,.2);
+  background:rgba(240,180,41,.06);border:1px solid rgba(240,180,41,.2);
   border-radius:8px;color:var(--t2);
   font-size:14px;font-family:var(--mono);padding:6px 10px;cursor:pointer;
   white-space:nowrap;width:100%;transition:all .2s}
-.stamp-btn:hover{border-color:var(--pink);color:var(--pink);background:rgba(45,212,168,.1)}
-.stamp-btn.stamped{background:rgba(45,212,168,.08);border-color:rgba(45,212,168,.4);color:var(--green)}
+.stamp-btn:hover{border-color:var(--pink);color:var(--pink);background:rgba(240,180,41,.1)}
+.stamp-btn.stamped{background:rgba(240,180,41,.08);border-color:rgba(240,180,41,.4);color:var(--green)}
 .stamp-btn:disabled{opacity:.3;cursor:not-allowed}
 
 /* QC ANALYSIS BTN — ใช้สีทอง/อำพัน แยกชัดจากกรอบมินต์ของ Flavor/Color/Acid/Salt */
@@ -133,69 +134,69 @@ tbody tr:hover td{background:rgba(45,212,168,.06)!important}
   white-space:nowrap;width:100%;transition:all .2s}
 .qc-btn:hover{border-color:#fbbf24;background:rgba(245,158,11,.14)}
 .qc-btn.qc-pending{background:rgba(245,158,11,.1);border-color:#fbbf24;color:#fcd34d}
-.qc-btn.qc-passed{background:rgba(45,212,168,.16);border-color:var(--mint);color:var(--mint2);font-weight:800}
+.qc-btn.qc-passed{background:rgba(240,180,41,.16);border-color:var(--mint);color:var(--mint2);font-weight:800}
 
 /* STAT BADGE */
 .stat-badge{font-family:var(--mono);font-size:13px;font-weight:700;padding:3px 10px;
   border-radius:99px;white-space:nowrap}
 
 /* ACTION BTN */
-.done-btn{background:linear-gradient(135deg,rgba(45,212,168,.35),rgba(45,212,168,.22));
+.done-btn{background:linear-gradient(135deg,rgba(240,180,41,.35),rgba(240,180,41,.22));
   border:1.5px solid var(--mint);color:var(--mint2);
   font-family:var(--mono);font-size:14px;font-weight:700;padding:7px 12px;
   border-radius:8px;cursor:pointer;white-space:nowrap;width:100%;transition:all .2s}
-.done-btn:hover{background:linear-gradient(135deg,rgba(45,212,168,.5),rgba(45,212,168,.35));
-  box-shadow:0 4px 14px rgba(45,212,168,.35)}
+.done-btn:hover{background:linear-gradient(135deg,rgba(240,180,41,.5),rgba(240,180,41,.35));
+  box-shadow:0 4px 14px rgba(240,180,41,.35)}
 .done-btn:disabled{opacity:.3;cursor:not-allowed}
 
 /* TOOLBAR */
 .toolbar{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
 .btn{font-size:15px;padding:6px 14px;border-radius:20px;
-  border:1px solid rgba(45,212,168,.2);
-  background:rgba(45,212,168,.06);color:var(--text);cursor:pointer;
+  border:1px solid rgba(240,180,41,.2);
+  background:rgba(240,180,41,.06);color:var(--text);cursor:pointer;
   font-family:var(--sans);white-space:nowrap;transition:all .2s}
 .btn:hover{border-color:var(--pink);color:var(--pink)}
 .btn-b{background:linear-gradient(135deg,var(--pink2),var(--lilac));
   border-color:transparent;color:#fff;font-weight:600}
-.btn-b:hover{box-shadow:0 4px 14px rgba(45,212,168,.35);color:#fff}
+.btn-b:hover{box-shadow:0 4px 14px rgba(240,180,41,.35);color:#fff}
 
 /* HISTORY */
-.hist-item{background:var(--s1);border:1px solid rgba(45,212,168,.12);border-radius:12px;
+.hist-item{background:var(--s1);border:1px solid rgba(240,180,41,.12);border-radius:12px;
   padding:12px 16px;margin-bottom:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
   transition:border-color .2s}
-.hist-item:hover{border-color:rgba(45,212,168,.3)}
+.hist-item:hover{border-color:rgba(240,180,41,.3)}
 
 #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);
   background:linear-gradient(135deg,var(--pink3),var(--lilac));
   color:#fff;padding:10px 22px;border-radius:20px;font-size:15px;
   opacity:0;transition:all .3s;z-index:9999;pointer-events:none;
-  font-family:var(--mono);box-shadow:0 8px 24px rgba(45,212,168,.3)}
+  font-family:var(--mono);box-shadow:0 8px 24px rgba(240,180,41,.3)}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
 /* SIGNATURE MODAL */
 .sig-modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:999;align-items:center;justify-content:center;padding:16px}
 .sig-modal-bg.show{display:flex}
 .sig-modal{background:linear-gradient(135deg,var(--s1),var(--s2));
-  border:1px solid rgba(45,212,168,.25);border-radius:20px;padding:24px 20px;
-  width:100%;max-width:400px;box-shadow:0 20px 60px rgba(45,212,168,.2)}
+  border:1px solid rgba(240,180,41,.25);border-radius:20px;padding:24px 20px;
+  width:100%;max-width:400px;box-shadow:0 20px 60px rgba(240,180,41,.2)}
 .sig-title{font-family:var(--mono);font-size:15px;font-weight:700;
   background:linear-gradient(135deg,var(--pink),var(--lilac));
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px}
 .sig-sub{font-size:15px;color:var(--t2);margin-bottom:16px}
 #sig-canvas{width:100%;height:160px;background:rgba(255,255,255,0.05);border-radius:12px;
-  border:2px solid rgba(45,212,168,.4);cursor:crosshair;touch-action:none;display:block}
+  border:2px solid rgba(240,180,41,.4);cursor:crosshair;touch-action:none;display:block}
 .sig-btns{display:flex;gap:8px;margin-top:14px}
 .sig-btn{flex:1;padding:11px;border-radius:12px;border:none;font-family:var(--mono);
   font-size:15px;font-weight:700;cursor:pointer;transition:all .2s}
 .sig-btn.save{background:linear-gradient(135deg,var(--pink2),var(--lilac));color:#fff;
-  box-shadow:0 4px 14px rgba(45,212,168,.3)}
-.sig-btn.save:hover{box-shadow:0 6px 20px rgba(45,212,168,.4);transform:translateY(-1px)}
-.sig-btn.clear{background:rgba(45,212,168,.08);border:1px solid rgba(45,212,168,.2);color:var(--t2)}
-.sig-btn.cancel{background:rgba(45,212,168,.08);border:1px solid rgba(45,212,168,.2);color:var(--t2)}
+  box-shadow:0 4px 14px rgba(240,180,41,.3)}
+.sig-btn.save:hover{box-shadow:0 6px 20px rgba(240,180,41,.4);transform:translateY(-1px)}
+.sig-btn.clear{background:rgba(240,180,41,.08);border:1px solid rgba(240,180,41,.2);color:var(--t2)}
+.sig-btn.cancel{background:rgba(240,180,41,.08);border:1px solid rgba(240,180,41,.2);color:var(--t2)}
 .sig-btn.confirm{background:linear-gradient(135deg,var(--pink2),var(--lilac));color:#fff;
-  box-shadow:0 4px 14px rgba(45,212,168,.3)}
+  box-shadow:0 4px 14px rgba(240,180,41,.3)}
 #sig-preview-img{width:100%;max-height:120px;object-fit:contain;background:#fff5f8;
-  border-radius:12px;border:2px solid rgba(45,212,168,.3);padding:8px}
+  border-radius:12px;border:2px solid rgba(240,180,41,.3);padding:8px}
 @media(max-width:768px){
   nav{padding:0 10px;gap:4px}
   .nav-logo{font-size:15px}
@@ -204,7 +205,7 @@ tbody tr:hover td{background:rgba(45,212,168,.06)!important}
   .tw{border:none;background:none;overflow:visible}
   table,thead,tbody,tr,td,th{display:block;width:100%}
   thead tr{display:none}
-  tbody tr{background:var(--s1);border:1.5px solid rgba(45,212,168,.25);border-radius:12px;margin-bottom:12px;padding:12px}
+  tbody tr{background:var(--s1);border:1.5px solid rgba(240,180,41,.25);border-radius:12px;margin-bottom:12px;padding:12px}
   tbody td{border:none!important;padding:4px 0;display:flex;align-items:flex-start;gap:8px;font-size:16px}
   tbody td:nth-child(1){display:none}
   .flv-wrap{flex-direction:column;gap:8px}
@@ -218,10 +219,10 @@ tbody tr:hover td{background:rgba(45,212,168,.06)!important}
 <body>
 <nav>
   <div class="nav-logo" id="nav-logo-tap">PROD<b>.</b>SYS <span>/ FLAVOR</span></div>
-  <button class="ntab on" onclick="showPage('m1',this)">💗 Mix 1</button>
-  <button class="ntab" onclick="showPage('m2',this)">💜 Mix 2</button>
+  <button class="ntab on" onclick="showPage('m1',this)">Mix 1</button>
+  <button class="ntab" onclick="showPage('m2',this)">Mix 2</button>
   <button class="ntab" onclick="showPage('history',this);loadHistory()">📋 History</button>
-  <button class="ntab" id="tab-report" style="display:none;color:#fda4af;background:rgba(45,212,168,.1);border:1px solid rgba(45,212,168,.2)" onclick="showPage('report',this);loadReport()">🔐 Report</button>
+  <button class="ntab" id="tab-report" style="display:none;color:#fda4af;background:rgba(240,180,41,.1);border:1px solid rgba(240,180,41,.2)" onclick="showPage('report',this);loadReport()">🔐 Report</button>
   <div class="nav-r">
     <a href="index.html" style="font-size:20px;padding:9px 16px;border-radius:9px;border:none;background:linear-gradient(135deg,#b8860b,#f0b429);color:#1a1206;text-decoration:none;white-space:nowrap;box-shadow:0 2px 10px rgba(240,180,41,.35)">🏠</a>
     <button class="nbtn" onclick="doLogout()">ออก</button>
@@ -231,7 +232,7 @@ tbody tr:hover td{background:rgba(45,212,168,.06)!important}
 <!-- MIX 1 PAGE -->
 <div class="page on" id="page-m1">
   <div style="height:3px;background:linear-gradient(90deg,var(--pink3),var(--pink),var(--lilac));border-radius:0 0 4px 4px;margin:-14px -16px 16px;opacity:.7"></div>
-  <div style="margin-bottom:6px;font-family:var(--mono);font-size:14px;font-weight:700;background:linear-gradient(135deg,var(--pink),var(--lilac));-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-transform:uppercase;letter-spacing:.1em">💗 Mixing 1</div>
+  <div style="margin-bottom:6px;font-family:var(--mono);font-size:14px;font-weight:700;background:linear-gradient(135deg,var(--pink),var(--lilac));-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-transform:uppercase;letter-spacing:.1em">Mixing 1</div>
   <div class="toolbar">
     <input type="date" id="date-m1" class="ci" style="width:140px" onchange="loadPlan('m1')">
     <button class="btn" onclick="changeDate('m1',-1)">◀</button>
@@ -254,7 +255,7 @@ tbody tr:hover td{background:rgba(45,212,168,.06)!important}
           <th rowspan="2" style="color:var(--text);font-weight:700">คาดว่า Past.เสร็จ</th>
           <th colspan="4" style="text-align:center;color:var(--text);font-weight:800;border-bottom:1px solid var(--b2)">🧪 Flavor / Color / กรดมะนาว / Salt</th>
           <th rowspan="2">เวลาเท</th>
-          <th rowspan="2" style="color:var(--mint2);font-weight:800;background:rgba(45,212,168,.1)">🔬 ผลการวิเคราะห์</th>
+          <th rowspan="2" style="color:var(--mint2);font-weight:800;background:rgba(240,180,41,.1)">🔬 ผลการวิเคราะห์</th>
           <th rowspan="2">Status</th>
           <th rowspan="2">หมายเหตุ</th>
           <th rowspan="2" style="color:var(--text);font-weight:700">🖊️ ลายเซ็น</th>
@@ -275,7 +276,7 @@ tbody tr:hover td{background:rgba(45,212,168,.06)!important}
 <!-- MIX 2 PAGE -->
 <div class="page" id="page-m2">
   <div style="height:3px;background:linear-gradient(90deg,var(--lilac),var(--rose),var(--pink3));border-radius:0 0 4px 4px;margin:-14px -16px 16px;opacity:.7"></div>
-  <div style="margin-bottom:6px;font-family:var(--mono);font-size:14px;font-weight:700;background:linear-gradient(135deg,var(--lilac),var(--rose));-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-transform:uppercase;letter-spacing:.1em">💜 Mixing 2</div>
+  <div style="margin-bottom:6px;font-family:var(--mono);font-size:14px;font-weight:700;background:linear-gradient(135deg,var(--lilac),var(--rose));-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-transform:uppercase;letter-spacing:.1em">Mixing 2</div>
   <div class="toolbar">
     <input type="date" id="date-m2" class="ci" style="width:140px" onchange="loadPlan('m2')">
     <button class="btn" onclick="changeDate('m2',-1)">◀</button>
@@ -298,7 +299,7 @@ tbody tr:hover td{background:rgba(45,212,168,.06)!important}
           <th rowspan="2" style="color:var(--text);font-weight:700">คาดว่า Past.เสร็จ</th>
           <th colspan="3" style="text-align:center;color:var(--text);font-weight:800;border-bottom:1px solid var(--b2)">🧪 Flavor / Color / กรดมะนาว</th>
           <th rowspan="2">เวลาเท</th>
-          <th rowspan="2" style="color:var(--mint2);font-weight:800;background:rgba(45,212,168,.1)">🔬 ผลการวิเคราะห์</th>
+          <th rowspan="2" style="color:var(--mint2);font-weight:800;background:rgba(240,180,41,.1)">🔬 ผลการวิเคราะห์</th>
           <th rowspan="2">Status</th>
           <th rowspan="2">หมายเหตุ</th>
           <th rowspan="2" style="color:var(--text);font-weight:700">🖊️ ลายเซ็น</th>
@@ -337,17 +338,17 @@ tbody tr:hover td{background:rgba(45,212,168,.06)!important}
 
 <!-- PIN MODAL -->
 <div id="pin-modal-bg" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:998;align-items:center;justify-content:center" onclick="if(event.target===this)closePinModal()">
-  <div style="background:linear-gradient(135deg,var(--s1),var(--s2));border:1px solid rgba(45,212,168,.25);border-radius:24px;padding:28px 24px;width:100%;max-width:320px;text-align:center;box-shadow:0 20px 60px rgba(45,212,168,.25)">
+  <div style="background:linear-gradient(135deg,var(--s1),var(--s2));border:1px solid rgba(240,180,41,.25);border-radius:24px;padding:28px 24px;width:100%;max-width:320px;text-align:center;box-shadow:0 20px 60px rgba(240,180,41,.25)">
     <div style="font-size:32px;margin-bottom:8px">🔐</div>
     <div style="font-family:var(--mono);font-size:17px;font-weight:700;color:var(--text);margin-bottom:4px">Report Access</div>
     <div style="font-size:15px;color:var(--t2);margin-bottom:18px">ใส่ PIN 4 หลักเพื่อเข้าดู Report</div>
     <input id="pin-input" type="password" inputmode="numeric" maxlength="4"
-      style="width:100%;text-align:center;letter-spacing:.3em;font-size:22px;font-family:var(--mono);background:rgba(45,212,168,.06);border:2px solid rgba(45,212,168,.3);border-radius:12px;color:var(--text);padding:12px;outline:none;margin-bottom:12px"
+      style="width:100%;text-align:center;letter-spacing:.3em;font-size:22px;font-family:var(--mono);background:rgba(240,180,41,.06);border:2px solid rgba(240,180,41,.3);border-radius:12px;color:var(--text);padding:12px;outline:none;margin-bottom:12px"
       placeholder="••••" onkeydown="if(event.key==='Enter')checkPin();if(event.key==='Escape')closePinModal()">
     <div id="pin-err" style="font-family:var(--mono);font-size:14px;color:var(--red);min-height:16px;margin-bottom:10px"></div>
     <div style="display:flex;gap:8px">
-      <button style="flex:1;padding:11px;border-radius:12px;border:1px solid rgba(45,212,168,.2);background:rgba(45,212,168,.06);color:var(--t2);font-family:var(--mono);cursor:pointer;font-size:16px" onclick="closePinModal()">✕ ยกเลิก</button>
-      <button style="flex:1;padding:11px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--pink2),var(--lilac));color:#fff;font-family:var(--mono);font-weight:700;cursor:pointer;font-size:16px;box-shadow:0 4px 14px rgba(45,212,168,.3)" onclick="checkPin()">ยืนยัน</button>
+      <button style="flex:1;padding:11px;border-radius:12px;border:1px solid rgba(240,180,41,.2);background:rgba(240,180,41,.06);color:var(--t2);font-family:var(--mono);cursor:pointer;font-size:16px" onclick="closePinModal()">✕ ยกเลิก</button>
+      <button style="flex:1;padding:11px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--pink2),var(--lilac));color:#fff;font-family:var(--mono);font-weight:700;cursor:pointer;font-size:16px;box-shadow:0 4px 14px rgba(240,180,41,.3)" onclick="checkPin()">ยืนยัน</button>
     </div>
   </div>
 </div>
@@ -397,10 +398,10 @@ tbody tr:hover td{background:rgba(45,212,168,.06)!important}
 
     <div style="margin:10px 4px 0" id="qc-sign-wrap">
       <div style="font-family:var(--mono);font-size:12px;color:var(--t2);font-weight:700;margin-bottom:6px">🖊️ ผู้ตรวจ</div>
-      <div id="qc-sign-display" style="display:flex;align-items:center;gap:8px;background:var(--s2);border:1px solid rgba(45,212,168,.2);border-radius:8px;padding:8px 10px;min-height:44px">
+      <div id="qc-sign-display" style="display:flex;align-items:center;gap:8px;background:var(--s2);border:1px solid rgba(240,180,41,.2);border-radius:8px;padding:8px 10px;min-height:44px">
         <span id="qc-sign-text" style="color:var(--t3);font-size:14px">ยังไม่เซ็นชื่อ</span>
       </div>
-      <button class="sig-btn" style="width:100%;margin-top:6px;background:rgba(45,212,168,.1);border:1px solid rgba(45,212,168,.3);color:var(--mint2)" onclick="qcSign()">🖊️ เซ็นชื่อผู้ตรวจ</button>
+      <button class="sig-btn" style="width:100%;margin-top:6px;background:rgba(240,180,41,.1);border:1px solid rgba(240,180,41,.3);color:var(--mint2)" onclick="qcSign()">🖊️ เซ็นชื่อผู้ตรวจ</button>
     </div>
 
     <div class="sig-btns" style="margin-top:14px">
@@ -425,7 +426,7 @@ const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth
 const $=id=>document.getElementById(id);
 const nowHHMM=()=>{const d=new Date();return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');};
 
-function toast(msg,t='blue'){const el=$('toast');el.textContent=msg;el.style.background=t==='green'?'#1fb591':t==='red'?'#991b1b':'#1fb591';el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2500);}
+function toast(msg,t='blue'){const el=$('toast');el.textContent=msg;el.style.background=t==='green'?'#b8860b':t==='red'?'#991b1b':'#b8860b';el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2500);}
 
 function calcCuringEnd(pastEnd,agingHr,dateStr){
   if(!pastEnd)return'—';
@@ -668,7 +669,7 @@ function renderPlan(m){
       <td><span style="font-family:var(--mono);font-size:15px;color:var(--t2)">Batch ${row.batch_no||'—'}</span></td>
       <td><span style="font-family:var(--mono);font-size:15px;color:var(--cyan);white-space:nowrap">${(+(row.volume_liter||0)).toLocaleString()} L</span></td>
       <td><span style="font-family:var(--mono);font-size:15px;color:var(--purple)">${row.rework_kg||'—'} kg</span></td>
-      <td><span style="font-family:var(--mono);font-size:16px;font-weight:700;color:var(--cyan);background:rgba(45,212,168,.1);padding:3px 10px;border-radius:6px;border:1px solid rgba(45,212,168,.25)">${row.aging_tank||'—'}</span></td>
+      <td><span style="font-family:var(--mono);font-size:16px;font-weight:700;color:var(--cyan);background:rgba(240,180,41,.1);padding:3px 10px;border-radius:6px;border:1px solid rgba(240,180,41,.25)">${row.aging_tank||'—'}</span></td>
       <td><span style="font-family:var(--mono);font-size:15px;color:var(--yellow)">${curingEnd}</span></td>
       <td class="flv-cell"><div class="flv-wrap">${flvBox(col,row.id,'flavor',row,p)}</div></td>
       <td class="flv-cell"><div class="flv-wrap">${flvBox(col,row.id,'color',row,p)}</div></td>
@@ -701,7 +702,7 @@ function renderPlan(m){
               <span style="font-family:var(--mono);font-size:12px;color:var(--t2)">${row.signature_time||''}</span>
               <button style="font-size:12px;padding:2px 6px;border-radius:4px;border:1px solid var(--b2);background:none;color:var(--t2);cursor:pointer" onclick="signRow('${col}','${row.id}')">🖊️ แก้ไข</button>
             </div>`
-          :`<button style="font-size:16px;padding:8px 14px;border-radius:8px;border:1px dashed rgba(45,212,168,.4);background:rgba(45,212,168,.06);color:var(--cyan);cursor:pointer;width:100%" onclick="signRow('${col}','${row.id}')">🖊️ เซ็นชื่อ</button>`
+          :`<button style="font-size:16px;padding:8px 14px;border-radius:8px;border:1px dashed rgba(240,180,41,.4);background:rgba(240,180,41,.06);color:var(--cyan);cursor:pointer;width:100%" onclick="signRow('${col}','${row.id}')">🖊️ เซ็นชื่อ</button>`
         }
       </td>
       <td>
@@ -856,7 +857,7 @@ window.loadReport=async()=>{
               }
               const done=!!row[a.key];
               const by=row[a.key+'_by']||'—';
-              return `<tr style="background:${done?'rgba(45,212,168,.05)':''}">
+              return `<tr style="background:${done?'rgba(240,180,41,.05)':''}">
                 <td style="padding:6px 8px;border:1px solid var(--b1);font-family:var(--mono);font-size:14px">${a.label}</td>
                 <td style="padding:6px 8px;border:1px solid var(--b1);font-family:var(--mono);font-size:14px;color:${done?'var(--green)':'var(--t3)'}">${done?by:'—'}</td>
                 <td style="padding:6px 8px;border:1px solid var(--b1);text-align:center">${done?'<span style="color:var(--green);font-size:17px">✅</span>':'<span style="color:var(--t3);font-size:15px">○</span>'}</td>
@@ -999,7 +1000,7 @@ window.openQcModal=(col,id)=>{
     return`<div class="qc-field-row" data-key="${f.key}" data-std="${std.replace(/"/g,'&quot;')}">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
         <span style="font-family:var(--mono);font-size:16px;font-weight:800;color:var(--text)">${f.icon} ${f.label}</span>
-        <span style="font-family:var(--mono);font-size:16px;font-weight:900;color:var(--mint2);background:rgba(45,212,168,.15);padding:3px 10px;border-radius:6px">STD: ${std}</span>
+        <span style="font-family:var(--mono);font-size:16px;font-weight:900;color:var(--mint2);background:rgba(240,180,41,.15);padding:3px 10px;border-radius:6px">STD: ${std}</span>
       </div>
       <div style="display:flex;align-items:center;gap:8px">
         <input type="text" class="ci qc-input" style="flex:1;font-size:18px;font-weight:700" value="${val}"
@@ -1107,7 +1108,7 @@ function initCanvas(){
   const ctx=canvas.getContext('2d');
   ctx.clearRect(0,0,canvas.width,canvas.height);
   ctx.strokeStyle='#ffffff';
-  ctx.shadowColor='#2dd4a8';
+  ctx.shadowColor='#f0b429';
   ctx.shadowBlur=6;
   ctx.lineWidth=2.5;
   ctx.lineCap='round';
