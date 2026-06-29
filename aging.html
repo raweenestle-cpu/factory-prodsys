@@ -382,15 +382,18 @@ onAuthStateChanged(auth,async u=>{
         }
         window._debugLastVol=dat.current_vol;
       }
-      // ── Event-driven: อุณหภูมิเปลี่ยน หรือ Pasteurize เพิ่งเสร็จ (past_end_time ใหม่) → คำนวณทันที ──
-      // ไม่ต้องรอเวลาหรือรออุณหภูมิจริงเลย ใช้ 4°C เป็นค่าตั้งต้นได้ทันทีที่ Past เสร็จ
+      // ── Event-driven: อุณหภูมิเปลี่ยน, Pasteurize เพิ่งเสร็จ, หรือมีของเข้าถังใหม่ → คำนวณทันที ──
+      // ไม่ต้องรอเวลาหรือรออุณหภูมิจริงเลย ใช้ 4°C เป็นค่าตั้งต้นได้ทันที และมีของในถังก็ต้องมีวันหมดอายุเสมอ
       const _oldTemp=tankStates[d.id]?getMaxTemp(tankStates[d.id]):undefined;
       const _oldPastEnd=tankStates[d.id]?tankStates[d.id].past_end_time:undefined;
+      const _oldVol=tankStates[d.id]?+(tankStates[d.id].current_vol||0):0;
       const _newTemp=getMaxTemp(dat);
+      const _newVol=+(dat.current_vol||0);
       tankStates[d.id]=dat;
       const _tempChanged=_oldTemp!==undefined&&_oldTemp!==_newTemp;
       const _pastEndJustSet=_oldPastEnd!==dat.past_end_time&&!!dat.past_end_time;
-      if(_tempChanged||_pastEndJustSet){
+      const _volJustAppeared=_oldVol<=0&&_newVol>0;
+      if(_tempChanged||_pastEndJustSet||_volJustAppeared){
         _checkCuringForTank(dat);
       }
     });
@@ -411,17 +414,24 @@ async function _checkCuringForTank(ts){
   const now = Date.now();
   try{
     const _dbg = window._debugTank && ts.id===window._debugTank;
-    // เช็คทุกถังที่มี past_end_time ไม่ว่า current_vol จะเป็นเท่าไหร่
-    if(!ts.past_end_time||!ts.date){
-      if(_dbg) console.warn('[_checkCuringForTank]',ts.id,'ข้าม — ไม่มี past_end_time หรือ date',{past_end_time:ts.past_end_time,date:ts.date});
-      return;
-    }
+    const _hasMix = +(ts.current_vol||0) > 0 || !!ts.mix_code;
+
     if(ts.status==='empty'||ts.status==='cip'||ts.status==='san'){
       if(_dbg) console.warn('[_checkCuringForTank]',ts.id,'ข้าม — status เป็น',ts.status);
       return;
     }
-    const prod = productMap[ts.mix_code||'']||{};
-    const agingHr = +(prod.aging_time||4);
+    if(!_hasMix){
+      if(_dbg) console.warn('[_checkCuringForTank]',ts.id,'ข้าม — ไม่มีของในถังเลย (current_vol=0, ไม่มี mix_code)');
+      return;
+    }
+
+    // ── หาเวลาเริ่มนับ: ต้องใช้ past_end_time+date จริงเท่านั้น (เวลา Pasteurize เสร็จจริง) ──
+    // ห้ามเดา/fallback เป็นอย่างอื่น เพราะวันหมดอายุผิดได้ ผิดไม่ได้เรื่องความปลอดภัยอาหาร
+    // ถ้ายังไม่มีค่านี้ (ข้อมูลยังไม่ sync มาจาก pasteurize.html) ก็ต้องรอ ไม่คำนวณมั่วๆ
+    if(!ts.past_end_time||!ts.date){
+      if(_dbg) console.warn('[_checkCuringForTank]',ts.id,'ข้าม — ยังไม่มี past_end_time/date จริง (รอ sync จาก pasteurize.html)',{past_end_time:ts.past_end_time,date:ts.date});
+      return;
+    }
     const[h,m]=(ts.past_end_time).split(':').map(Number);
     const base = new Date(ts.date);
     if(isNaN(base.getTime())){
@@ -429,6 +439,9 @@ async function _checkCuringForTank(ts){
       return;
     }
     base.setHours(h||0,m||0,0,0);
+
+    const prod = productMap[ts.mix_code||'']||{};
+    const agingHr = +(prod.aging_time||4);
     const readyAt = base.getTime() + agingHr*3600000;
 
     // คำนวณ expire_at จาก SHELF_TABLE
