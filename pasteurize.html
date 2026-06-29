@@ -2136,7 +2136,7 @@ function renderPlan(p){
       <td style="padding:4px 6px">
         <div style="display:flex;align-items:center;gap:2px">
           <span style="font-family:var(--mono);font-size:12px;font-weight:700;color:#a855f7;background:rgba(168,85,247,.1);padding:3px 6px;border-radius:4px 0 0 4px;white-space:nowrap;border:1px solid rgba(168,85,247,.3);letter-spacing:.1em">${getProdPrefix(p)}</span>
-          <input class="ci" style="width:54px;letter-spacing:.1em;font-family:var(--mono);font-size:12px;text-transform:uppercase;border-radius:0 4px 4px 0;border-left:none;padding:3px 6px" maxlength="4" value="${row.prod_suffix||''}" placeholder="0001" onchange="_up('${col}','${row.id}','prod_suffix',this.value.toUpperCase())">
+          <input class="ci" style="width:74px;letter-spacing:.1em;font-family:var(--mono);font-size:14px!important;padding:5px 6px!important;text-transform:uppercase;border-radius:0 4px 4px 0;border-left:none" maxlength="4" value="${row.prod_suffix||''}" placeholder="0001" onchange="_up('${col}','${row.id}','prod_suffix',this.value.toUpperCase())">
         </div>
       </td>
       <td style="text-align:center;min-width:60px">
