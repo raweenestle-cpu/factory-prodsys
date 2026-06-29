@@ -381,7 +381,14 @@ onAuthStateChanged(auth,async u=>{
         }
         window._debugLastVol=dat.current_vol;
       }
+      // ── Event-driven: อุณหภูมิเปลี่ยน → คำนวณ curing/expire_at ของถังนี้ทันที ──
+      // ไม่ต้องรอ interval เวลาเป็นตัวกำหนดอีกแล้ว ตอบสนองทันทีที่มีคนกรอกอุณหภูมิใหม่
+      const _oldTemp=tankStates[d.id]?getMaxTemp(tankStates[d.id]):undefined;
+      const _newTemp=getMaxTemp(dat);
       tankStates[d.id]=dat;
+      if(_oldTemp!==undefined&&_oldTemp!==_newTemp){
+        _checkCuringForTank(dat);
+      }
     });
     // ── debounce การ re-render กริดทั้งหมด — ข้อมูล (tankStates) อัปเดตทันทีเสมอข้างบนนี้
     // แต่การวาด DOM ใหม่ (หนัก เพราะมีหลายสิบถัง) จะรวบทำแค่ครั้งเดียวทุก 800ms
@@ -389,66 +396,80 @@ onAuthStateChanged(auth,async u=>{
     clearTimeout(_renderDebounceTimer);
     _renderDebounceTimer=setTimeout(()=>{
       renderAll();
-      _checkCuringDone(); // recalculate expire_at ทันทีเมื่อมีการเปลี่ยนแปลง
     },800);
   });
 });
 
 window.doLogout=async()=>{await signOut(auth);location.href='index.html';};
 
-// ── Auto-check curing done + คำนวณ expire_at ทุก 1 นาที ──
-async function _checkCuringDone(){
+// ── คำนวณ curing/expire_at ของถังเดียว — เรียกได้ทั้งแบบ event-driven (ทันทีที่อุณหภูมิเปลี่ยน) และแบบ sweep ทั้งหมด ──
+async function _checkCuringForTank(ts){
   const now = Date.now();
-  for(const ts of Object.values(tankStates)){
-    try{
-      const _dbg = window._debugTank && ts.id===window._debugTank;
-      // เช็คทุกถังที่มี past_end_time ไม่ว่า current_vol จะเป็นเท่าไหร่
-      if(!ts.past_end_time||!ts.date){
-        if(_dbg) console.warn('[_checkCuringDone]',ts.id,'ข้าม — ไม่มี past_end_time หรือ date',{past_end_time:ts.past_end_time,date:ts.date});
-        continue;
-      }
-      if(ts.status==='empty'||ts.status==='cip'||ts.status==='san'){
-        if(_dbg) console.warn('[_checkCuringDone]',ts.id,'ข้าม — status เป็น',ts.status);
-        continue;
-      }
-      const prod = productMap[ts.mix_code||'']||{};
-      const agingHr = +(prod.aging_time||4);
-      const[h,m]=(ts.past_end_time).split(':').map(Number);
-      const base = new Date(ts.date);
-      if(isNaN(base.getTime())){
-        console.warn('[_checkCuringDone] ถัง',ts.id,'— ts.date ผิดรูปแบบ:',JSON.stringify(ts.date),'ข้ามถังนี้ไปก่อน');
-        continue;
-      }
-      base.setHours(h||0,m||0,0,0);
-      const readyAt = base.getTime() + agingHr*3600000;
-
-      // คำนวณ expire_at จาก SHELF_TABLE
-      const maxT = getMaxTemp(ts)??5;
-      const pt = (prod.product_type||'').toLowerCase();
-      const ptype = pt.includes('water ice')?'Water Ice':pt.includes('jelly')?'Jelly':'Ice Cream';
-      const tempIdx = Math.min(Math.max(Math.round(maxT),0),10);
-      const shelfHr = (SHELF_TABLE[ptype]||[])[tempIdx]||96;
-      const expireAt = new Date(base.getTime()+shelfHr*3600000).toISOString();
-
-      const upd = {expire_at:expireAt, updated_at:new Date().toISOString()};
-
-      if(ts.status==='aging' && now >= readyAt){
-        upd.status = 'ready';
-      }
-
-      if(_dbg) console.warn('[_checkCuringDone]',ts.id,'คำนวณสำเร็จ → expire_at:',expireAt,'(เขียนลง Firestore แล้ว)');
-
-      // update ทุกถังที่มี past_end_time (รวม Twin ที่ current_vol=0)
-      if(ts.past_end_time){
-        await setDoc(doc(db,'aging_tank_states',ts.id),upd,{merge:true});
-      }
-    }catch(e){
-      console.warn('[_checkCuringDone] ถัง',ts.id,'คำนวณพัง:',e.message,'— ข้ามไปถังต่อไป ไม่กระทบถังอื่น');
+  try{
+    const _dbg = window._debugTank && ts.id===window._debugTank;
+    // เช็คทุกถังที่มี past_end_time ไม่ว่า current_vol จะเป็นเท่าไหร่
+    if(!ts.past_end_time||!ts.date){
+      if(_dbg) console.warn('[_checkCuringForTank]',ts.id,'ข้าม — ไม่มี past_end_time หรือ date',{past_end_time:ts.past_end_time,date:ts.date});
+      return;
     }
+    if(ts.status==='empty'||ts.status==='cip'||ts.status==='san'){
+      if(_dbg) console.warn('[_checkCuringForTank]',ts.id,'ข้าม — status เป็น',ts.status);
+      return;
+    }
+    const prod = productMap[ts.mix_code||'']||{};
+    const agingHr = +(prod.aging_time||4);
+    const[h,m]=(ts.past_end_time).split(':').map(Number);
+    const base = new Date(ts.date);
+    if(isNaN(base.getTime())){
+      console.warn('[_checkCuringForTank] ถัง',ts.id,'— ts.date ผิดรูปแบบ:',JSON.stringify(ts.date),'ข้ามถังนี้ไปก่อน');
+      return;
+    }
+    base.setHours(h||0,m||0,0,0);
+    const readyAt = base.getTime() + agingHr*3600000;
+
+    // คำนวณ expire_at จาก SHELF_TABLE
+    const maxT = getMaxTemp(ts)??5;
+    const pt = (prod.product_type||'').toLowerCase();
+    const ptype = pt.includes('water ice')?'Water Ice':pt.includes('jelly')?'Jelly':'Ice Cream';
+    const tempIdx = Math.min(Math.max(Math.round(maxT),0),10);
+    const shelfHr = (SHELF_TABLE[ptype]||[])[tempIdx]||96;
+    const expireAt = new Date(base.getTime()+shelfHr*3600000).toISOString();
+
+    const upd = {expire_at:expireAt, updated_at:new Date().toISOString()};
+
+    let statusChanging=false;
+    if(ts.status==='aging' && now >= readyAt){
+      upd.status = 'ready';
+      statusChanging=true;
+    }
+
+    // ── เขียนลง Firestore แค่ตอนค่าจริงเปลี่ยนเท่านั้น (กันเปลืองโควต้า) ──
+    const _expireUnchanged = ts.expire_at===expireAt;
+    if(_expireUnchanged && !statusChanging){
+      if(_dbg) console.warn('[_checkCuringForTank]',ts.id,'ค่าไม่เปลี่ยน — ข้ามการเขียน Firestore รอบนี้');
+      return;
+    }
+
+    if(_dbg) console.warn('[_checkCuringForTank]',ts.id,'คำนวณสำเร็จ → expire_at:',expireAt,'(เขียนลง Firestore แล้ว)');
+
+    if(ts.past_end_time){
+      await setDoc(doc(db,'aging_tank_states',ts.id),upd,{merge:true});
+      ts.expire_at=expireAt; // อัปเดต cache ในเครื่องด้วย กันเขียนซ้ำถ้า snapshot ยังไม่ตอบกลับมาทันรอบหน้า
+    }
+  }catch(e){
+    console.warn('[_checkCuringForTank] ถัง',ts.id,'คำนวณพัง:',e.message);
+  }
+}
+
+// ── sweep ทั้งหมด — เก็บไว้เป็น safety-net เผื่อกรณีครบเวลาบ่มแล้วแต่ไม่มีอะไรมา trigger (ไม่มีการเปลี่ยนอุณหภูมิเลย) ──
+// ลดความถี่ลงเพราะตอนนี้ตัวหลักคือ event-driven ตอนอุณหภูมิเปลี่ยนแล้ว (ดู onSnapshot ด้านล่าง)
+async function _checkCuringDone(){
+  for(const ts of Object.values(tankStates)){
+    await _checkCuringForTank(ts);
   }
 }
 window._checkCuringDone = _checkCuringDone; // เปิดให้เรียกจาก Console ได้ตรงๆเพื่อ debug
-setInterval(_checkCuringDone, 60000);
+setInterval(_checkCuringDone, 300000); // safety-net sweep ทุก 5 นาที (ตัวหลักคือ event-driven แล้ว)
 // เช็คทันทีตอน load
 setTimeout(_checkCuringDone, 3000);
 
