@@ -321,6 +321,7 @@ onAuthStateChanged(auth,async u=>{
   renderAll(); // render ถังทันทีหลัง lines โหลดเสร็จ
 
   // aging_tank_states — อัปเดต realtime
+  let _renderDebounceTimer=null;
   onSnapshot(collection(db,'aging_tank_states'),snap=>{
     tankStates={};
     snap.docs.forEach(d=>{
@@ -336,8 +337,14 @@ onAuthStateChanged(auth,async u=>{
       }
       tankStates[d.id]=dat;
     });
-    renderAll();
-    _checkCuringDone(); // recalculate expire_at ทันทีเมื่อมีการเปลี่ยนแปลง
+    // ── debounce การ re-render กริดทั้งหมด — ข้อมูล (tankStates) อัปเดตทันทีเสมอข้างบนนี้
+    // แต่การวาด DOM ใหม่ (หนัก เพราะมีหลายสิบถัง) จะรวบทำแค่ครั้งเดียวทุก 800ms
+    // แม้จะมี snapshot event เข้ามาถี่ๆ พร้อมกันหลายไลน์ก็ตาม — กันหน้าค้าง/คลิกช้า
+    clearTimeout(_renderDebounceTimer);
+    _renderDebounceTimer=setTimeout(()=>{
+      renderAll();
+      _checkCuringDone(); // recalculate expire_at ทันทีเมื่อมีการเปลี่ยนแปลง
+    },800);
   });
 });
 
