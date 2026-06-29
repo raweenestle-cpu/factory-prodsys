@@ -197,7 +197,7 @@ tbody tr.row-wait td{background:#fffaeb!important}
 
 .stamp-btn{font-size:14px!important;font-weight:900!important;padding:9px 16px!important}
 .stat-badge{font-size:13px!important;padding:5px 14px!important;font-weight:900!important}
-.ci{font-size:15px!important;padding:7px 10px!important;font-weight:700!important}
+.ci{font-size:15px!important;padding:7px 10px!important;font-weight:700!important;color:#0f172a!important;background:#ffffff!important}
 .sig-btn{font-size:13px!important}
 
 .kpi-row{background:linear-gradient(180deg,#161f33,#0f1730)!important;border-bottom:2px solid var(--gold-deep)!important}
@@ -2277,53 +2277,53 @@ window.filterHistory=function(){
     el.innerHTML=`<div style="text-align:center;padding:30px;color:var(--t3);font-family:var(--mono)">ไม่พบข้อมูล${q?' สำหรับ "'+q+'"':''}</div>`;
     return;
   }
-  el.innerHTML=`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px">
-    <thead><tr style="background:#f8fafc">
-      <th style="padding:8px;text-align:left;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1.5px solid var(--b1)">วันที่</th>
-      <th style="padding:8px;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1.5px solid var(--b1)">เวลา</th>
-      <th style="padding:8px;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1.5px solid var(--b1)">Unit</th>
-      <th style="padding:8px;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1.5px solid var(--b1)">Mix Code</th>
-      <th style="padding:8px;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1.5px solid var(--b1)">Process Order</th>
-      <th style="padding:8px;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1.5px solid var(--b1)">ชื่อ Mix</th>
-      <th style="padding:8px;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1.5px solid var(--b1)">Vol (L)</th>
-      <th style="padding:8px;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1.5px solid var(--b1)">เวลา Past.</th>
-      <th style="padding:8px;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1.5px solid var(--b1)">Aging Tank</th>
-      <th style="padding:8px;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1.5px solid var(--b1)">Unit</th>
-      <th style="padding:8px;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1.5px solid var(--b1)">Eff%</th>
-      <th style="padding:8px;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1.5px solid var(--b1)">Glc Set</th>
-      <th style="padding:8px;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1.5px solid var(--b1)">Glc Act.</th>
-      <th style="padding:8px;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1.5px solid var(--b1)">Sugar Set</th>
-      <th style="padding:8px;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1.5px solid var(--b1)">Sugar Act.</th>
-      <th style="padding:8px;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1.5px solid var(--b1)">Palm Set</th>
-      <th style="padding:8px;font-family:var(--mono);font-size:10px;color:var(--t2);border-bottom:1.5px solid var(--b1)">Palm Act.</th>
+  el.innerHTML=`<div style="overflow-x:auto;background:#161f33;border-radius:10px;padding:4px"><table style="width:100%;border-collapse:collapse;font-size:12px;background:#161f33">
+    <thead><tr style="background:#101a33">
+      <th style="padding:8px;text-align:left;font-family:var(--mono);font-size:10px;color:#f0b429;border-bottom:2px solid #b8860b">วันที่</th>
+      <th style="padding:8px;font-family:var(--mono);font-size:10px;color:#f0b429;border-bottom:2px solid #b8860b">เวลา</th>
+      <th style="padding:8px;font-family:var(--mono);font-size:10px;color:#f0b429;border-bottom:2px solid #b8860b">Unit</th>
+      <th style="padding:8px;font-family:var(--mono);font-size:10px;color:#f0b429;border-bottom:2px solid #b8860b">Mix Code</th>
+      <th style="padding:8px;font-family:var(--mono);font-size:10px;color:#f0b429;border-bottom:2px solid #b8860b">Process Order</th>
+      <th style="padding:8px;font-family:var(--mono);font-size:10px;color:#f0b429;border-bottom:2px solid #b8860b">ชื่อ Mix</th>
+      <th style="padding:8px;font-family:var(--mono);font-size:10px;color:#f0b429;border-bottom:2px solid #b8860b">Vol (L)</th>
+      <th style="padding:8px;font-family:var(--mono);font-size:10px;color:#f0b429;border-bottom:2px solid #b8860b">เวลา Past.</th>
+      <th style="padding:8px;font-family:var(--mono);font-size:10px;color:#f0b429;border-bottom:2px solid #b8860b">Aging Tank</th>
+      <th style="padding:8px;font-family:var(--mono);font-size:10px;color:#f0b429;border-bottom:2px solid #b8860b">Unit</th>
+      <th style="padding:8px;font-family:var(--mono);font-size:10px;color:#f0b429;border-bottom:2px solid #b8860b">Eff%</th>
+      <th style="padding:8px;font-family:var(--mono);font-size:10px;color:#f0b429;border-bottom:2px solid #b8860b">Glc Set</th>
+      <th style="padding:8px;font-family:var(--mono);font-size:10px;color:#f0b429;border-bottom:2px solid #b8860b">Glc Act.</th>
+      <th style="padding:8px;font-family:var(--mono);font-size:10px;color:#f0b429;border-bottom:2px solid #b8860b">Sugar Set</th>
+      <th style="padding:8px;font-family:var(--mono);font-size:10px;color:#f0b429;border-bottom:2px solid #b8860b">Sugar Act.</th>
+      <th style="padding:8px;font-family:var(--mono);font-size:10px;color:#f0b429;border-bottom:2px solid #b8860b">Palm Set</th>
+      <th style="padding:8px;font-family:var(--mono);font-size:10px;color:#f0b429;border-bottom:2px solid #b8860b">Palm Act.</th>
     </tr></thead>
     <tbody>${filtered.map(r=>{
       const eff=r.eff||0;
-      const ec=eff>=99.9&&eff<=100?'#22c55e':eff>100?'#f97316':eff>0?'#ef4444':'var(--t2)';
+      const ec=eff>=99.9&&eff<=100?'#34d399':eff>100?'#fb923c':eff>0?'#f87171':'#9fb0d1';
       const el2=eff>=99.9&&eff<=100?'✅':eff>100?'⚠️':eff>0?'❌':'—';
       const hl=(txt)=>{
         if(!q||!txt)return txt||'—';
         const idx=txt.toLowerCase().indexOf(q);
         if(idx<0)return txt;
-        return txt.slice(0,idx)+'<mark style="background:#fef08a;border-radius:2px">'+txt.slice(idx,idx+q.length)+'</mark>'+txt.slice(idx+q.length);
+        return txt.slice(0,idx)+'<mark style="background:#fef08a;color:#1a1206;border-radius:2px">'+txt.slice(idx,idx+q.length)+'</mark>'+txt.slice(idx+q.length);
       };
-      return`<tr style="border-bottom:1px solid var(--b1)">
-        <td style="padding:7px 8px;font-family:var(--mono);font-size:11px;color:var(--t2)">${r.archived_date||'—'}</td>
-        <td style="padding:7px 8px;font-family:var(--mono);font-size:11px;color:var(--t2)">${r.archived_at||'—'}</td>
+      return`<tr style="border-bottom:1px solid #3d4d75">
+        <td style="padding:7px 8px;font-family:var(--mono);font-size:11px;color:#dbe4f3">${r.archived_date||'—'}</td>
+        <td style="padding:7px 8px;font-family:var(--mono);font-size:11px;color:#dbe4f3">${r.archived_at||'—'}</td>
         <td style="padding:7px 8px;text-align:center"><span style="font-family:var(--mono);font-size:11px;font-weight:900;color:#fff;background:${(r.mixing_unit||'').toLowerCase()==='p1'?'#1d4ed8':'#7c3aed'};padding:2px 8px;border-radius:4px">${(r.mixing_unit||'').toUpperCase()||'—'}</span></td>
-        <td style="padding:7px 8px;font-family:var(--mono);font-weight:700">${hl(r.mix_code)}</td>
-        <td style="padding:7px 8px;font-family:var(--mono);font-weight:700;color:#2563eb">${hl(r.process_order)}</td>
-        <td style="padding:7px 8px">${r.mix_name||'—'}</td>
-        <td style="padding:7px 8px;font-family:var(--mono)">${r.volume_liter||'—'}</td>
-        <td style="padding:7px 8px;font-family:var(--mono);color:var(--t2);font-size:11px">${r.past_start_time||'—'} → ${r.past_end_time||'—'}</td>
-        <td style="padding:7px 8px;font-family:var(--mono);color:#a78bfa;font-weight:700">${r.aging_tank||'—'}</td>
+        <td style="padding:7px 8px;font-family:var(--mono);font-weight:700;color:#f8fafc">${hl(r.mix_code)}</td>
+        <td style="padding:7px 8px;font-family:var(--mono);font-weight:700;color:#60a5fa">${hl(r.process_order)}</td>
+        <td style="padding:7px 8px;color:#f8fafc">${r.mix_name||'—'}</td>
+        <td style="padding:7px 8px;font-family:var(--mono);color:#f8fafc">${r.volume_liter||'—'}</td>
+        <td style="padding:7px 8px;font-family:var(--mono);color:#dbe4f3;font-size:11px">${r.past_start_time||'—'} → ${r.past_end_time||'—'}</td>
+        <td style="padding:7px 8px;font-family:var(--mono);color:#c4b5fd;font-weight:700">${r.aging_tank||'—'}</td>
         <td style="padding:7px 8px;font-family:var(--mono);font-weight:700;color:${ec}">${el2} ${eff?eff+'%':'—'}</td>
-        <td style="padding:7px 8px;font-family:var(--mono);font-size:11px;text-align:right">${r.glc_set||'—'}</td>
-        <td style="padding:7px 8px;font-family:var(--mono);font-size:11px;text-align:right;color:${r.glc_actual?'#15803d':'var(--t3)'}">${r.glc_actual||'—'}</td>
-        <td style="padding:7px 8px;font-family:var(--mono);font-size:11px;text-align:right">${r.sgr_set||'—'}</td>
-        <td style="padding:7px 8px;font-family:var(--mono);font-size:11px;text-align:right;color:${r.sgr_actual?'#15803d':'var(--t3)'}">${r.sgr_actual||'—'}</td>
-        <td style="padding:7px 8px;font-family:var(--mono);font-size:11px;text-align:right">${r.plm_set||'—'}</td>
-        <td style="padding:7px 8px;font-family:var(--mono);font-size:11px;text-align:right;color:${r.plm_actual?'#15803d':'var(--t3)'}">${r.plm_actual||'—'}</td>
+        <td style="padding:7px 8px;font-family:var(--mono);font-size:11px;text-align:right;color:#dbe4f3">${r.glc_set||'—'}</td>
+        <td style="padding:7px 8px;font-family:var(--mono);font-size:11px;text-align:right;color:${r.glc_actual?'#34d399':'#9fb0d1'}">${r.glc_actual||'—'}</td>
+        <td style="padding:7px 8px;font-family:var(--mono);font-size:11px;text-align:right;color:#dbe4f3">${r.sgr_set||'—'}</td>
+        <td style="padding:7px 8px;font-family:var(--mono);font-size:11px;text-align:right;color:${r.sgr_actual?'#34d399':'#9fb0d1'}">${r.sgr_actual||'—'}</td>
+        <td style="padding:7px 8px;font-family:var(--mono);font-size:11px;text-align:right;color:#dbe4f3">${r.plm_set||'—'}</td>
+        <td style="padding:7px 8px;font-family:var(--mono);font-size:11px;text-align:right;color:${r.plm_actual?'#34d399':'#9fb0d1'}">${r.plm_actual||'—'}</td>
       </tr>`;
     }).join('')}</tbody>
   </table></div>`;
