@@ -539,16 +539,28 @@ function makeTankCard(tankId){
   const cap=getTankCapacity(tankId);
   const pct=cap>0?Math.min(100,(currentVol/cap)*100):0;
   const pctC=pct>50?'#15803d':pct>20?'#b45309':'#b91c1c';
-  const stMap={empty:'○ ว่าง',pending:'⏳ รอ',cip:'🧹 กำลัง CIP',cip_done:'🧼 CIP เสร็จ',san_done:'✨ พร้อม Past',pasteurising:'⏳ รอ Pasteurize',past_done:'✅ Past Done',aging:'🌡️ บ่ม',filling:'🔵 Filling',ready:'✅ พร้อม'};
+  const stMap={empty:'○ ว่าง',pending:'⏳ รอ',cip:'🧹 กำลัง CIP',cip_done:'🧼 CIP เสร็จ',san_done:'✨ พร้อม Past',pasteurising:'⏳ รอ Pasteurize',past_done:'✅ Past Done',aging:'🌡️ กำลังบ่ม',filling:'🔵 Filling',ready:'✅ พร้อม'};
   const stColor=status==='empty'?'#6b7280':status==='cip'?'#7c3aed':status==='cip_done'?'#0891b2':status==='san_done'?'#059669':status==='pasteurising'?'#2563eb':status==='aging'?'#0e7490':status==='past_done'?'#15803d':status==='filling'?'#ea580c':'#374151';
   const stLabel=stMap[status]||status;
   const yr=new Date().getFullYear().toString().slice(-2);
   const prodCode=ts.prod_code||(ts.prod_suffix?(''+yr+'0522'+(ts._col==='production_plans_m2'?'2':'1')+ts.prod_suffix):null);
-  const prodDate=(ts.past_end_time&&ts.past_end_date)?(ts.past_end_date+' '+ts.past_end_time):(ts.past_end_time||'—');
   const expHtml=expireBox(ts.expire_at||null);
   const maxTempVal=getMaxTemp(ts);
   const uid='ag'+tankId.replace(/[^a-z0-9]/gi,'');
-  const svgHtml=typeof tankSVG==='function'?tankSVG(uid,pct,col,!isEmpty,stLabel,stColor,null,null,currentVol,maxTempVal):'';
+  const svgHtml=typeof tankSVG==='function'?tankSVG(uid,pct,col,!isEmpty,stLabel,stColor,null,null,currentVol,null):'';
+
+  // ── นับถอยหลังเวลาบ่ม (ถ้าสถานะ aging) ──
+  let countdownMs=null;
+  if(status==='aging'&&ts.past_end_time&&ts.date){
+    const agingHr=+(p.aging_time||4);
+    const[ch,cm]=ts.past_end_time.split(':').map(Number);
+    const base=new Date(ts.date);
+    if(!isNaN(base.getTime())){
+      base.setHours(ch||0,cm||0,0,0);
+      countdownMs=(base.getTime()+agingHr*3600000)-Date.now();
+    }
+  }
+  const countdownId='cd-'+uid;
 
   const div=document.createElement('div');
   div.className='tc'+(status==='filling'||status==='past_done'?' active':status==='aging'?' curing':status==='empty'?' empty':'');
@@ -559,25 +571,45 @@ function makeTankCard(tankId){
     +'<span style="font-family:var(--mono);font-size:19px;font-weight:900;color:#f0b429;text-shadow:0 0 10px rgba(240,180,41,.25)">'+tankId+'</span>'
     +'<span style="font-family:var(--mono);font-size:11px;color:#9fb0d1">'+cap.toLocaleString()+' L</span>'
     +'</div>'
-    +'<div style="display:inline-block;font-family:var(--mono);font-size:11px;font-weight:900;padding:3px 10px;border-radius:20px;margin-bottom:4px;background:'+stColor+';color:#000;border:1.5px solid '+stColor+'">'+stLabel+'</div>'
-    +(ts.mix_code?('<div style="font-family:var(--mono);font-size:12px;font-weight:900;color:#dbe4f3;margin-bottom:2px">'+ts.mix_code+'</div>'):'')
-    +'<div style="font-size:14px;font-weight:800;color:#f8fafc;line-height:1.3">'+(ts.mix_name||p.name||'—')+(currentVol>0?(' <span style="font-family:var(--mono);font-size:13px;font-weight:900;color:'+pctC+'">'+currentVol.toLocaleString()+' L</span>'):'')+'</div>'
-    +(prodCode?('<div style="font-family:var(--mono);font-size:11px;color:#9fb0d1;margin-top:4px;font-weight:700">รหัสผลิต: <span style="color:#f8fafc">'+prodCode+'</span></div>'):'')
+    +'<div style="display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;font-weight:900;padding:3px 10px;border-radius:20px;margin-bottom:6px;background:'+stColor+';color:#000;border:1.5px solid '+stColor+'">'
+      +stLabel
+      +(countdownMs!=null?(' <span id="'+countdownId+'" data-ready-ts="'+(Date.now()+Math.max(0,countdownMs))+'" style="font-family:var(--mono)">'+fmtCountdown(countdownMs)+'</span>'):'')
+    +'</div>'
+    +(ts.mix_code||ts.mix_name||ts.batch_no?(
+      '<div style="font-family:var(--mono);font-size:13px;font-weight:900;color:#f8fafc;line-height:1.4">'
+      +(ts.mix_code?ts.mix_code+' ':'')
+      +(ts.mix_name||p.name||'')
+      +(ts.batch_no?' <span style="color:#9fb0d1;font-weight:700">(Batch '+ts.batch_no+')</span>':'')
+      +'</div>'
+    ):'')
+    +(prodCode?('<div style="font-family:var(--mono);font-size:11px;color:#9fb0d1;margin-top:4px;font-weight:700">รหัสผลิต : <span style="color:#f8fafc">'+prodCode+'</span></div>'):'')
     +'</div>';
 
 
   const footer=
     '<div style="padding:8px 14px;border-top:1px solid #3d4d75;margin-top:auto">'
     +'<div style="font-family:var(--mono);font-size:11px;font-weight:700;color:#9fb0d1">Batch '+(ts.batch_no||'—')+'</div>'
-    +'<div style="font-family:var(--mono);font-size:11px;color:#9fb0d1;margin-top:2px">📅 '+prodDate+'</div>'
     +'</div>'
     +expHtml;
 
   div.innerHTML=header+footer;
   if(svgHtml){
     const _bodyDiv=document.createElement('div');
-    _bodyDiv.style.cssText='display:flex;justify-content:center;padding:8px 0';
+    _bodyDiv.style.cssText='display:flex;justify-content:center;align-items:center;padding:8px 0;position:relative';
     _bodyDiv.innerHTML=svgHtml;
+    // ── โพรบวัดอุณหภูมิ — เส้นชี้ออกจากถังด้านขวากลาง แบบ SCADA ──
+    if(maxTempVal!=null){
+      const tOk=maxTempVal<=6,tWarn=maxTempVal>6&&maxTempVal<=8;
+      const tBorder=tOk?'#34d399':tWarn?'#f0b429':'#f87171';
+      const tBg=tOk?'#0d2818':tWarn?'#3a2f0a':'#3a1212';
+      const tIcon=tOk?'🌡️':tWarn?'⚠️':'🔴';
+      const probe=document.createElement('div');
+      probe.style.cssText='position:absolute;left:50%;top:50%;display:flex;align-items:center;pointer-events:none';
+      probe.innerHTML=
+        '<div style="width:26px;height:2px;background:'+tBorder+'"></div>'
+        +'<div style="background:'+tBg+';border:1.5px solid '+tBorder+';border-radius:6px;padding:3px 9px;font-family:var(--mono);font-size:12px;font-weight:900;color:'+tBorder+';white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.4)">'+tIcon+' '+maxTempVal+'°C</div>';
+      _bodyDiv.appendChild(probe);
+    }
     const _footerEl=div.querySelector('[style*="border-top"]');
     if(_footerEl) div.insertBefore(_bodyDiv,_footerEl);
     else div.appendChild(_bodyDiv);
@@ -585,6 +617,27 @@ function makeTankCard(tankId){
   div.onclick=()=>openModal(tankId);
   return div;
 }
+
+// ── format ms → "HH:MM:SS" หรือ "MM:SS" สำหรับนับถอยหลังเวลาบ่ม ──
+function fmtCountdown(ms){
+  if(ms==null) return '--:--';
+  const m=Math.max(0,ms);
+  const totalSec=Math.floor(m/1000);
+  const hh=Math.floor(totalSec/3600);
+  const mm=Math.floor((totalSec%3600)/60);
+  const ss=totalSec%60;
+  return hh>0
+    ?String(hh).padStart(2,'0')+':'+String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0')
+    :String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0');
+}
+// ── tick นับถอยหลังทุก 1 วิ โดยไม่ re-render กริดทั้งหมด (เบา ไม่กระทบ performance) ──
+setInterval(()=>{
+  document.querySelectorAll('[id^="cd-"][data-ready-ts]').forEach(el=>{
+    const readyTs=+el.dataset.readyTs;
+    const remain=readyTs-Date.now();
+    el.textContent=remain<=0?'00:00':fmtCountdown(remain);
+  });
+},1000);
 
 function rgba(h,a){const r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return`rgba(${r},${g},${b},${a})`;}
 function darken(h,a){const r=Math.max(0,parseInt(h.slice(1,3),16)-Math.round(a*255)),g=Math.max(0,parseInt(h.slice(3,5),16)-Math.round(a*255)),b=Math.max(0,parseInt(h.slice(5,7),16)-Math.round(a*255));return`#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`;}
@@ -656,17 +709,6 @@ function tankSVG(uid,pct,col,run,statusTxt,statusCol,sw,sh,vol,temp){
   const tc=hasLiq?'#ffffff':'#9fb0d1';
   const volText=hasLiq?(vol!=null?Math.round(vol).toLocaleString()+' L':Math.round(pct)+'%'):'ว่าง';
   s+='<text x="'+(sw/2)+'" y="'+midY+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="17" fill="'+tc+'" font-weight="900" style="text-shadow:0 1px 4px rgba(0,0,0,.5)">'+volText+'</text>';
-  // กรอบอุณหภูมิ — กล่องเล็กพอดีตัวหนังสือ พื้นหลังชัดเจน อยู่ในถังด้านบน
-  if(temp!=null){
-    const tBg=temp<=6?'#0d2818':temp<=8?'#3a2f0a':'#3a1212';
-    const tBorder=temp<=6?'#34d399':temp<=8?'#f0b429':'#f87171';
-    const tIcon=temp<=6?'🌡️':temp<=8?'⚠️':'🔴';
-    const tStr=tIcon+' '+temp+'°C';
-    const tW=Math.max(54,tStr.length*7.2);
-    const tX=bX+bW-tW-4,tY=bY+8;
-    s+='<rect x="'+tX+'" y="'+tY+'" width="'+tW+'" height="20" rx="6" fill="'+tBg+'" stroke="'+tBorder+'" stroke-width="1.5"/>';
-    s+='<text x="'+(tX+tW/2)+'" y="'+(tY+14)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="'+tBorder+'" font-weight="900">'+tStr+'</text>';
-  }
   s+='</svg>';
   return s;
 }
