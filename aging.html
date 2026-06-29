@@ -708,7 +708,7 @@ function tankSVG(uid,pct,col,run,statusTxt,statusCol,sw,sh,vol,temp){
   // text — โชว์ปริมาตรจริง (ลิตร) ตัวใหญ่ชัดเจน แทนเปอร์เซ็นต์
   const tc=hasLiq?'#ffffff':'#9fb0d1';
   const volText=hasLiq?(vol!=null?Math.round(vol).toLocaleString()+' L':Math.round(pct)+'%'):'ว่าง';
-  s+='<text x="'+(sw/2)+'" y="'+midY+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="17" fill="'+tc+'" font-weight="900" style="text-shadow:0 1px 4px rgba(0,0,0,.5)">'+volText+'</text>';
+  s+='<text x="'+(sw/2)+'" y="'+midY+'" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="21" fill="'+tc+'" font-weight="900" style="text-shadow:0 1px 4px rgba(0,0,0,.5)">'+volText+'</text>';
   s+='</svg>';
   return s;
 }
