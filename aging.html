@@ -370,6 +370,7 @@ onAuthStateChanged(auth,async u=>{
   let _renderDebounceTimer=null;
   onSnapshot(collection(db,'aging_tank_states'),snap=>{
     tankStates={};
+    window.tankStates=tankStates; // เปิดให้เช็คจาก Console ได้ตรงๆ เช่น window.tankStates['T25']
     snap.docs.forEach(d=>{
       const dat={id:d.id,...d.data()};
       if(dat.batch_no)dat.batch_no=String(dat.batch_no).split('/')[0];
