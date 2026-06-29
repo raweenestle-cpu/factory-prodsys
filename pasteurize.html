@@ -160,6 +160,73 @@
 @keyframes tv3gy{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,.7)}50%{box-shadow:0 0 0 10px rgba(245,158,11,0),0 0 24px rgba(245,158,11,.3)}}
 @keyframes tv3go{0%,100%{box-shadow:0 0 0 0 rgba(234,88,12,.7)}50%{box-shadow:0 0 0 10px rgba(234,88,12,0),0 0 24px rgba(234,88,12,.3)}}
 @keyframes tv3gb{0%,100%{box-shadow:0 0 0 0 rgba(59,130,246,.7)}50%{box-shadow:0 0 0 10px rgba(59,130,246,0),0 0 24px rgba(59,130,246,.3)}}
+/* ===== LUXE NAVY+GOLD OVERRIDE — เปลี่ยนเป็นธีมเข้ม ตัวอักษรใหญ่ขึ้น คอนทราสต์สูงขึ้น ===== */
+:root{
+  --bg:#0a0e1a;--s1:#161f33;--s2:#1d2842;--s3:#0f1730;
+  --b1:#3d4d75;--b2:#2d3a5c;
+  --text:#f8fafc;--t2:#dbe4f3;--t3:#9fb0d1;
+  --gold:#f0b429;--gold-light:#3d2f0a;--gold-deep:#b8860b;
+}
+body{font-size:15px!important}
+nav{background:linear-gradient(180deg,#0f1730,#0a0e1a)!important;border-bottom:2px solid var(--gold-deep)!important;box-shadow:0 2px 16px rgba(240,180,41,.08)!important}
+.nav-logo{font-size:19px!important;color:var(--gold)!important;text-shadow:0 0 14px rgba(240,180,41,.3)!important}
+.nav-logo b{color:var(--gold)!important}
+.nav-tab{font-size:14px!important;padding:8px 16px!important}
+.nav-tab.on{color:#1a1206!important;background:linear-gradient(135deg,var(--gold-deep),var(--gold))!important;border:none!important;box-shadow:0 2px 12px rgba(240,180,41,.4)!important}
+.nav-role{background:var(--gold-light)!important;color:var(--gold)!important;border-color:var(--gold-deep)!important;font-size:12px!important}
+.nav-user,.btn-logout{font-size:13px!important}
+
+.date-header{background:linear-gradient(180deg,#161f33,#0f1730)!important;border-color:var(--gold-deep)!important;box-shadow:0 2px 16px rgba(240,180,41,.1)!important}
+.date-header-label{font-size:13px!important}
+.date-input-lg{font-size:28px!important;color:var(--gold)!important;text-shadow:0 0 14px rgba(240,180,41,.25)!important}
+.date-day-label{font-size:15px!important;color:var(--gold)!important}
+
+.tank-visual-wrap,.shift-chart-wrap{background:var(--s1)!important;border-color:var(--gold-deep)!important;box-shadow:0 4px 20px rgba(0,0,0,.3)!important}
+
+table{font-size:16px!important}
+thead th{background:#101a33!important;color:var(--gold)!important;font-size:14px!important;border-bottom:3px solid var(--gold-deep)!important;border-right-color:var(--b1)!important;padding:13px 12px!important}
+tbody td{color:#0f172a!important;background:#ffffff!important;font-size:16px!important;font-weight:700!important;border-right-color:#e2e8f0!important}
+tbody tr:hover td{background:#fff8e8!important}
+/* แถวสถานะ — เข้มขึ้น คอนทราสต์ชัดขึ้น ยังคงความหมายสีเดิม (ส้ม=กำลังพาส เขียว=เสร็จ เหลือง=รอ) */
+tbody tr.row-past{border-left:5px solid var(--orange)!important}
+tbody tr.row-past td{background:#fff3e6!important}
+tbody tr.row-done{border-left:5px solid var(--green)!important}
+tbody tr.row-done td{background:#eafff0!important}
+tbody tr.row-wait{border-left:5px solid var(--yellow)!important}
+tbody tr.row-wait td{background:#fffaeb!important}
+
+.stamp-btn{font-size:14px!important;font-weight:900!important;padding:9px 16px!important}
+.stat-badge{font-size:13px!important;padding:5px 14px!important;font-weight:900!important}
+.ci{font-size:15px!important;padding:7px 10px!important;font-weight:700!important}
+.sig-btn{font-size:13px!important}
+
+.kpi-row{background:linear-gradient(180deg,#161f33,#0f1730)!important;border-bottom:2px solid var(--gold-deep)!important}
+.kpi-card{background:var(--s2)!important;border-color:var(--gold-deep)!important}
+.kpi-label{font-size:11px!important}
+.kpi-val{font-size:28px!important;color:var(--gold)!important}
+
+.info-card{background:var(--s2)!important;border-color:var(--b1)!important}
+.info-card .card-title{color:var(--gold)!important;font-size:11px!important;border-bottom-color:var(--b1)!important}
+.info-card .card-row{font-size:13px!important}
+.info-card .card-value.highlight{color:var(--gold)!important;font-size:15px!important}
+
+.shift-chart-card{background:var(--s2)!important;border-color:var(--b1)!important}
+.shift-chart-title{color:var(--gold)!important;font-size:12px!important}
+
+.chip{font-size:12px!important;padding:4px 12px!important;font-weight:900!important}
+
+#toast{font-size:14px!important}
+.toast-item{font-size:14px!important;padding:11px 20px!important}
+
+/* TV3 — flow diagram ใหญ่ขึ้น คอนทราสต์ขึ้น */
+.tv3-card{background:var(--s1)!important;border-color:var(--gold-deep)!important;box-shadow:0 4px 24px rgba(0,0,0,.4)!important}
+.tv3-code{color:var(--t3)!important;font-size:13px!important}
+.tv3-name{color:#f8fafc!important;font-size:24px!important}
+.tv3-meta{color:var(--t2)!important;font-size:14px!important}
+.tv3-circle{background:var(--s2)!important;border-color:var(--b1)!important}
+.tv3-sn{color:var(--t2)!important;font-size:13px!important}
+.tv3-sv{color:#f8fafc!important;font-size:15px!important}
+.tv3-fbtn{font-size:12px!important;padding:6px 12px!important}
 </style>
 
 </head>
@@ -1257,7 +1324,7 @@ window.cipTankSVG=function(uid,pct,col,run,statusTxt,statusCol,sw,sh){
   s+='<rect x="'+(bX+bW-16)+'" y="'+(bY+bH)+'" width="8" height="14" rx="2" fill="rgba(255,255,255,.15)" stroke="'+bodyStroke+'" stroke-width="1" stroke-opacity=".6"/>';
   s+='<rect x="'+(bX+3)+'" y="'+(bY+bH+13)+'" width="'+(bW-6)+'" height="5" rx="2" fill="rgba(255,255,255,.12)" stroke="'+bodyStroke+'" stroke-width="1" stroke-opacity=".5"/>';
   // text
-  const tc='#111827';
+  const tc='#f8fafc';
   // แสดง volume ตรงกลางถัง
   const volText = hasLiq ? Math.round((pct/100)*getTankCapacity(uid)).toLocaleString()+' L' : 'ว่าง';
   s+='<text x="'+(sw/2)+'" y="'+(midY+5)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="16" fill="'+tc+'" font-weight="900">'+volText+'</text>';
@@ -1320,7 +1387,7 @@ function renderPastCard(row, i, col, p){
           if(_st2&&row.past_end_time){const _toS=function(t){const a=(t+'::').split(':').map(Number);return a[0]*3600+a[1]*60+(a[2]||0);};const df=_toS(row.past_end_time)-_toS(_st2);if(df>=0){const h=Math.floor(df/3600),mn=Math.floor((df%3600)/60),s=df%60;_dur2=(h?h+' ชม. ':'')+(mn?mn+' นาที ':'')+(!h&&!mn?s+' วิ':'');}}
           else if(_st2&&_reqSec2>0){const h=Math.floor(_reqSec2/3600),mn=Math.floor((_reqSec2%3600)/60),s=_reqSec2%60;_dur2=(h?h+' ชม. ':'')+(mn?mn+' นาที ':'')+(!h&&!mn?s+' วิ':'');}
           return '<div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end">'
-            +'<span class="badge '+ps.cls+'" style="font-size:11px;padding:5px 12px;border:1.5px solid rgba(255,255,255,.2)">'+ps.lbl+'</span>'
+            +'<span class="badge '+ps.cls+'" style="font-size:13px;font-weight:900;padding:6px 14px;border-radius:20px;border:1.5px solid '+ps.color+';background:'+ps.bg+';color:'+ps.color+'">'+ps.lbl+'</span>'
             +(_st2?'<div style="font-family:var(--mono);font-size:10px;font-weight:700;color:#1e40af;white-space:nowrap">⏱ เริ่ม '+_st2+'</div>':'')
             +(_eta2?'<div style="font-family:var(--mono);font-size:10px;font-weight:700;color:#92400e;white-space:nowrap">🏁 คาด '+_eta2+'</div>':'')
             +(_dur2?'<div style="font-family:var(--mono);font-size:10px;font-weight:700;color:#065f46;white-space:nowrap">⏳ '+_dur2+'</div>':'')
@@ -1331,7 +1398,7 @@ function renderPastCard(row, i, col, p){
           const _st3=row.past_start_time||'';
           const _eta3=row.expected_finish_time||'';
           return '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end">'
-            +'<span class="badge '+ps.cls+'" style="font-size:12px;padding:6px 14px;border:1.5px solid rgba(255,255,255,.15)">'+ps.lbl+'</span>'
+            +'<span class="badge '+ps.cls+'" style="font-size:14px;font-weight:900;padding:7px 16px;border-radius:20px;border:1.5px solid '+ps.color+';background:'+ps.bg+';color:'+ps.color+'">'+ps.lbl+'</span>'
             +(_st3?'<div style="display:flex;flex-direction:column;align-items:center;background:rgba(219,234,254,.95);border:2px solid #60a5fa;border-radius:14px;padding:8px 18px;box-shadow:0 4px 16px rgba(59,130,246,.35),0 0 0 1px rgba(255,255,255,.1)"><div style="font-family:var(--mono);font-size:9px;font-weight:800;color:#1e3a8a;letter-spacing:1.5px;text-transform:uppercase">⏱ เริ่ม</div><div style="font-family:var(--mono);font-size:18px;font-weight:900;color:#1e3a8a;letter-spacing:.5px">'+_st3+'</div></div>':'')
             +(_eta3?'<div style="display:flex;flex-direction:column;align-items:center;background:rgba(254,243,199,.95);border:2px solid #fbbf24;border-radius:14px;padding:8px 18px;box-shadow:0 4px 16px rgba(245,158,11,.35),0 0 0 1px rgba(255,255,255,.1)"><div style="font-family:var(--mono);font-size:9px;font-weight:800;color:#78350f;letter-spacing:1.5px;text-transform:uppercase">🏁 คาดเสร็จ</div><div style="font-family:var(--mono);font-size:18px;font-weight:900;color:#78350f;letter-spacing:.5px">'+_eta3+'</div></div>':'')
             +(()=>{if(!_st3||!_eta3)return '';const _toS=t=>{const a=(t+'::').split(':').map(Number);return(a[0]||0)*3600+(a[1]||0)*60+(a[2]||0);};let df=_toS(_eta3)-_toS(_st3);if(df<0)df+=86400;const h=Math.floor(df/3600),mn=Math.floor((df%3600)/60),s=df%60;const dur=String(h).padStart(2,'0')+':'+String(mn).padStart(2,'0')+':'+String(s).padStart(2,'0');return dur?'<div style="display:flex;flex-direction:column;align-items:center;background:rgba(209,250,229,.95);border:2px solid #34d399;border-radius:14px;padding:8px 18px;box-shadow:0 4px 16px rgba(16,185,129,.35),0 0 0 1px rgba(255,255,255,.1)"><div style="font-family:var(--mono);font-size:9px;font-weight:800;color:#064e3b;letter-spacing:1.5px;text-transform:uppercase">⏳ รวม</div><div style="font-family:var(--mono);font-size:18px;font-weight:900;color:#064e3b;letter-spacing:.5px">'+dur+'</div></div>':'';})()
@@ -1342,13 +1409,13 @@ function renderPastCard(row, i, col, p){
           const _st3=row.past_start_time||'';
           const _eta3=row.past_end_time||row.expected_finish_time||'';
           return '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end">'
-            +'<span class="badge '+ps.cls+'" style="font-size:12px;padding:6px 14px;border:1.5px solid rgba(255,255,255,.15)">'+ps.lbl+'</span>'
+            +'<span class="badge '+ps.cls+'" style="font-size:14px;font-weight:900;padding:7px 16px;border-radius:20px;border:1.5px solid '+ps.color+';background:'+ps.bg+';color:'+ps.color+'">'+ps.lbl+'</span>'
             +(_st3?'<div style="display:flex;flex-direction:column;align-items:center;background:rgba(219,234,254,.95);border:2px solid #60a5fa;border-radius:14px;padding:8px 18px;box-shadow:0 4px 16px rgba(59,130,246,.35)"><div style="font-family:var(--mono);font-size:9px;font-weight:800;color:#93c5fd;letter-spacing:1.5px;text-transform:uppercase">⏱ เริ่ม</div><div style="font-family:var(--mono);font-size:18px;font-weight:900;color:#bfdbfe;letter-spacing:.5px">'+_st3+'</div></div>':'')
             +(_eta3?'<div style="display:flex;flex-direction:column;align-items:center;background:rgba(209,250,229,.95);border:2px solid #34d399;border-radius:14px;padding:8px 18px;box-shadow:0 4px 16px rgba(16,185,129,.35)"><div style="font-family:var(--mono);font-size:9px;font-weight:800;color:#6ee7b7;letter-spacing:1.5px;text-transform:uppercase">✅ เสร็จ</div><div style="font-family:var(--mono);font-size:18px;font-weight:900;color:#a7f3d0;letter-spacing:.5px">'+_eta3+'</div></div>':'')
             +(()=>{if(!_st3||!_eta3)return '';const _toS=t=>{const a=(t+'::').split(':').map(Number);return(a[0]||0)*3600+(a[1]||0)*60+(a[2]||0);};let df=_toS(_eta3)-_toS(_st3);if(df<0)df+=86400;const h=Math.floor(df/3600),mn=Math.floor((df%3600)/60),s=df%60;const dur=String(h).padStart(2,'0')+':'+String(mn).padStart(2,'0')+':'+String(s).padStart(2,'0');return dur?'<div style="display:flex;flex-direction:column;align-items:center;background:rgba(254,243,199,.95);border:2px solid #fbbf24;border-radius:14px;padding:8px 18px;box-shadow:0 4px 16px rgba(245,158,11,.35)"><div style="font-family:var(--mono);font-size:9px;font-weight:800;color:#92400e;letter-spacing:1.5px;text-transform:uppercase">⏳ รวม</div><div style="font-family:var(--mono);font-size:18px;font-weight:900;color:#fef08a;letter-spacing:.5px">'+dur+'</div></div>':'';})()
             +'</div>';
         }
-        return '<span class="badge '+ps.cls+'" style="font-size:13px;padding:8px 18px;border:1.5px solid rgba(255,255,255,.15)">'+ps.lbl+'</span>';
+        return '<span class="badge '+ps.cls+'" style="font-size:15px;font-weight:900;padding:9px 20px;border-radius:20px;border:1.5px solid '+ps.color+';background:'+ps.bg+';color:'+ps.color+'">'+ps.lbl+'</span>';
       })()}</div>
     </div>
     <div class="tv3-progress-bar"><div class="tv3-progress-fill ${_progCls}" style="width:${_pctDone}%"></div></div>
