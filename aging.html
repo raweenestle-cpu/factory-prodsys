@@ -604,7 +604,7 @@ function makeTankCard(tankId){
       const tBg=tOk?'#0d2818':tWarn?'#3a2f0a':'#3a1212';
       const tIcon=tOk?'🌡️':tWarn?'⚠️':'🔴';
       const probe=document.createElement('div');
-      probe.style.cssText='position:absolute;left:168px;top:50%;display:flex;align-items:center;pointer-events:none';
+      probe.style.cssText='position:absolute;left:154px;top:50%;display:flex;align-items:center;pointer-events:none';
       probe.innerHTML=
         '<div style="width:26px;height:2px;background:'+tBorder+'"></div>'
         +'<div style="background:'+tBg+';border:1.5px solid '+tBorder+';border-radius:6px;padding:3px 9px;font-family:var(--mono);font-size:12px;font-weight:900;color:'+tBorder+';white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.4)">'+tIcon+' '+maxTempVal+'°C</div>';
