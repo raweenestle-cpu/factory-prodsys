@@ -1919,6 +1919,18 @@ window.editTimePrompt=async(col,id,field,current)=>{
   if(field==="past_end_time"&&clean)   upd.status="past_done";
   await updateDoc(doc(db,col,id),upd);
   toast("แก้ไขเวลาแล้ว","green");
+  // ── sync ไปที่ aging_tank_states ด้วย เหมือนตอน Stamp ──
+  // ไม่งั้นแก้เวลาที่นี่แล้ว ฝั่ง aging.html จะยังเห็นค่าเก่า/ค่าว่างค้างอยู่ ไม่ตรงกัน
+  try{
+    const _p = col==='production_plans_m2' ? 'p2' : 'p1';
+    const _row=rows[_p]?.find(r=>r.id===id);
+    if(_row?.aging_tank){
+      const _agUpd={updated_at:new Date().toISOString()};
+      if(field==="past_start_time"){_agUpd.past_start_time=clean;_agUpd.status="pasteurising";}
+      if(field==="past_end_time"){_agUpd.past_end_time=clean;_agUpd.date=_row.date||today();_agUpd.status="aging";}
+      await setDoc(doc(db,'aging_tank_states',_row.aging_tank),_agUpd,{merge:true});
+    }
+  }catch(e2){console.warn('aging_tank_states sync error (editTimePrompt):',e2);}
 };
 
 // ── RENDER ────────────────────────────────────────────────────────────
