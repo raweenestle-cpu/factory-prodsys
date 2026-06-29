@@ -149,6 +149,52 @@ nav{position:sticky;top:0;z-index:100;background:rgba(7,9,15,.95);border-bottom:
 
 @keyframes wv1{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 @keyframes wv2{0%{transform:translateX(0)}100%{transform:translateX(50%)}}
+
+/* ===== LUXE NAVY+GOLD OVERRIDE — aging.html ===== */
+:root{--gold:#f0b429;--gold-light:#3d2f0a;--gold-deep:#b8860b;}
+body{background:radial-gradient(ellipse at top,#0e1530,#0a0e1a 60%)!important;font-size:15px!important;color:#f8fafc!important}
+nav{background:linear-gradient(180deg,#0f1730,#0a0e1a)!important;border-bottom:2px solid var(--gold-deep)!important;box-shadow:0 2px 16px rgba(240,180,41,.08)!important}
+.nav-logo{font-size:18px!important;font-weight:900!important;color:var(--gold)!important;text-shadow:0 0 14px rgba(240,180,41,.25)!important}
+.ntab{font-size:14px!important;font-weight:800!important;padding:8px 16px!important;color:#9fb0d1!important}
+.ntab:hover{background:#1d2842!important;color:#f8fafc!important}
+.ntab.on{color:#1a1206!important;background:linear-gradient(135deg,var(--gold-deep),var(--gold))!important;box-shadow:0 2px 12px rgba(240,180,41,.4)!important}
+.nbtn{font-size:13px!important;padding:7px 14px!important;color:#9fb0d1!important;border-color:#3d4d75!important}
+.nbtn:hover{color:#f8fafc!important;border-color:var(--gold)!important}
+
+.legend{font-size:14px!important;color:#dbe4f3!important}
+
+.line-group{background:linear-gradient(160deg,rgba(240,180,41,.06) 0%,rgba(22,31,51,.4) 100%)!important;border-color:var(--gold-deep)!important;box-shadow:0 4px 20px rgba(0,0,0,.4)!important}
+.line-group::before{background:var(--lc,var(--gold-deep))!important}
+.line-title{font-size:24px!important}
+.line-badge{font-size:12px!important;padding:4px 12px!important}
+
+/* การ์ดถัง — เข้มทั้งหมด คอนทราสต์สูงขึ้น */
+.tc{background:#161f33!important;border-color:#3d4d75!important;box-shadow:0 4px 16px rgba(0,0,0,.4)!important}
+.tc.empty{background:#0f1730!important}
+.tc.active{box-shadow:0 4px 20px rgba(234,88,12,.3)!important}
+.tc.curing{box-shadow:0 4px 20px rgba(14,116,144,.25)!important}
+.ch{border-bottom-color:#3d4d75!important}
+.ch-tank{color:var(--gold)!important;font-size:19px!important}
+.ch-prod{color:#f8fafc!important;font-size:16px!important}
+.ch-code{color:#dbe4f3!important;font-size:14px!important}
+.ch-batch{color:#dbe4f3!important;font-size:13px!important}
+.ch-info{color:#9fb0d1!important;font-size:12px!important}
+.tc-vol-num{color:#f8fafc!important;font-size:30px!important}
+.tc-vol-pct{font-size:18px!important}
+.tc-info{border-top-color:#3d4d75!important}
+.tc-st{font-size:13px!important;padding:5px 14px!important}
+.tdl{color:#9fb0d1!important;font-size:12px!important}
+.tdv{color:#f8fafc!important;font-size:13px!important}
+
+/* MODAL */
+.modal{background:#161f33!important;border:2px solid var(--gold-deep)!important;box-shadow:0 20px 60px rgba(240,180,41,.12),0 4px 20px rgba(0,0,0,.5)!important}
+.modal-title{font-size:18px!important;color:#f8fafc!important}
+.stat-btn{font-size:13px!important;padding:10px!important;background:#1d2842!important;border-color:#3d4d75!important;color:#f8fafc!important}
+.stat-btn:hover{border-color:var(--gold)!important;color:var(--gold)!important}
+.ci{font-size:15px!important;padding:8px 12px!important;background:#1d2842!important;border-color:#3d4d75!important;color:#f8fafc!important}
+.btn{font-size:14px!important;padding:9px 18px!important}
+.btn-b{background:linear-gradient(135deg,var(--gold-deep),var(--gold))!important;color:#1a1206!important}
+#toast{font-size:14px!important;padding:11px 22px!important}
 </style>
 </head>
 <body>
@@ -477,8 +523,8 @@ function makeTankCard(tankId){
   const cap=getTankCapacity(tankId);
   const pct=cap>0?Math.min(100,(currentVol/cap)*100):0;
   const pctC=pct>50?'#15803d':pct>20?'#b45309':'#b91c1c';
-  const stMap={empty:'○ ว่าง',pending:'⏳ รอ',san_done:'✨ พร้อม Past',pasteurising:'⏳ รอ Pasteurize',past_done:'✅ Past Done',aging:'🌡️ บ่ม',filling:'🔵 Filling',cip:'🟣 CIP',ready:'✅ พร้อม'};
-  const stColor=status==='empty'?'#6b7280':status==='san_done'?'#059669':status==='pasteurising'?'#2563eb':status==='aging'?'#0e7490':status==='past_done'?'#15803d':status==='filling'?'#ea580c':'#374151';
+  const stMap={empty:'○ ว่าง',pending:'⏳ รอ',cip:'🧹 กำลัง CIP',cip_done:'🧼 CIP เสร็จ',san_done:'✨ พร้อม Past',pasteurising:'⏳ รอ Pasteurize',past_done:'✅ Past Done',aging:'🌡️ บ่ม',filling:'🔵 Filling',ready:'✅ พร้อม'};
+  const stColor=status==='empty'?'#6b7280':status==='cip'?'#7c3aed':status==='cip_done'?'#0891b2':status==='san_done'?'#059669':status==='pasteurising'?'#2563eb':status==='aging'?'#0e7490':status==='past_done'?'#15803d':status==='filling'?'#ea580c':'#374151';
   const stLabel=stMap[status]||status;
   const yr=new Date().getFullYear().toString().slice(-2);
   const prodCode=ts.prod_code||(ts.prod_suffix?(''+yr+'0522'+(ts._col==='production_plans_m2'?'2':'1')+ts.prod_suffix):null);
