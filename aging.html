@@ -586,11 +586,7 @@ function makeTankCard(tankId){
     +'</div>';
 
 
-  const footer=
-    '<div style="padding:8px 14px;border-top:1px solid #3d4d75;margin-top:auto">'
-    +'<div style="font-family:var(--mono);font-size:11px;font-weight:700;color:#9fb0d1">Batch '+(ts.batch_no||'—')+'</div>'
-    +'</div>'
-    +expHtml;
+  const footer=expHtml;
 
   div.innerHTML=header+footer;
   if(svgHtml){
@@ -610,7 +606,7 @@ function makeTankCard(tankId){
         +'<div style="background:'+tBg+';border:1.5px solid '+tBorder+';border-radius:6px;padding:3px 7px;font-family:var(--mono);font-size:12px;font-weight:900;color:'+tBorder+';white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.4)">'+tIcon+' '+maxTempVal+'°C</div>';
       _bodyDiv.appendChild(probe);
     }
-    const _footerEl=div.querySelector('[style*="border-top"]');
+    const _footerEl=div.children[1]||null;
     if(_footerEl) div.insertBefore(_bodyDiv,_footerEl);
     else div.appendChild(_bodyDiv);
   }
