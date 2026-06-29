@@ -546,9 +546,9 @@ function makeTankCard(tankId){
   const prodCode=ts.prod_code||(ts.prod_suffix?(''+yr+'0522'+(ts._col==='production_plans_m2'?'2':'1')+ts.prod_suffix):null);
   const prodDate=(ts.past_end_time&&ts.past_end_date)?(ts.past_end_date+' '+ts.past_end_time):(ts.past_end_time||'—');
   const expHtml=expireBox(ts.expire_at||null);
-  const tempHtml=tempBox(ts);
+  const maxTempVal=getMaxTemp(ts);
   const uid='ag'+tankId.replace(/[^a-z0-9]/gi,'');
-  const svgHtml=typeof tankSVG==='function'?tankSVG(uid,pct,col,!isEmpty,stLabel,stColor):'';
+  const svgHtml=typeof tankSVG==='function'?tankSVG(uid,pct,col,!isEmpty,stLabel,stColor,null,null,currentVol,maxTempVal):'';
 
   const div=document.createElement('div');
   div.className='tc'+(status==='filling'||status==='past_done'?' active':status==='aging'?' curing':status==='empty'?' empty':'');
@@ -571,8 +571,7 @@ function makeTankCard(tankId){
     +'<div style="font-family:var(--mono);font-size:11px;font-weight:700;color:#9fb0d1">Batch '+(ts.batch_no||'—')+'</div>'
     +'<div style="font-family:var(--mono);font-size:11px;color:#9fb0d1;margin-top:2px">📅 '+prodDate+'</div>'
     +'</div>'
-    +expHtml
-    +tempHtml;
+    +expHtml;
 
   div.innerHTML=header+footer;
   if(svgHtml){
@@ -598,7 +597,7 @@ function autoTextColor(hex){
   return (0.299*r+0.587*g+0.114*b)>160?'#111827':'#ffffff';
 }
 
-function tankSVG(uid,pct,col,run,statusTxt,statusCol,sw,sh){
+function tankSVG(uid,pct,col,run,statusTxt,statusCol,sw,sh,vol,temp){
   statusCol=statusCol||col;
   sw=sw||160; sh=sh||280;
   const bX=14,bY=18,bW=sw-28,bH=sh-45;
@@ -653,9 +652,21 @@ function tankSVG(uid,pct,col,run,statusTxt,statusCol,sw,sh){
   s+='<rect x="'+(bX+8)+'" y="'+(bY+bH)+'" width="8" height="14" rx="2" fill="rgba(255,255,255,.15)" stroke="'+bodyStroke+'" stroke-width="1" stroke-opacity=".6"/>';
   s+='<rect x="'+(bX+bW-16)+'" y="'+(bY+bH)+'" width="8" height="14" rx="2" fill="rgba(255,255,255,.15)" stroke="'+bodyStroke+'" stroke-width="1" stroke-opacity=".6"/>';
   s+='<rect x="'+(bX+3)+'" y="'+(bY+bH+13)+'" width="'+(bW-6)+'" height="5" rx="2" fill="rgba(255,255,255,.12)" stroke="'+bodyStroke+'" stroke-width="1" stroke-opacity=".5"/>';
-  // text
+  // text — โชว์ปริมาตรจริง (ลิตร) ตัวใหญ่ชัดเจน แทนเปอร์เซ็นต์
   const tc=hasLiq?'#ffffff':'#9fb0d1';
-  s+='<text x="'+(sw/2)+'" y="'+midY+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="17" fill="'+tc+'" font-weight="900" style="text-shadow:0 1px 4px rgba(0,0,0,.5)">'+(hasLiq?Math.round(pct)+'%':'ว่าง')+'</text>';
+  const volText=hasLiq?(vol!=null?Math.round(vol).toLocaleString()+' L':Math.round(pct)+'%'):'ว่าง';
+  s+='<text x="'+(sw/2)+'" y="'+midY+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="17" fill="'+tc+'" font-weight="900" style="text-shadow:0 1px 4px rgba(0,0,0,.5)">'+volText+'</text>';
+  // กรอบอุณหภูมิ — กล่องเล็กพอดีตัวหนังสือ พื้นหลังชัดเจน อยู่ในถังด้านบน
+  if(temp!=null){
+    const tBg=temp<=6?'#0d2818':temp<=8?'#3a2f0a':'#3a1212';
+    const tBorder=temp<=6?'#34d399':temp<=8?'#f0b429':'#f87171';
+    const tIcon=temp<=6?'🌡️':temp<=8?'⚠️':'🔴';
+    const tStr=tIcon+' '+temp+'°C';
+    const tW=Math.max(54,tStr.length*7.2);
+    const tX=bX+bW-tW-4,tY=bY+8;
+    s+='<rect x="'+tX+'" y="'+tY+'" width="'+tW+'" height="20" rx="6" fill="'+tBg+'" stroke="'+tBorder+'" stroke-width="1.5"/>';
+    s+='<text x="'+(tX+tW/2)+'" y="'+(tY+14)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="'+tBorder+'" font-weight="900">'+tStr+'</text>';
+  }
   s+='</svg>';
   return s;
 }
