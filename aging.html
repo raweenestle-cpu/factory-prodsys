@@ -654,12 +654,8 @@ function tankSVG(uid,pct,col,run,statusTxt,statusCol,sw,sh){
   s+='<rect x="'+(bX+bW-16)+'" y="'+(bY+bH)+'" width="8" height="14" rx="2" fill="rgba(255,255,255,.15)" stroke="'+bodyStroke+'" stroke-width="1" stroke-opacity=".6"/>';
   s+='<rect x="'+(bX+3)+'" y="'+(bY+bH+13)+'" width="'+(bW-6)+'" height="5" rx="2" fill="rgba(255,255,255,.12)" stroke="'+bodyStroke+'" stroke-width="1" stroke-opacity=".5"/>';
   // text
-  const tc=hasLiq?autoTextColor(col):'#6b7280';
-  s+='<text x="'+(sw/2)+'" y="'+(midY-4)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="16" fill="'+tc+'" font-weight="900">'+(hasLiq?Math.round(pct)+'%':'ว่าง')+'</text>';
-  if(hasLiq){
-    s+='<rect x="'+(bX+8)+'" y="'+(midY+8)+'" width="'+(bW-16)+'" height="18" rx="9" fill="'+col+'" fill-opacity=".15" stroke="'+col+'" stroke-width="1.5" stroke-opacity=".4"/>';
-    s+='<text x="'+(sw/2)+'" y="'+(midY+21)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="'+col+'" font-weight="900">'+statusTxt+'</text>';
-  }
+  const tc=hasLiq?'#ffffff':'#9fb0d1';
+  s+='<text x="'+(sw/2)+'" y="'+midY+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="17" fill="'+tc+'" font-weight="900" style="text-shadow:0 1px 4px rgba(0,0,0,.5)">'+(hasLiq?Math.round(pct)+'%':'ว่าง')+'</text>';
   s+='</svg>';
   return s;
 }
