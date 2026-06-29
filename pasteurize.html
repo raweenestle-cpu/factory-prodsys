@@ -1835,7 +1835,7 @@ window.stampTime=async(col,id,field,p)=>{
         await setDoc(doc(db,'aging_tank_states',_rowForAging.aging_tank),{
           date:_rowForAging.date||today(),
           past_end_time:now,
-          status:'past_done',updated_at:new Date().toISOString()
+          status:'aging',updated_at:new Date().toISOString()
         },{merge:true});
       }catch(e2){console.warn('aging_tank_states past_end_time stamp error:',e2);}
     }
