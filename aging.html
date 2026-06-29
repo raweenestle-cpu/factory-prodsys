@@ -473,6 +473,7 @@ async function _checkCuringDone(){
   }
 }
 window._checkCuringDone = _checkCuringDone; // เปิดให้เรียกจาก Console ได้ตรงๆเพื่อ debug
+window._checkCuringForTank = _checkCuringForTank;
 setInterval(_checkCuringDone, 300000); // safety-net sweep ทุก 5 นาที (ตัวหลักคือ event-driven แล้ว)
 // เช็คทันทีตอน load
 setTimeout(_checkCuringDone, 3000);
