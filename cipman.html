@@ -294,6 +294,13 @@ main{position:relative;z-index:1;padding:10px 12px;}
 @keyframes cipPumpPulse{0%,100%{box-shadow:0 0 0 0 rgba(37,99,235,.7),0 0 0 0 rgba(37,99,235,.3)}50%{box-shadow:0 0 0 8px rgba(37,99,235,.2),0 0 0 16px rgba(37,99,235,0)}}
 @keyframes flowShine{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
 @keyframes runningGlow{0%,100%{box-shadow:0 0 0 0 var(--glow,rgba(59,130,246,.5)),0 4px 20px rgba(0,0,0,.08)}50%{box-shadow:0 0 0 4px var(--glow,rgba(59,130,246,.15)),0 4px 20px rgba(0,0,0,.08)}}
+
+/* ── TABLET RESPONSIVE (iPad 10" ทั้งแนวตั้ง/แนวนอน ~769-1180px) ── */
+@media(min-width:769px) and (max-width:1180px){
+  nav{flex-wrap:wrap;padding:8px 16px;height:auto;min-height:52px}
+  .btn{min-height:40px;font-size:13px}
+  .ci{min-height:38px;font-size:13px}
+}
 </style>
 <!-- v20260619-configbased -->
 </head>
