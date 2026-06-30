@@ -1105,7 +1105,7 @@ window.saveQcModal=async()=>{
       const _mergedRow={...row,...upd};
       const _prod=productMap[row.mix_code]||{};
       const _passed=isQcPassed(_mergedRow,_prod);
-      const _qcStatus=_passed?'passed':(upd.qc_sensory==='Release'?'release_only':'');
+      const _qcStatus=upd.qc_sensory==='Release'?'release_only':(_passed?'passed':'');
       try{
         await setDoc(doc(db,'aging_tank_states',row.aging_tank),{
           qc_status:_qcStatus,
