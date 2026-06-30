@@ -885,7 +885,7 @@ function _lcCard(line){
       const mAct=allR.filter(r=>r.mix_code===code&&r.filling_line===line.name&&(r.status==='filling'||r.status==='sent_filling')).reduce((s,r)=>s+(+(r.volume_liter||0)),0);
       const mPlan=+(st[`plan_vol_${mi+1}`]||0);
       h+=`<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:6px;align-items:center">
-        <div style="font-family:var(--mono);font-size:10px;font-weight:800;color:#374151;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${mName}</div>
+        <div style="font-family:var(--mono);font-size:13px;font-weight:900;color:#f8fafc;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${mName}</div>
         <div class="lsc-kpi" style="padding:5px 8px">
           <div class="lsc-kpi-label">Plan</div>
           <div style="font-family:var(--mono);font-size:14px;font-weight:900;color:#111827">${mPlan>0?mPlan.toLocaleString():'—'}</div>
@@ -1265,7 +1265,7 @@ function renderPlan(m){
     const isIceCream = (productMap[row.mix_code]||{}).product_type === 'Ice Cream';
     const setInput = (col,id,field,bg,bc,val,icOnly=false) => {
       const locked = icOnly && !isIceCream;
-      return `<input class="ci" style="width:64px;text-align:right;background:${locked?'#e5e7eb':bg};border-color:${bc};color:${locked?'#9ca3af':'inherit'}" type="number" step="0.1" value="${locked?'':val||''}" placeholder="${locked?'—':'0'}" ${locked?'disabled':''} onchange="_up('${col}','${id}','${field}',+this.value)">`;
+      return `<input class="ci" style="width:64px;text-align:right;background:${locked?'#f1f5f9':'#ffffff'};border:1.5px solid #cbd5e1;color:${locked?'#94a3b8':'#0f172a'};font-weight:700" type="number" step="0.1" value="${locked?'':val||''}" placeholder="${locked?'—':'0'}" ${locked?'disabled':''} onchange="_up('${col}','${id}','${field}',+this.value)">`;
     };
 
     const tr = document.createElement("tr");
@@ -1281,13 +1281,13 @@ function renderPlan(m){
       <td><span class="ca" style="min-width:110px">${row.mix_name||"—"}</span></td>
       <td><input class="ci" style="width:66px" value="${row.batch_no||""}" placeholder="B001" onchange="_up('${col}','${row.id}','batch_no',this.value)"></td>
       <td><input class="ci" style="width:66px;text-align:right" type="number" value="${row.volume_liter||""}" onchange="_up('${col}','${row.id}','volume_liter',+this.value)"></td>
-      <td style="background:var(--s1)">${setInput(col,row.id,"glc_set","var(--b1)","var(--b1)",row.glc_set)}</td>
-      <td style="background:var(--s1)">${setInput(col,row.id,"sgr_set","var(--b1)","var(--b1)",row.sgr_set)}</td>
-      <td style="background:var(--s1)">${setInput(col,row.id,"plm_set","var(--b1)","var(--b1)",row.plm_set,true)}</td>
-      <td style="background:var(--s1)">${setInput(col,row.id,"oil_mix_set","var(--s2)","var(--b1)",row.oil_mix_set,true)}</td>
-      <td style="background:var(--s1)">${setInput(col,row.id,"fat_milk_set","var(--s2)","var(--b1)",row.fat_milk_set,true)}</td>
-      <td style="background:var(--s2)">${setInput(col,row.id,"rework_kg","var(--s2)","var(--b1)",row.rework_kg)}</td>
-      <td style="background:var(--s2)">${setInput(col,row.id,"rework_tanks","var(--s2)","var(--b1)",row.rework_tanks)}</td>
+      <td>${setInput(col,row.id,"glc_set","var(--b1)","var(--b1)",row.glc_set)}</td>
+      <td>${setInput(col,row.id,"sgr_set","var(--b1)","var(--b1)",row.sgr_set)}</td>
+      <td>${setInput(col,row.id,"plm_set","var(--b1)","var(--b1)",row.plm_set,true)}</td>
+      <td>${setInput(col,row.id,"oil_mix_set","var(--s2)","var(--b1)",row.oil_mix_set,true)}</td>
+      <td>${setInput(col,row.id,"fat_milk_set","var(--s2)","var(--b1)",row.fat_milk_set,true)}</td>
+      <td>${setInput(col,row.id,"rework_kg","var(--s2)","var(--b1)",row.rework_kg)}</td>
+      <td>${setInput(col,row.id,"rework_tanks","var(--s2)","var(--b1)",row.rework_tanks)}</td>
       <td><select class="ci" style="width:110px" onchange="_up('${col}','${row.id}','filling_line',this.value);renderPlan('${m}')">
         <option value="">— เลือก —</option>${lineOpts}
       </select></td>
