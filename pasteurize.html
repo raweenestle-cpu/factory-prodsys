@@ -553,7 +553,9 @@ setInterval(async()=>{
       const elapsedMin=elapsedSec2/60;
       const agVol=totalMin>0?Math.min(totalVol,(elapsedMin/totalMin)*totalVol):0;
 
-      // ── prevVol: in-memory watermark ──
+      // ── prevVol: in-memory watermark — คำนวณจาก batch ที่เสร็จจริงยืนยันได้เท่านั้น ──
+      // ไม่พึ่ง current_vol เดิมที่ค้างอยู่ใน Firestore (_storeVol) อีกต่อไป เพราะอาจเป็นข้อมูลค้าง
+      // จากรอบก่อนที่ไม่ได้เคลียร์ ทำให้พอกด "เริ่ม Past." ถังโชว์เต็มทันทีทั้งที่เพิ่งเริ่ม (elapsed≈0)
       const _wmKey=p+'_'+(agRow.process_order||'')+'_'+(agRow.aging_tank||'');
       if(window._prevVolMap[_wmKey]===undefined){
         const _allR=[...(rows['p1']||[]),...(rows['p2']||[])];
@@ -561,8 +563,7 @@ setInterval(async()=>{
           .filter(r=>r.id!==agRow.id&&r.process_order===agRow.process_order&&
             r.aging_tank===agRow.aging_tank&&(r.status==='past_done'||r.status==='ready'))
           .reduce((s,r)=>s+(+(r.volume_liter||0)),0);
-        const _storeVol=+(window._agingStates[agRow.aging_tank]?.current_vol||0);
-        window._prevVolMap[_wmKey]=Math.max(_rowsPrev,Math.max(0,_storeVol-agVol));
+        window._prevVolMap[_wmKey]=_rowsPrev;
       }
       const prevVol=window._prevVolMap[_wmKey]||0;
       const totalCumVol=Math.round((prevVol+agVol)*10)/10;
