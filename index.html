@@ -871,7 +871,7 @@ async function checkPin(){
   }catch(e){}
   var inputHash=await hashPin(pinValue);
   var emp=pinEmployees.find(function(e){
-    return e.pin_hash===inputHash||(e.pin&&e.pin===pinValue);
+    return e.pin_hash===inputHash;
   });
   if(!emp){
     document.getElementById('pin-error').textContent='❌ รหัส PIN ไม่ถูกต้อง';

@@ -110,13 +110,74 @@ canvas#sigPad{display:block;width:100%;height:160px;cursor:crosshair;touch-actio
 .log-time{font-family:var(--mono);font-size:10px;color:var(--t3);flex-shrink:0;min-width:140px}
 .log-msg{font-family:var(--mono);font-size:11px;color:var(--text)}
 .log-user{font-family:var(--mono);font-size:10px;color:var(--cyan);margin-left:auto;flex-shrink:0}
+
+/* ===== LUXE NAVY+GOLD OVERRIDE — pinregister.html ===== */
+:root{--gold:#f0b429;--gold-light:#3d2f0a;--gold-deep:#b8860b;}
+body{background:radial-gradient(ellipse at top,#0e1530,#0a0e1a 60%)!important;font-size:15px!important}
+body::before{background:radial-gradient(ellipse 80% 60% at 50% -20%,rgba(240,180,41,.08),transparent)!important}
+nav{background:linear-gradient(180deg,#0f1730,#0a0e1a)!important;border-bottom:2px solid var(--gold-deep)!important;box-shadow:0 2px 16px rgba(240,180,41,.08)!important}
+.nav-logo{font-size:15px!important;font-weight:900!important}
+.nav-logo b{color:var(--gold)!important;text-shadow:0 0 10px rgba(240,180,41,.25)!important}
+
+.tabs{background:#161f33!important;border-color:var(--gold-deep)!important}
+.tab{font-size:13px!important;font-weight:800!important;padding:10px!important;color:#9fb0d1!important}
+.tab.on{background:linear-gradient(135deg,var(--gold-deep),var(--gold))!important;color:#1a1206!important;border:none!important;box-shadow:0 2px 12px rgba(240,180,41,.35)!important}
+
+.emp-card{background:#161f33!important;border-color:#3d4d75!important;box-shadow:0 2px 10px rgba(0,0,0,.3)!important}
+.emp-card:hover{border-color:var(--gold)!important;background:#1d2842!important}
+.emp-card.selected{border-color:var(--gold)!important;background:rgba(240,180,41,.08)!important;box-shadow:0 0 0 1px rgba(240,180,41,.3)!important}
+.emp-avatar{background:#1d2842!important;border-color:#3d4d75!important}
+.emp-name{font-size:15px!important;color:#f8fafc!important}
+.emp-pos{font-size:12px!important;color:#9fb0d1!important}
+.emp-id{font-size:11px!important;color:#7081a8!important}
+.emp-sig{background:rgba(255,255,255,.05)!important;border-color:#3d4d75!important}
+
+.form-card{background:#161f33!important;border-color:var(--gold-deep)!important;box-shadow:0 4px 20px rgba(0,0,0,.35)!important}
+.form-title{font-size:15px!important;color:var(--gold)!important}
+.fi label{font-size:10px!important;color:#9fb0d1!important}
+.ci{background:#1d2842!important;border-color:#3d4d75!important;color:#f8fafc!important;font-size:14px!important;padding:10px 12px!important}
+.ci:focus{border-color:var(--gold)!important}
+.sel{background:#1d2842!important;border-color:#3d4d75!important;color:#f8fafc!important;font-size:13px!important;padding:10px 12px!important}
+.sel:focus{border-color:var(--gold)!important}
+
+.sig-section,.pin-section{background:#1d2842!important;border-color:#3d4d75!important}
+.sig-title{font-size:11px!important;color:#9fb0d1!important}
+.sig-canvas-wrap{border-color:#4a5d8a!important}
+.sig-canvas-wrap.has-sig{border-color:#34d399!important}
+.sig-btn{font-size:12px!important;padding:9px 16px!important;font-weight:800!important;background:#243154!important;border-color:#3d4d75!important;color:#9fb0d1!important}
+.sig-btn:hover{border-color:var(--gold)!important;color:var(--gold)!important}
+.sig-btn.primary{background:linear-gradient(135deg,var(--gold-deep),var(--gold))!important;border:none!important;color:#1a1206!important}
+.sig-btn.danger{background:rgba(248,113,113,.12)!important;border-color:rgba(248,113,113,.3)!important;color:#f87171!important}
+
+#e-pin-old,#e-pin-new,#e-pin-confirm{background:#1d2842!important;border-color:#3d4d75!important;color:#f8fafc!important}
+#e-pin-old:focus,#e-pin-new:focus,#e-pin-confirm:focus{border-color:var(--gold)!important;outline:none!important}
+
+.btn{font-size:13px!important;padding:12px 22px!important;font-weight:900!important}
+.btn-primary{background:linear-gradient(135deg,var(--gold-deep),var(--gold))!important;color:#1a1206!important;box-shadow:0 3px 12px rgba(240,180,41,.35)!important}
+.btn-danger{background:rgba(248,113,113,.12)!important;color:#f87171!important;border-color:rgba(248,113,113,.3)!important}
+.btn-ghost{background:#243154!important;color:#9fb0d1!important;border-color:#3d4d75!important}
+.btn-ghost:hover{border-color:var(--gold)!important;color:var(--gold)!important}
+.btn-success{background:rgba(52,211,153,.12)!important;color:#34d399!important;border-color:rgba(52,211,153,.3)!important}
+
+.badge{font-size:11px!important;padding:3px 10px!important;font-weight:900!important}
+.badge-green{background:rgba(52,211,153,.12)!important;color:#34d399!important;border-color:rgba(52,211,153,.3)!important}
+.badge-blue{background:rgba(96,165,250,.12)!important;color:#60a5fa!important;border-color:rgba(96,165,250,.3)!important}
+.badge-orange{background:rgba(240,180,41,.12)!important;color:var(--gold)!important;border-color:rgba(240,180,41,.3)!important}
+.badge-red{background:rgba(248,113,113,.12)!important;color:#f87171!important;border-color:rgba(248,113,113,.3)!important}
+
+.log-item{background:#161f33!important;border-color:#3d4d75!important}
+.log-time{font-size:11px!important;color:#7081a8!important}
+.log-msg{font-size:13px!important;color:#f8fafc!important}
+.log-user{font-size:11px!important;color:var(--gold)!important}
+
+#toast{font-size:13px!important;padding:12px 24px!important;font-weight:700!important}
 </style>
 </head>
 <body>
 <nav>
   <div class="nav-logo"><b>PROD</b><span>.SYS</span> — <span style="color:var(--purple)">Employee Register</span></div>
   <div class="nav-r">
-    <a href="index.html" class="nbtn">← กลับ</a>
+    <a href="index.html" style="font-size:15px;padding:8px 16px;border-radius:9px;border:none;background:linear-gradient(135deg,#b8860b,#f0b429);color:#1a1206;cursor:pointer;text-decoration:none;font-family:var(--mono);font-weight:900;box-shadow:0 2px 10px rgba(240,180,41,.35)">🏠 Home</a>
   </div>
 </nav>
 
@@ -156,31 +217,32 @@ canvas#sigPad{display:block;width:100%;height:160px;cursor:crosshair;touch-actio
           </div>
           <div class="fi"><label>แผนก</label><input id="e-dept" class="ci" placeholder="Filling"></div>
         </div>
-        <!-- PIN Reset -->
+        <!-- PIN Change — แบบเปลี่ยนรหัสผ่านคอม: รหัสเก่า + รหัสใหม่ + ยืนยันรหัสใหม่ -->
         <div class="pin-section" style="margin-bottom:12px">
           <div class="sig-title">
-            <span>🔑 รีเซ็ต PIN ใหม่</span>
-            <span id="e-pin-status" style="font-size:10px;color:var(--t3)">ว่าง</span>
+            <span>🔑 เปลี่ยน PIN</span>
+            <span id="e-pin-status" style="font-size:10px;color:var(--t3)"></span>
           </div>
-          <div class="pin-display" id="e-pin-display">
-            <div class="pin-dot" id="e-pd0"></div>
-            <div class="pin-dot" id="e-pd1"></div>
-            <div class="pin-dot" id="e-pd2"></div>
-            <div class="pin-dot" id="e-pd3"></div>
-          </div>
-          <div class="pin-pad">
-            <button class="pin-key" onclick="ePinKey('1')">1</button>
-            <button class="pin-key" onclick="ePinKey('2')">2</button>
-            <button class="pin-key" onclick="ePinKey('3')">3</button>
-            <button class="pin-key" onclick="ePinKey('4')">4</button>
-            <button class="pin-key" onclick="ePinKey('5')">5</button>
-            <button class="pin-key" onclick="ePinKey('6')">6</button>
-            <button class="pin-key" onclick="ePinKey('7')">7</button>
-            <button class="pin-key" onclick="ePinKey('8')">8</button>
-            <button class="pin-key" onclick="ePinKey('9')">9</button>
-            <button class="pin-key clear" onclick="ePinClear()">ล้าง</button>
-            <button class="pin-key" onclick="ePinKey('0')">0</button>
-            <button class="pin-key del" onclick="ePinDel()">⌫</button>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+            <div>
+              <label style="font-size:10px;color:var(--t3);display:block;margin-bottom:3px">รหัส PIN เดิม</label>
+              <input type="password" id="e-pin-old" inputmode="numeric" maxlength="4" placeholder="••••"
+                style="width:100%;font-family:var(--mono);font-size:18px;letter-spacing:8px;text-align:center;padding:8px;border-radius:8px;border:1px solid var(--b1);background:var(--s3);color:var(--text)"
+                oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,4)">
+            </div>
+            <div>
+              <label style="font-size:10px;color:var(--t3);display:block;margin-bottom:3px">รหัส PIN ใหม่</label>
+              <input type="password" id="e-pin-new" inputmode="numeric" maxlength="4" placeholder="••••"
+                style="width:100%;font-family:var(--mono);font-size:18px;letter-spacing:8px;text-align:center;padding:8px;border-radius:8px;border:1px solid var(--b1);background:var(--s3);color:var(--text)"
+                oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,4)">
+            </div>
+            <div>
+              <label style="font-size:10px;color:var(--t3);display:block;margin-bottom:3px">ยืนยันรหัส PIN ใหม่</label>
+              <input type="password" id="e-pin-confirm" inputmode="numeric" maxlength="4" placeholder="••••"
+                style="width:100%;font-family:var(--mono);font-size:18px;letter-spacing:8px;text-align:center;padding:8px;border-radius:8px;border:1px solid var(--b1);background:var(--s3);color:var(--text)"
+                oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,4)">
+            </div>
+            <button class="sig-btn primary" style="margin-top:4px" onclick="changePin()">🔒 เปลี่ยน PIN</button>
           </div>
         </div>
         <!-- Signature -->
@@ -312,7 +374,7 @@ const auth=getAuth(app);
 
 let employees=[];
 let selectedEmpId=null;
-let nPin='',ePin='';
+let nPin='';
 let nSigData=null,eSigData=null;
 
 // ── TOAST ────────────────────────────────────────────────────
@@ -381,7 +443,8 @@ window.selectEmp=function(id){
   document.getElementById('e-pos').value=e.position||'operator';
   document.getElementById('e-dept').value=e.department||'';
   // sig
-  ePin='';updateEPinDots();
+  ['e-pin-old','e-pin-new','e-pin-confirm'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('e-pin-status').textContent='';
   eSigData=null;
   if(e.signature){
     document.getElementById('e-existing-sig').style.display='block';
@@ -416,18 +479,42 @@ function updateNPinDots(){
   if(s)s.textContent=nPin.length===4?'✅ พร้อม':nPin.length+'/4';
 }
 
-// ── PIN LOGIC (EDIT) ─────────────────────────────────────────
-window.ePinKey=function(k){if(ePin.length>=4)return;ePin+=k;updateEPinDots();};
-window.ePinDel=function(){ePin=ePin.slice(0,-1);updateEPinDots();};
-window.ePinClear=function(){ePin='';updateEPinDots();};
-function updateEPinDots(){
-  for(let i=0;i<4;i++){
-    const d=document.getElementById('e-pd'+i);
-    if(d){d.classList.toggle('filled',i<ePin.length);}
+// ── PIN CHANGE (old + new + confirm) — แบบเปลี่ยนรหัสผ่านคอม ──
+window.changePin=async()=>{
+  if(!selectedEmpId){toast('เลือกพนักงานก่อน','red');return;}
+  const e=employees.find(x=>x.id===selectedEmpId);
+  if(!e){toast('ไม่พบข้อมูลพนักงาน','red');return;}
+  const oldPin=document.getElementById('e-pin-old').value;
+  const newPin=document.getElementById('e-pin-new').value;
+  const confirmPin=document.getElementById('e-pin-confirm').value;
+  const statusEl=document.getElementById('e-pin-status');
+
+  if(!e.pin_hash){
+    // กรณีพนักงานยังไม่เคยตั้ง PIN เลย — ข้ามการตรวจรหัสเก่า
+  } else {
+    if(oldPin.length!==4){statusEl.textContent='❌ กรอกรหัสเดิมให้ครบ 4 หลัก';statusEl.style.color='var(--red)';return;}
+    const oldHash=await hashPin(oldPin);
+    if(oldHash!==e.pin_hash){statusEl.textContent='❌ รหัส PIN เดิมไม่ถูกต้อง';statusEl.style.color='var(--red)';return;}
   }
-  const s=document.getElementById('e-pin-status');
-  if(s)s.textContent=ePin.length===4?'✅ พร้อม':ePin.length===0?'ว่าง':ePin.length+'/4';
-}
+  if(newPin.length!==4){statusEl.textContent='❌ กรอกรหัสใหม่ให้ครบ 4 หลัก';statusEl.style.color='var(--red)';return;}
+  if(newPin!==confirmPin){statusEl.textContent='❌ ยืนยันรหัสใหม่ไม่ตรงกัน';statusEl.style.color='var(--red)';return;}
+  if(e.pin_hash && newPin===oldPin){statusEl.textContent='⚠️ รหัสใหม่ต้องไม่ซ้ำรหัสเดิม';statusEl.style.color='var(--yellow)';return;}
+
+  try{
+    await updateDoc(doc(db,'employees',selectedEmpId),{
+      pin_hash:await hashPin(newPin),
+      pin:null, // ล้าง field PIN แบบข้อความธรรมดาเก่าทิ้งด้วยเสมอ กัน fallback ค่าเก่าค้าง
+      updated_at:new Date().toISOString(),
+    });
+    statusEl.textContent='✅ เปลี่ยน PIN สำเร็จ';statusEl.style.color='var(--green)';
+    toast('🔒 เปลี่ยน PIN แล้ว','green');
+    ['e-pin-old','e-pin-new','e-pin-confirm'].forEach(id=>{document.getElementById(id).value='';});
+    e.pin_hash=await hashPin(newPin); // sync local cache ทันที กันกดเปลี่ยนซ้ำด้วยรหัสเดิมผิดพลาด
+    await logAction('change_pin',`เปลี่ยน PIN ของ ${e.name}`);
+  }catch(err){
+    statusEl.textContent='❌ บันทึกไม่สำเร็จ: '+err.message;statusEl.style.color='var(--red)';
+  }
+};
 
 // ── SIGNATURE PAD ─────────────────────────────────────────────
 class SigPad {
@@ -568,7 +655,6 @@ window.saveEdit=async()=>{
     department:document.getElementById('e-dept').value.trim(),
     updated_at:new Date().toISOString(),
   };
-  if(ePin.length===4) upd.pin_hash=await hashPin(ePin);
   if(eSigData) upd.signature=eSigData;
   await updateDoc(doc(db,'employees',selectedEmpId),upd);
   toast('💾 บันทึกแล้ว','green');
