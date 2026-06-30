@@ -889,6 +889,23 @@ window._stampMixStart=async function(pcol,rid,m){
   try{await updateDoc(doc(db,pcol,rid),upd);toast('▶ Start ผสม '+n,'green');}
   catch(e){toast('❌ '+e.message,'red');}
 };
+// ── เซ็นชื่อผู้ผสม (ตอน "ผสมเสร็จ") — เดิมปุ่มนี้เรียก stampSig() แต่ฟังก์ชันไม่เคยถูกสร้าง
+// กดแล้วไม่มีอะไรเกิดขึ้นเลย ตอนนี้สร้างให้ครบตามแพทเทิร์นเดียวกับลายเซ็นอื่นในไฟล์นี้
+// (ดึงลายเซ็นจาก sessionStorage ที่บันทึกไว้ตอน login ทันที ไม่ต้องเปิดป๊อปอัพวาดใหม่)
+window.stampSig=async function(pcol,rid,field,m){
+  const sig=sessionStorage.getItem('emp_sig')||'';
+  const name=sessionStorage.getItem('emp_name')||'';
+  if(!sig){toast('ไม่พบลายเซ็น กรุณา login ใหม่','red');return;}
+  try{
+    await updateDoc(doc(db,pcol,rid),{
+      [field]:sig,
+      mix_by:name,
+      mix_sig_time:nowHMS(),
+      updated_at:new Date().toISOString()
+    });
+    toast('✅ บันทึกลายเซ็นผู้ผสมแล้ว','green');
+  }catch(e){toast('❌ '+e.message,'red');}
+};
 window._saveIngr=async function(pcol,rid,field,val){
   if(!val||+val<=0){toast('กรุณากรอกค่า Actual','red');return;}
   try{
