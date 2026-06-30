@@ -1137,7 +1137,7 @@ function calcVol(row){
 
       <!-- แถว 1: ถัง + FREEZER ใหญ่เท่ากัน เคียงข้าง + PUMP/LINE เป็นจุดเชื่อมเล็ก -->
       <div style="padding:12px 24px;background:${isRunning?col+'0d':'#fff'};border-bottom:1.5px solid ${isRunning?col:'#e2e8f0'};transition:all .3s${isRunning?';box-shadow:inset 0 0 0 2px '+col+'44':''}">
-      <div style="display:flex;align-items:flex-start;justify-content:flex-start;gap:1.2vw;flex-wrap:nowrap;width:100%;margin:0 auto">
+      <div style="display:flex;align-items:flex-start;justify-content:flex-start;gap:0;flex-wrap:nowrap;width:100%;margin:0 auto">
         <!-- ถังปัจจุบัน — ชิดซ้ายสุด, label สูงคงที่ 32px เหนือรูป 200px -->
         <div style="flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:2px;position:relative;z-index:1">
           <div style="height:32px;display:flex;align-items:center;justify-content:center">
@@ -1181,7 +1181,7 @@ function calcVol(row){
 
         <!-- ท่อเชื่อม: ถัง → PUMP -->
         <div style="flex:0.3 1 0;min-width:16px;height:clamp(120px,14vw,200px);margin-top:32px;position:relative">
-          <div style="position:absolute;left:-1.2vw;right:-1.2vw;top:100px;height:9px;border-radius:5px;overflow:hidden;background:${isRunning?'linear-gradient(180deg,#bae6fd 0%,#0ea5e9 45%,#0369a1 100%)':'linear-gradient(180deg,#f8fafc 0%,#e2e8f0 45%,#cbd5e1 100%)'};box-shadow:0 1px 3px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.5);transition:all .3s">
+          <div style="position:absolute;left:0;right:0;top:100px;height:9px;border-radius:5px;overflow:hidden;background:${isRunning?'linear-gradient(180deg,#bae6fd 0%,#0ea5e9 45%,#0369a1 100%)':'linear-gradient(180deg,#f8fafc 0%,#e2e8f0 45%,#cbd5e1 100%)'};box-shadow:0 1px 3px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.5);transition:all .3s">
             ${isRunning?'<div style="position:absolute;top:0;bottom:0;width:60%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.75),transparent);animation:flowShine 1.6s linear infinite"></div>':''}
           </div>
         </div>
@@ -1198,7 +1198,7 @@ function calcVol(row){
 
         <!-- ท่อเชื่อม: PUMP → FREEZER -->
         <div style="flex:0.3 1 0;min-width:16px;height:clamp(120px,14vw,200px);margin-top:32px;position:relative">
-          <div style="position:absolute;left:-1.2vw;right:-1.2vw;top:100px;height:9px;border-radius:5px;overflow:hidden;background:${isRunning?'linear-gradient(180deg,#bae6fd 0%,#0ea5e9 45%,#0369a1 100%)':'linear-gradient(180deg,#f8fafc 0%,#e2e8f0 45%,#cbd5e1 100%)'};box-shadow:0 1px 3px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.5);transition:all .3s">
+          <div style="position:absolute;left:0;right:0;top:100px;height:9px;border-radius:5px;overflow:hidden;background:${isRunning?'linear-gradient(180deg,#bae6fd 0%,#0ea5e9 45%,#0369a1 100%)':'linear-gradient(180deg,#f8fafc 0%,#e2e8f0 45%,#cbd5e1 100%)'};box-shadow:0 1px 3px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.5);transition:all .3s">
             ${isRunning?'<div style="position:absolute;top:0;bottom:0;width:60%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.75),transparent);animation:flowShine 1.6s linear infinite"></div>':''}
           </div>
         </div>
@@ -1220,7 +1220,7 @@ function calcVol(row){
 
         <!-- ท่อเชื่อม: FREEZER → LINE -->
         <div style="flex:0.3 1 0;min-width:16px;height:clamp(120px,14vw,200px);margin-top:32px;position:relative">
-          <div style="position:absolute;left:-1.2vw;right:-1.2vw;top:100px;height:9px;border-radius:5px;overflow:hidden;background:${isRunning?'linear-gradient(180deg,#bae6fd 0%,#0ea5e9 45%,#0369a1 100%)':'linear-gradient(180deg,#f8fafc 0%,#e2e8f0 45%,#cbd5e1 100%)'};box-shadow:0 1px 3px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.5);transition:all .3s">
+          <div style="position:absolute;left:0;right:0;top:100px;height:9px;border-radius:5px;overflow:hidden;background:${isRunning?'linear-gradient(180deg,#bae6fd 0%,#0ea5e9 45%,#0369a1 100%)':'linear-gradient(180deg,#f8fafc 0%,#e2e8f0 45%,#cbd5e1 100%)'};box-shadow:0 1px 3px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.5);transition:all .3s">
             ${isRunning?'<div style="position:absolute;top:0;bottom:0;width:60%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.75),transparent);animation:flowShine 1.6s linear infinite"></div>':''}
           </div>
         </div>
