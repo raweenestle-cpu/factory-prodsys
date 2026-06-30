@@ -600,6 +600,8 @@ async function _doActReal(tid, act, programs){
     core.prod_code='';
     core.past_end_time='';
     core.past_end_date='';
+    core.qc_status='';
+    core.qc_passed=false;
   }
 
   const _tsNow = tankStates[tid]||{};

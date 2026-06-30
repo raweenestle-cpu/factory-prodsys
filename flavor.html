@@ -416,7 +416,7 @@ tbody tr:hover td{background:rgba(240,180,41,.06)!important}
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import{getAuth,signOut,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import{getFirestore,collection,query,where,onSnapshot,updateDoc,addDoc,getDocs,doc,getDoc}
+import{getFirestore,collection,query,where,onSnapshot,updateDoc,addDoc,getDocs,doc,getDoc,setDoc}
   from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const app=initializeApp({apiKey:"AIzaSyC3f6jMuhugE6BNfRfkpOA9BMrIKWR9YgQ",authDomain:"production-filling.firebaseapp.com",projectId:"production-filling",storageBucket:"production-filling.firebasestorage.app",messagingSenderId:"89098393458",appId:"1:89098393458:web:b723f2886e8a341935afeb"});
@@ -1099,6 +1099,22 @@ window.saveQcModal=async()=>{
   try{
     await updateDoc(doc(db,col,id),upd);
     toast('บันทึกผลการวิเคราะห์แล้ว','green');
+
+    // ── sync สถานะ QC ไปที่ aging_tank_states ให้ขึ้นบนการ์ดถัง aging.html ──
+    if(row.aging_tank){
+      const _mergedRow={...row,...upd};
+      const _prod=productMap[row.mix_code]||{};
+      const _passed=isQcPassed(_mergedRow,_prod);
+      const _qcStatus=_passed?'passed':(upd.qc_sensory==='Release'?'release_only':'');
+      try{
+        await setDoc(doc(db,'aging_tank_states',row.aging_tank),{
+          qc_status:_qcStatus,
+          qc_passed:_passed,
+          updated_at:new Date().toISOString()
+        },{merge:true});
+      }catch(e2){console.warn('aging_tank_states QC sync error:',e2);}
+    }
+
     closeQcModal();
   }catch(e){toast('บันทึกไม่สำเร็จ: '+e.message,'red');}
 };
