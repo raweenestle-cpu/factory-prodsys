@@ -260,7 +260,7 @@ tbody tr.row-wait td{background:#fffaeb!important}
   <!-- DATE HEADER -->
   <div class="date-header">
     <div class="date-header-label">📅 วันที่ผลิต</div>
-    <input type="date" id="date-p1" class="date-input-lg" style="color-scheme:light" onchange="loadPlan('p1')">
+    <input type="date" id="date-p1" class="date-input-lg" style="color-scheme:light" onchange="loadPlan('p1')" onclick="this.showPicker&&this.showPicker()">
     <div class="date-day-label" id="day-label-p1"></div>
   </div>
   <!-- TANK VISUAL + CHART -->
@@ -315,7 +315,7 @@ tbody tr.row-wait td{background:#fffaeb!important}
   </div>
   <div class="date-header">
     <div class="date-header-label">📅 วันที่ผลิต</div>
-    <input type="date" id="date-p2" class="date-input-lg" style="color-scheme:light" onchange="loadPlan('p2')">
+    <input type="date" id="date-p2" class="date-input-lg" style="color-scheme:light" onchange="loadPlan('p2')" onclick="this.showPicker&&this.showPicker()">
     <div class="date-day-label" id="day-label-p2"></div>
   </div>
   <div style="margin:0 20px 14px"><div class="tank-visual-wrap"><div class="tank-row" id="tank-visual-p2"></div></div></div>

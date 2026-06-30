@@ -234,7 +234,7 @@ tbody tr:hover td{background:rgba(240,180,41,.06)!important}
   <div style="height:3px;background:linear-gradient(90deg,var(--pink3),var(--pink),var(--lilac));border-radius:0 0 4px 4px;margin:-14px -16px 16px;opacity:.7"></div>
   <div style="margin-bottom:6px;font-family:var(--mono);font-size:14px;font-weight:700;background:linear-gradient(135deg,var(--pink),var(--lilac));-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-transform:uppercase;letter-spacing:.1em">Mixing 1</div>
   <div class="toolbar">
-    <input type="date" id="date-m1" class="ci" style="width:140px" onchange="loadPlan('m1')">
+    <input type="date" id="date-m1" class="ci" style="width:140px" onchange="loadPlan('m1')" onclick="this.showPicker&&this.showPicker()">
     <button class="btn" onclick="changeDate('m1',-1)">◀</button>
     <button class="btn" onclick="changeDate('m1',1)">▶</button>
     <button class="btn" onclick="goToday('m1')">วันนี้</button>
@@ -278,7 +278,7 @@ tbody tr:hover td{background:rgba(240,180,41,.06)!important}
   <div style="height:3px;background:linear-gradient(90deg,var(--lilac),var(--rose),var(--pink3));border-radius:0 0 4px 4px;margin:-14px -16px 16px;opacity:.7"></div>
   <div style="margin-bottom:6px;font-family:var(--mono);font-size:14px;font-weight:700;background:linear-gradient(135deg,var(--lilac),var(--rose));-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-transform:uppercase;letter-spacing:.1em">Mixing 2</div>
   <div class="toolbar">
-    <input type="date" id="date-m2" class="ci" style="width:140px" onchange="loadPlan('m2')">
+    <input type="date" id="date-m2" class="ci" style="width:140px" onchange="loadPlan('m2')" onclick="this.showPicker&&this.showPicker()">
     <button class="btn" onclick="changeDate('m2',-1)">◀</button>
     <button class="btn" onclick="changeDate('m2',1)">▶</button>
     <button class="btn" onclick="goToday('m2')">วันนี้</button>
@@ -319,7 +319,7 @@ tbody tr:hover td{background:rgba(240,180,41,.06)!important}
 <!-- HISTORY PAGE -->
 <div class="page" id="page-history">
   <div class="toolbar">
-    <input type="date" id="hist-date" class="ci" style="width:140px" onchange="loadHistory()">
+    <input type="date" id="hist-date" class="ci" style="width:140px" onchange="loadHistory()" onclick="this.showPicker&&this.showPicker()">
     <button class="btn" onclick="goTodayHist()">วันนี้</button>
   </div>
   <div id="history-list"></div>
@@ -329,7 +329,7 @@ tbody tr:hover td{background:rgba(240,180,41,.06)!important}
 <div class="page" id="page-report">
   <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap">
     <span style="font-family:var(--mono);font-size:13px;color:var(--t3)">DATE</span>
-    <input type="date" id="report-date" class="ci" style="width:140px" onchange="loadReport()">
+    <input type="date" id="report-date" class="ci" style="width:140px" onchange="loadReport()" onclick="this.showPicker&&this.showPicker()">
     <button class="btn" onclick="goTodayReport()">วันนี้</button>
     <span style="font-family:var(--mono);font-size:13px;padding:3px 10px;border-radius:5px;background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.3)">🔐 Admin Only</span>
   </div>

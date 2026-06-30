@@ -327,7 +327,7 @@ table{background:#ffffff!important}
 <nav style="flex-wrap:wrap;gap:6px;padding:6px 14px;min-height:44px">
   <div class="nav-logo">CIP MIXING</div>
   <button onclick="window._openDash()" class="nbtn" style="font-size:12px;padding:6px 14px;font-weight:800;background:#1e3a5f;border-color:#3b82f6;color:#93c5fd">📊 Dashboard</button>
-  <input type="date" class="date-input" id="inp-date" style="font-size:11px;padding:4px 8px" onchange="loadAll()">
+  <input type="date" class="date-input" id="inp-date" style="font-size:11px;padding:4px 8px" onchange="loadAll()" onclick="this.showPicker&&this.showPicker()">
   <button class="load-btn" onclick="loadAll()" style="padding:5px 12px;font-size:11px">🔄</button>
   <span id="emp-name" style="font-family:var(--mono);font-size:11px;color:var(--t2)"></span>
   <div id="temp-alert-bar" style="flex:1;min-width:0"></div>
