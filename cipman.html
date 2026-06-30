@@ -1181,7 +1181,7 @@ function calcVol(row){
 
         <!-- เส้นเชื่อม + PUMP — เริ่ม top:32px (เท่า label height) แล้วกึ่งกลางรูป 200px คือ 32+100=132px -->
         <div style="flex:0.6 1 0;min-width:40px;max-width:140px;height:clamp(120px,14vw,200px);position:relative;margin-top:32px">
-          <div style="position:absolute;left:0;right:0;top:100px;height:5px;border-radius:3px;overflow:hidden;background:${isRunning?'#0ea5e9':'#e2e8f0'};transition:all .3s;z-index:0">${isRunning?'<div style="position:absolute;inset:0;background:linear-gradient(90deg,transparent,#5eead4,transparent);animation:flowShine 1.1s linear infinite"></div>':''}</div>
+          <div style="position:absolute;left:-1.2vw;right:-1.2vw;top:100px;height:5px;border-radius:3px;overflow:hidden;background:${isRunning?'#0ea5e9':'#e2e8f0'};transition:all .3s;z-index:0">${isRunning?'<div style="position:absolute;inset:0;background:linear-gradient(90deg,transparent,#5eead4,transparent);animation:flowShine 1.1s linear infinite"></div>':''}</div>
           <div style="position:absolute;left:50%;top:100px;transform:translate(-50%,-50%);width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;z-index:1;transition:all .3s;${isRunning?'border:2.5px solid #2563eb;background:#dbeafe;animation:pumpSpin .8s linear infinite,cipPumpPulse 1.2s ease-in-out infinite':'border:2px solid #b0bac8;background:#f1f5f9'}">
             <span style="font-size:26px">⚙️</span>
             ${isRunning?'<div style="position:absolute;bottom:-2px;right:-2px;width:14px;height:14px;border-radius:50%;background:#2563eb;border:2px solid #fff;display:flex;align-items:center;justify-content:center"><div style="width:5px;height:5px;border-radius:50%;background:#fff;animation:blink .6s ease-in-out infinite"></div></div>':''}
@@ -1207,7 +1207,7 @@ function calcVol(row){
 
         <!-- เส้นเชื่อม LINE — เริ่ม top:32px เหมือนกัน กึ่งกลางตรงกับรูป 200px ของ FREEZER/MACHINE -->
         <div style="flex:0.6 1 0;min-width:40px;max-width:140px;height:clamp(120px,14vw,200px);position:relative;margin-top:32px">
-          <div style="position:absolute;left:0;right:0;top:100px;height:5px;border-radius:3px;overflow:hidden;background:${isRunning?'#0ea5e9':'#e2e8f0'};transition:all .3s">${isRunning?'<div style="position:absolute;inset:0;background:linear-gradient(90deg,transparent,#5eead4,transparent);animation:flowShine 1.1s linear infinite"></div>':''}</div>
+          <div style="position:absolute;left:-1.2vw;right:-1.2vw;top:100px;height:5px;border-radius:3px;overflow:hidden;background:${isRunning?'#0ea5e9':'#e2e8f0'};transition:all .3s">${isRunning?'<div style="position:absolute;inset:0;background:linear-gradient(90deg,transparent,#5eead4,transparent);animation:flowShine 1.1s linear infinite"></div>':''}</div>
         </div>
 
         <!-- LINE machine + belt — ชิดขวาสุด, ชื่อ Line สูงคงที่ 32px เหมือนกันทุก section -->
