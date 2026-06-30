@@ -1842,7 +1842,9 @@ window.stampTime=async(col,id,field,p)=>{
     if(field==="past_start_time"&&_rowForAging?.aging_tank){
       try{
         await setDoc(doc(db,'aging_tank_states',_rowForAging.aging_tank),{
-          date:_rowForAging.date||today(),
+          // ── ใช้วันที่จริงตอนกด Stamp เสมอ (ไม่ใช่วันที่แผนของ Leadman) ──
+          // เพื่อให้การคำนวณเวลา/วันหมดอายุถูกต้องตามวันที่ผลิตจริง ไม่ใช่วันที่ตั้งใจไว้แต่แรก
+          date:today(),
           past_start_time:now,past_end_time:null,
           prod_suffix:_rowForAging.prod_suffix||'',_col:col,
           status:'pasteurising',updated_at:new Date().toISOString()
@@ -1852,7 +1854,8 @@ window.stampTime=async(col,id,field,p)=>{
     if(field==="past_end_time"&&_rowForAging?.aging_tank){
       try{
         await setDoc(doc(db,'aging_tank_states',_rowForAging.aging_tank),{
-          date:_rowForAging.date||today(),
+          // ── ใช้วันที่จริงตอนกด Stamp เสมอ เช่นเดียวกัน ──
+          date:today(),
           past_end_time:now,
           prod_suffix:_rowForAging.prod_suffix||'',_col:col,
           status:'aging',updated_at:new Date().toISOString()
@@ -1945,7 +1948,7 @@ window.editTimePrompt=async(col,id,field,current)=>{
     if(_row?.aging_tank){
       const _agUpd={updated_at:new Date().toISOString()};
       if(field==="past_start_time"){_agUpd.past_start_time=clean;_agUpd.status="pasteurising";}
-      if(field==="past_end_time"){_agUpd.past_end_time=clean;_agUpd.date=_row.date||today();_agUpd.status="aging";}
+      if(field==="past_end_time"){_agUpd.past_end_time=clean;_agUpd.date=today();_agUpd.status="aging";}
       await setDoc(doc(db,'aging_tank_states',_row.aging_tank),_agUpd,{merge:true});
     }
   }catch(e2){console.warn('aging_tank_states sync error (editTimePrompt):',e2);}
