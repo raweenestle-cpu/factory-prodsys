@@ -1105,7 +1105,12 @@ window.saveQcModal=async()=>{
       const _mergedRow={...row,...upd};
       const _prod=productMap[row.mix_code]||{};
       const _passed=isQcPassed(_mergedRow,_prod);
-      const _qcStatus=upd.qc_sensory==='Release'?'release_only':(_passed?'passed':'');
+      // โชว์สถานะตามที่เลือกใน Sensory ตรงๆ ทุกตัวเลือก (Release/Hold/Failed)
+      const _qcStatus=
+        upd.qc_sensory==='Release' ? 'release' :
+        upd.qc_sensory==='Hold'    ? 'hold' :
+        upd.qc_sensory==='Failed'  ? 'failed' :
+        (_passed?'passed':'');
       try{
         await setDoc(doc(db,'aging_tank_states',row.aging_tank),{
           qc_status:_qcStatus,
