@@ -602,10 +602,14 @@ setInterval(async()=>{
           current_vol:_newCombined,
           mix_code:agRow.mix_code||'',mix_name:agRow.mix_name||'',
           batch_no:agRow.batch_no||'',product_code:agRow.product_code||'',
-          prod_suffix:agRow.prod_suffix||'',date:agRow.date||'',
-          past_start_time:agRow.past_start_time||'',past_end_time:agRow.past_end_time||'',
+          prod_suffix:agRow.prod_suffix||'',
+          // ── ไม่เขียน date/past_start_time/past_end_time จากที่นี่อีกแล้ว ──
+          // field พวกนี้เป็นของ stampTime()/editTimePrompt() เท่านั้น เพราะ loop นี้รันบน
+          // timer โดยใช้ window._rows[p] ที่อาจเป็นข้อมูลค้าง (ก่อน onSnapshot รีเฟรชทัน)
+          // ถ้าเขียนทับ ตอนกด "Past เสร็จ" ไปแล้ว loop รอบถัดมาอาจ overwrite past_end_time
+          // กลับเป็นค่าว่างจาก cache เก่า ทำให้ aging.html คำนวณวันหมดอายุไม่ได้เงียบๆ
           volume_liter:agRow.volume_liter||0,process_order:agRow.process_order||'',
-          status:agRow.status||'',updated_at:new Date().toISOString()
+          updated_at:new Date().toISOString()
         },{merge:true});}catch(e){console.warn('aging write error:',e);}
       }
 
