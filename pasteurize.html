@@ -549,7 +549,20 @@ setInterval(async()=>{
       if(!agRow.date&&start.getTime()>Date.now()){
         start.setDate(start.getDate()-1);
       }
-      const elapsedSec2=Math.max(0,(Date.now()-start)/1000);
+      let elapsedSec2=Math.max(0,(Date.now()-start)/1000);
+      // FIX: ถ้า agRow.date "มีค่า" แต่ "ผิด" (เช่น ค้างเป็นเมื่อวานทั้งที่จริงคือวันนี้) — elapsed จะคำนวณ
+      // ออกมาใหญ่ผิดปกติ (เกือบ 24 ชม.) ทันทีที่กด เริ่ม Past. ทำให้ agVol ถูก clamp เป็นเต็ม 100% ทันที
+      // ป้องกันด้วยการเช็ค: ถ้า elapsed ที่ได้มากกว่าเวลาที่ควรใช้จริง (totalMin) แบบสุดโต่งเกินสมเหตุสมผล
+      // (เกิน 3 เท่าของเวลาที่ใช้จริง หรือเกิน 6 ชม. ไปเลย) ให้สงสัยว่า date ผิด → fallback ใช้ today() แทน
+      const _totalMinChk=(totalVol*density*60)/speed;
+      if(agRow.date && elapsedSec2/60 > Math.max(_totalMinChk*3, 360)){
+        const _startRetry=new Date(today()+'T'+String(h).padStart(2,'0')+':'+String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0'));
+        const _elapsedRetry=Math.max(0,(Date.now()-_startRetry)/1000);
+        if(_elapsedRetry/60 <= Math.max(_totalMinChk*3, 360)){
+          console.warn('[Pasteurize] agRow.date ผิด (',agRow.date,') ของถัง',agRow.mix_code,'— ใช้ today() แทนชั่วคราว กัน progress กระโดดเต็มทันที');
+          elapsedSec2=_elapsedRetry;
+        }
+      }
       const elapsedMin=elapsedSec2/60;
       const agVol=totalMin>0?Math.min(totalVol,(elapsedMin/totalMin)*totalVol):0;
 
