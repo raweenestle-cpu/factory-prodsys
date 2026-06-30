@@ -1180,8 +1180,10 @@ function calcVol(row){
         `:''}
 
         <!-- ท่อเชื่อม: ถัง → PUMP -->
-        <div style="flex:0.3 1 0;min-width:16px;height:9px;align-self:center;margin-top:100px;border-radius:5px;overflow:hidden;position:relative;background:${isRunning?'linear-gradient(180deg,#bae6fd 0%,#0ea5e9 45%,#0369a1 100%)':'linear-gradient(180deg,#f8fafc 0%,#e2e8f0 45%,#cbd5e1 100%)'};box-shadow:0 1px 3px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.5);transition:all .3s">
-          ${isRunning?'<div style="position:absolute;top:0;bottom:0;width:60%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.75),transparent);animation:flowShine 1.6s linear infinite"></div>':''}
+        <div style="flex:0.3 1 0;min-width:16px;height:clamp(120px,14vw,200px);margin-top:32px;position:relative">
+          <div style="position:absolute;left:-1.2vw;right:-1.2vw;top:100px;height:9px;border-radius:5px;overflow:hidden;background:${isRunning?'linear-gradient(180deg,#bae6fd 0%,#0ea5e9 45%,#0369a1 100%)':'linear-gradient(180deg,#f8fafc 0%,#e2e8f0 45%,#cbd5e1 100%)'};box-shadow:0 1px 3px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.5);transition:all .3s">
+            ${isRunning?'<div style="position:absolute;top:0;bottom:0;width:60%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.75),transparent);animation:flowShine 1.6s linear infinite"></div>':''}
+          </div>
         </div>
 
         <!-- PUMP — เริ่ม top:32px (เท่า label height) แล้วกึ่งกลางรูป 200px คือ 32+100=132px -->
@@ -1195,8 +1197,10 @@ function calcVol(row){
         </div>
 
         <!-- ท่อเชื่อม: PUMP → FREEZER -->
-        <div style="flex:0.3 1 0;min-width:16px;height:9px;align-self:center;margin-top:100px;border-radius:5px;overflow:hidden;position:relative;background:${isRunning?'linear-gradient(180deg,#bae6fd 0%,#0ea5e9 45%,#0369a1 100%)':'linear-gradient(180deg,#f8fafc 0%,#e2e8f0 45%,#cbd5e1 100%)'};box-shadow:0 1px 3px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.5);transition:all .3s">
-          ${isRunning?'<div style="position:absolute;top:0;bottom:0;width:60%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.75),transparent);animation:flowShine 1.6s linear infinite"></div>':''}
+        <div style="flex:0.3 1 0;min-width:16px;height:clamp(120px,14vw,200px);margin-top:32px;position:relative">
+          <div style="position:absolute;left:-1.2vw;right:-1.2vw;top:100px;height:9px;border-radius:5px;overflow:hidden;background:${isRunning?'linear-gradient(180deg,#bae6fd 0%,#0ea5e9 45%,#0369a1 100%)':'linear-gradient(180deg,#f8fafc 0%,#e2e8f0 45%,#cbd5e1 100%)'};box-shadow:0 1px 3px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.5);transition:all .3s">
+            ${isRunning?'<div style="position:absolute;top:0;bottom:0;width:60%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.75),transparent);animation:flowShine 1.6s linear infinite"></div>':''}
+          </div>
         </div>
 
         <!-- FREEZER — ใหญ่เท่าถัง เห็นเต็มตัว + ไอเย็นบางๆตอน running, label สูงคงที่ 32px เหมือนถัง -->
@@ -1215,8 +1219,10 @@ function calcVol(row){
         </div>
 
         <!-- ท่อเชื่อม: FREEZER → LINE -->
-        <div style="flex:0.3 1 0;min-width:16px;height:9px;align-self:center;margin-top:100px;border-radius:5px;overflow:hidden;position:relative;background:${isRunning?'linear-gradient(180deg,#bae6fd 0%,#0ea5e9 45%,#0369a1 100%)':'linear-gradient(180deg,#f8fafc 0%,#e2e8f0 45%,#cbd5e1 100%)'};box-shadow:0 1px 3px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.5);transition:all .3s">
-          ${isRunning?'<div style="position:absolute;top:0;bottom:0;width:60%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.75),transparent);animation:flowShine 1.6s linear infinite"></div>':''}
+        <div style="flex:0.3 1 0;min-width:16px;height:clamp(120px,14vw,200px);margin-top:32px;position:relative">
+          <div style="position:absolute;left:-1.2vw;right:-1.2vw;top:100px;height:9px;border-radius:5px;overflow:hidden;background:${isRunning?'linear-gradient(180deg,#bae6fd 0%,#0ea5e9 45%,#0369a1 100%)':'linear-gradient(180deg,#f8fafc 0%,#e2e8f0 45%,#cbd5e1 100%)'};box-shadow:0 1px 3px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.5);transition:all .3s">
+            ${isRunning?'<div style="position:absolute;top:0;bottom:0;width:60%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.75),transparent);animation:flowShine 1.6s linear infinite"></div>':''}
+          </div>
         </div>
 
         <!-- LINE machine + belt — ชิดขวาสุด, ชื่อ Line สูงคงที่ 32px เหมือนกันทุก section -->
