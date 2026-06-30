@@ -600,7 +600,7 @@ function makeTankCard(tankId){
   const _prodPrefix=yr+'0522'+(ts._col==='production_plans_m2'?'2':'1');
   const prodCode=ts.prod_code||(_prodPrefix+(ts.prod_suffix||'····'));
   const expHtml=expireBox(ts.expire_at||null);
-  const maxTempVal=getMaxTemp(ts);
+  const maxTempVal=getMaxTemp(ts) ?? (!isEmpty ? 4 : null);
   const uid='ag'+tankId.replace(/[^a-z0-9]/gi,'');
   const svgHtml=typeof tankSVG==='function'?tankSVG(uid,pct,col,!isEmpty,stLabel,stColor,null,null,currentVol,null,ts.qc_status):'';
 
