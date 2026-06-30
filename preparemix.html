@@ -698,6 +698,14 @@ window.stampTime=async(col,id,field,m)=>{
     } else {
       upd.status="pasteurising";
     }
+    // ── เซ็นชื่อผู้ผสมอัตโนมัติพร้อมกันเลย ไม่ต้องกดปุ่มปากกาแยกอีกขั้นตอน ──
+    const _sig=sessionStorage.getItem('emp_sig')||'';
+    const _sigName=sessionStorage.getItem('emp_name')||'';
+    if(_sig){
+      upd.mix_sig=_sig;
+      upd.mix_by=_sigName;
+      upd.mix_sig_time=now;
+    }
   }
 
   await updateDoc(doc(db,col,id),upd);
@@ -1125,7 +1133,7 @@ function renderMixTanks(m, rows){
     const st=row.status||'';
     const prepReady=(row.prep_status==='ready');
     const sig=row['sig_mix_start']
-      ?`<img src="${row.sig_mix_start}" style="height:32px;max-width:70px;object-fit:contain;border:1.5px solid #10b981;border-radius:8px" title="${row.sig_mix_start_name||''}">`
+      ?`<img src="${row.sig_mix_start}" style="height:32px;max-width:70px;object-fit:contain" title="${row.sig_mix_start_name||''}">`
       :'';
     let btns='';
     if(row.mix_start_time){
@@ -1317,7 +1325,7 @@ function renderPlan(m){
               <option value="not_ready" ${row.prep_status==="not_ready"?"selected":""}>❌ ยังไม่เสร็จ</option>
             </select>
             ${row.prep_sig
-              ?`<img src="${row.prep_sig}" style="height:24px;max-width:44px;object-fit:contain;border:1.5px solid #10b981;border-radius:5px;flex-shrink:0" title="${row.prep_sig_name||''}">`
+              ?`<img src="${row.prep_sig}" style="height:24px;max-width:44px;object-fit:contain;flex-shrink:0" title="${row.prep_sig_name||''}">`
               :row.prep_status==='ready'
                 ?`<button style="font-size:13px;padding:2px 6px;border-radius:6px;border:1.5px dashed #94a3b8;background:none;cursor:pointer;flex-shrink:0" onclick="window._stampPrepSig('${col}','${row.id}')">✍️</button>`
                 :''}
