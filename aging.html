@@ -266,17 +266,17 @@ function expireBox(expireAt){
   var isExp=rh<0;
   var isCrit=!isExp&&rh<24;
   var isWarn=!isExp&&rh<48;
-  var bc=isExp?'#b91c1c':isCrit?'#b91c1c':isWarn?'#c2410c':'#15803d';
-  var bg=isExp?'rgba(185,28,28,.12)':isCrit?'rgba(185,28,28,.08)':isWarn?'rgba(194,65,12,.08)':'rgba(21,128,61,.08)';
+  var bc=isExp?'#f87171':isCrit?'#f87171':isWarn?'#fb923c':'#34d399';
+  var bg=isExp?'#3a1212':isCrit?'#3a1212':isWarn?'#3a2410':'#0d2818';
   var ic=isExp?'❌':isCrit?'⚠️':isWarn?'🟡':'✅';
   var dateStr=ed.toLocaleDateString('th-TH',{weekday:'short',day:'2-digit',month:'short'});
   var timeStr=ed.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
   var rh2=Math.abs(rh);
   var remStr=isExp?'หมดอายุแล้ว':rh2<1?Math.round(rh2*60)+' นาที':rh2<24?rh2.toFixed(1)+' ชม.':Math.floor(rh2/24)+' วัน '+Math.round(rh2%24)+' ชม.';
-  return '<div style="background:'+bg+';border:2px solid '+bc+';border-radius:8px;padding:6px 10px;margin:6px 12px 0;font-family:DM Mono,monospace">'
-    +'<div style="font-size:10px;font-weight:800;color:'+bc+'">'+ic+' วันหมดอายุ</div>'
-    +'<div style="font-size:13px;font-weight:900;color:'+bc+';margin-top:2px">'+dateStr+' '+timeStr+'</div>'
-    +'<div style="font-size:10px;font-weight:700;color:'+bc+';opacity:.8;margin-top:1px">เหลือ '+remStr+'</div>'
+  return '<div style="background:'+bg+';border:2px solid '+bc+';border-radius:8px;padding:7px 11px;margin:6px 12px 0;font-family:DM Mono,monospace;box-shadow:0 2px 8px rgba(0,0,0,.3)">'
+    +'<div style="font-size:11px;font-weight:900;color:'+bc+'">'+ic+' วันหมดอายุ</div>'
+    +'<div style="font-size:15px;font-weight:900;color:#fff;margin-top:3px">'+dateStr+' '+timeStr+'</div>'
+    +'<div style="font-size:11px;font-weight:800;color:'+bc+';margin-top:2px">เหลือ '+remStr+'</div>'
     +'</div>';
 }
 function getMaxTemp(ts){
@@ -625,8 +625,7 @@ function makeTankCard(tankId){
     +'</div>';
 
 
-  const _debugLine='<div style="font-family:var(--mono);font-size:10px;color:#fbbf24;background:#1f1306;padding:4px 8px;border-top:1px dashed #b8860b;word-break:break-all">🔧 DEBUG: past_end='+(ts.past_end_time||'(ว่าง)')+' | date='+(ts.date||'(ว่าง)')+' | expire_at='+(ts.expire_at?'มีค่า':'(ว่าง)')+'</div>';
-  const footer=expHtml+_debugLine;
+  const footer=expHtml;
 
   div.innerHTML=header+footer;
   if(svgHtml){
