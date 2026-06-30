@@ -2442,6 +2442,20 @@ window.loadDashboard=async function(period){
 .dash-unit-split{display:flex;gap:8px;margin-top:10px}
 .dash-unit-block{flex:1;background:rgba(255,255,255,.03);border-radius:10px;padding:12px;text-align:center;border:1px solid rgba(255,255,255,.06)}
 .dash-live-dot{width:6px;height:6px;background:#4ade80;border-radius:50%;animation:dashPulse 1.2s ease-in-out infinite;display:inline-block;margin-right:6px}
+
+/* ── TABLET LANDSCAPE (iPad 10" แนวนอน ~901-1180px — ช่วงที่ breakpoint เดิม 900px ไม่ครอบคลุม) ── */
+@media(min-width:901px) and (max-width:1180px){
+  .kpi-row{grid-template-columns:repeat(3,1fr)}
+  .tank-section{gap:14px}
+  table{font-size:13px}
+  thead th{padding:9px 8px;font-size:11px}
+  .stamp-btn{min-height:42px;font-size:13px}
+}
+/* ── ปุ่ม/ช่องกรอกเวลา ขนาดสัมผัสนิ้วสบายตลอดช่วงแท็บเล็ต (769-1180px) ── */
+@media(min-width:769px) and (max-width:1180px){
+  .nav-tab{min-height:40px}
+  .ci{min-height:38px}
+}
 </style>
 <div class="dash-wrap">
   <!-- Header -->

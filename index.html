@@ -355,6 +355,24 @@ body{
   .menu-name{font-size:13px;}
 }
 
+/* ── TABLET RESPONSIVE (iPad 10" ทั้งแนวตั้ง/แนวนอน ~769-1180px) ── */
+@media(min-width:769px) and (max-width:1180px){
+  .topbar{padding:12px 20px;}
+  .logo-text{font-size:16px;}
+  #step3{padding:16px 24px 24px!important;}
+  .hero{padding:18px 22px;margin-bottom:14px;}
+  .hero-title{font-size:19px;}
+  .menu-grid{grid-template-columns:repeat(4,1fr)!important;gap:12px;}
+  .menu-btn{padding:16px 10px 12px;min-height:88px;}
+  .menu-icon{font-size:28px;margin-bottom:6px;}
+  .menu-name{font-size:14px;}
+  .menu-desc{font-size:11px;}
+  .group-label{font-size:16px;}
+}
+@media(min-width:769px) and (max-width:1180px) and (orientation:portrait){
+  .menu-grid{grid-template-columns:repeat(3,1fr)!important;}
+}
+
 /* PIN MODAL */
 .pin-key{
   background:var(--bg);border:1.5px solid var(--border);border-radius:12px;
