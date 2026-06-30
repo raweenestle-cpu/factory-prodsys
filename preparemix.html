@@ -739,6 +739,17 @@ window.editTime=async(col,id,field,current,m)=>{
       }
     }
     upd.status="pasteurising";
+    // ── เซ็นชื่อผู้ผสมอัตโนมัติด้วย เหมือนตอน stampTime — ถ้ายังไม่เคยมีลายเซ็นมาก่อน ──
+    // (ไม่ทับลายเซ็นเดิมถ้ามีอยู่แล้ว กันแก้เวลาทีหลังไปเปลี่ยนชื่อคนเซ็นโดยไม่ตั้งใจ)
+    if(!row?.mix_sig){
+      const _sig=sessionStorage.getItem('emp_sig')||'';
+      const _sigName=sessionStorage.getItem('emp_name')||'';
+      if(_sig){
+        upd.mix_sig=_sig;
+        upd.mix_by=_sigName;
+        upd.mix_sig_time=clean;
+      }
+    }
   }
   await updateDoc(doc(db,col,id),upd);
   toast("แก้ไขเวลาแล้ว","green");
