@@ -579,10 +579,11 @@ function makeTankCard(tankId){
   const pct=cap>0?Math.min(100,(currentVol/cap)*100):0;
   const pctC=pct>50?'#15803d':pct>20?'#b45309':'#b91c1c';
   const stMap={empty:'○ ว่าง',pending:'⏳ รอ',cip:'🧹 กำลัง CIP',cip_done:'🧼 CIP เสร็จ',san_done:'✨ พร้อม Past',pasteurising:'⏳ รอ Pasteurize',past_done:'✅ Past Done',aging:'🌡️ กำลังบ่ม',filling:'🔵 Filling',ready:'✅ พร้อม'};
-  const stColor=status==='empty'?'#6b7280':status==='cip'?'#7c3aed':status==='cip_done'?'#0891b2':status==='san_done'?'#059669':status==='pasteurising'?'#2563eb':status==='aging'?'#0e7490':status==='past_done'?'#15803d':status==='filling'?'#ea580c':'#374151';
+  const stColor=status==='empty'?'#6b7280':status==='pending'?'#94a3b8':status==='cip'?'#7c3aed':status==='cip_done'?'#0891b2':status==='san_done'?'#059669':status==='pasteurising'?'#2563eb':status==='aging'?'#0e7490':status==='past_done'?'#15803d':status==='filling'?'#ea580c':status==='ready'?'#22c55e':'#374151';
   const stLabel=stMap[status]||status;
   const yr=new Date().getFullYear().toString().slice(-2);
-  const prodCode=ts.prod_code||(ts.prod_suffix?(''+yr+'0522'+(ts._col==='production_plans_m2'?'2':'1')+ts.prod_suffix):null);
+  const _prodPrefix=yr+'0522'+(ts._col==='production_plans_m2'?'2':'1');
+  const prodCode=ts.prod_code||(_prodPrefix+(ts.prod_suffix||'····'));
   const expHtml=expireBox(ts.expire_at||null);
   const maxTempVal=getMaxTemp(ts);
   const uid='ag'+tankId.replace(/[^a-z0-9]/gi,'');
@@ -621,7 +622,7 @@ function makeTankCard(tankId){
       +(ts.batch_no?' <span style="color:#9fb0d1;font-weight:700">(Batch '+ts.batch_no+')</span>':'')
       +'</div>'
     ):'')
-    +(prodCode?('<div style="font-family:var(--mono);font-size:11px;color:#9fb0d1;margin-top:4px;font-weight:700">รหัสผลิต : <span style="color:#f8fafc">'+prodCode+'</span></div>'):'')
+    +((ts.mix_code||ts.prod_code)?('<div style="font-family:var(--mono);font-size:11px;color:#9fb0d1;margin-top:4px;font-weight:700">รหัสผลิต : <span style="color:#f8fafc">'+prodCode+'</span></div>'):'')
     +'</div>';
 
 
