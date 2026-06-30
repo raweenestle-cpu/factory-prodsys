@@ -330,7 +330,6 @@ table{background:#ffffff!important}
   <input type="date" class="date-input" id="inp-date" style="font-size:11px;padding:4px 8px" onchange="loadAll()" onclick="this.showPicker&&this.showPicker()">
   <button class="load-btn" onclick="loadAll()" style="padding:5px 12px;font-size:11px">🔄</button>
   <span id="emp-name" style="font-family:var(--mono);font-size:11px;color:var(--t2)"></span>
-  <div id="temp-alert-bar" style="flex:1;min-width:0"></div>
   <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">
     <button class="tab on" id="tab-m1" onclick="showTab('m1',this)" style="font-size:13px;padding:7px 16px;font-weight:900">🔴 Mixing 1</button>
     <button class="tab" id="tab-m2" onclick="showTab('m2',this)" style="font-size:13px;padding:7px 16px;font-weight:900">🔴 Mixing 2</button>
@@ -345,6 +344,7 @@ table{background:#ffffff!important}
     <button class="nbtn" onclick="doLogout()" style="font-size:12px;padding:6px 14px;font-weight:800">ออก</button>
   </div>
 </nav>
+<div id="temp-alert-bar" style="padding:0 14px"></div>
 <main style="padding:10px">
 <div class="page on" id="page-m1">
 
@@ -508,7 +508,7 @@ function renderTempAlert(){
         +'</div>';
     }).join('');
   }
-  el.innerHTML='<div style="background:#7f1d1d;border:2px solid #ef4444;border-radius:14px;padding:10px 14px;animation:cipTempPulse 3s ease-in-out infinite">'
+  el.innerHTML='<div style="background:#7f1d1d;border:2px solid #ef4444;border-radius:14px;padding:10px 14px;margin:10px 0;animation:cipTempPulse 3s ease-in-out infinite">'
     +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">'
     +'<span style="font-size:18px;animation:cipTempBlink 3s ease-in-out infinite">🚨</span>'
     +'<div style="color:#fca5a5;font-size:12px;font-weight:800">⚠️ เฝ้าระวัง — อุณหภูมิเกินกำหนด</div></div>'
