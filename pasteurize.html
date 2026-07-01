@@ -2477,6 +2477,17 @@ window.loadDashboard=async function(period){
   .nav-tab{min-height:40px}
   .ci{min-height:38px}
 }
+/* ── ROCKET ANIMATION ── */
+#rocket-wrap{position:fixed;pointer-events:none;z-index:9999;transition:none}
+.rocket-ship{font-size:28px;display:inline-block;filter:drop-shadow(0 0 8px rgba(255,160,40,.9)) drop-shadow(0 0 20px rgba(255,100,0,.6));transform-origin:center;transition:left .65s cubic-bezier(.4,0,.2,1),top .5s cubic-bezier(.4,0,.2,1)}
+.rocket-ship.idle{animation:rocketIdle .9s ease-in-out infinite alternate,rocketGlow 1.2s ease-in-out infinite alternate}
+.rocket-trail{position:absolute;right:100%;top:50%;transform:translateY(-50%);width:40px;height:6px;background:linear-gradient(90deg,transparent,rgba(255,140,0,.7),rgba(255,220,100,.9));border-radius:4px;opacity:0;transition:opacity .3s}
+.rocket-ship.flying .rocket-trail{opacity:1}
+.rocket-engine{position:absolute;right:-4px;top:50%;transform:translateY(-50%);width:8px;height:8px;border-radius:50%;background:radial-gradient(circle,#fff 0%,#ffb830 40%,rgba(255,80,0,.3) 100%);animation:enginePulse .4s ease-in-out infinite alternate}
+@keyframes rocketIdle{0%{transform:rotate(-5deg) translateY(-2px)}100%{transform:rotate(5deg) translateY(2px)}}
+@keyframes rocketGlow{0%{filter:drop-shadow(0 0 6px rgba(255,160,40,.8)) drop-shadow(0 0 14px rgba(255,80,0,.5))}100%{filter:drop-shadow(0 0 14px rgba(255,200,60,1)) drop-shadow(0 0 30px rgba(255,120,0,.9))}}
+@keyframes enginePulse{0%{width:8px;height:8px;opacity:.7}100%{width:14px;height:14px;opacity:1}}
+@keyframes rocketLaunch{0%{transform:rotate(0deg) scale(1)}20%{transform:rotate(-15deg) scale(1.2)}100%{transform:rotate(0deg) scale(1)}}
 </style>
 <div class="dash-wrap">
   <!-- Header -->
@@ -2604,6 +2615,58 @@ window.loadDashboard=async function(period){
     console.error('loadDashboard error:',e);
   }
 };
+</script>
+<!-- ── จรวดบินไปจอดรอที่ step ที่กำลัง active ── -->
+<div id="rocket-wrap" style="display:none">
+  <div class="rocket-ship" id="rocket-ship">
+    🚀
+    <div class="rocket-engine"></div>
+    <div class="rocket-trail"></div>
+  </div>
+</div>
+<script>
+(function(){
+  const wrap=document.getElementById('rocket-wrap');
+  const ship=document.getElementById('rocket-ship');
+  if(!wrap||!ship)return;
+  let _lastTarget=null;
+  function flyTo(el){
+    if(!el){wrap.style.display='none';return;}
+    const r=el.getBoundingClientRect();
+    const cx=r.left+r.width/2-16;
+    const cy=r.top+r.height/2-16;
+    wrap.style.display='block';
+    if(!_lastTarget){
+      wrap.style.left=cx+'px';wrap.style.top=cy+'px';
+      wrap.style.transition='none';
+      ship.classList.remove('flying');ship.classList.add('idle');
+      _lastTarget=el;return;
+    }
+    ship.classList.remove('idle');ship.classList.add('flying');
+    wrap.style.transition='left .65s cubic-bezier(.4,0,.2,1),top .5s cubic-bezier(.4,0,.2,1)';
+    ship.style.animation='rocketLaunch .3s ease-out forwards';
+    setTimeout(()=>{ship.style.animation='';wrap.style.left=cx+'px';wrap.style.top=cy+'px';},200);
+    setTimeout(()=>{ship.classList.remove('flying');ship.classList.add('idle');},900);
+    _lastTarget=el;
+  }
+  function findActiveStep(){
+    const cards=document.querySelectorAll('.tv3-card');
+    for(const card of cards){
+      const r=card.getBoundingClientRect();
+      if(r.top<window.innerHeight&&r.bottom>0){
+        const a=card.querySelector('.tv3-circle.active,.tv3-circle.pwr,.tv3-circle.nxt');
+        if(a) return a;
+      }
+    }
+    return null;
+  }
+  function tick(){
+    const t=findActiveStep();
+    if(t!==_lastTarget) flyTo(t);
+    requestAnimationFrame(tick);
+  }
+  setTimeout(()=>requestAnimationFrame(tick),1500);
+})();
 </script>
 </body>
 </html>
