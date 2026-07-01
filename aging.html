@@ -596,7 +596,7 @@ function makeTankCard(tankId){
   const stMap={empty:'○ ว่าง',pending:'⏳ รอ',cip:'🧹 กำลัง CIP',cip_done:'🧼 CIP เสร็จ',san_done:'✨ พร้อม Past',pasteurising:'⏳ รอ Pasteurize',past_done:'✅ Past Done',aging:'🌡️ กำลังบ่ม',filling:'🔵 Filling',ready:'✅ พร้อม'};
   const stColor=status==='empty'?'#6b7280':status==='pending'?'#94a3b8':status==='cip'?'#7c3aed':status==='cip_done'?'#0891b2':status==='san_done'?'#059669':status==='pasteurising'?'#2563eb':status==='aging'?'#0e7490':status==='past_done'?'#15803d':status==='filling'?'#ea580c':status==='ready'?'#22c55e':'#374151';
   const stLabel=stMap[status]||status;
-  const yr=new Date().getFullYear().toString().slice(-2);
+  const yr=new Date().getFullYear().toString().slice(-1);
   const _prodPrefix=yr+'0522'+(ts._col==='production_plans_m2'?'2':'1');
   const prodCode=ts.prod_code||(_prodPrefix+(ts.prod_suffix||'····'));
   const expHtml=expireBox(ts.expire_at||null);
