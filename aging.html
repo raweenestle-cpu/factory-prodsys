@@ -717,7 +717,7 @@ function tankSVG(uid,pct,col,run,statusTxt,statusCol,sw,sh,vol,temp,qcStatus,tem
     return d+' L'+(bX+W)+','+(bY+bH)+' L'+bX+','+(bY+bH)+' Z';
   }
   let s='';
-  const probeExtraW=tempVal!=null?70:0; // พื้นที่พิเศษสำหรับโพรบ
+  const probeExtraW=tempVal!=null?90:0; // พื้นที่พิเศษสำหรับโพรบ
   s+='<svg width="'+(sw+probeExtraW)+'" height="'+sh+'" viewBox="0 0 '+(sw+probeExtraW)+' '+sh+'" xmlns="http://www.w3.org/2000/svg">';
   s+='<defs>';
   s+='<linearGradient id="'+gid+'" x1="0" y1="0" x2="0" y2="1">';
@@ -757,7 +757,8 @@ function tankSVG(uid,pct,col,run,statusTxt,statusCol,sw,sh,vol,temp,qcStatus,tem
     const _qcColor=qcStatus==='hold'?'#f59e0b':qcStatus==='failed'?'#ef4444':'#22c55e';
     const _qcW=_qcTxt.length*9+22;
     const _qcX=(sw-_qcW)/2,_qcY=midY+14;
-    s+='<rect x="'+_qcX+'" y="'+_qcY+'" width="'+_qcW+'" height="22" rx="5" fill="rgba(0,0,0,0.35)" stroke="'+_qcColor+'" stroke-width="2"/>';
+    const _qcBg=qcStatus==='hold'?'rgba(120,60,0,0.7)':qcStatus==='failed'?'rgba(120,0,0,0.7)':'rgba(0,60,20,0.7)';
+    s+='<rect x="'+_qcX+'" y="'+_qcY+'" width="'+_qcW+'" height="22" rx="5" fill="'+_qcBg+'" stroke="'+_qcColor+'" stroke-width="2.5"/>';
     s+='<text x="'+(sw/2)+'" y="'+(_qcY+15)+'" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="900" letter-spacing="2" fill="'+_qcColor+'">'+_qcTxt+'</text>';
   }
   // ── โพรบอุณหภูมิ — วาดใน SVG ชิดขอบขวาถังพอดีเลย ไม่มีช่องห่าง ──
@@ -766,12 +767,12 @@ function tankSVG(uid,pct,col,run,statusTxt,statusCol,sw,sh,vol,temp,qcStatus,tem
     const tBorder=tOk?'#22c55e':tWarn?'#f59e0b':'#ef4444';
     const tBg=tOk?'#052e16':tWarn?'#451a03':'#450a0a';
     const tTxt='🌡 '+tempVal+'°C';
-    const tW=tTxt.length*7+16;
+    const tW=tTxt.length*9+20;
     const tX=bX+bW+4;
     const tY=bY+bH*0.5;
     s+='<line x1="'+(bX+bW)+'" y1="'+tY+'" x2="'+tX+'" y2="'+tY+'" stroke="'+tBorder+'" stroke-width="2"/>';
-    s+='<rect x="'+tX+'" y="'+(tY-11)+'" width="'+tW+'" height="22" rx="5" fill="'+tBg+'" stroke="'+tBorder+'" stroke-width="1.5"/>';
-    s+='<text x="'+(tX+tW/2)+'" y="'+(tY+4)+'" text-anchor="middle" font-family="monospace" font-size="11" font-weight="900" fill="'+tBorder+'">'+tTxt+'</text>';
+    s+='<rect x="'+tX+'" y="'+(tY-14)+'" width="'+tW+'" height="28" rx="6" fill="'+tBg+'" stroke="'+tBorder+'" stroke-width="2"/>';
+    s+='<text x="'+(tX+tW/2)+'" y="'+(tY+5)+'" text-anchor="middle" font-family="monospace" font-size="14" font-weight="900" fill="'+tBorder+'">'+tTxt+'</text>';
   }
   s+='</svg>';
   return s;
