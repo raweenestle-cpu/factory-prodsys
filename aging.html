@@ -649,7 +649,7 @@ function makeTankCard(tankId){
   div.innerHTML=header+footer;
   if(svgHtml){
     const _bodyDiv=document.createElement('div');
-    _bodyDiv.style.cssText='display:flex;justify-content:flex-start;align-items:center;padding:8px 60px 8px 8px;position:relative';
+    _bodyDiv.style.cssText='display:flex;justify-content:flex-start;align-items:center;padding:8px 8px 8px 8px;position:relative;overflow:visible';
     _bodyDiv.innerHTML=svgHtml;
     // ── โพรบวัดอุณหภูมิ — เส้นชี้ออกจากถังด้านขวากลาง แบบ SCADA ──
     if(maxTempVal!=null){
@@ -663,18 +663,19 @@ function makeTankCard(tankId){
         '<div style="width:12px;height:2px;background:'+tBorder+'"></div>'
         +'<div style="background:'+tBg+';border:1.5px solid '+tBorder+';border-radius:6px;padding:3px 7px;font-family:var(--mono);font-size:12px;font-weight:900;color:'+tBorder+';white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.4)">'+tIcon+' '+maxTempVal+'°C</div>';
       _bodyDiv.appendChild(probe);
-      // ── วางโพรบหลัง render — อ่านขอบขวาของ SVG ถังจริงๆ ไม่ hardcode ค่าตายตัว ──
-      // กันกรณีถังต่างๆมีขนาด SVG ไม่เท่ากัน ทำให้โพรบลอยห่างจากถัง
+      // ── วางโพรบหลัง render — อ่านขอบขวาและจุดกึ่งกลางของ SVG ถังจริงๆ ──
       requestAnimationFrame(()=>{
         const svgEl=_bodyDiv.querySelector('svg');
         if(svgEl){
           const r=svgEl.getBoundingClientRect();
           const br=_bodyDiv.getBoundingClientRect();
           probe.style.left=(r.right-br.left)+'px';
+          probe.style.top=(r.top-br.top+r.height/2)+'px';
+          probe.style.transform='translateY(-50%)';
         } else {
-          probe.style.left='154px'; // fallback
+          probe.style.left='154px';
+          probe.style.transform='translateY(-50%)';
         }
-        probe.style.transform='translateY(-50%)';
       });
       _bodyDiv.appendChild(probe);
     }
