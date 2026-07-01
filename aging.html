@@ -717,7 +717,8 @@ function tankSVG(uid,pct,col,run,statusTxt,statusCol,sw,sh,vol,temp,qcStatus,tem
     return d+' L'+(bX+W)+','+(bY+bH)+' L'+bX+','+(bY+bH)+' Z';
   }
   let s='';
-  s+='<svg width="'+sw+'" height="'+sh+'" viewBox="0 0 '+sw+' '+sh+'" xmlns="http://www.w3.org/2000/svg">';
+  const probeExtraW=tempVal!=null?70:0; // พื้นที่พิเศษสำหรับโพรบ
+  s+='<svg width="'+(sw+probeExtraW)+'" height="'+sh+'" viewBox="0 0 '+(sw+probeExtraW)+' '+sh+'" xmlns="http://www.w3.org/2000/svg">';
   s+='<defs>';
   s+='<linearGradient id="'+gid+'" x1="0" y1="0" x2="0" y2="1">';
   s+='<stop offset="0%" stop-color="'+col+'" stop-opacity=".5"/>';
