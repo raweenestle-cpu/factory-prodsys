@@ -548,9 +548,15 @@ window._signSkip = function(){
   _pendingAct = null;
 };
 
-window._signConfirm = function(){
+window._signConfirm = async function(){
   document.getElementById('sign-modal-overlay').classList.remove('show');
-  if(_pendingAct) _doActReal(_pendingAct.tid, _pendingAct.act, _pendingAct.programs);
+  if(_pendingAct){
+    try{
+      await _doActReal(_pendingAct.tid, _pendingAct.act, _pendingAct.programs);
+    }catch(e){
+      toast('❌ บันทึกไม่สำเร็จ: '+e.message,'red');
+    }
+  }
   _pendingAct = null;
 };
 
@@ -1078,7 +1084,7 @@ function renderTemp(){
         const dayBorderColor=isToday?'#1d4ed8':'#94a3b8';
         const cellBorder='border-left:'+(isFirstCol?'2px solid '+dayBorderColor:'1px solid var(--border)')+';border-right:'+(isLastCol?'2px solid '+dayBorderColor:'none')+';';
         if(isPast){
-          row.push('<td style="padding:3px;text-align:center;'+cellBorder+bg+'"><input type="number" min="0" max="50" step="0.1"'+(filled?' value="'+rawVal+'"':'')+' data-tid="'+tank.id+'" data-key="'+key+'" style="width:54px;text-align:center;font-family:var(--mono);font-size:17px;font-weight:800;border:1.5px solid '+bdr+';border-radius:5px;padding:4px 2px;background:'+inputBg+';" onchange="window.setTempVal(this.dataset.tid,this.dataset.key,this.value)"></td>');
+          row.push('<td style="padding:3px;text-align:center;'+cellBorder+bg+'"><input type="number" min="0" max="50" step="1"'+(filled?' value="'+rawVal+'"':'')+' data-tid="'+tank.id+'" data-key="'+key+'" style="width:54px;text-align:center;font-family:var(--mono);font-size:17px;font-weight:800;border:1.5px solid '+bdr+';border-radius:5px;padding:4px 2px;background:'+inputBg+';" onchange="window.setTempVal(this.dataset.tid,this.dataset.key,this.value)"></td>');
         } else {
           row.push('<td style="padding:3px;text-align:center;'+cellBorder+'"><span style="color:var(--b1);font-size:14px">—</span></td>');
         }
