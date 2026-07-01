@@ -603,7 +603,7 @@ function makeTankCard(tankId){
   const _hasContent=+(ts.current_vol||0)>0||!!ts.mix_code;
   const maxTempVal=getMaxTemp(ts) ?? (_hasContent ? 4 : null);
   const uid='ag'+tankId.replace(/[^a-z0-9]/gi,'');
-  const svgHtml=typeof tankSVG==='function'?tankSVG(uid,pct,col,!isEmpty,stLabel,stColor,null,null,currentVol,null,ts.qc_status):'';
+  const svgHtml=typeof tankSVG==='function'?tankSVG(uid,pct,col,!isEmpty,stLabel,stColor,null,null,currentVol,null,ts.qc_status,maxTempVal):'';
 
   // ── นับถอยหลังเวลาบ่ม (ถ้าสถานะ aging) ──
   let countdownMs=null;
@@ -649,36 +649,8 @@ function makeTankCard(tankId){
   div.innerHTML=header+footer;
   if(svgHtml){
     const _bodyDiv=document.createElement('div');
-    _bodyDiv.style.cssText='display:flex;justify-content:flex-start;align-items:center;padding:8px 8px 8px 8px;position:relative;overflow:visible';
+    _bodyDiv.style.cssText='display:flex;justify-content:flex-start;align-items:center;padding:8px;position:relative;overflow:visible';
     _bodyDiv.innerHTML=svgHtml;
-    // ── โพรบวัดอุณหภูมิ — เส้นชี้ออกจากถังด้านขวากลาง แบบ SCADA ──
-    if(maxTempVal!=null){
-      const tOk=maxTempVal<=6,tWarn=maxTempVal>6&&maxTempVal<=8;
-      const tBorder=tOk?'#34d399':tWarn?'#f0b429':'#f87171';
-      const tBg=tOk?'#0d2818':tWarn?'#3a2f0a':'#3a1212';
-      const tIcon=tOk?'🌡️':tWarn?'⚠️':'🔴';
-      const probe=document.createElement('div');
-      probe.style.cssText='position:absolute;top:50%;display:flex;align-items:center;pointer-events:none';
-      probe.innerHTML=
-        '<div style="width:12px;height:2px;background:'+tBorder+'"></div>'
-        +'<div style="background:'+tBg+';border:1.5px solid '+tBorder+';border-radius:6px;padding:3px 7px;font-family:var(--mono);font-size:12px;font-weight:900;color:'+tBorder+';white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.4)">'+tIcon+' '+maxTempVal+'°C</div>';
-      _bodyDiv.appendChild(probe);
-      // ── วางโพรบหลัง render — อ่านขอบขวาและจุดกึ่งกลางของ SVG ถังจริงๆ ──
-      requestAnimationFrame(()=>{
-        const svgEl=_bodyDiv.querySelector('svg');
-        if(svgEl){
-          const r=svgEl.getBoundingClientRect();
-          const br=_bodyDiv.getBoundingClientRect();
-          probe.style.left=(r.right-br.left)+'px';
-          probe.style.top=(r.top-br.top+r.height/2)+'px';
-          probe.style.transform='translateY(-50%)';
-        } else {
-          probe.style.left='154px';
-          probe.style.transform='translateY(-50%)';
-        }
-      });
-      _bodyDiv.appendChild(probe);
-    }
     const _footerEl=div.children[1]||null;
     if(_footerEl) div.insertBefore(_bodyDiv,_footerEl);
     else div.appendChild(_bodyDiv);
@@ -719,9 +691,9 @@ function autoTextColor(hex){
   return (0.299*r+0.587*g+0.114*b)>160?'#111827':'#ffffff';
 }
 
-function tankSVG(uid,pct,col,run,statusTxt,statusCol,sw,sh,vol,temp,qcStatus){
+function tankSVG(uid,pct,col,run,statusTxt,statusCol,sw,sh,vol,temp,qcStatus,tempVal){
   statusCol=statusCol||col;
-  sw=sw||160; sh=sh||280;
+  sw=sw||210; sh=sh||280; // กว้างขึ้นเล็กน้อยจาก 160→210 เพื่อรองรับโพรบอุณหภูมิที่อยู่ใน SVG
   const bX=14,bY=18,bW=sw-28,bH=sh-45;
   const nW=24,nH=10,cW=34,cH=6;
   const nX=bX+(bW-nW)/2,cX=bX+(bW-cW)/2;
@@ -786,6 +758,19 @@ function tankSVG(uid,pct,col,run,statusTxt,statusCol,sw,sh,vol,temp,qcStatus){
     const _qcX=(sw-_qcW)/2,_qcY=midY+14;
     s+='<rect x="'+_qcX+'" y="'+_qcY+'" width="'+_qcW+'" height="22" rx="5" fill="none" stroke="'+_qcColor+'" stroke-width="2"/>';
     s+='<text x="'+(sw/2)+'" y="'+(_qcY+15)+'" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="900" letter-spacing="2" fill="'+_qcColor+'">'+_qcTxt+'</text>';
+  }
+  // ── โพรบอุณหภูมิ — วาดใน SVG ชิดขอบขวาถังพอดีเลย ไม่มีช่องห่าง ──
+  if(tempVal!=null){
+    const tOk=tempVal<=6,tWarn=tempVal>6&&tempVal<=8;
+    const tBorder=tOk?'#22c55e':tWarn?'#f59e0b':'#ef4444';
+    const tBg=tOk?'#052e16':tWarn?'#451a03':'#450a0a';
+    const tTxt='🌡 '+tempVal+'°C';
+    const tW=tTxt.length*7+16;
+    const tX=bX+bW+4;
+    const tY=bY+bH*0.5;
+    s+='<line x1="'+(bX+bW)+'" y1="'+tY+'" x2="'+tX+'" y2="'+tY+'" stroke="'+tBorder+'" stroke-width="2"/>';
+    s+='<rect x="'+tX+'" y="'+(tY-11)+'" width="'+tW+'" height="22" rx="5" fill="'+tBg+'" stroke="'+tBorder+'" stroke-width="1.5"/>';
+    s+='<text x="'+(tX+tW/2)+'" y="'+(tY+4)+'" text-anchor="middle" font-family="monospace" font-size="11" font-weight="900" fill="'+tBorder+'">'+tTxt+'</text>';
   }
   s+='</svg>';
   return s;
