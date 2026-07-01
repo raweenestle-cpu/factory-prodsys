@@ -600,7 +600,8 @@ function makeTankCard(tankId){
   const _prodPrefix=yr+'0522'+(ts._col==='production_plans_m2'?'2':'1');
   const prodCode=ts.prod_code||(_prodPrefix+(ts.prod_suffix||'····'));
   const expHtml=expireBox(ts.expire_at||null);
-  const maxTempVal=getMaxTemp(ts) ?? (!isEmpty ? 4 : null);
+  const _hasContent=+(ts.current_vol||0)>0||!!ts.mix_code;
+  const maxTempVal=getMaxTemp(ts) ?? (_hasContent ? 4 : null);
   const uid='ag'+tankId.replace(/[^a-z0-9]/gi,'');
   const svgHtml=typeof tankSVG==='function'?tankSVG(uid,pct,col,!isEmpty,stLabel,stColor,null,null,currentVol,null,ts.qc_status):'';
 
@@ -657,10 +658,24 @@ function makeTankCard(tankId){
       const tBg=tOk?'#0d2818':tWarn?'#3a2f0a':'#3a1212';
       const tIcon=tOk?'🌡️':tWarn?'⚠️':'🔴';
       const probe=document.createElement('div');
-      probe.style.cssText='position:absolute;left:154px;top:50%;display:flex;align-items:center;pointer-events:none';
+      probe.style.cssText='position:absolute;top:50%;display:flex;align-items:center;pointer-events:none';
       probe.innerHTML=
         '<div style="width:12px;height:2px;background:'+tBorder+'"></div>'
         +'<div style="background:'+tBg+';border:1.5px solid '+tBorder+';border-radius:6px;padding:3px 7px;font-family:var(--mono);font-size:12px;font-weight:900;color:'+tBorder+';white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.4)">'+tIcon+' '+maxTempVal+'°C</div>';
+      _bodyDiv.appendChild(probe);
+      // ── วางโพรบหลัง render — อ่านขอบขวาของ SVG ถังจริงๆ ไม่ hardcode ค่าตายตัว ──
+      // กันกรณีถังต่างๆมีขนาด SVG ไม่เท่ากัน ทำให้โพรบลอยห่างจากถัง
+      requestAnimationFrame(()=>{
+        const svgEl=_bodyDiv.querySelector('svg');
+        if(svgEl){
+          const r=svgEl.getBoundingClientRect();
+          const br=_bodyDiv.getBoundingClientRect();
+          probe.style.left=(r.right-br.left)+'px';
+        } else {
+          probe.style.left='154px'; // fallback
+        }
+        probe.style.transform='translateY(-50%)';
+      });
       _bodyDiv.appendChild(probe);
     }
     const _footerEl=div.children[1]||null;
