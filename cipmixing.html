@@ -485,6 +485,9 @@ function renderTempAlert(){
     return vals.length?Math.max(...vals):null;
   }
   const warned=Object.values(tankStates).filter(ts=>{
+    // เช็คเฉพาะถังที่มีของอยู่จริง — ถังว่าง/CIP/San ไม่แจ้งเตือน
+    if(ts.status==='empty'||ts.status==='cip'||ts.status==='san'||ts.status==='cip_done')return false;
+    if(+(ts.current_vol||0)<=0&&!ts.mix_code)return false;
     const maxT=getMaxTemp(ts);
     if(maxT==null)return false;
     const pt=(window._pmMap&&ts.mix_code&&window._pmMap[ts.mix_code])||ts.product_type||'';
@@ -522,7 +525,9 @@ function renderTempAlert(){
   el.innerHTML='<div style="background:#7f1d1d;border:2px solid #ef4444;border-radius:14px;padding:10px 14px;margin:10px 0;animation:cipTempPulse 3s ease-in-out infinite">'
     +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">'
     +'<span style="font-size:18px;animation:cipTempBlink 3s ease-in-out infinite">🚨</span>'
-    +'<div style="color:#fca5a5;font-size:12px;font-weight:800">⚠️ เฝ้าระวัง — อุณหภูมิเกินกำหนด</div></div>'
+    +'<div style="color:#fca5a5;font-size:12px;font-weight:800;flex:1">⚠️ เฝ้าระวัง — อุณหภูมิเกินกำหนด</div>'
+    +'<button onclick="document.getElementById(\'temp-alert-bar\').innerHTML=\'\'" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:8px;color:#fca5a5;font-size:12px;font-weight:700;padding:4px 12px;cursor:pointer">✕ ปิด</button>'
+    +'</div>'
     +'<div id="alert-chips-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px">'+buildChips()+'</div></div>';
   if(window._alertTimer) clearInterval(window._alertTimer);
   window._alertTimer=setInterval(()=>{const g=document.getElementById('alert-chips-grid');if(g)g.innerHTML=buildChips();},60000);
