@@ -2659,22 +2659,28 @@ window.loadDashboard=async function(period){
     _lastTarget=el;
   }
   function findActiveStep(){
-    const cards=document.querySelectorAll('.tv3-card');
-    for(const card of cards){
-      const r=card.getBoundingClientRect();
-      if(r.top<window.innerHeight&&r.bottom>0){
-        const a=card.querySelector('.tv3-circle.active,.tv3-circle.pwr,.tv3-circle.nxt');
-        if(a) return a;
-      }
-    }
-    return null;
+    // ค้นหาในทุก tv3-circle ที่มีคลาส active/pwr/nxt ไม่ว่าจะอยู่ใน container ไหน
+    const active=document.querySelector('.tv3-circle.active,.tv3-circle.pwr,.tv3-circle.nxt');
+    return active||null;
   }
   function tick(){
     const t=findActiveStep();
     if(t!==_lastTarget) flyTo(t);
     requestAnimationFrame(tick);
   }
-  setTimeout(()=>requestAnimationFrame(tick),1500);
+  // ใช้ MutationObserver เพื่อรอ Firebase render จริงๆก่อนเริ่ม loop
+  // แก้ปัญหาที่ pasteurize.html โหลดข้อมูลช้ากว่า timeout 1500ms ที่ตั้งไว้เดิม
+  let started=false;
+  const obs=new MutationObserver(()=>{
+    if(!started&&document.querySelector('.tv3-circle')){
+      started=true;
+      obs.disconnect();
+      setTimeout(()=>requestAnimationFrame(tick),300);
+    }
+  });
+  obs.observe(document.body,{childList:true,subtree:true});
+  // fallback timeout เผื่อกรณี MutationObserver พลาด
+  setTimeout(()=>{if(!started){started=true;obs.disconnect();requestAnimationFrame(tick);}},5000);
 })();
 </script>
 </body>

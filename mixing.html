@@ -1809,27 +1809,22 @@ window.showPage=(type,m,btn)=>{
   }
 
   function findActiveStep(){
-    // หา tv3-circle.active ที่อยู่ใน card ที่มองเห็นอยู่ (visible in viewport)
-    const cards=document.querySelectorAll('.tv3-card');
-    for(const card of cards){
-      const r=card.getBoundingClientRect();
-      if(r.top<window.innerHeight&&r.bottom>0){
-        // หา step active ใน card นี้
-        const activeCircle=card.querySelector('.tv3-circle.active');
-        if(activeCircle) return activeCircle;
-      }
-    }
-    return null;
+    return document.querySelector('.tv3-circle.active,.tv3-circle.pwr,.tv3-circle.nxt')||null;
   }
-
   function tick(){
-    const target=findActiveStep();
-    if(target!==_lastTarget) flyTo(target);
+    const t=findActiveStep();
+    if(t!==_lastTarget) flyTo(t);
     requestAnimationFrame(tick);
   }
-
-  // รอให้ DOM โหลดก่อนแล้วค่อยเริ่ม
-  setTimeout(()=>requestAnimationFrame(tick), 1500);
+  let started=false;
+  const obs=new MutationObserver(()=>{
+    if(!started&&document.querySelector('.tv3-circle')){
+      started=true;obs.disconnect();
+      setTimeout(()=>requestAnimationFrame(tick),300);
+    }
+  });
+  obs.observe(document.body,{childList:true,subtree:true});
+  setTimeout(()=>{if(!started){started=true;obs.disconnect();requestAnimationFrame(tick);}},5000);
 })();
 </script>
 </body>
