@@ -671,7 +671,9 @@ setInterval(async()=>{
               const _newCombined=Math.round((finalCumVol+_otherVol)*10)/10;
               window._prevContribMap[_contribKey]=finalCumVol;
               try{await setDoc(doc(db,'aging_tank_states',agRow.aging_tank),{
-                current_vol:_newCombined,status:'past_done',updated_at:new Date().toISOString()
+                current_vol:_newCombined,
+                date:today(),past_end_time:endTime,
+                status:'aging',updated_at:new Date().toISOString()
               },{merge:true});}catch(e){console.warn('stamp aging write error:',e);}
             } else {
               // FIX: เดิมตรงนี้เคยมี logic ที่ "ล้างถังเป็นว่างอัตโนมัติ" ถ้าไม่มี batch ถัดไป
@@ -684,7 +686,9 @@ setInterval(async()=>{
               const _newCombinedFinal=Math.round((finalCumVol+_otherVol)*10)/10;
               window._prevContribMap[_contribKey]=finalCumVol;
               try{await setDoc(doc(db,'aging_tank_states',agRow.aging_tank),{
-                current_vol:_newCombinedFinal,status:'past_done',updated_at:new Date().toISOString()
+                current_vol:_newCombinedFinal,
+                date:today(),past_end_time:endTime,
+                status:'aging',updated_at:new Date().toISOString()
               },{merge:true});}catch(e){console.warn('stamp aging write error:',e);}
             }
           }
