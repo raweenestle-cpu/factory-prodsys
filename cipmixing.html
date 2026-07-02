@@ -699,11 +699,17 @@ async function _doActReal(tid, act, programs){
     }catch(e){console.warn('close cip_log active error:',e);}
     // บันทึกลง cip_mixing_records — รวมค่าจาก log sheet ด้วย (เก็บทุกครั้งไม่ว่า Alkaline หรือ Acid)
     const _ts2=tankStates[tid]||{};
+    // ดึง mix_code ที่ถูกต้อง — ลำดับ: mix_code (ยังมีของอยู่), last_mix_code (CIP รอบก่อน), fallback '—'
+    const _recMixCode=_ts2.mix_code||_ts2.last_mix_code||'—';
+    const _recMixName=_ts2.mix_name||_ts2.last_mix_name||'—';
+    const _recLine=_ts2.filling_line||_ts2.line||'—';
+    const _recVol=_ts2.volume_liter||_ts2.current_vol||null;
     addDoc(collection(db,'cip_mixing_records'),{
       tank:tid, type:'cip',
       program:_logData.program||'—',
       start_time:_logData.start_time||n, stop_time:n,
-      mix_code:_ts2.last_mix_code||'—', mix_name:_ts2.last_mix_name||'—',
+      mix_code:_recMixCode, mix_name:_recMixName,
+      filling_line:_recLine, volume_liter:_recVol,
       group:_ts2.cip_group||'—',
       conductivity:_logData.conductivity??null,
       temp:_logData.temp??null,
@@ -799,11 +805,14 @@ async function _doActReal(tid, act, programs){
       }
     }
     // บันทึกลง cip_mixing_records — รวมค่าจาก log sheet ด้วย
+    const _recMixCodeSan=_ts3.next_mix_code||_ts3.mix_code||_ts3.last_mix_code||'—';
+    const _recMixNameSan=_ts3.next_mix_name||_ts3.mix_name||_ts3.last_mix_name||'—';
     addDoc(collection(db,'cip_mixing_records'),{
       tank:tid, type:'san',
       start_time:_ts3.san_start_time||n, stop_time:n,
-      mix_code:_ts3.next_mix_code||'—', mix_name:_ts3.next_mix_name||'—',
-      vol:_ts3.next_vol||0,
+      mix_code:_recMixCodeSan, mix_name:_recMixNameSan,
+      vol:_ts3.next_vol||_ts3.volume_liter||0,
+      filling_line:_ts3.filling_line||_ts3.line||'—',
       group:_ts3.cip_group||'—',
       conductivity:_logDataSan.conductivity??null,
       temp:_logDataSan.temp??null,
